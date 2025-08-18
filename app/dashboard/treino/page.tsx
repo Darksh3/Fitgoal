@@ -34,24 +34,64 @@ interface WorkoutPlan {
 
 interface UserData {
   workoutPlan?: WorkoutPlan
+  quizData?: any
+}
+
+const debugDataFlow = (stage: string, data: any) => {
+  const timestamp = new Date().toISOString()
+  const logEntry = {
+    timestamp,
+    stage,
+    trainingFrequency: data?.trainingDaysPerWeek || data?.weeklySchedule || "not found",
+    exerciseCount:
+      data?.days?.reduce((total: number, day: any) => total + (day.exercises?.length || 0), 0) || "not found",
+    totalDays: data?.days?.length || "not found",
+  }
+
+  console.log(`[DATA_FLOW] ${stage}:`, logEntry)
+
+  if (typeof window !== "undefined") {
+    const debugHistory = JSON.parse(sessionStorage.getItem("debugHistory") || "[]")
+    debugHistory.push(logEntry)
+    sessionStorage.setItem("debugHistory", JSON.stringify(debugHistory))
+  }
 }
 
 export default function WorkoutPage() {
   const [user, loading] = useAuthState(auth)
   const [userData, setUserData] = useState<UserData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [actualTrainingFrequency, setActualTrainingFrequency] = useState<string>("Loading...")
 
   useEffect(() => {
     const fetchUserData = async () => {
       if (user) {
         try {
+          console.log("[DASHBOARD] Loading user preferences for:", user.uid)
           const userDoc = await getDoc(doc(db, "users", user.uid))
           if (userDoc.exists()) {
             const data = userDoc.data() as UserData
+            console.log("[DASHBOARD] Raw user data:", data)
+
+            const quizData = (data as any).quizData
+            if (quizData?.trainingDaysPerWeek) {
+              const frequency = `${quizData.trainingDaysPerWeek}x por semana`
+              setActualTrainingFrequency(frequency)
+              console.log("[DASHBOARD] Found training frequency from quiz:", frequency)
+            }
+
+            debugDataFlow("DASHBOARD_LOAD", data)
             setUserData(data)
+
             if (!data.workoutPlan || !data.workoutPlan.days || data.workoutPlan.days.length === 0) {
               console.log("Plano de treino não encontrado, tentando gerar...")
               await generatePlans()
+            } else {
+              debugDataFlow("DASHBOARD_EXISTING_PLAN", data.workoutPlan)
+              console.log(`[DASHBOARD] Existing plan has ${data.workoutPlan.days.length} days`)
+              data.workoutPlan.days.forEach((day: any, index: number) => {
+                console.log(`[DASHBOARD] Day ${index + 1} (${day.title}): ${day.exercises?.length || 0} exercises`)
+              })
             }
           } else {
             await generatePlans()
@@ -84,7 +124,6 @@ export default function WorkoutPage() {
       })
 
       if (response.ok) {
-        // Recarregar dados após geração
         const userDoc = await getDoc(doc(db, "users", user.uid))
         if (userDoc.exists()) {
           setUserData(userDoc.data() as UserData)
@@ -137,7 +176,6 @@ export default function WorkoutPage() {
           <p className="text-gray-600">Plano personalizado para atingir seus objetivos</p>
         </div>
 
-        {/* Resumo do Plano */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <Card>
             <CardContent className="p-4">
@@ -145,7 +183,16 @@ export default function WorkoutPage() {
                 <Calendar className="h-8 w-8 text-blue-600 mr-3" />
                 <div>
                   <p className="text-sm font-medium text-gray-600">Programação Semanal</p>
-                  <p className="text-lg font-bold text-gray-900">{workoutPlan.weeklySchedule || "Não especificado"}</p>
+                  <p className="text-lg font-bold text-gray-900">
+                    {actualTrainingFrequency !== "Loading..."
+                      ? actualTrainingFrequency
+                      : workoutPlan.weeklySchedule || "Não especificado"}
+                  </p>
+                  {process.env.NODE_ENV === "development" && (
+                    <p className="text-xs text-red-500">
+                      Debug: Quiz={actualTrainingFrequency} | Plan={workoutPlan.weeklySchedule}
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -165,7 +212,6 @@ export default function WorkoutPage() {
           </Card>
         </div>
 
-        {/* Dias de Treino */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {workoutPlan.days.map((day, dayIndex) => (
             <Card key={dayIndex}>
@@ -199,7 +245,6 @@ export default function WorkoutPage() {
           ))}
         </div>
 
-        {/* Dicas */}
         {workoutPlan.tips && workoutPlan.tips.length > 0 && (
           <Card>
             <CardHeader>

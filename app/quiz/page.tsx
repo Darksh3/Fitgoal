@@ -99,6 +99,48 @@ const initialQuizData: QuizData = {
   age: 0,
 }
 
+const debugDataFlow = (stage: string, data: any) => {
+  const timestamp = new Date().toISOString()
+  const logEntry = {
+    timestamp,
+    stage,
+    trainingFrequency: data?.trainingDaysPerWeek || "not found",
+    exerciseCount: data?.exercises?.length || "not found",
+    stackTrace: new Error().stack?.split("\n")[2],
+  }
+
+  console.log(`[DATA_FLOW] ${stage}:`, logEntry)
+
+  // Store debug history in sessionStorage for analysis
+  if (typeof window !== "undefined") {
+    const debugHistory = JSON.parse(sessionStorage.getItem("debugHistory") || "[]")
+    debugHistory.push(logEntry)
+    sessionStorage.setItem("debugHistory", JSON.stringify(debugHistory))
+  }
+}
+
+const debugFrequencySelection = (frequency: number) => {
+  console.log(`[QUIZ] Frequency selected: ${frequency}`)
+  console.log(`[QUIZ] Window available: ${typeof window !== "undefined"}`)
+  console.log(
+    `[QUIZ] Current localStorage:`,
+    typeof window !== "undefined" ? localStorage.getItem("quizData") : "SSR mode",
+  )
+
+  // Check for hydration mismatches
+  if (typeof window !== "undefined") {
+    const stored = localStorage.getItem("quizData")
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        console.log(`[QUIZ] Stored frequency: ${parsed.trainingDaysPerWeek}`)
+      } catch (error) {
+        console.error("[QUIZ] localStorage parse error:", error)
+      }
+    }
+  }
+}
+
 export default function QuizPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [quizData, setQuizData] = useState<QuizData>(initialQuizData)
@@ -149,7 +191,16 @@ export default function QuizPage() {
   }, [])
 
   const updateQuizData = (field: keyof QuizData, value: any) => {
-    setQuizData((prev) => ({ ...prev, [field]: value }))
+    setQuizData((prev) => {
+      const updated = { ...prev, [field]: value }
+
+      if (field === "trainingDaysPerWeek") {
+        debugFrequencySelection(value)
+        debugDataFlow("QUIZ_FREQUENCY_UPDATE", updated)
+      }
+
+      return updated
+    })
   }
 
   const updateExercisePreference = (exercise: string, preference: string) => {
@@ -196,7 +247,7 @@ export default function QuizPage() {
       status = "Você está com obesidade. É importante buscar orientação médica e nutricional."
     }
 
-    return { imc: Math.round(imc * 10) / 10, classification, status }
+    return { imc: Number(imc.toFixed(1)), classification, status }
   }
 
   const calculateTimeToGoal = () => {
@@ -478,8 +529,16 @@ export default function QuizPage() {
       }
       setQuizData(updatedQuizData) // Atualiza o estado local
 
-      localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
-      console.log("handleSubmit: Quiz data saved to localStorage")
+      console.log("[QUIZ] Form submitted with frequency:", updatedQuizData.trainingDaysPerWeek)
+      debugDataFlow("QUIZ_SUBMIT", updatedQuizData)
+
+      try {
+        localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
+        console.log("handleSubmit: Quiz data saved to localStorage")
+        debugDataFlow("QUIZ_LOCALSTORAGE_SAVE", updatedQuizData)
+      } catch (error) {
+        console.error("[QUIZ] Storage failed:", error)
+      }
 
       const saved = await generateAndSavePlan(updatedQuizData, currentUser.uid) // Passa os dados atualizados
       console.log("handleSubmit: generateAndSavePlan retornou:", saved)
@@ -516,18 +575,18 @@ export default function QuizPage() {
   }) => {
     const getBodyImage = () => {
       if (currentStep === 1) {
-        return gender === "female" ? "/images/female-gender-final.png" : "/images/male-gender-new.png"
+        return gender === "female" ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
       }
       if (type === "ectomorfo") {
-        return gender === "female" ? "/images/female-ectomorph.png" : "/images/male-ectomorph.png"
+        return gender === "female" ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
       }
       if (type === "mesomorfo") {
-        return gender === "female" ? "/images/female-mesomorph.png" : "/images/male-mesomorph.png"
+        return gender === "female" ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorph-real-new.png"
       }
       if (type === "endomorfo") {
-        return gender === "female" ? "/images/female-endomorfo.png" : "/images/male-endomorfo.png"
+        return gender === "female" ? "/images/female-endomorph-real-new.png" : "/images/male-endomorph-real-new.png"
       }
-      return gender === "female" ? "/images/female-gender-final.png" : "/images/male-gender-new.png"
+      return gender === "female" ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
     }
     return (
       <div className={`${className} relative`}>

@@ -126,11 +126,13 @@ export async function POST(req: Request) {
       goal: quizData.goal,
       experience: quizData.experience,
     })
+    console.log(`[API] Training frequency received: ${quizData.trainingDaysPerWeek}`)
 
     const generatePlansWithValidation = async (attempt = 1): Promise<any> => {
       const maxAttempts = 3
 
       console.log(`[v0] Tentativa ${attempt}: Enviando prompt para OpenAI...`)
+      console.log(`[v0] Prompt includes ${quizData.trainingDaysPerWeek} training days requirement`)
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
@@ -138,7 +140,7 @@ export async function POST(req: Request) {
           { role: "system", content: "Você é um especialista em nutrição e treino." },
           { role: "user", content: buildPrompt(quizData) },
         ],
-        temperature: 0.7,
+        temperature: 0.3, // Lower temperature for more consistent results
         response_format: { type: "json_object" },
         max_tokens: 16000,
       })
@@ -156,13 +158,29 @@ export async function POST(req: Request) {
       console.log(`[v0] Tentativa ${attempt}: Esperado ${expectedDays} dias, recebido ${actualDays} dias`)
 
       if (parsed.workoutPlan?.days) {
+        let totalExercises = 0
         parsed.workoutPlan.days.forEach((day: any, index: number) => {
-          console.log(`[v0] Dia ${index + 1} (${day.title}): ${day.exercises?.length || 0} exercícios`)
+          const exerciseCount = day.exercises?.length || 0
+          totalExercises += exerciseCount
+          console.log(`[v0] Dia ${index + 1} (${day.title}): ${exerciseCount} exercícios`)
+
+          // Warn if day has too few exercises
+          if (exerciseCount < 6) {
+            console.warn(`[v0] WARNING: Day ${index + 1} has only ${exerciseCount} exercises (minimum should be 6-9)`)
+          }
         })
+        console.log(`[v0] Total exercises across all days: ${totalExercises}`)
       }
 
-      if (actualDays !== expectedDays && attempt < maxAttempts) {
-        console.log(`[v0] Número incorreto de dias! Tentando novamente... (${attempt}/${maxAttempts})`)
+      const hasCorrectDays = actualDays === expectedDays
+      const hasEnoughExercises = parsed.workoutPlan?.days?.every(
+        (day: any) => day.exercises && day.exercises.length >= 6 && day.exercises.length <= 9,
+      )
+
+      if ((!hasCorrectDays || !hasEnoughExercises) && attempt < maxAttempts) {
+        console.log(
+          `[v0] Plan validation failed! Days: ${hasCorrectDays}, Exercises: ${hasEnoughExercises}. Retrying... (${attempt}/${maxAttempts})`,
+        )
         return generatePlansWithValidation(attempt + 1)
       }
 
