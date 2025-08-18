@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { createContext, useReducer, useEffect, useCallback, type ReactNode } from "react"
+import { createContext, useReducer, useEffect, useCallback, useMemo, useContext, type ReactNode } from "react"
 import type { User } from "firebase/auth"
 import { auth, db } from "@/lib/firebaseClient"
 import { onAuthStateChanged } from "firebase/auth"
@@ -307,17 +307,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
         syncData()
       }
     }
-    
+
     const handleOffline = () => {
       dispatch({ type: "SET_ONLINE_STATUS", payload: false })
     }
 
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
+    window.addEventListener("online", handleOnline)
+    window.addEventListener("offline", handleOffline)
 
     return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
+      window.removeEventListener("online", handleOnline)
+      window.removeEventListener("offline", handleOffline)
     }
   }, [state.user])
 
@@ -341,102 +341,115 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return unsubscribe
   }, [])
 
-  const loadUserData = useCallback(async (user?: User) => {
-    const currentUser = user || state.user
-    if (!currentUser || !db) return
+  const loadUserData = useCallback(
+    async (user?: User) => {
+      const currentUser = user || state.user
+      if (!currentUser || !db) return
 
-    dispatch({ type: "SET_LOADING_QUIZ_DATA", payload: true })
-    dispatch({ type: "SET_ERROR", payload: null })
+      dispatch({ type: "SET_LOADING_QUIZ_DATA", payload: true })
+      dispatch({ type: "SET_ERROR", payload: null })
 
-    try {
-      // Check cache first
-      const cachedQuizData = getCachedData<QuizData>('quizData')
-      const cachedDietPlan = getCachedData<DietPlan>('dietPlan')
-      const cachedWorkoutPlan = getCachedData<WorkoutPlan>('workoutPlan')
+      try {
+        // Check cache first
+        const cachedQuizData = getCachedData<QuizData>("quizData")
+        const cachedDietPlan = getCachedData<DietPlan>("dietPlan")
+        const cachedWorkoutPlan = getCachedData<WorkoutPlan>("workoutPlan")
 
-      // Use cached data if available and recent (less than 5 minutes old)
-      const cacheAge = Date.now() - (state.cache.get('quizData')?.timestamp || 0)
-      if (cachedQuizData && cacheAge < 5 * 60 * 1000) {
-        dispatch({ type: "SET_QUIZ_DATA", payload: cachedQuizData })
-        if (cachedDietPlan) dispatch({ type: "SET_DIET_PLAN", payload: cachedDietPlan })
-        if (cachedWorkoutPlan) dispatch({ type: "SET_WORKOUT_PLAN", payload: cachedWorkoutPlan })
+        // Use cached data if available and recent (less than 5 minutes old)
+        const cacheAge = Date.now() - (state.cache.get("quizData")?.timestamp || 0)
+        if (cachedQuizData && cacheAge < 5 * 60 * 1000) {
+          dispatch({ type: "SET_QUIZ_DATA", payload: cachedQuizData })
+          if (cachedDietPlan) dispatch({ type: "SET_DIET_PLAN", payload: cachedDietPlan })
+          if (cachedWorkoutPlan) dispatch({ type: "SET_WORKOUT_PLAN", payload: cachedWorkoutPlan })
+          dispatch({ type: "SET_LOADING_QUIZ_DATA", payload: false })
+          return
+        }
+
+        const userDocRef = doc(db, "users", currentUser.uid)
+        const docSnap = await getDoc(userDocRef)
+
+        if (docSnap.exists()) {
+          const data = docSnap.data()
+
+          if (data.quizData) {
+            dispatch({ type: "SET_QUIZ_DATA", payload: { ...data.quizData, version: data.quizData.version || 1 } })
+          }
+
+          if (data.dietPlan) {
+            dispatch({ type: "SET_DIET_PLAN", payload: { ...data.dietPlan, version: data.dietPlan.version || 1 } })
+          }
+
+          if (data.workoutPlan) {
+            dispatch({
+              type: "SET_WORKOUT_PLAN",
+              payload: { ...data.workoutPlan, version: data.workoutPlan.version || 1 },
+            })
+          }
+
+          dispatch({ type: "SET_LAST_SYNC_TIME", payload: Date.now() })
+          dispatch({ type: "RESET_RETRY_COUNT" })
+
+          // Auto-generate plans if missing
+          if (data.quizData && (!data.dietPlan || !data.workoutPlan)) {
+            await generatePlans()
+          }
+        } else {
+          loadLocalStorageData()
+        }
+      } catch (error) {
+        console.error("Error loading user data:", error)
+        errorHandler.handleError(error, "Loading user data")
+
+        dispatch({ type: "INCREMENT_RETRY_COUNT" })
+
+        // Exponential backoff retry
+        if (state.retryCount < 3) {
+          setTimeout(() => loadUserData(currentUser), Math.pow(2, state.retryCount) * 1000)
+        } else {
+          loadLocalStorageData()
+        }
+      } finally {
         dispatch({ type: "SET_LOADING_QUIZ_DATA", payload: false })
-        return
       }
+    },
+    [state.user, state.cache, state.retryCount],
+  )
 
-      const userDocRef = doc(db, "users", currentUser.uid)
-      const docSnap = await getDoc(userDocRef)
+  const subscribeToUserData = useCallback(
+    (user: User) => {
+      if (!db) return
 
-      if (docSnap.exists()) {
-        const data = docSnap.data()
+      const userDocRef = doc(db, "users", user.uid)
+      const unsubscribe = onSnapshot(
+        userDocRef,
+        (doc) => {
+          if (doc.exists()) {
+            const data = doc.data()
 
-        if (data.quizData) {
-          dispatch({ type: "SET_QUIZ_DATA", payload: { ...data.quizData, version: data.quizData.version || 1 } })
-        }
+            // Only update if data has changed (version check)
+            if (data.quizData && (!state.quizData || data.quizData.version > (state.quizData.version || 0))) {
+              dispatch({ type: "SET_QUIZ_DATA", payload: data.quizData })
+            }
 
-        if (data.dietPlan) {
-          dispatch({ type: "SET_DIET_PLAN", payload: { ...data.dietPlan, version: data.dietPlan.version || 1 } })
-        }
+            if (data.dietPlan && (!state.dietPlan || data.dietPlan.version > (state.dietPlan.version || 0))) {
+              dispatch({ type: "SET_DIET_PLAN", payload: data.dietPlan })
+            }
 
-        if (data.workoutPlan) {
-          dispatch({ type: "SET_WORKOUT_PLAN", payload: { ...data.workoutPlan, version: data.workoutPlan.version || 1 } })
-        }
+            if (
+              data.workoutPlan &&
+              (!state.workoutPlan || data.workoutPlan.version > (state.workoutPlan.version || 0))
+            ) {
+              dispatch({ type: "SET_WORKOUT_PLAN", payload: data.workoutPlan })
+            }
+          }
+        },
+        [state.quizData, state.dietPlan, state.workoutPlan],
+      )
 
-        dispatch({ type: "SET_LAST_SYNC_TIME", payload: Date.now() })
-        dispatch({ type: "RESET_RETRY_COUNT" })
-
-        // Auto-generate plans if missing
-        if (data.quizData && (!data.dietPlan || !data.workoutPlan)) {
-          await generatePlans()
-        }
-      } else {
-        loadLocalStorageData()
-      }
-    } catch (error) {
-      console.error("Error loading user data:", error)
-      errorHandler.handleError(error, "Loading user data")
-      
-      dispatch({ type: "INCREMENT_RETRY_COUNT" })
-      
-      // Exponential backoff retry
-      if (state.retryCount < 3) {
-        setTimeout(() => loadUserData(currentUser), Math.pow(2, state.retryCount) * 1000)
-      } else {
-        loadLocalStorageData()
-      }
-    } finally {
-      dispatch({ type: "SET_LOADING_QUIZ_DATA", payload: false })
-    }
-  }, [state.user, state.cache, state.retryCount])
-
-  const subscribeToUserData = useCallback((user: User) => {
-    if (!db) return
-
-    const userDocRef = doc(db, "users", user.uid)
-    const unsubscribe = onSnapshot(userDocRef, (doc) => {
-      if (doc.exists()) {
-        const data = doc.data()
-        
-        // Only update if data has changed (version check)
-        if (data.quizData && (!state.quizData || data.quizData.version > (state.quizData.version || 0))) {
-          dispatch({ type: "SET_QUIZ_DATA", payload: data.quizData })
-        }
-        
-        if (data.dietPlan && (!state.dietPlan || data.dietPlan.version > (state.dietPlan.version || 0))) {
-          dispatch({ type: "SET_DIET_PLAN", payload: data.dietPlan })
-        }
-        
-        if (data.workoutPlan && (!state.workoutPlan || data.workoutPlan.version > (state.workoutPlan.version || 0))) {
-          dispatch({ type: "SET_WORKOUT_PLAN", payload: data.workoutPlan })
-        }
-      }
-    }, (error) => {
-      console.error("Real-time subscription error:", error)
-      errorHandler.handleError(error, "Real-time data sync")
-    })
-
-    dispatch({ type: "ADD_SUBSCRIPTION", payload: { key: "userData", unsubscribe } })
-  }, [state.quizData, state.dietPlan, state.workoutPlan])
+      dispatch({ type: "ADD_SUBSCRIPTION", payload: { key: "userData", unsubscribe } })
+    },
+    [state.quizData, state.dietPlan, state.workoutPlan],
+  )
 
   const unsubscribeFromUserData = useCallback(() => {
     dispatch({ type: "REMOVE_SUBSCRIPTION", payload: "userData" })
@@ -449,14 +462,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     try {
       const userDocRef = doc(db, "users", state.user.uid)
-      
+
       // Prepare data for sync with version increment
       const syncData: any = {}
-      
+
       if (state.quizData) {
         syncData.quizData = { ...state.quizData, version: (state.quizData.version || 0) + 1 }
       }
-      
+
       if (state.progressData.lastUpdated) {
         syncData.progressData = state.progressData
       }
@@ -473,31 +486,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [state.user, state.quizData, state.progressData, state.isOnline])
 
-  const getCachedData = useCallback(<T>(key: string): T | null => {\
-    const cached = state.cache.get(key)
-    if (!cached) return null
+  const getCachedData = useCallback(
+    <T,>(key: string): T | null => {
+      const cached = state.cache.get(key)
+      if (!cached) return null
 
-    // Check if cache is still valid (1 hour)\
-    const isValid = Date.now() - cached.timestamp < 60 * 60 * 1000\
-    return isValid ? cached.data : null
-  }, [state.cache])
+      // Check if cache is still valid (1 hour)
+      const isValid = Date.now() - cached.timestamp < 60 * 60 * 1000
+      return isValid ? cached.data : null
+    },
+    [state.cache],
+  )
 
-  const invalidateCache = useCallback((key?: string) => {\
-    if (key) {\
-      const newCache = new Map(state.cache)
-      newCache.delete(key)\
-      dispatch({ type: "UPDATE_CACHE\", payload: { key: 'temp', data: null } })
-    } else {
-      dispatch({ type: "CLEAR_CACHE" })
-    }
-  }, [state.cache])
+  const invalidateCache = useCallback(
+    (key?: string) => {
+      if (key) {
+        const newCache = new Map(state.cache)
+        newCache.delete(key)
+        dispatch({ type: "UPDATE_CACHE", payload: { key: "temp", data: null } })
+      } else {
+        dispatch({ type: "CLEAR_CACHE" })
+      }
+    },
+    [state.cache],
+  )
 
   // Load data from localStorage
-  const loadLocalStorageData = () => {\
+  const loadLocalStorageData = () => {
     const savedQuizData = safeLocalStorage.getItem("quizData")
-    if (savedQuizData) {\
-      try {\
-        const quizData = JSON.parse(savedQuizData)\
+    if (savedQuizData) {
+      try {
+        const quizData = JSON.parse(savedQuizData)
         dispatch({ type: "SET_QUIZ_DATA", payload: quizData })
       } catch (error) {
         console.error("Error parsing localStorage quiz data:", error)
@@ -505,9 +524,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     const savedProgress = safeLocalStorage.getItem("userProgress")
-    if (savedProgress) {\
-      try {\
-        const progressData = JSON.parse(savedProgress)\
+    if (savedProgress) {
+      try {
+        const progressData = JSON.parse(savedProgress)
         dispatch({ type: "SET_PROGRESS_DATA", payload: progressData })
       } catch (error) {
         console.error("Error parsing localStorage progress data:", error)
@@ -516,11 +535,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   // Load demo data
-  const loadDemoData = () => {\
+  const loadDemoData = () => {
     const savedQuizData = safeLocalStorage.getItem("quizData")
-    if (savedQuizData) {\
-      try {\
-        const quizData = JSON.parse(savedQuizData)\
+    if (savedQuizData) {
+      try {
+        const quizData = JSON.parse(savedQuizData)
         dispatch({ type: "SET_QUIZ_DATA", payload: quizData })
       } catch (error) {
         console.error("Error parsing demo quiz data:", error)
@@ -529,33 +548,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   // Generate plans
-  const generatePlans = async () => {\
+  const generatePlans = async () => {
     if (!state.user && !state.isDemoMode) return
-\
-    dispatch({ type: "SET_GENERATING_PLANS", payload: true })\
+
+    dispatch({ type: "SET_GENERATING_PLANS", payload: true })
     dispatch({ type: "SET_ERROR", payload: null })
 
-    try {\
-      const response = await fetch("/api/generate-plans-on-demand", {\
+    try {
+      const response = await fetch("/api/generate-plans-on-demand", {
         method: "POST",
-        headers: { "Content-Type\": \"application/json" },
-        body: JSON.stringify({\
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           userId: state.user?.uid,
           quizData: state.quizData,
         }),
       })
 
       if (response.ok) {
-        // Reload user data to get the generated plans\
+        // Reload user data to get the generated plans
         if (state.user) {
           await loadUserData()
         }
-      } else {\
-        const errorData = await response.json()\
+      } else {
+        const errorData = await response.json()
         dispatch({ type: "SET_ERROR", payload: errorData.error || "Erro ao gerar planos" })
       }
     } catch (error) {
-      console.error("Error generating plans:", error)\
+      console.error("Error generating plans:", error)
       dispatch({ type: "SET_ERROR", payload: "Erro ao gerar planos" })
     } finally {
       dispatch({ type: "SET_GENERATING_PLANS", payload: false })
@@ -608,34 +627,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "RESET_STATE" })
   }
 
-  const actions = useMemo(() => ({
-    loadUserData: () => loadUserData(),
-    generatePlans,
-    updateProgressData,
-    setError,
-    signOut,
-    enterDemoMode,
-    exitDemoMode,
-    syncData,
-    getCachedData,
-    invalidateCache,
-    subscribeToUserData: () => subscribeToUserData(state.user!),
-    unsubscribeFromUserData,
-  }), [
-    loadUserData,
-    generatePlans,
-    updateProgressData,
-    setError,
-    signOut,
-    enterDemoMode,
-    exitDemoMode,
-    syncData,
-    getCachedData,
-    invalidateCache,
-    subscribeToUserData,
-    unsubscribeFromUserData,
-    state.user
-  ])
+  const actions = useMemo(
+    () => ({
+      loadUserData: () => loadUserData(),
+      generatePlans,
+      updateProgressData,
+      setError,
+      signOut,
+      enterDemoMode,
+      exitDemoMode,
+      syncData,
+      getCachedData,
+      invalidateCache,
+      subscribeToUserData: () => subscribeToUserData(state.user!),
+      unsubscribeFromUserData,
+    }),
+    [loadUserData, state.user],
+  )
 
   return <AppContext.Provider value={{ state, dispatch, actions }}>{children}</AppContext.Provider>
 }
