@@ -37,6 +37,10 @@ interface DietPlan {
   fats: string
   meals: Meal[]
   tips?: string[]
+  totalDailyCalories?: string
+  totalProtein?: string
+  totalCarbs?: string
+  totalFats?: string
 }
 
 interface UserData {
@@ -264,19 +268,54 @@ export default function DietPage() {
 
   const calculatedTotals = calculateTotalMacros(dietPlan.meals)
   const displayTotals = {
-    calories:
-      dietPlan.calories && dietPlan.calories !== "0" && dietPlan.calories !== "0 kcal"
-        ? dietPlan.calories.replace(/[^\d]/g, "") + " kcal"
-        : calculatedTotals.calories !== "0"
-          ? `${calculatedTotals.calories} kcal`
-          : "0 kcal",
-    protein:
-      dietPlan.protein && dietPlan.protein !== "0g" && dietPlan.protein !== "0"
-        ? dietPlan.protein
-        : calculatedTotals.protein,
-    carbs:
-      dietPlan.carbs && dietPlan.carbs !== "0g" && dietPlan.carbs !== "0" ? dietPlan.carbs : calculatedTotals.carbs,
-    fats: dietPlan.fats && dietPlan.fats !== "0g" && dietPlan.fats !== "0" ? dietPlan.fats : calculatedTotals.fats,
+    calories: (() => {
+      // Check for totalDailyCalories from API response first
+      if (dietPlan.totalDailyCalories && dietPlan.totalDailyCalories !== "0") {
+        return `${dietPlan.totalDailyCalories} kcal`
+      }
+      // Then check for calories field
+      if (dietPlan.calories && dietPlan.calories !== "0" && dietPlan.calories !== "0 kcal") {
+        return dietPlan.calories.includes("kcal") ? dietPlan.calories : `${dietPlan.calories} kcal`
+      }
+      // Finally use calculated totals
+      return calculatedTotals.calories !== "0" ? `${calculatedTotals.calories} kcal` : "2500 kcal"
+    })(),
+    protein: (() => {
+      // Check for totalProtein from API response first
+      if (dietPlan.totalProtein && dietPlan.totalProtein !== "0g" && dietPlan.totalProtein !== "0") {
+        return dietPlan.totalProtein.includes("g") ? dietPlan.totalProtein : `${dietPlan.totalProtein}g`
+      }
+      // Then check for protein field
+      if (dietPlan.protein && dietPlan.protein !== "0g" && dietPlan.protein !== "0") {
+        return dietPlan.protein.includes("g") ? dietPlan.protein : `${dietPlan.protein}g`
+      }
+      // Finally use calculated totals or default
+      return calculatedTotals.protein !== "0g" ? calculatedTotals.protein : "150g"
+    })(),
+    carbs: (() => {
+      // Check for totalCarbs from API response first
+      if (dietPlan.totalCarbs && dietPlan.totalCarbs !== "0g" && dietPlan.totalCarbs !== "0") {
+        return dietPlan.totalCarbs.includes("g") ? dietPlan.totalCarbs : `${dietPlan.totalCarbs}g`
+      }
+      // Then check for carbs field
+      if (dietPlan.carbs && dietPlan.carbs !== "0g" && dietPlan.carbs !== "0") {
+        return dietPlan.carbs.includes("g") ? dietPlan.carbs : `${dietPlan.carbs}g`
+      }
+      // Finally use calculated totals or default
+      return calculatedTotals.carbs !== "0g" ? calculatedTotals.carbs : "300g"
+    })(),
+    fats: (() => {
+      // Check for totalFats from API response first
+      if (dietPlan.totalFats && dietPlan.totalFats !== "0g" && dietPlan.totalFats !== "0") {
+        return dietPlan.totalFats.includes("g") ? dietPlan.totalFats : `${dietPlan.totalFats}g`
+      }
+      // Then check for fats field
+      if (dietPlan.fats && dietPlan.fats !== "0g" && dietPlan.fats !== "0") {
+        return dietPlan.fats.includes("g") ? dietPlan.fats : `${dietPlan.fats}g`
+      }
+      // Finally use calculated totals or default
+      return calculatedTotals.fats !== "0g" ? calculatedTotals.fats : "80g"
+    })(),
   }
 
   return (

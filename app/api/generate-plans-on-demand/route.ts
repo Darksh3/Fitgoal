@@ -121,10 +121,16 @@ export async function POST(req: Request) {
     }
 
     console.log("🔹 Gerando plano para user:", userId)
-    console.log("🔹 Dias de treino selecionados:", quizData.trainingDaysPerWeek)
+    console.log("🔹 Dados do quiz recebidos:", {
+      trainingDaysPerWeek: quizData.trainingDaysPerWeek,
+      goal: quizData.goal,
+      experience: quizData.experience,
+    })
 
     const generatePlansWithValidation = async (attempt = 1): Promise<any> => {
       const maxAttempts = 3
+
+      console.log(`[v0] Tentativa ${attempt}: Enviando prompt para OpenAI...`)
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
@@ -134,11 +140,13 @@ export async function POST(req: Request) {
         ],
         temperature: 0.7,
         response_format: { type: "json_object" },
-        max_tokens: 8000,
+        max_tokens: 16000,
       })
 
       const content = response.choices[0].message?.content
       if (!content) throw new Error("Resposta da OpenAI vazia")
+
+      console.log(`[v0] Resposta recebida da OpenAI (${content.length} caracteres)`)
 
       const parsed = JSON.parse(content)
 
@@ -147,10 +155,26 @@ export async function POST(req: Request) {
 
       console.log(`[v0] Tentativa ${attempt}: Esperado ${expectedDays} dias, recebido ${actualDays} dias`)
 
+      if (parsed.workoutPlan?.days) {
+        parsed.workoutPlan.days.forEach((day: any, index: number) => {
+          console.log(`[v0] Dia ${index + 1} (${day.title}): ${day.exercises?.length || 0} exercícios`)
+        })
+      }
+
       if (actualDays !== expectedDays && attempt < maxAttempts) {
         console.log(`[v0] Número incorreto de dias! Tentando novamente... (${attempt}/${maxAttempts})`)
         return generatePlansWithValidation(attempt + 1)
       }
+
+      console.log(`[v0] Plano final gerado:`, {
+        diasTreino: actualDays,
+        totalExercicios: parsed.workoutPlan?.days?.reduce(
+          (total: number, day: any) => total + (day.exercises?.length || 0),
+          0,
+        ),
+        calorias: parsed.dietPlan?.calories,
+        refeicoes: parsed.dietPlan?.meals?.length,
+      })
 
       return parsed
     }

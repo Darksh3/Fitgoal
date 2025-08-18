@@ -36,11 +36,24 @@ interface QuizData {
   experience: string
 }
 
+interface DietPlan {
+  calories?: string
+  protein?: string
+  carbs?: string
+  fats?: string
+  totalDailyCalories?: number
+  totalProtein?: number
+  totalCarbs?: number
+  totalFats?: number
+  meals?: any[]
+}
+
 export default function DashboardPage() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [quizData, setQuizData] = useState<QuizData | null>(null)
+  const [dietPlan, setDietPlan] = useState<DietPlan | null>(null)
   const [currentTime, setCurrentTime] = useState("")
   const [isDemoMode, setIsDemoMode] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -119,6 +132,11 @@ export default function DashboardPage() {
           if (data.quizData) {
             foundQuizData = data.quizData as QuizData
             setQuizData(foundQuizData)
+          }
+
+          if (data.dietPlan) {
+            setDietPlan(data.dietPlan)
+            console.log("[v0] Diet plan loaded:", data.dietPlan)
           }
 
           // Check if plans exist, if not generate them
@@ -258,6 +276,26 @@ export default function DashboardPage() {
     return Math.round(dailyCalories)
   }
 
+  const calculateMacroTotals = () => {
+    if (!dietPlan) return { proteins: 0, carbs: 0, fats: 0 }
+
+    // Try to get totals from API response first
+    if (dietPlan.totalProtein !== undefined && dietPlan.totalCarbs !== undefined && dietPlan.totalFats !== undefined) {
+      return {
+        proteins: Math.round(dietPlan.totalProtein),
+        carbs: Math.round(dietPlan.totalCarbs),
+        fats: Math.round(dietPlan.totalFats),
+      }
+    }
+
+    // Fallback to parsing string values
+    const proteins = dietPlan.protein ? Number.parseInt(dietPlan.protein.replace(/\D/g, "")) || 0 : 0
+    const carbs = dietPlan.carbs ? Number.parseInt(dietPlan.carbs.replace(/\D/g, "")) || 0 : 0
+    const fats = dietPlan.fats ? Number.parseInt(dietPlan.fats.replace(/\D/g, "")) || 0 : 0
+
+    return { proteins, carbs, fats }
+  }
+
   const getModelImage = () => {
     if (quizData?.gender === "mulher") {
       return "/placeholder.svg?height=400&width=300"
@@ -303,12 +341,16 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (quizData) {
+      const macros = calculateMacroTotals()
       setProgressData((prev) => ({
         ...prev,
         caloriesTarget: calculateDynamicCalories(quizData),
+        proteins: macros.proteins,
+        carbs: macros.carbs,
+        fats: macros.fats,
       }))
     }
-  }, [quizData])
+  }, [quizData, dietPlan])
 
   if (loading) {
     return (

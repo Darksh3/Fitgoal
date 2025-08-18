@@ -54,12 +54,12 @@
     "geist": "^1.3.1",
     "input-otp": "latest",
     "lucide-react": "^0.454.0",
-    "next": "15.2.4",
+    "next": "14.2.16",
     "next-themes": "latest",
     "openai": "latest",
-    "react": "^19",
+    "react": "^18",
     "react-day-picker": "latest",
-    "react-dom": "^19",
+    "react-dom": "^18",
     "react-firebase-hooks": "latest",
     "react-hook-form": "latest",
     "react-resizable-panels": "latest",
@@ -70,12 +70,12 @@
     "tailwindcss-animate": "^1.0.7",
     "vaul": "latest",
     "ws": "latest",
-    "zod": "^3.24.1"
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^22",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
