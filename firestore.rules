@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Regras para a coleção 'users'
+    match /users/{userId} {
+      // Permite que um usuário leia e escreva APENAS seu próprio documento
+      allow read, write: if request.auth.uid == userId;
+    }
+
+    // Regras para a coleção 'leads' (se você estiver usando para leads do quiz, por exemplo)
+    match /leads/{leadId} {
+      // Permite que um usuário leia e escreva APENAS seu próprio documento de lead
+      // Se leads não forem específicos do usuário, você pode precisar de uma regra diferente aqui,
+      // mas para dados de quiz vinculados ao usuário, esta é a mais segura.
+      allow read, write: if request.auth.uid == leadId;
+    }
+
+    // Regra padrão para negar acesso a todas as outras coleções não explicitamente definidas
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
