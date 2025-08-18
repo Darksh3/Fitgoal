@@ -68,6 +68,28 @@ class MockAuth {
     return this.signInWithEmailAndPassword(email, password)
   }
 
+  async signInAnonymously() {
+    const user: User = {
+      uid: `anonymous-${Date.now()}`,
+      email: null,
+      displayName: "Anonymous User",
+    }
+
+    this.currentUser = user
+    if (typeof window !== "undefined") {
+      localStorage.setItem("mockUser", JSON.stringify(user))
+    }
+
+    this.listeners.forEach((listener) => listener(user))
+    return { user }
+  }
+
+  async sendPasswordResetEmail(email: string) {
+    // Mock password reset - just log for demo purposes
+    console.log(`[Firebase Mock] Password reset email sent to: ${email}`)
+    return Promise.resolve()
+  }
+
   async signOut() {
     this.currentUser = null
     if (typeof window !== "undefined") {
@@ -152,6 +174,14 @@ export const signOut = (auth: MockAuth) => {
   return auth.signOut()
 }
 
+export const sendPasswordResetEmail = (auth: MockAuth, email: string) => {
+  return auth.sendPasswordResetEmail(email)
+}
+
+export const signInAnonymously = (auth: MockAuth) => {
+  return auth.signInAnonymously()
+}
+
 // Firestore functions
 export const doc = (db: MockFirestore, collection: string, docId: string) => {
   return db.doc(collection, docId)
@@ -171,6 +201,23 @@ export const updateDoc = async (docRef: any, data: any) => {
 
 export const collection = (db: MockFirestore, name: string) => {
   return db.collection(name)
+}
+
+export const onSnapshot = (docRef: any, callback: (doc: any) => void) => {
+  // Mock implementation that calls callback immediately with current data
+  const mockSnapshot = {
+    exists: () => true,
+    data: () => docRef.data || {},
+    id: docRef.id || "mock-doc",
+  }
+
+  // Call callback immediately
+  setTimeout(() => callback(mockSnapshot), 0)
+
+  // Return unsubscribe function
+  return () => {
+    // Mock unsubscribe - no actual listener to remove
+  }
 }
 
 // Export instances

@@ -2,10 +2,7 @@
 
 import type React from "react"
 import { createContext, useReducer, useEffect, useCallback, useMemo, useContext, type ReactNode } from "react"
-import type { User } from "firebase/auth"
-import { auth, db } from "@/lib/firebaseClient"
-import { onAuthStateChanged } from "firebase/auth"
-import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore"
+import { auth, db, onAuthStateChanged, type User, doc, getDoc, setDoc, onSnapshot } from "@/lib/firebase-local"
 import { safeLocalStorage } from "@/lib/performance-utils"
 import { errorHandler } from "@/lib/error-handler"
 

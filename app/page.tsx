@@ -22,7 +22,7 @@ import {
   Crown,
   ChevronDown,
   ChevronUp,
-} from "lucide-react"
+} from "@/lib/icons"
 
 // Dados dos depoimentos
 const testimonials = [
