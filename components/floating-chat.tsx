@@ -2,11 +2,11 @@
 
 import type React from "react"
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { MessageCircle, X, Send, Loader2, Minimize2, Sparkles } from "@/lib/icons"
+import { MessageCircle, X, Send, Loader2, Minimize2, Sparkles } from "lucide-react"
 
 export default function FloatingChat() {
   const [isOpen, setIsOpen] = useState(false)
@@ -16,105 +16,93 @@ export default function FloatingChat() {
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const scrollToBottom = useCallback(() => {
+  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [])
+  }
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages, scrollToBottom])
-
-  const handleOpenChat = useCallback(() => {
-    setIsOpen(true)
-    setIsMinimized(false)
-  }, [])
+  }, [messages])
 
   useEffect(() => {
+    const handleOpenChat = () => {
+      setIsOpen(true)
+      setIsMinimized(false)
+    }
+
     window.addEventListener("openFloatingChat", handleOpenChat)
+
     return () => {
       window.removeEventListener("openFloatingChat", handleOpenChat)
     }
-  }, [handleOpenChat])
-
-  const quickQuestions = useMemo(
-    () => [
-      "Qual o melhor plano para mim?",
-      "Quais são os preços?",
-      "Diferença entre os planos?",
-      "Como funciona o pagamento?",
-      "Posso cancelar quando quiser?",
-      "Aceita criptomoedas?",
-    ],
-    [],
-  )
-
-  const handleQuickQuestion = useCallback((question: string) => {
-    setInput(question)
-    handleSendMessage(question)
   }, [])
 
-  const handleSendMessage = useCallback(
-    async (customPrompt?: string) => {
-      const messageText = customPrompt || input
-      if (messageText.trim() === "" || loading) return
+  const quickQuestions = [
+    "Qual o melhor plano para mim?",
+    "Quais são os preços?",
+    "Diferença entre os planos?",
+    "Como funciona o pagamento?",
+    "Posso cancelar quando quiser?",
+    "Aceita criptomoedas?",
+  ]
 
-      const userMessage = { role: "user" as const, content: messageText }
-      setMessages((prev) => [...prev, userMessage])
-      setInput("")
-      setLoading(true)
+  const handleQuickQuestion = (question: string) => {
+    setInput(question)
+    handleSendMessage(question)
+  }
 
-      try {
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ prompt: messageText }),
-        })
+  const handleSendMessage = async (customPrompt?: string) => {
+    const messageText = customPrompt || input
+    if (messageText.trim() === "" || loading) return
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
+    const userMessage = { role: "user" as const, content: messageText }
+    setMessages((prev) => [...prev, userMessage])
+    setInput("")
+    setLoading(true)
 
-        const data = await response.json()
-        const assistantMessage = { role: "assistant" as const, content: data.response }
-        setMessages((prev) => [...prev, assistantMessage])
-      } catch (error) {
-        console.error("Erro ao enviar mensagem:", error)
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: "Iza aqui! Problema de conexão. WhatsApp direto: (11) 99999-9999 💪",
-          },
-        ])
-      } finally {
-        setLoading(false)
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt: messageText }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
-    },
-    [input, loading],
-  )
 
-  const handleKeyPress = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault()
-        handleSendMessage()
-      }
-    },
-    [handleSendMessage],
-  )
+      const data = await response.json()
+      const assistantMessage = { role: "assistant" as const, content: data.response }
+      setMessages((prev) => [...prev, assistantMessage])
+    } catch (error) {
+      console.error("Erro ao enviar mensagem:", error)
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Iza aqui! Problema de conexão. WhatsApp direto: (11) 99999-9999 💪",
+        },
+      ])
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  const toggleOpen = useCallback(() => setIsOpen(true), [])
-  const toggleClose = useCallback(() => setIsOpen(false), [])
-  const toggleMinimize = useCallback(() => setIsMinimized(!isMinimized), [isMinimized])
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
+    }
+  }
 
   return (
     <>
       {/* Chat Button */}
       {!isOpen && (
         <Button
-          onClick={toggleOpen}
+          onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg z-50 transition-all duration-200 hover:scale-105"
           size="icon"
         >
@@ -137,7 +125,7 @@ export default function FloatingChat() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={toggleMinimize}
+                  onClick={() => setIsMinimized(!isMinimized)}
                   className="h-6 w-6 p-0 text-white hover:bg-purple-800 transition-colors"
                 >
                   <Minimize2 className="h-3 w-3" />
@@ -145,7 +133,7 @@ export default function FloatingChat() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={toggleClose}
+                  onClick={() => setIsOpen(false)}
                   className="h-6 w-6 p-0 text-white hover:bg-purple-800 transition-colors"
                 >
                   <X className="h-3 w-3" />

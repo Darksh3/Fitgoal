@@ -1,7 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  swcMinify: true,
-  reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -9,38 +7,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: [],
-    unoptimized: process.env.NODE_ENV === 'development',
-  },
-  experimental: {
-    optimizeCss: false, // Disable if causing issues
-  },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      // Prevent firebase-admin and other server-only packages from being bundled on client
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-        crypto: false,
-        stream: false,
-        url: false,
-        zlib: false,
-        http: false,
-        https: false,
-        assert: false,
-        os: false,
-        path: false,
-      }
-      
-      config.externals = config.externals || []
-      config.externals.push({
-        'firebase-admin': 'commonjs firebase-admin',
-        '@sendgrid/mail': 'commonjs @sendgrid/mail',
-      })
-    }
-    return config
+    unoptimized: true,
   },
   async headers() {
     return [
@@ -57,8 +24,4 @@ const nextConfig = {
   },
 };
 
-const withBundleAnalyzer = process.env.ANALYZE === 'true' 
-  ? require('@next/bundle-analyzer')({ enabled: true })
-  : (config) => config
-
-export default withBundleAnalyzer(nextConfig);
+export default nextConfig;

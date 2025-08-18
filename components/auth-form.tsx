@@ -1,22 +1,17 @@
 "use client"
 
 import type React from "react"
+
 import { useState } from "react"
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, auth } from "@/lib/firebase-local"
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth"
+import { auth } from "@/lib/firebaseClient"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { sanitizeEmail } from "@/lib/validation"
-import { handleFirebaseError } from "@/lib/error-handler"
 
 interface AuthFormProps {
   initialMode?: "login" | "register"
-}
-
-interface AuthFormData {
-  email: string
-  password: string
 }
 
 export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
@@ -25,51 +20,22 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const router = useRouter()
-
-  const validateForm = (): boolean => {
-    const errors: Record<string, string> = {}
-
-    if (!email.trim()) {
-      errors.email = "Email é obrigatório"
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errors.email = "Email inválido"
-    }
-
-    if (!password.trim()) {
-      errors.password = "Senha é obrigatória"
-    } else if (password.length < 6) {
-      errors.password = "Senha deve ter pelo menos 6 caracteres"
-    }
-
-    setValidationErrors(errors)
-    return Object.keys(errors).length === 0
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!validateForm()) {
-      return
-    }
-
     setLoading(true)
     setError("")
-    setValidationErrors({})
 
     try {
-      const sanitizedEmail = sanitizeEmail(email)
-
       if (isLogin) {
-        await signInWithEmailAndPassword(auth, sanitizedEmail, password)
+        await signInWithEmailAndPassword(auth, email, password)
       } else {
-        await createUserWithEmailAndPassword(auth, sanitizedEmail, password)
+        await createUserWithEmailAndPassword(auth, email, password)
       }
       router.push("/dashboard")
     } catch (error: any) {
-      const appError = handleFirebaseError(error, "Autenticação")
-      setError(appError.message)
+      setError(error.message)
     } finally {
       setLoading(false)
     }
@@ -80,15 +46,16 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
     setError("")
 
     try {
+      // Conta de teste pré-configurada
       await signInWithEmailAndPassword(auth, "teste@athlix.com", "123456789")
       router.push("/dashboard")
     } catch (error: any) {
+      // Se a conta de teste não existir, cria ela
       try {
         await createUserWithEmailAndPassword(auth, "teste@athlix.com", "123456789")
         router.push("/dashboard")
       } catch (createError: any) {
-        const appError = handleFirebaseError(createError, "Criação de conta de teste")
-        setError(appError.message)
+        setError("Erro ao criar conta de teste: " + createError.message)
       }
     } finally {
       setLoading(false)
@@ -96,6 +63,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
   }
 
   const handleDemoAccess = () => {
+    // Simula dados de quiz para o demo
     const demoQuizData = {
       gender: "homem",
       name: "João Demo",
@@ -108,9 +76,11 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
       experience: "intermediario",
     }
 
+    // Salva dados demo no localStorage
     localStorage.setItem("quizData", JSON.stringify(demoQuizData))
     localStorage.setItem("demoMode", "true")
 
+    // Vai direto para o dashboard
     router.push("/dashboard")
   }
 
@@ -130,9 +100,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className={validationErrors.email ? "border-red-500" : ""}
               />
-              {validationErrors.email && <p className="text-red-500 text-sm mt-1">{validationErrors.email}</p>}
             </div>
             <div>
               <Input
@@ -141,9 +109,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className={validationErrors.password ? "border-red-500" : ""}
               />
-              {validationErrors.password && <p className="text-red-500 text-sm mt-1">{validationErrors.password}</p>}
             </div>
             {error && <div className="text-red-500 text-sm">{error}</div>}
             <Button type="submit" className="w-full" disabled={loading}>
@@ -158,15 +124,16 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
         </CardContent>
       </Card>
 
+      {/* Opções de Teste */}
       <Card className="w-full max-w-md bg-gray-50 border-dashed">
         <CardHeader>
           <CardTitle className="text-sm text-gray-600">Opções de Teste</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Button onClick={handleTestLogin} variant="outline" className="w-full bg-transparent" disabled={loading}>
+          <Button onClick={handleTestLogin} variant="outline" className="w-full" disabled={loading}>
             🧪 Login com Conta de Teste
           </Button>
-          <Button onClick={handleDemoAccess} variant="outline" className="w-full bg-transparent" disabled={loading}>
+          <Button onClick={handleDemoAccess} variant="outline" className="w-full" disabled={loading}>
             🎯 Acessar Demo (sem login)
           </Button>
           <p className="text-xs text-gray-500 text-center">Use estas opções para testar o dashboard rapidamente</p>

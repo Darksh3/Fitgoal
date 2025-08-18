@@ -3,6 +3,9 @@ import * as admin from "firebase-admin"
 // Verifica se o Firebase Admin SDK já foi inicializado
 if (!admin.apps.length) {
   try {
+    // Tenta inicializar com as credenciais do ambiente Vercel
+    // A variável FIREBASE_SERVICE_ACCOUNT_KEY deve conter o JSON da chave de serviço
+    // Se for base64-encoded (comum em Vercel), o JSON.parse() ainda funcionará após a decodificação.
     const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY
 
     if (!serviceAccountKey) {
@@ -16,7 +19,7 @@ if (!admin.apps.length) {
       // Tenta decodificar de base64 (comum em ambientes de deploy como Vercel)
       serviceAccount = JSON.parse(Buffer.from(serviceAccountKey, "base64").toString("utf8"))
     } catch (e) {
-      // Se falhar, tenta parsear diretamente como JSON
+      // Se falhar, tenta parsear diretamente como JSON (para desenvolvimento local ou se já for JSON puro)
       try {
         serviceAccount = JSON.parse(serviceAccountKey)
       } catch (parseError) {
@@ -35,16 +38,7 @@ if (!admin.apps.length) {
 }
 
 const adminDb = admin.firestore()
-const adminAuth = admin.auth()
+const auth = admin.auth()
 
-export {
-  adminDb,
-  adminAuth as auth,
-  admin,
-  // Alias para compatibilidade
-  adminDb as db,
-}
-
-if (typeof window !== "undefined") {
-  throw new Error("firebase-admin deve ser usado apenas no servidor!")
-}
+// Exporta todas as instâncias necessárias
+export { adminDb, auth, admin, admin as firebaseAdmin, adminDb as db }
