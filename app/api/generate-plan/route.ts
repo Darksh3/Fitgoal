@@ -97,6 +97,7 @@ export async function POST(request: NextRequest) {
     - Tipo corporal: ${quizData.bodyType}
     - Experiência com exercícios: ${quizData.exerciseExperience || "Iniciante"}
     - Tempo disponível: ${quizData.timeAvailable || "1 hora"}
+    - Dias de treino por semana: ${quizData.trainingDaysPerWeek || 5}
 
     Responda APENAS com um JSON válido no seguinte formato. Não inclua nenhum texto adicional ou markdown (como \`\`\`json):
     {
@@ -114,19 +115,16 @@ export async function POST(request: NextRequest) {
             }
           ],
           "duration": "60 minutos"
-        },
-        {
-          "day": "Terça-feira",
-          "focus": "Foco do treino (e.g., Costas e Bíceps)",
-          "exercises": [],
-          "duration": "60 minutos"
         }
       ],
-      "weeklySchedule": "Exemplo: Treino 4x por semana, com 2 dias de descanso ativo.",
+      "weeklySchedule": "Treino ${quizData.trainingDaysPerWeek || 5}x por semana",
       "tips": ["Aqueça antes de cada treino.", "Mantenha a forma correta."]
     }
 
-    Crie um plano para pelo menos 4 dias da semana.
+    // IMPORTANTE: 
+    // - Crie um plano para EXATAMENTE ${quizData.trainingDaysPerWeek || 5} dias da semana.
+    // - CADA dia deve ter OBRIGATORIAMENTE 7-9 exercícios completos com séries, repetições, descanso e instruções detalhadas.
+    // - NUNCA crie dias com menos de 7 exercícios - isso é inaceitável para um treino profissional.
     `
 
     const workoutResult = await generateText({

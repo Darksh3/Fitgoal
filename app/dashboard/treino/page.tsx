@@ -83,8 +83,15 @@ export default function WorkoutPage() {
             debugDataFlow("DASHBOARD_LOAD", data)
             setUserData(data)
 
-            if (!data.workoutPlan || !data.workoutPlan.days || data.workoutPlan.days.length === 0) {
-              console.log("Plano de treino não encontrado, tentando gerar...")
+            const needsRegeneration =
+              !data.workoutPlan ||
+              !data.workoutPlan.days ||
+              data.workoutPlan.days.length === 0 ||
+              (quizData?.trainingDaysPerWeek && data.workoutPlan.days.length !== quizData.trainingDaysPerWeek) ||
+              data.workoutPlan.days.some((day: any) => !day.exercises || day.exercises.length < 6)
+
+            if (needsRegeneration) {
+              console.log("[DASHBOARD] Plan needs regeneration - frequency mismatch or insufficient exercises")
               await generatePlans()
             } else {
               debugDataFlow("DASHBOARD_EXISTING_PLAN", data.workoutPlan)
@@ -184,13 +191,11 @@ export default function WorkoutPage() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Programação Semanal</p>
                   <p className="text-lg font-bold text-gray-900">
-                    {actualTrainingFrequency !== "Loading..."
-                      ? actualTrainingFrequency
-                      : workoutPlan.weeklySchedule || "Não especificado"}
+                    {actualTrainingFrequency !== "Loading..." ? actualTrainingFrequency : "Carregando..."}
                   </p>
                   {process.env.NODE_ENV === "development" && (
                     <p className="text-xs text-red-500">
-                      Debug: Quiz={actualTrainingFrequency} | Plan={workoutPlan.weeklySchedule}
+                      Debug: Quiz={actualTrainingFrequency} | Plan={workoutPlan?.weeklySchedule}
                     </p>
                   )}
                 </div>

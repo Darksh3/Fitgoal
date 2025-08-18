@@ -71,7 +71,9 @@ Receberá os dados de um cliente e deve retornar **APENAS um JSON válido** segu
 
 ⚠️ Regras OBRIGATÓRIAS:
 - Use EXATAMENTE ${quizData.trainingDaysPerWeek || 5} dias de treino (não mais, não menos).
-- CADA dia deve ter 7-9 exercícios completos com séries, repetições, descanso e descrição.
+- CADA dia deve ter OBRIGATORIAMENTE 7-9 exercícios completos com séries, repetições, descanso e descrição detalhada.
+- NUNCA crie dias com menos de 7 exercícios - isso é inaceitável para um treino profissional.
+- Distribua os exercícios: 3-4 exercícios principais (compostos) + 3-4 exercícios auxiliares (isolamento).
 - Calcule TMB usando Mifflin-St Jeor: Homens = (10×peso) + (6.25×altura) - (5×idade) + 5 | Mulheres = (10×peso) + (6.25×altura) - (5×idade) - 161
 - Calcule GET baseado no nível de atividade: Sedentário×1.2, Leve×1.375, Moderado×1.55, Intenso×1.725
 - Defina meta calórica: Perda (GET-400), Manutenção (GET), Ganho (GET+400)
@@ -165,8 +167,8 @@ export async function POST(req: Request) {
           console.log(`[v0] Dia ${index + 1} (${day.title}): ${exerciseCount} exercícios`)
 
           // Warn if day has too few exercises
-          if (exerciseCount < 6) {
-            console.warn(`[v0] WARNING: Day ${index + 1} has only ${exerciseCount} exercises (minimum should be 6-9)`)
+          if (exerciseCount < 7) {
+            console.warn(`[v0] WARNING: Day ${index + 1} has only ${exerciseCount} exercises (minimum should be 7-9)`)
           }
         })
         console.log(`[v0] Total exercises across all days: ${totalExercises}`)
@@ -174,7 +176,7 @@ export async function POST(req: Request) {
 
       const hasCorrectDays = actualDays === expectedDays
       const hasEnoughExercises = parsed.workoutPlan?.days?.every(
-        (day: any) => day.exercises && day.exercises.length >= 6 && day.exercises.length <= 9,
+        (day: any) => day.exercises && day.exercises.length >= 7 && day.exercises.length <= 9,
       )
 
       if ((!hasCorrectDays || !hasEnoughExercises) && attempt < maxAttempts) {

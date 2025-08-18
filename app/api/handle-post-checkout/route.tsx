@@ -247,13 +247,19 @@ export async function POST(req: Request) {
         - Tipo corporal: ${quizAnswersFromMetadata.bodyType}
         - Experiência: ${quizAnswersFromMetadata.experience || "Iniciante"}
         - Tempo disponível: ${quizAnswersFromMetadata.workoutTime || "1 hora"}
+        - Dias de treino por semana: ${quizAnswersFromMetadata.trainingDaysPerWeek || 5}
+        
         Responda APENAS com um JSON válido.
         {
           "days": [{"day": "Segunda-feira", "focus": "Peito e Tríceps", "exercises": [{"name": "Supino Reto", "sets": "3", "reps": "10", "rest": "60s", "instructions": "..."}], "duration": "60 min"}],
-          "weeklySchedule": "Treino 4x por semana.",
+          "weeklySchedule": "Treino ${quizAnswersFromMetadata.trainingDaysPerWeek || 5}x por semana",
           "tips": ["Aqueça por 10 minutos.", "Mantenha a postura correta."]
         }
-        Crie um plano para 4 dias.
+        
+        IMPORTANTE:
+        - Crie um plano para EXATAMENTE ${quizAnswersFromMetadata.trainingDaysPerWeek || 5} dias da semana.
+        - CADA dia deve ter OBRIGATORIAMENTE 7-9 exercícios completos com séries, repetições, descanso e instruções detalhadas.
+        - NUNCA crie dias com menos de 7 exercícios - isso é inaceitável para um treino profissional.
       `
 
       const [dietResult, workoutResult] = await Promise.all([
