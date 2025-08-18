@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  swcMinify: true,
+  reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -7,7 +9,11 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    domains: [],
+    unoptimized: process.env.NODE_ENV === 'development',
+  },
+  experimental: {
+    optimizeCss: false, // Disable if causing issues
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
