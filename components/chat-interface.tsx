@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import type React from "react"
+
+import { useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,10 +13,12 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([])
   const [loading, setLoading] = useState(false)
 
-  const handleSendMessage = async () => {
-    if (input.trim() === "") return
+  const handleSendMessage = useCallback(async () => {
+    if (input.trim() === "" || loading) return
 
     const userMessage = { role: "user" as const, content: input }
+    const currentInput = input
+
     setMessages((prev) => [...prev, userMessage])
     setInput("")
     setLoading(true)
@@ -25,7 +29,7 @@ export default function ChatInterface() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ prompt: input }),
+        body: JSON.stringify({ prompt: currentInput }),
       })
 
       if (!response.ok) {
@@ -44,7 +48,16 @@ export default function ChatInterface() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [input, loading])
+
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && !loading) {
+        handleSendMessage()
+      }
+    },
+    [handleSendMessage, loading],
+  )
 
   return (
     <Card className="w-full max-w-2xl mx-auto bg-gray-800 border-gray-700 text-white flex flex-col h-[600px]">
@@ -80,11 +93,7 @@ export default function ChatInterface() {
             placeholder="Digite sua mensagem..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === "Enter" && !loading) {
-                handleSendMessage()
-              }
-            }}
+            onKeyPress={handleKeyPress}
             className="flex-1 bg-gray-700 border-gray-600 text-white"
             disabled={loading}
           />

@@ -6,10 +6,11 @@ import { auth, db } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Clock, Utensils, Target, Lightbulb } from "lucide-react"
+import { Clock, Utensils, Target, Lightbulb, TrendingUp } from "lucide-react"
 import ProtectedRoute from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
+import { getNutritionTotals, calculateMealNutrition, calculateMacroPercentages } from "@/lib/nutrition-calculator"
 
 interface Food {
   name: string
@@ -55,64 +56,6 @@ export default function DietPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  const calculateTotalMacros = (meals: Meal[]) => {
-    if (!Array.isArray(meals) || meals.length === 0) {
-      return { calories: "0", protein: "0g", carbs: "0g", fats: "0g" }
-    }
-
-    let totalCalories = 0
-    let totalProtein = 0
-    let totalCarbs = 0
-    let totalFats = 0
-
-    meals.forEach((meal) => {
-      if (meal && typeof meal === "object") {
-        // Extract calories from meal.calories string (e.g., "450 kcal" -> 450)
-        const caloriesMatch = meal.calories?.match(/(\d+)/)
-        if (caloriesMatch) {
-          totalCalories += Number.parseInt(caloriesMatch[1])
-        }
-
-        // Extract macros from meal.macros with better parsing
-        if (meal.macros && typeof meal.macros === "object") {
-          const proteinMatch = meal.macros.protein?.match(/(\d+\.?\d*)/)
-          const carbsMatch = meal.macros.carbs?.match(/(\d+\.?\d*)/)
-          const fatsMatch = meal.macros.fats?.match(/(\d+\.?\d*)/)
-
-          if (proteinMatch) totalProtein += Number.parseFloat(proteinMatch[1])
-          if (carbsMatch) totalCarbs += Number.parseFloat(carbsMatch[1])
-          if (fatsMatch) totalFats += Number.parseFloat(fatsMatch[1])
-        }
-
-        // Fallback: estimate macros from individual foods if meal macros are missing
-        if ((!meal.macros || !meal.macros.protein) && Array.isArray(meal.foods)) {
-          meal.foods.forEach((food) => {
-            if (typeof food === "string") {
-              // Estimate macros based on common foods
-              const foodLower = food.toLowerCase()
-              if (foodLower.includes("ovo") || foodLower.includes("frango") || foodLower.includes("carne")) {
-                totalProtein += 20 // Estimate 20g protein per serving
-              }
-              if (foodLower.includes("arroz") || foodLower.includes("pão") || foodLower.includes("aveia")) {
-                totalCarbs += 30 // Estimate 30g carbs per serving
-              }
-              if (foodLower.includes("azeite") || foodLower.includes("amendoa") || foodLower.includes("abacate")) {
-                totalFats += 10 // Estimate 10g fats per serving
-              }
-            }
-          })
-        }
-      }
-    })
-
-    return {
-      calories: totalCalories > 0 ? `${totalCalories}` : "0",
-      protein: totalProtein > 0 ? `${Math.round(totalProtein)}g` : "0g",
-      carbs: totalCarbs > 0 ? `${Math.round(totalCarbs)}g` : "0g",
-      fats: totalFats > 0 ? `${Math.round(totalFats)}g` : "0g",
-    }
-  }
-
   useEffect(() => {
     if (loading) return
 
@@ -135,6 +78,8 @@ export default function DietPage() {
               await generatePlans()
             } else {
               console.log("[v0] Diet plan found with", data.dietPlan.meals.length, "meals")
+              const totals = getNutritionTotals(data.dietPlan)
+              console.log("[v0] Calculated nutrition totals:", totals)
             }
           } else {
             console.log("[v0] No user document found, checking localStorage...")
@@ -266,57 +211,9 @@ export default function DietPage() {
     )
   }
 
-  const calculatedTotals = calculateTotalMacros(dietPlan.meals)
-  const displayTotals = {
-    calories: (() => {
-      // Check for totalDailyCalories from API response first
-      if (dietPlan.totalDailyCalories && dietPlan.totalDailyCalories !== "0") {
-        return `${dietPlan.totalDailyCalories} kcal`
-      }
-      // Then check for calories field
-      if (dietPlan.calories && dietPlan.calories !== "0" && dietPlan.calories !== "0 kcal") {
-        return dietPlan.calories.includes("kcal") ? dietPlan.calories : `${dietPlan.calories} kcal`
-      }
-      // Finally use calculated totals
-      return calculatedTotals.calories !== "0" ? `${calculatedTotals.calories} kcal` : "2500 kcal"
-    })(),
-    protein: (() => {
-      // Check for totalProtein from API response first
-      if (dietPlan.totalProtein && dietPlan.totalProtein !== "0g" && dietPlan.totalProtein !== "0") {
-        return dietPlan.totalProtein.includes("g") ? dietPlan.totalProtein : `${dietPlan.totalProtein}g`
-      }
-      // Then check for protein field
-      if (dietPlan.protein && dietPlan.protein !== "0g" && dietPlan.protein !== "0") {
-        return dietPlan.protein.includes("g") ? dietPlan.protein : `${dietPlan.protein}g`
-      }
-      // Finally use calculated totals or default
-      return calculatedTotals.protein !== "0g" ? calculatedTotals.protein : "150g"
-    })(),
-    carbs: (() => {
-      // Check for totalCarbs from API response first
-      if (dietPlan.totalCarbs && dietPlan.totalCarbs !== "0g" && dietPlan.totalCarbs !== "0") {
-        return dietPlan.totalCarbs.includes("g") ? dietPlan.totalCarbs : `${dietPlan.totalCarbs}g`
-      }
-      // Then check for carbs field
-      if (dietPlan.carbs && dietPlan.carbs !== "0g" && dietPlan.carbs !== "0") {
-        return dietPlan.carbs.includes("g") ? dietPlan.carbs : `${dietPlan.carbs}g`
-      }
-      // Finally use calculated totals or default
-      return calculatedTotals.carbs !== "0g" ? calculatedTotals.carbs : "300g"
-    })(),
-    fats: (() => {
-      // Check for totalFats from API response first
-      if (dietPlan.totalFats && dietPlan.totalFats !== "0g" && dietPlan.totalFats !== "0") {
-        return dietPlan.totalFats.includes("g") ? dietPlan.totalFats : `${dietPlan.totalFats}g`
-      }
-      // Then check for fats field
-      if (dietPlan.fats && dietPlan.fats !== "0g" && dietPlan.fats !== "0") {
-        return dietPlan.fats.includes("g") ? dietPlan.fats : `${dietPlan.fats}g`
-      }
-      // Finally use calculated totals or default
-      return calculatedTotals.fats !== "0g" ? calculatedTotals.fats : "80g"
-    })(),
-  }
+  const nutritionTotals = getNutritionTotals(dietPlan)
+  const calculatedNutrition = calculateMealNutrition(dietPlan.meals)
+  const macroPercentages = calculateMacroPercentages(calculatedNutrition)
 
   return (
     <ProtectedRoute>
@@ -334,7 +231,7 @@ export default function DietPage() {
                 <Target className="h-8 w-8 text-blue-600 mr-3" />
                 <div>
                   <p className="text-sm font-medium text-gray-600">Calorias Diárias</p>
-                  <p className="text-2xl font-bold text-gray-900">{displayTotals.calories}</p>
+                  <p className="text-2xl font-bold text-gray-900">{nutritionTotals.calories}</p>
                 </div>
               </div>
             </CardContent>
@@ -348,7 +245,8 @@ export default function DietPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-600">Proteína</p>
-                  <p className="text-2xl font-bold text-gray-900">{displayTotals.protein}</p>
+                  <p className="text-2xl font-bold text-gray-900">{nutritionTotals.protein}</p>
+                  <p className="text-xs text-gray-500">{macroPercentages.proteinPercent}% das calorias</p>
                 </div>
               </div>
             </CardContent>
@@ -362,7 +260,8 @@ export default function DietPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-600">Carboidratos</p>
-                  <p className="text-2xl font-bold text-gray-900">{displayTotals.carbs}</p>
+                  <p className="text-2xl font-bold text-gray-900">{nutritionTotals.carbs}</p>
+                  <p className="text-xs text-gray-500">{macroPercentages.carbsPercent}% das calorias</p>
                 </div>
               </div>
             </CardContent>
@@ -376,12 +275,33 @@ export default function DietPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-600">Gorduras</p>
-                  <p className="text-2xl font-bold text-gray-900">{displayTotals.fats}</p>
+                  <p className="text-2xl font-bold text-gray-900">{nutritionTotals.fats}</p>
+                  <p className="text-xs text-gray-500">{macroPercentages.fatsPercent}% das calorias</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Nutrition Quality Indicator */}
+        {calculatedNutrition.calories > 0 && (
+          <Card className="mb-6">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <TrendingUp className="h-5 w-5 text-green-600 mr-2" />
+                  <span className="font-medium text-gray-900">Qualidade Nutricional</span>
+                </div>
+                <div className="flex items-center space-x-4 text-sm">
+                  <span className="text-gray-600">
+                    Distribuição: {macroPercentages.proteinPercent}% P | {macroPercentages.carbsPercent}% C |{" "}
+                    {macroPercentages.fatsPercent}% G
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Refeições */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

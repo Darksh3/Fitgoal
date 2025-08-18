@@ -1,31 +1,26 @@
 "use client"
 
 import { useState, useEffect } from "react"
-
 import { Button } from "@/components/ui/button"
-
 import { Label } from "@/components/ui/label"
-
 import { Input } from "@/components/ui/input"
-
 import { Checkbox } from "@/components/ui/checkbox"
-
 import { Slider } from "@/components/ui/slider"
-
 import { Textarea } from "@/components/ui/textarea"
-
 import { ArrowLeft, CheckCircle, Droplets, X, ThumbsUp, ThumbsDown, Meh } from "lucide-react"
-
 import { useRouter } from "next/navigation"
-
 import { db, auth } from "@/lib/firebaseClient"
-
 import { doc, setDoc, getDoc } from "firebase/firestore"
-
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth"
+import { validateQuizData, sanitizeString } from "@/lib/validation"
+import { handleError, handleFirebaseError } from "@/lib/error-handler"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { BodyIllustration } from "@/components/body-illustration"
+import { ExerciseIllustration } from "@/components/exercise-illustration"
 
 interface QuizData {
   gender: string
+  age?: number
   bodyType: string
   goal: string[]
   subGoal: string
@@ -48,18 +43,8 @@ interface QuizData {
   workoutTime: string
   experience: string
   equipment: string[]
-  exercisePreferences: {
-    cardio: string
-    pullups: string
-    yoga: string
-  }
   trainingDaysPerWeek: number
-  email: string
-  // Adicionando campos IMC para serem enviados para a API
-  imc?: number
-  imcClassification?: string
-  imcStatus?: string
-  age?: number
+  email?: string
 }
 
 const initialQuizData: QuizData = {
@@ -111,6 +96,9 @@ export default function QuizPage() {
   const [totalSteps, setTotalSteps] = useState(25) // Increased from 24 to 25 to accommodate age question
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
+
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -457,408 +445,90 @@ export default function QuizPage() {
     }
   }
 
+  const validateCurrentStep = (): boolean => {
+    const errors: Record<string, string> = {}
+
+    switch (currentStep) {
+      case 1: // Gender
+        if (!quizData.gender) {
+          errors.gender = "Selecione seu gênero"
+        }
+        break
+      case 2: // Age
+        if (!quizData.age || quizData.age < 16 || quizData.age > 100) {
+          errors.age = "Idade deve estar entre 16 e 100 anos"
+        }
+        break
+      case 24: // Name
+        if (!quizData.name?.trim()) {
+          errors.name = "Nome é obrigatório"
+        } else if (quizData.name.trim().length < 2) {
+          errors.name = "Nome deve ter pelo menos 2 caracteres"
+        }
+        break
+      case 25: // Email
+        if (quizData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(quizData.email)) {
+          errors.email = "Email inválido"
+        }
+        break
+    }
+
+    setValidationErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
   const handleSubmit = async () => {
-    console.log("handleSubmit: Iniciando...")
-    setShowLoading(true)
-    if (!currentUser || !currentUser.uid) {
-      console.error("handleSubmit: No user ID available. Cannot save quiz data or generate plans.")
-      alert("Erro: Não foi possível identificar o usuário. Tente novamente.")
-      setShowLoading(false)
+    if (!validateCurrentStep()) {
       return
     }
 
+    setIsSubmitting(true)
+
     try {
-      const { imc, classification, status } = calculateIMC()
-      // Atualiza quizData com os resultados do IMC antes de enviar para a API
-      const updatedQuizData = {
+      const sanitizedData = {
         ...quizData,
-        imc: imc,
-        imcClassification: classification,
-        imcStatus: status,
+        name: sanitizeString(quizData.name || ""),
+        allergyDetails: sanitizeString(quizData.allergyDetails || ""),
+        importantEvent: sanitizeString(quizData.importantEvent || ""),
       }
-      setQuizData(updatedQuizData) // Atualiza o estado local
 
-      localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
-      console.log("handleSubmit: Quiz data saved to localStorage")
-
-      const saved = await generateAndSavePlan(updatedQuizData, currentUser.uid) // Passa os dados atualizados
-      console.log("handleSubmit: generateAndSavePlan retornou:", saved)
-
-      if (!saved) {
-        alert("Erro ao gerar seu plano. Tente novamente.")
+      const validation = validateQuizData(sanitizedData)
+      if (!validation.success && validation.errors) {
+        setValidationErrors(validation.errors)
         return
       }
 
-      if (imc > 0) {
-        setShowIMCResult(true)
-      } else {
-        setShowSuccess(true)
+      // Save to localStorage first (as backup)
+      localStorage.setItem("quizData", JSON.stringify(sanitizedData))
+
+      // Try to save to Firebase if user is authenticated
+      if (currentUser) {
+        try {
+          const userDocRef = doc(db, "users", currentUser.uid)
+          await setDoc(
+            userDocRef,
+            {
+              quizData: sanitizedData,
+              updatedAt: new Date(),
+              isSetupComplete: true,
+            },
+            { merge: true },
+          )
+
+          console.log("[v0] Quiz data saved to Firestore successfully")
+        } catch (firebaseError) {
+          handleFirebaseError(firebaseError, "Salvamento no Firebase")
+          // Continue with localStorage data
+        }
       }
+
+      // Navigate to results
+      router.push("/quiz/results")
     } catch (error) {
-      console.error("handleSubmit: Erro no handleSubmit:", error)
-      alert("Erro inesperado. Tente novamente.")
+      handleError(error, "Finalização do quiz")
     } finally {
-      console.log("handleSubmit: Finalizando, definindo showLoading para false.")
-      setShowLoading(false)
+      setIsSubmitting(false)
     }
-  }
-
-  const BodyIllustration = ({
-    type = "normal",
-    highlightAreas = [],
-    className = "w-32 h-48",
-    gender = "male",
-  }: {
-    type?: string
-    highlightAreas?: string[]
-    className?: string
-    gender?: string
-  }) => {
-    const getBodyImage = () => {
-      if (currentStep === 1) {
-        return gender === "female" ? "/images/female-gender-final.png" : "/images/male-gender-new.png"
-      }
-      if (type === "ectomorfo") {
-        return gender === "female" ? "/images/female-ectomorph.png" : "/images/male-ectomorph.png"
-      }
-      if (type === "mesomorfo") {
-        return gender === "female" ? "/images/female-mesomorph.png" : "/images/male-mesomorph.png"
-      }
-      if (type === "endomorfo") {
-        return gender === "female" ? "/images/female-endomorfo.png" : "/images/male-endomorfo.png"
-      }
-      return gender === "female" ? "/images/female-gender-final.png" : "/images/male-gender-new.png"
-    }
-    return (
-      <div className={`${className} relative`}>
-        <img
-          src={getBodyImage() || "/placeholder.svg"}
-          alt={`${gender} ${type} body type`}
-          className="w-full h-full object-contain"
-          onError={(e) => {
-            e.currentTarget.style.display = "none"
-            e.currentTarget.nextElementSibling.style.display = "block"
-          }}
-        />
-        <svg viewBox="0 0 100 150" className="w-full h-full" style={{ display: "none" }}>
-          <path
-            d="M50 10 C45 10 40 15 40 25 L40 35 C35 40 35 50 40 55 L40 90 C40 95 35 100 30 105 L30 140 C30 145 35 150 40 150 L60 150 C65 150 70 145 70 140 L70 105 C65 100 60 95 60 90 L60 55 C65 50 65 40 60 35 L60 25 C60 15 55 10 50 10 Z"
-            fill="#D4A574"
-            stroke="#B8956A"
-            strokeWidth="1"
-          />
-          <circle cx="50" cy="20" r="12" fill="#D4A574" stroke="#B8956A" strokeWidth="1" />
-          <ellipse cx="25" cy="45" rx="8" ry="20" fill="#D4A574" stroke="#B8956A" strokeWidth="1" />
-          <ellipse cx="75" cy="45" rx="8" ry="20" fill="#D4A574" stroke="#B8956A" strokeWidth="1" />
-          <rect x="35" y="85" width="30" height="20" rx="3" fill="#4A90A4" />
-        </svg>
-        {highlightAreas.length > 0 && (
-          <div className="absolute inset-0 pointer-events-none">
-            {highlightAreas.map((area) => (
-              <div
-                key={area}
-                className="absolute bg-lime-500 bg-opacity-30 rounded-full animate-pulse"
-                style={{
-                  ...(area === "Peito" && { top: "25%", left: "35%", width: "30%", height: "15%" }),
-                  ...(area === "Braços" && { top: "20%", left: "10%", width: "20%", height: "40%" }),
-                  ...(area === "Barriga" && { top: "45%", left: "30%", width: "40%", height: "20%" }),
-                  ...(area === "Pernas" && { top: "65%", left: "25%", width: "50%", height: "35%" }),
-                }}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  const ExerciseIllustration = ({ type, className = "w-full h-48" }: { type: string; className?: string }) => {
-    const getExerciseImage = () => {
-      const isWoman = quizData.gender === "mulher"
-      switch (type) {
-        case "cardio":
-          return isWoman ? "/images/female-cardio-real.png" : "/images/male-cardio-real.png"
-        case "pullups":
-          return isWoman ? "/images/female-pullup-real.png" : "/images/male-pullup-real.png"
-        case "yoga":
-          return isWoman ? "/images/female-stretching-real.png" : "/images/male-stretching-real.png"
-        default:
-          return isWoman ? "/images/female-cardio-real.png" : "/images/male-cardio-real.png"
-      }
-    }
-    const getSVGFallback = () => {
-      const illustrations = {
-        cardio: (
-          <svg viewBox="0 0 200 200" className={className}>
-            <defs>
-              <linearGradient id="bodyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#D4A574" />
-                <stop offset="100%" stopColor="#B8956A" />
-              </linearGradient>
-            </defs>
-            <ellipse cx="100" cy="40" rx="15" ry="18" fill="url(#bodyGradient)" />
-            <circle cx="100" cy="25" r="12" fill="url(#bodyGradient)" />
-            <rect x="85" y="55" width="30" height="40" rx="15" fill="url(#bodyGradient)" />
-            <ellipse cx="70" cy="65" rx="8" ry="20" fill="url(#bodyGradient)" transform="rotate(-30 70 65)" />
-            <ellipse cx="130" cy="65" rx="8" ry="20" fill="url(#bodyGradient)" transform="rotate(30 130 65)" />
-            <ellipse cx="90" cy="120" rx="8" ry="25" fill="url(#bodyGradient)" transform="rotate(-20 90 120)" />
-            <ellipse cx="110" cy="120" rx="8" ry="25" fill="url(#bodyGradient)" transform="rotate(20 110 120)" />
-            <rect x="85" y="85" width="30" height="20" rx="3" fill="#4A90A4" />
-            <ellipse cx="85" cy="155" rx="12" ry="6" fill="#84CC16" />
-            <ellipse cx="115" cy="155" rx="12" ry="6" fill="#84CC16" />
-            <path d="M 60 80 Q 50 85 55 90" stroke="#84CC16" strokeWidth="2" fill="none" />
-            <path d="M 140 80 Q 150 85 145 90" stroke="#84CC16" strokeWidth="2" fill="none" />
-          </svg>
-        ),
-        pullups: (
-          <svg viewBox="0 0 200 200" className={className}>
-            <defs>
-              <linearGradient id="bodyGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#D4A574" />
-                <stop offset="100%" stopColor="#B8956A" />
-              </linearGradient>
-            </defs>
-            <rect x="50" y="20" width="100" height="8" rx="4" fill="#666" />
-            <circle cx="100" cy="45" r="12" fill="url(#bodyGradient2)" />
-            <rect x="85" y="55" width="30" height="50" rx="15" fill="url(#bodyGradient2)" />
-            <ellipse cx="80" cy="40" rx="6" ry="18" fill="url(#bodyGradient2)" />
-            <ellipse cx="120" cy="40" rx="6" ry="18" fill="url(#bodyGradient2)" />
-            <ellipse cx="90" cy="130" rx="8" ry="20" fill="url(#bodyGradient2)" transform="rotate(20 90 130)" />
-            <ellipse cx="110" cy="130" rx="8" ry="20" fill="url(#bodyGradient2)" transform="rotate(-20 110 130)" />
-            <rect x="85" y="95" width="30" height="20" rx="3" fill="#4A90A4" />
-            <ellipse cx="85" cy="155" rx="10" ry="5" fill="#84CC16" />
-            <ellipse cx="115" cy="155" rx="10" ry="5" fill="#84CC16" />
-          </svg>
-        ),
-        yoga: (
-          <svg viewBox="0 0 200 200" className={className}>
-            <defs>
-              <linearGradient id="bodyGradient4" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#D4A574" />
-                <stop offset="100%" stopColor="#B8956A" />
-              </linearGradient>
-            </defs>
-            <rect x="40" y="140" width="120" height="8" rx="4" fill="#8B4513" />
-            <circle cx="100" cy="60" r="12" fill="url(#bodyGradient4)" />
-            <rect x="85" y="70" width="30" height="35" rx="15" fill="url(#bodyGradient4)" />
-            <ellipse cx="85" cy="85" rx="6" ry="15" fill="url(#bodyGradient4)" transform="rotate(-20 85 85)" />
-            <ellipse cx="115" cy="85" rx="6" ry="15" fill="url(#bodyGradient4)" transform="rotate(20 115 85)" />
-            <ellipse cx="85" cy="120" rx="12" ry="8" fill="url(#bodyGradient4)" transform="rotate(30 85 120)" />
-            <ellipse cx="115" cy="120" rx="12" ry="8" fill="url(#bodyGradient4)" transform="rotate(-30 115 120)" />
-            <rect x="85" y="95" width="30" height="15" rx="3" fill="#4A90A4" />
-            <circle cx="100" cy="80" r="3" fill="#D4A574" />
-            <circle cx="60" cy="50" r="2" fill="#84CC16" opacity="0.7" />
-            <circle cx="140" cy="45" r="2" fill="#84CC16" opacity="0.7" />
-            <circle cx="70" cy="40" r="1.5" fill="#84CC16" opacity="0.5" />
-          </svg>
-        ),
-      }
-      return illustrations[type as keyof typeof illustrations]
-    }
-    return (
-      <div className="flex justify-center">
-        <img
-          src={getExerciseImage() || "/placeholder.svg"}
-          alt={`${type} exercise`}
-          className={`${className} object-contain`}
-          onError={(e) => {
-            e.currentTarget.style.display = "none"
-            e.currentTarget.nextElementSibling.style.display = "block"
-          }}
-        />
-        <div style={{ display: "none" }}>{getSVGFallback()}</div>
-      </div>
-    )
-  }
-
-  if (showLoading) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-6 max-w-md">
-          <div className="w-32 h-32 mx-auto relative">
-            <svg className="w-full h-full animate-spin" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="40" stroke="#374151" strokeWidth="8" fill="none" />
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                stroke="#84CC16"
-                strokeWidth="8"
-                fill="none"
-                strokeDasharray="251.2"
-                strokeDashoffset="188.4"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold">Analisando suas respostas...</h2>
-          <p className="text-gray-300">Criando seu plano personalizado</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (showIMCResult) {
-    const { imc, classification, status } = calculateIMC()
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-6 max-w-md">
-          <BodyIllustration className="w-48 h-64 mx-auto" gender={quizData.gender === "mulher" ? "female" : "male"} />
-          <h2 className="text-3xl font-bold">Resultado do seu IMC</h2>
-          <div className="bg-gray-800 rounded-lg p-6">
-            <p className="text-gray-300 text-lg mb-4">
-              Calculamos o seu IMC e ele é de <span className="text-lime-400 font-bold">{imc}</span>
-            </p>
-            <p className="text-white text-xl mb-4">
-              Você está <span className="text-lime-400 font-bold">{classification}</span>
-            </p>
-            <p className="text-gray-300 text-sm">{status}</p>
-          </div>
-          <Button
-            onClick={() => {
-              setShowIMCResult(false)
-              setShowSuccess(true)
-            }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-white py-4 text-lg rounded-full"
-          >
-            Continuar
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  if (showSuccess) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <div className="text-center space-y-6">
-          <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center mx-auto">
-            <CheckCircle className="h-12 w-12 text-white" />
-          </div>
-          <div className="bg-gray-800 rounded-lg p-6 max-w-md">
-            <h2 className="text-xl font-bold text-white mb-2">Seu plano de treino personalizado está pronto!</h2>
-          </div>
-          <Button
-            onClick={() => {
-              setShowSuccess(false)
-              // Removendo parâmetros da URL para manter limpa
-              router.push("/quiz/results")
-            }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-white py-4 text-lg rounded-full"
-          >
-            Ver Resultados
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  if (showNutritionInfo) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-6 max-w-md">
-          <BodyIllustration className="w-48 h-64 mx-auto" gender={quizData.gender === "mulher" ? "female" : "male"} />
-          <h2 className="text-3xl font-bold">
-            <span className="text-lime-400">81%</span> dos seus resultados são sobre nutrição
-          </h2>
-          <p className="text-gray-300 text-lg">Para obter os maiores ganhos em massa muscular e força, você precisa:</p>
-          <div className="space-y-4 text-left">
-            <div className="flex items-start space-x-3">
-              <CheckCircle className="h-6 w-6 text-green-500 mt-1 flex-shrink-0" />
-              <p className="text-white">Total de calorias suficientes a cada dia.</p>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle className="h-6 w-6 text-green-500 mt-1 flex-shrink-0" />
-              <p className="text-white">Proteína adequada para realmente reconstruir mais tecido muscular.</p>
-            </div>
-          </div>
-          <Button
-            onClick={() => {
-              setShowNutritionInfo(false)
-              setCurrentStep(currentStep + 1)
-            }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-white py-4 text-lg rounded-full"
-          >
-            Entendi
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  if (showWaterCongrats) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-6 max-w-md">
-          <div className="w-32 h-32 mx-auto relative">
-            <svg viewBox="0 0 100 100" className="w-full h-full">
-              <circle cx="50" cy="50" r="45" fill="#374151" />
-              <path d="M 50 5 A 45 45 0 0 1 95 50 L 50 50 Z" fill="#3B82F6" />
-              <path d="M 50 5 A 45 45 0 1 1 20 80 L 50 50 Z" fill="#60A5FA" />
-            </svg>
-          </div>
-          <h2 className="text-3xl font-bold">Uau! Impressionante!</h2>
-          <p className="text-gray-300 text-lg">Você bebe mais água do que 92% dos usuários*</p>
-          <p className="text-gray-300 text-lg">Continue assim!</p>
-          <p className="text-gray-500 text-sm">*Usuários do ATHLIX que fizeram o teste</p>
-          <Button
-            onClick={() => {
-              setShowWaterCongrats(false)
-              setCurrentStep(currentStep + 1)
-            }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-white py-4 text-lg rounded-full"
-          >
-            Entendi
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  if (showTimeCalculation) {
-    const current = Number.parseFloat(quizData.currentWeight)
-    const target = Number.parseFloat(quizData.targetWeight)
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-8 max-w-md">
-          <h2 className="text-2xl font-bold">
-            O último plano de que você precisará para <span className="text-lime-400">finalmente entrar</span> em forma
-          </h2>
-          <p className="text-gray-300">Com base em nossos cálculos, você atingirá seu peso ideal de {target} kg até</p>
-          <div className="text-2xl font-bold text-lime-400 border-b-2 border-lime-400 pb-2 inline-block">
-            {quizData.timeToGoal}
-          </div>
-          <div className="relative h-32 bg-gray-800 rounded-lg p-4">
-            <div className="absolute top-4 left-4 bg-gray-700 px-3 py-1 rounded text-sm">{current} kg</div>
-            <div className="absolute bottom-4 right-4 bg-lime-500 px-3 py-1 rounded text-sm">{target} kg</div>
-            <svg viewBox="0 0 300 100" className="w-full h-full">
-              <defs>
-                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#8B4513" />
-                  <stop offset="100%" stopColor="#84CC16" />
-                </linearGradient>
-              </defs>
-              <path d="M 20 20 Q 150 60 280 80" stroke="url(#progressGradient)" strokeWidth="4" fill="none" />
-              <circle cx="20" cy="20" r="4" fill="#8B4513" />
-              <circle cx="280" cy="80" r="4" fill="#84CC16" />
-            </svg>
-          </div>
-          <div className="flex justify-between text-sm text-gray-400">
-            <span>10 de jun. de 2025</span>
-            <span>{quizData.timeToGoal}</span>
-          </div>
-          <Button
-            onClick={() => {
-              setShowTimeCalculation(false)
-              setCurrentStep(currentStep + 1)
-            }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-white py-4 text-lg rounded-full"
-          >
-            Entendi
-          </Button>
-        </div>
-      </div>
-    )
   }
 
   const renderStep = () => {
@@ -1736,7 +1406,7 @@ export default function QuizPage() {
         case 24:
           return quizData.name.trim() !== ""
         case 25:
-          return quizData.email.trim() !== "" && quizData.email.includes("@")
+          return quizData.email?.trim() !== "" && quizData.email.includes("@")
         default:
           return false
       }
@@ -1746,47 +1416,61 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <Button variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="text-white">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar
-          </Button>
-          <div className="text-center">
-            <p className="text-gray-400">
-              {currentStep} de {totalSteps}
-            </p>
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gray-900 text-white p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <Button variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="text-white">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar
+            </Button>
+            <div className="text-center">
+              <p className="text-gray-400">
+                {currentStep} de {totalSteps}
+              </p>
+            </div>
+            <div className="w-16" />
           </div>
-          <div className="w-16" />
-        </div>
-        <div className="w-full bg-gray-700 rounded-full h-2 mb-8">
-          <div
-            className="bg-lime-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-          />
-        </div>
-        <div className="mb-8">{renderStep()}</div>
-        <div className="flex justify-center">
-          {currentStep === totalSteps ? (
-            <Button
-              onClick={handleSubmit}
-              disabled={!canProceed() || !currentUser}
-              className="bg-lime-500 hover:bg-lime-600 text-white px-8 py-4 text-lg rounded-full disabled:opacity-50"
-            >
-              Finalizar Quiz
-            </Button>
-          ) : (
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="bg-lime-500 hover:bg-lime-600 text-white px-8 py-4 text-lg rounded-full disabled:opacity-50"
-            >
-              Continuar
-            </Button>
+          <div className="w-full bg-gray-700 rounded-full h-2 mb-8">
+            <div
+              className="bg-lime-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+            />
+          </div>
+          <div className="mb-8">{renderStep()}</div>
+
+          {Object.keys(validationErrors).length > 0 && (
+            <div className="fixed top-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50">
+              <h4 className="font-semibold mb-2">Erro de Validação:</h4>
+              {Object.values(validationErrors).map((error, index) => (
+                <p key={index} className="text-sm">
+                  {error}
+                </p>
+              ))}
+            </div>
           )}
+
+          <div className="flex justify-center">
+            {currentStep === totalSteps ? (
+              <Button
+                onClick={handleSubmit}
+                disabled={!canProceed() || isSubmitting}
+                className="bg-lime-500 hover:bg-lime-600 text-white px-8 py-4 text-lg rounded-full disabled:opacity-50"
+              >
+                {isSubmitting ? "Finalizando..." : "Finalizar Quiz"}
+              </Button>
+            ) : (
+              <Button
+                onClick={nextStep}
+                disabled={!canProceed()}
+                className="bg-lime-500 hover:bg-lime-600 text-white px-8 py-4 text-lg rounded-full disabled:opacity-50"
+              >
+                Continuar
+              </Button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </ErrorBoundary>
   )
 }
