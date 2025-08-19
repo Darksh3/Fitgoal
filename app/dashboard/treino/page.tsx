@@ -236,18 +236,44 @@ export default function WorkoutPage() {
 
       if (response.ok) {
         console.log("[DASHBOARD] Plans generated successfully, refreshing user data...")
-        const userDoc = await getDoc(doc(db, "users", user.uid))
-        if (userDoc.exists()) {
-          const newData = userDoc.data() as UserData
-          setUserData(newData)
 
-          if (newData.workoutPlan?.days?.length) {
-            setActualTrainingFrequency(`${newData.workoutPlan.days.length}x por semana`)
-          } else if ((newData as any).quizData?.trainingDaysPerWeek) {
-            const quizData = (newData as any).quizData
-            setActualTrainingFrequency(`${quizData.trainingDaysPerWeek}x por semana`)
+        const [leadsDoc, userDoc] = await Promise.all([
+          getDoc(doc(db, "leads", user.uid)),
+          getDoc(doc(db, "users", user.uid)),
+        ])
+
+        let newData: UserData = {}
+
+        // Get updated quiz data from leads collection
+        if (leadsDoc.exists()) {
+          const leadsData = leadsDoc.data()
+          console.log("[DASHBOARD] Updated quiz data from leads:", leadsData)
+          newData.quizData = leadsData
+        }
+
+        // Get updated workout plan from users collection
+        if (userDoc.exists()) {
+          const userData = userDoc.data()
+          console.log("[DASHBOARD] Updated workout plan from users:", userData)
+          if (userData.workoutPlan) {
+            newData.workoutPlan = userData.workoutPlan
           }
         }
+
+        newData = await syncUserData(newData)
+        setUserData(newData)
+
+        if (newData.workoutPlan?.days?.length) {
+          const actualDays = newData.workoutPlan.days.length
+          setActualTrainingFrequency(`${actualDays}x por semana`)
+          console.log(`[DASHBOARD] Updated frequency display to: ${actualDays}x por semana`)
+        } else if (newData.quizData?.trainingDaysPerWeek) {
+          const quizDays = newData.quizData.trainingDaysPerWeek
+          setActualTrainingFrequency(`${quizDays}x por semana`)
+          console.log(`[DASHBOARD] Using quiz frequency: ${quizDays}x por semana`)
+        }
+
+        window.location.reload()
       } else {
         console.error("[DASHBOARD] Failed to generate plans:", response.status, response.statusText)
       }
