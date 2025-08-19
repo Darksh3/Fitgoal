@@ -446,6 +446,9 @@ export async function POST(request: NextRequest) {
         quizData,
         dietPlan,
         workoutPlan,
+        trainingDaysPerWeek: quizData.trainingDaysPerWeek,
+        name: quizData.name,
+        email: quizData.email,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         generationMetadata: {
