@@ -57,11 +57,39 @@ export async function POST(request: NextRequest) {
       activityLevel: quizData.activityLevel,
     })
 
+    const userDocRef = adminDb.collection("users").doc(userId)
+    const existingDoc = await userDocRef.get()
+
+    if (existingDoc.exists) {
+      const existingData = existingDoc.data()
+      const lastUpdated = existingData?.updatedAt?.toDate()
+      const now = new Date()
+      const hoursSinceUpdate = lastUpdated ? (now.getTime() - lastUpdated.getTime()) / (1000 * 60 * 60) : 24
+
+      console.log(`[v0] Existing plan found, hours since update: ${hoursSinceUpdate}`)
+
+      // If plan was generated less than 1 hour ago, return existing plan
+      if (hoursSinceUpdate < 1 && existingData?.dietPlan && existingData?.workoutPlan) {
+        console.log(`[v0] Returning cached plan (generated ${hoursSinceUpdate.toFixed(1)} hours ago)`)
+        return NextResponse.json({
+          success: true,
+          dietPlan: existingData.dietPlan,
+          workoutPlan: existingData.workoutPlan,
+          cached: true,
+        })
+      }
+    }
+
     const exerciseRange = getExerciseCountRange(quizData.workoutTime)
     console.log(`[v0] Exercise range for ${quizData.workoutTime}: ${exerciseRange.min}-${exerciseRange.max} exercises`)
 
+    const requestId = `${userId}_${Date.now()}`
+    console.log(`[v0] Generating new plan with requestId: ${requestId}`)
+
     const dietPrompt = `
-    Você é um nutricionista esportivo profissional. Crie um plano de dieta personalizado em português brasileiro.
+    REQUISIÇÃO ID: ${requestId}
+    
+    Você é um nutricionista esportivo profissional. Crie um plano de dieta personalizado ÚNICO em português brasileiro.
     
     Dados do usuário:
     - Gênero: ${quizData.gender}
@@ -81,6 +109,7 @@ export async function POST(request: NextRequest) {
     4. Distribua macros: Proteína 1.8-2.2g/kg, Gorduras 25-30% calorias, Carboidratos restante
     5. Crie OBRIGATORIAMENTE 5-6 refeições detalhadas com alimentos específicos, quantidades exatas e macros
     6. TODOS os alimentos devem ter quantidades específicas (ex: "100g peito de frango", "1 banana média (120g)")
+    7. VARIE os alimentos - não use sempre os mesmos ingredientes básicos
 
     Responda APENAS com um JSON válido no seguinte formato:
     {
@@ -130,15 +159,22 @@ export async function POST(request: NextRequest) {
     IMPORTANTE: Crie um plano profissional com pelo menos 5 refeições completas, cada uma com 2-4 alimentos específicos e macros detalhados.
     `
 
+    console.log(`[v0] Sending diet generation request to OpenAI...`)
     const dietResult = await generateText({
       model: openai("gpt-4o"),
       prompt: dietPrompt,
-      maxTokens: 3000, // Increased token limit for more detailed diet plans
+      maxTokens: 3000,
       response_format: { type: "json_object" },
+      temperature: 0.7, // Add temperature for variation
     })
 
+    console.log(`[v0] OpenAI diet response received, length: ${dietResult.text.length}`)
+    console.log(`[v0] OpenAI diet response preview: ${dietResult.text.substring(0, 200)}...`)
+
     const workoutPrompt = `
-    Com base nas seguintes informações do usuário, crie um plano de treino personalizado em português brasileiro.
+    REQUISIÇÃO ID: ${requestId}
+    
+    Com base nas seguintes informações do usuário, crie um plano de treino personalizado ÚNICO em português brasileiro.
     
     Dados do usuário:
     - Gênero: ${quizData.gender}
@@ -205,25 +241,35 @@ export async function POST(request: NextRequest) {
     - Distribua os exercícios: 60% compostos + 40% isolamento para treinos curtos, 50/50 para treinos longos.
     - NUNCA crie dias com menos de ${exerciseRange.min} exercícios ou mais de ${exerciseRange.max} exercícios.
     - PRIORIZE as áreas de foco selecionadas pelo usuário em TODOS os treinos relevantes.
+    - VARIE os exercícios - não use sempre os mesmos movimentos básicos
     `
 
+    console.log(`[v0] Sending workout generation request to OpenAI...`)
     const workoutResult = await generateText({
       model: openai("gpt-4o"),
       prompt: workoutPrompt,
-      maxTokens: 3000, // Increased token limit for detailed workout plans
+      maxTokens: 3000,
       response_format: { type: "json_object" },
+      temperature: 0.7, // Add temperature for variation
     })
+
+    console.log(`[v0] OpenAI workout response received, length: ${workoutResult.text.length}`)
 
     // Parse dos resultados JSON usando a função auxiliar
     let dietPlan, workoutPlan
+    let usedFallbackDiet = false
+    let usedFallbackWorkout = false
+
     try {
       dietPlan = extractJson(dietResult.text)
       if (!dietPlan) throw new Error("Diet plan JSON extraction failed.")
 
-      console.log(`[v0] Diet plan generated:`, {
+      console.log(`[v0] Diet plan parsed successfully:`, {
         totalCalories: dietPlan.totalDailyCalories,
         mealsCount: dietPlan.meals?.length || 0,
         hasProperMacros: !!(dietPlan.macros?.protein && dietPlan.macros?.carbs && dietPlan.macros?.fat),
+        firstMealName: dietPlan.meals?.[0]?.name,
+        firstFoodItem: dietPlan.meals?.[0]?.foods?.[0]?.name,
       })
 
       // Validate diet plan quality
@@ -231,7 +277,9 @@ export async function POST(request: NextRequest) {
         console.warn(`[v0] Diet plan has insufficient meals: ${dietPlan.meals?.length || 0}`)
       }
     } catch (error) {
-      console.error("Erro ao parsear plano de dieta:", error)
+      console.error(`[v0] ERROR: Diet plan parsing failed, using fallback:`, error)
+      console.error(`[v0] Raw OpenAI diet response:`, dietResult.text)
+      usedFallbackDiet = true
 
       const weight = Number.parseFloat(quizData.currentWeight || quizData.weight) || 70
       const height = Number.parseFloat(quizData.height) || 170
@@ -249,6 +297,18 @@ export async function POST(request: NextRequest) {
       const proteinG = Math.round(weight * 2.0) // 2g per kg
       const fatG = Math.round((tdee * 0.25) / 9) // 25% of calories from fat
       const carbsG = Math.round((tdee - proteinG * 4 - fatG * 9) / 4) // Remaining calories from carbs
+
+      console.log(`[v0] FALLBACK diet calculations:`, {
+        bmr,
+        tdee,
+        proteinG,
+        fatG,
+        carbsG,
+        weight,
+        height,
+        age,
+        gender,
+      })
 
       dietPlan = {
         totalDailyCalories: tdee,
@@ -294,11 +354,13 @@ export async function POST(request: NextRequest) {
       workoutPlan = extractJson(workoutResult.text)
       if (!workoutPlan) throw new Error("Workout plan JSON extraction failed.")
 
-      console.log(`[v0] Workout plan generated:`, {
+      console.log(`[v0] Workout plan parsed successfully:`, {
         daysCount: workoutPlan.days?.length || 0,
         expectedDays: quizData.trainingDaysPerWeek || 5,
         workoutTime: quizData.workoutTime,
         exerciseRange: exerciseRange.description,
+        firstDayFocus: workoutPlan.days?.[0]?.focus,
+        firstExercise: workoutPlan.days?.[0]?.exercises?.[0]?.name,
       })
 
       // Validate exercise count per day
@@ -315,7 +377,10 @@ export async function POST(request: NextRequest) {
         })
       }
     } catch (error) {
-      console.error("Erro ao parsear plano de treino:", error)
+      console.error(`[v0] ERROR: Workout plan parsing failed, using fallback:`, error)
+      console.error(`[v0] Raw OpenAI workout response:`, workoutResult.text)
+      usedFallbackWorkout = true
+
       workoutPlan = {
         days: [],
         weeklySchedule: `Treino ${quizData.trainingDaysPerWeek || 5}x por semana`,
@@ -323,8 +388,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    console.log(`[v0] Plan generation summary:`, {
+      requestId,
+      usedFallbackDiet,
+      usedFallbackWorkout,
+      dietMeals: dietPlan?.meals?.length || 0,
+      workoutDays: workoutPlan?.days?.length || 0,
+    })
+
     // Salvar no Firestore usando a sintaxe correta do Admin SDK
-    const userDocRef = adminDb.collection("users").doc(userId)
     await userDocRef.set(
       {
         quizData,
@@ -332,16 +404,27 @@ export async function POST(request: NextRequest) {
         workoutPlan,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        generationMetadata: {
+          requestId,
+          usedFallbackDiet,
+          usedFallbackWorkout,
+          generatedAt: new Date().toISOString(),
+        },
       },
       { merge: true },
     )
 
-    console.log("Planos salvos com sucesso para o usuário:", userId)
+    console.log(`[v0] Plans saved successfully for user: ${userId}`)
 
     return NextResponse.json({
       success: true,
       dietPlan,
       workoutPlan,
+      metadata: {
+        usedFallbackDiet,
+        usedFallbackWorkout,
+        requestId,
+      },
     })
   } catch (error) {
     console.error("Erro ao gerar plano:", error)

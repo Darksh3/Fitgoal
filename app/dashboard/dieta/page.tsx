@@ -55,6 +55,22 @@ export default function DietPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
+  const clearAllCachedData = () => {
+    console.log("[v0] Clearing all cached data...")
+
+    // Clear all localStorage items that might contain old data
+    const keysToRemove = ["quizData", "userData", "userProgress", "demoMode", "dietPlan", "workoutPlan"]
+
+    keysToRemove.forEach((key) => {
+      localStorage.removeItem(key)
+      console.log(`[v0] Removed localStorage key: ${key}`)
+    })
+
+    // Clear any sessionStorage as well
+    sessionStorage.clear()
+    console.log("[v0] Cleared sessionStorage")
+  }
+
   const calculateTotalMacros = (meals: Meal[]) => {
     if (!Array.isArray(meals) || meals.length === 0) {
       return { calories: "0", protein: "0g", carbs: "0g", fats: "0g" }
@@ -119,6 +135,8 @@ export default function DietPage() {
     const fetchUserData = async () => {
       console.log("[v0] Diet page - Current user:", user?.uid || "anonymous")
 
+      clearAllCachedData()
+
       if (user) {
         try {
           console.log("[v0] Fetching user data from Firestore...")
@@ -128,6 +146,11 @@ export default function DietPage() {
           if (userDoc.exists()) {
             const data = userDoc.data() as UserData
             console.log("[v0] User data found:", data)
+
+            if (data.quizData?.name) {
+              console.log("[v0] User name from Firestore quizData:", data.quizData.name)
+            }
+
             setUserData(data)
 
             if (!data.dietPlan || !data.dietPlan.meals || data.dietPlan.meals.length === 0) {
@@ -135,18 +158,21 @@ export default function DietPage() {
               await generatePlans()
             } else {
               console.log("[v0] Diet plan found with", data.dietPlan.meals.length, "meals")
+
+              console.log("[v0] Diet plan details:", {
+                totalDailyCalories: data.dietPlan.totalDailyCalories,
+                totalProtein: data.dietPlan.totalProtein,
+                totalCarbs: data.dietPlan.totalCarbs,
+                totalFats: data.dietPlan.totalFats,
+                calories: data.dietPlan.calories,
+                protein: data.dietPlan.protein,
+                carbs: data.dietPlan.carbs,
+                fats: data.dietPlan.fats,
+              })
             }
           } else {
-            console.log("[v0] No user document found, checking localStorage...")
-            const localData = localStorage.getItem("quizData")
-            if (localData) {
-              const parsedData = JSON.parse(localData)
-              console.log("[v0] Found quiz data in localStorage:", parsedData)
-              await generatePlans()
-            } else {
-              console.warn("[v0] No data found anywhere")
-              setError("Dados do usuário não encontrados. Faça o quiz primeiro.")
-            }
+            console.log("[v0] No user document found in Firestore")
+            setError("Dados do usuário não encontrados. Faça o quiz primeiro.")
           }
         } catch (error) {
           console.error("[v0] Error fetching user data:", error)
@@ -155,17 +181,7 @@ export default function DietPage() {
           setIsLoading(false)
         }
       } else {
-        console.log("[v0] No authenticated user, checking localStorage...")
-        const localData = localStorage.getItem("quizData")
-        if (localData) {
-          try {
-            const parsedData = JSON.parse(localData)
-            console.log("[v0] Found quiz data in localStorage for anonymous user:", parsedData)
-            setUserData({ quizData: parsedData })
-          } catch (error) {
-            console.error("[v0] Error parsing localStorage data:", error)
-          }
-        }
+        console.log("[v0] No authenticated user")
         setIsLoading(false)
       }
     }
@@ -267,54 +283,120 @@ export default function DietPage() {
   }
 
   const calculatedTotals = calculateTotalMacros(dietPlan.meals)
+
   const displayTotals = {
     calories: (() => {
+      console.log("[v0] Calculating display calories:", {
+        totalDailyCalories: dietPlan.totalDailyCalories,
+        calories: dietPlan.calories,
+        calculatedCalories: calculatedTotals.calories,
+      })
+
       // Check for totalDailyCalories from API response first
       if (dietPlan.totalDailyCalories && dietPlan.totalDailyCalories !== "0") {
-        return `${dietPlan.totalDailyCalories} kcal`
+        const value = `${dietPlan.totalDailyCalories} kcal`
+        console.log("[v0] Using totalDailyCalories:", value)
+        return value
       }
       // Then check for calories field
       if (dietPlan.calories && dietPlan.calories !== "0" && dietPlan.calories !== "0 kcal") {
-        return dietPlan.calories.includes("kcal") ? dietPlan.calories : `${dietPlan.calories} kcal`
+        const value = dietPlan.calories.includes("kcal") ? dietPlan.calories : `${dietPlan.calories} kcal`
+        console.log("[v0] Using calories field:", value)
+        return value
       }
-      // Finally use calculated totals
-      return calculatedTotals.calories !== "0" ? `${calculatedTotals.calories} kcal` : "2500 kcal"
+      // Use calculated totals if available
+      if (calculatedTotals.calories !== "0") {
+        const value = `${calculatedTotals.calories} kcal`
+        console.log("[v0] Using calculated calories:", value)
+        return value
+      }
+
+      console.warn("[v0] No calorie data available, showing error")
+      return "Dados não disponíveis"
     })(),
     protein: (() => {
+      console.log("[v0] Calculating display protein:", {
+        totalProtein: dietPlan.totalProtein,
+        protein: dietPlan.protein,
+        calculatedProtein: calculatedTotals.protein,
+      })
+
       // Check for totalProtein from API response first
       if (dietPlan.totalProtein && dietPlan.totalProtein !== "0g" && dietPlan.totalProtein !== "0") {
-        return dietPlan.totalProtein.includes("g") ? dietPlan.totalProtein : `${dietPlan.totalProtein}g`
+        const value = dietPlan.totalProtein.includes("g") ? dietPlan.totalProtein : `${dietPlan.totalProtein}g`
+        console.log("[v0] Using totalProtein:", value)
+        return value
       }
       // Then check for protein field
       if (dietPlan.protein && dietPlan.protein !== "0g" && dietPlan.protein !== "0") {
-        return dietPlan.protein.includes("g") ? dietPlan.protein : `${dietPlan.protein}g`
+        const value = dietPlan.protein.includes("g") ? dietPlan.protein : `${dietPlan.protein}g`
+        console.log("[v0] Using protein field:", value)
+        return value
       }
-      // Finally use calculated totals or default
-      return calculatedTotals.protein !== "0g" ? calculatedTotals.protein : "150g"
+      // Use calculated totals if available
+      if (calculatedTotals.protein !== "0g") {
+        console.log("[v0] Using calculated protein:", calculatedTotals.protein)
+        return calculatedTotals.protein
+      }
+
+      console.warn("[v0] No protein data available, showing error")
+      return "Dados não disponíveis"
     })(),
     carbs: (() => {
+      console.log("[v0] Calculating display carbs:", {
+        totalCarbs: dietPlan.totalCarbs,
+        carbs: dietPlan.carbs,
+        calculatedCarbs: calculatedTotals.carbs,
+      })
+
       // Check for totalCarbs from API response first
       if (dietPlan.totalCarbs && dietPlan.totalCarbs !== "0g" && dietPlan.totalCarbs !== "0") {
-        return dietPlan.totalCarbs.includes("g") ? dietPlan.totalCarbs : `${dietPlan.totalCarbs}g`
+        const value = dietPlan.totalCarbs.includes("g") ? dietPlan.totalCarbs : `${dietPlan.totalCarbs}g`
+        console.log("[v0] Using totalCarbs:", value)
+        return value
       }
       // Then check for carbs field
       if (dietPlan.carbs && dietPlan.carbs !== "0g" && dietPlan.carbs !== "0") {
-        return dietPlan.carbs.includes("g") ? dietPlan.carbs : `${dietPlan.carbs}g`
+        const value = dietPlan.carbs.includes("g") ? dietPlan.carbs : `${dietPlan.carbs}g`
+        console.log("[v0] Using carbs field:", value)
+        return value
       }
-      // Finally use calculated totals or default
-      return calculatedTotals.carbs !== "0g" ? calculatedTotals.carbs : "300g"
+      // Use calculated totals if available
+      if (calculatedTotals.carbs !== "0g") {
+        console.log("[v0] Using calculated carbs:", calculatedTotals.carbs)
+        return calculatedTotals.carbs
+      }
+
+      console.warn("[v0] No carbs data available, showing error")
+      return "Dados não disponíveis"
     })(),
     fats: (() => {
+      console.log("[v0] Calculating display fats:", {
+        totalFats: dietPlan.totalFats,
+        fats: dietPlan.fats,
+        calculatedFats: calculatedTotals.fats,
+      })
+
       // Check for totalFats from API response first
       if (dietPlan.totalFats && dietPlan.totalFats !== "0g" && dietPlan.totalFats !== "0") {
-        return dietPlan.totalFats.includes("g") ? dietPlan.totalFats : `${dietPlan.totalFats}g`
+        const value = dietPlan.totalFats.includes("g") ? dietPlan.totalFats : `${dietPlan.totalFats}g`
+        console.log("[v0] Using totalFats:", value)
+        return value
       }
       // Then check for fats field
       if (dietPlan.fats && dietPlan.fats !== "0g" && dietPlan.fats !== "0") {
-        return dietPlan.fats.includes("g") ? dietPlan.fats : `${dietPlan.fats}g`
+        const value = dietPlan.fats.includes("g") ? dietPlan.fats : `${dietPlan.fats}g`
+        console.log("[v0] Using fats field:", value)
+        return value
       }
-      // Finally use calculated totals or default
-      return calculatedTotals.fats !== "0g" ? calculatedTotals.fats : "80g"
+      // Use calculated totals if available
+      if (calculatedTotals.fats !== "0g") {
+        console.log("[v0] Using calculated fats:", calculatedTotals.fats)
+        return calculatedTotals.fats
+      }
+
+      console.warn("[v0] No fats data available, showing error")
+      return "Dados não disponíveis"
     })(),
   }
 
@@ -324,7 +406,43 @@ export default function DietPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Seu Plano de Dieta</h1>
           <p className="text-gray-600">Plano personalizado baseado no seu perfil e objetivos</p>
+
+          {process.env.NODE_ENV === "development" && (
+            <div className="mt-4 p-4 bg-gray-100 rounded-lg text-sm">
+              <p>
+                <strong>Debug Info:</strong>
+              </p>
+              <p>User ID: {user?.uid || "anonymous"}</p>
+              <p>User Email: {user?.email || "none"}</p>
+              <p>Quiz Data Name: {userData?.quizData?.name || "none"}</p>
+              <p>Diet Plan Available: {dietPlan ? "Yes" : "No"}</p>
+              <p>Meals Count: {dietPlan?.meals?.length || 0}</p>
+              <Button onClick={clearAllCachedData} variant="outline" size="sm" className="mt-2 bg-transparent">
+                Clear All Cached Data
+              </Button>
+            </div>
+          )}
         </div>
+
+        {(displayTotals.calories === "Dados não disponíveis" ||
+          displayTotals.protein === "Dados não disponíveis" ||
+          displayTotals.carbs === "Dados não disponíveis" ||
+          displayTotals.fats === "Dados não disponíveis") && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-yellow-800 font-medium">⚠️ Alguns dados nutricionais não estão disponíveis</p>
+            <p className="text-yellow-700 text-sm mt-1">
+              Isso pode acontecer se o plano de dieta não foi gerado corretamente. Tente gerar os planos novamente.
+            </p>
+            <Button
+              onClick={generatePlans}
+              variant="outline"
+              size="sm"
+              className="mt-2 border-yellow-300 text-yellow-700 hover:bg-yellow-100 bg-transparent"
+            >
+              Regenerar Planos
+            </Button>
+          </div>
+        )}
 
         {/* Resumo Nutricional */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
