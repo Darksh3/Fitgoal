@@ -64,6 +64,47 @@ export default function WorkoutPage() {
   const [actualTrainingFrequency, setActualTrainingFrequency] = useState<string>("Carregando...")
   const [isRegenerating, setIsRegenerating] = useState(false)
 
+  const detectAndCleanInconsistentData = async (data: any, currentUserEmail: string) => {
+    const hasInconsistentData =
+      (data.quizData?.email && data.quizData.email !== currentUserEmail) ||
+      (data.workoutPlan?.email && data.workoutPlan.email !== currentUserEmail) ||
+      (data.quizData?.name && data.quizData.name.toLowerCase().includes("nathalia")) ||
+      (data.workoutPlan?.name && data.workoutPlan.name.toLowerCase().includes("nathalia"))
+
+    if (hasInconsistentData) {
+      console.log("[TREINO] 🚨 INCONSISTENT DATA DETECTED!")
+      console.log("  Current user email:", currentUserEmail)
+      console.log("  Quiz data email:", data.quizData?.email)
+      console.log("  Quiz data name:", data.quizData?.name)
+      console.log("  Workout plan email:", data.workoutPlan?.email)
+      console.log("  Workout plan name:", data.workoutPlan?.name)
+
+      // Clear all local storage
+      localStorage.clear()
+      sessionStorage.clear()
+
+      // Force cleanup via API
+      try {
+        const cleanupResponse = await fetch("/api/cleanup-user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user?.uid, email: currentUserEmail }),
+        })
+
+        if (cleanupResponse.ok) {
+          console.log("[TREINO] ✅ Cleanup completed successfully")
+          // Force page reload to start fresh
+          window.location.reload()
+          return true
+        }
+      } catch (error) {
+        console.error("[TREINO] ❌ Cleanup failed:", error)
+      }
+    }
+
+    return false
+  }
+
   const syncUserData = async (firestoreData: UserData) => {
     if (typeof window === "undefined") return firestoreData
 
@@ -138,6 +179,11 @@ export default function WorkoutPage() {
           }
 
           console.log("[DASHBOARD] Combined user data:", data)
+
+          const needsCleanup = await detectAndCleanInconsistentData(data, user.email || "")
+          if (needsCleanup) {
+            return // Page will reload after cleanup
+          }
 
           data = await syncUserData(data)
 
@@ -223,6 +269,10 @@ export default function WorkoutPage() {
     try {
       setIsRegenerating(true)
       console.log("[DASHBOARD] Calling generate-plans-on-demand API...")
+
+      localStorage.clear()
+      sessionStorage.clear()
+
       const response = await fetch("/api/generate-plans-on-demand", {
         method: "POST",
         headers: {
@@ -230,49 +280,14 @@ export default function WorkoutPage() {
         },
         body: JSON.stringify({
           userId: user.uid,
+          email: user.email,
           forceRegenerate: true,
+          cleanupFirst: true, // New parameter to force cleanup
         }),
       })
 
       if (response.ok) {
         console.log("[DASHBOARD] Plans generated successfully, refreshing user data...")
-
-        const [leadsDoc, userDoc] = await Promise.all([
-          getDoc(doc(db, "leads", user.uid)),
-          getDoc(doc(db, "users", user.uid)),
-        ])
-
-        let newData: UserData = {}
-
-        // Get updated quiz data from leads collection
-        if (leadsDoc.exists()) {
-          const leadsData = leadsDoc.data()
-          console.log("[DASHBOARD] Updated quiz data from leads:", leadsData)
-          newData.quizData = leadsData
-        }
-
-        // Get updated workout plan from users collection
-        if (userDoc.exists()) {
-          const userData = userDoc.data()
-          console.log("[DASHBOARD] Updated workout plan from users:", userData)
-          if (userData.workoutPlan) {
-            newData.workoutPlan = userData.workoutPlan
-          }
-        }
-
-        newData = await syncUserData(newData)
-        setUserData(newData)
-
-        if (newData.workoutPlan?.days?.length) {
-          const actualDays = newData.workoutPlan.days.length
-          setActualTrainingFrequency(`${actualDays}x por semana`)
-          console.log(`[DASHBOARD] Updated frequency display to: ${actualDays}x por semana`)
-        } else if (newData.quizData?.trainingDaysPerWeek) {
-          const quizDays = newData.quizData.trainingDaysPerWeek
-          setActualTrainingFrequency(`${quizDays}x por semana`)
-          console.log(`[DASHBOARD] Using quiz frequency: ${quizDays}x por semana`)
-        }
-
         window.location.reload()
       } else {
         console.error("[DASHBOARD] Failed to generate plans:", response.status, response.statusText)
