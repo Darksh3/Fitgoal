@@ -80,12 +80,15 @@ export default function DadosPage() {
 
           if (userDoc.exists()) {
             const firestoreData = userDoc.data()
-            console.log("[v0] Firestore data found:", firestoreData?.name)
+            console.log("[v0] Firestore data found:", firestoreData)
+
+            const firestoreQuizData = firestoreData.quizData || firestoreData
+            console.log("[v0] Firestore quiz data:", firestoreQuizData?.name)
 
             // Use Firestore data as source of truth and update localStorage
-            if (firestoreData.name && firestoreData.name !== localQuizData?.name) {
-              console.log("[v0] Syncing name from Firestore:", firestoreData.name)
-              const updatedQuizData = { ...localQuizData, ...firestoreData }
+            if (firestoreQuizData?.name && firestoreQuizData.name !== localQuizData?.name) {
+              console.log("[v0] Syncing name from Firestore:", firestoreQuizData.name)
+              const updatedQuizData = { ...localQuizData, ...firestoreQuizData }
               setQuizData(updatedQuizData)
               localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
             } else {
@@ -160,10 +163,11 @@ export default function DadosPage() {
 
       if (userDoc.exists()) {
         const firestoreData = userDoc.data()
-        console.log("[v0] Syncing with latest Firestore data:", firestoreData?.name)
+        const firestoreQuizData = firestoreData.quizData || firestoreData
+        console.log("[v0] Syncing with latest Firestore data:", firestoreQuizData?.name)
 
-        if (firestoreData.name) {
-          const updatedQuizData = { ...quizData, ...firestoreData }
+        if (firestoreQuizData?.name) {
+          const updatedQuizData = { ...quizData, ...firestoreQuizData }
           setQuizData(updatedQuizData)
           localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
         }

@@ -70,7 +70,7 @@ export default function WorkoutPage() {
       const localStorageData = localStorage.getItem("quizData")
       if (localStorageData) {
         const localQuizData = JSON.parse(localStorageData)
-        const firestoreQuizData = (firestoreData as any).quizData
+        const firestoreQuizData = (firestoreData as any).quizData || firestoreData
 
         // Check for discrepancies in training frequency
         if (firestoreQuizData && localQuizData.trainingDaysPerWeek !== firestoreQuizData.trainingDaysPerWeek) {
@@ -90,9 +90,15 @@ export default function WorkoutPage() {
           console.log("  localStorage:", localQuizData.name)
           console.log("  Firestore:", firestoreQuizData.name)
 
-          const updatedLocalData = { ...localQuizData, name: firestoreQuizData.name }
+          const updatedLocalData = { ...localQuizData, ...firestoreQuizData }
           localStorage.setItem("quizData", JSON.stringify(updatedLocalData))
           console.log("[TREINO] Name synchronized from Firestore")
+        }
+      } else {
+        const firestoreQuizData = (firestoreData as any).quizData
+        if (firestoreQuizData) {
+          console.log("[TREINO] Creating localStorage from Firestore data")
+          localStorage.setItem("quizData", JSON.stringify(firestoreQuizData))
         }
       }
     } catch (error) {
@@ -152,7 +158,10 @@ export default function WorkoutPage() {
               data.workoutPlan?.days?.every((day: any) => day.exercises && day.exercises.length >= 5) || false
 
             const needsRegeneration =
-              !data.workoutPlan || !data.workoutPlan.days || actualDays === 0 || !hasMinimumExercises
+              !data.workoutPlan ||
+              !data.workoutPlan.days ||
+              actualDays === 0 ||
+              (actualDays > 0 && Math.abs(actualDays - expectedFrequency) > 1) // Only regenerate if difference is more than 1 day
 
             console.log(`[DASHBOARD] Regeneration check:`, {
               hasWorkoutPlan: !!data.workoutPlan,
@@ -283,6 +292,8 @@ export default function WorkoutPage() {
                     <p className="text-xs text-gray-500">
                       Quiz: {(userData as any)?.quizData?.trainingDaysPerWeek || "N/A"} | Plan:{" "}
                       {workoutPlan?.days?.length || "N/A"} dias
+                      <br />
+                      User: {(userData as any)?.quizData?.name || "N/A"}
                       {workoutPlan?.days?.length !== (userData as any)?.quizData?.trainingDaysPerWeek && (
                         <span className="text-orange-500"> (Discrepância detectada)</span>
                       )}

@@ -137,13 +137,29 @@ export default function DietPage() {
                 const parsedLocalData = JSON.parse(localStorageData)
                 console.log("[v0] Local storage data:", parsedLocalData)
 
+                const firestoreQuizData = firestoreData.quizData || firestoreData
+
                 // Compare names to detect sync issues
-                if (firestoreData.quizData?.name && parsedLocalData.name !== firestoreData.quizData.name) {
+                if (firestoreQuizData?.name && parsedLocalData.name !== firestoreQuizData.name) {
                   console.log(
                     "[v0] Name mismatch detected - Local:",
                     parsedLocalData.name,
                     "Firestore:",
-                    firestoreData.quizData.name,
+                    firestoreQuizData.name,
+                  )
+                  shouldUpdateLocalStorage = true
+                }
+
+                // Compare training frequency
+                if (
+                  firestoreQuizData?.trainingDaysPerWeek &&
+                  parsedLocalData.trainingDaysPerWeek !== firestoreQuizData.trainingDaysPerWeek
+                ) {
+                  console.log(
+                    "[v0] Training frequency mismatch - Local:",
+                    parsedLocalData.trainingDaysPerWeek,
+                    "Firestore:",
+                    firestoreQuizData.trainingDaysPerWeek,
                   )
                   shouldUpdateLocalStorage = true
                 }
@@ -430,6 +446,7 @@ export default function DietPage() {
               <p>User ID: {user?.uid || "anonymous"}</p>
               <p>User Email: {user?.email || "none"}</p>
               <p>Quiz Data Name: {userData?.quizData?.name || "none"}</p>
+              <p>Training Frequency: {userData?.quizData?.trainingDaysPerWeek || "none"}</p>
               <p>Diet Plan Available: {dietPlan ? "Yes" : "No"}</p>
               <p>Meals Count: {dietPlan?.meals?.length || 0}</p>
               <Button
