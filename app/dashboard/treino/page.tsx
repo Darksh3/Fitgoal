@@ -61,7 +61,7 @@ export default function WorkoutPage() {
   const [user, loading] = useAuthState(auth)
   const [userData, setUserData] = useState<UserData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [actualTrainingFrequency, setActualTrainingFrequency] = useState<string>("Loading...")
+  const [actualTrainingFrequency, setActualTrainingFrequency] = useState<string>("Carregando...")
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -73,12 +73,29 @@ export default function WorkoutPage() {
             const data = userDoc.data() as UserData
             console.log("[DASHBOARD] Raw user data:", data)
 
+            let frequency = "Frequência não especificada"
+
+            // Try to get from quiz data first
             const quizData = (data as any).quizData
             if (quizData?.trainingDaysPerWeek) {
-              const frequency = `${quizData.trainingDaysPerWeek}x por semana`
-              setActualTrainingFrequency(frequency)
+              frequency = `${quizData.trainingDaysPerWeek}x por semana`
               console.log("[DASHBOARD] Found training frequency from quiz:", frequency)
             }
+            // Fallback: get from workout plan days count
+            else if (data.workoutPlan?.days?.length) {
+              frequency = `${data.workoutPlan.days.length}x por semana`
+              console.log("[DASHBOARD] Using workout plan days count:", frequency)
+            }
+            // Fallback: parse from weeklySchedule string
+            else if (data.workoutPlan?.weeklySchedule) {
+              const match = data.workoutPlan.weeklySchedule.match(/(\d+)x?\s*por\s*semana/i)
+              if (match) {
+                frequency = `${match[1]}x por semana`
+                console.log("[DASHBOARD] Parsed from weeklySchedule:", frequency)
+              }
+            }
+
+            setActualTrainingFrequency(frequency)
 
             debugDataFlow("DASHBOARD_LOAD", data)
             setUserData(data)
@@ -191,7 +208,7 @@ export default function WorkoutPage() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Programação Semanal</p>
                   <p className="text-lg font-bold text-gray-900">
-                    {actualTrainingFrequency !== "Loading..." ? actualTrainingFrequency : "Carregando..."}
+                    {actualTrainingFrequency !== "Carregando..." ? actualTrainingFrequency : "Carregando..."}
                   </p>
                   {process.env.NODE_ENV === "development" && (
                     <p className="text-xs text-red-500">
