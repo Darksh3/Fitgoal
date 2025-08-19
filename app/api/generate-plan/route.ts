@@ -3,6 +3,22 @@ import { adminDb, admin } from "@/lib/firebaseAdmin"
 import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
 
+/**
+ * Calcula o número de exercícios baseado no tempo disponível
+ */
+function getExerciseCountRange(workoutTime: string) {
+  switch (workoutTime) {
+    case "30-45min":
+      return { min: 5, max: 6, description: "5-6 exercícios (treino rápido)" }
+    case "45-60min":
+      return { min: 6, max: 7, description: "6-7 exercícios (treino moderado)" }
+    case "mais-1h":
+      return { min: 7, max: 8, description: "7-8 exercícios (treino completo)" }
+    default:
+      return { min: 6, max: 7, description: "6-7 exercícios (padrão)" }
+  }
+}
+
 // Função auxiliar para extrair JSON de uma string, mesmo que contenha texto extra
 function extractJson(text: string): any | null {
   try {
@@ -40,6 +56,9 @@ export async function POST(request: NextRequest) {
       goal: quizData.goal,
       activityLevel: quizData.activityLevel,
     })
+
+    const exerciseRange = getExerciseCountRange(quizData.workoutTime)
+    console.log(`[v0] Exercise range for ${quizData.workoutTime}: ${exerciseRange.min}-${exerciseRange.max} exercises`)
 
     const dietPrompt = `
     Você é um nutricionista esportivo profissional. Crie um plano de dieta personalizado em português brasileiro.
@@ -118,7 +137,6 @@ export async function POST(request: NextRequest) {
       response_format: { type: "json_object" },
     })
 
-    // Gerar plano de treino
     const workoutPrompt = `
     Com base nas seguintes informações do usuário, crie um plano de treino personalizado em português brasileiro.
     
@@ -131,8 +149,29 @@ export async function POST(request: NextRequest) {
     - Objetivo: ${Array.isArray(quizData.goal) ? quizData.goal.join(", ") : quizData.goal}
     - Tipo corporal: ${quizData.bodyType}
     - Experiência com exercícios: ${quizData.exerciseExperience || "Iniciante"}
-    - Tempo disponível: ${quizData.timeAvailable || "1 hora"}
+    - Tempo disponível: ${quizData.workoutTime || "45-60min"}
     - Dias de treino por semana: ${quizData.trainingDaysPerWeek || 5}
+    - Áreas de foco corporal: ${quizData.problemAreas?.join(", ") || "Corpo inteiro"}
+    - Preferências de exercício: Cardio (${quizData.exercisePreferences?.cardio || "neutro"}), Força (${quizData.exercisePreferences?.pullups || "neutro"}), Yoga (${quizData.exercisePreferences?.yoga || "neutro"})
+    - Equipamentos disponíveis: ${quizData.equipment?.join(", ") || "Academia completa"}
+
+    🎯 PERSONALIZAÇÃO OBRIGATÓRIA DO TREINO:
+    
+    **Tipo Corporal - ${quizData.bodyType}:**
+    ${quizData.bodyType === "ectomorfo" ? "- Foque em exercícios compostos pesados, menos cardio, mais descanso entre séries (90-120s), rep range 6-8 para força" : ""}
+    ${quizData.bodyType === "mesomorfo" ? "- Balance entre exercícios compostos e isolamento, cardio moderado, descanso médio (60-90s), rep range 8-12 para hipertrofia" : ""}
+    ${quizData.bodyType === "endomorfo" ? "- Mais exercícios de isolamento, cardio intenso, menos descanso (45-60s), rep range 12-15 para definição" : ""}
+    
+    **Gênero - ${quizData.gender}:**
+    ${quizData.gender === "homem" ? "- Foque mais em membros superiores, exercícios de força, cargas mais pesadas" : ""}
+    ${quizData.gender === "mulher" ? "- Equilibre membros superiores e inferiores, inclua mais exercícios para glúteos e pernas, foque em resistência muscular" : ""}
+    
+    **Áreas de Foco Corporal:**
+    ${quizData.problemAreas?.includes("Peito") ? "- OBRIGATÓRIO: Inclua 2-3 exercícios de peito em pelo menos 2 dias da semana" : ""}
+    ${quizData.problemAreas?.includes("Braços") ? "- OBRIGATÓRIO: Inclua exercícios específicos para bíceps e tríceps em pelo menos 2 dias" : ""}
+    ${quizData.problemAreas?.includes("Barriga") ? "- OBRIGATÓRIO: Inclua exercícios abdominais e core em TODOS os dias de treino" : ""}
+    ${quizData.problemAreas?.includes("Pernas") ? "- OBRIGATÓRIO: Dedique pelo menos 2 dias completos para membros inferiores" : ""}
+    ${quizData.problemAreas?.includes("Corpo inteiro") ? "- OBRIGATÓRIO: Balance todos os grupos musculares igualmente" : ""}
 
     Responda APENAS com um JSON válido no seguinte formato. Não inclua nenhum texto adicional ou markdown (como \`\`\`json):
     {
@@ -140,6 +179,7 @@ export async function POST(request: NextRequest) {
         {
           "day": "Segunda-feira",
           "focus": "Foco do treino (e.g., Peito e Tríceps)",
+          "duration": "${quizData.workoutTime || "60 minutos"}",
           "exercises": [
             {
               "name": "Supino Reto com Barra",
@@ -148,18 +188,23 @@ export async function POST(request: NextRequest) {
               "rest": "60-90 segundos",
               "instructions": "Deite-se no banco, segure a barra com as mãos um pouco mais afastadas que a largura dos ombros, desça até tocar o peito e empurre para cima."
             }
-          ],
-          "duration": "60 minutos"
+          ]
         }
       ],
       "weeklySchedule": "Treino ${quizData.trainingDaysPerWeek || 5}x por semana",
       "tips": ["Aqueça antes de cada treino.", "Mantenha a forma correta."]
     }
 
-    // IMPORTANTE: 
-    // - Crie um plano para EXATAMENTE ${quizData.trainingDaysPerWeek || 5} dias da semana.
-    // - CADA dia deve ter OBRIGATORIAMENTE 7-9 exercícios completos com séries, repetições, descanso e instruções detalhadas.
-    // - NUNCA crie dias com menos de 7 exercícios - isso é inaceitável para um treino profissional.
+    INSTRUÇÕES OBRIGATÓRIAS:
+    - Crie um plano para EXATAMENTE ${quizData.trainingDaysPerWeek || 5} dias da semana.
+    - CADA dia deve ter OBRIGATORIAMENTE ${exerciseRange.description} baseado no tempo disponível.
+    - Tempo disponível: ${quizData.workoutTime || "45-60min"} - ajuste a intensidade e número de exercícios adequadamente.
+    - Para treinos mais curtos (30-45min): Foque em exercícios compostos e reduza o tempo de descanso.
+    - Para treinos médios (45-60min): Balance exercícios compostos e isolamento.
+    - Para treinos longos (mais de 1h): Inclua mais exercícios de isolamento e aquecimento específico.
+    - Distribua os exercícios: 60% compostos + 40% isolamento para treinos curtos, 50/50 para treinos longos.
+    - NUNCA crie dias com menos de ${exerciseRange.min} exercícios ou mais de ${exerciseRange.max} exercícios.
+    - PRIORIZE as áreas de foco selecionadas pelo usuário em TODOS os treinos relevantes.
     `
 
     const workoutResult = await generateText({
@@ -187,9 +232,31 @@ export async function POST(request: NextRequest) {
       }
     } catch (error) {
       console.error("Erro ao parsear plano de dieta:", error)
+
+      const weight = Number.parseFloat(quizData.currentWeight || quizData.weight) || 70
+      const height = Number.parseFloat(quizData.height) || 170
+      const age = Number.parseInt(quizData.age) || 30
+      const gender = quizData.gender || "masculino"
+
+      // Calculate BMR using Mifflin-St Jeor equation
+      const bmr =
+        gender === "feminino" ? 10 * weight + 6.25 * height - 5 * age - 161 : 10 * weight + 6.25 * height - 5 * age + 5
+
+      // Estimate TDEE (using moderate activity level as fallback)
+      const tdee = Math.round(bmr * 1.55)
+
+      // Calculate macros based on weight
+      const proteinG = Math.round(weight * 2.0) // 2g per kg
+      const fatG = Math.round((tdee * 0.25) / 9) // 25% of calories from fat
+      const carbsG = Math.round((tdee - proteinG * 4 - fatG * 9) / 4) // Remaining calories from carbs
+
       dietPlan = {
-        totalDailyCalories: 2500,
-        macros: { protein: "150g", carbs: "300g", fat: "85g" },
+        totalDailyCalories: tdee,
+        macros: {
+          protein: `${proteinG}g`,
+          carbs: `${carbsG}g`,
+          fat: `${fatG}g`,
+        },
         meals: [
           {
             name: "Café da Manhã",
@@ -226,11 +293,32 @@ export async function POST(request: NextRequest) {
     try {
       workoutPlan = extractJson(workoutResult.text)
       if (!workoutPlan) throw new Error("Workout plan JSON extraction failed.")
+
+      console.log(`[v0] Workout plan generated:`, {
+        daysCount: workoutPlan.days?.length || 0,
+        expectedDays: quizData.trainingDaysPerWeek || 5,
+        workoutTime: quizData.workoutTime,
+        exerciseRange: exerciseRange.description,
+      })
+
+      // Validate exercise count per day
+      if (workoutPlan.days) {
+        workoutPlan.days.forEach((day: any, index: number) => {
+          const exerciseCount = day.exercises?.length || 0
+          console.log(`[v0] Day ${index + 1} (${day.focus}): ${exerciseCount} exercises`)
+
+          if (exerciseCount < exerciseRange.min || exerciseCount > exerciseRange.max) {
+            console.warn(
+              `[v0] WARNING: Day ${index + 1} has ${exerciseCount} exercises (should be ${exerciseRange.min}-${exerciseRange.max} for ${quizData.workoutTime})`,
+            )
+          }
+        })
+      }
     } catch (error) {
       console.error("Erro ao parsear plano de treino:", error)
       workoutPlan = {
         days: [],
-        weeklySchedule: "",
+        weeklySchedule: `Treino ${quizData.trainingDaysPerWeek || 5}x por semana`,
         tips: [],
       }
     }

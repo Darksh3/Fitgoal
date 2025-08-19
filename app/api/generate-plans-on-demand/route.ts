@@ -7,10 +7,57 @@ const openai = new OpenAI({
 })
 
 /**
+ * Calcula o número de exercícios baseado no tempo disponível
+ */
+function getExerciseCountRange(workoutTime: string) {
+  switch (workoutTime) {
+    case "30-45min":
+      return { min: 5, max: 6, description: "5-6 exercícios (treino rápido)" }
+    case "45-60min":
+      return { min: 6, max: 7, description: "6-7 exercícios (treino moderado)" }
+    case "mais-1h":
+      return { min: 7, max: 8, description: "7-8 exercícios (treino completo)" }
+    default:
+      return { min: 6, max: 7, description: "6-7 exercícios (padrão)" }
+  }
+}
+
+/**
  * Gera o prompt para o ChatGPT com base no quizData
  */
 function buildPrompt(quizData: any) {
   const targetDate = quizData.eventDate || quizData.timeToGoal || "Não informado"
+  const exerciseRange = getExerciseCountRange(quizData.workoutTime)
+
+  const bodyFocusAreas = quizData.problemAreas || []
+  const bodyType = quizData.bodyType || "mesomorfo"
+  const gender = quizData.gender || "homem"
+  const goals = Array.isArray(quizData.goal) ? quizData.goal : [quizData.goal]
+  const experience = quizData.experience || "intermediario"
+
+  // Body type specific training guidelines
+  const bodyTypeGuidelines = {
+    ectomorfo:
+      "Foque em exercícios compostos pesados, menos cardio, mais descanso entre séries (90-120s), rep range 6-8 para força",
+    mesomorfo:
+      "Balance entre exercícios compostos e isolamento, cardio moderado, descanso médio (60-90s), rep range 8-12 para hipertrofia",
+    endomorfo: "Mais exercícios de isolamento, cardio intenso, menos descanso (45-60s), rep range 12-15 para definição",
+  }
+
+  // Gender specific guidelines
+  const genderGuidelines = {
+    homem: "Foque mais em membros superiores, exercícios de força, cargas mais pesadas",
+    mulher:
+      "Equilibre membros superiores e inferiores, inclua mais exercícios para glúteos e pernas, foque em resistência muscular",
+  }
+
+  // Goal specific programming
+  const goalProgramming = {
+    "perder-peso": "Priorize exercícios compostos, circuitos, cardio HIIT, menor descanso entre séries",
+    "ganhar-massa": "Foque em exercícios compostos pesados, progressão de carga, descanso adequado para hipertrofia",
+    "melhorar-saude": "Balance entre força e cardio, exercícios funcionais, mobilidade e flexibilidade",
+    "aumentar-resistencia": "Exercícios de resistência muscular, cardio variado, circuitos de alta intensidade",
+  }
 
   return `
 Você é um nutricionista esportivo e personal trainer profissional.  
@@ -49,15 +96,14 @@ Receberá os dados de um cliente e deve retornar **APENAS um JSON válido** segu
         "day": "Dia 1",
         "title": "Peito e Tríceps", 
         "focus": "Hipertrofia de membros superiores",
-        "duration": "60 min",
+        "duration": "${quizData.workoutTime || "60 min"}",
         "exercises": [
           { "name": "Supino reto com barra", "sets": 4, "reps": "8-12", "rest": "90s", "description": "Exercício principal para peito, foco na porção média do peitoral maior" },
           { "name": "Supino inclinado com halteres", "sets": 4, "reps": "10-12", "rest": "90s", "description": "Trabalha a porção superior do peitoral" },
           { "name": "Crucifixo inclinado", "sets": 3, "reps": "12-15", "rest": "60s", "description": "Isolamento do peitoral superior" },
           { "name": "Paralelas", "sets": 3, "reps": "8-12", "rest": "90s", "description": "Exercício composto para peito inferior e tríceps" },
           { "name": "Tríceps testa com barra", "sets": 4, "reps": "10-12", "rest": "60s", "description": "Isolamento do tríceps, porção longa" },
-          { "name": "Tríceps corda na polia", "sets": 3, "reps": "12-15", "rest": "45s", "description": "Isolamento do tríceps lateral" },
-          { "name": "Tríceps francês com halter", "sets": 3, "reps": "10-12", "rest": "60s", "description": "Trabalha toda a musculatura do tríceps" }
+          { "name": "Tríceps corda na polia", "sets": 3, "reps": "12-15", "rest": "45s", "description": "Isolamento do tríceps lateral" }
         ]
       }
     ],
@@ -71,9 +117,27 @@ Receberá os dados de um cliente e deve retornar **APENAS um JSON válido** segu
 
 ⚠️ Regras OBRIGATÓRIAS:
 - Use EXATAMENTE ${quizData.trainingDaysPerWeek || 5} dias de treino (não mais, não menos).
-- CADA dia deve ter OBRIGATORIAMENTE 7-9 exercícios completos com séries, repetições, descanso e descrição detalhada.
-- NUNCA crie dias com menos de 7 exercícios - isso é inaceitável para um treino profissional.
-- Distribua os exercícios: 3-4 exercícios principais (compostos) + 3-4 exercícios auxiliares (isolamento).
+- CADA dia deve ter OBRIGATORIAMENTE ${exerciseRange.description} baseado no tempo disponível.
+- Tempo disponível: ${quizData.workoutTime || "não informado"} - ajuste a intensidade e número de exercícios adequadamente.
+- Para treinos mais curtos (30-45min): Foque em exercícios compostos e reduza o tempo de descanso.
+- Para treinos médios (45-60min): Balance exercícios compostos e isolamento.
+- Para treinos longos (mais de 1h): Inclua mais exercícios de isolamento e aquecimento específico.
+- Distribua os exercícios: 60% compostos + 40% isolamento para treinos curtos, 50/50 para treinos longos.
+
+🎯 PERSONALIZAÇÃO OBRIGATÓRIA DO TREINO:
+- **Áreas de Foco**: ${bodyFocusAreas.length > 0 ? bodyFocusAreas.join(", ") : "Corpo inteiro"} - PRIORIZE exercícios para essas áreas em TODOS os treinos
+- **Tipo Corporal**: ${bodyType} - ${bodyTypeGuidelines[bodyType as keyof typeof bodyTypeGuidelines]}
+- **Gênero**: ${gender} - ${genderGuidelines[gender as keyof typeof genderGuidelines]}
+- **Objetivos**: ${goals.join(", ")} - Aplique as estratégias: ${goals.map((g) => goalProgramming[g as keyof typeof goalProgramming] || "Treino balanceado").join("; ")}
+- **Experiência**: ${experience} - Ajuste complexidade e volume adequadamente
+
+🔥 REGRAS DE FOCO CORPORAL:
+${bodyFocusAreas.includes("Peito") ? "- OBRIGATÓRIO: Inclua 2-3 exercícios de peito em pelo menos 2 dias da semana" : ""}
+${bodyFocusAreas.includes("Braços") ? "- OBRIGATÓRIO: Inclua exercícios específicos para bíceps e tríceps em pelo menos 2 dias" : ""}
+${bodyFocusAreas.includes("Barriga") ? "- OBRIGATÓRIO: Inclua exercícios abdominais e core em TODOS os dias de treino" : ""}
+${bodyFocusAreas.includes("Pernas") ? "- OBRIGATÓRIO: Dedique pelo menos 2 dias completos para membros inferiores" : ""}
+${bodyFocusAreas.includes("Corpo inteiro") ? "- OBRIGATÓRIO: Balance todos os grupos musculares igualmente" : ""}
+
 - Calcule TMB usando Mifflin-St Jeor: Homens = (10×peso) + (6.25×altura) - (5×idade) + 5 | Mulheres = (10×peso) + (6.25×altura) - (5×idade) - 161
 - Calcule GET baseado no nível de atividade: Sedentário×1.2, Leve×1.375, Moderado×1.55, Intenso×1.725
 - Defina meta calórica: Perda (GET-400), Manutenção (GET), Ganho (GET+400)
@@ -89,7 +153,9 @@ Receberá os dados de um cliente e deve retornar **APENAS um JSON válido** segu
 - Peso: ${quizData.currentWeight || "Não informado"} kg
 - Tipo corporal: ${quizData.bodyType || "Não informado"}
 - Objetivo: ${quizData.goal?.join(", ") || "Não informado"}
+- Áreas de foco: ${bodyFocusAreas.join(", ") || "Não informado"}
 - Dias de treino: ${quizData.trainingDaysPerWeek || 5} por semana
+- Tempo disponível: ${quizData.workoutTime || "45-60min"} por treino
 - Experiência: ${quizData.experience || "Intermediário"}
 - Equipamentos: ${quizData.equipment?.join(", ") || "Academia completa"}
 - Alergias: ${quizData.allergies === "sim" ? quizData.allergyDetails || "Não especificado" : "Nenhuma"}
@@ -132,9 +198,13 @@ export async function POST(req: Request) {
 
     const generatePlansWithValidation = async (attempt = 1): Promise<any> => {
       const maxAttempts = 3
+      const exerciseRange = getExerciseCountRange(quizData.workoutTime)
 
       console.log(`[v0] Tentativa ${attempt}: Enviando prompt para OpenAI...`)
       console.log(`[v0] Prompt includes ${quizData.trainingDaysPerWeek} training days requirement`)
+      console.log(
+        `[v0] Exercise range for ${quizData.workoutTime}: ${exerciseRange.min}-${exerciseRange.max} exercises`,
+      )
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
@@ -166,28 +236,33 @@ export async function POST(req: Request) {
           totalExercises += exerciseCount
           console.log(`[v0] Dia ${index + 1} (${day.title}): ${exerciseCount} exercícios`)
 
-          // Warn if day has too few exercises
-          if (exerciseCount < 7) {
-            console.warn(`[v0] WARNING: Day ${index + 1} has only ${exerciseCount} exercises (minimum should be 7-9)`)
+          if (exerciseCount < exerciseRange.min || exerciseCount > exerciseRange.max) {
+            console.warn(
+              `[v0] WARNING: Day ${index + 1} has ${exerciseCount} exercises (should be ${exerciseRange.min}-${exerciseRange.max} for ${quizData.workoutTime})`,
+            )
           }
         })
         console.log(`[v0] Total exercises across all days: ${totalExercises}`)
+        console.log(`[v0] Expected range per day: ${exerciseRange.description}`)
       }
 
       const hasCorrectDays = actualDays === expectedDays
-      const hasEnoughExercises = parsed.workoutPlan?.days?.every(
-        (day: any) => day.exercises && day.exercises.length >= 7 && day.exercises.length <= 9,
+      const hasCorrectExerciseCount = parsed.workoutPlan?.days?.every(
+        (day: any) =>
+          day.exercises && day.exercises.length >= exerciseRange.min && day.exercises.length <= exerciseRange.max,
       )
 
-      if ((!hasCorrectDays || !hasEnoughExercises) && attempt < maxAttempts) {
+      if ((!hasCorrectDays || !hasCorrectExerciseCount) && attempt < maxAttempts) {
         console.log(
-          `[v0] Plan validation failed! Days: ${hasCorrectDays}, Exercises: ${hasEnoughExercises}. Retrying... (${attempt}/${maxAttempts})`,
+          `[v0] Plan validation failed! Days: ${hasCorrectDays}, Exercise count: ${hasCorrectExerciseCount}. Retrying... (${attempt}/${maxAttempts})`,
         )
         return generatePlansWithValidation(attempt + 1)
       }
 
       console.log(`[v0] Plano final gerado:`, {
         diasTreino: actualDays,
+        tempoTreino: quizData.workoutTime,
+        faixaExercicios: `${exerciseRange.min}-${exerciseRange.max}`,
         totalExercicios: parsed.workoutPlan?.days?.reduce(
           (total: number, day: any) => total + (day.exercises?.length || 0),
           0,
