@@ -63,6 +63,45 @@ export default function WorkoutPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [actualTrainingFrequency, setActualTrainingFrequency] = useState<string>("Carregando...")
 
+  const syncUserData = async (firestoreData: UserData) => {
+    if (typeof window === "undefined") return firestoreData
+
+    try {
+      const localStorageData = localStorage.getItem("quizData")
+      if (localStorageData) {
+        const localQuizData = JSON.parse(localStorageData)
+        const firestoreQuizData = (firestoreData as any).quizData
+
+        // Check for discrepancies in training frequency
+        if (firestoreQuizData && localQuizData.trainingDaysPerWeek !== firestoreQuizData.trainingDaysPerWeek) {
+          console.log("[TREINO] Frequency mismatch detected:")
+          console.log("  localStorage:", localQuizData.trainingDaysPerWeek)
+          console.log("  Firestore:", firestoreQuizData.trainingDaysPerWeek)
+
+          // Update localStorage with Firestore data
+          const updatedLocalData = { ...localQuizData, ...firestoreQuizData }
+          localStorage.setItem("quizData", JSON.stringify(updatedLocalData))
+          console.log("[TREINO] localStorage updated with Firestore data")
+        }
+
+        // Check for name discrepancies
+        if (firestoreQuizData && localQuizData.name !== firestoreQuizData.name) {
+          console.log("[TREINO] Name mismatch detected:")
+          console.log("  localStorage:", localQuizData.name)
+          console.log("  Firestore:", firestoreQuizData.name)
+
+          const updatedLocalData = { ...localQuizData, name: firestoreQuizData.name }
+          localStorage.setItem("quizData", JSON.stringify(updatedLocalData))
+          console.log("[TREINO] Name synchronized from Firestore")
+        }
+      }
+    } catch (error) {
+      console.error("[TREINO] Error syncing data:", error)
+    }
+
+    return firestoreData
+  }
+
   useEffect(() => {
     const fetchUserData = async () => {
       if (user) {
@@ -70,26 +109,27 @@ export default function WorkoutPage() {
           console.log("[DASHBOARD] Loading user preferences for:", user.uid)
           const userDoc = await getDoc(doc(db, "users", user.uid))
           if (userDoc.exists()) {
-            const data = userDoc.data() as UserData
+            let data = userDoc.data() as UserData
             console.log("[DASHBOARD] Raw user data:", data)
+
+            data = await syncUserData(data)
 
             let frequency = "Frequência não especificada"
             let frequencySource = "none"
 
-            // Priority 1: Get from quiz data (most reliable)
-            const quizData = (data as any).quizData
-            if (quizData?.trainingDaysPerWeek) {
+            if (data.workoutPlan?.days?.length) {
+              frequency = `${data.workoutPlan.days.length}x por semana`
+              frequencySource = "workoutPlan.days"
+              console.log("[DASHBOARD] Using actual workout plan days count:", frequency)
+            }
+            // Priority 2: Get from quiz data (fallback if no plan exists)
+            else if ((data as any).quizData?.trainingDaysPerWeek) {
+              const quizData = (data as any).quizData
               frequency = `${quizData.trainingDaysPerWeek}x por semana`
               frequencySource = "quizData"
               console.log("[DASHBOARD] Found training frequency from quiz:", frequency)
             }
-            // Priority 2: Get from workout plan days count (if quiz data missing)
-            else if (data.workoutPlan?.days?.length) {
-              frequency = `${data.workoutPlan.days.length}x por semana`
-              frequencySource = "workoutPlan.days"
-              console.log("[DASHBOARD] Using workout plan days count:", frequency)
-            }
-            // Priority 3: Parse from weeklySchedule string (fallback)
+            // Priority 3: Parse from weeklySchedule string (last resort)
             else if (data.workoutPlan?.weeklySchedule) {
               const match = data.workoutPlan.weeklySchedule.match(/(\d+)x?\s*por\s*semana/i)
               if (match) {
@@ -105,17 +145,14 @@ export default function WorkoutPage() {
             debugDataFlow("DASHBOARD_LOAD", data)
             setUserData(data)
 
+            const quizData = (data as any).quizData
             const expectedFrequency = quizData?.trainingDaysPerWeek || 5
             const actualDays = data.workoutPlan?.days?.length || 0
             const hasMinimumExercises =
               data.workoutPlan?.days?.every((day: any) => day.exercises && day.exercises.length >= 5) || false
 
             const needsRegeneration =
-              !data.workoutPlan ||
-              !data.workoutPlan.days ||
-              actualDays === 0 ||
-              actualDays !== expectedFrequency ||
-              !hasMinimumExercises
+              !data.workoutPlan || !data.workoutPlan.days || actualDays === 0 || !hasMinimumExercises
 
             console.log(`[DASHBOARD] Regeneration check:`, {
               hasWorkoutPlan: !!data.workoutPlan,
@@ -133,7 +170,9 @@ export default function WorkoutPage() {
               debugDataFlow("DASHBOARD_EXISTING_PLAN", data.workoutPlan)
               console.log(`[DASHBOARD] Using existing plan with ${actualDays} days`)
               data.workoutPlan.days.forEach((day: any, index: number) => {
-                console.log(`[DASHBOARD] Day ${index + 1} (${day.title}): ${day.exercises?.length || 0} exercises`)
+                console.log(
+                  `[DASHBOARD] Day ${index + 1} (${day.title || day.day}): ${day.exercises?.length || 0} exercises`,
+                )
               })
             }
           } else {
@@ -175,9 +214,10 @@ export default function WorkoutPage() {
           const newData = userDoc.data() as UserData
           setUserData(newData)
 
-          // Update frequency display
-          const quizData = (newData as any).quizData
-          if (quizData?.trainingDaysPerWeek) {
+          if (newData.workoutPlan?.days?.length) {
+            setActualTrainingFrequency(`${newData.workoutPlan.days.length}x por semana`)
+          } else if ((newData as any).quizData?.trainingDaysPerWeek) {
+            const quizData = (newData as any).quizData
             setActualTrainingFrequency(`${quizData.trainingDaysPerWeek}x por semana`)
           }
         }
@@ -243,6 +283,9 @@ export default function WorkoutPage() {
                     <p className="text-xs text-gray-500">
                       Quiz: {(userData as any)?.quizData?.trainingDaysPerWeek || "N/A"} | Plan:{" "}
                       {workoutPlan?.days?.length || "N/A"} dias
+                      {workoutPlan?.days?.length !== (userData as any)?.quizData?.trainingDaysPerWeek && (
+                        <span className="text-orange-500"> (Discrepância detectada)</span>
+                      )}
                     </p>
                   )}
                 </div>

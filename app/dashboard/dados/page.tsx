@@ -7,7 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, User, Save, Edit, Calendar, Target } from "lucide-react"
+import { ArrowLeft, User, Save, Edit, Calendar, Target, RefreshCw } from "lucide-react"
+import { db, auth } from "@/lib/firebaseClient"
+import { doc, getDoc, setDoc } from "firebase/firestore"
 
 interface QuizData {
   gender: string
@@ -46,22 +48,135 @@ export default function DadosPage() {
     allergies: "",
   })
   const [isEditing, setIsEditing] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSyncing, setIsSyncing] = useState(false)
 
   useEffect(() => {
-    const savedQuizData = localStorage.getItem("quizData")
-    if (savedQuizData) {
-      setQuizData(JSON.parse(savedQuizData))
+    const loadAndSyncData = async () => {
+      console.log("[v0] Loading user data...")
+      setIsLoading(true)
+
+      // First try localStorage
+      let localQuizData = null
+      let localPersonalData = null
+
+      const savedQuizData = localStorage.getItem("quizData")
+      const savedPersonalData = localStorage.getItem("personalData")
+
+      if (savedQuizData) {
+        localQuizData = JSON.parse(savedQuizData)
+        console.log("[v0] Local quiz data found:", localQuizData?.name)
+      }
+
+      if (savedPersonalData) {
+        localPersonalData = JSON.parse(savedPersonalData)
+      }
+
+      // Then try Firestore if user is authenticated
+      if (auth.currentUser) {
+        try {
+          console.log("[v0] Fetching data from Firestore for user:", auth.currentUser.uid)
+          const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid))
+
+          if (userDoc.exists()) {
+            const firestoreData = userDoc.data()
+            console.log("[v0] Firestore data found:", firestoreData?.name)
+
+            // Use Firestore data as source of truth and update localStorage
+            if (firestoreData.name && firestoreData.name !== localQuizData?.name) {
+              console.log("[v0] Syncing name from Firestore:", firestoreData.name)
+              const updatedQuizData = { ...localQuizData, ...firestoreData }
+              setQuizData(updatedQuizData)
+              localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
+            } else {
+              setQuizData(localQuizData)
+            }
+
+            // Merge personal data
+            if (firestoreData.personalData) {
+              const mergedPersonalData = { ...localPersonalData, ...firestoreData.personalData }
+              setPersonalData(mergedPersonalData)
+              localStorage.setItem("personalData", JSON.stringify(mergedPersonalData))
+            } else {
+              setPersonalData(localPersonalData || personalData)
+            }
+          } else {
+            console.log("[v0] No Firestore data found, using localStorage")
+            setQuizData(localQuizData)
+            setPersonalData(localPersonalData || personalData)
+          }
+        } catch (error) {
+          console.error("[v0] Error fetching from Firestore:", error)
+          setQuizData(localQuizData)
+          setPersonalData(localPersonalData || personalData)
+        }
+      } else {
+        console.log("[v0] No authenticated user, using localStorage only")
+        setQuizData(localQuizData)
+        setPersonalData(localPersonalData || personalData)
+      }
+
+      setIsLoading(false)
     }
 
-    const savedPersonalData = localStorage.getItem("personalData")
-    if (savedPersonalData) {
-      setPersonalData(JSON.parse(savedPersonalData))
-    }
+    loadAndSyncData()
   }, [])
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setIsSyncing(true)
+
+    // Save to localStorage
     localStorage.setItem("personalData", JSON.stringify(personalData))
+
+    // Save to Firestore if user is authenticated
+    if (auth.currentUser) {
+      try {
+        console.log("[v0] Saving personal data to Firestore")
+        await setDoc(
+          doc(db, "users", auth.currentUser.uid),
+          {
+            personalData: personalData,
+            updatedAt: new Date().toISOString(),
+          },
+          { merge: true },
+        )
+        console.log("[v0] Personal data saved to Firestore successfully")
+      } catch (error) {
+        console.error("[v0] Error saving to Firestore:", error)
+      }
+    }
+
+    setIsSyncing(false)
     setIsEditing(false)
+  }
+
+  const handleSync = async () => {
+    if (!auth.currentUser) return
+
+    setIsSyncing(true)
+    try {
+      console.log("[v0] Manual sync requested")
+      const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid))
+
+      if (userDoc.exists()) {
+        const firestoreData = userDoc.data()
+        console.log("[v0] Syncing with latest Firestore data:", firestoreData?.name)
+
+        if (firestoreData.name) {
+          const updatedQuizData = { ...quizData, ...firestoreData }
+          setQuizData(updatedQuizData)
+          localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
+        }
+
+        if (firestoreData.personalData) {
+          setPersonalData(firestoreData.personalData)
+          localStorage.setItem("personalData", JSON.stringify(firestoreData.personalData))
+        }
+      }
+    } catch (error) {
+      console.error("[v0] Error during manual sync:", error)
+    }
+    setIsSyncing(false)
   }
 
   const getGoalText = (goals: string[]) => {
@@ -72,6 +187,17 @@ export default function DadosPage() {
       "aumentar-resistencia": "Aumentar resistência",
     }
     return goals.map((goal) => goalMap[goal] || goal).join(", ")
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando seus dados...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -87,10 +213,16 @@ export default function DadosPage() {
             <h1 className="text-3xl font-bold text-gray-800">Meus Dados</h1>
             <p className="text-gray-600">Gerencie suas informações pessoais</p>
           </div>
-          <Button variant="outline" onClick={() => setIsEditing(!isEditing)}>
-            <Edit className="h-4 w-4 mr-2" />
-            {isEditing ? "Cancelar" : "Editar"}
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleSync} disabled={isSyncing}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${isSyncing ? "animate-spin" : ""}`} />
+              Sincronizar
+            </Button>
+            <Button variant="outline" onClick={() => setIsEditing(!isEditing)}>
+              <Edit className="h-4 w-4 mr-2" />
+              {isEditing ? "Cancelar" : "Editar"}
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -108,6 +240,9 @@ export default function DadosPage() {
                   <div>
                     <Label className="text-sm text-gray-600">Nome</Label>
                     <p className="font-medium">{quizData?.name || "Não informado"}</p>
+                    {process.env.NODE_ENV === "development" && (
+                      <p className="text-xs text-gray-400">Debug: {quizData?.name}</p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-sm text-gray-600">Gênero</Label>
@@ -230,9 +365,9 @@ export default function DadosPage() {
                 </div>
 
                 {isEditing && (
-                  <Button onClick={handleSave} className="w-full">
+                  <Button onClick={handleSave} className="w-full" disabled={isSyncing}>
                     <Save className="h-4 w-4 mr-2" />
-                    Salvar Dados
+                    {isSyncing ? "Salvando..." : "Salvar Dados"}
                   </Button>
                 )}
               </CardContent>

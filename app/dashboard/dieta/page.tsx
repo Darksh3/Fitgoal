@@ -55,22 +55,6 @@ export default function DietPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  const clearAllCachedData = () => {
-    console.log("[v0] Clearing all cached data...")
-
-    // Clear all localStorage items that might contain old data
-    const keysToRemove = ["quizData", "userData", "userProgress", "demoMode", "dietPlan", "workoutPlan"]
-
-    keysToRemove.forEach((key) => {
-      localStorage.removeItem(key)
-      console.log(`[v0] Removed localStorage key: ${key}`)
-    })
-
-    // Clear any sessionStorage as well
-    sessionStorage.clear()
-    console.log("[v0] Cleared sessionStorage")
-  }
-
   const calculateTotalMacros = (meals: Meal[]) => {
     if (!Array.isArray(meals) || meals.length === 0) {
       return { calories: "0", protein: "0g", carbs: "0g", fats: "0g" }
@@ -135,8 +119,6 @@ export default function DietPage() {
     const fetchUserData = async () => {
       console.log("[v0] Diet page - Current user:", user?.uid || "anonymous")
 
-      clearAllCachedData()
-
       if (user) {
         try {
           console.log("[v0] Fetching user data from Firestore...")
@@ -144,30 +126,63 @@ export default function DietPage() {
           const userDoc = await getDoc(userDocRef)
 
           if (userDoc.exists()) {
-            const data = userDoc.data() as UserData
-            console.log("[v0] User data found:", data)
+            const firestoreData = userDoc.data() as UserData
+            console.log("[v0] User data found in Firestore:", firestoreData)
 
-            if (data.quizData?.name) {
-              console.log("[v0] User name from Firestore quizData:", data.quizData.name)
+            const localStorageData = localStorage.getItem("quizData")
+            let shouldUpdateLocalStorage = false
+
+            if (localStorageData) {
+              try {
+                const parsedLocalData = JSON.parse(localStorageData)
+                console.log("[v0] Local storage data:", parsedLocalData)
+
+                // Compare names to detect sync issues
+                if (firestoreData.quizData?.name && parsedLocalData.name !== firestoreData.quizData.name) {
+                  console.log(
+                    "[v0] Name mismatch detected - Local:",
+                    parsedLocalData.name,
+                    "Firestore:",
+                    firestoreData.quizData.name,
+                  )
+                  shouldUpdateLocalStorage = true
+                }
+              } catch (e) {
+                console.log("[v0] Error parsing localStorage data, will update")
+                shouldUpdateLocalStorage = true
+              }
+            } else {
+              console.log("[v0] No localStorage data found")
+              shouldUpdateLocalStorage = true
             }
 
-            setUserData(data)
+            if (shouldUpdateLocalStorage && firestoreData.quizData) {
+              console.log("[v0] Updating localStorage with Firestore data")
+              localStorage.setItem("quizData", JSON.stringify(firestoreData.quizData))
+              localStorage.setItem("userData", JSON.stringify(firestoreData))
+            }
 
-            if (!data.dietPlan || !data.dietPlan.meals || data.dietPlan.meals.length === 0) {
+            if (firestoreData.quizData?.name) {
+              console.log("[v0] User name from Firestore quizData:", firestoreData.quizData.name)
+            }
+
+            setUserData(firestoreData)
+
+            if (!firestoreData.dietPlan || !firestoreData.dietPlan.meals || firestoreData.dietPlan.meals.length === 0) {
               console.log("[v0] Diet plan not found, generating...")
               await generatePlans()
             } else {
-              console.log("[v0] Diet plan found with", data.dietPlan.meals.length, "meals")
+              console.log("[v0] Diet plan found with", firestoreData.dietPlan.meals.length, "meals")
 
               console.log("[v0] Diet plan details:", {
-                totalDailyCalories: data.dietPlan.totalDailyCalories,
-                totalProtein: data.dietPlan.totalProtein,
-                totalCarbs: data.dietPlan.totalCarbs,
-                totalFats: data.dietPlan.totalFats,
-                calories: data.dietPlan.calories,
-                protein: data.dietPlan.protein,
-                carbs: data.dietPlan.carbs,
-                fats: data.dietPlan.fats,
+                totalDailyCalories: firestoreData.dietPlan.totalDailyCalories,
+                totalProtein: firestoreData.dietPlan.totalProtein,
+                totalCarbs: firestoreData.dietPlan.totalCarbs,
+                totalFats: firestoreData.dietPlan.totalFats,
+                calories: firestoreData.dietPlan.calories,
+                protein: firestoreData.dietPlan.protein,
+                carbs: firestoreData.dietPlan.carbs,
+                fats: firestoreData.dietPlan.fats,
               })
             }
           } else {
@@ -417,8 +432,13 @@ export default function DietPage() {
               <p>Quiz Data Name: {userData?.quizData?.name || "none"}</p>
               <p>Diet Plan Available: {dietPlan ? "Yes" : "No"}</p>
               <p>Meals Count: {dietPlan?.meals?.length || 0}</p>
-              <Button onClick={clearAllCachedData} variant="outline" size="sm" className="mt-2 bg-transparent">
-                Clear All Cached Data
+              <Button
+                onClick={() => window.location.reload()}
+                variant="outline"
+                size="sm"
+                className="mt-2 bg-transparent"
+              >
+                Sync Data
               </Button>
             </div>
           )}
