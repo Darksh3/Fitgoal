@@ -21,6 +21,7 @@ interface QuizData {
   timeToGoal: string
   workoutTime: string
   experience: string
+  trainingDaysPerWeek: string
 }
 
 interface PersonalData {
@@ -72,39 +73,45 @@ export default function DadosPage() {
         localPersonalData = JSON.parse(savedPersonalData)
       }
 
-      // Then try Firestore if user is authenticated
       if (auth.currentUser) {
         try {
-          console.log("[v0] Fetching data from Firestore for user:", auth.currentUser.uid)
-          const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid))
+          console.log("[v0] Fetching data from Firestore leads collection for user:", auth.currentUser.uid)
+          const leadsDoc = await getDoc(doc(db, "leads", auth.currentUser.uid))
 
-          if (userDoc.exists()) {
-            const firestoreData = userDoc.data()
-            console.log("[v0] Firestore data found:", firestoreData)
+          if (leadsDoc.exists()) {
+            const firestoreData = leadsDoc.data()
+            console.log("[v0] Firestore leads data found:", firestoreData)
 
-            const firestoreQuizData = firestoreData.quizData || firestoreData
-            console.log("[v0] Firestore quiz data:", firestoreQuizData?.name)
+            // The quiz data is directly in the leads document, not nested in quizData
+            console.log("[v0] Firestore quiz data name:", firestoreData?.name)
+            console.log("[v0] Firestore training frequency:", firestoreData?.trainingDaysPerWeek)
 
             // Use Firestore data as source of truth and update localStorage
-            if (firestoreQuizData?.name && firestoreQuizData.name !== localQuizData?.name) {
-              console.log("[v0] Syncing name from Firestore:", firestoreQuizData.name)
-              const updatedQuizData = { ...localQuizData, ...firestoreQuizData }
+            if (firestoreData?.name && firestoreData.name !== localQuizData?.name) {
+              console.log("[v0] Syncing name from Firestore:", firestoreData.name)
+              const updatedQuizData = { ...localQuizData, ...firestoreData }
               setQuizData(updatedQuizData)
               localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
             } else {
-              setQuizData(localQuizData)
+              setQuizData(localQuizData || firestoreData)
             }
 
-            // Merge personal data
-            if (firestoreData.personalData) {
-              const mergedPersonalData = { ...localPersonalData, ...firestoreData.personalData }
-              setPersonalData(mergedPersonalData)
-              localStorage.setItem("personalData", JSON.stringify(mergedPersonalData))
-            } else {
+            // Try to get personal data from users collection as fallback
+            try {
+              const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid))
+              if (userDoc.exists() && userDoc.data().personalData) {
+                const mergedPersonalData = { ...localPersonalData, ...userDoc.data().personalData }
+                setPersonalData(mergedPersonalData)
+                localStorage.setItem("personalData", JSON.stringify(mergedPersonalData))
+              } else {
+                setPersonalData(localPersonalData || personalData)
+              }
+            } catch (error) {
+              console.log("[v0] No personal data in users collection, using localStorage")
               setPersonalData(localPersonalData || personalData)
             }
           } else {
-            console.log("[v0] No Firestore data found, using localStorage")
+            console.log("[v0] No Firestore leads data found, using localStorage")
             setQuizData(localQuizData)
             setPersonalData(localPersonalData || personalData)
           }
@@ -159,22 +166,27 @@ export default function DadosPage() {
     setIsSyncing(true)
     try {
       console.log("[v0] Manual sync requested")
-      const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid))
+      const leadsDoc = await getDoc(doc(db, "leads", auth.currentUser.uid))
 
-      if (userDoc.exists()) {
-        const firestoreData = userDoc.data()
-        const firestoreQuizData = firestoreData.quizData || firestoreData
-        console.log("[v0] Syncing with latest Firestore data:", firestoreQuizData?.name)
+      if (leadsDoc.exists()) {
+        const firestoreData = leadsDoc.data()
+        console.log("[v0] Syncing with latest Firestore leads data:", firestoreData?.name)
 
-        if (firestoreQuizData?.name) {
-          const updatedQuizData = { ...quizData, ...firestoreQuizData }
+        if (firestoreData?.name) {
+          const updatedQuizData = { ...quizData, ...firestoreData }
           setQuizData(updatedQuizData)
           localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
         }
 
-        if (firestoreData.personalData) {
-          setPersonalData(firestoreData.personalData)
-          localStorage.setItem("personalData", JSON.stringify(firestoreData.personalData))
+        // Try to get personal data from users collection
+        try {
+          const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid))
+          if (userDoc.exists() && userDoc.data().personalData) {
+            setPersonalData(userDoc.data().personalData)
+            localStorage.setItem("personalData", JSON.stringify(userDoc.data().personalData))
+          }
+        } catch (error) {
+          console.log("[v0] No personal data in users collection")
         }
       }
     } catch (error) {
@@ -285,6 +297,11 @@ export default function DadosPage() {
                     <Label className="text-sm text-gray-600">Tempo de Treino</Label>
                     <p className="font-medium">{quizData?.workoutTime || "Não definido"}</p>
                   </div>
+                </div>
+
+                <div>
+                  <Label className="text-sm text-gray-600">Dias de Treino por Semana</Label>
+                  <p className="font-medium">{quizData?.trainingDaysPerWeek || "Não definido"}</p>
                 </div>
               </CardContent>
             </Card>

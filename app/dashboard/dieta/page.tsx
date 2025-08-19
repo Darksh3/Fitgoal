@@ -122,88 +122,100 @@ export default function DietPage() {
       if (user) {
         try {
           console.log("[v0] Fetching user data from Firestore...")
-          const userDocRef = doc(db, "users", user.uid)
-          const userDoc = await getDoc(userDocRef)
+          const [leadsDoc, userDoc] = await Promise.all([
+            getDoc(doc(db, "leads", user.uid)),
+            getDoc(doc(db, "users", user.uid)),
+          ])
 
+          const firestoreData: UserData = {}
+
+          // Get quiz data from leads collection
+          if (leadsDoc.exists()) {
+            const leadsData = leadsDoc.data()
+            console.log("[v0] Quiz data from leads collection:", leadsData)
+            firestoreData.quizData = leadsData
+          }
+
+          // Get diet plan from users collection
           if (userDoc.exists()) {
-            const firestoreData = userDoc.data() as UserData
-            console.log("[v0] User data found in Firestore:", firestoreData)
+            const userData = userDoc.data()
+            console.log("[v0] Diet plan from users collection:", userData)
+            if (userData.dietPlan) {
+              firestoreData.dietPlan = userData.dietPlan
+            }
+          }
 
-            const localStorageData = localStorage.getItem("quizData")
-            let shouldUpdateLocalStorage = false
+          console.log("[v0] Combined user data:", firestoreData)
 
-            if (localStorageData) {
-              try {
-                const parsedLocalData = JSON.parse(localStorageData)
-                console.log("[v0] Local storage data:", parsedLocalData)
+          const localStorageData = localStorage.getItem("quizData")
+          let shouldUpdateLocalStorage = false
 
-                const firestoreQuizData = firestoreData.quizData || firestoreData
+          if (localStorageData) {
+            try {
+              const parsedLocalData = JSON.parse(localStorageData)
+              console.log("[v0] Local storage data:", parsedLocalData)
 
-                // Compare names to detect sync issues
-                if (firestoreQuizData?.name && parsedLocalData.name !== firestoreQuizData.name) {
-                  console.log(
-                    "[v0] Name mismatch detected - Local:",
-                    parsedLocalData.name,
-                    "Firestore:",
-                    firestoreQuizData.name,
-                  )
-                  shouldUpdateLocalStorage = true
-                }
-
-                // Compare training frequency
-                if (
-                  firestoreQuizData?.trainingDaysPerWeek &&
-                  parsedLocalData.trainingDaysPerWeek !== firestoreQuizData.trainingDaysPerWeek
-                ) {
-                  console.log(
-                    "[v0] Training frequency mismatch - Local:",
-                    parsedLocalData.trainingDaysPerWeek,
-                    "Firestore:",
-                    firestoreQuizData.trainingDaysPerWeek,
-                  )
-                  shouldUpdateLocalStorage = true
-                }
-              } catch (e) {
-                console.log("[v0] Error parsing localStorage data, will update")
+              // Compare names to detect sync issues
+              if (firestoreData.quizData?.name && parsedLocalData.name !== firestoreData.quizData.name) {
+                console.log(
+                  "[v0] Name mismatch detected - Local:",
+                  parsedLocalData.name,
+                  "Firestore:",
+                  firestoreData.quizData.name,
+                )
                 shouldUpdateLocalStorage = true
               }
-            } else {
-              console.log("[v0] No localStorage data found")
+
+              // Compare training frequency
+              if (
+                firestoreData.quizData?.trainingDaysPerWeek &&
+                parsedLocalData.trainingDaysPerWeek !== firestoreData.quizData.trainingDaysPerWeek
+              ) {
+                console.log(
+                  "[v0] Training frequency mismatch - Local:",
+                  parsedLocalData.trainingDaysPerWeek,
+                  "Firestore:",
+                  firestoreData.quizData.trainingDaysPerWeek,
+                )
+                shouldUpdateLocalStorage = true
+              }
+            } catch (e) {
+              console.log("[v0] Error parsing localStorage data, will update")
               shouldUpdateLocalStorage = true
             }
-
-            if (shouldUpdateLocalStorage && firestoreData.quizData) {
-              console.log("[v0] Updating localStorage with Firestore data")
-              localStorage.setItem("quizData", JSON.stringify(firestoreData.quizData))
-              localStorage.setItem("userData", JSON.stringify(firestoreData))
-            }
-
-            if (firestoreData.quizData?.name) {
-              console.log("[v0] User name from Firestore quizData:", firestoreData.quizData.name)
-            }
-
-            setUserData(firestoreData)
-
-            if (!firestoreData.dietPlan || !firestoreData.dietPlan.meals || firestoreData.dietPlan.meals.length === 0) {
-              console.log("[v0] Diet plan not found, generating...")
-              await generatePlans()
-            } else {
-              console.log("[v0] Diet plan found with", firestoreData.dietPlan.meals.length, "meals")
-
-              console.log("[v0] Diet plan details:", {
-                totalDailyCalories: firestoreData.dietPlan.totalDailyCalories,
-                totalProtein: firestoreData.dietPlan.totalProtein,
-                totalCarbs: firestoreData.dietPlan.totalCarbs,
-                totalFats: firestoreData.dietPlan.totalFats,
-                calories: firestoreData.dietPlan.calories,
-                protein: firestoreData.dietPlan.protein,
-                carbs: firestoreData.dietPlan.carbs,
-                fats: firestoreData.dietPlan.fats,
-              })
-            }
           } else {
-            console.log("[v0] No user document found in Firestore")
-            setError("Dados do usuário não encontrados. Faça o quiz primeiro.")
+            console.log("[v0] No localStorage data found")
+            shouldUpdateLocalStorage = true
+          }
+
+          if (shouldUpdateLocalStorage && firestoreData.quizData) {
+            console.log("[v0] Updating localStorage with Firestore data")
+            localStorage.setItem("quizData", JSON.stringify(firestoreData.quizData))
+            localStorage.setItem("userData", JSON.stringify(firestoreData))
+          }
+
+          if (firestoreData.quizData?.name) {
+            console.log("[v0] User name from Firestore quizData:", firestoreData.quizData.name)
+          }
+
+          setUserData(firestoreData)
+
+          if (!firestoreData.dietPlan || !firestoreData.dietPlan.meals || firestoreData.dietPlan.meals.length === 0) {
+            console.log("[v0] Diet plan not found, generating...")
+            await generatePlans()
+          } else {
+            console.log("[v0] Diet plan found with", firestoreData.dietPlan.meals.length, "meals")
+
+            console.log("[v0] Diet plan details:", {
+              totalDailyCalories: firestoreData.dietPlan.totalDailyCalories,
+              totalProtein: firestoreData.dietPlan.totalProtein,
+              totalCarbs: firestoreData.dietPlan.totalCarbs,
+              totalFats: firestoreData.dietPlan.totalFats,
+              calories: firestoreData.dietPlan.calories,
+              protein: firestoreData.dietPlan.protein,
+              carbs: firestoreData.dietPlan.carbs,
+              fats: firestoreData.dietPlan.fats,
+            })
           }
         } catch (error) {
           console.error("[v0] Error fetching user data:", error)

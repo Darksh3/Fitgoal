@@ -113,80 +113,95 @@ export default function WorkoutPage() {
       if (user) {
         try {
           console.log("[DASHBOARD] Loading user preferences for:", user.uid)
-          const userDoc = await getDoc(doc(db, "users", user.uid))
+          const [leadsDoc, userDoc] = await Promise.all([
+            getDoc(doc(db, "leads", user.uid)),
+            getDoc(doc(db, "users", user.uid)),
+          ])
+
+          let data: UserData = {}
+
+          // Get quiz data from leads collection
+          if (leadsDoc.exists()) {
+            const leadsData = leadsDoc.data()
+            console.log("[DASHBOARD] Quiz data from leads:", leadsData)
+            data.quizData = leadsData
+          }
+
+          // Get workout plan from users collection
           if (userDoc.exists()) {
-            let data = userDoc.data() as UserData
-            console.log("[DASHBOARD] Raw user data:", data)
-
-            data = await syncUserData(data)
-
-            let frequency = "Frequência não especificada"
-            let frequencySource = "none"
-
-            if (data.workoutPlan?.days?.length) {
-              frequency = `${data.workoutPlan.days.length}x por semana`
-              frequencySource = "workoutPlan.days"
-              console.log("[DASHBOARD] Using actual workout plan days count:", frequency)
+            const userData = userDoc.data()
+            console.log("[DASHBOARD] Workout plan from users:", userData)
+            if (userData.workoutPlan) {
+              data.workoutPlan = userData.workoutPlan
             }
-            // Priority 2: Get from quiz data (fallback if no plan exists)
-            else if ((data as any).quizData?.trainingDaysPerWeek) {
-              const quizData = (data as any).quizData
-              frequency = `${quizData.trainingDaysPerWeek}x por semana`
-              frequencySource = "quizData"
-              console.log("[DASHBOARD] Found training frequency from quiz:", frequency)
+          }
+
+          console.log("[DASHBOARD] Combined user data:", data)
+
+          data = await syncUserData(data)
+
+          let frequency = "Frequência não especificada"
+          let frequencySource = "none"
+
+          // Priority 1: Use actual workout plan days count
+          if (data.workoutPlan?.days?.length) {
+            frequency = `${data.workoutPlan.days.length}x por semana`
+            frequencySource = "workoutPlan.days"
+            console.log("[DASHBOARD] Using actual workout plan days count:", frequency)
+          }
+          // Priority 2: Get from quiz data (from leads collection)
+          else if (data.quizData?.trainingDaysPerWeek) {
+            frequency = `${data.quizData.trainingDaysPerWeek}x por semana`
+            frequencySource = "quizData"
+            console.log("[DASHBOARD] Found training frequency from quiz:", frequency)
+          }
+          // Priority 3: Parse from weeklySchedule string (last resort)
+          else if (data.workoutPlan?.weeklySchedule) {
+            const match = data.workoutPlan.weeklySchedule.match(/(\d+)x?\s*por\s*semana/i)
+            if (match) {
+              frequency = `${match[1]}x por semana`
+              frequencySource = "weeklySchedule"
+              console.log("[DASHBOARD] Parsed from weeklySchedule:", frequency)
             }
-            // Priority 3: Parse from weeklySchedule string (last resort)
-            else if (data.workoutPlan?.weeklySchedule) {
-              const match = data.workoutPlan.weeklySchedule.match(/(\d+)x?\s*por\s*semana/i)
-              if (match) {
-                frequency = `${match[1]}x por semana`
-                frequencySource = "weeklySchedule"
-                console.log("[DASHBOARD] Parsed from weeklySchedule:", frequency)
-              }
-            }
+          }
 
-            console.log(`[DASHBOARD] Final frequency: ${frequency} (source: ${frequencySource})`)
-            setActualTrainingFrequency(frequency)
+          console.log(`[DASHBOARD] Final frequency: ${frequency} (source: ${frequencySource})`)
+          setActualTrainingFrequency(frequency)
 
-            debugDataFlow("DASHBOARD_LOAD", data)
-            setUserData(data)
+          debugDataFlow("DASHBOARD_LOAD", data)
+          setUserData(data)
 
-            const quizData = (data as any).quizData
-            const expectedFrequency = quizData?.trainingDaysPerWeek || 5
-            const actualDays = data.workoutPlan?.days?.length || 0
-            const hasMinimumExercises =
-              data.workoutPlan?.days?.every((day: any) => day.exercises && day.exercises.length >= 5) || false
+          const expectedFrequency = data.quizData?.trainingDaysPerWeek || 5
+          const actualDays = data.workoutPlan?.days?.length || 0
+          const hasMinimumExercises =
+            data.workoutPlan?.days?.every((day: any) => day.exercises && day.exercises.length >= 5) || false
 
-            const needsRegeneration =
-              !data.workoutPlan ||
-              !data.workoutPlan.days ||
-              actualDays === 0 ||
-              (actualDays > 0 && Math.abs(actualDays - expectedFrequency) > 1) // Only regenerate if difference is more than 1 day
+          const needsRegeneration =
+            !data.workoutPlan ||
+            !data.workoutPlan.days ||
+            actualDays === 0 ||
+            (actualDays > 0 && Math.abs(actualDays - expectedFrequency) > 1) // Only regenerate if difference is more than 1 day
 
-            console.log(`[DASHBOARD] Regeneration check:`, {
-              hasWorkoutPlan: !!data.workoutPlan,
-              hasDays: !!data.workoutPlan?.days,
-              actualDays,
-              expectedFrequency,
-              hasMinimumExercises,
-              needsRegeneration,
-            })
+          console.log(`[DASHBOARD] Regeneration check:`, {
+            hasWorkoutPlan: !!data.workoutPlan,
+            hasDays: !!data.workoutPlan?.days,
+            actualDays,
+            expectedFrequency,
+            hasMinimumExercises,
+            needsRegeneration,
+          })
 
-            if (needsRegeneration) {
-              console.log("[DASHBOARD] Plan needs regeneration - generating new plan...")
-              await generatePlans()
-            } else {
-              debugDataFlow("DASHBOARD_EXISTING_PLAN", data.workoutPlan)
-              console.log(`[DASHBOARD] Using existing plan with ${actualDays} days`)
-              data.workoutPlan.days.forEach((day: any, index: number) => {
-                console.log(
-                  `[DASHBOARD] Day ${index + 1} (${day.title || day.day}): ${day.exercises?.length || 0} exercises`,
-                )
-              })
-            }
-          } else {
-            console.log("[DASHBOARD] No user document found, generating new plans...")
+          if (needsRegeneration) {
+            console.log("[DASHBOARD] Plan needs regeneration - generating new plan...")
             await generatePlans()
+          } else {
+            debugDataFlow("DASHBOARD_EXISTING_PLAN", data.workoutPlan)
+            console.log(`[DASHBOARD] Using existing plan with ${actualDays} days`)
+            data.workoutPlan.days.forEach((day: any, index: number) => {
+              console.log(
+                `[DASHBOARD] Day ${index + 1} (${day.title || day.day}): ${day.exercises?.length || 0} exercises`,
+              )
+            })
           }
         } catch (error) {
           console.error("[DASHBOARD] Erro ao buscar dados do usuário:", error)

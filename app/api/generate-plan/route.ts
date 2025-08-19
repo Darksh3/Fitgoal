@@ -48,6 +48,14 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("[v0] API /api/generate-plan: Recebido quizData para userID:", userId)
+    console.log("[v0] DETAILED quizData received:", JSON.stringify(quizData, null, 2))
+    console.log("[v0] Training frequency analysis:", {
+      trainingDaysPerWeek: quizData.trainingDaysPerWeek,
+      typeOfTrainingDays: typeof quizData.trainingDaysPerWeek,
+      fallbackWillBeUsed: !quizData.trainingDaysPerWeek,
+      finalValue: quizData.trainingDaysPerWeek || 5,
+    })
+
     console.log(`[v0] Diet generation - User data:`, {
       gender: quizData.gender,
       age: quizData.age,
@@ -198,7 +206,7 @@ export async function POST(request: NextRequest) {
     - Tipo corporal: ${quizData.bodyType}
     - Experiência com exercícios: ${quizData.exerciseExperience || "Iniciante"}
     - Tempo disponível: ${quizData.workoutTime || "45-60min"}
-    - Dias de treino por semana: ${quizData.trainingDaysPerWeek || 5}
+    - Dias de treino por semana: ${quizData.trainingDaysPerWeek}
     - Áreas de foco corporal: ${quizData.problemAreas?.join(", ") || "Corpo inteiro"}
     - Preferências de exercício: Cardio (${quizData.exercisePreferences?.cardio || "neutro"}), Força (${quizData.exercisePreferences?.pullups || "neutro"}), Yoga (${quizData.exercisePreferences?.yoga || "neutro"})
     - Equipamentos disponíveis: ${quizData.equipment?.join(", ") || "Academia completa"}
@@ -239,12 +247,12 @@ export async function POST(request: NextRequest) {
           ]
         }
       ],
-      "weeklySchedule": "Treino ${quizData.trainingDaysPerWeek || 5}x por semana",
+      "weeklySchedule": "Treino ${quizData.trainingDaysPerWeek}x por semana",
       "tips": ["Aqueça antes de cada treino.", "Mantenha a forma correta."]
     }
 
     INSTRUÇÕES OBRIGATÓRIAS:
-    - Crie um plano para EXATAMENTE ${quizData.trainingDaysPerWeek || 5} dias da semana.
+    - Crie um plano para EXATAMENTE ${quizData.trainingDaysPerWeek} dias da semana.
     - CADA dia deve ter OBRIGATORIAMENTE ${exerciseRange.description} baseado no tempo disponível.
     - Tempo disponível: ${quizData.workoutTime || "45-60min"} - ajuste a intensidade e número de exercícios adequadamente.
     - Para treinos mais curtos (30-45min): Foque em exercícios compostos e reduza o tempo de descanso.
@@ -256,7 +264,9 @@ export async function POST(request: NextRequest) {
     - VARIE os exercícios - não use sempre os mesmos movimentos básicos
     `
 
+    console.log(`[v0] About to generate workout for ${quizData.trainingDaysPerWeek} days per week`)
     console.log(`[v0] Sending workout generation request to OpenAI...`)
+
     const workoutResult = await generateText({
       model: openai("gpt-4o"),
       prompt: workoutPrompt,
@@ -368,7 +378,9 @@ export async function POST(request: NextRequest) {
 
       console.log(`[v0] Workout plan parsed successfully:`, {
         daysCount: workoutPlan.days?.length || 0,
-        expectedDays: quizData.trainingDaysPerWeek || 5,
+        expectedDays: quizData.trainingDaysPerWeek,
+        actualDaysGenerated: workoutPlan.days?.length,
+        mismatch: (workoutPlan.days?.length || 0) !== quizData.trainingDaysPerWeek,
         workoutTime: quizData.workoutTime,
         exerciseRange: exerciseRange.description,
         firstDayFocus: workoutPlan.days?.[0]?.focus,
@@ -406,6 +418,13 @@ export async function POST(request: NextRequest) {
       usedFallbackWorkout,
       dietMeals: dietPlan?.meals?.length || 0,
       workoutDays: workoutPlan?.days?.length || 0,
+    })
+
+    console.log(`[v0] About to save to Firestore:`, {
+      userId,
+      trainingDaysFromQuiz: quizData.trainingDaysPerWeek,
+      workoutDaysGenerated: workoutPlan?.days?.length,
+      weeklySchedule: workoutPlan?.weeklySchedule,
     })
 
     // Salvar no Firestore usando a sintaxe correta do Admin SDK
