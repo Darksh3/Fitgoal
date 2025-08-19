@@ -322,21 +322,21 @@ export default function QuizPage() {
       )
       console.log("generateAndSavePlan: Lead data saved to Firestore (leads collection) successfully:", userId)
 
-      // Chama a API para gerar e salvar planos (a API salvará no Firestore)
-      console.log("generateAndSavePlan: Chamando API /api/generate-plan...")
+      console.log("generateAndSavePlan: Chamando API /api/generate-plans-on-demand...")
       const controller = new AbortController()
       // Aumentar o tempo limite para 120 segundos (2 minutos)
       const timeoutId = setTimeout(() => {
         controller.abort()
-        console.warn("generateAndSavePlan: Requisição para /api/generate-plan excedeu o tempo limite (120s).")
+        console.warn(
+          "generateAndSavePlan: Requisição para /api/generate-plans-on-demand excedeu o tempo limite (120s).",
+        )
       }, 120000) // 120 segundos
 
-      const response = await fetch("/api/generate-plan", {
+      const response = await fetch("/api/generate-plans-on-demand", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          quizData: data, // Passa o quizData completo para a API
-          userId: userId, // Passa userId para a API
+          userId: userId, // Only pass userId, API will fetch quiz data from Firestore
         }),
         signal: controller.signal,
       })
@@ -345,12 +345,12 @@ export default function QuizPage() {
 
       if (response.ok) {
         const result = await response.json()
-        console.log("generateAndSavePlan: API /api/generate-plan response:", result)
+        console.log("generateAndSavePlan: API /api/generate-plans-on-demand response:", result)
         // A API agora é responsável por salvar dietPlan e workoutPlan no Firestore
         // Não é necessário salvá-los aqui novamente.
       } else {
         const errorData = await response.json()
-        console.error("generateAndSavePlan: Erro da API /api/generate-plan:", {
+        console.error("generateAndSavePlan: Erro da API /api/generate-plans-on-demand:", {
           status: response.status,
           statusText: response.statusText,
           error: errorData,
