@@ -580,19 +580,58 @@ export default function DietPage() {
                           let foodCalories = ""
 
                           if (typeof food === "string") {
-                            const quantityMatch =
-                              food.match(/(\d+g?)\s*de?\s*(.+)/i) || food.match(/(.+?)\s*-?\s*(\d+g?)/i)
-                            if (quantityMatch) {
-                              foodQuantity = quantityMatch[1].includes("g") ? quantityMatch[1] : quantityMatch[2]
-                              foodName = quantityMatch[1].includes("g") ? quantityMatch[2] : quantityMatch[1]
-                            } else {
-                              foodName = food
+                            console.log("[v0] Parsing food string:", food)
+
+                            // Try multiple parsing patterns
+                            const patterns = [
+                              /(\d+g?)\s*de?\s*(.+)/i, // "100g de arroz"
+                              /(.+?)\s*-\s*(\d+g?)/i, // "arroz - 100g"
+                              /(.+?)\s*$$(\d+g?)$$/i, // "arroz (100g)"
+                              /(\d+)\s*unidades?\s*de?\s*(.+)/i, // "2 unidades de ovo"
+                              /(\d+)\s*(.+)/i, // "2 ovos"
+                              /(.+?)\s*:\s*(\d+g?)/i, // "arroz: 100g"
+                            ]
+
+                            let matched = false
+                            for (const pattern of patterns) {
+                              const match = food.match(pattern)
+                              if (match) {
+                                // Determine which group is quantity and which is name
+                                if (/\d/.test(match[1])) {
+                                  foodQuantity = match[1]
+                                  foodName = match[2]?.trim()
+                                } else {
+                                  foodName = match[1]?.trim()
+                                  foodQuantity = match[2]
+                                }
+                                matched = true
+                                console.log("[v0] Matched pattern, name:", foodName, "quantity:", foodQuantity)
+                                break
+                              }
                             }
+
+                            // If no pattern matched, use the whole string as name
+                            if (!matched) {
+                              foodName = food.trim()
+                              console.log("[v0] No pattern matched, using full string:", foodName)
+                            }
+
+                            // Clean up the food name
+                            foodName = foodName
+                              .replace(/^(de\s+|da\s+|do\s+)/i, "") // Remove "de", "da", "do" prefixes
+                              .replace(/\s+/g, " ") // Normalize spaces
+                              .trim()
                           } else if (food && typeof food === "object") {
                             foodName = food.name || `Alimento ${foodIndex + 1}`
                             foodQuantity = food.quantity || ""
                             foodCalories = food.calories ? `${food.calories} kcal` : ""
                           } else {
+                            console.warn("[v0] Using fallback name for food:", food)
+                            foodName = `Alimento ${foodIndex + 1}`
+                          }
+
+                          if (!foodName || foodName.trim() === "") {
+                            console.warn("[v0] Empty food name, using fallback")
                             foodName = `Alimento ${foodIndex + 1}`
                           }
 

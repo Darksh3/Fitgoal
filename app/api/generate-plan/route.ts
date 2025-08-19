@@ -194,6 +194,9 @@ export async function POST(request: NextRequest) {
     const workoutPrompt = `
     REQUISIÇÃO ID: ${requestId}
     
+    ⚠️ ATENÇÃO CRÍTICA: O usuário selecionou EXATAMENTE ${quizData.trainingDaysPerWeek} DIAS DE TREINO POR SEMANA. 
+    VOCÊ DEVE CRIAR UM PLANO COM EXATAMENTE ${quizData.trainingDaysPerWeek} DIAS, NEM MAIS, NEM MENOS.
+    
     Com base nas seguintes informações do usuário, crie um plano de treino personalizado ÚNICO em português brasileiro.
     
     Dados do usuário:
@@ -206,7 +209,7 @@ export async function POST(request: NextRequest) {
     - Tipo corporal: ${quizData.bodyType}
     - Experiência com exercícios: ${quizData.exerciseExperience || "Iniciante"}
     - Tempo disponível: ${quizData.workoutTime || "45-60min"}
-    - Dias de treino por semana: ${quizData.trainingDaysPerWeek}
+    - ⭐ DIAS DE TREINO POR SEMANA: ${quizData.trainingDaysPerWeek} (OBRIGATÓRIO - USE EXATAMENTE ESTE NÚMERO)
     - Áreas de foco corporal: ${quizData.problemAreas?.join(", ") || "Corpo inteiro"}
     - Preferências de exercício: Cardio (${quizData.exercisePreferences?.cardio || "neutro"}), Força (${quizData.exercisePreferences?.pullups || "neutro"}), Yoga (${quizData.exercisePreferences?.yoga || "neutro"})
     - Equipamentos disponíveis: ${quizData.equipment?.join(", ") || "Academia completa"}
@@ -229,6 +232,13 @@ export async function POST(request: NextRequest) {
     ${quizData.problemAreas?.includes("Pernas") ? "- OBRIGATÓRIO: Dedique pelo menos 2 dias completos para membros inferiores" : ""}
     ${quizData.problemAreas?.includes("Corpo inteiro") ? "- OBRIGATÓRIO: Balance todos os grupos musculares igualmente" : ""}
 
+    🚨 REGRAS ABSOLUTAS - NÃO IGNORE:
+    1. CRIE EXATAMENTE ${quizData.trainingDaysPerWeek} DIAS DE TREINO (não 5, não 3, EXATAMENTE ${quizData.trainingDaysPerWeek})
+    2. Se ${quizData.trainingDaysPerWeek} = 6, crie 6 dias (Segunda a Sábado)
+    3. Se ${quizData.trainingDaysPerWeek} = 7, crie 7 dias (Segunda a Domingo)
+    4. Se ${quizData.trainingDaysPerWeek} = 4, crie 4 dias (Segunda, Terça, Quinta, Sexta)
+    5. NUNCA assuma que 5 dias é "melhor" - use EXATAMENTE o que o usuário escolheu
+
     Responda APENAS com um JSON válido no seguinte formato. Não inclua nenhum texto adicional ou markdown (como \`\`\`json):
     {
       "days": [
@@ -246,22 +256,25 @@ export async function POST(request: NextRequest) {
             }
           ]
         }
+        // Repita para TODOS os ${quizData.trainingDaysPerWeek} dias
       ],
       "weeklySchedule": "Treino ${quizData.trainingDaysPerWeek}x por semana",
       "tips": ["Aqueça antes de cada treino.", "Mantenha a forma correta."]
     }
 
     INSTRUÇÕES OBRIGATÓRIAS:
-    - Crie um plano para EXATAMENTE ${quizData.trainingDaysPerWeek} dias da semana.
-    - CADA dia deve ter OBRIGATORIAMENTE ${exerciseRange.description} baseado no tempo disponível.
-    - Tempo disponível: ${quizData.workoutTime || "45-60min"} - ajuste a intensidade e número de exercícios adequadamente.
-    - Para treinos mais curtos (30-45min): Foque em exercícios compostos e reduza o tempo de descanso.
-    - Para treinos médios (45-60min): Balance exercícios compostos e isolamento.
-    - Para treinos longos (mais de 1h): Inclua mais exercícios de isolamento e aquecimento específico.
-    - Distribua os exercícios: 60% compostos + 40% isolamento para treinos curtos, 50/50 para treinos longos.
-    - NUNCA crie dias com menos de ${exerciseRange.min} exercícios ou mais de ${exerciseRange.max} exercícios.
-    - PRIORIZE as áreas de foco selecionadas pelo usuário em TODOS os treinos relevantes.
+    - ⚠️ CRÍTICO: Crie um plano para EXATAMENTE ${quizData.trainingDaysPerWeek} dias da semana (não mais, não menos)
+    - CADA dia deve ter OBRIGATORIAMENTE ${exerciseRange.description} baseado no tempo disponível
+    - Tempo disponível: ${quizData.workoutTime || "45-60min"} - ajuste a intensidade e número de exercícios adequadamente
+    - Para treinos mais curtos (30-45min): Foque em exercícios compostos e reduza o tempo de descanso
+    - Para treinos médios (45-60min): Balance exercícios compostos e isolamento
+    - Para treinos longos (mais de 1h): Inclua mais exercícios de isolamento e aquecimento específico
+    - Distribua os exercícios: 60% compostos + 40% isolamento para treinos curtos, 50/50 para treinos longos
+    - NUNCA crie dias com menos de ${exerciseRange.min} exercícios ou mais de ${exerciseRange.max} exercícios
+    - PRIORIZE as áreas de foco selecionadas pelo usuário em TODOS os treinos relevantes
     - VARIE os exercícios - não use sempre os mesmos movimentos básicos
+    
+    ⭐ LEMBRE-SE: O usuário escolheu ${quizData.trainingDaysPerWeek} dias por uma razão específica. Respeite essa escolha SEMPRE.
     `
 
     console.log(`[v0] About to generate workout for ${quizData.trainingDaysPerWeek} days per week`)
