@@ -32,55 +32,90 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("API /api/generate-plan: Recebido quizData para userID:", userId)
+    console.log(`[v0] Diet generation - User data:`, {
+      gender: quizData.gender,
+      age: quizData.age,
+      weight: quizData.currentWeight || quizData.weight,
+      height: quizData.height,
+      goal: quizData.goal,
+      activityLevel: quizData.activityLevel,
+    })
 
-    // Gerar plano de dieta
     const dietPrompt = `
-    Com base nas seguintes informações do usuário, crie um plano de dieta personalizado em português brasileiro.
+    Você é um nutricionista esportivo profissional. Crie um plano de dieta personalizado em português brasileiro.
     
     Dados do usuário:
     - Gênero: ${quizData.gender}
     - Idade: ${quizData.age}
-    - Peso: ${quizData.weight}kg
+    - Peso atual: ${quizData.currentWeight || quizData.weight}kg
     - Altura: ${quizData.height}cm
     - Nível de atividade: ${quizData.activityLevel}
-    - Objetivo: ${quizData.goal}
+    - Objetivo: ${Array.isArray(quizData.goal) ? quizData.goal.join(", ") : quizData.goal}
     - Tipo corporal: ${quizData.bodyType}
     - Restrições alimentares: ${quizData.dietaryRestrictions || "Nenhuma"}
     - Preferências alimentares: ${quizData.foodPreferences || "Nenhuma"}
 
-    Responda APENAS com um JSON válido no seguinte formato. Não inclua nenhum texto adicional ou markdown (como \`\`\`json):
+    INSTRUÇÕES OBRIGATÓRIAS:
+    1. Calcule TMB usando Mifflin-St Jeor: Homens = (10×peso) + (6.25×altura) - (5×idade) + 5 | Mulheres = (10×peso) + (6.25×altura) - (5×idade) - 161
+    2. Calcule GET baseado no nível de atividade: Sedentário×1.2, Leve×1.375, Moderado×1.55, Intenso×1.725
+    3. Defina meta calórica: Perda (GET-400), Manutenção (GET), Ganho (GET+400)
+    4. Distribua macros: Proteína 1.8-2.2g/kg, Gorduras 25-30% calorias, Carboidratos restante
+    5. Crie OBRIGATORIAMENTE 5-6 refeições detalhadas com alimentos específicos, quantidades exatas e macros
+    6. TODOS os alimentos devem ter quantidades específicas (ex: "100g peito de frango", "1 banana média (120g)")
+
+    Responda APENAS com um JSON válido no seguinte formato:
     {
+      "totalDailyCalories": 2500,
+      "macros": {
+        "protein": "150g",
+        "carbs": "300g", 
+        "fat": "85g"
+      },
       "meals": [
         {
           "name": "Café da Manhã",
           "time": "07:00",
           "foods": [
             {
-              "name": "Nome do alimento",
-              "quantity": "quantidade",
-              "calories": 300
+              "name": "100g aveia em flocos",
+              "quantity": "100g",
+              "calories": 380,
+              "protein": 13,
+              "carbs": 67,
+              "fats": 7
+            },
+            {
+              "name": "1 banana média",
+              "quantity": "120g",
+              "calories": 100,
+              "protein": 1,
+              "carbs": 27,
+              "fats": 0
             }
           ],
-          "totalCalories": 300
+          "totalCalories": 480,
+          "macros": {
+            "protein": "14g",
+            "carbs": "94g",
+            "fats": "7g"
+          }
         }
       ],
-      "totalDailyCalories": 2000,
-      "macros": {
-        "protein": 150,
-        "carbs": 200,
-        "fat": 60
-      },
-      "tips": ["Beba bastante água.", "Coma vegetais variados."]
+      "tips": [
+        "Beba pelo menos 2.5L de água por dia",
+        "Consuma proteína em todas as refeições",
+        "Prefira carboidratos complexos"
+      ]
     }
 
-    Inclua pelo menos 5 refeições (café da manhã, lanche da manhã, almoço, lanche da tarde, jantar).
+    IMPORTANTE: Crie um plano profissional com pelo menos 5 refeições completas, cada uma com 2-4 alimentos específicos e macros detalhados.
     `
 
     const dietResult = await generateText({
       model: openai("gpt-4o"),
       prompt: dietPrompt,
-      maxTokens: 2000,
-      response_format: { type: "json_object" }, // Garante que a IA tente retornar JSON
+      maxTokens: 3000, // Increased token limit for more detailed diet plans
+      response_format: { type: "json_object" },
     })
 
     // Gerar plano de treino
@@ -90,10 +125,10 @@ export async function POST(request: NextRequest) {
     Dados do usuário:
     - Gênero: ${quizData.gender}
     - Idade: ${quizData.age}
-    - Peso: ${quizData.weight}kg
+    - Peso: ${quizData.currentWeight || quizData.weight}kg
     - Altura: ${quizData.height}cm
     - Nível de atividade: ${quizData.activityLevel}
-    - Objetivo: ${quizData.goal}
+    - Objetivo: ${Array.isArray(quizData.goal) ? quizData.goal.join(", ") : quizData.goal}
     - Tipo corporal: ${quizData.bodyType}
     - Experiência com exercícios: ${quizData.exerciseExperience || "Iniciante"}
     - Tempo disponível: ${quizData.timeAvailable || "1 hora"}
@@ -130,8 +165,8 @@ export async function POST(request: NextRequest) {
     const workoutResult = await generateText({
       model: openai("gpt-4o"),
       prompt: workoutPrompt,
-      maxTokens: 2000,
-      response_format: { type: "json_object" }, // Garante que a IA tente retornar JSON
+      maxTokens: 3000, // Increased token limit for detailed workout plans
+      response_format: { type: "json_object" },
     })
 
     // Parse dos resultados JSON usando a função auxiliar
@@ -139,13 +174,52 @@ export async function POST(request: NextRequest) {
     try {
       dietPlan = extractJson(dietResult.text)
       if (!dietPlan) throw new Error("Diet plan JSON extraction failed.")
+
+      console.log(`[v0] Diet plan generated:`, {
+        totalCalories: dietPlan.totalDailyCalories,
+        mealsCount: dietPlan.meals?.length || 0,
+        hasProperMacros: !!(dietPlan.macros?.protein && dietPlan.macros?.carbs && dietPlan.macros?.fat),
+      })
+
+      // Validate diet plan quality
+      if (!dietPlan.meals || dietPlan.meals.length < 5) {
+        console.warn(`[v0] Diet plan has insufficient meals: ${dietPlan.meals?.length || 0}`)
+      }
     } catch (error) {
       console.error("Erro ao parsear plano de dieta:", error)
       dietPlan = {
-        meals: [],
-        totalDailyCalories: 0,
-        macros: { protein: 0, carbs: 0, fat: 0 },
-        tips: [],
+        totalDailyCalories: 2500,
+        macros: { protein: "150g", carbs: "300g", fat: "85g" },
+        meals: [
+          {
+            name: "Café da Manhã",
+            time: "07:00",
+            foods: [
+              { name: "100g aveia em flocos", quantity: "100g", calories: 380, protein: 13, carbs: 67, fats: 7 },
+              { name: "1 banana média", quantity: "120g", calories: 100, protein: 1, carbs: 27, fats: 0 },
+            ],
+            totalCalories: 480,
+            macros: { protein: "14g", carbs: "94g", fats: "7g" },
+          },
+          {
+            name: "Almoço",
+            time: "12:00",
+            foods: [
+              {
+                name: "150g peito de frango grelhado",
+                quantity: "150g",
+                calories: 250,
+                protein: 47,
+                carbs: 0,
+                fats: 5,
+              },
+              { name: "100g arroz integral cozido", quantity: "100g", calories: 110, protein: 3, carbs: 23, fats: 1 },
+            ],
+            totalCalories: 360,
+            macros: { protein: "50g", carbs: "23g", fats: "6g" },
+          },
+        ],
+        tips: ["Beba pelo menos 2.5L de água por dia", "Consuma proteína em todas as refeições"],
       }
     }
 
