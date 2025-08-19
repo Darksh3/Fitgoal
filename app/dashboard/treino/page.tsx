@@ -62,6 +62,7 @@ export default function WorkoutPage() {
   const [userData, setUserData] = useState<UserData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [actualTrainingFrequency, setActualTrainingFrequency] = useState<string>("Carregando...")
+  const [isRegenerating, setIsRegenerating] = useState(false)
 
   const syncUserData = async (firestoreData: UserData) => {
     if (typeof window === "undefined") return firestoreData
@@ -180,7 +181,7 @@ export default function WorkoutPage() {
             !data.workoutPlan ||
             !data.workoutPlan.days ||
             actualDays === 0 ||
-            (actualDays > 0 && Math.abs(actualDays - expectedFrequency) > 1) // Only regenerate if difference is more than 1 day
+            (actualDays > 0 && actualDays !== expectedFrequency) // Regenerate if any difference
 
           console.log(`[DASHBOARD] Regeneration check:`, {
             hasWorkoutPlan: !!data.workoutPlan,
@@ -220,6 +221,7 @@ export default function WorkoutPage() {
     if (!user) return
 
     try {
+      setIsRegenerating(true)
       console.log("[DASHBOARD] Calling generate-plans-on-demand API...")
       const response = await fetch("/api/generate-plans-on-demand", {
         method: "POST",
@@ -228,6 +230,7 @@ export default function WorkoutPage() {
         },
         body: JSON.stringify({
           userId: user.uid,
+          forceRegenerate: true,
         }),
       })
 
@@ -250,6 +253,8 @@ export default function WorkoutPage() {
       }
     } catch (error) {
       console.error("[DASHBOARD] Erro ao gerar planos:", error)
+    } finally {
+      setIsRegenerating(false)
     }
   }
 
@@ -332,6 +337,30 @@ export default function WorkoutPage() {
             </CardContent>
           </Card>
         </div>
+
+        {workoutPlan?.days?.length !== (userData as any)?.quizData?.trainingDaysPerWeek && (
+          <Card className="mb-6 border-orange-200 bg-orange-50">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-orange-800">Discrepância Detectada</h3>
+                  <p className="text-sm text-orange-700">
+                    Seu plano tem {workoutPlan?.days?.length || 0} dias, mas você selecionou{" "}
+                    {(userData as any)?.quizData?.trainingDaysPerWeek || 0} dias no quiz.
+                  </p>
+                </div>
+                <Button
+                  onClick={generatePlans}
+                  disabled={isRegenerating}
+                  variant="outline"
+                  className="border-orange-300 text-orange-700 hover:bg-orange-100 bg-transparent"
+                >
+                  {isRegenerating ? "Regenerando..." : "Regenerar Plano"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {workoutPlan.days.map((day, dayIndex) => (

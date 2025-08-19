@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, User, Save, Edit, Calendar, Target, RefreshCw } from "lucide-react"
+import { ArrowLeft, User, Save, Edit, Calendar, Target, RefreshCw, Trash2, AlertTriangle } from "lucide-react"
 import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc, setDoc } from "firebase/firestore"
 
@@ -51,13 +51,14 @@ export default function DadosPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isSyncing, setIsSyncing] = useState(false)
+  const [isCleaningUp, setIsCleaningUp] = useState(false)
+  const [hasOldData, setHasOldData] = useState(false)
 
   useEffect(() => {
     const loadAndSyncData = async () => {
       console.log("[v0] Loading user data...")
       setIsLoading(true)
 
-      // First try localStorage
       let localQuizData = null
       let localPersonalData = null
 
@@ -82,11 +83,15 @@ export default function DadosPage() {
             const firestoreData = leadsDoc.data()
             console.log("[v0] Firestore leads data found:", firestoreData)
 
-            // The quiz data is directly in the leads document, not nested in quizData
+            const currentUserEmail = auth.currentUser.email
+            if (firestoreData?.email && currentUserEmail && firestoreData.email !== currentUserEmail) {
+              console.log("[v0] Detected old user data:", firestoreData.email, "vs current:", currentUserEmail)
+              setHasOldData(true)
+            }
+
             console.log("[v0] Firestore quiz data name:", firestoreData?.name)
             console.log("[v0] Firestore training frequency:", firestoreData?.trainingDaysPerWeek)
 
-            // Use Firestore data as source of truth and update localStorage
             if (firestoreData?.name && firestoreData.name !== localQuizData?.name) {
               console.log("[v0] Syncing name from Firestore:", firestoreData.name)
               const updatedQuizData = { ...localQuizData, ...firestoreData }
@@ -96,7 +101,6 @@ export default function DadosPage() {
               setQuizData(localQuizData || firestoreData)
             }
 
-            // Try to get personal data from users collection as fallback
             try {
               const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid))
               if (userDoc.exists() && userDoc.data().personalData) {
@@ -135,10 +139,8 @@ export default function DadosPage() {
   const handleSave = async () => {
     setIsSyncing(true)
 
-    // Save to localStorage
     localStorage.setItem("personalData", JSON.stringify(personalData))
 
-    // Save to Firestore if user is authenticated
     if (auth.currentUser) {
       try {
         console.log("[v0] Saving personal data to Firestore")
@@ -178,7 +180,6 @@ export default function DadosPage() {
           localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
         }
 
-        // Try to get personal data from users collection
         try {
           const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid))
           if (userDoc.exists() && userDoc.data().personalData) {
@@ -193,6 +194,56 @@ export default function DadosPage() {
       console.error("[v0] Error during manual sync:", error)
     }
     setIsSyncing(false)
+  }
+
+  const handleCleanup = async () => {
+    if (!auth.currentUser?.email) return
+
+    setIsCleaningUp(true)
+    try {
+      console.log("[v0] Starting cleanup for email:", auth.currentUser.email)
+
+      const response = await fetch("/api/cleanup-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: auth.currentUser.email,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        console.log("[v0] Cleanup successful:", result)
+
+        localStorage.removeItem("quizData")
+        localStorage.removeItem("personalData")
+
+        setQuizData(null)
+        setPersonalData({
+          age: "",
+          height: "",
+          phone: "",
+          email: "",
+          address: "",
+          emergencyContact: "",
+          medicalConditions: "",
+          allergies: "",
+        })
+        setHasOldData(false)
+
+        alert("Limpeza completa realizada! Você pode refazer o quiz agora.")
+      } else {
+        console.error("[v0] Cleanup failed:", result)
+        alert("Erro na limpeza: " + result.error)
+      }
+    } catch (error) {
+      console.error("[v0] Error during cleanup:", error)
+      alert("Erro durante a limpeza. Tente novamente.")
+    }
+    setIsCleaningUp(false)
   }
 
   const getGoalText = (goals: string[]) => {
@@ -219,7 +270,31 @@ export default function DadosPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
+        {hasOldData && (
+          <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              <div className="flex-1">
+                <h3 className="font-medium text-orange-800">Dados de usuário anterior detectados</h3>
+                <p className="text-sm text-orange-700">
+                  Foram encontrados dados de um usuário anterior. Recomendamos fazer uma limpeza completa antes de
+                  continuar.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCleanup}
+                disabled={isCleaningUp}
+                className="border-orange-300 text-orange-700 hover:bg-orange-100 bg-transparent"
+              >
+                <Trash2 className={`h-4 w-4 mr-2 ${isCleaningUp ? "animate-spin" : ""}`} />
+                {isCleaningUp ? "Limpando..." : "Limpar Dados"}
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center mb-6">
           <Button variant="ghost" onClick={() => router.back()} className="mr-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -242,7 +317,6 @@ export default function DadosPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Quiz Data (Read Only) */}
           <div className="space-y-6">
             <Card>
               <CardHeader>
@@ -307,7 +381,6 @@ export default function DadosPage() {
             </Card>
           </div>
 
-          {/* Personal Data (Editable) */}
           <div className="space-y-6">
             <Card>
               <CardHeader>
@@ -394,7 +467,6 @@ export default function DadosPage() {
               </CardContent>
             </Card>
 
-            {/* Medical Info */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
