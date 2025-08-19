@@ -74,54 +74,74 @@ export default function WorkoutPage() {
             console.log("[DASHBOARD] Raw user data:", data)
 
             let frequency = "Frequência não especificada"
+            let frequencySource = "none"
 
-            // Try to get from quiz data first
+            // Priority 1: Get from quiz data (most reliable)
             const quizData = (data as any).quizData
             if (quizData?.trainingDaysPerWeek) {
               frequency = `${quizData.trainingDaysPerWeek}x por semana`
+              frequencySource = "quizData"
               console.log("[DASHBOARD] Found training frequency from quiz:", frequency)
             }
-            // Fallback: get from workout plan days count
+            // Priority 2: Get from workout plan days count (if quiz data missing)
             else if (data.workoutPlan?.days?.length) {
               frequency = `${data.workoutPlan.days.length}x por semana`
+              frequencySource = "workoutPlan.days"
               console.log("[DASHBOARD] Using workout plan days count:", frequency)
             }
-            // Fallback: parse from weeklySchedule string
+            // Priority 3: Parse from weeklySchedule string (fallback)
             else if (data.workoutPlan?.weeklySchedule) {
               const match = data.workoutPlan.weeklySchedule.match(/(\d+)x?\s*por\s*semana/i)
               if (match) {
                 frequency = `${match[1]}x por semana`
+                frequencySource = "weeklySchedule"
                 console.log("[DASHBOARD] Parsed from weeklySchedule:", frequency)
               }
             }
 
+            console.log(`[DASHBOARD] Final frequency: ${frequency} (source: ${frequencySource})`)
             setActualTrainingFrequency(frequency)
 
             debugDataFlow("DASHBOARD_LOAD", data)
             setUserData(data)
 
+            const expectedFrequency = quizData?.trainingDaysPerWeek || 5
+            const actualDays = data.workoutPlan?.days?.length || 0
+            const hasMinimumExercises =
+              data.workoutPlan?.days?.every((day: any) => day.exercises && day.exercises.length >= 5) || false
+
             const needsRegeneration =
               !data.workoutPlan ||
               !data.workoutPlan.days ||
-              data.workoutPlan.days.length === 0 ||
-              (quizData?.trainingDaysPerWeek && data.workoutPlan.days.length !== quizData.trainingDaysPerWeek) ||
-              data.workoutPlan.days.some((day: any) => !day.exercises || day.exercises.length < 6)
+              actualDays === 0 ||
+              actualDays !== expectedFrequency ||
+              !hasMinimumExercises
+
+            console.log(`[DASHBOARD] Regeneration check:`, {
+              hasWorkoutPlan: !!data.workoutPlan,
+              hasDays: !!data.workoutPlan?.days,
+              actualDays,
+              expectedFrequency,
+              hasMinimumExercises,
+              needsRegeneration,
+            })
 
             if (needsRegeneration) {
-              console.log("[DASHBOARD] Plan needs regeneration - frequency mismatch or insufficient exercises")
+              console.log("[DASHBOARD] Plan needs regeneration - generating new plan...")
               await generatePlans()
             } else {
               debugDataFlow("DASHBOARD_EXISTING_PLAN", data.workoutPlan)
-              console.log(`[DASHBOARD] Existing plan has ${data.workoutPlan.days.length} days`)
+              console.log(`[DASHBOARD] Using existing plan with ${actualDays} days`)
               data.workoutPlan.days.forEach((day: any, index: number) => {
                 console.log(`[DASHBOARD] Day ${index + 1} (${day.title}): ${day.exercises?.length || 0} exercises`)
               })
             }
           } else {
+            console.log("[DASHBOARD] No user document found, generating new plans...")
             await generatePlans()
           }
         } catch (error) {
-          console.error("Erro ao buscar dados do usuário:", error)
+          console.error("[DASHBOARD] Erro ao buscar dados do usuário:", error)
         } finally {
           setIsLoading(false)
         }
@@ -137,6 +157,7 @@ export default function WorkoutPage() {
     if (!user) return
 
     try {
+      console.log("[DASHBOARD] Calling generate-plans-on-demand API...")
       const response = await fetch("/api/generate-plans-on-demand", {
         method: "POST",
         headers: {
@@ -148,13 +169,23 @@ export default function WorkoutPage() {
       })
 
       if (response.ok) {
+        console.log("[DASHBOARD] Plans generated successfully, refreshing user data...")
         const userDoc = await getDoc(doc(db, "users", user.uid))
         if (userDoc.exists()) {
-          setUserData(userDoc.data() as UserData)
+          const newData = userDoc.data() as UserData
+          setUserData(newData)
+
+          // Update frequency display
+          const quizData = (newData as any).quizData
+          if (quizData?.trainingDaysPerWeek) {
+            setActualTrainingFrequency(`${quizData.trainingDaysPerWeek}x por semana`)
+          }
         }
+      } else {
+        console.error("[DASHBOARD] Failed to generate plans:", response.status, response.statusText)
       }
     } catch (error) {
-      console.error("Erro ao gerar planos:", error)
+      console.error("[DASHBOARD] Erro ao gerar planos:", error)
     }
   }
 
@@ -207,12 +238,11 @@ export default function WorkoutPage() {
                 <Calendar className="h-8 w-8 text-blue-600 mr-3" />
                 <div>
                   <p className="text-sm font-medium text-gray-600">Programação Semanal</p>
-                  <p className="text-lg font-bold text-gray-900">
-                    {actualTrainingFrequency !== "Carregando..." ? actualTrainingFrequency : "Carregando..."}
-                  </p>
+                  <p className="text-lg font-bold text-gray-900">{actualTrainingFrequency}</p>
                   {process.env.NODE_ENV === "development" && (
-                    <p className="text-xs text-red-500">
-                      Debug: Quiz={actualTrainingFrequency} | Plan={workoutPlan?.weeklySchedule}
+                    <p className="text-xs text-gray-500">
+                      Quiz: {(userData as any)?.quizData?.trainingDaysPerWeek || "N/A"} | Plan:{" "}
+                      {workoutPlan?.days?.length || "N/A"} dias
                     </p>
                   )}
                 </div>

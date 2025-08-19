@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing userId or quizData" }, { status: 400 })
     }
 
-    console.log("API /api/generate-plan: Recebido quizData para userID:", userId)
+    console.log("[v0] API /api/generate-plan: Recebido quizData para userID:", userId)
     console.log(`[v0] Diet generation - User data:`, {
       gender: quizData.gender,
       age: quizData.age,
@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
       height: quizData.height,
       goal: quizData.goal,
       activityLevel: quizData.activityLevel,
+      trainingDaysPerWeek: quizData.trainingDaysPerWeek,
     })
 
     const userDocRef = adminDb.collection("users").doc(userId)
@@ -62,7 +63,18 @@ export async function POST(request: NextRequest) {
 
     if (existingDoc.exists) {
       const existingData = existingDoc.data()
-      const lastUpdated = existingData?.updatedAt?.toDate()
+
+      let lastUpdated: Date | null = null
+      if (existingData?.updatedAt) {
+        if (typeof existingData.updatedAt === "string") {
+          // Handle ISO string timestamps
+          lastUpdated = new Date(existingData.updatedAt)
+        } else if (existingData.updatedAt.toDate) {
+          // Handle Firestore timestamps
+          lastUpdated = existingData.updatedAt.toDate()
+        }
+      }
+
       const now = new Date()
       const hoursSinceUpdate = lastUpdated ? (now.getTime() - lastUpdated.getTime()) / (1000 * 60 * 60) : 24
 
@@ -408,7 +420,7 @@ export async function POST(request: NextRequest) {
           requestId,
           usedFallbackDiet,
           usedFallbackWorkout,
-          generatedAt: new Date().toISOString(),
+          generatedAt: admin.firestore.FieldValue.serverTimestamp(),
         },
       },
       { merge: true },
@@ -427,7 +439,7 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error("Erro ao gerar plano:", error)
+    console.error("[v0] Erro ao gerar plano:", error)
     return NextResponse.json({ error: "Erro interno do servidor", details: (error as Error).message }, { status: 500 })
   }
 }

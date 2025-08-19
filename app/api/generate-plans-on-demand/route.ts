@@ -1,6 +1,5 @@
 import OpenAI from "openai"
-import { db } from "@/lib/firebase"
-import { doc, getDoc, setDoc } from "firebase/firestore"
+import { adminDb, admin } from "@/lib/firebaseAdmin"
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -177,15 +176,15 @@ export async function POST(req: Request) {
 
     let quizData = providedQuizData
     if (!quizData) {
-      const userDocRef = doc(db, "users", userId)
-      const docSnap = await getDoc(userDocRef)
-      if (!docSnap.exists() || !docSnap.data()?.quizData) {
+      const userDocRef = adminDb.collection("users").doc(userId)
+      const docSnap = await userDocRef.get()
+      if (!docSnap.exists || !docSnap.data()?.quizData) {
         return new Response(JSON.stringify({ error: "Quiz data not found." }), {
           status: 404,
           headers: { "Content-Type": "application/json" },
         })
       }
-      quizData = docSnap.data().quizData
+      quizData = docSnap.data()?.quizData
     }
 
     console.log("🔹 Gerando plano para user:", userId)
@@ -277,14 +276,15 @@ export async function POST(req: Request) {
     const parsed = await generatePlansWithValidation()
 
     try {
-      await setDoc(
-        doc(db, "users", userId),
+      const userDocRef = adminDb.collection("users").doc(userId)
+      await userDocRef.set(
         {
           quizData,
           plans: parsed,
           dietPlan: parsed.dietPlan,
           workoutPlan: parsed.workoutPlan,
-          plansGeneratedAt: new Date().toISOString(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          plansGeneratedAt: admin.firestore.FieldValue.serverTimestamp(),
         },
         { merge: true },
       )
