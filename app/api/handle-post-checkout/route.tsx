@@ -218,26 +218,107 @@ export async function POST(req: Request) {
 
     if (!dietPlan || !workoutPlan) {
       console.log("DEBUG: Gerando novos planos (diet/workout) para o usuário:", finalUserUid)
+
       const dietPrompt = `
-        Com base nas seguintes informações do usuário, crie um plano de dieta personalizado em português brasileiro.
-        Dados do usuário:
-        - Gênero: ${quizAnswersFromMetadata.gender}
-        - Idade: ${quizAnswersFromMetadata.age}
-        - Peso: ${quizAnswersFromMetadata.currentWeight}kg
-        - Altura: ${quizAnswersFromMetadata.height}cm
-        - Objetivo: ${quizAnswersFromMetadata.goal}
-        - Tipo corporal: ${quizAnswersFromMetadata.bodyType}
-        - Restrições alimentares: ${quizAnswersFromMetadata.allergyDetails || "Nenhuma"}
-        - Preferências alimentares: ${quizAnswersFromMetadata.diet || "Nenhuma"}
-        Responda APENAS com um JSON válido.
+        CÁLCULO CIENTÍFICO DE DIETA PERSONALIZADA - Use as fórmulas exatas abaixo:
+
+        DADOS DO USUÁRIO:
+        - Gênero: ${quizAnswersFromMetadata.gender || "masculino"}
+        - Idade: ${quizAnswersFromMetadata.age || 25} anos
+        - Peso: ${quizAnswersFromMetadata.currentWeight || 70}kg
+        - Altura: ${quizAnswersFromMetadata.height || 175}cm
+        - Objetivo: ${quizAnswersFromMetadata.goal || "Ganho de massa muscular"}
+        - Dias de treino: ${quizAnswersFromMetadata.trainingDaysPerWeek || 5} por semana
+        - Experiência: ${quizAnswersFromMetadata.experience || "Iniciante"}
+        - Restrições: ${quizAnswersFromMetadata.allergyDetails || "Nenhuma"}
+        - Preferências: ${quizAnswersFromMetadata.diet || "Sem restrições"}
+
+        FÓRMULAS OBRIGATÓRIAS A SEGUIR:
+
+        1. **TMB (Mifflin-St Jeor)**:
+           - Homens: TMB = (10 × ${quizAnswersFromMetadata.currentWeight || 70}) + (6.25 × ${quizAnswersFromMetadata.height || 175}) - (5 × ${quizAnswersFromMetadata.age || 25}) + 5
+           - Mulheres: TMB = (10 × ${quizAnswersFromMetadata.currentWeight || 70}) + (6.25 × ${quizAnswersFromMetadata.height || 175}) - (5 × ${quizAnswersFromMetadata.age || 25}) - 161
+
+        2. **TDEE (Multiplicador de Atividade)**:
+           - 3-4 dias treino: TMB × 1.55
+           - 5-6 dias treino: TMB × 1.725
+           - 7 dias treino: TMB × 1.9
+
+        3. **Ajuste Calórico por Objetivo**:
+           - Ganho muscular: TDEE + 300-500 kcal (superávit moderado)
+           - Perda de peso: TDEE - 300-500 kcal (déficit moderado)
+           - Manutenção: TDEE + 0 kcal
+
+        4. **Distribuição de Macros (g/kg de peso corporal)**:
+           - Proteína: 1.8-2.2g/kg (${quizAnswersFromMetadata.currentWeight || 70}kg)
+           - Carboidratos: 4-6g/kg para ganho muscular, 2-3g/kg para perda
+           - Gorduras: 0.8-1.2g/kg
+           - Restante das calorias: ajustar carboidratos
+
+        INSTRUÇÕES CRÍTICAS:
+        - CALCULE exatamente usando as fórmulas acima
+        - MOSTRE os cálculos no campo "nutritionalGuidelines"
+        - Crie 5-6 refeições com macros precisos
+        - Respeite todas as restrições alimentares
+        - Use alimentos brasileiros comuns
+
+        Responda APENAS com JSON válido:
         {
-          "meals": [{"name": "Café da Manã", "time": "07:00", "foods": [{"name": "Ovos", "quantity": "2 unidades", "calories": 150}], "totalCalories": 150}],
-          "totalDailyCalories": 2000,
-          "macros": {"protein": 150, "carbs": 200, "fat": 60},
-          "tips": ["Beba 2L de água.", "Evite açúcar refinado."]
+          "calculations": {
+            "tmb": "valor calculado com fórmula Mifflin-St Jeor",
+            "tdee": "TMB × multiplicador de atividade",
+            "targetCalories": "TDEE + ajuste por objetivo",
+            "proteinGrams": "peso × fator proteína",
+            "carbsGrams": "calculado conforme objetivo",
+            "fatGrams": "peso × fator gordura"
+          },
+          "meals": [
+            {
+              "name": "Café da Manhã",
+              "time": "07:00",
+              "foods": [
+                {
+                  "name": "Ovos inteiros",
+                  "quantity": "3 unidades",
+                  "calories": 210,
+                  "protein": 18,
+                  "carbs": 1,
+                  "fat": 15
+                }
+              ],
+              "totalCalories": 450,
+              "totalProtein": 35,
+              "totalCarbs": 25,
+              "totalFat": 20
+            }
+          ],
+          "totalDailyCalories": "valor calculado",
+          "macros": {
+            "protein": "valor em gramas",
+            "carbs": "valor em gramas", 
+            "fat": "valor em gramas",
+            "proteinPercentage": "% das calorias",
+            "carbsPercentage": "% das calorias",
+            "fatPercentage": "% das calorias"
+          },
+          "nutritionalGuidelines": [
+            "TMB calculado: [mostrar cálculo completo]",
+            "TDEE calculado: [mostrar cálculo]",
+            "Calorias alvo: [mostrar ajuste]",
+            "Proteína: [peso] × [fator] = [resultado]g",
+            "Carboidratos: [peso] × [fator] = [resultado]g",
+            "Gorduras: [peso] × [fator] = [resultado]g"
+          ],
+          "tips": [
+            "Consuma ${Math.round((quizAnswersFromMetadata.currentWeight || 70) * 1.8)}g de proteína diariamente",
+            "Beba pelo menos ${quizAnswersFromMetadata.waterIntake || "35ml/kg"} de água",
+            "Faça refeições a cada 3-4 horas"
+          ]
         }
-        Inclua 5 refeições.
+
+        OBRIGATÓRIO: Use EXATAMENTE as fórmulas científicas mencionadas e mostre todos os cálculos.
       `
+
       const workoutPrompt = `
         Com base nas seguintes informações do usuário, crie um plano de treino personalizado em português brasileiro.
         Dados do usuário:
