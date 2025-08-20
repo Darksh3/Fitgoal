@@ -23,15 +23,34 @@ export default function DietPage() {
     if (user) {
       const fetchDietPlan = async () => {
         try {
-          const docRef = doc(db, "users", user.uid, "dietPlan", "current")
-          const docSnap = await getDoc(docRef)
+          const userDocRef = doc(db, "users", user.uid)
+          const userDocSnap = await getDoc(userDocRef)
 
-          if (docSnap.exists()) {
-            setDietPlan(docSnap.data() as DietPlan)
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data()
+
+            if (userData.dietPlan) {
+              setDietPlan(userData.dietPlan as DietPlan)
+            } else {
+              const leadsDocRef = doc(db, "leads", user.uid)
+              const leadsDocSnap = await getDoc(leadsDocRef)
+
+              if (leadsDocSnap.exists()) {
+                const leadsData = leadsDocSnap.data()
+                if (leadsData.dietPlan) {
+                  setDietPlan(leadsData.dietPlan as DietPlan)
+                } else {
+                  setError("Nenhum plano de dieta encontrado. Tente regenerar os planos.")
+                }
+              } else {
+                setError("Nenhum plano de dieta encontrado. Tente regenerar os planos.")
+              }
+            }
           } else {
-            setError("Nenhum plano de dieta encontrado")
+            setError("Dados do usuário não encontrados")
           }
         } catch (err) {
+          console.error("[v0] Error fetching diet plan:", err)
           setError("Erro ao carregar o plano de dieta")
         } finally {
           setLoading(false)
@@ -42,13 +61,38 @@ export default function DietPage() {
     }
   }, [user])
 
-  const generatePlans = () => {
-    // Function to regenerate diet plans
-    router.push("/dashboard/dieta/generate")
+  const generatePlans = async () => {
+    if (!user) return
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch("/api/generate-plans-on-demand", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          forceRegenerate: true,
+        }),
+      })
+
+      if (response.ok) {
+        window.location.reload()
+      } else {
+        setError("Erro ao regenerar planos. Tente novamente.")
+      }
+    } catch (err) {
+      console.error("[v0] Error regenerating plans:", err)
+      setError("Erro ao regenerar planos. Tente novamente.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleGoToQuiz = () => {
-    // Function to handle navigation to quiz
     router.push("/dashboard/quiz")
   }
 
@@ -64,13 +108,11 @@ export default function DietPage() {
 
     meals.forEach((meal) => {
       if (meal && typeof meal === "object") {
-        // Extract calories from meal.calories string (e.g., "450 kcal" -> 450)
         const caloriesMatch = meal.calories?.match(/(\d+)/)
         if (caloriesMatch) {
           totalCalories += Number.parseInt(caloriesMatch[1])
         }
 
-        // Extract macros from meal.macros - trust API calculations
         if (meal.macros && typeof meal.macros === "object") {
           const proteinMatch = meal.macros.protein?.match(/(\d+\.?\d*)/)
           const carbsMatch = meal.macros.carbs?.match(/(\d+\.?\d*)/)
@@ -95,15 +137,12 @@ export default function DietPage() {
 
   const displayTotals = {
     calories: (() => {
-      // Priority 1: API-calculated totals (most accurate)
       if (dietPlan?.totalDailyCalories && dietPlan.totalDailyCalories !== "0") {
         return `${dietPlan.totalDailyCalories} kcal`
       }
-      // Priority 2: Diet plan calories field
       if (dietPlan?.calories && dietPlan.calories !== "0" && dietPlan.calories !== "0 kcal") {
         return dietPlan.calories.includes("kcal") ? dietPlan.calories : `${dietPlan.calories} kcal`
       }
-      // Priority 3: Sum from meal data (if available)
       if (calculatedTotals.calories !== "0") {
         return `${calculatedTotals.calories} kcal`
       }
@@ -241,7 +280,6 @@ export default function DietPage() {
                           let foodCalories = ""
 
                           if (typeof food === "string") {
-                            // Simplified parsing - trust API for calculations
                             const patterns = [
                               /(\d+g?)\s*de?\s*(.+)/i,
                               /(.+?)\s*-\s*(\d+g?)/i,
