@@ -226,8 +226,9 @@ export async function POST(req: Request) {
         const gender = userData.gender || "masculino"
         const trainingDays = Number.parseInt(userData.trainingDaysPerWeek) || 5
         const goal = userData.goal || "Ganho de massa muscular"
+        const experience = userData.experience || "Iniciante"
 
-        // 1. TMB usando Mifflin-St Jeor
+        // 1. TMB = (10 × peso[kg]) + (6.25 × altura[cm]) - (5 × idade) + 5
         let tmb: number
         if (gender.toLowerCase() === "feminino") {
           tmb = 10 * weight + 6.25 * height - 5 * age - 161
@@ -235,30 +236,45 @@ export async function POST(req: Request) {
           tmb = 10 * weight + 6.25 * height - 5 * age + 5
         }
 
-        // 2. TDEE usando multiplicador de atividade
+        // 2. TDEE = TMB × fator_de_atividade (1.2 sedentário, 1.6 regularmente ativo, 2.0 atleta)
         let activityMultiplier: number
-        if (trainingDays <= 2) activityMultiplier = 1.375
-        else if (trainingDays <= 4) activityMultiplier = 1.55
-        else if (trainingDays <= 6) activityMultiplier = 1.725
-        else activityMultiplier = 1.9
+        if (trainingDays <= 2 || experience === "Sedentário") {
+          activityMultiplier = 1.2 // Sedentário
+        } else if (trainingDays >= 6 || experience === "Avançado") {
+          activityMultiplier = 2.0 // Atleta
+        } else {
+          activityMultiplier = 1.6 // Regularmente ativo
+        }
 
         const tdee = tmb * activityMultiplier
 
-        // 3. Ajuste calórico por objetivo
+        // 3. Superávit para ganho de massa: Calorias_diárias = TDEE + 600
         let calorieAdjustment = 0
         if (goal.toLowerCase().includes("ganho") || goal.toLowerCase().includes("massa")) {
-          calorieAdjustment = 400 // Superávit moderado
+          calorieAdjustment = 600 // Superávit moderado conforme especificado
         } else if (goal.toLowerCase().includes("perda") || goal.toLowerCase().includes("emagrecer")) {
           calorieAdjustment = -400 // Déficit moderado
         }
 
         const targetCalories = Math.round(tdee + calorieAdjustment)
 
-        // 4. Distribuição de macros em g/kg
-        const proteinGrams = Math.round(weight * 2.0) // 2g/kg para ganho muscular
-        const fatGrams = Math.round(weight * 1.0) // 1g/kg
+        // 4. Proteínas: 1.8 a 2.2 × peso[kg], Gorduras: 0.8 a 1.2 × peso[kg]
+        let proteinMultiplier = 2.0 // Padrão
+        let fatMultiplier = 1.0 // Padrão
 
-        // Calorias restantes para carboidratos
+        // Ajustar baseado na experiência e objetivo
+        if (experience === "Avançado" || goal.toLowerCase().includes("massa")) {
+          proteinMultiplier = 2.2 // Máximo para ganho muscular
+          fatMultiplier = 1.2 // Máximo para suporte hormonal
+        } else if (experience === "Iniciante") {
+          proteinMultiplier = 1.8 // Mínimo
+          fatMultiplier = 0.8 // Mínimo
+        }
+
+        const proteinGrams = Math.round(weight * proteinMultiplier)
+        const fatGrams = Math.round(weight * fatMultiplier)
+
+        // Carboidratos: (Calorias_totais - (Proteínas × 4 + Gorduras × 9)) ÷ 4
         const proteinCalories = proteinGrams * 4
         const fatCalories = fatGrams * 9
         const remainingCalories = targetCalories - proteinCalories - fatCalories
