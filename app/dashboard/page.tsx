@@ -313,9 +313,9 @@ export default function DashboardPage() {
 
   const getModelImage = () => {
     if (quizData?.gender === "mulher") {
-      return "/placeholder.svg?height=400&width=300"
+      return "/images/female-avatar.png" // Female fitness avatar
     }
-    return "/placeholder.svg?height=400&width=300"
+    return "/images/male-avatar.png" // Male fitness avatar
   }
 
   const getUserName = () => {
