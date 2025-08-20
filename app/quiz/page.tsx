@@ -55,11 +55,10 @@ interface QuizData {
   }
   trainingDaysPerWeek: number
   email: string
-  // Adicionando campos IMC para serem enviados para a API
-  imc?: number
-  imcClassification?: string
-  imcStatus?: string
-  age?: number
+  imc: number
+  imcClassification: string
+  imcStatus: string
+  age: number
 }
 
 const initialQuizData: QuizData = {
@@ -93,9 +92,9 @@ const initialQuizData: QuizData = {
   },
   trainingDaysPerWeek: 0,
   email: "",
-  imc: 0, // Inicializa com valor padrão
-  imcClassification: "", // Inicializa com valor padrão
-  imcStatus: "", // Inicializa com valor padrão
+  imc: 0,
+  imcClassification: "",
+  imcStatus: "",
   age: 0,
 }
 
@@ -190,17 +189,46 @@ export default function QuizPage() {
     return () => unsubscribe()
   }, [])
 
-  const updateQuizData = (field: keyof QuizData, value: any) => {
-    setQuizData((prev) => {
-      const updated = { ...prev, [field]: value }
+  const calculateIMC = (weight: number, height: number): { imc: number; classification: string; status: string } => {
+    const heightInMeters = height / 100
+    const imc = weight / (heightInMeters * heightInMeters)
 
-      if (field === "trainingDaysPerWeek") {
-        debugFrequencySelection(value)
-        debugDataFlow("QUIZ_FREQUENCY_UPDATE", updated)
+    let classification = ""
+    let status = ""
+
+    if (imc < 18.5) {
+      classification = "Abaixo do peso"
+      status = "underweight"
+    } else if (imc < 25) {
+      classification = "Peso normal"
+      status = "normal"
+    } else if (imc < 30) {
+      classification = "Sobrepeso"
+      status = "overweight"
+    } else {
+      classification = "Obesidade"
+      status = "obese"
+    }
+
+    return { imc: Math.round(imc * 10) / 10, classification, status }
+  }
+
+  const updateQuizData = (key: keyof QuizData, value: any) => {
+    const newData = { ...quizData, [key]: value }
+
+    if (key === "currentWeight" || key === "height") {
+      const weight = Number.parseFloat(key === "currentWeight" ? value : newData.currentWeight)
+      const height = Number.parseFloat(key === "height" ? value : newData.height)
+
+      if (weight > 0 && height > 0) {
+        const imcData = calculateIMC(weight, height)
+        newData.imc = imcData.imc
+        newData.imcClassification = imcData.classification
+        newData.imcStatus = imcData.status
       }
+    }
 
-      return updated
-    })
+    setQuizData(newData)
   }
 
   const updateExercisePreference = (exercise: string, preference: string) => {
@@ -222,32 +250,6 @@ export default function QuizPage() {
         return { ...prev, [field]: currentArray.filter((item) => item !== value) }
       }
     })
-  }
-
-  const calculateIMC = () => {
-    const height = Number.parseFloat(quizData.height) / 100
-    const weight = Number.parseFloat(quizData.currentWeight)
-    if (isNaN(height) || isNaN(weight) || height <= 0 || weight <= 0) return { imc: 0, classification: "", status: "" }
-
-    const imc = weight / (height * height)
-    let classification = ""
-    let status = ""
-
-    if (imc < 18.5) {
-      classification = "abaixo do peso"
-      status = "Você está abaixo do peso ideal. É recomendado ganhar peso de forma saudável."
-    } else if (imc >= 18.5 && imc < 25) {
-      classification = "numa faixa saudável"
-      status = "Parabéns! Você está numa faixa de peso saudável."
-    } else if (imc >= 25 && imc < 30) {
-      classification = "com sobrepeso"
-      status = "Você está com sobrepeso. É recomendado perder peso para melhorar sua saúde."
-    } else {
-      classification = "com obesidade"
-      status = "Você está com obesidade. É importante buscar orientação médica e nutricional."
-    }
-
-    return { imc: Number(imc.toFixed(1)), classification, status }
   }
 
   const calculateTimeToGoal = () => {
@@ -519,7 +521,10 @@ export default function QuizPage() {
     }
 
     try {
-      const { imc, classification, status } = calculateIMC()
+      const { imc, classification, status } = calculateIMC(
+        Number.parseFloat(quizData.currentWeight),
+        Number.parseFloat(quizData.height),
+      )
       // Atualiza quizData com os resultados do IMC antes de enviar para a API
       const updatedQuizData = {
         ...quizData,
@@ -758,7 +763,10 @@ export default function QuizPage() {
   }
 
   if (showIMCResult) {
-    const { imc, classification, status } = calculateIMC()
+    const { imc, classification, status } = calculateIMC(
+      Number.parseFloat(quizData.currentWeight),
+      Number.parseFloat(quizData.height),
+    )
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
         <div className="text-center space-y-6 max-w-md">
@@ -1743,65 +1751,65 @@ export default function QuizPage() {
     }
   }
 
-  const canProceed = () => {
-    const isStepValid = () => {
-      switch (currentStep) {
-        case 1:
-          return quizData.gender !== ""
-        case 2:
-          return quizData.age > 0 && quizData.age >= 16 && quizData.age <= 80
-        case 3:
-          return quizData.bodyType !== ""
-        case 4:
-          return quizData.goal.length > 0
-        case 5:
-          return quizData.bodyFat > 0
-        case 6:
-          return quizData.problemAreas.length > 0
-        case 7:
-          return quizData.diet !== ""
-        case 8:
-          return quizData.sugarFrequency.length > 0
-        case 9:
-          return quizData.waterIntake !== ""
-        case 10:
-          return quizData.height !== ""
-        case 11:
-          return quizData.allergies !== ""
-        case 12:
-          return quizData.allergyDetails.trim() !== ""
-        case 13:
-          return quizData.currentWeight !== ""
-        case 14:
-          return quizData.targetWeight !== ""
-        case 15:
-          return quizData.importantEvent !== ""
-        case 16:
-          return quizData.eventDate !== ""
-        case 17:
-          return quizData.workoutTime !== ""
-        case 18:
-          return quizData.experience !== ""
-        case 19:
-          return quizData.equipment.length > 0
-        case 20:
-          return quizData.exercisePreferences.cardio !== ""
-        case 21:
-          return quizData.exercisePreferences.pullups !== ""
-        case 22:
-          return quizData.exercisePreferences.yoga !== ""
-        case 23:
-          return quizData.trainingDaysPerWeek >= 1 && quizData.trainingDaysPerWeek <= 7
-        case 24:
-          return quizData.name.trim() !== ""
-        case 25:
-          return quizData.email.trim() !== "" && quizData.email.includes("@")
-        default:
-          return false
-      }
+  const isStepValid = (step: number): boolean => {
+    switch (step) {
+      case 1:
+        return quizData.gender !== ""
+      case 2:
+        return quizData.age > 0 && quizData.age >= 16 && quizData.age <= 80
+      case 3:
+        return quizData.bodyType !== ""
+      case 4:
+        return quizData.goal.length > 0
+      case 5:
+        return quizData.bodyFat > 0
+      case 6:
+        return quizData.problemAreas.length > 0
+      case 7:
+        return quizData.diet !== ""
+      case 8:
+        return quizData.sugarFrequency.length > 0
+      case 9:
+        return quizData.waterIntake !== ""
+      case 10:
+        return quizData.height !== "" && Number.parseFloat(quizData.height) > 0
+      case 11:
+        return quizData.allergies !== ""
+      case 12:
+        return quizData.allergyDetails.trim() !== ""
+      case 13:
+        return quizData.currentWeight !== "" && Number.parseFloat(quizData.currentWeight) > 0
+      case 14:
+        return quizData.targetWeight !== "" && Number.parseFloat(quizData.targetWeight) > 0
+      case 15:
+        return quizData.importantEvent !== ""
+      case 16:
+        return quizData.eventDate !== ""
+      case 17:
+        return quizData.workoutTime !== ""
+      case 18:
+        return quizData.experience !== ""
+      case 19:
+        return quizData.equipment.length > 0
+      case 20:
+        return quizData.exercisePreferences.cardio !== ""
+      case 21:
+        return quizData.exercisePreferences.pullups !== ""
+      case 22:
+        return quizData.exercisePreferences.yoga !== ""
+      case 23:
+        return quizData.trainingDaysPerWeek >= 1 && quizData.trainingDaysPerWeek <= 7
+      case 24:
+        return quizData.name.trim() !== ""
+      case 25:
+        return quizData.email.trim() !== "" && quizData.email.includes("@")
+      default:
+        return true
     }
+  }
 
-    return isStepValid()
+  const canProceed = () => {
+    return isStepValid(currentStep)
   }
 
   return (

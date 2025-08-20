@@ -34,6 +34,9 @@ interface QuizData {
   timeToGoal: string
   workoutTime: string
   experience: string
+  height: string
+  age: string
+  trainingDaysPerWeek: string
 }
 
 interface DietPlan {
@@ -242,35 +245,35 @@ export default function DashboardPage() {
     if (!quizData) return 2200
 
     const weight = Number.parseFloat(quizData.currentWeight) || 70
-    const targetWeight = Number.parseFloat(quizData.targetWeight) || 70
+    const height = Number.parseFloat(quizData.height) || (quizData.gender === "mulher" ? 165 : 175) // Fallback apenas se não houver altura
+    const age = Number.parseFloat(quizData.age) || 25 // Fallback apenas se não houver idade
     const gender = quizData.gender
     const goals = quizData.goal || []
     const bodyType = quizData.bodyType
+    const trainingDays = Number.parseFloat(quizData.trainingDaysPerWeek) || 3
 
-    // Base metabolic rate calculation (simplified Harris-Benedict)
     const bmr =
-      gender === "mulher"
-        ? 655 + 9.6 * weight + 1.8 * 165 - 4.7 * 25 // Assuming average height 165cm, age 25 for women
-        : 66 + 13.7 * weight + 5 * 175 - 6.8 * 25 // Assuming average height 175cm, age 25 for men
+      gender === "mulher" ? 10 * weight + 6.25 * height - 5 * age - 161 : 10 * weight + 6.25 * height - 5 * age + 5
 
-    // Activity factor based on workout frequency
-    const activityFactor = quizData.workoutTime === "mais-1h" ? 1.7 : quizData.workoutTime === "45-60min" ? 1.6 : 1.5
+    let activityFactor = 1.2 // Sedentário
+    if (trainingDays >= 6)
+      activityFactor = 1.725 // Muito ativo
+    else if (trainingDays >= 4)
+      activityFactor = 1.55 // Ativo
+    else if (trainingDays >= 2) activityFactor = 1.375 // Levemente ativo
 
     let dailyCalories = bmr * activityFactor
 
     if (bodyType === "ectomorfo") {
-      dailyCalories *= 1.4 // 40% increase for ectomorphs (very fast metabolism)
+      dailyCalories *= 1.1 // 10% aumento para ectomorfos
     } else if (bodyType === "endomorfo") {
-      dailyCalories *= 0.95 // 5% decrease for endomorphs (slower metabolism)
+      dailyCalories *= 0.95 // 5% redução para endomorfos
     }
-    // Mesomorphs use standard calculation
 
-    // Adjust based on goals
     if (goals.includes("perder-peso")) {
-      dailyCalories *= 0.85 // 15% deficit for weight loss
+      dailyCalories *= 0.85 // 15% déficit para perda de peso
     } else if (goals.includes("ganhar-massa")) {
-      const surplus = bodyType === "ectomorfo" ? 1.3 : 1.15 // Increased surplus for ectomorphs
-      dailyCalories *= surplus
+      dailyCalories *= 1.15 // 15% superávit para ganho de massa
     }
 
     return Math.round(dailyCalories)
@@ -279,7 +282,6 @@ export default function DashboardPage() {
   const calculateMacroTotals = () => {
     if (!dietPlan) return { proteins: 0, carbs: 0, fats: 0 }
 
-    // Try to get totals from API response first
     if (dietPlan.totalProtein !== undefined && dietPlan.totalCarbs !== undefined && dietPlan.totalFats !== undefined) {
       return {
         proteins: Math.round(dietPlan.totalProtein),
@@ -288,7 +290,20 @@ export default function DashboardPage() {
       }
     }
 
-    // Fallback to parsing string values
+    if (quizData) {
+      const weight = Number.parseFloat(quizData.currentWeight) || 70
+      const calories = calculateDynamicCalories(quizData)
+
+      // Distribuição de macros baseada em g/kg (consistente com as APIs)
+      const proteins = Math.round(weight * 2.0) // 2.0g/kg proteína
+      const fats = Math.round(weight * 1.0) // 1.0g/kg gordura
+      const remainingCalories = calories - proteins * 4 - fats * 9
+      const carbs = Math.round(remainingCalories / 4) // Resto em carboidratos
+
+      return { proteins, carbs, fats }
+    }
+
+    // Fallback apenas se não houver dados do quiz
     const proteins = dietPlan.protein ? Number.parseInt(dietPlan.protein.replace(/\D/g, "")) || 0 : 0
     const carbs = dietPlan.carbs ? Number.parseInt(dietPlan.carbs.replace(/\D/g, "")) || 0 : 0
     const fats = dietPlan.fats ? Number.parseInt(dietPlan.fats.replace(/\D/g, "")) || 0 : 0

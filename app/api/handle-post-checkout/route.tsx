@@ -219,58 +219,96 @@ export async function POST(req: Request) {
     if (!dietPlan || !workoutPlan) {
       console.log("DEBUG: Gerando novos planos (diet/workout) para o usuário:", finalUserUid)
 
+      const calculateNutrition = (userData: any) => {
+        const weight = Number.parseFloat(userData.currentWeight) || 70
+        const height = Number.parseFloat(userData.height) || 175
+        const age = Number.parseInt(userData.age) || 25
+        const gender = userData.gender || "masculino"
+        const trainingDays = Number.parseInt(userData.trainingDaysPerWeek) || 5
+        const goal = userData.goal || "Ganho de massa muscular"
+
+        // 1. TMB usando Mifflin-St Jeor
+        let tmb: number
+        if (gender.toLowerCase() === "feminino") {
+          tmb = 10 * weight + 6.25 * height - 5 * age - 161
+        } else {
+          tmb = 10 * weight + 6.25 * height - 5 * age + 5
+        }
+
+        // 2. TDEE usando multiplicador de atividade
+        let activityMultiplier: number
+        if (trainingDays <= 2) activityMultiplier = 1.375
+        else if (trainingDays <= 4) activityMultiplier = 1.55
+        else if (trainingDays <= 6) activityMultiplier = 1.725
+        else activityMultiplier = 1.9
+
+        const tdee = tmb * activityMultiplier
+
+        // 3. Ajuste calórico por objetivo
+        let calorieAdjustment = 0
+        if (goal.toLowerCase().includes("ganho") || goal.toLowerCase().includes("massa")) {
+          calorieAdjustment = 400 // Superávit moderado
+        } else if (goal.toLowerCase().includes("perda") || goal.toLowerCase().includes("emagrecer")) {
+          calorieAdjustment = -400 // Déficit moderado
+        }
+
+        const targetCalories = Math.round(tdee + calorieAdjustment)
+
+        // 4. Distribuição de macros em g/kg
+        const proteinGrams = Math.round(weight * 2.0) // 2g/kg para ganho muscular
+        const fatGrams = Math.round(weight * 1.0) // 1g/kg
+
+        // Calorias restantes para carboidratos
+        const proteinCalories = proteinGrams * 4
+        const fatCalories = fatGrams * 9
+        const remainingCalories = targetCalories - proteinCalories - fatCalories
+        const carbsGrams = Math.round(remainingCalories / 4)
+
+        return {
+          tmb: Math.round(tmb),
+          tdee: Math.round(tdee),
+          targetCalories,
+          proteinGrams,
+          carbsGrams,
+          fatGrams,
+          proteinCalories,
+          fatCalories,
+          carbsCalories: carbsGrams * 4,
+        }
+      }
+
+      const nutrition = calculateNutrition(quizAnswersFromMetadata)
+
       const dietPrompt = `
-        CÁLCULO CIENTÍFICO DE DIETA PERSONALIZADA - Use as fórmulas exatas abaixo:
+        Crie um plano alimentar personalizado em português brasileiro usando EXATAMENTE estes valores calculados:
+
+        VALORES CALCULADOS (NÃO ALTERE):
+        - Calorias diárias: ${nutrition.targetCalories} kcal
+        - Proteína: ${nutrition.proteinGrams}g (${nutrition.proteinCalories} kcal)
+        - Carboidratos: ${nutrition.carbsGrams}g (${nutrition.carbsCalories} kcal)
+        - Gorduras: ${nutrition.fatGrams}g (${nutrition.fatCalories} kcal)
 
         DADOS DO USUÁRIO:
-        - Gênero: ${quizAnswersFromMetadata.gender || "masculino"}
-        - Idade: ${quizAnswersFromMetadata.age || 25} anos
         - Peso: ${quizAnswersFromMetadata.currentWeight || 70}kg
-        - Altura: ${quizAnswersFromMetadata.height || 175}cm
         - Objetivo: ${quizAnswersFromMetadata.goal || "Ganho de massa muscular"}
-        - Dias de treino: ${quizAnswersFromMetadata.trainingDaysPerWeek || 5} por semana
-        - Experiência: ${quizAnswersFromMetadata.experience || "Iniciante"}
         - Restrições: ${quizAnswersFromMetadata.allergyDetails || "Nenhuma"}
         - Preferências: ${quizAnswersFromMetadata.diet || "Sem restrições"}
 
-        FÓRMULAS OBRIGATÓRIAS A SEGUIR:
-
-        1. **TMB (Mifflin-St Jeor)**:
-           - Homens: TMB = (10 × ${quizAnswersFromMetadata.currentWeight || 70}) + (6.25 × ${quizAnswersFromMetadata.height || 175}) - (5 × ${quizAnswersFromMetadata.age || 25}) + 5
-           - Mulheres: TMB = (10 × ${quizAnswersFromMetadata.currentWeight || 70}) + (6.25 × ${quizAnswersFromMetadata.height || 175}) - (5 × ${quizAnswersFromMetadata.age || 25}) - 161
-
-        2. **TDEE (Multiplicador de Atividade)**:
-           - 3-4 dias treino: TMB × 1.55
-           - 5-6 dias treino: TMB × 1.725
-           - 7 dias treino: TMB × 1.9
-
-        3. **Ajuste Calórico por Objetivo**:
-           - Ganho muscular: TDEE + 300-500 kcal (superávit moderado)
-           - Perda de peso: TDEE - 300-500 kcal (déficit moderado)
-           - Manutenção: TDEE + 0 kcal
-
-        4. **Distribuição de Macros (g/kg de peso corporal)**:
-           - Proteína: 1.8-2.2g/kg (${quizAnswersFromMetadata.currentWeight || 70}kg)
-           - Carboidratos: 4-6g/kg para ganho muscular, 2-3g/kg para perda
-           - Gorduras: 0.8-1.2g/kg
-           - Restante das calorias: ajustar carboidratos
-
-        INSTRUÇÕES CRÍTICAS:
-        - CALCULE exatamente usando as fórmulas acima
-        - MOSTRE os cálculos no campo "nutritionalGuidelines"
-        - Crie 5-6 refeições com macros precisos
-        - Respeite todas as restrições alimentares
+        INSTRUÇÕES:
+        - Crie 5-6 refeições que SOMEM exatamente os valores calculados
         - Use alimentos brasileiros comuns
+        - Respeite todas as restrições alimentares
+        - Distribua os macros proporcionalmente entre as refeições
 
         Responda APENAS com JSON válido:
         {
           "calculations": {
-            "tmb": "valor calculado com fórmula Mifflin-St Jeor",
-            "tdee": "TMB × multiplicador de atividade",
-            "targetCalories": "TDEE + ajuste por objetivo",
-            "proteinGrams": "peso × fator proteína",
-            "carbsGrams": "calculado conforme objetivo",
-            "fatGrams": "peso × fator gordura"
+            "tmb": ${nutrition.tmb},
+            "tdee": ${nutrition.tdee},
+            "targetCalories": ${nutrition.targetCalories},
+            "proteinGrams": ${nutrition.proteinGrams},
+            "carbsGrams": ${nutrition.carbsGrams},
+            "fatGrams": ${nutrition.fatGrams}
           },
           "meals": [
             {
@@ -292,31 +330,26 @@ export async function POST(req: Request) {
               "totalFat": 20
             }
           ],
-          "totalDailyCalories": "valor calculado",
+          "totalDailyCalories": ${nutrition.targetCalories},
           "macros": {
-            "protein": "valor em gramas",
-            "carbs": "valor em gramas", 
-            "fat": "valor em gramas",
-            "proteinPercentage": "% das calorias",
-            "carbsPercentage": "% das calorias",
-            "fatPercentage": "% das calorias"
+            "protein": ${nutrition.proteinGrams},
+            "carbs": ${nutrition.carbsGrams},
+            "fat": ${nutrition.fatGrams}
           },
           "nutritionalGuidelines": [
-            "TMB calculado: [mostrar cálculo completo]",
-            "TDEE calculado: [mostrar cálculo]",
-            "Calorias alvo: [mostrar ajuste]",
-            "Proteína: [peso] × [fator] = [resultado]g",
-            "Carboidratos: [peso] × [fator] = [resultado]g",
-            "Gorduras: [peso] × [fator] = [resultado]g"
+            "TMB calculado: ${nutrition.tmb} kcal",
+            "TDEE calculado: ${nutrition.tdee} kcal",
+            "Calorias alvo: ${nutrition.targetCalories} kcal",
+            "Proteína: ${nutrition.proteinGrams}g (2g/kg)",
+            "Carboidratos: ${nutrition.carbsGrams}g",
+            "Gorduras: ${nutrition.fatGrams}g (1g/kg)"
           ],
           "tips": [
-            "Consuma ${Math.round((quizAnswersFromMetadata.currentWeight || 70) * 1.8)}g de proteína diariamente",
-            "Beba pelo menos ${quizAnswersFromMetadata.waterIntake || "35ml/kg"} de água",
+            "Consuma ${nutrition.proteinGrams}g de proteína diariamente",
+            "Beba pelo menos ${Math.round((Number.parseFloat(quizAnswersFromMetadata.currentWeight) || 70) * 35)}ml de água por dia",
             "Faça refeições a cada 3-4 horas"
           ]
         }
-
-        OBRIGATÓRIO: Use EXATAMENTE as fórmulas científicas mencionadas e mostre todos os cálculos.
       `
 
       const workoutPrompt = `
