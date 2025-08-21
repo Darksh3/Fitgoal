@@ -707,8 +707,8 @@ export default function DashboardPage() {
                     {getDisplayTotals().calories.replace(" kcal", "")}
                   </p>
                   <p className="text-xs text-gray-500">
-                    Proteínas: {getDisplayTotals().protein} | Carboidratos: {getDisplayTotals().carbs} | Gorduras:{" "}
-                    {getDisplayTotals().fats}
+                    Proteínas: {getDisplayTotals().protein.replace("g", "")}g | Carboidratos:{" "}
+                    {getDisplayTotals().carbs.replace("g", "")}g | Gorduras: {getDisplayTotals().fats.replace("g", "")}g
                   </p>
                   <p className="text-xs text-blue-600 font-medium">Clique para ver sua dieta completa →</p>
                 </div>
