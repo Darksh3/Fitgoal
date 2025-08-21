@@ -20,6 +20,7 @@ export default function DietPage() {
   const [replacingMeal, setReplacingMeal] = useState<number | null>(null)
   const [replacingFood, setReplacingFood] = useState<{ mealIndex: number; foodIndex: number } | null>(null)
   const [userPreferences, setUserPreferences] = useState<any>(null)
+  const [quizData, setQuizData] = useState<any>(null)
   const router = useRouter()
 
   const saveDietPlan = async (updatedDietPlan: DietPlan) => {
@@ -272,10 +273,55 @@ export default function DietPage() {
     }
   }
 
-  const calculatedTotals = calculateTotalMacros(dietPlan?.meals || [])
+  const calculateScientificCalories = (quizData: any) => {
+    if (!quizData) return 2200
+
+    const weight = Number.parseFloat(quizData.currentWeight) || 70
+    const height = Number.parseFloat(quizData.height) || (quizData.gender === "mulher" ? 165 : 175)
+    const age = Number.parseFloat(quizData.age) || 25
+    const gender = quizData.gender
+    const goals = quizData.goal || []
+    const bodyType = quizData.bodyType
+    const trainingDays = Number.parseFloat(quizData.trainingDaysPerWeek) || 3
+
+    // Mifflin-St Jeor formula
+    const bmr =
+      gender === "mulher" ? 10 * weight + 6.25 * height - 5 * age - 161 : 10 * weight + 6.25 * height - 5 * age + 5
+
+    // Activity factor based on training days
+    let activityFactor = 1.2 // Sedentário
+    if (trainingDays >= 6)
+      activityFactor = 2.0 // Atleta
+    else if (trainingDays >= 4)
+      activityFactor = 1.6 // Regularmente ativo
+    else if (trainingDays >= 2) activityFactor = 1.6 // Regularmente ativo
+
+    let dailyCalories = bmr * activityFactor
+
+    // Body type adjustments
+    if (bodyType === "ectomorfo") {
+      dailyCalories *= 1.1
+    } else if (bodyType === "endomorfo") {
+      dailyCalories *= 0.95
+    }
+
+    // Goal adjustments
+    if (goals.includes("perder-peso")) {
+      dailyCalories *= 0.85 // 15% déficit
+    } else if (goals.includes("ganhar-massa")) {
+      dailyCalories += 600 // +600 kcal superávit moderado
+    }
+
+    return Math.round(dailyCalories)
+  }
 
   const displayTotals = {
     calories: (() => {
+      if (userPreferences && quizData) {
+        const scientificCalories = calculateScientificCalories(quizData)
+        return `${scientificCalories} kcal`
+      }
+
       if (dietPlan?.totalDailyCalories && dietPlan.totalDailyCalories !== "0") {
         return `${dietPlan.totalDailyCalories} kcal`
       }
@@ -325,6 +371,8 @@ export default function DietPage() {
     })(),
   }
 
+  const calculatedTotals = calculateTotalMacros(dietPlan?.meals || [])
+
   useEffect(() => {
     if (user) {
       const fetchDietPlan = async () => {
@@ -334,6 +382,10 @@ export default function DietPage() {
 
           if (userDocSnap.exists()) {
             const userData = userDocSnap.data()
+
+            if (userData.quizData) {
+              setQuizData(userData.quizData)
+            }
 
             setUserPreferences({
               allergies: userData.quizData?.allergyDetails || userData.allergyDetails,
@@ -349,6 +401,10 @@ export default function DietPage() {
 
               if (leadsDocSnap.exists()) {
                 const leadsData = leadsDocSnap.data()
+
+                if (leadsData.quizData && !quizData) {
+                  setQuizData(leadsData.quizData)
+                }
 
                 if (!userPreferences) {
                   setUserPreferences({
