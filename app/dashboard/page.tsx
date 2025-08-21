@@ -196,7 +196,12 @@ export default function DashboardPage() {
     const savedProgress = localStorage.getItem("userProgress")
     if (savedProgress) {
       const progress = JSON.parse(savedProgress)
-      if (quizData) {
+      if (dietPlan?.totalDailyCalories) {
+        progress.caloriesTarget = Math.round(dietPlan.totalDailyCalories)
+      } else if (dietPlan?.calories) {
+        progress.caloriesTarget =
+          Number.parseInt(dietPlan.calories.toString().replace(/\D/g, "")) || calculateDynamicCalories(quizData)
+      } else if (quizData) {
         progress.caloriesTarget = calculateDynamicCalories(quizData)
       }
       setProgressData(progress)
@@ -209,7 +214,13 @@ export default function DashboardPage() {
         totalGoals: 18,
         overallProgress: 0,
         caloriesConsumed: 0,
-        caloriesTarget: quizData ? calculateDynamicCalories(quizData) : 2200, // Dynamic calories
+        caloriesTarget: dietPlan?.totalDailyCalories
+          ? Math.round(dietPlan.totalDailyCalories)
+          : dietPlan?.calories
+            ? Number.parseInt(dietPlan.calories.toString().replace(/\D/g, "")) || 2200
+            : quizData
+              ? calculateDynamicCalories(quizData)
+              : 2200,
         proteins: 0,
         carbs: 0,
         fats: 0,
@@ -357,9 +368,15 @@ export default function DashboardPage() {
   useEffect(() => {
     if (quizData) {
       const macros = calculateMacroTotals()
+      const realCalories = dietPlan?.totalDailyCalories
+        ? Math.round(dietPlan.totalDailyCalories)
+        : dietPlan?.calories
+          ? Number.parseInt(dietPlan.calories.toString().replace(/\D/g, "")) || calculateDynamicCalories(quizData)
+          : calculateDynamicCalories(quizData)
+
       setProgressData((prev) => ({
         ...prev,
-        caloriesTarget: calculateDynamicCalories(quizData),
+        caloriesTarget: realCalories,
         proteins: macros.proteins,
         carbs: macros.carbs,
         fats: macros.fats,

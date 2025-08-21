@@ -315,11 +315,9 @@ export default function DietPage() {
     return Math.round(dailyCalories)
   }
 
-  const calculatedTotals = calculateTotalMacros(dietPlan?.meals || [])
-
   const displayTotals = {
     calories: (() => {
-      if (userPreferences && quizData) {
+      if (quizData) {
         const scientificCalories = calculateScientificCalories(quizData)
         return `${scientificCalories} kcal`
       }
@@ -330,9 +328,6 @@ export default function DietPage() {
       if (dietPlan?.calories && dietPlan.calories !== "0" && dietPlan.calories !== "0 kcal") {
         return dietPlan.calories.includes("kcal") ? dietPlan.calories : `${dietPlan.calories} kcal`
       }
-      if (calculatedTotals.calories !== "0") {
-        return `${calculatedTotals.calories} kcal`
-      }
       return "Dados não disponíveis"
     })(),
     protein: (() => {
@@ -341,9 +336,6 @@ export default function DietPage() {
       }
       if (dietPlan?.protein && dietPlan.protein !== "0g" && dietPlan.protein !== "0") {
         return dietPlan.protein.includes("g") ? dietPlan.protein : `${dietPlan.protein}g`
-      }
-      if (calculatedTotals.protein !== "0g") {
-        return calculatedTotals.protein
       }
       return "Dados não disponíveis"
     })(),
@@ -354,9 +346,6 @@ export default function DietPage() {
       if (dietPlan?.carbs && dietPlan.carbs !== "0g" && dietPlan.carbs !== "0") {
         return dietPlan.carbs.includes("g") ? dietPlan.carbs : `${dietPlan.carbs}g`
       }
-      if (calculatedTotals.carbs !== "0g") {
-        return calculatedTotals.carbs
-      }
       return "Dados não disponíveis"
     })(),
     fats: (() => {
@@ -366,12 +355,11 @@ export default function DietPage() {
       if (dietPlan?.fats && dietPlan.fats !== "0g" && dietPlan.fats !== "0") {
         return dietPlan.fats.includes("g") ? dietPlan.fats : `${dietPlan.fats}g`
       }
-      if (calculatedTotals.fats !== "0g") {
-        return calculatedTotals.fats
-      }
       return "Dados não disponíveis"
     })(),
   }
+
+  const calculatedTotals = calculateTotalMacros(dietPlan?.meals || [])
 
   useEffect(() => {
     if (user) {
