@@ -703,12 +703,11 @@ export default function DashboardPage() {
                     ></div>
                   </div>
                   <p className="text-sm text-gray-600">
-                    Calorias consumidas hoje: {progressData.caloriesConsumed} /{" "}
-                    {getDisplayTotals().calories.replace(" kcal", "")}
+                    Calorias consumidas hoje: {progressData.caloriesConsumed} / {getDisplayTotals().calories}
                   </p>
                   <p className="text-xs text-gray-500">
-                    Proteínas: {getDisplayTotals().protein.replace("g", "")}g | Carboidratos:{" "}
-                    {getDisplayTotals().carbs.replace("g", "")}g | Gorduras: {getDisplayTotals().fats.replace("g", "")}g
+                    Proteínas: {getDisplayTotals().protein} | Carboidratos: {getDisplayTotals().carbs} | Gorduras:{" "}
+                    {getDisplayTotals().fats}
                   </p>
                   <p className="text-xs text-blue-600 font-medium">Clique para ver sua dieta completa →</p>
                 </div>
