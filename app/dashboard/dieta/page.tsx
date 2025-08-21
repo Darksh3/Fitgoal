@@ -315,6 +315,8 @@ export default function DietPage() {
     return Math.round(dailyCalories)
   }
 
+  const calculatedTotals = calculateTotalMacros(dietPlan?.meals || [])
+
   const displayTotals = {
     calories: (() => {
       if (userPreferences && quizData) {
@@ -370,8 +372,6 @@ export default function DietPage() {
       return "Dados não disponíveis"
     })(),
   }
-
-  const calculatedTotals = calculateTotalMacros(dietPlan?.meals || [])
 
   useEffect(() => {
     if (user) {
