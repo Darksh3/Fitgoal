@@ -387,16 +387,56 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (dietPlan) {
-      const calories = dietPlan.totalDailyCalories ? Math.round(dietPlan.totalDailyCalories) : 2200
-      const proteins = dietPlan.totalProtein ? Math.round(dietPlan.totalProtein) : 0
-      const carbs = dietPlan.totalCarbs ? Math.round(dietPlan.totalCarbs) : 0
-      const fats = dietPlan.totalFats ? Math.round(dietPlan.totalFats) : 0
+      const calories = (() => {
+        if (dietPlan.totalDailyCalories && !isNaN(dietPlan.totalDailyCalories)) {
+          return Math.round(dietPlan.totalDailyCalories)
+        }
+        if (dietPlan.calories) {
+          const parsed = Number.parseInt(dietPlan.calories.toString().replace(/\D/g, ""))
+          return !isNaN(parsed) ? parsed : 2200
+        }
+        return 2200
+      })()
 
-      console.log("[v0] Using diet plan values directly:", {
+      const proteins = (() => {
+        if (dietPlan.totalProtein && !isNaN(dietPlan.totalProtein)) {
+          return Math.round(dietPlan.totalProtein)
+        }
+        if (dietPlan.protein) {
+          const parsed = Number.parseInt(dietPlan.protein.toString().replace(/\D/g, ""))
+          return !isNaN(parsed) ? parsed : 0
+        }
+        return 0
+      })()
+
+      const carbs = (() => {
+        if (dietPlan.totalCarbs && !isNaN(dietPlan.totalCarbs)) {
+          return Math.round(dietPlan.totalCarbs)
+        }
+        if (dietPlan.carbs) {
+          const parsed = Number.parseInt(dietPlan.carbs.toString().replace(/\D/g, ""))
+          return !isNaN(parsed) ? parsed : 0
+        }
+        return 0
+      })()
+
+      const fats = (() => {
+        if (dietPlan.totalFats && !isNaN(dietPlan.totalFats)) {
+          return Math.round(dietPlan.totalFats)
+        }
+        if (dietPlan.fats) {
+          const parsed = Number.parseInt(dietPlan.fats.toString().replace(/\D/g, ""))
+          return !isNaN(parsed) ? parsed : 0
+        }
+        return 0
+      })()
+
+      console.log("[v0] Using diet plan values:", {
         calories,
         proteins,
         carbs,
         fats,
+        rawDietPlan: dietPlan,
       })
 
       setProgressData((prev) => ({
