@@ -212,11 +212,22 @@ Retorne JSON com nova refeição equivalente:
     }
 
     console.log("[v0] Substitution successful")
-    return NextResponse.json({
-      success: true,
-      substitution: substitutionData,
-      type,
-    })
+
+    if (type === "meal") {
+      return NextResponse.json({
+        success: true,
+        substitution: {
+          newMeal: substitutionData.meal, // Frontend expects newMeal field
+        },
+        type,
+      })
+    } else {
+      return NextResponse.json({
+        success: true,
+        substitution: substitutionData,
+        type,
+      })
+    }
   } catch (error) {
     console.error("[v0] Unexpected error in substitute-food API:", error)
     return NextResponse.json(
