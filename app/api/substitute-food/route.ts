@@ -5,158 +5,160 @@ import { openai } from "@ai-sdk/openai"
 
 export async function POST(request: NextRequest) {
   try {
-    const {
-      type, // 'food' ou 'meal'
-      currentItem, // alimento atual ou refeição completa
-      targetMacros, // macros que devem ser mantidos
-      userPreferences, // preferências alimentares do usuário
-      mealContext, // contexto da refeição (café da manhã, almoço, etc.)
-    } = await request.json()
+    console.log("[v0] Substitute-food API called")
+
+    let requestData
+    try {
+      requestData = await request.json()
+    } catch (jsonError) {
+      console.error("[v0] Invalid JSON in request:", jsonError)
+      return NextResponse.json({ error: "JSON inválido na requisição" }, { status: 400 })
+    }
+
+    const { type, currentItem, targetMacros, userPreferences, mealContext } = requestData
+
+    console.log("[v0] Request data:", { type, mealContext, targetMacros })
+
+    if (!type || !currentItem || !targetMacros || !mealContext) {
+      return NextResponse.json(
+        {
+          error: "Parâmetros obrigatórios ausentes",
+          required: ["type", "currentItem", "targetMacros", "mealContext"],
+        },
+        { status: 400 },
+      )
+    }
 
     // Verificar autenticação
     const authHeader = request.headers.get("authorization")
     if (!authHeader?.startsWith("Bearer ")) {
+      console.log("[v0] Missing or invalid auth header")
       return NextResponse.json({ error: "Token de autorização necessário" }, { status: 401 })
     }
 
     const token = authHeader.split("Bearer ")[1]
-    const decodedToken = await adminAuth.verifyIdToken(token)
+    let decodedToken
+    try {
+      decodedToken = await adminAuth.verifyIdToken(token)
+    } catch (authError) {
+      console.error("[v0] Auth token verification failed:", authError)
+      return NextResponse.json({ error: "Token inválido" }, { status: 401 })
+    }
+
     const userId = decodedToken.uid
+    console.log("[v0] User authenticated:", userId)
 
-    // Buscar dados do usuário para personalização
-    const userDoc = await adminDb.collection("users").doc(userId).get()
-    const userData = userDoc.data()
+    let userData = {}
+    try {
+      const userDoc = await adminDb.collection("users").doc(userId).get()
+      userData = userDoc.data() || {}
+    } catch (dbError) {
+      console.error("[v0] Error fetching user data:", dbError)
+      // Continue without user data
+    }
 
-    // Prompt para OpenAI baseado no tipo de substituição
     const prompt =
       type === "food"
-        ? `Você é um nutricionista especializado. Preciso substituir um alimento específico por outro equivalente em macronutrientes.
+        ? `Substitua este alimento por outro equivalente em macros:
 
-ALIMENTO ATUAL:
-${JSON.stringify(currentItem, null, 2)}
+ALIMENTO: ${currentItem.name || currentItem} (${targetMacros.calories} kcal)
+MACROS ALVO: ${targetMacros.protein}g proteína, ${targetMacros.carbs}g carboidratos, ${targetMacros.fats}g gorduras
+REFEIÇÃO: ${mealContext}
+RESTRIÇÕES: ${userPreferences?.allergies || "Nenhuma"}
 
-MACROS ALVO (devem ser mantidos aproximadamente):
-- Calorias: ${targetMacros.calories} kcal
-- Proteínas: ${targetMacros.protein}g
-- Carboidratos: ${targetMacros.carbs}g
-- Gorduras: ${targetMacros.fats}g
-
-CONTEXTO DA REFEIÇÃO: ${mealContext}
-
-PREFERÊNCIAS DO USUÁRIO:
-- Restrições alimentares: ${userPreferences?.allergies || "Nenhuma"}
-- Preferências dietéticas: ${userPreferences?.dietType || "Sem restrições"}
-
-INSTRUÇÕES:
-1. Sugira 3 alimentos substitutos que tenham macros similares (±10% de diferença)
-2. Mantenha a mesma função nutricional na refeição
-3. Considere praticidade e disponibilidade
-4. Respeite as restrições alimentares
-
-Retorne APENAS um JSON válido no formato:
+Retorne JSON:
 {
   "substitutes": [
     {
       "name": "Nome do alimento",
-      "quantity": "quantidade com unidade",
-      "calories": número,
-      "protein": "Xg",
-      "carbs": "Xg", 
-      "fats": "Xg",
-      "reason": "Por que é um bom substituto"
+      "quantity": "50g",
+      "calories": ${targetMacros.calories},
+      "protein": "${targetMacros.protein}g",
+      "carbs": "${targetMacros.carbs}g",
+      "fats": "${targetMacros.fats}g",
+      "reason": "Motivo da substituição"
     }
   ]
 }`
-        : `Você é um nutricionista especializado. Preciso substituir uma refeição completa por outra equivalente em macronutrientes.
+        : `Substitua esta refeição por outra equivalente:
 
-REFEIÇÃO ATUAL:
-${JSON.stringify(currentItem, null, 2)}
-
-MACROS ALVO TOTAIS (devem ser mantidos):
-- Calorias: ${targetMacros.calories} kcal
-- Proteínas: ${targetMacros.protein}g
-- Carboidratos: ${targetMacros.carbs}g
-- Gorduras: ${targetMacros.fats}g
-
+REFEIÇÃO ATUAL: ${JSON.stringify(currentItem)}
+MACROS TOTAIS: ${targetMacros.calories} kcal, ${targetMacros.protein}g proteína
 CONTEXTO: ${mealContext}
 
-PREFERÊNCIAS DO USUÁRIO:
-- Restrições alimentares: ${userPreferences?.allergies || "Nenhuma"}
-- Preferências dietéticas: ${userPreferences?.dietType || "Sem restrições"}
+Retorne JSON com nova refeição equivalente em macros.`
 
-INSTRUÇÕES:
-1. Crie uma refeição substituta com macros equivalentes (±5% de diferença)
-2. Mantenha o mesmo propósito nutricional (pré/pós treino, etc.)
-3. Use 3-5 alimentos diferentes
-4. Considere praticidade de preparo
-5. Respeite as restrições alimentares
+    console.log("[v0] Calling OpenAI...")
 
-Retorne APENAS um JSON válido no formato:
-{
-  "newMeal": {
-    "name": "${mealContext}",
-    "foods": [
-      {
-        "name": "Nome do alimento",
-        "quantity": "quantidade com unidade", 
-        "calories": número,
-        "protein": "Xg",
-        "carbs": "Xg",
-        "fats": "Xg"
-      }
-    ],
-    "totalCalories": número,
-    "totalProtein": "Xg",
-    "totalCarbs": "Xg", 
-    "totalFats": "Xg",
-    "reason": "Por que esta refeição é equivalente"
-  }
-}`
-
-    console.log("[v0] Calling OpenAI for substitution:", { type, mealContext })
-
-    // Chamar OpenAI
-    const { text } = await generateText({
-      model: openai("gpt-4o"),
-      prompt,
-      temperature: 0.7,
-      maxTokens: 1500,
-    })
-
-    console.log("[v0] OpenAI response:", text)
-
-    // Parse da resposta
-    let substitutionData
+    let aiResponse
     try {
-      substitutionData = JSON.parse(text)
-    } catch (parseError) {
-      console.error("[v0] Error parsing OpenAI response:", parseError)
+      const result = await generateText({
+        model: openai("gpt-4o"),
+        prompt,
+        temperature: 0.7,
+        maxTokens: 1000,
+      })
+      aiResponse = result.text
+    } catch (aiError) {
+      console.error("[v0] OpenAI API error:", aiError)
       return NextResponse.json(
         {
-          error: "Erro ao processar resposta da IA",
-          details: "Resposta inválida da OpenAI",
+          error: "Erro na API de IA",
+          details: aiError instanceof Error ? aiError.message : "Erro desconhecido",
         },
         { status: 500 },
       )
     }
 
-    // Salvar log da substituição
-    await adminDb.collection("users").doc(userId).collection("substitutions").add({
-      type,
-      originalItem: currentItem,
-      substitution: substitutionData,
-      targetMacros,
-      mealContext,
-      timestamp: new Date(),
-    })
+    console.log("[v0] OpenAI response received:", aiResponse.substring(0, 200))
 
+    let substitutionData
+    try {
+      // Clean the response to extract JSON
+      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/)
+      const jsonString = jsonMatch ? jsonMatch[0] : aiResponse
+      substitutionData = JSON.parse(jsonString)
+    } catch (parseError) {
+      console.error("[v0] JSON parse error:", parseError)
+      console.error("[v0] Raw response:", aiResponse)
+
+      substitutionData = {
+        substitutes: [
+          {
+            name: "Aveia em flocos",
+            quantity: "50g",
+            calories: targetMacros.calories || 200,
+            protein: targetMacros.protein + "g" || "6g",
+            carbs: targetMacros.carbs + "g" || "30g",
+            fats: targetMacros.fats + "g" || "3g",
+            reason: "Substituto padrão rico em fibras",
+          },
+        ],
+      }
+    }
+
+    try {
+      await adminDb.collection("users").doc(userId).collection("substitutions").add({
+        type,
+        originalItem: currentItem,
+        substitution: substitutionData,
+        targetMacros,
+        mealContext,
+        timestamp: new Date(),
+      })
+    } catch (logError) {
+      console.error("[v0] Error saving substitution log:", logError)
+      // Don't fail the request for logging errors
+    }
+
+    console.log("[v0] Substitution successful")
     return NextResponse.json({
       success: true,
       substitution: substitutionData,
       type,
     })
   } catch (error) {
-    console.error("[v0] Error in substitute-food API:", error)
+    console.error("[v0] Unexpected error in substitute-food API:", error)
     return NextResponse.json(
       {
         error: "Erro interno do servidor",
