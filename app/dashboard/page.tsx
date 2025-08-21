@@ -697,15 +697,18 @@ export default function DashboardPage() {
                   <div className="h-2 bg-gray-200 rounded-full">
                     <div
                       className="h-2 bg-orange-500 rounded-full"
-                      style={{ width: `${(progressData.caloriesConsumed / progressData.caloriesTarget) * 100}%` }}
+                      style={{
+                        width: `${(progressData.caloriesConsumed / Number.parseInt(getDisplayTotals().calories)) * 100}%`,
+                      }}
                     ></div>
                   </div>
                   <p className="text-sm text-gray-600">
-                    Calorias consumidas hoje: {progressData.caloriesConsumed} / {progressData.caloriesTarget}
+                    Calorias consumidas hoje: {progressData.caloriesConsumed} /{" "}
+                    {getDisplayTotals().calories.replace(" kcal", "")}
                   </p>
                   <p className="text-xs text-gray-500">
-                    Proteínas: {progressData.proteins}g | Carboidratos: {progressData.carbs}g | Gorduras:{" "}
-                    {progressData.fats}g
+                    Proteínas: {getDisplayTotals().protein} | Carboidratos: {getDisplayTotals().carbs} | Gorduras:{" "}
+                    {getDisplayTotals().fats}
                   </p>
                   <p className="text-xs text-blue-600 font-medium">Clique para ver sua dieta completa →</p>
                 </div>
