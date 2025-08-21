@@ -6,60 +6,153 @@ import { auth, db } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Clock } from "lucide-react"
+import { Clock, RefreshCw, Replace } from "lucide-react"
 import ProtectedRoute from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
-import type { Meal, DietPlan } from "@/types" // Declare Meal and DietPlan interfaces
+import type { Meal, DietPlan } from "@/types"
 
 export default function DietPage() {
   const [user] = useAuthState(auth)
   const [dietPlan, setDietPlan] = useState<DietPlan | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [replacingMeal, setReplacingMeal] = useState<number | null>(null)
+  const [replacingFood, setReplacingFood] = useState<{ mealIndex: number; foodIndex: number } | null>(null)
+  const [userPreferences, setUserPreferences] = useState<any>(null)
   const router = useRouter()
 
-  useEffect(() => {
-    if (user) {
-      const fetchDietPlan = async () => {
-        try {
-          const userDocRef = doc(db, "users", user.uid)
-          const userDocSnap = await getDoc(userDocRef)
+  const handleReplaceMeal = async (mealIndex: number) => {
+    if (!user || !dietPlan) return
 
-          if (userDocSnap.exists()) {
-            const userData = userDocSnap.data()
+    setReplacingMeal(mealIndex)
 
-            if (userData.dietPlan) {
-              setDietPlan(userData.dietPlan as DietPlan)
-            } else {
-              const leadsDocRef = doc(db, "leads", user.uid)
-              const leadsDocSnap = await getDoc(leadsDocRef)
+    try {
+      const currentMeal = dietPlan.meals[mealIndex]
 
-              if (leadsDocSnap.exists()) {
-                const leadsData = leadsDocSnap.data()
-                if (leadsData.dietPlan) {
-                  setDietPlan(leadsData.dietPlan as DietPlan)
-                } else {
-                  setError("Nenhum plano de dieta encontrado. Tente regenerar os planos.")
-                }
-              } else {
-                setError("Nenhum plano de dieta encontrado. Tente regenerar os planos.")
-              }
-            }
-          } else {
-            setError("Dados do usuário não encontrados")
-          }
-        } catch (err) {
-          console.error("[v0] Error fetching diet plan:", err)
-          setError("Erro ao carregar o plano de dieta")
-        } finally {
-          setLoading(false)
-        }
+      // Calculate target macros from current meal
+      const targetMacros = {
+        calories: Number.parseInt(currentMeal.calories?.match(/(\d+)/)?.[1] || "0"),
+        protein: Number.parseFloat(currentMeal.macros?.protein?.match(/(\d+\.?\d*)/)?.[1] || "0"),
+        carbs: Number.parseFloat(currentMeal.macros?.carbs?.match(/(\d+\.?\d*)/)?.[1] || "0"),
+        fats: Number.parseFloat(currentMeal.macros?.fats?.match(/(\d+\.?\d*)/)?.[1] || "0"),
       }
 
-      fetchDietPlan()
+      const token = await user.getIdToken()
+
+      const response = await fetch("/api/substitute-food", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          type: "meal",
+          currentItem: currentMeal,
+          targetMacros,
+          userPreferences: userPreferences || {},
+          mealContext: currentMeal.name || `Refeição ${mealIndex + 1}`,
+        }),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success && result.substitution?.newMeal) {
+          // Update the diet plan with the new meal
+          const updatedMeals = [...dietPlan.meals]
+          updatedMeals[mealIndex] = {
+            ...result.substitution.newMeal,
+            time: currentMeal.time, // Preserve original time
+          }
+
+          setDietPlan({
+            ...dietPlan,
+            meals: updatedMeals,
+          })
+        }
+      } else {
+        setError("Erro ao substituir refeição. Tente novamente.")
+      }
+    } catch (err) {
+      console.error("[v0] Error replacing meal:", err)
+      setError("Erro ao substituir refeição. Tente novamente.")
+    } finally {
+      setReplacingMeal(null)
     }
-  }, [user])
+  }
+
+  const handleReplaceFood = async (mealIndex: number, foodIndex: number) => {
+    if (!user || !dietPlan) return
+
+    setReplacingFood({ mealIndex, foodIndex })
+
+    try {
+      const currentFood = dietPlan.meals[mealIndex].foods[foodIndex]
+      const currentMeal = dietPlan.meals[mealIndex]
+
+      // Extract calories from food if available
+      let foodCalories = 0
+      if (typeof currentFood === "object" && currentFood.calories) {
+        foodCalories = Number.parseInt(currentFood.calories.toString().match(/(\d+)/)?.[1] || "0")
+      }
+
+      // Estimate macros for individual food (simplified)
+      const targetMacros = {
+        calories: foodCalories || 100, // Default estimate
+        protein: (foodCalories * 0.2) / 4, // Rough estimate
+        carbs: (foodCalories * 0.5) / 4,
+        fats: (foodCalories * 0.3) / 9,
+      }
+
+      const token = await user.getIdToken()
+
+      const response = await fetch("/api/substitute-food", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          type: "food",
+          currentItem: currentFood,
+          targetMacros,
+          userPreferences: userPreferences || {},
+          mealContext: currentMeal.name || `Refeição ${mealIndex + 1}`,
+        }),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success && result.substitution?.substitutes?.length > 0) {
+          // Use the first substitute (could add UI to let user choose)
+          const newFood = result.substitution.substitutes[0]
+
+          // Update the diet plan with the new food
+          const updatedMeals = [...dietPlan.meals]
+          updatedMeals[mealIndex] = {
+            ...updatedMeals[mealIndex],
+            foods: [
+              ...updatedMeals[mealIndex].foods.slice(0, foodIndex),
+              newFood,
+              ...updatedMeals[mealIndex].foods.slice(foodIndex + 1),
+            ],
+          }
+
+          setDietPlan({
+            ...dietPlan,
+            meals: updatedMeals,
+          })
+        }
+      } else {
+        setError("Erro ao substituir alimento. Tente novamente.")
+      }
+    } catch (err) {
+      console.error("[v0] Error replacing food:", err)
+      setError("Erro ao substituir alimento. Tente novamente.")
+    } finally {
+      setReplacingFood(null)
+    }
+  }
 
   const generatePlans = async () => {
     if (!user) return
@@ -185,6 +278,63 @@ export default function DietPage() {
       return "Dados não disponíveis"
     })(),
   }
+
+  useEffect(() => {
+    if (user) {
+      const fetchDietPlan = async () => {
+        try {
+          const userDocRef = doc(db, "users", user.uid)
+          const userDocSnap = await getDoc(userDocRef)
+
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data()
+
+            setUserPreferences({
+              allergies: userData.quizData?.allergyDetails || userData.allergyDetails,
+              dietType: userData.quizData?.dietPreferences || userData.dietPreferences,
+              goal: userData.quizData?.goal || userData.goal,
+            })
+
+            if (userData.dietPlan) {
+              setDietPlan(userData.dietPlan as DietPlan)
+            } else {
+              const leadsDocRef = doc(db, "leads", user.uid)
+              const leadsDocSnap = await getDoc(leadsDocRef)
+
+              if (leadsDocSnap.exists()) {
+                const leadsData = leadsDocSnap.data()
+
+                if (!userPreferences) {
+                  setUserPreferences({
+                    allergies: leadsData.quizData?.allergyDetails || leadsData.allergyDetails,
+                    dietType: leadsData.quizData?.dietPreferences || leadsData.dietPreferences,
+                    goal: leadsData.quizData?.goal || leadsData.goal,
+                  })
+                }
+
+                if (leadsData.dietPlan) {
+                  setDietPlan(leadsData.dietPlan as DietPlan)
+                } else {
+                  setError("Nenhum plano de dieta encontrado. Tente regenerar os planos.")
+                }
+              } else {
+                setError("Nenhum plano de dieta encontrado. Tente regenerar os planos.")
+              }
+            }
+          } else {
+            setError("Dados do usuário não encontrados")
+          }
+        } catch (err) {
+          console.error("[v0] Error fetching diet plan:", err)
+          setError("Erro ao carregar o plano de dieta")
+        } finally {
+          setLoading(false)
+        }
+      }
+
+      fetchDietPlan()
+    }
+  }, [user])
 
   return (
     <ProtectedRoute>
@@ -333,16 +483,56 @@ export default function DietPage() {
                                 <p className="font-medium text-gray-900">{foodName}</p>
                                 {foodQuantity && <p className="text-sm text-blue-600 font-medium">{foodQuantity}</p>}
                               </div>
-                              {foodCalories && (
-                                <div className="text-right">
-                                  <p className="text-sm text-gray-600">{foodCalories}</p>
-                                </div>
-                              )}
+                              <div className="flex items-center gap-3">
+                                {foodCalories && (
+                                  <div className="text-right">
+                                    <p className="text-sm text-gray-600">{foodCalories}</p>
+                                  </div>
+                                )}
+                                <Button
+                                  onClick={() => handleReplaceFood(index, foodIndex)}
+                                  disabled={
+                                    replacingFood?.mealIndex === index && replacingFood?.foodIndex === foodIndex
+                                  }
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8 px-2"
+                                >
+                                  {replacingFood?.mealIndex === index && replacingFood?.foodIndex === foodIndex ? (
+                                    <RefreshCw className="h-3 w-3 animate-spin" />
+                                  ) : (
+                                    <Replace className="h-3 w-3" />
+                                  )}
+                                </Button>
+                              </div>
                             </div>
                           )
                         })
                       ) : (
                         <p className="text-gray-500 text-sm">Nenhum alimento especificado</p>
+                      )}
+                      {Array.isArray(meal.foods) && meal.foods.length > 0 && (
+                        <div className="pt-3 border-t border-gray-200">
+                          <Button
+                            onClick={() => handleReplaceMeal(index)}
+                            disabled={replacingMeal === index}
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                          >
+                            {replacingMeal === index ? (
+                              <>
+                                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                                Substituindo Refeição...
+                              </>
+                            ) : (
+                              <>
+                                <RefreshCw className="h-4 w-4 mr-2" />
+                                Substituir Refeição
+                              </>
+                            )}
+                          </Button>
+                        </div>
                       )}
                       {meal.macros && typeof meal.macros === "object" && (
                         <div className="mt-4 pt-3 border-t border-gray-200">
