@@ -51,6 +51,18 @@ interface DietPlan {
   meals?: any[]
 }
 
+interface Meal {
+  name?: string
+  time?: string
+  calories?: string
+  foods?: any[]
+  macros?: {
+    protein?: string
+    carbs?: string
+    fats?: string
+  }
+}
+
 export default function DashboardPage() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
@@ -198,11 +210,6 @@ export default function DashboardPage() {
       const progress = JSON.parse(savedProgress)
       if (dietPlan?.totalDailyCalories) {
         progress.caloriesTarget = Math.round(dietPlan.totalDailyCalories)
-      } else if (dietPlan?.calories) {
-        progress.caloriesTarget =
-          Number.parseInt(dietPlan.calories.toString().replace(/\D/g, "")) || calculateDynamicCalories(quizData)
-      } else if (quizData) {
-        progress.caloriesTarget = calculateDynamicCalories(quizData)
       }
       setProgressData(progress)
     } else {
@@ -214,16 +221,10 @@ export default function DashboardPage() {
         totalGoals: 18,
         overallProgress: 0,
         caloriesConsumed: 0,
-        caloriesTarget: dietPlan?.totalDailyCalories
-          ? Math.round(dietPlan.totalDailyCalories)
-          : dietPlan?.calories
-            ? Number.parseInt(dietPlan.calories.toString().replace(/\D/g, "")) || 2200
-            : quizData
-              ? calculateDynamicCalories(quizData)
-              : 2200,
-        proteins: 0,
-        carbs: 0,
-        fats: 0,
+        caloriesTarget: dietPlan?.totalDailyCalories ? Math.round(dietPlan.totalDailyCalories) : 2200,
+        proteins: dietPlan?.totalProtein ? Math.round(dietPlan.totalProtein) : 0,
+        carbs: dietPlan?.totalCarbs ? Math.round(dietPlan.totalCarbs) : 0,
+        fats: dietPlan?.totalFats ? Math.round(dietPlan.totalFats) : 0,
       }
       setProgressData(initialProgress)
       localStorage.setItem("userProgress", JSON.stringify(initialProgress))
@@ -252,94 +253,96 @@ export default function DashboardPage() {
     window.dispatchEvent(new Event("openFloatingChat"))
   }
 
-  const calculateDynamicCalories = (quizData: QuizData) => {
-    if (!quizData) return 2200
+  const getDisplayTotals = () => {
+    const calculatedTotals = calculateTotalMacros(dietPlan?.meals || [])
 
-    const weight = Number.parseFloat(quizData.currentWeight) || 70
-    const height = Number.parseFloat(quizData.height) || (quizData.gender === "mulher" ? 165 : 175) // Fallback apenas se não houver altura
-    const age = Number.parseFloat(quizData.age) || 25 // Fallback apenas se não houver idade
-    const gender = quizData.gender
-    const goals = quizData.goal || []
-    const bodyType = quizData.bodyType
-    const trainingDays = Number.parseFloat(quizData.trainingDaysPerWeek) || 3
-
-    if (isNaN(weight) || isNaN(height) || isNaN(age)) {
-      return 2200 // Return fallback if any input is invalid
+    return {
+      calories: (() => {
+        if (calculatedTotals.calories && calculatedTotals.calories !== "0") {
+          return `${calculatedTotals.calories} kcal`
+        }
+        if (dietPlan?.totalDailyCalories && dietPlan.totalDailyCalories !== 0) {
+          return `${dietPlan.totalDailyCalories} kcal`
+        }
+        if (dietPlan?.calories && dietPlan.calories !== "0" && dietPlan.calories !== "0 kcal") {
+          return dietPlan.calories.includes("kcal") ? dietPlan.calories : `${dietPlan.calories} kcal`
+        }
+        return "2200 kcal"
+      })(),
+      protein: (() => {
+        if (calculatedTotals.protein && calculatedTotals.protein !== "0g") {
+          return calculatedTotals.protein
+        }
+        if (dietPlan?.totalProtein && dietPlan.totalProtein !== 0) {
+          return `${dietPlan.totalProtein}g`
+        }
+        if (dietPlan?.protein && dietPlan.protein !== "0g" && dietPlan.protein !== "0") {
+          return dietPlan.protein.includes("g") ? dietPlan.protein : `${dietPlan.protein}g`
+        }
+        return "0g"
+      })(),
+      carbs: (() => {
+        if (calculatedTotals.carbs && calculatedTotals.carbs !== "0g") {
+          return calculatedTotals.carbs
+        }
+        if (dietPlan?.totalCarbs && dietPlan.totalCarbs !== 0) {
+          return `${dietPlan.totalCarbs}g`
+        }
+        if (dietPlan?.carbs && dietPlan.carbs !== "0g" && dietPlan.carbs !== "0") {
+          return dietPlan.carbs.includes("g") ? dietPlan.carbs : `${dietPlan.carbs}g`
+        }
+        return "0g"
+      })(),
+      fats: (() => {
+        if (calculatedTotals.fats && calculatedTotals.fats !== "0g") {
+          return calculatedTotals.fats
+        }
+        if (dietPlan?.totalFats && dietPlan.totalFats !== 0) {
+          return `${dietPlan.totalFats}g`
+        }
+        if (dietPlan?.fats && dietPlan.fats !== "0g" && dietPlan.fats !== "0") {
+          return dietPlan.fats.includes("g") ? dietPlan.fats : `${dietPlan.fats}g`
+        }
+        return "0g"
+      })(),
     }
-
-    const bmr =
-      gender === "mulher" ? 10 * weight + 6.25 * height - 5 * age - 161 : 10 * weight + 6.25 * height - 5 * age + 5
-
-    let activityFactor = 1.2 // Sedentário
-    if (trainingDays >= 6)
-      activityFactor = 1.725 // Muito ativo
-    else if (trainingDays >= 4)
-      activityFactor = 1.55 // Ativo
-    else if (trainingDays >= 2) activityFactor = 1.375 // Levemente ativo
-
-    let dailyCalories = bmr * activityFactor
-
-    if (bodyType === "ectomorfo") {
-      dailyCalories *= 1.1 // 10% aumento para ectomorfos
-    } else if (bodyType === "endomorfo") {
-      dailyCalories *= 0.95 // 5% redução para endomorfos
-    }
-
-    if (goals.includes("perder-peso")) {
-      dailyCalories *= 0.85 // 15% déficit para perda de peso
-    } else if (goals.includes("ganhar-massa")) {
-      dailyCalories *= 1.15 // 15% superávit para ganho de massa
-    }
-
-    const result = Math.round(dailyCalories)
-    return isNaN(result) ? 2200 : result
   }
 
-  const calculateMacroTotals = () => {
-    if (!dietPlan) return { proteins: 0, carbs: 0, fats: 0 }
-
-    // Try to get from diet plan totals first
-    if (dietPlan.totalProtein !== undefined && dietPlan.totalCarbs !== undefined && dietPlan.totalFats !== undefined) {
-      return {
-        proteins: Math.round(Number(dietPlan.totalProtein) || 0),
-        carbs: Math.round(Number(dietPlan.totalCarbs) || 0),
-        fats: Math.round(Number(dietPlan.totalFats) || 0),
-      }
+  const calculateTotalMacros = (meals: Meal[]) => {
+    if (!Array.isArray(meals) || meals.length === 0) {
+      return { calories: "0", protein: "0g", carbs: "0g", fats: "0g" }
     }
 
-    // Try to parse from string values if they exist
-    if (dietPlan.protein || dietPlan.carbs || dietPlan.fats) {
-      const proteins = dietPlan.protein ? Number.parseInt(String(dietPlan.protein).replace(/\D/g, "")) || 0 : 0
-      const carbs = dietPlan.carbs ? Number.parseInt(String(dietPlan.carbs).replace(/\D/g, "")) || 0 : 0
-      const fats = dietPlan.fats ? Number.parseInt(String(dietPlan.fats).replace(/\D/g, "")) || 0 : 0
+    let totalCalories = 0
+    let totalProtein = 0
+    let totalCarbs = 0
+    let totalFats = 0
 
-      if (proteins > 0 || carbs > 0 || fats > 0) {
-        return { proteins, carbs, fats }
+    meals.forEach((meal) => {
+      if (meal && typeof meal === "object") {
+        const caloriesMatch = meal.calories?.match(/(\d+)/)
+        if (caloriesMatch) {
+          totalCalories += Number.parseInt(caloriesMatch[1])
+        }
+
+        if (meal.macros && typeof meal.macros === "object") {
+          const proteinMatch = meal.macros.protein?.match(/(\d+\.?\d*)/)
+          const carbsMatch = meal.macros.carbs?.match(/(\d+\.?\d*)/)
+          const fatsMatch = meal.macros.fats?.match(/(\d+\.?\d*)/)
+
+          if (proteinMatch) totalProtein += Number.parseFloat(proteinMatch[1])
+          if (carbsMatch) totalCarbs += Number.parseFloat(carbsMatch[1])
+          if (fatsMatch) totalFats += Number.parseFloat(fatsMatch[1])
+        }
       }
+    })
+
+    return {
+      calories: totalCalories > 0 ? `${totalCalories}` : "0",
+      protein: totalProtein > 0 ? `${Math.round(totalProtein)}g` : "0g",
+      carbs: totalCarbs > 0 ? `${Math.round(totalCarbs)}g` : "0g",
+      fats: totalFats > 0 ? `${Math.round(totalFats)}g` : "0g",
     }
-
-    // Fallback to calculated values based on quiz data
-    if (quizData) {
-      const weight = Number.parseFloat(quizData.currentWeight) || 70
-      const calories =
-        dietPlan?.totalDailyCalories || dietPlan?.calories
-          ? Number.parseInt(String(dietPlan.calories || dietPlan.totalDailyCalories).replace(/\D/g, "")) ||
-            calculateDynamicCalories(quizData)
-          : calculateDynamicCalories(quizData)
-
-      if (!calories || isNaN(calories)) {
-        return { proteins: 140, carbs: 350, fats: 70 } // Fallback values
-      }
-
-      const proteins = Math.round(weight * 2.0) // 2.0g/kg proteína
-      const fats = Math.round(weight * 1.0) // 1.0g/kg gordura
-      const remainingCalories = calories - proteins * 4 - fats * 9
-      const carbs = Math.round(Math.max(0, remainingCalories) / 4) // Resto em carboidratos
-
-      return { proteins, carbs, fats }
-    }
-
-    return { proteins: 0, carbs: 0, fats: 0 }
   }
 
   const getModelImage = () => {
@@ -383,39 +386,28 @@ export default function DashboardPage() {
   }
 
   useEffect(() => {
-    if (quizData || dietPlan) {
-      const macros = calculateMacroTotals()
+    if (dietPlan) {
+      const calories = dietPlan.totalDailyCalories ? Math.round(dietPlan.totalDailyCalories) : 2200
+      const proteins = dietPlan.totalProtein ? Math.round(dietPlan.totalProtein) : 0
+      const carbs = dietPlan.totalCarbs ? Math.round(dietPlan.totalCarbs) : 0
+      const fats = dietPlan.totalFats ? Math.round(dietPlan.totalFats) : 0
 
-      let realCalories = 2200 // Default fallback
-
-      if (dietPlan?.totalDailyCalories && !isNaN(dietPlan.totalDailyCalories)) {
-        realCalories = Math.round(dietPlan.totalDailyCalories)
-      } else if (dietPlan?.calories) {
-        const parsedCalories = Number.parseInt(String(dietPlan.calories).replace(/\D/g, ""))
-        if (!isNaN(parsedCalories) && parsedCalories > 0) {
-          realCalories = parsedCalories
-        } else if (quizData) {
-          realCalories = calculateDynamicCalories(quizData)
-        }
-      } else if (quizData) {
-        realCalories = calculateDynamicCalories(quizData)
-      }
-
-      console.log("[v0] Updating dashboard with:", {
-        calories: realCalories,
-        macros,
-        dietPlan: dietPlan ? "loaded" : "not loaded",
+      console.log("[v0] Using diet plan values directly:", {
+        calories,
+        proteins,
+        carbs,
+        fats,
       })
 
       setProgressData((prev) => ({
         ...prev,
-        caloriesTarget: realCalories,
-        proteins: macros.proteins || 0,
-        carbs: macros.carbs || 0,
-        fats: macros.fats || 0,
+        caloriesTarget: calories,
+        proteins,
+        carbs,
+        fats,
       }))
     }
-  }, [quizData, dietPlan])
+  }, [dietPlan])
 
   if (loading) {
     return (
