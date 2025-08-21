@@ -270,37 +270,37 @@ export default function DashboardPage() {
         return "2200 kcal"
       })(),
       protein: (() => {
-        if (calculatedTotals.protein && calculatedTotals.protein !== "0g") {
-          return calculatedTotals.protein
+        if (calculatedTotals.protein && calculatedTotals.protein !== "0") {
+          return `${calculatedTotals.protein}g`
         }
         if (dietPlan?.totalProtein && dietPlan.totalProtein !== 0) {
           return `${dietPlan.totalProtein}g`
         }
-        if (dietPlan?.protein && dietPlan.protein !== "0g" && dietPlan.protein !== "0") {
+        if (dietPlan?.protein && dietPlan.protein !== "0" && dietPlan.protein !== "0g") {
           return dietPlan.protein.includes("g") ? dietPlan.protein : `${dietPlan.protein}g`
         }
         return "0g"
       })(),
       carbs: (() => {
-        if (calculatedTotals.carbs && calculatedTotals.carbs !== "0g") {
-          return calculatedTotals.carbs
+        if (calculatedTotals.carbs && calculatedTotals.carbs !== "0") {
+          return `${calculatedTotals.carbs}g`
         }
         if (dietPlan?.totalCarbs && dietPlan.totalCarbs !== 0) {
           return `${dietPlan.totalCarbs}g`
         }
-        if (dietPlan?.carbs && dietPlan.carbs !== "0g" && dietPlan.carbs !== "0") {
+        if (dietPlan?.carbs && dietPlan.carbs !== "0" && dietPlan.carbs !== "0g") {
           return dietPlan.carbs.includes("g") ? dietPlan.carbs : `${dietPlan.carbs}g`
         }
         return "0g"
       })(),
       fats: (() => {
-        if (calculatedTotals.fats && calculatedTotals.fats !== "0g") {
-          return calculatedTotals.fats
+        if (calculatedTotals.fats && calculatedTotals.fats !== "0") {
+          return `${calculatedTotals.fats}g`
         }
         if (dietPlan?.totalFats && dietPlan.totalFats !== 0) {
           return `${dietPlan.totalFats}g`
         }
-        if (dietPlan?.fats && dietPlan.fats !== "0g" && dietPlan.fats !== "0") {
+        if (dietPlan?.fats && dietPlan.fats !== "0" && dietPlan.fats !== "0g") {
           return dietPlan.fats.includes("g") ? dietPlan.fats : `${dietPlan.fats}g`
         }
         return "0g"
@@ -310,7 +310,7 @@ export default function DashboardPage() {
 
   const calculateTotalMacros = (meals: Meal[]) => {
     if (!Array.isArray(meals) || meals.length === 0) {
-      return { calories: "0", protein: "0g", carbs: "0g", fats: "0g" }
+      return { calories: "0", protein: "0", carbs: "0", fats: "0" }
     }
 
     let totalCalories = 0
@@ -339,9 +339,9 @@ export default function DashboardPage() {
 
     return {
       calories: totalCalories > 0 ? `${totalCalories}` : "0",
-      protein: totalProtein > 0 ? `${Math.round(totalProtein)}g` : "0g",
-      carbs: totalCarbs > 0 ? `${Math.round(totalCarbs)}g` : "0g",
-      fats: totalFats > 0 ? `${Math.round(totalFats)}g` : "0g",
+      protein: totalProtein > 0 ? `${Math.round(totalProtein)}` : "0",
+      carbs: totalCarbs > 0 ? `${Math.round(totalCarbs)}` : "0",
+      fats: totalFats > 0 ? `${Math.round(totalFats)}` : "0",
     }
   }
 
