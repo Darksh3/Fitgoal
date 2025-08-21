@@ -263,6 +263,10 @@ export default function DashboardPage() {
     const bodyType = quizData.bodyType
     const trainingDays = Number.parseFloat(quizData.trainingDaysPerWeek) || 3
 
+    if (isNaN(weight) || isNaN(height) || isNaN(age)) {
+      return 2200 // Return fallback if any input is invalid
+    }
+
     const bmr =
       gender === "mulher" ? 10 * weight + 6.25 * height - 5 * age - 161 : 10 * weight + 6.25 * height - 5 * age + 5
 
@@ -287,7 +291,8 @@ export default function DashboardPage() {
       dailyCalories *= 1.15 // 15% superávit para ganho de massa
     }
 
-    return Math.round(dailyCalories)
+    const result = Math.round(dailyCalories)
+    return isNaN(result) ? 2200 : result
   }
 
   const calculateMacroTotals = () => {
@@ -295,9 +300,9 @@ export default function DashboardPage() {
 
     if (dietPlan.totalProtein !== undefined && dietPlan.totalCarbs !== undefined && dietPlan.totalFats !== undefined) {
       return {
-        proteins: Math.round(dietPlan.totalProtein),
-        carbs: Math.round(dietPlan.totalCarbs),
-        fats: Math.round(dietPlan.totalFats),
+        proteins: Math.round(Number(dietPlan.totalProtein) || 0),
+        carbs: Math.round(Number(dietPlan.totalCarbs) || 0),
+        fats: Math.round(Number(dietPlan.totalFats) || 0),
       }
     }
 
@@ -305,19 +310,21 @@ export default function DashboardPage() {
       const weight = Number.parseFloat(quizData.currentWeight) || 70
       const calories = calculateDynamicCalories(quizData)
 
-      // Distribuição de macros baseada em g/kg (consistente com as APIs)
+      if (!calories || isNaN(calories)) {
+        return { proteins: 140, carbs: 350, fats: 70 } // Fallback values
+      }
+
       const proteins = Math.round(weight * 2.0) // 2.0g/kg proteína
       const fats = Math.round(weight * 1.0) // 1.0g/kg gordura
       const remainingCalories = calories - proteins * 4 - fats * 9
-      const carbs = Math.round(remainingCalories / 4) // Resto em carboidratos
+      const carbs = Math.round(Math.max(0, remainingCalories) / 4) // Resto em carboidratos
 
       return { proteins, carbs, fats }
     }
 
-    // Fallback apenas se não houver dados do quiz
-    const proteins = dietPlan.protein ? Number.parseInt(dietPlan.protein.replace(/\D/g, "")) || 0 : 0
-    const carbs = dietPlan.carbs ? Number.parseInt(dietPlan.carbs.replace(/\D/g, "")) || 0 : 0
-    const fats = dietPlan.fats ? Number.parseInt(dietPlan.fats.replace(/\D/g, "")) || 0 : 0
+    const proteins = dietPlan.protein ? Number.parseInt(String(dietPlan.protein).replace(/\D/g, "")) || 0 : 0
+    const carbs = dietPlan.carbs ? Number.parseInt(String(dietPlan.carbs).replace(/\D/g, "")) || 0 : 0
+    const fats = dietPlan.fats ? Number.parseInt(String(dietPlan.fats).replace(/\D/g, "")) || 0 : 0
 
     return { proteins, carbs, fats }
   }
@@ -330,12 +337,10 @@ export default function DashboardPage() {
   }
 
   const getUserName = () => {
-    // Priorize o nome do quizData, se existir e não for vazio
     if (quizData?.name && quizData.name.trim() !== "") {
       return quizData.name.charAt(0).toUpperCase() + quizData.name.slice(1).toLowerCase()
     }
 
-    // Try to get name from localStorage as fallback
     const savedQuizData = localStorage.getItem("quizData")
     if (savedQuizData) {
       try {
@@ -348,7 +353,6 @@ export default function DashboardPage() {
       }
     }
 
-    // Caso contrário, use o nome do email ou um fallback genérico
     return user?.email?.split("@")[0] || "Usuário"
   }
 
@@ -368,18 +372,19 @@ export default function DashboardPage() {
   useEffect(() => {
     if (quizData) {
       const macros = calculateMacroTotals()
-      const realCalories = dietPlan?.totalDailyCalories
-        ? Math.round(dietPlan.totalDailyCalories)
-        : dietPlan?.calories
-          ? Number.parseInt(dietPlan.calories.toString().replace(/\D/g, "")) || calculateDynamicCalories(quizData)
-          : calculateDynamicCalories(quizData)
+      const realCalories =
+        dietPlan?.totalDailyCalories && !isNaN(dietPlan.totalDailyCalories)
+          ? Math.round(dietPlan.totalDailyCalories)
+          : dietPlan?.calories && !isNaN(Number.parseInt(String(dietPlan.calories).replace(/\D/g, "")))
+            ? Number.parseInt(String(dietPlan.calories).replace(/\D/g, ""))
+            : calculateDynamicCalories(quizData)
 
       setProgressData((prev) => ({
         ...prev,
-        caloriesTarget: realCalories,
-        proteins: macros.proteins,
-        carbs: macros.carbs,
-        fats: macros.fats,
+        caloriesTarget: realCalories || 2200, // Fallback to prevent NaN
+        proteins: macros.proteins || 0,
+        carbs: macros.carbs || 0,
+        fats: macros.fats || 0,
       }))
     }
   }, [quizData, dietPlan])
@@ -585,7 +590,6 @@ export default function DashboardPage() {
                 alt={`Modelo ${quizData?.gender === "mulher" ? "feminino" : "masculino"} fitness`}
                 className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:w-80 h-auto object-contain"
                 onError={(e) => {
-                  // Fallback to generic fitness placeholder if specific one fails
                   const target = e.currentTarget
                   if (target.src.includes("query=")) {
                     target.src = "/placeholder.svg?height=400&width=300"
