@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { auth, db } from "@/lib/firebaseClient"
-import { doc, getDoc } from "firebase/firestore"
+import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Clock, RefreshCw, Replace } from "lucide-react"
@@ -22,13 +22,34 @@ export default function DietPage() {
   const [userPreferences, setUserPreferences] = useState<any>(null)
   const router = useRouter()
 
+  const saveDietPlan = async (updatedDietPlan: DietPlan) => {
+    if (!user) return
+
+    try {
+      console.log("[v0] Saving updated diet plan to Firestore:", updatedDietPlan)
+
+      const userDocRef = doc(db, "users", user.uid)
+      await updateDoc(userDocRef, {
+        dietPlan: updatedDietPlan,
+        updatedAt: new Date().toISOString(),
+      })
+
+      console.log("[v0] Diet plan saved successfully")
+    } catch (error) {
+      console.error("[v0] Error saving diet plan:", error)
+      setError("Erro ao salvar alterações. Tente novamente.")
+    }
+  }
+
   const handleReplaceMeal = async (mealIndex: number) => {
     if (!user || !dietPlan) return
 
+    console.log("[v0] Starting meal replacement for meal index:", mealIndex)
     setReplacingMeal(mealIndex)
 
     try {
       const currentMeal = dietPlan.meals[mealIndex]
+      console.log("[v0] Current meal to replace:", currentMeal)
 
       // Calculate target macros from current meal
       const targetMacros = {
@@ -38,7 +59,10 @@ export default function DietPage() {
         fats: Number.parseFloat(currentMeal.macros?.fats?.match(/(\d+\.?\d*)/)?.[1] || "0"),
       }
 
+      console.log("[v0] Target macros calculated:", targetMacros)
+
       const token = await user.getIdToken()
+      console.log("[v0] Got user token, making API call...")
 
       const response = await fetch("/api/substitute-food", {
         method: "POST",
@@ -55,8 +79,12 @@ export default function DietPage() {
         }),
       })
 
+      console.log("[v0] API response status:", response.status)
+
       if (response.ok) {
         const result = await response.json()
+        console.log("[v0] API response result:", result)
+
         if (result.success && result.substitution?.newMeal) {
           // Update the diet plan with the new meal
           const updatedMeals = [...dietPlan.meals]
@@ -65,12 +93,23 @@ export default function DietPage() {
             time: currentMeal.time, // Preserve original time
           }
 
-          setDietPlan({
+          const updatedDietPlan = {
             ...dietPlan,
             meals: updatedMeals,
-          })
+          }
+
+          setDietPlan(updatedDietPlan)
+
+          await saveDietPlan(updatedDietPlan)
+
+          console.log("[v0] Meal replacement completed successfully")
+        } else {
+          console.log("[v0] API returned unsuccessful result or missing newMeal")
+          setError("Erro ao substituir refeição. Resposta inválida da API.")
         }
       } else {
+        const errorText = await response.text()
+        console.error("[v0] API error response:", errorText)
         setError("Erro ao substituir refeição. Tente novamente.")
       }
     } catch (err) {
@@ -84,6 +123,7 @@ export default function DietPage() {
   const handleReplaceFood = async (mealIndex: number, foodIndex: number) => {
     if (!user || !dietPlan) return
 
+    console.log("[v0] Starting food replacement for meal:", mealIndex, "food:", foodIndex)
     setReplacingFood({ mealIndex, foodIndex })
 
     try {
@@ -138,10 +178,16 @@ export default function DietPage() {
             ],
           }
 
-          setDietPlan({
+          const updatedDietPlan = {
             ...dietPlan,
             meals: updatedMeals,
-          })
+          }
+
+          setDietPlan(updatedDietPlan)
+
+          await saveDietPlan(updatedDietPlan)
+
+          console.log("[v0] Food replacement completed and saved")
         }
       } else {
         setError("Erro ao substituir alimento. Tente novamente.")
