@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { auth, db } from "@/lib/firebaseClient"
-import { doc, getDoc } from "firebase/firestore"
+import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw } from "lucide-react"
@@ -257,16 +257,29 @@ export default function WorkoutPage() {
     }
   }
 
-  const handleExerciseSubstitution = (dayIndex: number, exerciseIndex: number, newExercise: Exercise) => {
-    if (!userData?.workoutPlan) return
+  const handleExerciseSubstitution = async (dayIndex: number, exerciseIndex: number, newExercise: Exercise) => {
+    if (!userData?.workoutPlan || !user) return
 
     const updatedWorkoutPlan = { ...userData.workoutPlan }
     updatedWorkoutPlan.days[dayIndex].exercises[exerciseIndex] = newExercise
 
+    // Update local state
     setUserData({
       ...userData,
       workoutPlan: updatedWorkoutPlan,
     })
+
+    // Save to Firestore
+    try {
+      console.log("[TREINO] Saving exercise substitution to Firestore...")
+      const userDocRef = doc(db, "users", user.uid)
+      await updateDoc(userDocRef, {
+        workoutPlan: updatedWorkoutPlan,
+      })
+      console.log("[TREINO] Exercise substitution saved successfully")
+    } catch (error) {
+      console.error("[TREINO] Error saving exercise substitution:", error)
+    }
   }
 
   useEffect(() => {
