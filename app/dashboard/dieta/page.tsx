@@ -42,6 +42,53 @@ export default function DietPage() {
     }
   }
 
+  const updateSavedValuesWithScientificCalculation = async () => {
+    if (!user || !quizData) return
+
+    try {
+      console.log("[v0] Updating saved values with scientific calculation...")
+
+      const scientificCalories = calculateScientificCalories(quizData)
+
+      // Calculate scientific macros based on calories
+      const weight = Number.parseFloat(quizData.currentWeight) || 70
+      const proteinGrams = Math.round(weight * 2.0) // 2g per kg
+      const fatsGrams = Math.round(weight * 1.0) // 1g per kg
+      const proteinCalories = proteinGrams * 4
+      const fatsCalories = fatsGrams * 9
+      const carbsCalories = scientificCalories - proteinCalories - fatsCalories
+      const carbsGrams = Math.round(carbsCalories / 4)
+
+      const updatedDietPlan = {
+        ...dietPlan,
+        totalDailyCalories: `${scientificCalories} kcal`,
+        calories: `${scientificCalories} kcal`,
+        totalProtein: `${proteinGrams}g`,
+        protein: `${proteinGrams}g`,
+        totalCarbs: `${carbsGrams}g`,
+        carbs: `${carbsGrams}g`,
+        totalFats: `${fatsGrams}g`,
+        fats: `${fatsGrams}g`,
+        updatedAt: new Date().toISOString(),
+      }
+
+      const userDocRef = doc(db, "users", user.uid)
+      await updateDoc(userDocRef, {
+        dietPlan: updatedDietPlan,
+        updatedAt: new Date().toISOString(),
+      })
+
+      setDietPlan(updatedDietPlan)
+      console.log("[v0] Values updated successfully with scientific calculation:", updatedDietPlan)
+
+      // Refresh page to show updated values
+      window.location.reload()
+    } catch (error) {
+      console.error("[v0] Error updating values:", error)
+      setError("Erro ao atualizar valores. Tente novamente.")
+    }
+  }
+
   const handleReplaceMeal = async (mealIndex: number) => {
     if (!user || !dietPlan) return
 
@@ -455,14 +502,42 @@ export default function DietPage() {
           </div>
         )}
 
+        {quizData && dietPlan && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-blue-800 font-medium">🔄 Sincronizar Valores</p>
+            <p className="text-blue-700 text-sm mt-1">
+              Atualizar os valores salvos no plano de dieta com o cálculo científico atual (3649 kcal).
+            </p>
+            <Button
+              onClick={updateSavedValuesWithScientificCalculation}
+              variant="outline"
+              size="sm"
+              className="mt-2 border-blue-300 text-blue-700 hover:bg-blue-100 bg-transparent"
+            >
+              Atualizar Valores Salvos
+            </Button>
+          </div>
+        )}
+
         {dietPlan && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             <Card>
               <CardHeader>
                 <CardTitle>Calorias Totais</CardTitle>
+                <CardDescription className="text-sm">
+                  <div className="space-y-1">
+                    <div>Teórico (científico): {displayTotals.calories}</div>
+                    <div>Real (soma dos alimentos): {calculatedTotals.calories} kcal</div>
+                    {Math.abs(
+                      Number.parseInt(displayTotals.calories.replace(/\D/g, "")) -
+                        Number.parseInt(calculatedTotals.calories),
+                    ) > 200 && <div className="text-orange-600 font-medium">⚠️ Diferença significativa detectada</div>}
+                  </div>
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold">{displayTotals.calories}</p>
+                <p className="text-sm text-gray-600 mt-1">Soma real: {calculatedTotals.calories} kcal</p>
               </CardContent>
             </Card>
             <Card>

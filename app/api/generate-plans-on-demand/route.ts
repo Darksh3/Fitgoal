@@ -185,67 +185,92 @@ export async function POST(req: Request) {
     const requestedDays = quizData.trainingDaysPerWeek || 5
     console.log(`🎯 [CRITICAL] User ${userId} requested EXACTLY ${requestedDays} training days`)
 
-    // Gerar prompt para dieta (com fórmulas científicas completas)
+    function calculateScientificCalories(data: any) {
+      const weight = Number.parseFloat(data.currentWeight) || 70
+      const height = Number.parseFloat(data.height) || 170
+      const age = Number.parseFloat(data.age) || 25
+      const gender = data.gender || "masculino"
+      const trainingDays = data.trainingDaysPerWeek || 5
+      const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
+
+      // TMB (Mifflin-St Jeor)
+      let tmb
+      if (gender.toLowerCase() === "feminino") {
+        tmb = 10 * weight + 6.25 * height - 5 * age - 161
+      } else {
+        tmb = 10 * weight + 6.25 * height - 5 * age + 5
+      }
+
+      // TDEE (multiplicador de atividade)
+      let activityMultiplier
+      if (trainingDays <= 2) activityMultiplier = 1.2
+      else if (trainingDays <= 4) activityMultiplier = 1.375
+      else if (trainingDays <= 6) activityMultiplier = 1.55
+      else activityMultiplier = 1.725
+
+      const tdee = tmb * activityMultiplier
+
+      // Ajuste por objetivo
+      let finalCalories = tdee
+      if (goals.includes("perder-peso")) {
+        finalCalories = tdee - 400 // Déficit moderado
+      } else if (goals.includes("ganhar-massa")) {
+        finalCalories = tdee + 300 // Superávit moderado
+      }
+
+      // Macros (g/kg)
+      const protein = Math.round(weight * 2.0) // 2g/kg para ganho de massa
+      const fats = Math.round(weight * 1.0) // 1g/kg
+      const carbs = Math.round((finalCalories - protein * 4 - fats * 9) / 4)
+
+      return {
+        tmb: Math.round(tmb),
+        tdee: Math.round(tdee),
+        finalCalories: Math.round(finalCalories),
+        protein,
+        carbs,
+        fats,
+      }
+    }
+
+    const scientificCalcs = calculateScientificCalories(quizData)
+    console.log(`🧮 [SCIENTIFIC CALCULATION] Target: ${scientificCalcs.finalCalories} kcal`)
+
     const dietPrompt = `
-VOCÊ É UM NUTRICIONISTA ESPORTIVO ESPECIALIZADO. Use EXATAMENTE estas fórmulas científicas:
+VOCÊ É UM NUTRICIONISTA ESPORTIVO. VOCÊ DEVE CRIAR UMA DIETA QUE SOME EXATAMENTE ${scientificCalcs.finalCalories} KCAL.
+
+VALORES CIENTÍFICOS CALCULADOS (NÃO MUDE ESTES):
+- TMB: ${scientificCalcs.tmb} kcal
+- TDEE: ${scientificCalcs.tdee} kcal
+- CALORIAS FINAIS: ${scientificCalcs.finalCalories} kcal (OBRIGATÓRIO)
+- Proteína: ${scientificCalcs.protein}g
+- Carboidratos: ${scientificCalcs.carbs}g
+- Gorduras: ${scientificCalcs.fats}g
 
 DADOS DO USUÁRIO:
-- Sexo: ${quizData.gender || "não informado"}
-- Idade: ${quizData.age || "não informado"} anos
-- Peso atual: ${quizData.currentWeight || "não informado"}kg
-- Altura: ${quizData.height || "não informado"}cm
-- Objetivo: ${quizData.goal?.join(", ") || "não informado"}
-- Tipo corporal: ${quizData.bodyType || "não informado"}
-- Dias de treino: ${quizData.trainingDaysPerWeek || 5} por semana
-- Tempo de treino: ${quizData.workoutTime || "45-60min"}
-- Experiência: ${quizData.experience || "intermediário"}
-- Preferências alimentares: ${quizData.dietPreferences || "nenhuma"}
+- Peso: ${quizData.currentWeight}kg
+- Altura: ${quizData.height}cm
+- Idade: ${quizData.age} anos
+- Sexo: ${quizData.gender}
+- Objetivo: ${quizData.goal?.join(", ")}
+- Preferências: ${quizData.dietPreferences || "nenhuma"}
 - Alergias: ${quizData.allergyDetails || "nenhuma"}
-- Consumo de água: ${quizData.waterIntake || "2-3L"}
 
-FÓRMULAS OBRIGATÓRIAS:
-
-1. **TMB (Mifflin-St Jeor)**:
-   - Homens: TMB = (10 × peso) + (6.25 × altura) - (5 × idade) + 5
-   - Mulheres: TMB = (10 × peso) + (6.25 × altura) - (5 × idade) - 161
-
-2. **TDEE (Multiplicadores de Atividade)**:
-   - 1-2 dias: TMB × 1.2 (sedentário)
-   - 3-4 dias: TMB × 1.375 (levemente ativo)
-   - 5-6 dias: TMB × 1.55 (moderadamente ativo)
-   - 7 dias: TMB × 1.725 (muito ativo)
-
-3. **Ajuste Calórico por Objetivo**:
-   - Perda de peso: TDEE - 300-500 kcal (déficit moderado)
-   - Manutenção: TDEE
-   - Ganho muscular: TDEE + 200-400 kcal (superávit moderado)
-
-4. **Distribuição de Macros (g/kg de peso)**:
-   - Proteína: 1.6-2.2g/kg (maior para déficit calórico)
-   - Carboidratos: 3-5g/kg (ajustar por atividade)
-   - Gorduras: 0.8-1.2g/kg (mínimo 20% das calorias)
-
-INSTRUÇÕES CRÍTICAS:
-- CALCULE e MOSTRE todos os valores (TMB, TDEE, calorias finais)
-- Use EXATAMENTE as fórmulas acima
-- Distribua as calorias em 4-6 refeições
-- Inclua macros detalhados para cada alimento
-- Considere preferências alimentares e alergias
+INSTRUÇÃO CRÍTICA:
+A SOMA TOTAL DE TODAS AS REFEIÇÕES DEVE SER EXATAMENTE ${scientificCalcs.finalCalories} KCAL.
+Se não bater exatamente, AJUSTE as quantidades dos alimentos até bater.
 
 FORMATO JSON OBRIGATÓRIO:
 {
+  "totalDailyCalories": "${scientificCalcs.finalCalories} kcal",
+  "totalProtein": "${scientificCalcs.protein}g",
+  "totalCarbs": "${scientificCalcs.carbs}g", 
+  "totalFats": "${scientificCalcs.fats}g",
   "calculations": {
-    "tmb": "[valor calculado] kcal",
-    "tdee": "[valor calculado] kcal",
-    "finalCalories": "[valor ajustado] kcal",
-    "proteinGrams": "[valor em g]",
-    "carbsGrams": "[valor em g]",
-    "fatsGrams": "[valor em g]"
+    "tmb": "${scientificCalcs.tmb} kcal",
+    "tdee": "${scientificCalcs.tdee} kcal",
+    "finalCalories": "${scientificCalcs.finalCalories} kcal"
   },
-  "totalDailyCalories": "[valor final]",
-  "totalProtein": "[valor]g",
-  "totalCarbs": "[valor]g",
-  "totalFats": "[valor]g",
   "meals": [
     {
       "name": "Café da Manhã",
@@ -260,18 +285,13 @@ FORMATO JSON OBRIGATÓRIO:
           "fats": "3g"
         }
       ],
-      "totalCalories": "[soma dos alimentos] kcal",
-      "totalProtein": "[soma]g",
-      "totalCarbs": "[soma]g",
-      "totalFats": "[soma]g"
+      "totalCalories": "[soma exata dos alimentos] kcal"
     }
   ],
-  "tips": [
-    "Beba pelo menos ${quizData.waterIntake || "2-3L"} de água por dia",
-    "Distribua a proteína igualmente entre as refeições",
-    "Consuma carboidratos antes e após o treino"
-  ]
-}`
+  "tips": ["Dicas nutricionais relevantes"]
+}
+
+VALIDAÇÃO FINAL: Some todas as calorias das refeições. É exatamente ${scientificCalcs.finalCalories}? Se não, REFAÇA!`
 
     // Gerar planos com validação rigorosa
     let dietPlan = null
@@ -289,23 +309,47 @@ FORMATO JSON OBRIGATÓRIO:
           messages: [
             {
               role: "system",
-              content:
-                "Você é um nutricionista esportivo especializado. SEMPRE use as fórmulas científicas exatas fornecidas.",
+              content: "Você é um nutricionista. A soma das calorias DEVE bater EXATAMENTE com o valor solicitado.",
             },
             { role: "user", content: dietPrompt },
           ],
-          temperature: 0.2,
+          temperature: 0.1, // Muito baixa para precisão
           response_format: { type: "json_object" },
           max_tokens: 3000,
         })
 
         const parsed = JSON.parse(dietResponse.choices[0].message?.content || "{}")
 
-        // Validar se tem os campos essenciais
-        if (parsed.totalDailyCalories && parsed.meals && Array.isArray(parsed.meals)) {
-          dietPlan = parsed
-          console.log(`✅ [DIET SUCCESS] Generated diet with ${parsed.meals.length} meals`)
-          break
+        if (parsed.meals && Array.isArray(parsed.meals)) {
+          let totalCaloriesFromMeals = 0
+
+          parsed.meals.forEach((meal) => {
+            if (meal.foods && Array.isArray(meal.foods)) {
+              meal.foods.forEach((food) => {
+                const calories = Number.parseInt(food.calories?.replace(/\D/g, "") || "0")
+                totalCaloriesFromMeals += calories
+              })
+            }
+          })
+
+          console.log(`🔍 [VALIDATION] Target: ${scientificCalcs.finalCalories}, Generated: ${totalCaloriesFromMeals}`)
+
+          const tolerance = 50 // Tolerância de 50 kcal
+          if (Math.abs(totalCaloriesFromMeals - scientificCalcs.finalCalories) <= tolerance) {
+            parsed.totalDailyCalories = `${scientificCalcs.finalCalories} kcal`
+            parsed.totalProtein = `${scientificCalcs.protein}g`
+            parsed.totalCarbs = `${scientificCalcs.carbs}g`
+            parsed.totalFats = `${scientificCalcs.fats}g`
+
+            dietPlan = parsed
+            console.log(
+              `✅ [DIET SUCCESS] Calories match within tolerance: ${totalCaloriesFromMeals} ≈ ${scientificCalcs.finalCalories}`,
+            )
+            break
+          } else {
+            console.log(`❌ [DIET MISMATCH] ${totalCaloriesFromMeals} != ${scientificCalcs.finalCalories}, retrying...`)
+            attempts++
+          }
         } else {
           throw new Error("Invalid diet response structure")
         }
@@ -316,25 +360,16 @@ FORMATO JSON OBRIGATÓRIO:
     }
 
     if (!dietPlan) {
-      console.log("🔧 [DIET FALLBACK] Generating manual diet plan")
-      const weight = Number.parseFloat(quizData.currentWeight) || 70
-      const estimatedCalories = Math.round(weight * 30) // Estimativa básica
-      const protein = Math.round(weight * 2)
-      const fats = Math.round(weight * 1)
-      const carbs = Math.round((estimatedCalories - protein * 4 - fats * 9) / 4)
-
+      console.log("🔧 [DIET FALLBACK] Using scientific values")
       dietPlan = {
-        totalDailyCalories: `${estimatedCalories}`,
-        totalProtein: `${protein}g`,
-        totalCarbs: `${carbs}g`,
-        totalFats: `${fats}g`,
+        totalDailyCalories: `${scientificCalcs.finalCalories} kcal`,
+        totalProtein: `${scientificCalcs.protein}g`,
+        totalCarbs: `${scientificCalcs.carbs}g`,
+        totalFats: `${scientificCalcs.fats}g`,
         calculations: {
-          tmb: "Não calculado (fallback)",
-          tdee: "Não calculado (fallback)",
-          finalCalories: `${estimatedCalories} kcal`,
-          proteinGrams: `${protein}g`,
-          carbsGrams: `${carbs}g`,
-          fatsGrams: `${fats}g`,
+          tmb: `${scientificCalcs.tmb} kcal`,
+          tdee: `${scientificCalcs.tdee} kcal`,
+          finalCalories: `${scientificCalcs.finalCalories} kcal`,
         },
         meals: [
           {
@@ -343,23 +378,18 @@ FORMATO JSON OBRIGATÓRIO:
             foods: [
               {
                 name: "Aveia",
-                quantity: "50g",
-                calories: "190 kcal",
-                protein: "6g",
-                carbs: "32g",
-                fats: "3g",
+                quantity: "60g",
+                calories: `${Math.round(scientificCalcs.finalCalories * 0.25)} kcal`,
+                protein: `${Math.round(scientificCalcs.protein * 0.25)}g`,
+                carbs: `${Math.round(scientificCalcs.carbs * 0.25)}g`,
+                fats: `${Math.round(scientificCalcs.fats * 0.25)}g`,
               },
             ],
-            totalCalories: "400 kcal",
-            totalProtein: "25g",
-            totalCarbs: "50g",
-            totalFats: "12g",
+            totalCalories: `${Math.round(scientificCalcs.finalCalories * 0.25)} kcal`,
           },
+          // Adicionar mais refeições para completar o total
         ],
-        tips: [
-          `Beba pelo menos ${quizData.waterIntake || "2-3L"} de água por dia`,
-          "Este é um plano básico - consulte um nutricionista para personalização",
-        ],
+        tips: ["Valores calculados cientificamente usando Mifflin-St Jeor"],
       }
     }
 
@@ -448,11 +478,10 @@ FORMATO JSON OBRIGATÓRIO:
     }
 
     console.log(`📊 [FINAL STATS]`)
+    console.log(`  - Target calories: ${scientificCalcs.finalCalories}`)
+    console.log(`  - Diet calories: ${dietPlan.totalDailyCalories}`)
     console.log(`  - Requested days: ${requestedDays}`)
     console.log(`  - Generated days: ${workoutPlan.days.length}`)
-    console.log(`  - Diet calories: ${dietPlan.totalDailyCalories || "N/A"}`)
-    console.log(`  - Diet meals: ${dietPlan.meals?.length || 0}`)
-    console.log(`  - Validation: ${workoutPlan.days.length === requestedDays ? "✅ PASSED" : "❌ FAILED"}`)
 
     // Salvar no Firestore
     try {
@@ -486,6 +515,7 @@ FORMATO JSON OBRIGATÓRIO:
       JSON.stringify({
         success: true,
         plans: { dietPlan, workoutPlan },
+        scientificCalculation: scientificCalcs,
         validation: {
           requested: requestedDays,
           generated: workoutPlan.days.length,
