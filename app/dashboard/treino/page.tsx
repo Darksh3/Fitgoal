@@ -6,9 +6,9 @@ import { auth, db } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Dumbbell, Calendar, Lightbulb, Target } from "lucide-react"
+import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw } from "lucide-react"
 import ProtectedRoute from "@/components/protected-route"
-import { Button } from "@/components/ui/button" // Importar Button
+import { Button } from "@/components/ui/button"
 
 interface Exercise {
   name: string
@@ -35,6 +35,77 @@ interface WorkoutPlan {
 interface UserData {
   workoutPlan?: WorkoutPlan
   quizData?: any
+}
+
+const ExerciseSubstituteButton = ({
+  exercise,
+  dayIndex,
+  exerciseIndex,
+  onSubstitute,
+}: {
+  exercise: Exercise
+  dayIndex: number
+  exerciseIndex: number
+  onSubstitute: (dayIndex: number, exerciseIndex: number, newExercise: Exercise) => void
+}) => {
+  const [user] = useAuthState(auth)
+  const [isSubstituting, setIsSubstituting] = useState(false)
+
+  const handleSubstitute = async () => {
+    if (!user) return
+
+    setIsSubstituting(true)
+    try {
+      console.log("[SUBSTITUTE] Starting exercise substitution...")
+
+      const response = await fetch("/api/substitute-exercise", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          dayIndex,
+          exerciseIndex,
+          currentExercise: exercise,
+          userPreferences: {
+            experience: "intermediário", // Could be fetched from quiz data
+            equipment: "academia completa",
+            limitations: null,
+          },
+        }),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success && result.substitution) {
+          console.log("[SUBSTITUTE] Exercise substituted successfully:", result.substitution)
+          onSubstitute(dayIndex, exerciseIndex, result.substitution)
+        } else {
+          console.error("[SUBSTITUTE] API returned unsuccessful result")
+        }
+      } else {
+        console.error("[SUBSTITUTE] API request failed:", response.status)
+      }
+    } catch (error) {
+      console.error("[SUBSTITUTE] Error substituting exercise:", error)
+    } finally {
+      setIsSubstituting(false)
+    }
+  }
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={handleSubstitute}
+      disabled={isSubstituting}
+      className="ml-2 h-6 px-2 text-xs bg-transparent"
+    >
+      {isSubstituting ? <RefreshCw className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+      {isSubstituting ? "Substituindo..." : "Substituir"}
+    </Button>
+  )
 }
 
 const debugDataFlow = (stage: string, data: any) => {
@@ -150,6 +221,54 @@ export default function WorkoutPage() {
     return firestoreData
   }
 
+  const generatePlans = async () => {
+    if (!user) return
+
+    try {
+      setIsRegenerating(true)
+      console.log("[DASHBOARD] Calling generate-plans-on-demand API...")
+
+      localStorage.clear()
+      sessionStorage.clear()
+
+      const response = await fetch("/api/generate-plans-on-demand", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          email: user.email,
+          forceRegenerate: true,
+          cleanupFirst: true, // New parameter to force cleanup
+        }),
+      })
+
+      if (response.ok) {
+        console.log("[DASHBOARD] Plans generated successfully, refreshing user data...")
+        window.location.reload()
+      } else {
+        console.error("[DASHBOARD] Failed to generate plans:", response.status, response.statusText)
+      }
+    } catch (error) {
+      console.error("[DASHBOARD] Erro ao gerar planos:", error)
+    } finally {
+      setIsRegenerating(false)
+    }
+  }
+
+  const handleExerciseSubstitution = (dayIndex: number, exerciseIndex: number, newExercise: Exercise) => {
+    if (!userData?.workoutPlan) return
+
+    const updatedWorkoutPlan = { ...userData.workoutPlan }
+    updatedWorkoutPlan.days[dayIndex].exercises[exerciseIndex] = newExercise
+
+    setUserData({
+      ...userData,
+      workoutPlan: updatedWorkoutPlan,
+    })
+  }
+
   useEffect(() => {
     const fetchUserData = async () => {
       if (user) {
@@ -262,42 +381,6 @@ export default function WorkoutPage() {
       fetchUserData()
     }
   }, [user, loading])
-
-  const generatePlans = async () => {
-    if (!user) return
-
-    try {
-      setIsRegenerating(true)
-      console.log("[DASHBOARD] Calling generate-plans-on-demand API...")
-
-      localStorage.clear()
-      sessionStorage.clear()
-
-      const response = await fetch("/api/generate-plans-on-demand", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: user.uid,
-          email: user.email,
-          forceRegenerate: true,
-          cleanupFirst: true, // New parameter to force cleanup
-        }),
-      })
-
-      if (response.ok) {
-        console.log("[DASHBOARD] Plans generated successfully, refreshing user data...")
-        window.location.reload()
-      } else {
-        console.error("[DASHBOARD] Failed to generate plans:", response.status, response.statusText)
-      }
-    } catch (error) {
-      console.error("[DASHBOARD] Erro ao gerar planos:", error)
-    } finally {
-      setIsRegenerating(false)
-    }
-  }
 
   if (loading || isLoading) {
     return (
@@ -418,13 +501,23 @@ export default function WorkoutPage() {
                   {day.exercises && day.exercises.length > 0 ? (
                     day.exercises.map((exercise, exerciseIndex) => (
                       <div key={exerciseIndex} className="border-b pb-3 last:border-b-0 last:pb-0">
-                        <h4 className="font-bold text-lg">{exercise.name}</h4>
-                        <div className="flex flex-wrap gap-2 text-sm text-gray-600 mb-1">
-                          <Badge variant="secondary">Séries: {exercise.sets}</Badge>
-                          <Badge variant="secondary">Repetições: {exercise.reps}</Badge>
-                          <Badge variant="secondary">Descanso: {exercise.rest}</Badge>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-bold text-lg">{exercise.name}</h4>
+                            <div className="flex flex-wrap gap-2 text-sm text-gray-600 mb-1">
+                              <Badge variant="secondary">Séries: {exercise.sets}</Badge>
+                              <Badge variant="secondary">Repetições: {exercise.reps}</Badge>
+                              <Badge variant="secondary">Descanso: {exercise.rest}</Badge>
+                            </div>
+                            <p className="text-gray-700 text-sm">{exercise.description}</p>
+                          </div>
+                          <ExerciseSubstituteButton
+                            exercise={exercise}
+                            dayIndex={dayIndex}
+                            exerciseIndex={exerciseIndex}
+                            onSubstitute={handleExerciseSubstitution}
+                          />
                         </div>
-                        <p className="text-gray-700 text-sm">{exercise.description}</p>
                       </div>
                     ))
                   ) : (
