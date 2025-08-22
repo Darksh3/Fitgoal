@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { openai } from "ai"
+import { openai } from "@ai-sdk/openai"
+import { generateText } from "ai"
 import { adminDb } from "@/lib/firebase-admin"
 
 export async function POST(request: NextRequest) {
@@ -54,26 +55,25 @@ export async function POST(request: NextRequest) {
     Seja específico sobre as mudanças visíveis e muito motivacional!
     `
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+    const { text } = await generateText({
+      model: openai("gpt-4o"),
       messages: [
         {
           role: "user",
           content: [
             { type: "text", text: comparisonPrompt },
-            { type: "image_url", image_url: { url: previousPhoto.photoUrl } },
-            { type: "image_url", image_url: { url: currentPhotoUrl } },
+            { type: "image", image: previousPhoto.photoUrl },
+            { type: "image", image: currentPhotoUrl },
           ],
         },
       ],
-      max_tokens: 1000,
+      maxTokens: 1000,
       temperature: 0.7,
     })
 
     let comparison
     try {
-      const content = response.choices[0]?.message?.content
-      comparison = JSON.parse(content || "{}")
+      comparison = JSON.parse(text || "{}")
     } catch (parseError) {
       console.error("Error parsing comparison response:", parseError)
       comparison = {

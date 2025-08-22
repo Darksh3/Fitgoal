@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { openai } from "ai"
+import { openai } from "@ai-sdk/openai"
+import { generateText } from "ai"
 import { adminDb } from "@/lib/firebase-admin"
 
 export async function POST(request: NextRequest) {
@@ -37,25 +38,24 @@ export async function POST(request: NextRequest) {
     Seja específico, motivacional e profissional. Base suas observações no que consegue ver na foto.
     `
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+    const { text } = await generateText({
+      model: openai("gpt-4o"),
       messages: [
         {
           role: "user",
           content: [
             { type: "text", text: analysisPrompt },
-            { type: "image_url", image_url: { url: photoUrl } },
+            { type: "image", image: photoUrl },
           ],
         },
       ],
-      max_tokens: 1000,
+      maxTokens: 1000,
       temperature: 0.7,
     })
 
     let analysis
     try {
-      const content = response.choices[0]?.message?.content
-      analysis = JSON.parse(content || "{}")
+      analysis = JSON.parse(text || "{}")
     } catch (parseError) {
       console.error("Error parsing AI response:", parseError)
       analysis = {
