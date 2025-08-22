@@ -41,6 +41,7 @@
     "@sendgrid/mail": "latest",
     "@stripe/react-stripe-js": "latest",
     "@stripe/stripe-js": "latest",
+    "@vercel/blob": "latest",
     "ai": "latest",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
