@@ -158,6 +158,38 @@ ESTRUTURA JSON OBRIGATÓRIA (com EXATAMENTE ${trainingDays} elementos em "days")
 VALIDAÇÃO FINAL: Conte os dias. São ${trainingDays}? Se não, REFAÇA!`
 }
 
+/**
+ * Determina o número de refeições baseado no biotipo
+ */
+function getMealCountByBodyType(bodyType: string) {
+  switch (bodyType?.toLowerCase()) {
+    case "ectomorfo":
+      return {
+        count: 6,
+        distribution: [0.15, 0.1, 0.25, 0.15, 0.25, 0.1], // 6 refeições
+        names: ["Café da Manhã", "Lanche da Manhã", "Almoço", "Lanche da Tarde", "Jantar", "Ceia"],
+      }
+    case "mesomorfo":
+      return {
+        count: 5,
+        distribution: [0.2, 0.15, 0.3, 0.2, 0.15], // 5 refeições
+        names: ["Café da Manhã", "Lanche da Manhã", "Almoço", "Lanche da Tarde", "Jantar"],
+      }
+    case "endomorfo":
+      return {
+        count: 4,
+        distribution: [0.25, 0.35, 0.15, 0.25], // 4 refeições
+        names: ["Café da Manhã", "Almoço", "Lanche da Tarde", "Jantar"],
+      }
+    default:
+      return {
+        count: 4,
+        distribution: [0.25, 0.35, 0.15, 0.25], // Padrão: 4 refeições
+        names: ["Café da Manhã", "Almoço", "Lanche da Tarde", "Jantar"],
+      }
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const { userId, quizData: providedQuizData, forceRegenerate } = await req.json()
@@ -236,6 +268,9 @@ export async function POST(req: Request) {
     const scientificCalcs = calculateScientificCalories(quizData)
     console.log(`🧮 [SCIENTIFIC CALCULATION] Target: ${scientificCalcs.finalCalories} kcal`)
 
+    const mealConfig = getMealCountByBodyType(quizData.bodyType)
+    console.log(`🍽️ [MEAL CONFIG] ${mealConfig.count} refeições para biotipo: ${quizData.bodyType}`)
+
     const dietPrompt = `
 VOCÊ É UM NUTRICIONISTA ESPORTIVO. VOCÊ DEVE CRIAR UMA DIETA QUE SOME EXATAMENTE ${scientificCalcs.finalCalories} KCAL.
 
@@ -252,13 +287,15 @@ DADOS DO USUÁRIO:
 - Altura: ${quizData.height}cm
 - Idade: ${quizData.age} anos
 - Sexo: ${quizData.gender}
+- Biotipo: ${quizData.bodyType} (IMPORTANTE: Crie EXATAMENTE ${mealConfig.count} refeições)
 - Objetivo: ${quizData.goal?.join(", ")}
 - Preferências: ${quizData.dietPreferences || "nenhuma"}
 - Alergias: ${quizData.allergyDetails || "nenhuma"}
 
 INSTRUÇÃO CRÍTICA:
-A SOMA TOTAL DE TODAS AS REFEIÇÕES DEVE SER EXATAMENTE ${scientificCalcs.finalCalories} KCAL.
-Se não bater exatamente, AJUSTE as quantidades dos alimentos até bater.
+- Crie EXATAMENTE ${mealConfig.count} refeições: ${mealConfig.names.join(", ")}
+- A SOMA TOTAL DE TODAS AS REFEIÇÕES DEVE SER EXATAMENTE ${scientificCalcs.finalCalories} KCAL
+- Se não bater exatamente, AJUSTE as quantidades dos alimentos até bater
 
 FORMATO JSON OBRIGATÓRIO:
 {
@@ -266,32 +303,38 @@ FORMATO JSON OBRIGATÓRIO:
   "totalProtein": "${scientificCalcs.protein}g",
   "totalCarbs": "${scientificCalcs.carbs}g", 
   "totalFats": "${scientificCalcs.fats}g",
+  "bodyType": "${quizData.bodyType}",
+  "mealCount": ${mealConfig.count},
   "calculations": {
     "tmb": "${scientificCalcs.tmb} kcal",
     "tdee": "${scientificCalcs.tdee} kcal",
     "finalCalories": "${scientificCalcs.finalCalories} kcal"
   },
   "meals": [
-    {
-      "name": "Café da Manhã",
-      "time": "07:00",
+    ${mealConfig.names
+      .map(
+        (name, index) => `{
+      "name": "${name}",
+      "time": "${index === 0 ? "07:00" : index === 1 ? "10:00" : index === 2 ? "12:00" : index === 3 ? "15:00" : index === 4 ? "19:00" : "21:00"}",
       "foods": [
         {
-          "name": "Aveia",
-          "quantity": "50g",
-          "calories": "190 kcal",
-          "protein": "6g",
-          "carbs": "32g",
-          "fats": "3g"
+          "name": "[Nome do alimento]",
+          "quantity": "[quantidade]",
+          "calories": "[calorias] kcal",
+          "protein": "[proteína]g",
+          "carbs": "[carboidratos]g",
+          "fats": "[gorduras]g"
         }
       ],
       "totalCalories": "[soma exata dos alimentos] kcal"
-    }
+    }`,
+      )
+      .join(",")}
   ],
-  "tips": ["Dicas nutricionais relevantes"]
+  "tips": ["Dicas nutricionais específicas para ${quizData.bodyType}"]
 }
 
-VALIDAÇÃO FINAL: Some todas as calorias das refeições. É exatamente ${scientificCalcs.finalCalories}? Se não, REFAÇA!`
+VALIDAÇÃO FINAL: Some todas as calorias das ${mealConfig.count} refeições. É exatamente ${scientificCalcs.finalCalories}? Se não, REFAÇA!`
 
     // Gerar planos com validação rigorosa
     let dietPlan = null
@@ -340,6 +383,8 @@ VALIDAÇÃO FINAL: Some todas as calorias das refeições. É exatamente ${scien
             parsed.totalProtein = `${scientificCalcs.protein}g`
             parsed.totalCarbs = `${scientificCalcs.carbs}g`
             parsed.totalFats = `${scientificCalcs.fats}g`
+            parsed.bodyType = quizData.bodyType
+            parsed.mealCount = mealConfig.count
 
             dietPlan = parsed
             console.log(
@@ -360,36 +405,121 @@ VALIDAÇÃO FINAL: Some todas as calorias das refeições. É exatamente ${scien
     }
 
     if (!dietPlan) {
-      console.log("🔧 [DIET FALLBACK] Using scientific values")
+      console.log("🔧 [DIET FALLBACK] Using scientific values with body type configuration")
+
+      const mealCalories = mealConfig.distribution.map((percentage) =>
+        Math.round(scientificCalcs.finalCalories * percentage),
+      )
+
+      // Ajustar última refeição para bater exato
+      const totalCalculated = mealCalories.reduce((sum, cal) => sum + cal, 0)
+      mealCalories[mealCalories.length - 1] += scientificCalcs.finalCalories - totalCalculated
+
+      const fallbackMeals = mealConfig.names.map((name, index) => {
+        const calories = mealCalories[index]
+        const proteinPortion = Math.round(scientificCalcs.protein * mealConfig.distribution[index])
+        const carbsPortion = Math.round(scientificCalcs.carbs * mealConfig.distribution[index])
+        const fatsPortion = Math.round(scientificCalcs.fats * mealConfig.distribution[index])
+
+        return {
+          name,
+          time:
+            index === 0
+              ? "07:00"
+              : index === 1
+                ? "10:00"
+                : index === 2
+                  ? "12:00"
+                  : index === 3
+                    ? "15:00"
+                    : index === 4
+                      ? "19:00"
+                      : "21:00",
+          foods: [
+            {
+              name:
+                index === 0
+                  ? "Aveia"
+                  : index === 1
+                    ? "Fruta"
+                    : index === 2
+                      ? "Arroz Integral"
+                      : index === 3
+                        ? "Iogurte"
+                        : index === 4
+                          ? "Batata Doce"
+                          : "Castanhas",
+              quantity:
+                index === 0
+                  ? "80g"
+                  : index === 1
+                    ? "1 unidade"
+                    : index === 2
+                      ? "150g"
+                      : index === 3
+                        ? "150g"
+                        : index === 4
+                          ? "200g"
+                          : "20g",
+              calories: `${Math.round(calories * 0.6)} kcal`,
+              protein: `${Math.round(proteinPortion * 0.6)}g`,
+              carbs: `${Math.round(carbsPortion * 0.6)}g`,
+              fats: `${Math.round(fatsPortion * 0.6)}g`,
+            },
+            {
+              name:
+                index === 0
+                  ? "Banana"
+                  : index === 1
+                    ? "Oleaginosas"
+                    : index === 2
+                      ? "Frango"
+                      : index === 3
+                        ? "Aveia"
+                        : index === 4
+                          ? "Salmão"
+                          : "Leite",
+              quantity:
+                index === 0
+                  ? "1 unidade"
+                  : index === 1
+                    ? "15g"
+                    : index === 2
+                      ? "150g"
+                      : index === 3
+                        ? "30g"
+                        : index === 4
+                          ? "120g"
+                          : "200ml",
+              calories: `${calories - Math.round(calories * 0.6)} kcal`,
+              protein: `${proteinPortion - Math.round(proteinPortion * 0.6)}g`,
+              carbs: `${carbsPortion - Math.round(carbsPortion * 0.6)}g`,
+              fats: `${fatsPortion - Math.round(fatsPortion * 0.6)}g`,
+            },
+          ],
+          totalCalories: `${calories} kcal`,
+        }
+      })
+
       dietPlan = {
         totalDailyCalories: `${scientificCalcs.finalCalories} kcal`,
         totalProtein: `${scientificCalcs.protein}g`,
         totalCarbs: `${scientificCalcs.carbs}g`,
         totalFats: `${scientificCalcs.fats}g`,
+        bodyType: quizData.bodyType,
+        mealCount: mealConfig.count,
         calculations: {
           tmb: `${scientificCalcs.tmb} kcal`,
           tdee: `${scientificCalcs.tdee} kcal`,
           finalCalories: `${scientificCalcs.finalCalories} kcal`,
         },
-        meals: [
-          {
-            name: "Café da Manhã",
-            time: "07:00",
-            foods: [
-              {
-                name: "Aveia",
-                quantity: "60g",
-                calories: `${Math.round(scientificCalcs.finalCalories * 0.25)} kcal`,
-                protein: `${Math.round(scientificCalcs.protein * 0.25)}g`,
-                carbs: `${Math.round(scientificCalcs.carbs * 0.25)}g`,
-                fats: `${Math.round(scientificCalcs.fats * 0.25)}g`,
-              },
-            ],
-            totalCalories: `${Math.round(scientificCalcs.finalCalories * 0.25)} kcal`,
-          },
-          // Adicionar mais refeições para completar o total
+        meals: fallbackMeals,
+        tips: [
+          `Dieta personalizada para biotipo ${quizData.bodyType}`,
+          `${mealConfig.count} refeições distribuídas ao longo do dia`,
+          "Valores calculados cientificamente usando Mifflin-St Jeor",
+          "Mantenha-se hidratado bebendo pelo menos 2L de água",
         ],
-        tips: ["Valores calculados cientificamente usando Mifflin-St Jeor"],
       }
     }
 
