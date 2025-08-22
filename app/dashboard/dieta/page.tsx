@@ -46,46 +46,31 @@ export default function DietPage() {
     if (!user || !quizData) return
 
     try {
-      console.log("[v0] Updating saved values with scientific calculation...")
+      console.log("[v0] Regenerating diet with scientific calculation...")
+      setLoading(true)
 
-      const scientificCalories = calculateScientificCalories(quizData)
-
-      // Calculate scientific macros based on calories
-      const weight = Number.parseFloat(quizData.currentWeight) || 70
-      const proteinGrams = Math.round(weight * 2.0) // 2g per kg
-      const fatsGrams = Math.round(weight * 1.0) // 1g per kg
-      const proteinCalories = proteinGrams * 4
-      const fatsCalories = fatsGrams * 9
-      const carbsCalories = scientificCalories - proteinCalories - fatsCalories
-      const carbsGrams = Math.round(carbsCalories / 4)
-
-      const updatedDietPlan = {
-        ...dietPlan,
-        totalDailyCalories: `${scientificCalories} kcal`,
-        calories: `${scientificCalories} kcal`,
-        totalProtein: `${proteinGrams}g`,
-        protein: `${proteinGrams}g`,
-        totalCarbs: `${carbsGrams}g`,
-        carbs: `${carbsGrams}g`,
-        totalFats: `${fatsGrams}g`,
-        fats: `${fatsGrams}g`,
-        updatedAt: new Date().toISOString(),
-      }
-
-      const userDocRef = doc(db, "users", user.uid)
-      await updateDoc(userDocRef, {
-        dietPlan: updatedDietPlan,
-        updatedAt: new Date().toISOString(),
+      const response = await fetch("/api/generate-plans-on-demand", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          forceRegenerate: true,
+        }),
       })
 
-      setDietPlan(updatedDietPlan)
-      console.log("[v0] Values updated successfully with scientific calculation:", updatedDietPlan)
-
-      // Refresh page to show updated values
-      window.location.reload()
+      if (response.ok) {
+        console.log("[v0] Diet regenerated successfully with scientific values")
+        window.location.reload()
+      } else {
+        setError("Erro ao regenerar dieta com valores científicos. Tente novamente.")
+      }
     } catch (error) {
-      console.error("[v0] Error updating values:", error)
-      setError("Erro ao atualizar valores. Tente novamente.")
+      console.error("[v0] Error regenerating diet:", error)
+      setError("Erro ao regenerar dieta. Tente novamente.")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -295,15 +280,40 @@ export default function DietPage() {
 
     meals.forEach((meal) => {
       if (meal && typeof meal === "object") {
-        const caloriesMatch = meal.calories?.match(/(\d+)/)
-        if (caloriesMatch) {
-          totalCalories += Number.parseInt(caloriesMatch[1])
+        let mealCalories = 0
+
+        // Try to get calories from meal.calories field
+        if (meal.calories) {
+          const caloriesMatch = meal.calories.toString().match(/(\d+)/)
+          if (caloriesMatch) {
+            mealCalories = Number.parseInt(caloriesMatch[1])
+          }
         }
 
+        // If no meal calories, sum from individual foods
+        if (mealCalories === 0 && Array.isArray(meal.foods)) {
+          meal.foods.forEach((food) => {
+            if (typeof food === "object" && food.calories) {
+              const foodCaloriesMatch = food.calories.toString().match(/(\d+)/)
+              if (foodCaloriesMatch) {
+                mealCalories += Number.parseInt(foodCaloriesMatch[1])
+              }
+            } else if (typeof food === "string") {
+              // Try to extract calories from string format like "Aveia 150g - 190 kcal"
+              const stringCaloriesMatch = food.match(/(\d+)\s*kcal/i)
+              if (stringCaloriesMatch) {
+                mealCalories += Number.parseInt(stringCaloriesMatch[1])
+              }
+            }
+          })
+        }
+
+        totalCalories += mealCalories
+
         if (meal.macros && typeof meal.macros === "object") {
-          const proteinMatch = meal.macros.protein?.match(/(\d+\.?\d*)/)
-          const carbsMatch = meal.macros.carbs?.match(/(\d+\.?\d*)/)
-          const fatsMatch = meal.macros.fats?.match(/(\d+\.?\d*)/)
+          const proteinMatch = meal.macros.protein?.toString().match(/(\d+\.?\d*)/)
+          const carbsMatch = meal.macros.carbs?.toString().match(/(\d+\.?\d*)/)
+          const fatsMatch = meal.macros.fats?.toString().match(/(\d+\.?\d*)/)
 
           if (proteinMatch) totalProtein += Number.parseFloat(proteinMatch[1])
           if (carbsMatch) totalCarbs += Number.parseFloat(carbsMatch[1])
@@ -311,6 +321,8 @@ export default function DietPage() {
         }
       }
     })
+
+    console.log("[v0] Calculated totals from meals:", { totalCalories, totalProtein, totalCarbs, totalFats })
 
     return {
       calories: totalCalories > 0 ? `${totalCalories}` : "0",
