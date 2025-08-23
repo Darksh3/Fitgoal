@@ -788,9 +788,6 @@ export default function QuizPage() {
             }}
             className="group relative"
           >
-            {/* Glow de fundo */}
-            <div className="absolute -inset-2 bg-gradient-to-r from-lime-400 to-green-400 rounded-full blur-xl group-hover:blur-2xl transition-all duration-300 opacity-70 group-hover:opacity-100" />
-
             {/* Botão principal */}
             <div className="relative px-16 py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
               <span className="relative z-10">Continuar</span>
@@ -1854,9 +1851,6 @@ export default function QuizPage() {
             </Button>
           ) : (
             <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
-              {/* Glow de fundo */}
-              <div className="absolute -inset-2 bg-gradient-to-r from-lime-400 to-green-400 rounded-full blur-xl group-hover:blur-2xl transition-all duration-300 opacity-70 group-hover:opacity-100 group-disabled:opacity-30" />
-
               {/* Botão principal */}
               <div className="relative px-20 py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 disabled:hover:scale-100 disabled:shadow-none">
                 <span className="relative z-10">Continuar</span>
