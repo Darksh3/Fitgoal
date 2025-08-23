@@ -786,13 +786,18 @@ export default function QuizPage() {
               setShowIMCResult(false)
               setShowSuccess(true)
             }}
-            className="w-full bg-gradient-to-r from-lime-300 via-lime-400 to-lime-500 hover:from-lime-400 hover:via-lime-500 hover:to-lime-600 text-black py-12 px-16 text-3xl font-black rounded-full shadow-[0_0_50px_rgba(132,204,22,0.8)] transform hover:scale-125 transition-all duration-500 border-8 border-white hover:border-lime-200 ring-8 ring-lime-300/50 hover:ring-lime-200/70 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000"
-            style={{
-              filter: "drop-shadow(0 0 20px #84cc16) drop-shadow(0 0 40px #84cc16)",
-              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-            }}
+            className="group relative"
           >
-            Continuar
+            {/* Glow de fundo */}
+            <div className="absolute -inset-2 bg-gradient-to-r from-lime-400 to-green-400 rounded-full blur-xl group-hover:blur-2xl transition-all duration-300 opacity-70 group-hover:opacity-100" />
+
+            {/* Botão principal */}
+            <div className="relative px-16 py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+              <span className="relative z-10">Continuar</span>
+
+              {/* Efeito de brilho animado */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
           </Button>
         </div>
       </div>
@@ -1848,16 +1853,17 @@ export default function QuizPage() {
               Finalizar Quiz
             </Button>
           ) : (
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="bg-gradient-to-r from-lime-300 via-lime-400 to-lime-500 hover:from-lime-400 hover:via-lime-500 hover:to-lime-600 text-black px-20 py-12 text-3xl font-black rounded-full disabled:opacity-50 shadow-[0_0_50px_rgba(132,204,22,0.8)] transform hover:scale-125 transition-all duration-500 border-8 border-white hover:border-lime-200 disabled:hover:scale-100 ring-8 ring-lime-300/50 hover:ring-lime-200/70 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000 disabled:before:translate-x-[-100%]"
-              style={{
-                filter: !canProceed() ? "none" : "drop-shadow(0 0 20px #84cc16) drop-shadow(0 0 40px #84cc16)",
-                textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-              }}
-            >
-              Continuar
+            <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+              {/* Glow de fundo */}
+              <div className="absolute -inset-2 bg-gradient-to-r from-lime-400 to-green-400 rounded-full blur-xl group-hover:blur-2xl transition-all duration-300 opacity-70 group-hover:opacity-100 group-disabled:opacity-30" />
+
+              {/* Botão principal */}
+              <div className="relative px-20 py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 disabled:hover:scale-100 disabled:shadow-none">
+                <span className="relative z-10">Continuar</span>
+
+                {/* Efeito de brilho animado */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity group-disabled:opacity-0" />
+              </div>
             </Button>
           )}
         </div>
