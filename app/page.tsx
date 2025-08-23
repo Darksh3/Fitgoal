@@ -397,27 +397,27 @@ export default function HomePage() {
               {/* Botão Principal - Quiz */}
               <button onClick={startQuiz} disabled={loading} className="group relative">
                 {/* Glow de fundo */}
-                <div className="absolute -inset-2 bg-gradient-to-r from-lime-400 to-green-400 rounded-full blur-xl group-hover:blur-2xl transition-all duration-300 opacity-70 group-hover:opacity-100" />
+                <div className="absolute -inset-1 bg-gradient-to-r from-lime-400 to-green-400 rounded-full blur-lg group-hover:blur-xl transition-all duration-300 opacity-50 group-hover:opacity-70" />
 
                 {/* Botão principal */}
-                <div className="relative px-12 py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-2xl flex items-center gap-3 shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                <div className="relative px-8 py-4 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-xl flex items-center gap-3 shadow-xl hover:shadow-lime-500/40 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Fazer Quiz Gratuito</span>
-                  <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform relative z-10" />
+                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform relative z-10" />
 
                   {/* Efeito de brilho animado */}
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
 
                   {/* Badge de destaque */}
-                  <div className="absolute -top-3 -right-3 bg-red-500 text-white text-xs px-3 py-1 rounded-full animate-pulse font-bold">
+                  <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse font-bold">
                     GRÁTIS
                   </div>
                 </div>
 
                 {/* Partículas animadas */}
-                <div className="absolute -top-2 -right-2">
-                  <span className="flex h-4 w-4">
+                <div className="absolute -top-1 -right-1">
+                  <span className="flex h-3 w-3">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-4 w-4 bg-lime-500"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-lime-500"></span>
                   </span>
                 </div>
               </button>
@@ -879,13 +879,13 @@ export default function HomePage() {
             </div>
             <button onClick={startQuiz} disabled={loading} className="group relative">
               {/* Glow de fundo */}
-              <div className="absolute -inset-2 bg-gradient-to-r from-white/30 to-lime-200/30 rounded-full blur-xl group-hover:blur-2xl transition-all duration-300 opacity-70 group-hover:opacity-100" />
+              <div className="absolute -inset-1 bg-gradient-to-r from-white/20 to-lime-200/20 rounded-full blur-lg group-hover:blur-xl transition-all duration-300 opacity-50 group-hover:opacity-70" />
 
               {/* Botão principal */}
-              <div className="relative px-16 py-8 bg-gradient-to-r from-white to-lime-100 rounded-full font-bold text-gray-900 text-3xl shadow-2xl transform hover:scale-105 transition-all duration-300">
-                <span className="flex items-center gap-4">
+              <div className="relative px-12 py-6 bg-gradient-to-r from-white to-lime-100 rounded-full font-bold text-gray-900 text-2xl shadow-xl transform hover:scale-105 transition-all duration-300">
+                <span className="flex items-center gap-3">
                   Fazer Quiz e Ver Planos
-                  <ArrowRight className="h-8 w-8 group-hover:translate-x-2 transition-transform" />
+                  <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
                 </span>
               </div>
             </button>
