@@ -6,7 +6,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { ArrowLeft, User, Target, Activity } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { ArrowLeft, User, Target, Activity, Ruler, Save, TrendingUp } from "lucide-react"
+import { auth, db } from "@/lib/firebase"
+import { collection, addDoc, query, orderBy, limit, getDocs } from "firebase/firestore"
+import { useAuthState } from "react-firebase-hooks/auth"
 
 interface QuizData {
   gender: string
@@ -20,16 +25,108 @@ interface QuizData {
   experience: string
 }
 
+interface BodyMeasurements {
+  weight: string
+  height: string
+  chest: string
+  waist: string
+  hips: string
+  leftArm: string
+  rightArm: string
+  leftThigh: string
+  rightThigh: string
+  neck: string
+  date: string
+}
+
 export default function ProgressoPage() {
   const router = useRouter()
+  const [user] = useAuthState(auth)
   const [quizData, setQuizData] = useState<QuizData | null>(null)
+  const [measurements, setMeasurements] = useState<BodyMeasurements>({
+    weight: "",
+    height: "",
+    chest: "",
+    waist: "",
+    hips: "",
+    leftArm: "",
+    rightArm: "",
+    leftThigh: "",
+    rightThigh: "",
+    neck: "",
+    date: new Date().toISOString().split("T")[0],
+  })
+  const [measurementHistory, setMeasurementHistory] = useState<BodyMeasurements[]>([])
+  const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     const savedQuizData = localStorage.getItem("quizData")
     if (savedQuizData) {
       setQuizData(JSON.parse(savedQuizData))
     }
-  }, [])
+
+    if (user) {
+      loadMeasurementHistory()
+    }
+  }, [user])
+
+  const loadMeasurementHistory = async () => {
+    if (!user) return
+
+    try {
+      const measurementsRef = collection(db, "users", user.uid, "measurements")
+      const q = query(measurementsRef, orderBy("date", "desc"), limit(10))
+      const querySnapshot = await getDocs(q)
+
+      const history: BodyMeasurements[] = []
+      querySnapshot.forEach((doc) => {
+        history.push(doc.data() as BodyMeasurements)
+      })
+
+      setMeasurementHistory(history)
+
+      // Load latest measurements into form
+      if (history.length > 0) {
+        const latest = history[0]
+        setMeasurements({
+          ...latest,
+          date: new Date().toISOString().split("T")[0],
+        })
+      }
+    } catch (error) {
+      console.error("Error loading measurement history:", error)
+    }
+  }
+
+  const saveMeasurements = async () => {
+    if (!user) return
+
+    setIsSaving(true)
+    try {
+      const measurementsRef = collection(db, "users", user.uid, "measurements")
+      await addDoc(measurementsRef, {
+        ...measurements,
+        timestamp: new Date(),
+      })
+
+      // Reload history
+      await loadMeasurementHistory()
+
+      alert("Medidas salvas com sucesso!")
+    } catch (error) {
+      console.error("Error saving measurements:", error)
+      alert("Erro ao salvar medidas. Tente novamente.")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleMeasurementChange = (field: keyof BodyMeasurements, value: string) => {
+    setMeasurements((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+  }
 
   const getBodyAnalysis = () => {
     if (!quizData) return null
@@ -96,9 +193,196 @@ export default function ProgressoPage() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Análise Corporal Completa</h1>
-            <p className="text-gray-600">Entenda seu biotipo e otimize seus resultados</p>
+            <p className="text-gray-600">Entenda seu biotipo e acompanhe suas medidas</p>
           </div>
         </div>
+
+        {/* Body Measurements Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Ruler className="h-5 w-5 text-purple-500" />
+              <span>Medidas Corporais</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="weight">Peso (kg)</Label>
+                <Input
+                  id="weight"
+                  type="number"
+                  step="0.1"
+                  value={measurements.weight}
+                  onChange={(e) => handleMeasurementChange("weight", e.target.value)}
+                  placeholder="Ex: 70.5"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="height">Altura (cm)</Label>
+                <Input
+                  id="height"
+                  type="number"
+                  value={measurements.height}
+                  onChange={(e) => handleMeasurementChange("height", e.target.value)}
+                  placeholder="Ex: 175"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="chest">Peitoral (cm)</Label>
+                <Input
+                  id="chest"
+                  type="number"
+                  step="0.1"
+                  value={measurements.chest}
+                  onChange={(e) => handleMeasurementChange("chest", e.target.value)}
+                  placeholder="Ex: 95.5"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="waist">Cintura (cm)</Label>
+                <Input
+                  id="waist"
+                  type="number"
+                  step="0.1"
+                  value={measurements.waist}
+                  onChange={(e) => handleMeasurementChange("waist", e.target.value)}
+                  placeholder="Ex: 80.0"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="hips">Quadril (cm)</Label>
+                <Input
+                  id="hips"
+                  type="number"
+                  step="0.1"
+                  value={measurements.hips}
+                  onChange={(e) => handleMeasurementChange("hips", e.target.value)}
+                  placeholder="Ex: 95.0"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="leftArm">Braço Esquerdo (cm)</Label>
+                <Input
+                  id="leftArm"
+                  type="number"
+                  step="0.1"
+                  value={measurements.leftArm}
+                  onChange={(e) => handleMeasurementChange("leftArm", e.target.value)}
+                  placeholder="Ex: 35.5"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="rightArm">Braço Direito (cm)</Label>
+                <Input
+                  id="rightArm"
+                  type="number"
+                  step="0.1"
+                  value={measurements.rightArm}
+                  onChange={(e) => handleMeasurementChange("rightArm", e.target.value)}
+                  placeholder="Ex: 35.5"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="leftThigh">Coxa Esquerda (cm)</Label>
+                <Input
+                  id="leftThigh"
+                  type="number"
+                  step="0.1"
+                  value={measurements.leftThigh}
+                  onChange={(e) => handleMeasurementChange("leftThigh", e.target.value)}
+                  placeholder="Ex: 55.0"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="rightThigh">Coxa Direita (cm)</Label>
+                <Input
+                  id="rightThigh"
+                  type="number"
+                  step="0.1"
+                  value={measurements.rightThigh}
+                  onChange={(e) => handleMeasurementChange("rightThigh", e.target.value)}
+                  placeholder="Ex: 55.0"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="neck">Pescoço (cm)</Label>
+                <Input
+                  id="neck"
+                  type="number"
+                  step="0.1"
+                  value={measurements.neck}
+                  onChange={(e) => handleMeasurementChange("neck", e.target.value)}
+                  placeholder="Ex: 38.0"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="date">Data</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={measurements.date}
+                  onChange={(e) => handleMeasurementChange("date", e.target.value)}
+                />
+              </div>
+            </div>
+
+            <Button onClick={saveMeasurements} disabled={isSaving} className="w-full">
+              <Save className="h-4 w-4 mr-2" />
+              {isSaving ? "Salvando..." : "Salvar Medidas"}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Measurement History Section */}
+        {measurementHistory.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <TrendingUp className="h-5 w-5 text-green-500" />
+                <span>Histórico de Medidas</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-2">Data</th>
+                      <th className="text-left p-2">Peso</th>
+                      <th className="text-left p-2">Cintura</th>
+                      <th className="text-left p-2">Peitoral</th>
+                      <th className="text-left p-2">Braço E</th>
+                      <th className="text-left p-2">Coxa E</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {measurementHistory.slice(0, 5).map((measurement, index) => (
+                      <tr key={index} className="border-b">
+                        <td className="p-2">{new Date(measurement.date).toLocaleDateString("pt-BR")}</td>
+                        <td className="p-2">{measurement.weight || "-"} kg</td>
+                        <td className="p-2">{measurement.waist || "-"} cm</td>
+                        <td className="p-2">{measurement.chest || "-"} cm</td>
+                        <td className="p-2">{measurement.leftArm || "-"} cm</td>
+                        <td className="p-2">{measurement.leftThigh || "-"} cm</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {analysis && (
           <div className="space-y-8">
