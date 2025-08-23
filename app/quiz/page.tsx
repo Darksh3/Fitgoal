@@ -786,7 +786,11 @@ export default function QuizPage() {
               setShowIMCResult(false)
               setShowSuccess(true)
             }}
-            className="w-full bg-gradient-to-r from-lime-400 via-lime-500 to-lime-600 hover:from-lime-500 hover:via-lime-600 hover:to-lime-700 text-white py-8 px-12 text-2xl font-black rounded-full shadow-2xl shadow-lime-500/60 transform hover:scale-110 transition-all duration-300 border-4 border-lime-300 hover:border-lime-200 ring-4 ring-lime-400/30 hover:ring-lime-300/50"
+            className="w-full bg-gradient-to-r from-lime-300 via-lime-400 to-lime-500 hover:from-lime-400 hover:via-lime-500 hover:to-lime-600 text-black py-12 px-16 text-3xl font-black rounded-full shadow-[0_0_50px_rgba(132,204,22,0.8)] transform hover:scale-125 transition-all duration-500 border-8 border-white hover:border-lime-200 ring-8 ring-lime-300/50 hover:ring-lime-200/70 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000"
+            style={{
+              filter: "drop-shadow(0 0 20px #84cc16) drop-shadow(0 0 40px #84cc16)",
+              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+            }}
           >
             Continuar
           </Button>
@@ -1847,7 +1851,11 @@ export default function QuizPage() {
             <Button
               onClick={nextStep}
               disabled={!canProceed()}
-              className="bg-gradient-to-r from-lime-400 via-lime-500 to-lime-600 hover:from-lime-500 hover:via-lime-600 hover:to-lime-700 text-white px-16 py-8 text-2xl font-black rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/60 transform hover:scale-110 transition-all duration-300 border-4 border-lime-300 hover:border-lime-200 disabled:hover:scale-100 ring-4 ring-lime-400/30 hover:ring-lime-300/50"
+              className="bg-gradient-to-r from-lime-300 via-lime-400 to-lime-500 hover:from-lime-400 hover:via-lime-500 hover:to-lime-600 text-black px-20 py-12 text-3xl font-black rounded-full disabled:opacity-50 shadow-[0_0_50px_rgba(132,204,22,0.8)] transform hover:scale-125 transition-all duration-500 border-8 border-white hover:border-lime-200 disabled:hover:scale-100 ring-8 ring-lime-300/50 hover:ring-lime-200/70 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000 disabled:before:translate-x-[-100%]"
+              style={{
+                filter: !canProceed() ? "none" : "drop-shadow(0 0 20px #84cc16) drop-shadow(0 0 40px #84cc16)",
+                textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+              }}
             >
               Continuar
             </Button>

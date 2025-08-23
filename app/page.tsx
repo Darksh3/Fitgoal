@@ -389,10 +389,14 @@ export default function HomePage() {
               <Button
                 onClick={startQuiz}
                 disabled={loading}
-                className="bg-gradient-to-r from-lime-400 via-lime-500 to-lime-600 hover:from-lime-500 hover:via-lime-600 hover:to-lime-700 text-white py-10 px-16 text-3xl font-black rounded-full flex items-center justify-center space-x-4 shadow-2xl shadow-lime-500/60 transform hover:scale-110 transition-all duration-300 border-4 border-lime-300 hover:border-lime-200 animate-pulse hover:animate-none ring-4 ring-lime-400/30 hover:ring-lime-300/50"
+                className="bg-gradient-to-r from-lime-300 via-lime-400 to-lime-500 hover:from-lime-400 hover:via-lime-500 hover:to-lime-600 text-black py-12 px-20 text-4xl font-black rounded-full flex items-center justify-center space-x-4 shadow-[0_0_50px_rgba(132,204,22,0.8)] transform hover:scale-125 transition-all duration-500 border-8 border-white hover:border-lime-200 animate-pulse hover:animate-bounce ring-8 ring-lime-300/50 hover:ring-lime-200/70 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000"
+                style={{
+                  filter: "drop-shadow(0 0 20px #84cc16) drop-shadow(0 0 40px #84cc16)",
+                  textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+                }}
               >
-                <span>Fazer Quiz Gratuito</span>
-                <ArrowRight className="h-10 w-10" />
+                <span className="relative z-10">Fazer Quiz Gratuito</span>
+                <ArrowRight className="h-12 w-12 relative z-10" />
               </Button>
               <div className="text-center sm:text-left">
                 <p className="text-sm text-gray-400">✅ Quiz 100% Gratuito</p>
@@ -845,7 +849,11 @@ export default function HomePage() {
             <Button
               onClick={startQuiz}
               disabled={loading}
-              className="bg-gradient-to-r from-lime-400 via-lime-500 to-lime-600 hover:from-lime-500 hover:via-lime-600 hover:to-lime-700 text-white py-10 px-20 text-3xl font-black rounded-full shadow-2xl shadow-lime-500/60 transform hover:scale-110 transition-all duration-300 border-4 border-lime-300 hover:border-lime-200 ring-4 ring-lime-400/30 hover:ring-lime-300/50"
+              className="bg-gradient-to-r from-lime-300 via-lime-400 to-lime-500 hover:from-lime-400 hover:via-lime-500 hover:to-lime-600 text-black py-12 px-24 text-4xl font-black rounded-full shadow-[0_0_50px_rgba(132,204,22,0.8)] transform hover:scale-125 transition-all duration-500 border-8 border-white hover:border-lime-200 animate-pulse hover:animate-bounce ring-8 ring-lime-300/50 hover:ring-lime-200/70 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000"
+              style={{
+                filter: "drop-shadow(0 0 20px #84cc16) drop-shadow(0 0 40px #84cc16)",
+                textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+              }}
             >
               Fazer Quiz e Ver Planos
             </Button>
