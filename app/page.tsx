@@ -389,10 +389,10 @@ export default function HomePage() {
               <Button
                 onClick={startQuiz}
                 disabled={loading}
-                className="bg-lime-500 hover:bg-lime-600 text-white py-6 px-8 text-xl rounded-full flex items-center justify-center space-x-2 shadow-lg shadow-lime-500/25"
+                className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white py-8 px-12 text-2xl font-bold rounded-full flex items-center justify-center space-x-3 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
               >
                 <span>Fazer Quiz Gratuito</span>
-                <ArrowRight className="h-6 w-6" />
+                <ArrowRight className="h-8 w-8" />
               </Button>
               <div className="text-center sm:text-left">
                 <p className="text-sm text-gray-400">✅ Quiz 100% Gratuito</p>
@@ -845,7 +845,7 @@ export default function HomePage() {
             <Button
               onClick={startQuiz}
               disabled={loading}
-              className="bg-white text-lime-600 hover:bg-gray-100 py-6 px-12 text-xl rounded-full shadow-xl"
+              className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white py-8 px-16 text-2xl font-bold rounded-full shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
             >
               Fazer Quiz e Ver Planos
             </Button>
