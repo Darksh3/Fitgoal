@@ -389,10 +389,10 @@ export default function HomePage() {
               <Button
                 onClick={startQuiz}
                 disabled={loading}
-                className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white py-8 px-12 text-2xl font-bold rounded-full flex items-center justify-center space-x-3 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
+                className="bg-gradient-to-r from-lime-400 via-lime-500 to-lime-600 hover:from-lime-500 hover:via-lime-600 hover:to-lime-700 text-white py-10 px-16 text-3xl font-black rounded-full flex items-center justify-center space-x-4 shadow-2xl shadow-lime-500/60 transform hover:scale-110 transition-all duration-300 border-4 border-lime-300 hover:border-lime-200 animate-pulse hover:animate-none ring-4 ring-lime-400/30 hover:ring-lime-300/50"
               >
                 <span>Fazer Quiz Gratuito</span>
-                <ArrowRight className="h-8 w-8" />
+                <ArrowRight className="h-10 w-10" />
               </Button>
               <div className="text-center sm:text-left">
                 <p className="text-sm text-gray-400">✅ Quiz 100% Gratuito</p>
@@ -845,7 +845,7 @@ export default function HomePage() {
             <Button
               onClick={startQuiz}
               disabled={loading}
-              className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white py-8 px-16 text-2xl font-bold rounded-full shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
+              className="bg-gradient-to-r from-lime-400 via-lime-500 to-lime-600 hover:from-lime-500 hover:via-lime-600 hover:to-lime-700 text-white py-10 px-20 text-3xl font-black rounded-full shadow-2xl shadow-lime-500/60 transform hover:scale-110 transition-all duration-300 border-4 border-lime-300 hover:border-lime-200 ring-4 ring-lime-400/30 hover:ring-lime-300/50"
             >
               Fazer Quiz e Ver Planos
             </Button>

@@ -786,7 +786,7 @@ export default function QuizPage() {
               setShowIMCResult(false)
               setShowSuccess(true)
             }}
-            className="w-full bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white py-6 px-8 text-xl font-bold rounded-full shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
+            className="w-full bg-gradient-to-r from-lime-400 via-lime-500 to-lime-600 hover:from-lime-500 hover:via-lime-600 hover:to-lime-700 text-white py-8 px-12 text-2xl font-black rounded-full shadow-2xl shadow-lime-500/60 transform hover:scale-110 transition-all duration-300 border-4 border-lime-300 hover:border-lime-200 ring-4 ring-lime-400/30 hover:ring-lime-300/50"
           >
             Continuar
           </Button>
@@ -1847,7 +1847,7 @@ export default function QuizPage() {
             <Button
               onClick={nextStep}
               disabled={!canProceed()}
-              className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white px-12 py-6 text-xl font-bold rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
+              className="bg-gradient-to-r from-lime-400 via-lime-500 to-lime-600 hover:from-lime-500 hover:via-lime-600 hover:to-lime-700 text-white px-16 py-8 text-2xl font-black rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/60 transform hover:scale-110 transition-all duration-300 border-4 border-lime-300 hover:border-lime-200 disabled:hover:scale-100 ring-4 ring-lime-400/30 hover:ring-lime-300/50"
             >
               Continuar
             </Button>

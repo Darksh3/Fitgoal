@@ -92,4 +92,24 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Force dark background on html, body and root to eliminate white strip */
+  html {
+    background-color: #111827 !important;
+    min-height: 100vh;
+  }
+
+  body {
+    background-color: #111827 !important;
+    min-height: 100vh;
+  }
+
+  #__next {
+    background-color: #111827 !important;
+    min-height: 100vh;
+  }
+
+  :root {
+    background-color: #111827 !important;
+  }
 }
