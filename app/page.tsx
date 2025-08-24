@@ -311,7 +311,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white font-['Inter',sans-serif]">
       {/* Header */}
-      <header className="p-6 flex justify-between items-center">
+      <header className="p-4 flex justify-between items-center">
         <div className="flex items-center">
           <img
             src="/images/fitgoal-logo.png"
@@ -351,7 +351,7 @@ export default function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="px-6 py-16 md:py-24 max-w-7xl mx-auto">
+      <section className="px-6 py-8 md:py-12 max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
             <div className="inline-flex items-center bg-lime-500/20 text-lime-400 px-4 py-2 rounded-full text-sm font-medium">
