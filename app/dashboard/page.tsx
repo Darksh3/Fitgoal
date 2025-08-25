@@ -630,7 +630,7 @@ export default function DashboardPage() {
       </Sheet>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 lg:p-8">
+      <div className="flex-1 p-6 lg:p-8 bg-white">
         {/* Header */}
         <div className="mb-8 mt-12 lg:mt-0">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">

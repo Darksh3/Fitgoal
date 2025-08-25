@@ -431,137 +431,139 @@ export default function WorkoutPage() {
 
   return (
     <ProtectedRoute>
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Seu Plano de Treino</h1>
-          <p className="text-gray-600">Plano personalizado para atingir seus objetivos</p>
-        </div>
+      <div className="min-h-screen bg-white">
+        <div className="container mx-auto px-4 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Seu Plano de Treino</h1>
+            <p className="text-gray-600">Plano personalizado para atingir seus objetivos</p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center">
-                <Calendar className="h-8 w-8 text-blue-600 mr-3" />
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Programação Semanal</p>
-                  <p className="text-lg font-bold text-gray-900">{actualTrainingFrequency}</p>
-                  {process.env.NODE_ENV === "development" && (
-                    <p className="text-xs text-gray-500">
-                      Quiz: {(userData as any)?.quizData?.trainingDaysPerWeek || "N/A"} | Plan:{" "}
-                      {workoutPlan?.days?.length || "N/A"} dias
-                      <br />
-                      User: {(userData as any)?.quizData?.name || "N/A"}
-                      {workoutPlan?.days?.length !== (userData as any)?.quizData?.trainingDaysPerWeek && (
-                        <span className="text-orange-500"> (Discrepância detectada)</span>
-                      )}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center">
-                <Target className="h-8 w-8 text-green-600 mr-3" />
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Duração Média por Treino</p>
-                  <p className="text-lg font-bold text-gray-900">
-                    {workoutPlan.days[0]?.duration || "Não especificado"}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {workoutPlan?.days?.length !== (userData as any)?.quizData?.trainingDaysPerWeek && (
-          <Card className="mb-6 border-orange-200 bg-orange-50">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-orange-800">Discrepância Detectada</h3>
-                  <p className="text-sm text-orange-700">
-                    Seu plano tem {workoutPlan?.days?.length || 0} dias, mas você selecionou{" "}
-                    {(userData as any)?.quizData?.trainingDaysPerWeek || 0} dias no quiz.
-                  </p>
-                </div>
-                <Button
-                  onClick={generatePlans}
-                  disabled={isRegenerating}
-                  variant="outline"
-                  className="border-orange-300 text-orange-700 hover:bg-orange-100 bg-transparent"
-                >
-                  {isRegenerating ? "Regenerando..." : "Regenerar Plano"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {workoutPlan.days.map((day, dayIndex) => (
-            <Card key={dayIndex}>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Dumbbell className="h-5 w-5 mr-2 text-blue-600" />
-                  {day.title || day.day} - {day.focus}
-                </CardTitle>
-                <CardDescription>Duração: {day.duration}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {day.exercises && day.exercises.length > 0 ? (
-                    day.exercises.map((exercise, exerciseIndex) => (
-                      <div key={exerciseIndex} className="border-b pb-3 last:border-b-0 last:pb-0">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-bold text-lg">{exercise.name}</h4>
-                            <div className="flex flex-wrap gap-2 text-sm text-gray-600 mb-1">
-                              <Badge variant="secondary">Séries: {exercise.sets}</Badge>
-                              <Badge variant="secondary">Repetições: {exercise.reps}</Badge>
-                              <Badge variant="secondary">Descanso: {exercise.rest}</Badge>
-                            </div>
-                            <p className="text-gray-700 text-sm">{exercise.description}</p>
-                          </div>
-                          <ExerciseSubstituteButton
-                            exercise={exercise}
-                            dayIndex={dayIndex}
-                            exerciseIndex={exerciseIndex}
-                            onSubstitute={handleExerciseSubstitution}
-                          />
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-500 text-sm">Nenhum exercício especificado para este dia.</p>
-                  )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center">
+                  <Calendar className="h-8 w-8 text-blue-600 mr-3" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Programação Semanal</p>
+                    <p className="text-lg font-bold text-gray-900">{actualTrainingFrequency}</p>
+                    {process.env.NODE_ENV === "development" && (
+                      <p className="text-xs text-gray-500">
+                        Quiz: {(userData as any)?.quizData?.trainingDaysPerWeek || "N/A"} | Plan:{" "}
+                        {workoutPlan?.days?.length || "N/A"} dias
+                        <br />
+                        User: {(userData as any)?.quizData?.name || "N/A"}
+                        {workoutPlan?.days?.length !== (userData as any)?.quizData?.trainingDaysPerWeek && (
+                          <span className="text-orange-500"> (Discrepância detectada)</span>
+                        )}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center">
+                  <Target className="h-8 w-8 text-green-600 mr-3" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Duração Média por Treino</p>
+                    <p className="text-lg font-bold text-gray-900">
+                      {workoutPlan.days[0]?.duration || "Não especificado"}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-        {workoutPlan.tips && workoutPlan.tips.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Lightbulb className="h-5 w-5 mr-2 text-yellow-600" />
-                Dicas de Treino
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {workoutPlan.tips.map((tip, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="text-blue-600 mr-2">•</span>
-                    <span className="text-gray-700">{tip}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        )}
+          {workoutPlan?.days?.length !== (userData as any)?.quizData?.trainingDaysPerWeek && (
+            <Card className="mb-6 border-orange-200 bg-orange-50">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-orange-800">Discrepância Detectada</h3>
+                    <p className="text-sm text-orange-700">
+                      Seu plano tem {workoutPlan?.days?.length || 0} dias, mas você selecionou{" "}
+                      {(userData as any)?.quizData?.trainingDaysPerWeek || 0} dias no quiz.
+                    </p>
+                  </div>
+                  <Button
+                    onClick={generatePlans}
+                    disabled={isRegenerating}
+                    variant="outline"
+                    className="border-orange-300 text-orange-700 hover:bg-orange-100 bg-transparent"
+                  >
+                    {isRegenerating ? "Regenerando..." : "Regenerar Plano"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {workoutPlan.days.map((day, dayIndex) => (
+              <Card key={dayIndex}>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Dumbbell className="h-5 w-5 mr-2 text-blue-600" />
+                    {day.title || day.day} - {day.focus}
+                  </CardTitle>
+                  <CardDescription>Duração: {day.duration}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {day.exercises && day.exercises.length > 0 ? (
+                      day.exercises.map((exercise, exerciseIndex) => (
+                        <div key={exerciseIndex} className="border-b pb-3 last:border-b-0 last:pb-0">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-bold text-lg">{exercise.name}</h4>
+                              <div className="flex flex-wrap gap-2 text-sm text-gray-600 mb-1">
+                                <Badge variant="secondary">Séries: {exercise.sets}</Badge>
+                                <Badge variant="secondary">Repetições: {exercise.reps}</Badge>
+                                <Badge variant="secondary">Descanso: {exercise.rest}</Badge>
+                              </div>
+                              <p className="text-gray-700 text-sm">{exercise.description}</p>
+                            </div>
+                            <ExerciseSubstituteButton
+                              exercise={exercise}
+                              dayIndex={dayIndex}
+                              exerciseIndex={exerciseIndex}
+                              onSubstitute={handleExerciseSubstitution}
+                            />
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 text-sm">Nenhum exercício especificado para este dia.</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {workoutPlan.tips && workoutPlan.tips.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Lightbulb className="h-5 w-5 mr-2 text-yellow-600" />
+                  Dicas de Treino
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {workoutPlan.tips.map((tip, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-blue-600 mr-2">•</span>
+                      <span className="text-gray-700">{tip}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     </ProtectedRoute>
   )

@@ -487,272 +487,274 @@ export default function DietPage() {
 
   return (
     <ProtectedRoute>
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Plano de Dieta</h1>
-          {error && <p className="text-red-500">{error}</p>}
-        </div>
-        {loading && <p className="text-gray-500">Carregando plano de dieta...</p>}
-        {(displayTotals.calories === "Dados não disponíveis" ||
-          displayTotals.protein === "Dados não disponíveis" ||
-          displayTotals.carbs === "Dados não disponíveis" ||
-          displayTotals.fats === "Dados não disponíveis") && (
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-yellow-800 font-medium">⚠️ Alguns dados nutricionais não estão disponíveis</p>
-            <p className="text-yellow-700 text-sm mt-1">
-              Os cálculos podem estar incorretos. Tente regenerar os planos para obter cálculos precisos baseados nas
-              fórmulas científicas.
-            </p>
-            <Button
-              onClick={generatePlans}
-              variant="outline"
-              size="sm"
-              className="mt-2 border-yellow-300 text-yellow-700 hover:bg-yellow-100 bg-transparent"
-            >
-              Regenerar Planos com Cálculos Científicos
-            </Button>
+      <div className="min-h-screen bg-white">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold">Plano de Dieta</h1>
+            {error && <p className="text-red-500">{error}</p>}
           </div>
-        )}
+          {loading && <p className="text-gray-500">Carregando plano de dieta...</p>}
+          {(displayTotals.calories === "Dados não disponíveis" ||
+            displayTotals.protein === "Dados não disponíveis" ||
+            displayTotals.carbs === "Dados não disponíveis" ||
+            displayTotals.fats === "Dados não disponíveis") && (
+            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-yellow-800 font-medium">⚠️ Alguns dados nutricionais não estão disponíveis</p>
+              <p className="text-yellow-700 text-sm mt-1">
+                Os cálculos podem estar incorretos. Tente regenerar os planos para obter cálculos precisos baseados nas
+                fórmulas científicas.
+              </p>
+              <Button
+                onClick={generatePlans}
+                variant="outline"
+                size="sm"
+                className="mt-2 border-yellow-300 text-yellow-700 hover:bg-yellow-100 bg-transparent"
+              >
+                Regenerar Planos com Cálculos Científicos
+              </Button>
+            </div>
+          )}
 
-        {quizData && dietPlan && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-blue-800 font-medium">🔄 Sincronizar Valores</p>
-            <p className="text-blue-700 text-sm mt-1">
-              Atualizar os valores salvos no plano de dieta com o cálculo científico atual (3649 kcal).
-            </p>
-            <Button
-              onClick={updateSavedValuesWithScientificCalculation}
-              variant="outline"
-              size="sm"
-              className="mt-2 border-blue-300 text-blue-700 hover:bg-blue-100 bg-transparent"
-            >
-              Atualizar Valores Salvos
-            </Button>
-          </div>
-        )}
+          {quizData && dietPlan && (
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-blue-800 font-medium">🔄 Sincronizar Valores</p>
+              <p className="text-blue-700 text-sm mt-1">
+                Atualizar os valores salvos no plano de dieta com o cálculo científico atual (3649 kcal).
+              </p>
+              <Button
+                onClick={updateSavedValuesWithScientificCalculation}
+                variant="outline"
+                size="sm"
+                className="mt-2 border-blue-300 text-blue-700 hover:bg-blue-100 bg-transparent"
+              >
+                Atualizar Valores Salvos
+              </Button>
+            </div>
+          )}
 
-        {dietPlan && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Calorias Totais</CardTitle>
-                <CardDescription className="text-sm">
-                  <div className="space-y-1">
-                    <div>Teórico (científico): {displayTotals.calories}</div>
-                    <div>Real (soma dos alimentos): {calculatedTotals.calories} kcal</div>
-                    {Math.abs(
-                      Number.parseInt(displayTotals.calories.replace(/\D/g, "")) -
-                        Number.parseInt(calculatedTotals.calories),
-                    ) > 200 && <div className="text-orange-600 font-medium">⚠️ Diferença significativa detectada</div>}
-                  </div>
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">{displayTotals.calories}</p>
-                <p className="text-sm text-gray-600 mt-1">Soma real: {calculatedTotals.calories} kcal</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Proteína</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold text-red-600">{displayTotals.protein}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Carboidratos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold text-yellow-600">{displayTotals.carbs}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Gorduras</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold text-green-600">{displayTotals.fats}</p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {dietPlan && (
-          <div className="space-y-4">
-            {dietPlan.meals.map((meal, index) => {
-              if (!meal || typeof meal !== "object") {
-                return null
-              }
-
-              return (
-                <Card key={index}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center">
-                        <Clock className="h-5 w-5 mr-2 text-blue-600" />
-                        {meal.name || `Refeição ${index + 1}`}
-                      </CardTitle>
-                      <Badge variant="secondary">{meal.time || "Horário não definido"}</Badge>
+          {dietPlan && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Calorias Totais</CardTitle>
+                  <CardDescription className="text-sm">
+                    <div className="space-y-1">
+                      <div>Teórico (científico): {displayTotals.calories}</div>
+                      <div>Real (soma dos alimentos): {calculatedTotals.calories} kcal</div>
+                      {Math.abs(
+                        Number.parseInt(displayTotals.calories.replace(/\D/g, "")) -
+                          Number.parseInt(calculatedTotals.calories),
+                      ) > 200 && <div className="text-orange-600 font-medium">⚠️ Diferença significativa detectada</div>}
                     </div>
-                    <CardDescription>{meal.calories || "0 kcal"}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {Array.isArray(meal.foods) && meal.foods.length > 0 ? (
-                        meal.foods.map((food, foodIndex) => {
-                          let foodName = ""
-                          let foodQuantity = ""
-                          let foodCalories = ""
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold">{displayTotals.calories}</p>
+                  <p className="text-sm text-gray-600 mt-1">Soma real: {calculatedTotals.calories} kcal</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Proteína</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold text-red-600">{displayTotals.protein}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Carboidratos</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold text-yellow-600">{displayTotals.carbs}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Gorduras</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold text-green-600">{displayTotals.fats}</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-                          if (typeof food === "string") {
-                            const patterns = [
-                              /(\d+g?)\s*de?\s*(.+)/i,
-                              /(.+?)\s*-\s*(\d+g?)/i,
-                              /(.+?)\s*$$(\d+g?)$$/i,
-                              /(\d+)\s*unidades?\s*de?\s*(.+)/i,
-                              /(\d+)\s*(.+)/i,
-                            ]
+          {dietPlan && (
+            <div className="space-y-4">
+              {dietPlan.meals.map((meal, index) => {
+                if (!meal || typeof meal !== "object") {
+                  return null
+                }
 
-                            let matched = false
-                            for (const pattern of patterns) {
-                              const match = food.match(pattern)
-                              if (match) {
-                                if (/\d/.test(match[1])) {
-                                  foodQuantity = match[1]
-                                  foodName = match[2]?.trim()
-                                } else {
-                                  foodName = match[1]?.trim()
-                                  foodQuantity = match[2]
-                                }
-                                matched = true
-                                break
-                              }
-                            }
+                return (
+                  <Card key={index}>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center">
+                          <Clock className="h-5 w-5 mr-2 text-blue-600" />
+                          {meal.name || `Refeição ${index + 1}`}
+                        </CardTitle>
+                        <Badge variant="secondary">{meal.time || "Horário não definido"}</Badge>
+                      </div>
+                      <CardDescription>{meal.calories || "0 kcal"}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {Array.isArray(meal.foods) && meal.foods.length > 0 ? (
+                          meal.foods.map((food, foodIndex) => {
+                            let foodName = ""
+                            let foodQuantity = ""
+                            let foodCalories = ""
 
-                            if (!matched) {
-                              foodName = food.trim()
-                            }
+                            if (typeof food === "string") {
+                              const patterns = [
+                                /(\d+g?)\s*de?\s*(.+)/i,
+                                /(.+?)\s*-\s*(\d+g?)/i,
+                                /(.+?)\s*$$(\d+g?)$$/i,
+                                /(\d+)\s*unidades?\s*de?\s*(.+)/i,
+                                /(\d+)\s*(.+)/i,
+                              ]
 
-                            foodName = foodName
-                              .replace(/^(de\s+|da\s+|do\s+)/i, "")
-                              .replace(/\s+/g, " ")
-                              .trim()
-                          } else if (food && typeof food === "object") {
-                            foodName = food.name || `Alimento ${foodIndex + 1}`
-                            foodQuantity = food.quantity || ""
-                            foodCalories = food.calories ? `${food.calories} kcal` : ""
-                          } else {
-                            foodName = `Alimento ${foodIndex + 1}`
-                          }
-
-                          if (!foodName || foodName.trim() === "") {
-                            foodName = `Alimento ${foodIndex + 1}`
-                          }
-
-                          return (
-                            <div
-                              key={foodIndex}
-                              className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0"
-                            >
-                              <div className="flex-1">
-                                <p className="font-medium text-gray-900">{foodName}</p>
-                                {foodQuantity && <p className="text-sm text-blue-600 font-medium">{foodQuantity}</p>}
-                              </div>
-                              <div className="flex items-center gap-3">
-                                {foodCalories && (
-                                  <div className="text-right">
-                                    <p className="text-sm text-gray-600">{foodCalories}</p>
-                                  </div>
-                                )}
-                                <Button
-                                  onClick={() => handleReplaceFood(index, foodIndex)}
-                                  disabled={
-                                    replacingFood?.mealIndex === index && replacingFood?.foodIndex === foodIndex
+                              let matched = false
+                              for (const pattern of patterns) {
+                                const match = food.match(pattern)
+                                if (match) {
+                                  if (/\d/.test(match[1])) {
+                                    foodQuantity = match[1]
+                                    foodName = match[2]?.trim()
+                                  } else {
+                                    foodName = match[1]?.trim()
+                                    foodQuantity = match[2]
                                   }
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-8 px-2"
-                                >
-                                  {replacingFood?.mealIndex === index && replacingFood?.foodIndex === foodIndex ? (
-                                    <RefreshCw className="h-3 w-3 animate-spin" />
-                                  ) : (
-                                    <Replace className="h-3 w-3" />
+                                  matched = true
+                                  break
+                                }
+                              }
+
+                              if (!matched) {
+                                foodName = food.trim()
+                              }
+
+                              foodName = foodName
+                                .replace(/^(de\s+|da\s+|do\s+)/i, "")
+                                .replace(/\s+/g, " ")
+                                .trim()
+                            } else if (food && typeof food === "object") {
+                              foodName = food.name || `Alimento ${foodIndex + 1}`
+                              foodQuantity = food.quantity || ""
+                              foodCalories = food.calories ? `${food.calories} kcal` : ""
+                            } else {
+                              foodName = `Alimento ${foodIndex + 1}`
+                            }
+
+                            if (!foodName || foodName.trim() === "") {
+                              foodName = `Alimento ${foodIndex + 1}`
+                            }
+
+                            return (
+                              <div
+                                key={foodIndex}
+                                className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0"
+                              >
+                                <div className="flex-1">
+                                  <p className="font-medium text-gray-900">{foodName}</p>
+                                  {foodQuantity && <p className="text-sm text-blue-600 font-medium">{foodQuantity}</p>}
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  {foodCalories && (
+                                    <div className="text-right">
+                                      <p className="text-sm text-gray-600">{foodCalories}</p>
+                                    </div>
                                   )}
-                                </Button>
+                                  <Button
+                                    onClick={() => handleReplaceFood(index, foodIndex)}
+                                    disabled={
+                                      replacingFood?.mealIndex === index && replacingFood?.foodIndex === foodIndex
+                                    }
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 px-2"
+                                  >
+                                    {replacingFood?.mealIndex === index && replacingFood?.foodIndex === foodIndex ? (
+                                      <RefreshCw className="h-3 w-3 animate-spin" />
+                                    ) : (
+                                      <Replace className="h-3 w-3" />
+                                    )}
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
-                          )
-                        })
-                      ) : (
-                        <p className="text-gray-500 text-sm">Nenhum alimento especificado</p>
-                      )}
-                      {Array.isArray(meal.foods) && meal.foods.length > 0 && (
-                        <div className="pt-3 border-t border-gray-200">
-                          <Button
-                            onClick={() => handleReplaceMeal(index)}
-                            disabled={replacingMeal === index}
-                            variant="outline"
-                            size="sm"
-                            className="w-full"
-                          >
-                            {replacingMeal === index ? (
-                              <>
-                                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                                Substituindo Refeição...
-                              </>
-                            ) : (
-                              <>
-                                <RefreshCw className="h-4 w-4 mr-2" />
-                                Substituir Refeição
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      )}
-                      {meal.macros && typeof meal.macros === "object" && (
-                        <div className="mt-4 pt-3 border-t border-gray-200">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium text-gray-700">Macros da refeição:</span>
-                            <div className="flex gap-4 text-sm font-medium">
-                              <span className="text-red-600">P: {meal.macros.protein || "0g"}</span>
-                              <span className="text-yellow-600">C: {meal.macros.carbs || "0g"}</span>
-                              <span className="text-green-600">G: {meal.macros.fats || "0g"}</span>
+                            )
+                          })
+                        ) : (
+                          <p className="text-gray-500 text-sm">Nenhum alimento especificado</p>
+                        )}
+                        {Array.isArray(meal.foods) && meal.foods.length > 0 && (
+                          <div className="pt-3 border-t border-gray-200">
+                            <Button
+                              onClick={() => handleReplaceMeal(index)}
+                              disabled={replacingMeal === index}
+                              variant="outline"
+                              size="sm"
+                              className="w-full"
+                            >
+                              {replacingMeal === index ? (
+                                <>
+                                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                                  Substituindo Refeição...
+                                </>
+                              ) : (
+                                <>
+                                  <RefreshCw className="h-4 w-4 mr-2" />
+                                  Substituir Refeição
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                        {meal.macros && typeof meal.macros === "object" && (
+                          <div className="mt-4 pt-3 border-t border-gray-200">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium text-gray-700">Macros da refeição:</span>
+                              <div className="flex gap-4 text-sm font-medium">
+                                <span className="text-red-600">P: {meal.macros.protein || "0g"}</span>
+                                <span className="text-yellow-600">C: {meal.macros.carbs || "0g"}</span>
+                                <span className="text-green-600">G: {meal.macros.fats || "0g"}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-        )}
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          )}
 
-        <div className="mt-8">
-          <h2 className="text-xl font-bold mb-4">Dicas Nutricionais</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-blue-800 font-medium">Dica 1</p>
-              <p className="text-blue-700 text-sm mt-1">
-                Coma alimentos ricos em proteínas para manter seu corpo saudável.
-              </p>
-            </div>
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-green-800 font-medium">Dica 2</p>
-              <p className="text-green-700 text-sm mt-1">
-                Inclua frutas e vegetais em suas refeições para obter vitaminas e minerais.
-              </p>
-            </div>
-            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-yellow-800 font-medium">Dica 3</p>
-              <p className="text-yellow-700 text-sm mt-1">Controle suas porções para evitar excesso de calorias.</p>
-            </div>
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-800 font-medium">Dica 4</p>
-              <p className="text-red-700 text-sm mt-1">Evite alimentos processados e ricos em açúcares.</p>
+          <div className="mt-8">
+            <h2 className="text-xl font-bold mb-4">Dicas Nutricionais</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-blue-800 font-medium">Dica 1</p>
+                <p className="text-blue-700 text-sm mt-1">
+                  Coma alimentos ricos em proteínas para manter seu corpo saudável.
+                </p>
+              </div>
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-800 font-medium">Dica 2</p>
+                <p className="text-green-700 text-sm mt-1">
+                  Inclua frutas e vegetais em suas refeições para obter vitaminas e minerais.
+                </p>
+              </div>
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-yellow-800 font-medium">Dica 3</p>
+                <p className="text-yellow-700 text-sm mt-1">Controle suas porções para evitar excesso de calorias.</p>
+              </div>
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-800 font-medium">Dica 4</p>
+                <p className="text-red-700 text-sm mt-1">Evite alimentos processados e ricos em açúcares.</p>
+              </div>
             </div>
           </div>
         </div>
