@@ -13,6 +13,8 @@ import { useRouter } from "next/navigation"
 import type { Meal, DietPlan } from "@/types"
 
 export default function DietPage() {
+  const [isHydrated, setIsHydrated] = useState(false)
+
   console.log("[v0] DietPage component rendering")
 
   const [user] = useAuthState(auth)
@@ -26,6 +28,99 @@ export default function DietPage() {
   const router = useRouter()
 
   console.log("[v0] Component state:", { user: !!user, loading, error, dietPlan: !!dietPlan, quizData: !!quizData })
+
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+
+  useEffect(() => {
+    console.log("[v0] useEffect triggered, user:", !!user, "isHydrated:", isHydrated)
+    if (user && isHydrated) {
+      const fetchDietPlan = async () => {
+        console.log("[v0] Starting fetchDietPlan")
+        try {
+          const userDocRef = doc(db, "users", user.uid)
+          const userDocSnap = await getDoc(userDocRef)
+
+          console.log("[v0] User doc exists:", userDocSnap.exists())
+
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data()
+            console.log("[v0] User data loaded:", {
+              hasQuizData: !!userData.quizData,
+              hasDietPlan: !!userData.dietPlan,
+            })
+
+            if (userData.quizData) {
+              setQuizData(userData.quizData)
+            }
+
+            setUserPreferences({
+              allergies: userData.quizData?.allergyDetails || userData.allergyDetails,
+              dietType: userData.quizData?.dietPreferences || userData.dietPreferences,
+              goal: userData.quizData?.goal || userData.goal,
+            })
+
+            if (userData.dietPlan) {
+              setDietPlan(userData.dietPlan as DietPlan)
+            } else {
+              console.log("[v0] No diet plan in users collection, checking leads")
+              const leadsDocRef = doc(db, "leads", user.uid)
+              const leadsDocSnap = await getDoc(leadsDocRef)
+
+              if (leadsDocSnap.exists()) {
+                const leadsData = leadsDocSnap.data()
+                console.log("[v0] Leads data loaded:", {
+                  hasQuizData: !!leadsData.quizData,
+                  hasDietPlan: !!leadsData.dietPlan,
+                })
+
+                if (leadsData.quizData && !quizData) {
+                  setQuizData(leadsData.quizData)
+                }
+
+                if (!userPreferences) {
+                  setUserPreferences({
+                    allergies: leadsData.quizData?.allergyDetails || leadsData.allergyDetails,
+                    dietType: leadsData.quizData?.dietPreferences || leadsData.dietPreferences,
+                    goal: leadsData.quizData?.goal || leadsData.goal,
+                  })
+                }
+
+                if (leadsData.dietPlan) {
+                  setDietPlan(leadsData.dietPlan as DietPlan)
+                } else {
+                  setError("Nenhum plano de dieta encontrado. Tente regenerar os planos.")
+                }
+              } else {
+                console.log("[v0] No leads doc found")
+                setError("Nenhum plano de dieta encontrado. Tente regenerar os planos.")
+              }
+            }
+          } else {
+            console.log("[v0] User doc does not exist")
+            setError("Dados do usuário não encontrados")
+          }
+        } catch (err) {
+          console.error("[v0] Error fetching diet plan:", err)
+          setError("Erro ao carregar o plano de dieta")
+        } finally {
+          console.log("[v0] fetchDietPlan completed, setting loading to false")
+          setLoading(false)
+        }
+      }
+
+      fetchDietPlan()
+    } else if (isHydrated && !user) {
+      setLoading(false)
+    }
+  }, [user, isHydrated])
+
+  if (!isHydrated) {
+    return null
+  }
+
+  console.log("[v0] About to render, loading:", loading, "error:", error)
 
   const saveDietPlan = async (updatedDietPlan: DietPlan) => {
     if (!user) return
@@ -537,87 +632,6 @@ export default function DietPage() {
   }
 
   const calculatedTotals = calculateTotalMacros(dietPlan?.meals || [])
-
-  useEffect(() => {
-    console.log("[v0] useEffect triggered, user:", !!user)
-    if (user) {
-      const fetchDietPlan = async () => {
-        console.log("[v0] Starting fetchDietPlan")
-        try {
-          const userDocRef = doc(db, "users", user.uid)
-          const userDocSnap = await getDoc(userDocRef)
-
-          console.log("[v0] User doc exists:", userDocSnap.exists())
-
-          if (userDocSnap.exists()) {
-            const userData = userDocSnap.data()
-            console.log("[v0] User data loaded:", {
-              hasQuizData: !!userData.quizData,
-              hasDietPlan: !!userData.dietPlan,
-            })
-
-            if (userData.quizData) {
-              setQuizData(userData.quizData)
-            }
-
-            setUserPreferences({
-              allergies: userData.quizData?.allergyDetails || userData.allergyDetails,
-              dietType: userData.quizData?.dietPreferences || userData.dietPreferences,
-              goal: userData.quizData?.goal || userData.goal,
-            })
-
-            if (userData.dietPlan) {
-              setDietPlan(userData.dietPlan as DietPlan)
-            } else {
-              console.log("[v0] No diet plan in users collection, checking leads")
-              const leadsDocRef = doc(db, "leads", user.uid)
-              const leadsDocSnap = await getDoc(leadsDocRef)
-
-              if (leadsDocSnap.exists()) {
-                const leadsData = leadsDocSnap.data()
-                console.log("[v0] Leads data loaded:", {
-                  hasQuizData: !!leadsData.quizData,
-                  hasDietPlan: !!leadsData.dietPlan,
-                })
-
-                if (leadsData.quizData && !quizData) {
-                  setQuizData(leadsData.quizData)
-                }
-
-                if (!userPreferences) {
-                  setUserPreferences({
-                    allergies: leadsData.quizData?.allergyDetails || leadsData.allergyDetails,
-                    dietType: leadsData.quizData?.dietPreferences || leadsData.dietPreferences,
-                    goal: leadsData.quizData?.goal || leadsData.goal,
-                  })
-                }
-
-                if (leadsData.dietPlan) {
-                  setDietPlan(leadsData.dietPlan as DietPlan)
-                } else {
-                  setError("Nenhum plano de dieta encontrado. Tente regenerar os planos.")
-                }
-              } else {
-                console.log("[v0] No leads doc found")
-                setError("Nenhum plano de dieta encontrado. Tente regenerar os planos.")
-              }
-            }
-          } else {
-            console.log("[v0] User doc does not exist")
-            setError("Dados do usuário não encontrados")
-          }
-        } catch (err) {
-          console.error("[v0] Error fetching diet plan:", err)
-          setError("Erro ao carregar o plano de dieta")
-        } finally {
-          console.log("[v0] fetchDietPlan completed, setting loading to false")
-          setLoading(false)
-        }
-      }
-
-      fetchDietPlan()
-    }
-  }, [user])
 
   console.log("[v0] About to render, loading:", loading, "error:", error)
 
