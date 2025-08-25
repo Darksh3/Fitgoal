@@ -519,7 +519,8 @@ export default function DietPage() {
             <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-blue-800 font-medium">🔄 Sincronizar Valores</p>
               <p className="text-blue-700 text-sm mt-1">
-                Atualizar os valores salvos no plano de dieta com o cálculo científico atual (3649 kcal).
+                Atualizar os valores salvos no plano de dieta com o cálculo científico atual (
+                {calculateScientificCalories(quizData)} kcal).
               </p>
               <Button
                 onClick={updateSavedValuesWithScientificCalculation}

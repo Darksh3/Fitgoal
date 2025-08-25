@@ -11,13 +11,13 @@ const openai = new OpenAI({
 function getExerciseCountRange(workoutTime: string) {
   switch (workoutTime) {
     case "30-45min":
-      return { min: 5, max: 6, description: "5-6 exercícios (treino rápido)" }
+      return { min: 4, max: 6, description: "4-6 exercícios (treino rápido)" }
     case "45-60min":
       return { min: 6, max: 7, description: "6-7 exercícios (treino moderado)" }
     case "mais-1h":
       return { min: 7, max: 8, description: "7-8 exercícios (treino completo)" }
     default:
-      return { min: 6, max: 7, description: "6-7 exercícios (padrão)" }
+      return { min: 8, max: 10, description: "8-10 exercícios (padrão)" }
   }
 }
 
@@ -50,6 +50,9 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
         name: "Crucifixo com halteres",
         description: "Deite-se e abra os braços com halteres, depois una-os sobre o peito.",
       },
+      { name: "Supino declinado", description: "Em banco declinado, empurre a barra para cima." },
+      { name: "Pullover", description: "Deitado, puxe o halter por trás da cabeça até o peito." },
+      { name: "Cross over", description: "Na polia, cruze os cabos na frente do peito." },
     ],
     costas: [
       { name: "Puxada na frente", description: "Puxe a barra em direção ao peito, mantendo as costas retas." },
@@ -61,6 +64,9 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
         name: "Remada baixa",
         description: "Puxe o cabo em direção ao abdômen, mantendo os cotovelos próximos ao corpo.",
       },
+      { name: "Puxada atrás", description: "Puxe a barra atrás da nuca, cuidado com a amplitude." },
+      { name: "Remada T", description: "Com barra T, puxe em direção ao abdômen." },
+      { name: "Shrug", description: "Eleve os ombros contraindo o trapézio." },
     ],
     triceps: [
       { name: "Tríceps na polia alta", description: "Puxe a barra para baixo, estendendo os braços." },
@@ -70,12 +76,16 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
       },
       { name: "Mergulho no banco", description: "Com as mãos no banco, abaixe e levante o corpo usando os tríceps." },
       { name: "Tríceps testa", description: "Deitado, abaixe os halteres em direção à testa e estenda os braços." },
+      { name: "Tríceps coice", description: "Inclinado, estenda o braço para trás com halter." },
+      { name: "Tríceps supinado", description: "Com pegada supinada, estenda os braços na polia." },
     ],
     biceps: [
       { name: "Rosca direta", description: "Levante a barra em direção aos ombros, mantendo os cotovelos fixos." },
       { name: "Rosca alternada", description: "Levante um halter de cada vez, alternando os braços." },
       { name: "Rosca martelo", description: "Levante os halteres com pegada neutra, como se fosse um martelo." },
       { name: "Rosca concentrada", description: "Sentado, apoie o cotovelo na coxa e levante o halter." },
+      { name: "Rosca 21", description: "7 repetições parciais baixo, 7 alto, 7 completas." },
+      { name: "Rosca cabo", description: "Na polia baixa, flexione os braços." },
     ],
     pernas: [
       { name: "Agachamento", description: "Abaixe o corpo flexionando os joelhos e quadris, depois levante." },
@@ -84,12 +94,19 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
       { name: "Flexão de pernas", description: "Deitado na máquina, flexione as pernas em direção aos glúteos." },
       { name: "Panturrilha em pé", description: "Levante-se na ponta dos pés, contraindo as panturrilhas." },
       { name: "Stiff", description: "Com as pernas retas, abaixe a barra mantendo as costas retas." },
+      { name: "Afundo", description: "Dê um passo à frente e flexione ambos os joelhos." },
+      { name: "Cadeira extensora", description: "Sentado, estenda as pernas contra a resistência." },
+      { name: "Mesa flexora", description: "Deitado de bruços, flexione as pernas." },
+      { name: "Agachamento búlgaro", description: "Com um pé elevado atrás, agache com a perna da frente." },
     ],
     ombros: [
       { name: "Desenvolvimento com halteres", description: "Sentado, levante os halteres acima da cabeça." },
       { name: "Elevação lateral", description: "Levante os halteres lateralmente até a altura dos ombros." },
       { name: "Elevação frontal", description: "Levante os halteres à frente até a altura dos ombros." },
       { name: "Remada alta", description: "Puxe a barra em direção ao queixo, mantendo os cotovelos altos." },
+      { name: "Desenvolvimento militar", description: "Em pé, empurre a barra acima da cabeça." },
+      { name: "Elevação posterior", description: "Inclinado, eleve os halteres para trás." },
+      { name: "Arnold press", description: "Rotacione os halteres enquanto empurra para cima." },
     ],
   }
 
@@ -142,7 +159,7 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
   for (let i = 0; i < trainingDays; i++) {
     const dayFocus = rotation[i % rotation.length]
     const exercises = []
-    const exerciseCount = Math.floor((exerciseRange.min + exerciseRange.max) / 2)
+    const targetExerciseCount = Math.max(exerciseRange.max, 8)
 
     let exercisePool = []
     dayFocus.exercises.forEach((muscleGroup) => {
@@ -151,10 +168,21 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
       }
     })
 
-    // Shuffle and select exercises
+    if (exercisePool.length < targetExerciseCount) {
+      const complementaryGroups = Object.keys(exerciseDatabase).filter((group) => !dayFocus.exercises.includes(group))
+
+      complementaryGroups.forEach((group) => {
+        if (exercisePool.length < targetExerciseCount * 1.5) {
+          exercisePool = [...exercisePool, ...exerciseDatabase[group].slice(0, 2)]
+        }
+      })
+    }
+
     const shuffled = exercisePool.sort(() => 0.5 - Math.random())
 
-    for (let j = 0; j < exerciseCount && j < shuffled.length; j++) {
+    const finalExerciseCount = Math.min(targetExerciseCount, shuffled.length)
+
+    for (let j = 0; j < finalExerciseCount; j++) {
       const exercise = shuffled[j]
       exercises.push({
         name: exercise.name,
@@ -165,19 +193,18 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
       })
     }
 
-    // Fill remaining slots if needed
-    while (exercises.length < exerciseCount && exercisePool.length > 0) {
-      const randomExercise = exercisePool[Math.floor(Math.random() * exercisePool.length)]
-      if (!exercises.find((ex) => ex.name === randomExercise.name)) {
-        exercises.push({
-          name: randomExercise.name,
-          sets: 4,
-          reps: "8-12",
-          rest: "90s",
-          description: randomExercise.description,
-        })
-      }
+    while (exercises.length < 8 && exercisePool.length > 0) {
+      const baseExercise = exercisePool[exercises.length % exercisePool.length]
+      exercises.push({
+        name: `${baseExercise.name} (Variação)`,
+        sets: 3,
+        reps: "10-15",
+        rest: "60s",
+        description: `Variação do ${baseExercise.name.toLowerCase()}.`,
+      })
     }
+
+    console.log(`🏋️ [FALLBACK] Dia ${i + 1}: ${exercises.length} exercícios gerados (target: ${targetExerciseCount})`)
 
     days.push({
       day: `Dia ${i + 1}`,
@@ -310,9 +337,24 @@ export async function POST(req: Request) {
       console.log(`🍽️ [MEAL CONFIG] ${mealConfig.count} refeições para biotipo: ${quizData.bodyType}`)
 
       const dietPrompt = `
-Crie uma dieta de ${scientificCalcs.finalCalories} kcal com ${mealConfig.count} refeições para biotipo ${quizData.bodyType}.
+OBJETIVO CRÍTICO: Criar dieta que SOME EXATAMENTE ${scientificCalcs.finalCalories} kcal (±50 kcal máximo).
 
-DADOS: Peso ${quizData.currentWeight}kg, ${quizData.gender}, objetivo: ${quizData.goal?.join(", ")}
+DADOS DO CLIENTE:
+- Peso: ${quizData.currentWeight}kg, ${quizData.gender}, ${quizData.age} anos
+- Objetivo: ${quizData.goal?.join(", ")}
+- Biotipo: ${quizData.bodyType}
+- Alergias: ${quizData.allergies !== "nao" ? quizData.allergyDetails : "Nenhuma"}
+- Preferências: ${quizData.diet !== "nao-sigo" ? quizData.diet : "Sem restrições"}
+
+INSTRUÇÕES OBRIGATÓRIAS:
+1. SOMA TOTAL deve ser ${scientificCalcs.finalCalories} kcal (±50 kcal)
+2. Distribuir em ${mealConfig.count} refeições: ${mealConfig.distribution.map((p, i) => `${mealConfig.names[i]}: ${Math.round(scientificCalcs.finalCalories * p)} kcal`).join(", ")}
+3. Macros alvo: ${scientificCalcs.protein}g proteína, ${scientificCalcs.carbs}g carboidratos, ${scientificCalcs.fats}g gorduras
+4. Priorizar alimentos que o cliente gosta e tolera
+5. Evitar excesso de gorduras saturadas
+6. Incluir quantidades PRECISAS (gramas/ml) para atingir calorias exatas
+
+VALIDAÇÃO: Cada refeição deve ter soma correta das calorias dos alimentos.
 
 JSON OBRIGATÓRIO:
 {
@@ -320,7 +362,12 @@ JSON OBRIGATÓRIO:
   "totalProtein": "${scientificCalcs.protein}g",
   "totalCarbs": "${scientificCalcs.carbs}g", 
   "totalFats": "${scientificCalcs.fats}g",
-  "meals": [${mealConfig.names.map((name, i) => `{"name": "${name}", "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}", "foods": [{"name": "[alimento]", "quantity": "[qtd]", "calories": "[cal] kcal"}], "totalCalories": "[total] kcal"}`).join(",")}]
+  "meals": [${mealConfig.names
+    .map((name, i) => {
+      const targetCals = Math.round(scientificCalcs.finalCalories * mealConfig.distribution[i])
+      return `{"name": "${name}", "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}", "foods": [{"name": "[alimento específico]", "quantity": "[quantidade precisa em g/ml]", "calories": "[calorias exatas] kcal"}], "totalCalories": "${targetCals} kcal"}`
+    })
+    .join(",")}]
 }`
 
       const workoutPrompt = `
