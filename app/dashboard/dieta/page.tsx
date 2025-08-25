@@ -342,6 +342,8 @@ export default function DietPage() {
     const goals = quizData.goal || []
     const bodyType = quizData.bodyType
     const trainingDays = Number.parseFloat(quizData.trainingDaysPerWeek) || 3
+    const targetWeight = Number.parseFloat(quizData.targetWeight) || weight
+    const timeToGoal = quizData.timeToGoal
 
     // Mifflin-St Jeor formula
     const bmr =
@@ -364,11 +366,36 @@ export default function DietPage() {
       dailyCalories *= 0.95
     }
 
-    // Goal adjustments
-    if (goals.includes("perder-peso")) {
-      dailyCalories *= 0.85 // 15% déficit
-    } else if (goals.includes("ganhar-massa")) {
-      dailyCalories += 600 // +600 kcal superávit moderado
+    const weightDifference = targetWeight - weight
+
+    if (Math.abs(weightDifference) > 0.5 && timeToGoal) {
+      // Calculate weeks until goal
+      const goalDate = new Date(timeToGoal)
+      const currentDate = new Date()
+      const timeDifferenceMs = goalDate.getTime() - currentDate.getTime()
+      const weeksToGoal = Math.max(1, timeDifferenceMs / (1000 * 60 * 60 * 24 * 7))
+
+      // Calculate required weekly weight change
+      const weeklyWeightChange = weightDifference / weeksToGoal
+
+      // Calculate daily calorie adjustment (7700 kcal = 1kg of body mass)
+      const dailyCalorieAdjustment = (weeklyWeightChange * 7700) / 7
+
+      console.log("[v0] Personalized calorie calculation:", {
+        weightDifference,
+        weeksToGoal: Math.round(weeksToGoal),
+        weeklyWeightChange: weeklyWeightChange.toFixed(2),
+        dailyCalorieAdjustment: Math.round(dailyCalorieAdjustment),
+      })
+
+      dailyCalories += dailyCalorieAdjustment
+    } else {
+      // Fallback to original logic for edge cases
+      if (goals.includes("perder-peso")) {
+        dailyCalories *= 0.85 // 15% déficit
+      } else if (goals.includes("ganhar-massa")) {
+        dailyCalories += 600 // +600 kcal superávit moderado
+      }
     }
 
     return Math.round(dailyCalories)

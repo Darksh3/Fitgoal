@@ -10,14 +10,21 @@ const openai = new OpenAI({
  */
 function getExerciseCountRange(workoutTime: string) {
   switch (workoutTime) {
+    case "30min":
+      return { min: 4, max: 4, description: "4 exercícios (treino rápido)" }
+    case "45min":
+      return { min: 5, max: 5, description: "5 exercícios (treino moderado)" }
+    case "1hora":
+      return { min: 6, max: 7, description: "6-7 exercícios (treino completo)" }
+    case "mais-1h":
+      return { min: 7, max: 8, description: "7-8 exercícios (treino longo)" }
+    // Legacy support for old values
     case "30-45min":
-      return { min: 4, max: 6, description: "4-6 exercícios (treino rápido)" }
+      return { min: 4, max: 5, description: "4-5 exercícios (treino rápido)" }
     case "45-60min":
       return { min: 6, max: 7, description: "6-7 exercícios (treino moderado)" }
-    case "mais-1h":
-      return { min: 7, max: 8, description: "7-8 exercícios (treino completo)" }
     default:
-      return { min: 8, max: 10, description: "8-10 exercícios (padrão)" }
+      return { min: 6, max: 7, description: "6-7 exercícios (padrão)" }
   }
 }
 
@@ -415,14 +422,40 @@ JSON OBRIGATÓRIO:
         // Process diet response
         if (dietResponse.status === "fulfilled") {
           try {
-            const parsed = JSON.parse(dietResponse.value.choices[0].message?.content || "{}")
+            const rawContent = dietResponse.value.choices[0].message?.content || "{}"
+            console.log("🔍 [DIET RAW RESPONSE]:", rawContent.substring(0, 500) + "...")
+
+            const parsed = JSON.parse(rawContent)
+            console.log("🔍 [DIET PARSED]:", {
+              totalCalories: parsed.totalDailyCalories,
+              mealsCount: parsed.meals?.length,
+              firstMealCalories: parsed.meals?.[0]?.totalCalories,
+            })
+
             if (parsed.meals && Array.isArray(parsed.meals) && parsed.meals.length === mealConfig.count) {
+              let actualSum = 0
+              parsed.meals.forEach((meal) => {
+                if (meal.foods && Array.isArray(meal.foods)) {
+                  meal.foods.forEach((food) => {
+                    const calories = Number.parseInt(food.calories?.replace(/[^\d]/g, "") || "0")
+                    actualSum += calories
+                  })
+                }
+              })
+              console.log(
+                `🔍 [DIET VERIFICATION] Target: ${scientificCalcs.finalCalories} kcal, AI Generated Sum: ${actualSum} kcal, Difference: ${Math.abs(scientificCalcs.finalCalories - actualSum)} kcal`,
+              )
+
               dietPlan = parsed
               console.log("✅ [DIET SUCCESS] Generated successfully")
+            } else {
+              console.log("⚠️ [DIET] Invalid structure - wrong meal count or format")
             }
           } catch (e) {
-            console.log("⚠️ [DIET] Parse error, using fallback")
+            console.log("⚠️ [DIET] Parse error:", e)
           }
+        } else {
+          console.log("⚠️ [DIET] Generation failed:", dietResponse.reason)
         }
 
         // Process workout response

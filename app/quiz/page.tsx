@@ -1506,11 +1506,10 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4 max-w-2xl mx-auto">
               {[
-                { value: "15-30", label: "15-30 minutos" },
-                { value: "30-45", label: "30-45 minutos" },
-                { value: "45-60", label: "45-60 minutos" },
+                { value: "30min", label: "30 minutos" },
+                { value: "45min", label: "45 minutos" },
+                { value: "1hora", label: "1 hora" },
                 { value: "mais-1h", label: "Mais de 1 hora" },
-                { value: "flexivel", label: "Tempo flexível" },
               ].map((time) => (
                 <div
                   key={time.value}
