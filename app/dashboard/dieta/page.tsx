@@ -13,6 +13,8 @@ import { useRouter } from "next/navigation"
 import type { Meal, DietPlan } from "@/types"
 
 export default function DietPage() {
+  console.log("[v0] DietPage component rendering")
+
   const [user] = useAuthState(auth)
   const [dietPlan, setDietPlan] = useState<DietPlan | null>(null)
   const [loading, setLoading] = useState(true)
@@ -22,6 +24,8 @@ export default function DietPage() {
   const [userPreferences, setUserPreferences] = useState<any>(null)
   const [quizData, setQuizData] = useState<any>(null)
   const router = useRouter()
+
+  console.log("[v0] Component state:", { user: !!user, loading, error, dietPlan: !!dietPlan, quizData: !!quizData })
 
   const saveDietPlan = async (updatedDietPlan: DietPlan) => {
     if (!user) return
@@ -345,9 +349,19 @@ export default function DietPage() {
     const targetWeight = Number.parseFloat(quizData.targetWeight) || weight
     const timeToGoal = quizData.timeToGoal
 
+    if (isNaN(weight) || isNaN(height) || isNaN(age) || isNaN(trainingDays) || isNaN(targetWeight)) {
+      console.log("[v0] Invalid numeric values detected, using fallback calculation")
+      return 2200
+    }
+
     // Mifflin-St Jeor formula
     const bmr =
       gender === "mulher" ? 10 * weight + 6.25 * height - 5 * age - 161 : 10 * weight + 6.25 * height - 5 * age + 5
+
+    if (isNaN(bmr)) {
+      console.log("[v0] BMR calculation resulted in NaN, using fallback")
+      return 2200
+    }
 
     // Activity factor based on training days
     let activityFactor = 1.2 // Sedentário
@@ -368,27 +382,84 @@ export default function DietPage() {
 
     const weightDifference = targetWeight - weight
 
-    if (Math.abs(weightDifference) > 0.5 && timeToGoal) {
-      // Calculate weeks until goal
-      const goalDate = new Date(timeToGoal)
-      const currentDate = new Date()
-      const timeDifferenceMs = goalDate.getTime() - currentDate.getTime()
-      const weeksToGoal = Math.max(1, timeDifferenceMs / (1000 * 60 * 60 * 24 * 7))
+    if (Math.abs(weightDifference) > 0.5 && timeToGoal && typeof timeToGoal === "string" && timeToGoal.trim() !== "") {
+      try {
+        // Parse Brazilian date format (e.g., "10 de nov. de 2025")
+        let goalDate: Date
 
-      // Calculate required weekly weight change
-      const weeklyWeightChange = weightDifference / weeksToGoal
+        if (timeToGoal.includes(" de ")) {
+          // Handle Brazilian format
+          const monthMap: { [key: string]: number } = {
+            jan: 0,
+            fev: 1,
+            mar: 2,
+            abr: 3,
+            mai: 4,
+            jun: 5,
+            jul: 6,
+            ago: 7,
+            set: 8,
+            out: 9,
+            nov: 10,
+            dez: 11,
+          }
 
-      // Calculate daily calorie adjustment (7700 kcal = 1kg of body mass)
-      const dailyCalorieAdjustment = (weeklyWeightChange * 7700) / 7
+          const parts = timeToGoal.split(" de ")
+          if (parts.length === 3) {
+            const day = Number.parseInt(parts[0])
+            const monthStr = parts[1].toLowerCase().substring(0, 3)
+            const year = Number.parseInt(parts[2])
+            const month = monthMap[monthStr]
 
-      console.log("[v0] Personalized calorie calculation:", {
-        weightDifference,
-        weeksToGoal: Math.round(weeksToGoal),
-        weeklyWeightChange: weeklyWeightChange.toFixed(2),
-        dailyCalorieAdjustment: Math.round(dailyCalorieAdjustment),
-      })
+            if (!isNaN(day) && !isNaN(year) && month !== undefined) {
+              goalDate = new Date(year, month, day)
+            } else {
+              throw new Error("Invalid Brazilian date format")
+            }
+          } else {
+            throw new Error("Invalid Brazilian date format")
+          }
+        } else {
+          // Try standard date parsing
+          goalDate = new Date(timeToGoal)
+        }
 
-      dailyCalories += dailyCalorieAdjustment
+        const currentDate = new Date()
+        const timeDifferenceMs = goalDate.getTime() - currentDate.getTime()
+
+        if (isNaN(timeDifferenceMs) || timeDifferenceMs <= 0) {
+          throw new Error("Invalid date calculation")
+        }
+
+        const weeksToGoal = Math.max(1, timeDifferenceMs / (1000 * 60 * 60 * 24 * 7))
+
+        // Calculate required weekly weight change
+        const weeklyWeightChange = weightDifference / weeksToGoal
+
+        // Calculate daily calorie adjustment (7700 kcal = 1kg of body mass)
+        const dailyCalorieAdjustment = (weeklyWeightChange * 7700) / 7
+
+        if (isNaN(dailyCalorieAdjustment) || !isFinite(dailyCalorieAdjustment)) {
+          throw new Error("Invalid calorie adjustment calculation")
+        }
+
+        console.log("[v0] Personalized calorie calculation:", {
+          weightDifference,
+          weeksToGoal: Math.round(weeksToGoal),
+          weeklyWeightChange: weeklyWeightChange.toFixed(2),
+          dailyCalorieAdjustment: Math.round(dailyCalorieAdjustment),
+        })
+
+        dailyCalories += dailyCalorieAdjustment
+      } catch (error) {
+        console.log("[v0] Error in personalized calculation, falling back to original logic:", error)
+        // Fallback to original logic for edge cases
+        if (goals.includes("perder-peso")) {
+          dailyCalories *= 0.85 // 15% déficit
+        } else if (goals.includes("ganhar-massa")) {
+          dailyCalories += 600 // +600 kcal superávit moderado
+        }
+      }
     } else {
       // Fallback to original logic for edge cases
       if (goals.includes("perder-peso")) {
@@ -398,7 +469,13 @@ export default function DietPage() {
       }
     }
 
-    return Math.round(dailyCalories)
+    const finalCalories = Math.round(dailyCalories)
+    if (isNaN(finalCalories) || !isFinite(finalCalories) || finalCalories <= 0) {
+      console.log("[v0] Final calculation resulted in invalid value, using fallback")
+      return 2200
+    }
+
+    return finalCalories
   }
 
   const displayTotals = {
@@ -448,14 +525,22 @@ export default function DietPage() {
   const calculatedTotals = calculateTotalMacros(dietPlan?.meals || [])
 
   useEffect(() => {
+    console.log("[v0] useEffect triggered, user:", !!user)
     if (user) {
       const fetchDietPlan = async () => {
+        console.log("[v0] Starting fetchDietPlan")
         try {
           const userDocRef = doc(db, "users", user.uid)
           const userDocSnap = await getDoc(userDocRef)
 
+          console.log("[v0] User doc exists:", userDocSnap.exists())
+
           if (userDocSnap.exists()) {
             const userData = userDocSnap.data()
+            console.log("[v0] User data loaded:", {
+              hasQuizData: !!userData.quizData,
+              hasDietPlan: !!userData.dietPlan,
+            })
 
             if (userData.quizData) {
               setQuizData(userData.quizData)
@@ -470,11 +555,16 @@ export default function DietPage() {
             if (userData.dietPlan) {
               setDietPlan(userData.dietPlan as DietPlan)
             } else {
+              console.log("[v0] No diet plan in users collection, checking leads")
               const leadsDocRef = doc(db, "leads", user.uid)
               const leadsDocSnap = await getDoc(leadsDocRef)
 
               if (leadsDocSnap.exists()) {
                 const leadsData = leadsDocSnap.data()
+                console.log("[v0] Leads data loaded:", {
+                  hasQuizData: !!leadsData.quizData,
+                  hasDietPlan: !!leadsData.dietPlan,
+                })
 
                 if (leadsData.quizData && !quizData) {
                   setQuizData(leadsData.quizData)
@@ -494,16 +584,19 @@ export default function DietPage() {
                   setError("Nenhum plano de dieta encontrado. Tente regenerar os planos.")
                 }
               } else {
+                console.log("[v0] No leads doc found")
                 setError("Nenhum plano de dieta encontrado. Tente regenerar os planos.")
               }
             }
           } else {
+            console.log("[v0] User doc does not exist")
             setError("Dados do usuário não encontrados")
           }
         } catch (err) {
           console.error("[v0] Error fetching diet plan:", err)
           setError("Erro ao carregar o plano de dieta")
         } finally {
+          console.log("[v0] fetchDietPlan completed, setting loading to false")
           setLoading(false)
         }
       }
@@ -511,6 +604,8 @@ export default function DietPage() {
       fetchDietPlan()
     }
   }, [user])
+
+  console.log("[v0] About to render, loading:", loading, "error:", error)
 
   return (
     <ProtectedRoute>
@@ -520,7 +615,9 @@ export default function DietPage() {
             <h1 className="text-2xl font-bold">Plano de Dieta</h1>
             {error && <p className="text-red-500">{error}</p>}
           </div>
+
           {loading && <p className="text-gray-500">Carregando plano de dieta...</p>}
+
           {(displayTotals.calories === "Dados não disponíveis" ||
             displayTotals.protein === "Dados não disponíveis" ||
             displayTotals.carbs === "Dados não disponíveis" ||

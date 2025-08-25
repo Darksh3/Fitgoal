@@ -166,7 +166,7 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
   for (let i = 0; i < trainingDays; i++) {
     const dayFocus = rotation[i % rotation.length]
     const exercises = []
-    const targetExerciseCount = Math.max(exerciseRange.max, 8)
+    const targetExerciseCount = exerciseRange.max
 
     let exercisePool = []
     dayFocus.exercises.forEach((muscleGroup) => {
@@ -200,7 +200,7 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
       })
     }
 
-    while (exercises.length < 8 && exercisePool.length > 0) {
+    while (exercises.length < targetExerciseCount && exercisePool.length > 0) {
       const baseExercise = exercisePool[exercises.length % exercisePool.length]
       exercises.push({
         name: `${baseExercise.name} (Variação)`,
