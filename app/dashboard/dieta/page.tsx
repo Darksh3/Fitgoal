@@ -282,54 +282,68 @@ export default function DietPage() {
     let totalCarbs = 0
     let totalFats = 0
 
-    meals.forEach((meal) => {
+    meals.forEach((meal, mealIndex) => {
       if (meal && typeof meal === "object") {
         let mealCalories = 0
 
-        // Try to get calories from meal.calories field
-        if (meal.calories) {
-          const caloriesMatch = meal.calories.toString().match(/(\d+)/)
-          if (caloriesMatch) {
-            mealCalories = Number.parseInt(caloriesMatch[1])
-          }
-        }
+        // Always try to sum from individual foods first for accuracy
+        if (Array.isArray(meal.foods)) {
+          meal.foods.forEach((food, foodIndex) => {
+            let foodCalories = 0
 
-        // If no meal calories, sum from individual foods
-        if (mealCalories === 0 && Array.isArray(meal.foods)) {
-          meal.foods.forEach((food) => {
             if (typeof food === "object" && food.calories) {
-              const foodCaloriesMatch = food.calories.toString().match(/(\d+)/)
-              if (foodCaloriesMatch) {
-                mealCalories += Number.parseInt(foodCaloriesMatch[1])
+              // Extract number from various formats: "190 kcal", "190", 190
+              const caloriesStr = food.calories.toString()
+              const match = caloriesStr.match(/(\d+(?:\.\d+)?)/)
+              if (match) {
+                foodCalories = Number.parseFloat(match[1])
               }
             } else if (typeof food === "string") {
-              // Try to extract calories from string format like "Aveia 150g - 190 kcal"
-              const stringCaloriesMatch = food.match(/(\d+)\s*kcal/i)
-              if (stringCaloriesMatch) {
-                mealCalories += Number.parseInt(stringCaloriesMatch[1])
+              // Extract from string format like "Aveia 150g - 190 kcal"
+              const match = food.match(/(\d+(?:\.\d+)?)\s*kcal/i)
+              if (match) {
+                foodCalories = Number.parseFloat(match[1])
               }
+            }
+
+            if (!isNaN(foodCalories) && foodCalories > 0) {
+              mealCalories += foodCalories
+              console.log(`[v0] Food ${foodIndex} in meal ${mealIndex}: ${foodCalories} kcal`)
             }
           })
         }
 
+        // Only use meal.calories as fallback if no food calories found
+        if (mealCalories === 0 && meal.calories) {
+          const caloriesStr = meal.calories.toString()
+          const match = caloriesStr.match(/(\d+(?:\.\d+)?)/)
+          if (match) {
+            mealCalories = Number.parseFloat(match[1])
+            console.log(`[v0] Using meal.calories fallback for meal ${mealIndex}: ${mealCalories} kcal`)
+          }
+        }
+
         totalCalories += mealCalories
+        console.log(`[v0] Meal ${mealIndex} total: ${mealCalories} kcal`)
 
         if (meal.macros && typeof meal.macros === "object") {
-          const proteinMatch = meal.macros.protein?.toString().match(/(\d+\.?\d*)/)
-          const carbsMatch = meal.macros.carbs?.toString().match(/(\d+\.?\d*)/)
-          const fatsMatch = meal.macros.fats?.toString().match(/(\d+\.?\d*)/)
+          const extractMacro = (macroValue: any) => {
+            if (!macroValue) return 0
+            const match = macroValue.toString().match(/(\d+(?:\.\d+)?)/)
+            return match ? Number.parseFloat(match[1]) : 0
+          }
 
-          if (proteinMatch) totalProtein += Number.parseFloat(proteinMatch[1])
-          if (carbsMatch) totalCarbs += Number.parseFloat(carbsMatch[1])
-          if (fatsMatch) totalFats += Number.parseFloat(fatsMatch[1])
+          totalProtein += extractMacro(meal.macros.protein)
+          totalCarbs += extractMacro(meal.macros.carbs)
+          totalFats += extractMacro(meal.macros.fats)
         }
       }
     })
 
-    console.log("[v0] Calculated totals from meals:", { totalCalories, totalProtein, totalCarbs, totalFats })
+    console.log("[v0] Final calculated totals:", { totalCalories, totalProtein, totalCarbs, totalFats })
 
     return {
-      calories: totalCalories > 0 ? `${totalCalories}` : "0",
+      calories: totalCalories > 0 ? `${Math.round(totalCalories)}` : "0",
       protein: totalProtein > 0 ? `${Math.round(totalProtein)}g` : "0g",
       carbs: totalCarbs > 0 ? `${Math.round(totalCarbs)}g` : "0g",
       fats: totalFats > 0 ? `${Math.round(totalFats)}g` : "0g",

@@ -343,6 +343,9 @@ export async function POST(req: Request) {
       const mealConfig = getMealCountByBodyType(quizData.bodyType)
       console.log(`🍽️ [MEAL CONFIG] ${mealConfig.count} refeições para biotipo: ${quizData.bodyType}`)
 
+      const exerciseRange = getExerciseCountRange(quizData.workoutTime || "45-60min")
+      console.log(`🏋️ [EXERCISE COUNT] ${exerciseRange.description} para tempo: ${quizData.workoutTime}`)
+
       const dietPrompt = `
 OBJETIVO CRÍTICO: Criar dieta que SOME EXATAMENTE ${scientificCalcs.finalCalories} kcal (±50 kcal máximo).
 
@@ -380,9 +383,15 @@ JSON OBRIGATÓRIO:
       const workoutPrompt = `
 Crie EXATAMENTE ${requestedDays} dias de treino para ${quizData.gender}, ${quizData.experience}, ${quizData.workoutTime}.
 
+INSTRUÇÕES OBRIGATÓRIAS:
+- Cada dia deve ter EXATAMENTE ${exerciseRange.min}-${exerciseRange.max} exercícios (${exerciseRange.description})
+- Tempo de treino: ${quizData.workoutTime}
+- Experiência: ${quizData.experience}
+- Equipamentos: ${quizData.equipment?.join(", ") || "Academia"}
+
 JSON OBRIGATÓRIO:
 {
-  "days": [${Array.from({ length: requestedDays }, (_, i) => `{"day": "Dia ${i + 1}", "title": "[nome]", "focus": "[foco]", "duration": "${quizData.workoutTime || "45-60min"}", "exercises": [{"name": "[exercício]", "sets": 4, "reps": "8-12", "rest": "90s", "description": "[descrição]"}]}`).join(",")}],
+  "days": [${Array.from({ length: requestedDays }, (_, i) => `{"day": "Dia ${i + 1}", "title": "[nome]", "focus": "[foco]", "duration": "${quizData.workoutTime || "45-60min"}", "exercises": [{"name": "[exercício específico]", "sets": 4, "reps": "8-12", "rest": "90s", "description": "[descrição detalhada]"}]}`).join(",")}],
   "weeklySchedule": "Treino ${requestedDays}x por semana"
 }`
 
