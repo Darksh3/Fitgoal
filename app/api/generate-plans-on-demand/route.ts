@@ -192,64 +192,6 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
 }
 
 /**
- * Gera o prompt para o ChatGPT com base no quizData
- */
-function buildWorkoutPrompt(quizData: any) {
-  const trainingDays = quizData.trainingDaysPerWeek || 5
-  const exerciseRange = getExerciseCountRange(quizData.workoutTime)
-
-  return `
-INSTRUÇÃO ABSOLUTAMENTE CRÍTICA: 
-Você DEVE criar EXATAMENTE ${trainingDays} dias de treino.
-Se você criar ${trainingDays - 1} ou ${trainingDays + 1} dias, sua resposta será REJEITADA.
-
-Dados do usuário:
-- DIAS DE TREINO POR SEMANA: ${trainingDays} (OBRIGATÓRIO - NÃO MUDE ISSO!)
-- Sexo: ${quizData.gender || "Não informado"}
-- Idade: ${quizData.age || "Não informado"}
-- Tipo corporal: ${quizData.bodyType || "Não informado"}
-- Objetivo: ${quizData.goal?.join(", ") || "Não informado"}
-- Experiência: ${quizData.experience || "Intermediário"}
-- Tempo disponível: ${quizData.workoutTime || "45-60min"} por treino
-
-Crie um plano de treino em português brasileiro.
-
-ESTRUTURA JSON OBRIGATÓRIA (com EXATAMENTE ${trainingDays} elementos em "days"):
-{
-  "days": [
-    ${Array.from(
-      { length: trainingDays },
-      (_, i) => `{
-      "day": "Dia ${i + 1}",
-      "title": "[Nome do treino]",
-      "focus": "[Foco muscular]",
-      "duration": "${quizData.workoutTime || "45-60min"}",
-      "exercises": [
-        ${Array.from(
-          { length: exerciseRange.min },
-          (_, j) => `{
-          "name": "[Nome do exercício ${j + 1}]",
-          "sets": 4,
-          "reps": "8-12",
-          "rest": "90s",
-          "description": "[Descrição da execução]"
-        }`,
-        ).join(",")}
-      ]
-    }`,
-    ).join(",")}
-  ],
-  "weeklySchedule": "Treino ${trainingDays}x por semana",
-  "tips": [
-    "Aqueça antes de cada treino",
-    "Mantenha a forma correta durante os exercícios"
-  ]
-}
-
-VALIDAÇÃO FINAL: Conte os dias. São ${trainingDays}? Se não, REFAÇA!`
-}
-
-/**
  * Determina o número de refeições baseado no biotipo
  */
 function getMealCountByBodyType(bodyType: string) {
@@ -283,236 +225,182 @@ function getMealCountByBodyType(bodyType: string) {
 
 export async function POST(req: Request) {
   try {
-    const { userId, quizData: providedQuizData, forceRegenerate } = await req.json()
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("Request timeout after 90 seconds")), 90000)
+    })
 
-    if (!userId) {
-      return new Response(JSON.stringify({ error: "userId is required." }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      })
-    }
+    const mainLogic = async () => {
+      const { userId, quizData: providedQuizData, forceRegenerate } = await req.json()
 
-    let quizData = providedQuizData
-    if (!quizData) {
-      const userDocRef = adminDb.collection("users").doc(userId)
-      const docSnap = await userDocRef.get()
-      if (!docSnap.exists || !docSnap.data()?.quizData) {
-        return new Response(JSON.stringify({ error: "Quiz data not found." }), {
-          status: 404,
+      if (!userId) {
+        return new Response(JSON.stringify({ error: "userId is required." }), {
+          status: 400,
           headers: { "Content-Type": "application/json" },
         })
       }
-      quizData = docSnap.data()?.quizData
-    }
 
-    const requestedDays = quizData.trainingDaysPerWeek || 5
-    console.log(`🎯 [CRITICAL] User ${userId} requested EXACTLY ${requestedDays} training days`)
-
-    function calculateScientificCalories(data: any) {
-      const weight = Number.parseFloat(data.currentWeight) || 70
-      const height = Number.parseFloat(data.height) || 170
-      const age = Number.parseFloat(data.age) || 25
-      const gender = data.gender || "masculino"
-      const trainingDays = data.trainingDaysPerWeek || 5
-      const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
-
-      // TMB (Mifflin-St Jeor)
-      let tmb
-      if (gender.toLowerCase() === "feminino") {
-        tmb = 10 * weight + 6.25 * height - 5 * age - 161
-      } else {
-        tmb = 10 * weight + 6.25 * height - 5 * age + 5
+      let quizData = providedQuizData
+      if (!quizData) {
+        const userDocRef = adminDb.collection("users").doc(userId)
+        const docSnap = await userDocRef.get()
+        if (!docSnap.exists || !docSnap.data()?.quizData) {
+          return new Response(JSON.stringify({ error: "Quiz data not found." }), {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          })
+        }
+        quizData = docSnap.data()?.quizData
       }
 
-      // TDEE (multiplicador de atividade)
-      let activityMultiplier
-      if (trainingDays <= 2) activityMultiplier = 1.2
-      else if (trainingDays <= 4) activityMultiplier = 1.375
-      else if (trainingDays <= 6) activityMultiplier = 1.55
-      else activityMultiplier = 1.725
+      const requestedDays = quizData.trainingDaysPerWeek || 5
+      console.log(`🎯 [CRITICAL] User ${userId} requested EXACTLY ${requestedDays} training days`)
 
-      const tdee = tmb * activityMultiplier
+      function calculateScientificCalories(data: any) {
+        const weight = Number.parseFloat(data.currentWeight) || 70
+        const height = Number.parseFloat(data.height) || 170
+        const age = Number.parseFloat(data.age) || 25
+        const gender = data.gender || "masculino"
+        const trainingDays = data.trainingDaysPerWeek || 5
+        const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
 
-      // Ajuste por objetivo
-      let finalCalories = tdee
-      if (goals.includes("perder-peso")) {
-        finalCalories = tdee - 400 // Déficit moderado
-      } else if (goals.includes("ganhar-massa")) {
-        finalCalories = tdee + 300 // Superávit moderado
+        // TMB (Mifflin-St Jeor)
+        let tmb
+        if (gender.toLowerCase() === "feminino") {
+          tmb = 10 * weight + 6.25 * height - 5 * age - 161
+        } else {
+          tmb = 10 * weight + 6.25 * height - 5 * age + 5
+        }
+
+        // TDEE (multiplicador de atividade)
+        let activityMultiplier
+        if (trainingDays <= 2) activityMultiplier = 1.2
+        else if (trainingDays <= 4) activityMultiplier = 1.375
+        else if (trainingDays <= 6) activityMultiplier = 1.55
+        else activityMultiplier = 1.725
+
+        const tdee = tmb * activityMultiplier
+
+        // Ajuste por objetivo
+        let finalCalories = tdee
+        if (goals.includes("perder-peso")) {
+          finalCalories = tdee - 400 // Déficit moderado
+        } else if (goals.includes("ganhar-massa")) {
+          finalCalories = tdee + 300 // Superávit moderado
+        }
+
+        // Macros (g/kg)
+        const protein = Math.round(weight * 2.0) // 2g/kg para ganho de massa
+        const fats = Math.round(weight * 1.0) // 1g/kg
+        const carbs = Math.round((finalCalories - protein * 4 - fats * 9) / 4)
+
+        return {
+          tmb: Math.round(tmb),
+          tdee: Math.round(tdee),
+          finalCalories: Math.round(finalCalories),
+          protein,
+          carbs,
+          fats,
+        }
       }
 
-      // Macros (g/kg)
-      const protein = Math.round(weight * 2.0) // 2g/kg para ganho de massa
-      const fats = Math.round(weight * 1.0) // 1g/kg
-      const carbs = Math.round((finalCalories - protein * 4 - fats * 9) / 4)
+      const scientificCalcs = calculateScientificCalories(quizData)
+      console.log(`🧮 [SCIENTIFIC CALCULATION] Target: ${scientificCalcs.finalCalories} kcal`)
 
-      return {
-        tmb: Math.round(tmb),
-        tdee: Math.round(tdee),
-        finalCalories: Math.round(finalCalories),
-        protein,
-        carbs,
-        fats,
-      }
-    }
+      const mealConfig = getMealCountByBodyType(quizData.bodyType)
+      console.log(`🍽️ [MEAL CONFIG] ${mealConfig.count} refeições para biotipo: ${quizData.bodyType}`)
 
-    const scientificCalcs = calculateScientificCalories(quizData)
-    console.log(`🧮 [SCIENTIFIC CALCULATION] Target: ${scientificCalcs.finalCalories} kcal`)
+      const dietPrompt = `
+Crie uma dieta de ${scientificCalcs.finalCalories} kcal com ${mealConfig.count} refeições para biotipo ${quizData.bodyType}.
 
-    const mealConfig = getMealCountByBodyType(quizData.bodyType)
-    console.log(`🍽️ [MEAL CONFIG] ${mealConfig.count} refeições para biotipo: ${quizData.bodyType}`)
+DADOS: Peso ${quizData.currentWeight}kg, ${quizData.gender}, objetivo: ${quizData.goal?.join(", ")}
 
-    const dietPrompt = `
-VOCÊ É UM NUTRICIONISTA ESPORTIVO. VOCÊ DEVE CRIAR UMA DIETA QUE SOME EXATAMENTE ${scientificCalcs.finalCalories} KCAL.
-
-VALORES CIENTÍFICOS CALCULADOS (NÃO MUDE ESTES):
-- TMB: ${scientificCalcs.tmb} kcal
-- TDEE: ${scientificCalcs.tdee} kcal
-- CALORIAS FINAIS: ${scientificCalcs.finalCalories} kcal (OBRIGATÓRIO)
-- Proteína: ${scientificCalcs.protein}g
-- Carboidratos: ${scientificCalcs.carbs}g
-- Gorduras: ${scientificCalcs.fats}g
-
-DADOS DO USUÁRIO:
-- Peso: ${quizData.currentWeight}kg
-- Altura: ${quizData.height}cm
-- Idade: ${quizData.age} anos
-- Sexo: ${quizData.gender}
-- Biotipo: ${quizData.bodyType} (IMPORTANTE: Crie EXATAMENTE ${mealConfig.count} refeições)
-- Objetivo: ${quizData.goal?.join(", ")}
-- Preferências: ${quizData.dietPreferences || "nenhuma"}
-- Alergias: ${quizData.allergyDetails || "nenhuma"}
-
-INSTRUÇÃO CRÍTICA:
-- Crie EXATAMENTE ${mealConfig.count} refeições: ${mealConfig.names.join(", ")}
-- A SOMA TOTAL DE TODAS AS REFEIÇÕES DEVE SER EXATAMENTE ${scientificCalcs.finalCalories} KCAL
-- Se não bater exatamente, AJUSTE as quantidades dos alimentos até bater
-
-FORMATO JSON OBRIGATÓRIO:
+JSON OBRIGATÓRIO:
 {
   "totalDailyCalories": "${scientificCalcs.finalCalories} kcal",
   "totalProtein": "${scientificCalcs.protein}g",
   "totalCarbs": "${scientificCalcs.carbs}g", 
   "totalFats": "${scientificCalcs.fats}g",
-  "bodyType": "${quizData.bodyType}",
-  "mealCount": ${mealConfig.count},
-  "calculations": {
-    "tmb": "${scientificCalcs.tmb} kcal",
-    "tdee": "${scientificCalcs.tdee} kcal",
-    "finalCalories": "${scientificCalcs.finalCalories} kcal"
-  },
-  "meals": [
-    ${mealConfig.names
-      .map(
-        (name, index) => `{
-      "name": "${name}",
-      "time": "${index === 0 ? "07:00" : index === 1 ? "10:00" : index === 2 ? "12:00" : index === 3 ? "15:00" : index === 4 ? "19:00" : "21:00"}",
-      "foods": [
-        {
-          "name": "[Nome do alimento]",
-          "quantity": "[quantidade]",
-          "calories": "[calorias] kcal",
-          "protein": "[proteína]g",
-          "carbs": "[carboidratos]g",
-          "fats": "[gorduras]g"
-        }
-      ],
-      "totalCalories": "[soma exata dos alimentos] kcal"
-    }`,
-      )
-      .join(",")}
-  ],
-  "tips": ["Dicas nutricionais específicas para ${quizData.bodyType}"]
-}
+  "meals": [${mealConfig.names.map((name, i) => `{"name": "${name}", "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}", "foods": [{"name": "[alimento]", "quantity": "[qtd]", "calories": "[cal] kcal"}], "totalCalories": "[total] kcal"}`).join(",")}]
+}`
 
-VALIDAÇÃO FINAL: Some todas as calorias das ${mealConfig.count} refeições. É exatamente ${scientificCalcs.finalCalories}? Se não, REFAÇA!`
+      const workoutPrompt = `
+Crie EXATAMENTE ${requestedDays} dias de treino para ${quizData.gender}, ${quizData.experience}, ${quizData.workoutTime}.
 
-    // Gerar planos com validação rigorosa
-    let dietPlan = null
-    let workoutPlan = null
-    let attempts = 0
-    const maxAttempts = 3
+JSON OBRIGATÓRIO:
+{
+  "days": [${Array.from({ length: requestedDays }, (_, i) => `{"day": "Dia ${i + 1}", "title": "[nome]", "focus": "[foco]", "duration": "${quizData.workoutTime || "45-60min"}", "exercises": [{"name": "[exercício]", "sets": 4, "reps": "8-12", "rest": "90s", "description": "[descrição]"}]}`).join(",")}],
+  "weeklySchedule": "Treino ${requestedDays}x por semana"
+}`
 
-    // Gerar dieta com múltiplas tentativas e validação
-    while (attempts < maxAttempts && !dietPlan) {
-      try {
-        console.log(`[DIET ATTEMPT ${attempts + 1}/${maxAttempts}] Generating diet plan`)
+      const generateWithTimeout = async (prompt: string, type: string) => {
+        const timeout = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error(`${type} generation timeout`)), 30000)
+        })
 
-        const dietResponse = await openai.chat.completions.create({
+        const generation = openai.chat.completions.create({
           model: "gpt-4o-mini",
           messages: [
             {
               role: "system",
-              content: "Você é um nutricionista. A soma das calorias DEVE bater EXATAMENTE com o valor solicitado.",
+              content: `Você é um ${type === "diet" ? "nutricionista" : "personal trainer"}. Seja preciso e rápido.`,
             },
-            { role: "user", content: dietPrompt },
+            { role: "user", content: prompt },
           ],
-          temperature: 0.1, // Muito baixa para precisão
+          temperature: 0.1,
           response_format: { type: "json_object" },
-          max_tokens: 3000,
+          max_tokens: type === "diet" ? 2000 : 3000,
         })
 
-        const parsed = JSON.parse(dietResponse.choices[0].message?.content || "{}")
+        return Promise.race([generation, timeout])
+      }
 
-        if (parsed.meals && Array.isArray(parsed.meals)) {
-          let totalCaloriesFromMeals = 0
+      let dietPlan = null
+      let workoutPlan = null
 
-          parsed.meals.forEach((meal) => {
-            if (meal.foods && Array.isArray(meal.foods)) {
-              meal.foods.forEach((food) => {
-                const calories = Number.parseInt(food.calories?.replace(/\D/g, "") || "0")
-                totalCaloriesFromMeals += calories
-              })
+      try {
+        console.log("🚀 [PARALLEL] Starting diet and workout generation")
+
+        const [dietResponse, workoutResponse] = await Promise.allSettled([
+          generateWithTimeout(dietPrompt, "diet"),
+          generateWithTimeout(workoutPrompt, "workout"),
+        ])
+
+        // Process diet response
+        if (dietResponse.status === "fulfilled") {
+          try {
+            const parsed = JSON.parse(dietResponse.value.choices[0].message?.content || "{}")
+            if (parsed.meals && Array.isArray(parsed.meals) && parsed.meals.length === mealConfig.count) {
+              dietPlan = parsed
+              console.log("✅ [DIET SUCCESS] Generated successfully")
             }
-          })
-
-          console.log(`🔍 [VALIDATION] Target: ${scientificCalcs.finalCalories}, Generated: ${totalCaloriesFromMeals}`)
-
-          const tolerance = 50 // Tolerância de 50 kcal
-          if (Math.abs(totalCaloriesFromMeals - scientificCalcs.finalCalories) <= tolerance) {
-            parsed.totalDailyCalories = `${scientificCalcs.finalCalories} kcal`
-            parsed.totalProtein = `${scientificCalcs.protein}g`
-            parsed.totalCarbs = `${scientificCalcs.carbs}g`
-            parsed.totalFats = `${scientificCalcs.fats}g`
-            parsed.bodyType = quizData.bodyType
-            parsed.mealCount = mealConfig.count
-
-            dietPlan = parsed
-            console.log(
-              `✅ [DIET SUCCESS] Calories match within tolerance: ${totalCaloriesFromMeals} ≈ ${scientificCalcs.finalCalories}`,
-            )
-            break
-          } else {
-            console.log(`❌ [DIET MISMATCH] ${totalCaloriesFromMeals} != ${scientificCalcs.finalCalories}, retrying...`)
-            attempts++
+          } catch (e) {
+            console.log("⚠️ [DIET] Parse error, using fallback")
           }
-        } else {
-          throw new Error("Invalid diet response structure")
+        }
+
+        // Process workout response
+        if (workoutResponse.status === "fulfilled") {
+          try {
+            const parsed = JSON.parse(workoutResponse.value.choices[0].message?.content || "{}")
+            if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === requestedDays) {
+              workoutPlan = parsed
+              console.log("✅ [WORKOUT SUCCESS] Generated successfully")
+            }
+          } catch (e) {
+            console.log("⚠️ [WORKOUT] Parse error, using fallback")
+          }
         }
       } catch (error) {
-        console.error(`[DIET ATTEMPT ${attempts + 1}] Failed:`, error)
-        attempts++
+        console.log("⚠️ [PARALLEL] Generation failed, using fallbacks")
       }
-    }
 
-    if (!dietPlan) {
-      console.log("🔧 [DIET FALLBACK] Using scientific values with body type configuration")
+      if (!dietPlan) {
+        console.log("🔧 [DIET FALLBACK] Using scientific values")
+        const mealCalories = mealConfig.distribution.map((percentage) =>
+          Math.round(scientificCalcs.finalCalories * percentage),
+        )
 
-      const mealCalories = mealConfig.distribution.map((percentage) =>
-        Math.round(scientificCalcs.finalCalories * percentage),
-      )
-
-      // Ajustar última refeição para bater exato
-      const totalCalculated = mealCalories.reduce((sum, cal) => sum + cal, 0)
-      mealCalories[mealCalories.length - 1] += scientificCalcs.finalCalories - totalCalculated
-
-      const fallbackMeals = mealConfig.names.map((name, index) => {
-        const calories = mealCalories[index]
-        const proteinPortion = Math.round(scientificCalcs.protein * mealConfig.distribution[index])
-        const carbsPortion = Math.round(scientificCalcs.carbs * mealConfig.distribution[index])
-        const fatsPortion = Math.round(scientificCalcs.fats * mealConfig.distribution[index])
-
-        return {
+        const fallbackMeals = mealConfig.names.map((name, index) => ({
           name,
           time:
             index === 0
@@ -537,217 +425,61 @@ VALIDAÇÃO FINAL: Some todas as calorias das ${mealConfig.count} refeições. �
                       ? "Arroz Integral"
                       : index === 3
                         ? "Iogurte"
-                        : index === 4
-                          ? "Batata Doce"
-                          : "Castanhas",
+                        : "Batata Doce",
               quantity:
-                index === 0
-                  ? "80g"
-                  : index === 1
-                    ? "1 unidade"
-                    : index === 2
-                      ? "150g"
-                      : index === 3
-                        ? "150g"
-                        : index === 4
-                          ? "200g"
-                          : "20g",
-              calories: `${Math.round(calories * 0.6)} kcal`,
-              protein: `${Math.round(proteinPortion * 0.6)}g`,
-              carbs: `${Math.round(carbsPortion * 0.6)}g`,
-              fats: `${Math.round(fatsPortion * 0.6)}g`,
-            },
-            {
-              name:
-                index === 0
-                  ? "Banana"
-                  : index === 1
-                    ? "Oleaginosas"
-                    : index === 2
-                      ? "Frango"
-                      : index === 3
-                        ? "Aveia"
-                        : index === 4
-                          ? "Salmão"
-                          : "Leite",
-              quantity:
-                index === 0
-                  ? "1 unidade"
-                  : index === 1
-                    ? "15g"
-                    : index === 2
-                      ? "150g"
-                      : index === 3
-                        ? "30g"
-                        : index === 4
-                          ? "120g"
-                          : "200ml",
-              calories: `${calories - Math.round(calories * 0.6)} kcal`,
-              protein: `${proteinPortion - Math.round(proteinPortion * 0.6)}g`,
-              carbs: `${carbsPortion - Math.round(carbsPortion * 0.6)}g`,
-              fats: `${fatsPortion - Math.round(fatsPortion * 0.6)}g`,
+                index === 0 ? "80g" : index === 1 ? "1 unidade" : index === 2 ? "150g" : index === 3 ? "150g" : "200g",
+              calories: `${mealCalories[index]} kcal`,
             },
           ],
-          totalCalories: `${calories} kcal`,
+          totalCalories: `${mealCalories[index]} kcal`,
+        }))
+
+        dietPlan = {
+          totalDailyCalories: `${scientificCalcs.finalCalories} kcal`,
+          totalProtein: `${scientificCalcs.protein}g`,
+          totalCarbs: `${scientificCalcs.carbs}g`,
+          totalFats: `${scientificCalcs.fats}g`,
+          meals: fallbackMeals,
         }
-      })
-
-      dietPlan = {
-        totalDailyCalories: `${scientificCalcs.finalCalories} kcal`,
-        totalProtein: `${scientificCalcs.protein}g`,
-        totalCarbs: `${scientificCalcs.carbs}g`,
-        totalFats: `${scientificCalcs.fats}g`,
-        bodyType: quizData.bodyType,
-        mealCount: mealConfig.count,
-        calculations: {
-          tmb: `${scientificCalcs.tmb} kcal`,
-          tdee: `${scientificCalcs.tdee} kcal`,
-          finalCalories: `${scientificCalcs.finalCalories} kcal`,
-        },
-        meals: fallbackMeals,
-        tips: [
-          `Dieta personalizada para biotipo ${quizData.bodyType}`,
-          `${mealConfig.count} refeições distribuídas ao longo do dia`,
-          "Valores calculados cientificamente usando Mifflin-St Jeor",
-          "Mantenha-se hidratado bebendo pelo menos 2L de água",
-        ],
       }
-    }
 
-    // Gerar treino com validação FORÇADA
-    while (attempts < maxAttempts && !workoutPlan) {
+      if (!workoutPlan) {
+        console.log("🔧 [WORKOUT FALLBACK] Using manual generation")
+        workoutPlan = {
+          days: generateFallbackWorkoutDays(requestedDays, quizData),
+          weeklySchedule: `Treino ${requestedDays}x por semana`,
+        }
+      }
+
       try {
-        console.log(`[ATTEMPT ${attempts + 1}/${maxAttempts}] Generating workout for ${requestedDays} days`)
-
-        const workoutResponse = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          messages: [
-            { role: "system", content: "Você é um personal trainer. SEMPRE siga as instruções EXATAMENTE." },
-            { role: "user", content: buildWorkoutPrompt(quizData) },
-          ],
-          temperature: 0.2, // Baixa para maior consistência
-          response_format: { type: "json_object" },
-          max_tokens: 4000,
-        })
-
-        const parsed = JSON.parse(workoutResponse.choices[0].message?.content || "{}")
-
-        if (parsed.days && Array.isArray(parsed.days)) {
-          const generatedDays = parsed.days.length
-          console.log(`[VALIDATION] Generated ${generatedDays} days, requested ${requestedDays}`)
-
-          if (generatedDays === requestedDays) {
-            // SUCESSO!
-            workoutPlan = parsed
-            console.log(`✅ [SUCCESS] Correct number of days generated: ${generatedDays}`)
-            break
-          } else {
-            // CORRIGIR MANUALMENTE
-            console.log(`⚠️ [FIX] Adjusting from ${generatedDays} to ${requestedDays} days`)
-
-            if (generatedDays > requestedDays) {
-              // Remover dias extras
-              parsed.days = parsed.days.slice(0, requestedDays)
-            } else {
-              // Adicionar dias faltantes usando o padrão
-              const fallbackDays = generateFallbackWorkoutDays(requestedDays, quizData)
-              while (parsed.days.length < requestedDays) {
-                const index = parsed.days.length
-                parsed.days.push(fallbackDays[index])
-              }
-            }
-
-            parsed.weeklySchedule = `Treino ${requestedDays}x por semana`
-            workoutPlan = parsed
-            console.log(`✅ [FIXED] Adjusted to ${workoutPlan.days.length} days`)
-            break
-          }
-        } else {
-          throw new Error("Invalid response structure")
-        }
-      } catch (error) {
-        console.error(`[ATTEMPT ${attempts + 1}] Failed:`, error)
-        attempts++
-      }
-    }
-
-    // Se todas as tentativas falharem, usar fallback manual
-    if (!workoutPlan || !workoutPlan.days || workoutPlan.days.length !== requestedDays) {
-      console.log(`🔧 [FALLBACK] Generating manual workout for ${requestedDays} days`)
-      workoutPlan = {
-        days: generateFallbackWorkoutDays(requestedDays, quizData),
-        weeklySchedule: `Treino ${requestedDays}x por semana`,
-        tips: [
-          "Aqueça por 5-10 minutos antes de cada treino",
-          "Mantenha a forma correta em todos os exercícios",
-          "Descanse adequadamente entre os treinos",
-          "Ajuste as cargas progressivamente",
-        ],
-      }
-    }
-
-    // VALIDAÇÃO FINAL CRÍTICA
-    const finalDayCount = workoutPlan.days?.length || 0
-    if (finalDayCount !== requestedDays) {
-      console.error(`❌ [CRITICAL ERROR] Final validation failed: ${finalDayCount} != ${requestedDays}`)
-      // Forçar geração manual como último recurso
-      workoutPlan = {
-        days: generateFallbackWorkoutDays(requestedDays, quizData),
-        weeklySchedule: `Treino ${requestedDays}x por semana`,
-        tips: ["Plano gerado com fallback devido a erro de validação"],
-      }
-    }
-
-    console.log(`📊 [FINAL STATS]`)
-    console.log(`  - Target calories: ${scientificCalcs.finalCalories}`)
-    console.log(`  - Diet calories: ${dietPlan.totalDailyCalories}`)
-    console.log(`  - Requested days: ${requestedDays}`)
-    console.log(`  - Generated days: ${workoutPlan.days.length}`)
-
-    // Salvar no Firestore
-    try {
-      const userDocRef = adminDb.collection("users").doc(userId)
-      await userDocRef.set(
-        {
-          quizData: {
-            ...quizData,
-            trainingDaysPerWeek: requestedDays, // Forçar valor correto
+        const userDocRef = adminDb.collection("users").doc(userId)
+        await userDocRef.set(
+          {
+            plans: { dietPlan, workoutPlan },
+            dietPlan,
+            workoutPlan,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           },
+          { merge: true },
+        )
+        console.log("✅ Plans saved successfully")
+      } catch (firestoreError) {
+        console.error("⚠️ Firestore error:", firestoreError)
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
           plans: { dietPlan, workoutPlan },
-          dietPlan,
-          workoutPlan,
-          metadata: {
-            requestedDays,
-            generatedDays: workoutPlan.days.length,
-            generatedAt: admin.firestore.FieldValue.serverTimestamp(),
-            version: "2.0-fixed",
-          },
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          plansGeneratedAt: admin.firestore.FieldValue.serverTimestamp(),
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
         },
-        { merge: true },
       )
-      console.log("✅ Plans saved to Firestore successfully")
-    } catch (firestoreError) {
-      console.error("⚠️ Error saving to Firestore:", firestoreError)
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        plans: { dietPlan, workoutPlan },
-        scientificCalculation: scientificCalcs,
-        validation: {
-          requested: requestedDays,
-          generated: workoutPlan.days.length,
-          valid: workoutPlan.days.length === requestedDays,
-        },
-      }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      },
-    )
+    return await Promise.race([mainLogic(), timeoutPromise])
   } catch (error: any) {
     console.error("❌ Fatal error:", error)
     return new Response(JSON.stringify({ error: error.message }), {
