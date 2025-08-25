@@ -786,9 +786,15 @@ export default function QuizPage() {
               setShowIMCResult(false)
               setShowSuccess(true)
             }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-white py-4 text-lg rounded-full"
+            className="group relative"
           >
-            Continuar
+            {/* Botão principal */}
+            <div className="relative px-16 py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+              <span className="relative z-10">Continuar</span>
+
+              {/* Efeito de brilho animado */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
           </Button>
         </div>
       </div>
@@ -811,7 +817,7 @@ export default function QuizPage() {
               // Removendo parâmetros da URL para manter limpa
               router.push("/quiz/results")
             }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-white py-4 text-lg rounded-full"
+            className="w-full bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white py-6 px-8 text-xl font-bold rounded-full shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
           >
             Ver Resultados
           </Button>
@@ -1839,17 +1845,19 @@ export default function QuizPage() {
             <Button
               onClick={handleSubmit}
               disabled={!canProceed() || !currentUser}
-              className="bg-lime-500 hover:bg-lime-600 text-white px-8 py-4 text-lg rounded-full disabled:opacity-50"
+              className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white px-12 py-6 text-xl font-bold rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
             >
               Finalizar Quiz
             </Button>
           ) : (
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="bg-lime-500 hover:bg-lime-600 text-white px-8 py-4 text-lg rounded-full disabled:opacity-50"
-            >
-              Continuar
+            <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+              {/* Botão principal */}
+              <div className="relative px-20 py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 disabled:hover:scale-100 disabled:shadow-none">
+                <span className="relative z-10">Continuar</span>
+
+                {/* Efeito de brilho animado */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity group-disabled:opacity-0" />
+              </div>
             </Button>
           )}
         </div>

@@ -30,42 +30,109 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
 
   const dayNames = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
 
+  const exerciseDatabase = {
+    peito: [
+      {
+        name: "Supino reto",
+        description: "Deite-se em um banco reto e empurre a barra para cima até os braços estarem estendidos.",
+      },
+      {
+        name: "Supino inclinado com halteres",
+        description: "Deite-se em um banco inclinado e levante os halteres em direção ao teto.",
+      },
+      {
+        name: "Mergulho entre bancos",
+        description: "Coloque as mãos em um banco e os pés em outro, abaixe o corpo e empurre para cima.",
+      },
+      { name: "Flexão de braços", description: "Com as mãos no chão, abaixe o corpo e empurre para cima." },
+      { name: "Peck Deck", description: "Sente-se na máquina e pressione as alças para frente, unindo os braços." },
+      {
+        name: "Crucifixo com halteres",
+        description: "Deite-se e abra os braços com halteres, depois una-os sobre o peito.",
+      },
+    ],
+    costas: [
+      { name: "Puxada na frente", description: "Puxe a barra em direção ao peito, mantendo as costas retas." },
+      { name: "Remada curvada", description: "Com o tronco inclinado, puxe os halteres em direção ao abdômen." },
+      { name: "Levantamento terra", description: "Levante a barra do chão mantendo as costas retas." },
+      { name: "Puxada na barra fixa", description: "Pendure-se na barra e puxe o corpo para cima." },
+      { name: "Remada unilateral", description: "Com um joelho e uma mão no banco, puxe o halter com a outra mão." },
+      {
+        name: "Remada baixa",
+        description: "Puxe o cabo em direção ao abdômen, mantendo os cotovelos próximos ao corpo.",
+      },
+    ],
+    triceps: [
+      { name: "Tríceps na polia alta", description: "Puxe a barra para baixo, estendendo os braços." },
+      {
+        name: "Tríceps francês",
+        description: "De pé ou sentado, segure um halter acima da cabeça e abaixe-o atrás da cabeça.",
+      },
+      { name: "Mergulho no banco", description: "Com as mãos no banco, abaixe e levante o corpo usando os tríceps." },
+      { name: "Tríceps testa", description: "Deitado, abaixe os halteres em direção à testa e estenda os braços." },
+    ],
+    biceps: [
+      { name: "Rosca direta", description: "Levante a barra em direção aos ombros, mantendo os cotovelos fixos." },
+      { name: "Rosca alternada", description: "Levante um halter de cada vez, alternando os braços." },
+      { name: "Rosca martelo", description: "Levante os halteres com pegada neutra, como se fosse um martelo." },
+      { name: "Rosca concentrada", description: "Sentado, apoie o cotovelo na coxa e levante o halter." },
+    ],
+    pernas: [
+      { name: "Agachamento", description: "Abaixe o corpo flexionando os joelhos e quadris, depois levante." },
+      { name: "Leg Press", description: "Na máquina, empurre a plataforma com os pés." },
+      { name: "Extensão de pernas", description: "Sentado na máquina, estenda as pernas para frente." },
+      { name: "Flexão de pernas", description: "Deitado na máquina, flexione as pernas em direção aos glúteos." },
+      { name: "Panturrilha em pé", description: "Levante-se na ponta dos pés, contraindo as panturrilhas." },
+      { name: "Stiff", description: "Com as pernas retas, abaixe a barra mantendo as costas retas." },
+    ],
+    ombros: [
+      { name: "Desenvolvimento com halteres", description: "Sentado, levante os halteres acima da cabeça." },
+      { name: "Elevação lateral", description: "Levante os halteres lateralmente até a altura dos ombros." },
+      { name: "Elevação frontal", description: "Levante os halteres à frente até a altura dos ombros." },
+      { name: "Remada alta", description: "Puxe a barra em direção ao queixo, mantendo os cotovelos altos." },
+    ],
+  }
+
   // Rotação de focos baseada no número de dias
-  const focusRotations: Record<number, Array<{ title: string; focus: string }>> = {
+  const focusRotations: Record<number, Array<{ title: string; focus: string; exercises: string[] }>> = {
     3: [
-      { title: "Full Body A", focus: "Treino completo com ênfase em empurrar" },
-      { title: "Full Body B", focus: "Treino completo com ênfase em puxar" },
-      { title: "Full Body C", focus: "Treino completo com ênfase em pernas" },
+      {
+        title: "Full Body A",
+        focus: "Treino completo com ênfase em empurrar",
+        exercises: ["peito", "triceps", "pernas"],
+      },
+      { title: "Full Body B", focus: "Treino completo com ênfase em puxar", exercises: ["costas", "biceps", "pernas"] },
+      { title: "Full Body C", focus: "Treino completo com ênfase em pernas", exercises: ["pernas", "ombros"] },
     ],
     4: [
-      { title: "Superior A", focus: "Peito e Tríceps" },
-      { title: "Inferior A", focus: "Quadríceps e Glúteos" },
-      { title: "Superior B", focus: "Costas e Bíceps" },
-      { title: "Inferior B", focus: "Posteriores e Panturrilhas" },
+      { title: "Superior A", focus: "Peito e Tríceps", exercises: ["peito", "triceps"] },
+      { title: "Inferior A", focus: "Quadríceps e Glúteos", exercises: ["pernas"] },
+      { title: "Superior B", focus: "Costas e Bíceps", exercises: ["costas", "biceps"] },
+      { title: "Inferior B", focus: "Posteriores e Panturrilhas", exercises: ["pernas"] },
     ],
     5: [
-      { title: "Peito e Tríceps", focus: "Empurrar - membros superiores" },
-      { title: "Costas e Bíceps", focus: "Puxar - membros superiores" },
-      { title: "Pernas", focus: "Membros inferiores completo" },
-      { title: "Ombros e Abdômen", focus: "Deltoides e core" },
-      { title: "Full Body", focus: "Treino completo" },
+      { title: "Peito e Tríceps", focus: "Empurrar - membros superiores", exercises: ["peito", "triceps"] },
+      { title: "Costas e Bíceps", focus: "Puxar - membros superiores", exercises: ["costas", "biceps"] },
+      { title: "Pernas", focus: "Membros inferiores completo", exercises: ["pernas"] },
+      { title: "Ombros e Abdômen", focus: "Deltoides e core", exercises: ["ombros"] },
+      { title: "Full Body", focus: "Treino completo", exercises: ["peito", "costas", "pernas"] },
     ],
     6: [
-      { title: "Peito", focus: "Peitoral completo" },
-      { title: "Costas", focus: "Dorsais e trapézio" },
-      { title: "Pernas", focus: "Quadríceps e glúteos" },
-      { title: "Ombros", focus: "Deltoides completo" },
-      { title: "Braços", focus: "Bíceps e tríceps" },
-      { title: "Core e Cardio", focus: "Abdômen e condicionamento" },
+      { title: "Peito", focus: "Peitoral completo", exercises: ["peito"] },
+      { title: "Costas", focus: "Dorsais e trapézio", exercises: ["costas"] },
+      { title: "Pernas", focus: "Quadríceps e glúteos", exercises: ["pernas"] },
+      { title: "Ombros", focus: "Deltoides completo", exercises: ["ombros"] },
+      { title: "Braços", focus: "Bíceps e tríceps", exercises: ["biceps", "triceps"] },
+      { title: "Core e Cardio", focus: "Abdômen e condicionamento", exercises: ["peito", "costas"] },
     ],
     7: [
-      { title: "Peito", focus: "Peitoral completo" },
-      { title: "Costas", focus: "Dorsais e trapézio" },
-      { title: "Pernas A", focus: "Quadríceps e glúteos" },
-      { title: "Ombros", focus: "Deltoides completo" },
-      { title: "Braços", focus: "Bíceps e tríceps" },
-      { title: "Pernas B", focus: "Posteriores e panturrilhas" },
-      { title: "Core e Recuperação", focus: "Abdômen e mobilidade" },
+      { title: "Peito", focus: "Peitoral completo", exercises: ["peito"] },
+      { title: "Costas", focus: "Dorsais e trapézio", exercises: ["costas"] },
+      { title: "Pernas A", focus: "Quadríceps e glúteos", exercises: ["pernas"] },
+      { title: "Ombros", focus: "Deltoides completo", exercises: ["ombros"] },
+      { title: "Braços", focus: "Bíceps e tríceps", exercises: ["biceps", "triceps"] },
+      { title: "Pernas B", focus: "Posteriores e panturrilhas", exercises: ["pernas"] },
+      { title: "Core e Recuperação", focus: "Abdômen e mobilidade", exercises: ["peito", "costas"] },
     ],
   }
 
@@ -77,15 +144,39 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
     const exercises = []
     const exerciseCount = Math.floor((exerciseRange.min + exerciseRange.max) / 2)
 
-    // Gerar exercícios baseados no foco
-    for (let j = 0; j < exerciseCount; j++) {
+    let exercisePool = []
+    dayFocus.exercises.forEach((muscleGroup) => {
+      if (exerciseDatabase[muscleGroup]) {
+        exercisePool = [...exercisePool, ...exerciseDatabase[muscleGroup]]
+      }
+    })
+
+    // Shuffle and select exercises
+    const shuffled = exercisePool.sort(() => 0.5 - Math.random())
+
+    for (let j = 0; j < exerciseCount && j < shuffled.length; j++) {
+      const exercise = shuffled[j]
       exercises.push({
-        name: `Exercício ${j + 1} - ${dayFocus.title}`,
+        name: exercise.name,
         sets: 4,
         reps: "8-12",
         rest: "90s",
-        description: `Execute com técnica perfeita, foco em ${dayFocus.focus}`,
+        description: exercise.description,
       })
+    }
+
+    // Fill remaining slots if needed
+    while (exercises.length < exerciseCount && exercisePool.length > 0) {
+      const randomExercise = exercisePool[Math.floor(Math.random() * exercisePool.length)]
+      if (!exercises.find((ex) => ex.name === randomExercise.name)) {
+        exercises.push({
+          name: randomExercise.name,
+          sets: 4,
+          reps: "8-12",
+          rest: "90s",
+          description: randomExercise.description,
+        })
+      }
     }
 
     days.push({

@@ -311,7 +311,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white font-['Inter',sans-serif]">
       {/* Header */}
-      <header className="p-6 flex justify-between items-center">
+      <header className="p-2 flex justify-between items-center">
         <div className="flex items-center">
           <img
             src="/images/fitgoal-logo.png"
@@ -326,77 +326,126 @@ export default function HomePage() {
             <span className="text-white text-3xl font-bold">FitGoal</span>
           </div>
         </div>
-        <div className="flex space-x-4">
+        <div className="flex items-center gap-3">
+          {/* Botão Login */}
           <Button
             onClick={() => goToAuth("login")}
-            variant="outline"
-            className="border-lime-500 text-lime-500 hover:bg-lime-500 hover:text-white"
+            className="relative px-6 py-2.5 bg-transparent border-2 border-lime-400 text-lime-400 rounded-full font-semibold hover:bg-lime-400 hover:text-gray-900 transition-all duration-300 flex items-center gap-2"
           >
-            <LogIn className="h-4 w-4 mr-2" />
-            Entrar
+            <LogIn className="h-4 w-4" />
+            <span>Entrar</span>
           </Button>
-          <Button onClick={() => goToAuth("register")} className="bg-lime-500 hover:bg-lime-600 text-white">
-            <User className="h-4 w-4 mr-2" />
-            Registrar
+
+          {/* Botão Registrar */}
+          <Button
+            onClick={() => goToAuth("register")}
+            className="relative px-6 py-2.5 bg-gradient-to-r from-lime-400 to-lime-500 text-gray-900 rounded-full font-bold shadow-lg hover:shadow-lime-400/50 hover:scale-105 transition-all duration-300 flex items-center gap-2 overflow-hidden group"
+          >
+            <User className="h-4 w-4" />
+            <span>Começar Agora</span>
+
+            {/* Efeito de onda */}
+            <span className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
           </Button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="px-6 py-16 md:py-24 max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8">
+      <section className="px-6 py-4 md:py-6 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div className="space-y-6">
             <div className="inline-flex items-center bg-lime-500/20 text-lime-400 px-4 py-2 rounded-full text-sm font-medium">
               <Star className="h-4 w-4 mr-2" />
               Mais de 18.948 pessoas transformadas
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold leading-tight">
-              Treinos e Dietas <span className="text-lime-400">100% Personalizados</span> Para Você
-            </h1>
-            <p className="text-xl text-gray-300 leading-relaxed">
-              Chega de planos genéricos! Criamos seu programa de treino e alimentação baseado no SEU corpo, SUA rotina e
-              SEUS objetivos. Resultados reais em tempo recorde.
-            </p>
 
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-lime-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="h-4 w-4 text-white" />
+            <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tight">
+              Treinos e Dietas <span className="text-lime-400 block md:inline">100% Personalizados</span>
+              <span className="block text-3xl md:text-5xl font-bold text-gray-100 mt-2">Para Você</span>
+            </h1>
+
+            <h2 className="text-lg md:text-xl text-gray-300 leading-relaxed font-medium">
+              Chega de planos genéricos! Criamos seu programa de treino e alimentação baseado no
+              <strong className="text-white"> SEU corpo</strong>,<strong className="text-white"> SUA rotina</strong> e
+              <strong className="text-white"> SEUS objetivos</strong>.
+            </h2>
+
+            <h3 className="text-lime-400 text-lg font-semibold">⚡ Resultados reais em tempo recorde</h3>
+
+            <div className="space-y-3">
+              <div className="flex items-start space-x-3">
+                <div className="w-5 h-5 bg-lime-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <CheckCircle className="h-3 w-3 text-white" />
                 </div>
-                <p className="text-lg">Plano de treino adaptado ao seu biotipo e equipamentos disponíveis</p>
+                <p className="text-base text-gray-200 leading-relaxed">
+                  <strong>Plano de treino</strong> adaptado ao seu biotipo e equipamentos disponíveis
+                </p>
               </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-lime-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="h-4 w-4 text-white" />
+              <div className="flex items-start space-x-3">
+                <div className="w-5 h-5 bg-lime-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <CheckCircle className="h-3 w-3 text-white" />
                 </div>
-                <p className="text-lg">Dieta personalizada baseada nas suas preferências alimentares</p>
+                <p className="text-base text-gray-200 leading-relaxed">
+                  <strong>Dieta personalizada</strong> baseada nas suas preferências alimentares
+                </p>
               </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-lime-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="h-4 w-4 text-white" />
+              <div className="flex items-start space-x-3">
+                <div className="w-5 h-5 bg-lime-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <CheckCircle className="h-3 w-3 text-white" />
                 </div>
-                <p className="text-lg">Análise completa do seu IMC e orientações de saúde</p>
+                <p className="text-base text-gray-200 leading-relaxed">
+                  <strong>Análise completa</strong> do seu IMC e orientações de saúde
+                </p>
               </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-lime-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="h-4 w-4 text-white" />
+              <div className="flex items-start space-x-3">
+                <div className="w-5 h-5 bg-lime-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <CheckCircle className="h-3 w-3 text-white" />
                 </div>
-                <p className="text-lg">Resultados visíveis em apenas 4 semanas</p>
+                <p className="text-base text-gray-200 leading-relaxed">
+                  <strong>Resultados visíveis</strong> em apenas 4 semanas
+                </p>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button
-                onClick={startQuiz}
-                disabled={loading}
-                className="bg-lime-500 hover:bg-lime-600 text-white py-6 px-8 text-xl rounded-full flex items-center justify-center space-x-2 shadow-lg shadow-lime-500/25"
-              >
-                <span>Fazer Quiz Gratuito</span>
-                <ArrowRight className="h-6 w-6" />
-              </Button>
-              <div className="text-center sm:text-left">
-                <p className="text-sm text-gray-400">✅ Quiz 100% Gratuito</p>
-                <p className="text-sm text-gray-400">⚡ Resultado em 5 minutos</p>
+            <div className="flex flex-col sm:flex-row gap-3 items-center pt-2">
+              {/* Botão Principal - Quiz */}
+              <button onClick={startQuiz} disabled={loading} className="group relative">
+                {/* Glow de fundo */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-lime-400 to-green-400 rounded-full blur-lg group-hover:blur-xl transition-all duration-300 opacity-50 group-hover:opacity-70" />
+
+                {/* Botão principal */}
+                <div className="relative px-6 py-3 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg flex items-center gap-3 shadow-xl hover:shadow-lime-500/40 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Fazer Quiz Gratuito</span>
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform relative z-10" />
+
+                  {/* Efeito de brilho animado */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                  {/* Badge de destaque */}
+                  <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse font-bold">
+                    GRÁTIS
+                  </div>
+                </div>
+
+                {/* Partículas animadas */}
+                <div className="absolute -top-1 -right-1">
+                  <span className="flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-lime-500"></span>
+                  </span>
+                </div>
+              </button>
+
+              {/* Informações adicionais */}
+              <div className="flex flex-col gap-1 text-sm">
+                <div className="flex items-center gap-2 text-lime-400">
+                  <CheckCircle className="h-4 w-4" />
+                  <span className="font-medium">Quiz 100% Gratuito</span>
+                </div>
+                <div className="flex items-center gap-2 text-lime-400">
+                  <Zap className="h-4 w-4" />
+                  <span className="font-medium">Resultado em 5 minutos</span>
+                </div>
               </div>
             </div>
           </div>
@@ -842,13 +891,18 @@ export default function HomePage() {
                 <p className="text-sm text-white/80">Tempo médio para ver mudanças</p>
               </div>
             </div>
-            <Button
-              onClick={startQuiz}
-              disabled={loading}
-              className="bg-white text-lime-600 hover:bg-gray-100 py-6 px-12 text-xl rounded-full shadow-xl"
-            >
-              Fazer Quiz e Ver Planos
-            </Button>
+            <button onClick={startQuiz} disabled={loading} className="group relative">
+              {/* Glow de fundo */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-white/20 to-lime-200/20 rounded-full blur-lg group-hover:blur-xl transition-all duration-300 opacity-50 group-hover:opacity-70" />
+
+              {/* Botão principal */}
+              <div className="relative px-12 py-6 bg-gradient-to-r from-white to-lime-100 rounded-full font-bold text-gray-900 text-2xl shadow-xl transform hover:scale-105 transition-all duration-300">
+                <span className="flex items-center gap-3">
+                  Fazer Quiz e Ver Planos
+                  <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
+                </span>
+              </div>
+            </button>
             <p className="text-sm text-white/80 mt-4">⚡ Mais de 200 pessoas criaram seu plano hoje</p>
           </div>
         </div>
