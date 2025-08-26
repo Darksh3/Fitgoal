@@ -289,56 +289,37 @@ export async function POST(req: Request) {
       const requestedDays = quizData.trainingDaysPerWeek || 5
       console.log(`🎯 [CRITICAL] User ${userId} requested EXACTLY ${requestedDays} training days`)
 
-      function calculateScientificCalories(data: any) {
-        const weight = Number.parseFloat(data.currentWeight) || 70
-        const height = Number.parseFloat(data.height) || 170
-        const age = Number.parseFloat(data.age) || 25
-        const gender = data.gender || "masculino"
-        const trainingDays = data.trainingDaysPerWeek || 5
-        const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
-
-        // TMB (Mifflin-St Jeor)
-        let tmb
-        if (gender.toLowerCase() === "feminino") {
-          tmb = 10 * weight + 6.25 * height - 5 * age - 161
-        } else {
-          tmb = 10 * weight + 6.25 * height - 5 * age + 5
-        }
-
-        // TDEE (multiplicador de atividade)
-        let activityMultiplier
-        if (trainingDays <= 2) activityMultiplier = 1.2
-        else if (trainingDays <= 4) activityMultiplier = 1.375
-        else if (trainingDays <= 6) activityMultiplier = 1.55
-        else activityMultiplier = 1.725
-
-        const tdee = tmb * activityMultiplier
-
-        // Ajuste por objetivo
-        let finalCalories = tdee
-        if (goals.includes("perder-peso")) {
-          finalCalories = tdee - 400 // Déficit moderado
-        } else if (goals.includes("ganhar-massa")) {
-          finalCalories = tdee + 300 // Superávit moderado
-        }
-
-        // Macros (g/kg)
-        const protein = Math.round(weight * 2.0) // 2g/kg para ganho de massa
-        const fats = Math.round(weight * 1.0) // 1g/kg
-        const carbs = Math.round((finalCalories - protein * 4 - fats * 9) / 4)
-
-        return {
-          tmb: Math.round(tmb),
-          tdee: Math.round(tdee),
-          finalCalories: Math.round(finalCalories),
-          protein,
-          carbs,
-          fats,
-        }
-      }
-
       const scientificCalcs = calculateScientificCalories(quizData)
       console.log(`🧮 [SCIENTIFIC CALCULATION] Target: ${scientificCalcs.finalCalories} kcal`)
+
+      console.log(`🔍 [FIREBASE DEBUG] Saving to document: users/${userId}`)
+      console.log(`🔍 [FIREBASE DEBUG] Scientific calculations to save:`, {
+        finalCalories: scientificCalcs.finalCalories,
+        protein: scientificCalcs.protein,
+        carbs: scientificCalcs.carbs,
+        fats: scientificCalcs.fats,
+      })
+
+      // Save scientific calculations to Firebase before AI generation
+      const userDocRef = adminDb.collection("users").doc(userId)
+      await userDocRef.set(
+        {
+          scientificCalculations: {
+            ...scientificCalcs,
+            calculatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            quizDataSnapshot: quizData,
+          },
+        },
+        { merge: true },
+      )
+      console.log("✅ [FIREBASE] Scientific calculations saved to Firebase")
+      console.log(`🔍 [FIREBASE DEBUG] Saved under field: scientificCalculations`)
+
+      // Retrieve the saved calculations for AI prompt
+      const updatedDoc = await userDocRef.get()
+      const savedCalcs = updatedDoc.data()?.scientificCalculations
+      console.log(`🔍 [FIREBASE] Retrieved saved calculations: ${savedCalcs?.finalCalories} kcal`)
+      console.log(`🔍 [FIREBASE DEBUG] Full retrieved data:`, savedCalcs)
 
       const mealConfig = getMealCountByBodyType(quizData.bodyType)
       console.log(`🍽️ [MEAL CONFIG] ${mealConfig.count} refeições para biotipo: ${quizData.bodyType}`)
@@ -347,7 +328,13 @@ export async function POST(req: Request) {
       console.log(`🏋️ [EXERCISE COUNT] ${exerciseRange.description} para tempo: ${quizData.workoutTime}`)
 
       const dietPrompt = `
-OBJETIVO CRÍTICO: Criar dieta que SOME EXATAMENTE ${scientificCalcs.finalCalories} kcal (±50 kcal máximo).
+OBJETIVO CRÍTICO: Criar dieta que SOME EXATAMENTE ${savedCalcs.finalCalories} kcal (±50 kcal máximo).
+
+DADOS CIENTÍFICOS SALVOS NO FIREBASE:
+- Calorias alvo: ${savedCalcs.finalCalories} kcal (TMB: ${savedCalcs.tmb}, TDEE: ${savedCalcs.tdee})
+- Proteína: ${savedCalcs.protein}g (${savedCalcs.protein * 4} kcal)
+- Carboidratos: ${savedCalcs.carbs}g (${savedCalcs.carbs * 4} kcal)
+- Gorduras: ${savedCalcs.fats}g (${savedCalcs.fats * 9} kcal)
 
 DADOS DO CLIENTE:
 - Peso: ${quizData.currentWeight}kg, ${quizData.gender}, ${quizData.age} anos
@@ -356,25 +343,28 @@ DADOS DO CLIENTE:
 - Alergias: ${quizData.allergies !== "nao" ? quizData.allergyDetails : "Nenhuma"}
 - Preferências: ${quizData.diet !== "nao-sigo" ? quizData.diet : "Sem restrições"}
 
-INSTRUÇÕES OBRIGATÓRIAS:
-1. SOMA TOTAL deve ser ${scientificCalcs.finalCalories} kcal (±50 kcal)
-2. Distribuir em ${mealConfig.count} refeições: ${mealConfig.distribution.map((p, i) => `${mealConfig.names[i]}: ${Math.round(scientificCalcs.finalCalories * p)} kcal`).join(", ")}
-3. Macros alvo: ${scientificCalcs.protein}g proteína, ${scientificCalcs.carbs}g carboidratos, ${scientificCalcs.fats}g gorduras
-4. Priorizar alimentos que o cliente gosta e tolera
-5. Evitar excesso de gorduras saturadas
-6. Incluir quantidades PRECISAS (gramas/ml) para atingir calorias exatas
-
-VALIDAÇÃO: Cada refeição deve ter soma correta das calorias dos alimentos.
+INSTRUÇÕES MATEMÁTICAS OBRIGATÓRIAS:
+1. SOMA TOTAL EXATA: ${savedCalcs.finalCalories} kcal (±50 kcal máximo)
+2. Distribuir em ${mealConfig.count} refeições: ${mealConfig.distribution.map((p, i) => `${mealConfig.names[i]}: ${Math.round(savedCalcs.finalCalories * p)} kcal`).join(", ")}
+3. EXEMPLO DE CÁLCULO: Arroz = 130 kcal/100g, para 400 kcal = 307g
+4. VALIDAÇÃO: Some todas as calorias dos alimentos antes de responder
+5. Use os valores EXATOS do Firebase: ${savedCalcs.protein}g proteína, ${savedCalcs.carbs}g carboidratos, ${savedCalcs.fats}g gorduras
 
 JSON OBRIGATÓRIO:
 {
-  "totalDailyCalories": "${scientificCalcs.finalCalories} kcal",
-  "totalProtein": "${scientificCalcs.protein}g",
-  "totalCarbs": "${scientificCalcs.carbs}g", 
-  "totalFats": "${scientificCalcs.fats}g",
+  "scientificReference": {
+    "targetCalories": ${savedCalcs.finalCalories},
+    "targetProtein": ${savedCalcs.protein},
+    "targetCarbs": ${savedCalcs.carbs},
+    "targetFats": ${savedCalcs.fats}
+  },
+  "totalDailyCalories": "${savedCalcs.finalCalories} kcal",
+  "totalProtein": "${savedCalcs.protein}g",
+  "totalCarbs": "${savedCalcs.carbs}g", 
+  "totalFats": "${savedCalcs.fats}g",
   "meals": [${mealConfig.names
     .map((name, i) => {
-      const targetCals = Math.round(scientificCalcs.finalCalories * mealConfig.distribution[i])
+      const targetCals = Math.round(savedCalcs.finalCalories * mealConfig.distribution[i])
       return `{"name": "${name}", "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}", "foods": [{"name": "[alimento específico]", "quantity": "[quantidade precisa em g/ml]", "calories": "[calorias exatas] kcal"}], "totalCalories": "${targetCals} kcal"}`
     })
     .join(",")}]
@@ -452,11 +442,16 @@ JSON OBRIGATÓRIO:
                 }
               })
               console.log(
-                `🔍 [DIET VERIFICATION] Target: ${scientificCalcs.finalCalories} kcal, AI Generated Sum: ${actualSum} kcal, Difference: ${Math.abs(scientificCalcs.finalCalories - actualSum)} kcal`,
+                `🔍 [DIET VERIFICATION] Target: ${savedCalcs.finalCalories} kcal, AI Generated Sum: ${actualSum} kcal, Difference: ${Math.abs(savedCalcs.finalCalories - actualSum)} kcal`,
               )
 
+              parsed.totalDailyCalories = `${savedCalcs.finalCalories} kcal`
+              parsed.totalProtein = `${savedCalcs.protein}g`
+              parsed.totalCarbs = `${savedCalcs.carbs}g`
+              parsed.totalFats = `${savedCalcs.fats}g`
+
               dietPlan = parsed
-              console.log("✅ [DIET SUCCESS] Generated successfully")
+              console.log("✅ [DIET SUCCESS] Generated successfully with corrected totals")
             } else {
               console.log("⚠️ [DIET] Invalid structure - wrong meal count or format")
             }
@@ -486,7 +481,7 @@ JSON OBRIGATÓRIO:
       if (!dietPlan) {
         console.log("🔧 [DIET FALLBACK] Using scientific values")
         const mealCalories = mealConfig.distribution.map((percentage) =>
-          Math.round(scientificCalcs.finalCalories * percentage),
+          Math.round(savedCalcs.finalCalories * percentage),
         )
 
         const fallbackMeals = mealConfig.names.map((name, index) => ({
@@ -524,12 +519,13 @@ JSON OBRIGATÓRIO:
         }))
 
         dietPlan = {
-          totalDailyCalories: `${scientificCalcs.finalCalories} kcal`,
-          totalProtein: `${scientificCalcs.protein}g`,
-          totalCarbs: `${scientificCalcs.carbs}g`,
-          totalFats: `${scientificCalcs.fats}g`,
+          totalDailyCalories: `${savedCalcs.finalCalories} kcal`,
+          totalProtein: `${savedCalcs.protein}g`,
+          totalCarbs: `${savedCalcs.carbs}g`,
+          totalFats: `${savedCalcs.fats}g`,
           meals: fallbackMeals,
         }
+        console.log(`🔧 [FALLBACK VERIFICATION] Set totalDailyCalories to exactly ${savedCalcs.finalCalories} kcal`)
       }
 
       if (!workoutPlan) {
@@ -541,17 +537,24 @@ JSON OBRIGATÓRIO:
       }
 
       try {
-        const userDocRef = adminDb.collection("users").doc(userId)
         await userDocRef.set(
           {
             plans: { dietPlan, workoutPlan },
             dietPlan,
             workoutPlan,
+            finalResults: {
+              scientificTarget: savedCalcs.finalCalories,
+              actualGenerated: dietPlan?.totalDailyCalories,
+              valuesMatch: dietPlan?.totalDailyCalories === `${savedCalcs.finalCalories} kcal`,
+              generatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            },
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           },
           { merge: true },
         )
-        console.log("✅ Plans saved successfully")
+        console.log(
+          `✅ Plans saved - Scientific: ${savedCalcs.finalCalories} kcal, Saved: ${dietPlan?.totalDailyCalories}`,
+        )
       } catch (firestoreError) {
         console.error("⚠️ Firestore error:", firestoreError)
       }
@@ -575,5 +578,56 @@ JSON OBRIGATÓRIO:
       status: 500,
       headers: { "Content-Type": "application/json" },
     })
+  }
+}
+
+/**
+ * Calcula o número de calorias baseado nos dados do cliente
+ */
+function calculateScientificCalories(data: any) {
+  const weight = Number.parseFloat(data.currentWeight) || 70
+  const height = Number.parseFloat(data.height) || 170
+  const age = Number.parseFloat(data.age) || 25
+  const gender = data.gender || "masculino"
+  const trainingDays = data.trainingDaysPerWeek || 5
+  const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
+
+  // TMB (Mifflin-St Jeor)
+  let tmb
+  if (gender.toLowerCase() === "feminino") {
+    tmb = 10 * weight + 6.25 * height - 5 * age - 161
+  } else {
+    tmb = 10 * weight + 6.25 * height - 5 * age + 5
+  }
+
+  // TDEE (multiplicador de atividade)
+  let activityMultiplier
+  if (trainingDays <= 2) activityMultiplier = 1.2
+  else if (trainingDays <= 4) activityMultiplier = 1.375
+  else if (trainingDays <= 6) activityMultiplier = 1.55
+  else activityMultiplier = 1.725
+
+  const tdee = tmb * activityMultiplier
+
+  // Ajuste por objetivo
+  let finalCalories = tdee
+  if (goals.includes("perder-peso")) {
+    finalCalories = tdee - 400 // Déficit moderado
+  } else if (goals.includes("ganhar-massa")) {
+    finalCalories = tdee + 300 // Superávit moderado
+  }
+
+  // Macros (g/kg)
+  const protein = Math.round(weight * 2.0) // 2g/kg para ganho de massa
+  const fats = Math.round(weight * 1.0) // 1g/kg
+  const carbs = Math.round((finalCalories - protein * 4 - fats * 9) / 4)
+
+  return {
+    tmb: Math.round(tmb),
+    tdee: Math.round(tdee),
+    finalCalories: Math.round(finalCalories),
+    protein,
+    carbs,
+    fats,
   }
 }
