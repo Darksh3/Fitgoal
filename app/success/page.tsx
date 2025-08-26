@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { CheckCircleIcon, XCircleIcon } from "lucide-react"
+import { CheckCircle, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
@@ -72,7 +72,7 @@ export default function SuccessPage() {
         )}
         {status === "success" && (
           <>
-            <CheckCircleIcon className="text-green-500 w-16 h-16 mx-auto mb-6" />
+            <CheckCircle className="text-green-500 w-16 h-16 mx-auto mb-6" />
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Assinatura Confirmada!</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               Sua assinatura foi processada com sucesso. Bem-vindo(a) à comunidade FitGoal!
@@ -84,7 +84,7 @@ export default function SuccessPage() {
         )}
         {status === "error" && (
           <>
-            <XCircleIcon className="text-red-500 w-16 h-16 mx-auto mb-6" />
+            <XCircle className="text-red-500 w-16 h-16 mx-auto mb-6" />
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Erro no Processamento!</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               Ocorreu um erro ao finalizar sua assinatura: {errorMessage}
