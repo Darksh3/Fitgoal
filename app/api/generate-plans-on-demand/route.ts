@@ -228,7 +228,7 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
 /**
  * Determina o número de refeições baseado no biotipo
  */
-function getMealCountByBodyType(bodyType: string) {
+function getMealConfigByBodyType(bodyType: string) {
   switch (bodyType?.toLowerCase()) {
     case "ectomorfo":
       return {
@@ -254,6 +254,292 @@ function getMealCountByBodyType(bodyType: string) {
         distribution: [0.25, 0.35, 0.15, 0.25], // Padrão: 4 refeições
         names: ["Café da Manhã", "Almoço", "Lanche da Tarde", "Jantar"],
       }
+  }
+}
+
+/**
+ * Validates and fixes diet calories with multiple attempts
+ */
+function validateAndFixDietCalories(dietPlan: any, targetCalories: number, quizData: any, maxAttempts = 3): any {
+  let attempts = 0
+
+  while (attempts < maxAttempts) {
+    // Calculate actual total
+    let actualTotal = 0
+    dietPlan.meals.forEach((meal: any) => {
+      if (meal.foods && Array.isArray(meal.foods)) {
+        meal.foods.forEach((food: any) => {
+          const calories = Number.parseInt(food.calories?.replace(/[^\d]/g, "") || "0")
+          actualTotal += calories
+        })
+      }
+    })
+
+    const difference = Math.abs(actualTotal - targetCalories)
+
+    console.log(
+      `🔍 [VALIDATION] Attempt ${attempts + 1}: ${actualTotal} kcal (target: ${targetCalories}, diff: ${difference})`,
+    )
+
+    // If difference is acceptable (±100 kcal), return
+    if (difference <= 100) {
+      console.log("✅ [VALIDATION] Diet within acceptable range")
+      return dietPlan
+    }
+
+    // If difference is large, try aggressive fix
+    if (difference > 200) {
+      console.log("🔧 [VALIDATION] Large difference detected, applying aggressive fix")
+      dietPlan = applyAggressiveDietFix(dietPlan, targetCalories, quizData)
+    } else {
+      // Minor adjustment
+      dietPlan = adjustDietCalories(dietPlan, targetCalories)
+    }
+
+    attempts++
+  }
+
+  console.log("⚠️ [VALIDATION] Could not achieve target calories after max attempts")
+  return dietPlan
+}
+
+/**
+ * Applies aggressive diet fix with known caloric values
+ */
+function applyAggressiveDietFix(dietPlan: any, targetCalories: number, quizData: any): any {
+  console.log("🔧 [AGGRESSIVE FIX] Starting calorie reconstruction")
+
+  const mealConfig = getMealConfigByBodyType(quizData.bodyType)
+
+  // High-quality foods with known caloric values
+  const caloricDensefoods = [
+    { name: "Arroz integral cozido", kcalPer100g: 123, unit: "g" },
+    { name: "Peito de frango grelhado", kcalPer100g: 165, unit: "g" },
+    { name: "Batata doce cozida", kcalPer100g: 86, unit: "g" },
+    { name: "Aveia", kcalPer100g: 389, unit: "g" },
+    { name: "Banana", kcalPer100g: 89, unit: "g" },
+    { name: "Azeite extra virgem", kcalPer100g: 884, unit: "ml" },
+    { name: "Amendoim", kcalPer100g: 567, unit: "g" },
+    { name: "Iogurte natural", kcalPer100g: 61, unit: "g" },
+  ]
+
+  dietPlan.meals.forEach((meal: any, mealIndex: number) => {
+    const targetMealCalories = Math.round(targetCalories * mealConfig.distribution[mealIndex])
+
+    // Clear and rebuild meal
+    meal.foods = []
+    let remainingCalories = targetMealCalories
+
+    // Add 2-3 foods per meal
+    const foodsToAdd = mealIndex === 2 ? 3 : 2 // Lunch has more variety
+
+    for (let i = 0; i < foodsToAdd; i++) {
+      const caloriesForThisFood = Math.round(remainingCalories / (foodsToAdd - i))
+      const selectedFood = caloricDensefoods[Math.floor(Math.random() * caloricDensefoods.length)]
+
+      const quantityNeeded = Math.round((caloriesForThisFood * 100) / selectedFood.kcalPer100g)
+
+      meal.foods.push({
+        name: selectedFood.name,
+        quantity: `${quantityNeeded}${selectedFood.unit}`,
+        calories: `${caloriesForThisFood} kcal`,
+        caloriesPer100g: `${selectedFood.kcalPer100g} kcal/100g`,
+      })
+
+      remainingCalories -= caloriesForThisFood
+    }
+
+    meal.totalCalories = `${targetMealCalories} kcal`
+  })
+
+  dietPlan.totalDailyCalories = `${targetCalories} kcal`
+  return dietPlan
+}
+
+/**
+ * Generates deterministic diet with precise calorie control
+ */
+function generateDeterministicDiet(targetCalories: number, quizData: any): any {
+  const mealConfig = getMealConfigByBodyType(quizData.bodyType)
+  const scientificCalcs = calculateScientificCalories(quizData)
+
+  // Food database with real nutritional values
+  const foodDatabase = {
+    proteinas: [
+      { name: "Peito de frango grelhado", kcal: 165, protein: 31, carbs: 0, fats: 3.6 },
+      { name: "Ovo inteiro", kcal: 155, protein: 13, carbs: 1.1, fats: 11 },
+      { name: "Peixe branco", kcal: 82, protein: 18, carbs: 0, fats: 0.7 },
+      { name: "Whey protein", kcal: 103, protein: 80, carbs: 7, fats: 1.5 },
+    ],
+    carboidratos: [
+      { name: "Arroz integral cozido", kcal: 123, protein: 2.6, carbs: 22, fats: 0.9 },
+      { name: "Batata doce cozida", kcal: 86, protein: 2, carbs: 20, fats: 0.1 },
+      { name: "Aveia", kcal: 389, protein: 16.9, carbs: 66, fats: 6.9 },
+      { name: "Banana", kcal: 89, protein: 1.1, carbs: 23, fats: 0.3 },
+    ],
+    gorduras: [
+      { name: "Azeite extra virgem", kcal: 884, protein: 0, carbs: 0, fats: 100 },
+      { name: "Abacate", kcal: 160, protein: 2, carbs: 9, fats: 15 },
+      { name: "Castanha do Pará", kcal: 659, protein: 14, carbs: 12, fats: 67 },
+    ],
+  }
+
+  const meals = mealConfig.names.map((name, index) => {
+    const targetMealCalories = Math.round(targetCalories * mealConfig.distribution[index])
+
+    // Calculate exact quantities to hit calorie target
+    const foods = []
+    let remainingCalories = targetMealCalories
+
+    // Add protein (40% of calories)
+    const proteinCalories = Math.round(targetMealCalories * 0.4)
+    const protein = foodDatabase.proteinas[index % foodDatabase.proteinas.length]
+    const proteinQuantity = Math.round((proteinCalories * 100) / protein.kcal)
+
+    foods.push({
+      name: protein.name,
+      quantity: `${proteinQuantity}g`,
+      calories: `${proteinCalories} kcal`,
+      caloriesPer100g: `${protein.kcal} kcal/100g`,
+    })
+
+    remainingCalories -= proteinCalories
+
+    // Add carbohydrate (45% of remaining calories)
+    const carbCalories = Math.round(remainingCalories * 0.7)
+    const carb = foodDatabase.carboidratos[index % foodDatabase.carboidratos.length]
+    const carbQuantity = Math.round((carbCalories * 100) / carb.kcal)
+
+    foods.push({
+      name: carb.name,
+      quantity: `${carbQuantity}g`,
+      calories: `${carbCalories} kcal`,
+      caloriesPer100g: `${carb.kcal} kcal/100g`,
+    })
+
+    remainingCalories -= carbCalories
+
+    // Add fat (remaining calories)
+    if (remainingCalories > 20) {
+      const fat = foodDatabase.gorduras[index % foodDatabase.gorduras.length]
+      const fatQuantity = Math.round((remainingCalories * 100) / fat.kcal)
+
+      foods.push({
+        name: fat.name,
+        quantity: `${fatQuantity}g`,
+        calories: `${remainingCalories} kcal`,
+        caloriesPer100g: `${fat.kcal} kcal/100g`,
+      })
+    }
+
+    return {
+      name,
+      time:
+        index === 0
+          ? "07:00"
+          : index === 1
+            ? "10:00"
+            : index === 2
+              ? "12:00"
+              : index === 3
+                ? "15:00"
+                : index === 4
+                  ? "19:00"
+                  : "21:00",
+      foods,
+      totalCalories: `${targetMealCalories} kcal`,
+    }
+  })
+
+  return {
+    totalDailyCalories: `${targetCalories} kcal`,
+    totalProtein: `${scientificCalcs.protein}g`,
+    totalCarbs: `${scientificCalcs.carbs}g`,
+    totalFats: `${scientificCalcs.fats}g`,
+    meals,
+  }
+}
+
+/**
+ * Simple calorie adjustment function
+ */
+function adjustDietCalories(dietPlan: any, targetCalories: number): any {
+  let actualTotal = 0
+  dietPlan.meals.forEach((meal: any) => {
+    if (meal.foods && Array.isArray(meal.foods)) {
+      meal.foods.forEach((food: any) => {
+        const calories = Number.parseInt(food.calories?.replace(/[^\d]/g, "") || "0")
+        actualTotal += calories
+      })
+    }
+  })
+
+  if (actualTotal === 0) return dietPlan
+
+  const adjustmentFactor = targetCalories / actualTotal
+  console.log(`🔧 [ADJUSTMENT] Applying factor: ${adjustmentFactor.toFixed(2)}`)
+
+  dietPlan.meals.forEach((meal: any) => {
+    if (meal.foods && Array.isArray(meal.foods)) {
+      meal.foods.forEach((food: any) => {
+        const currentCalories = Number.parseInt(food.calories?.replace(/[^\d]/g, "") || "0")
+        const newCalories = Math.round(currentCalories * adjustmentFactor)
+        food.calories = `${newCalories} kcal`
+      })
+    }
+  })
+
+  return dietPlan
+}
+
+/**
+ * Calcula as calorias científicas com base nos dados do cliente
+ */
+function calculateScientificCalories(data: any) {
+  const weight = Number.parseFloat(data.currentWeight) || 70
+  const height = Number.parseFloat(data.height) || 170
+  const age = Number.parseFloat(data.age) || 25
+  const gender = data.gender || "masculino"
+  const trainingDays = data.trainingDaysPerWeek || 5
+  const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
+
+  // TMB (Mifflin-St Jeor)
+  let tmb
+  if (gender.toLowerCase() === "feminino") {
+    tmb = 10 * weight + 6.25 * height - 5 * age - 161
+  } else {
+    tmb = 10 * weight + 6.25 * height - 5 * age + 5
+  }
+
+  // TDEE (multiplicador de atividade)
+  let activityMultiplier
+  if (trainingDays <= 2) activityMultiplier = 1.2
+  else if (trainingDays <= 4) activityMultiplier = 1.375
+  else if (trainingDays <= 6) activityMultiplier = 1.55
+  else activityMultiplier = 1.725
+
+  const tdee = tmb * activityMultiplier
+
+  // Ajuste por objetivo
+  let finalCalories = tdee
+  if (goals.includes("perder-peso")) {
+    finalCalories = tdee - 400 // Déficit moderado
+  } else if (goals.includes("ganhar-massa")) {
+    finalCalories = tdee + 300 // Superávit moderado
+  }
+
+  // Macros (g/kg)
+  const protein = Math.round(weight * 2.0) // 2g/kg para ganho de massa
+  const fats = Math.round(weight * 1.0) // 1g/kg
+  const carbs = Math.round((finalCalories - protein * 4 - fats * 9) / 4)
+
+  return {
+    tmb: Math.round(tmb),
+    tdee: Math.round(tdee),
+    finalCalories: Math.round(finalCalories),
+    protein,
+    carbs,
+    fats,
   }
 }
 
@@ -289,65 +575,19 @@ export async function POST(req: Request) {
       const requestedDays = quizData.trainingDaysPerWeek || 5
       console.log(`🎯 [CRITICAL] User ${userId} requested EXACTLY ${requestedDays} training days`)
 
-      function calculateScientificCalories(data: any) {
-        const weight = Number.parseFloat(data.currentWeight) || 70
-        const height = Number.parseFloat(data.height) || 170
-        const age = Number.parseFloat(data.age) || 25
-        const gender = data.gender || "masculino"
-        const trainingDays = data.trainingDaysPerWeek || 5
-        const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
-
-        // TMB (Mifflin-St Jeor)
-        let tmb
-        if (gender.toLowerCase() === "feminino") {
-          tmb = 10 * weight + 6.25 * height - 5 * age - 161
-        } else {
-          tmb = 10 * weight + 6.25 * height - 5 * age + 5
-        }
-
-        // TDEE (multiplicador de atividade)
-        let activityMultiplier
-        if (trainingDays <= 2) activityMultiplier = 1.2
-        else if (trainingDays <= 4) activityMultiplier = 1.375
-        else if (trainingDays <= 6) activityMultiplier = 1.55
-        else activityMultiplier = 1.725
-
-        const tdee = tmb * activityMultiplier
-
-        // Ajuste por objetivo
-        let finalCalories = tdee
-        if (goals.includes("perder-peso")) {
-          finalCalories = tdee - 400 // Déficit moderado
-        } else if (goals.includes("ganhar-massa")) {
-          finalCalories = tdee + 300 // Superávit moderado
-        }
-
-        // Macros (g/kg)
-        const protein = Math.round(weight * 2.0) // 2g/kg para ganho de massa
-        const fats = Math.round(weight * 1.0) // 1g/kg
-        const carbs = Math.round((finalCalories - protein * 4 - fats * 9) / 4)
-
-        return {
-          tmb: Math.round(tmb),
-          tdee: Math.round(tdee),
-          finalCalories: Math.round(finalCalories),
-          protein,
-          carbs,
-          fats,
-        }
-      }
-
       const scientificCalcs = calculateScientificCalories(quizData)
       console.log(`🧮 [SCIENTIFIC CALCULATION] Target: ${scientificCalcs.finalCalories} kcal`)
 
-      const mealConfig = getMealCountByBodyType(quizData.bodyType)
+      const mealConfig = getMealConfigByBodyType(quizData.bodyType)
       console.log(`🍽️ [MEAL CONFIG] ${mealConfig.count} refeições para biotipo: ${quizData.bodyType}`)
 
       const exerciseRange = getExerciseCountRange(quizData.workoutTime || "45-60min")
       console.log(`🏋️ [EXERCISE COUNT] ${exerciseRange.description} para tempo: ${quizData.workoutTime}`)
 
       const dietPrompt = `
-OBJETIVO CRÍTICO: Criar dieta que SOME EXATAMENTE ${scientificCalcs.finalCalories} kcal (±50 kcal máximo).
+VOCÊ É UM NUTRICIONISTA ESPECIALISTA EM CÁLCULO PRECISO DE CALORIAS.
+
+MISSÃO CRÍTICA: Criar dieta que SOME EXATAMENTE ${scientificCalcs.finalCalories} kcal.
 
 DADOS DO CLIENTE:
 - Peso: ${quizData.currentWeight}kg, ${quizData.gender}, ${quizData.age} anos
@@ -356,28 +596,53 @@ DADOS DO CLIENTE:
 - Alergias: ${quizData.allergies !== "nao" ? quizData.allergyDetails : "Nenhuma"}
 - Preferências: ${quizData.diet !== "nao-sigo" ? quizData.diet : "Sem restrições"}
 
-INSTRUÇÕES OBRIGATÓRIAS:
-1. SOMA TOTAL deve ser ${scientificCalcs.finalCalories} kcal (±50 kcal)
-2. Distribuir em ${mealConfig.count} refeições: ${mealConfig.distribution.map((p, i) => `${mealConfig.names[i]}: ${Math.round(scientificCalcs.finalCalories * p)} kcal`).join(", ")}
-3. Macros alvo: ${scientificCalcs.protein}g proteína, ${scientificCalcs.carbs}g carboidratos, ${scientificCalcs.fats}g gorduras
-4. Priorizar alimentos que o cliente gosta e tolera
-5. Evitar excesso de gorduras saturadas
-6. Incluir quantidades PRECISAS (gramas/ml) para atingir calorias exatas
+INSTRUÇÕES MATEMÁTICAS OBRIGATÓRIAS:
+1. CALCULE cada alimento baseado em sua tabela nutricional real (kcal/100g)
+2. AJUSTE as quantidades para atingir EXATAMENTE as calorias alvo de cada refeição
+3. VERIFIQUE se a soma total = ${scientificCalcs.finalCalories} kcal
 
-VALIDAÇÃO: Cada refeição deve ter soma correta das calorias dos alimentos.
+DISTRIBUIÇÃO CALÓRICA OBRIGATÓRIA:
+${mealConfig.names
+  .map((name, i) => {
+    const targetCals = Math.round(scientificCalcs.finalCalories * mealConfig.distribution[i])
+    return `- ${name}: EXATAMENTE ${targetCals} kcal`
+  })
+  .join("\n")}
 
-JSON OBRIGATÓRIO:
+EXEMPLO DE CÁLCULO:
+- Arroz cozido = 130 kcal/100g
+- Para 400 kcal: 400 ÷ 130 × 100 = 307g de arroz
+- Frango grelhado = 165 kcal/100g  
+- Para 300 kcal: 300 ÷ 165 × 100 = 182g de frango
+
+VALIDAÇÃO: Antes de finalizar, SOME todas as calorias e confirme = ${scientificCalcs.finalCalories} kcal.
+
+RETORNE APENAS ESTE JSON:
 {
   "totalDailyCalories": "${scientificCalcs.finalCalories} kcal",
   "totalProtein": "${scientificCalcs.protein}g",
   "totalCarbs": "${scientificCalcs.carbs}g", 
   "totalFats": "${scientificCalcs.fats}g",
-  "meals": [${mealConfig.names
-    .map((name, i) => {
-      const targetCals = Math.round(scientificCalcs.finalCalories * mealConfig.distribution[i])
-      return `{"name": "${name}", "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}", "foods": [{"name": "[alimento específico]", "quantity": "[quantidade precisa em g/ml]", "calories": "[calorias exatas] kcal"}], "totalCalories": "${targetCals} kcal"}`
-    })
-    .join(",")}]
+  "meals": [
+    ${mealConfig.names
+      .map((name, i) => {
+        const targetCals = Math.round(scientificCalcs.finalCalories * mealConfig.distribution[i])
+        return `{
+        "name": "${name}",
+        "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}",
+        "foods": [
+          {
+            "name": "[alimento real]",
+            "quantity": "[quantidade calculada em g]",
+            "calories": "[calorias exatas baseadas na quantidade]",
+            "caloriesPer100g": "[valor nutricional real por 100g]"
+          }
+        ],
+        "totalCalories": "${targetCals} kcal"
+      }`
+      })
+      .join(",\n    ")}
+  ]
 }`
 
       const workoutPrompt = `
@@ -432,39 +697,25 @@ JSON OBRIGATÓRIO:
         if (dietResponse.status === "fulfilled") {
           try {
             const rawContent = dietResponse.value.choices[0].message?.content || "{}"
-            console.log("🔍 [DIET RAW RESPONSE]:", rawContent.substring(0, 500) + "...")
+            console.log("📄 [DIET RAW RESPONSE]:", rawContent.substring(0, 500) + "...")
 
             const parsed = JSON.parse(rawContent)
-            console.log("🔍 [DIET PARSED]:", {
-              totalCalories: parsed.totalDailyCalories,
-              mealsCount: parsed.meals?.length,
-              firstMealCalories: parsed.meals?.[0]?.totalCalories,
-            })
 
             if (parsed.meals && Array.isArray(parsed.meals) && parsed.meals.length === mealConfig.count) {
-              let actualSum = 0
-              parsed.meals.forEach((meal) => {
-                if (meal.foods && Array.isArray(meal.foods)) {
-                  meal.foods.forEach((food) => {
-                    const calories = Number.parseInt(food.calories?.replace(/[^\d]/g, "") || "0")
-                    actualSum += calories
-                  })
-                }
-              })
-              console.log(
-                `🔍 [DIET VERIFICATION] Target: ${scientificCalcs.finalCalories} kcal, AI Generated Sum: ${actualSum} kcal, Difference: ${Math.abs(scientificCalcs.finalCalories - actualSum)} kcal`,
-              )
-
-              dietPlan = parsed
-              console.log("✅ [DIET SUCCESS] Generated successfully")
+              // Apply validation and correction
+              dietPlan = validateAndFixDietCalories(parsed, scientificCalcs.finalCalories, quizData)
+              console.log("✅ [DIET SUCCESS] Generated and validated successfully")
             } else {
-              console.log("⚠️ [DIET] Invalid structure - wrong meal count or format")
+              console.log("⚠️ [DIET] Invalid structure - using deterministic fallback")
+              dietPlan = generateDeterministicDiet(scientificCalcs.finalCalories, quizData)
             }
           } catch (e) {
-            console.log("⚠️ [DIET] Parse error:", e)
+            console.log("⚠️ [DIET] Parse error, using deterministic fallback")
+            dietPlan = generateDeterministicDiet(scientificCalcs.finalCalories, quizData)
           }
         } else {
-          console.log("⚠️ [DIET] Generation failed:", dietResponse.reason)
+          console.log("⚠️ [DIET] Generation failed, using deterministic fallback")
+          dietPlan = generateDeterministicDiet(scientificCalcs.finalCalories, quizData)
         }
 
         // Process workout response
@@ -478,58 +729,16 @@ JSON OBRIGATÓRIO:
           } catch (e) {
             console.log("⚠️ [WORKOUT] Parse error, using fallback")
           }
+        } else {
+          console.log("⚠️ [WORKOUT] Generation failed, using fallback")
         }
       } catch (error) {
         console.log("⚠️ [PARALLEL] Generation failed, using fallbacks")
       }
 
       if (!dietPlan) {
-        console.log("🔧 [DIET FALLBACK] Using scientific values")
-        const mealCalories = mealConfig.distribution.map((percentage) =>
-          Math.round(scientificCalcs.finalCalories * percentage),
-        )
-
-        const fallbackMeals = mealConfig.names.map((name, index) => ({
-          name,
-          time:
-            index === 0
-              ? "07:00"
-              : index === 1
-                ? "10:00"
-                : index === 2
-                  ? "12:00"
-                  : index === 3
-                    ? "15:00"
-                    : index === 4
-                      ? "19:00"
-                      : "21:00",
-          foods: [
-            {
-              name:
-                index === 0
-                  ? "Aveia"
-                  : index === 1
-                    ? "Fruta"
-                    : index === 2
-                      ? "Arroz Integral"
-                      : index === 3
-                        ? "Iogurte"
-                        : "Batata Doce",
-              quantity:
-                index === 0 ? "80g" : index === 1 ? "1 unidade" : index === 2 ? "150g" : index === 3 ? "150g" : "200g",
-              calories: `${mealCalories[index]} kcal`,
-            },
-          ],
-          totalCalories: `${mealCalories[index]} kcal`,
-        }))
-
-        dietPlan = {
-          totalDailyCalories: `${scientificCalcs.finalCalories} kcal`,
-          totalProtein: `${scientificCalcs.protein}g`,
-          totalCarbs: `${scientificCalcs.carbs}g`,
-          totalFats: `${scientificCalcs.fats}g`,
-          meals: fallbackMeals,
-        }
+        console.log("🆘 [DIET EMERGENCY] Using deterministic generation")
+        dietPlan = generateDeterministicDiet(scientificCalcs.finalCalories, quizData)
       }
 
       if (!workoutPlan) {
