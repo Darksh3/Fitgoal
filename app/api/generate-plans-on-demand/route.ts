@@ -592,7 +592,11 @@ function calculateScientificCalories(data: any) {
   const trainingDays = data.trainingDaysPerWeek || 5
   const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
 
-  // TMB (Mifflin-St Jeor)
+  const targetWeight = Number.parseFloat(data.targetWeight) || weight
+  const timeToGoal = data.timeToGoal || ""
+  const bodyType = data.bodyType || ""
+
+  // TMB (Mifflin-St Jeor) - unchanged, already correct
   let tmb
   if (gender.toLowerCase() === "feminino") {
     tmb = 10 * weight + 6.25 * height - 5 * age - 161
@@ -600,34 +604,129 @@ function calculateScientificCalories(data: any) {
     tmb = 10 * weight + 6.25 * height - 5 * age + 5
   }
 
-  // TDEE (multiplicador de atividade)
   let activityMultiplier
-  if (trainingDays <= 2) activityMultiplier = 1.2
-  else if (trainingDays <= 4) activityMultiplier = 1.375
-  else if (trainingDays <= 6) activityMultiplier = 1.55
-  else activityMultiplier = 1.725
+  if (trainingDays <= 1)
+    activityMultiplier = 1.2 // Sedentário
+  else if (trainingDays <= 3)
+    activityMultiplier = 1.375 // Leve
+  else if (trainingDays <= 5)
+    activityMultiplier = 1.55 // Moderado
+  else if (trainingDays <= 6)
+    activityMultiplier = 1.725 // Intenso
+  else activityMultiplier = 1.9 // Muito intenso
 
-  const tdee = tmb * activityMultiplier
+  let tdee = tmb * activityMultiplier
 
-  // Ajuste por objetivo
-  let finalCalories = tdee
-  if (goals.includes("perder-peso")) {
-    finalCalories = tdee - 400 // Déficit moderado
-  } else if (goals.includes("ganhar-massa")) {
-    finalCalories = tdee + 300 // Superávit moderado
+  if (bodyType.toLowerCase() === "ectomorfo") {
+    tdee = tdee * 1.1 // +10% for ectomorphs
   }
 
-  // Macros (g/kg)
-  const protein = Math.round(weight * 2.0) // 2g/kg para ganho de massa
-  const fats = Math.round(weight * 1.0) // 1g/kg
+  let dailyCalorieAdjustment = 0
+
+  if (goals.includes("perder-peso") || goals.includes("emagrecer")) {
+    // Weight loss: calculate deficit based on goal
+    const weightDifference = Math.abs(weight - targetWeight)
+    if (timeToGoal && weightDifference > 0) {
+      const weeksToGoal = calculateWeeksToGoal(timeToGoal)
+      if (weeksToGoal > 0) {
+        const weeklyWeightChange = weightDifference / weeksToGoal
+        // 7700 kcal = 1kg, so daily deficit = (kg per week * 7700) / 7 days
+        dailyCalorieAdjustment = -Math.round((weeklyWeightChange * 7700) / 7)
+      } else {
+        dailyCalorieAdjustment = -500 // Default moderate deficit
+      }
+    } else {
+      dailyCalorieAdjustment = -500 // Default moderate deficit
+    }
+  } else if (goals.includes("ganhar-massa") || goals.includes("ganhar-peso")) {
+    // Weight gain: calculate surplus based on goal
+    const weightDifference = Math.abs(targetWeight - weight)
+    if (timeToGoal && weightDifference > 0) {
+      const weeksToGoal = calculateWeeksToGoal(timeToGoal)
+      if (weeksToGoal > 0) {
+        const weeklyWeightChange = weightDifference / weeksToGoal
+        // 7700 kcal = 1kg, so daily surplus = (kg per week * 7700) / 7 days
+        dailyCalorieAdjustment = Math.round((weeklyWeightChange * 7700) / 7)
+      } else {
+        dailyCalorieAdjustment = 500 // Default moderate surplus
+      }
+    } else {
+      dailyCalorieAdjustment = 500 // Default moderate surplus
+    }
+  }
+  // Maintenance: no adjustment (dailyCalorieAdjustment = 0)
+
+  const finalCalories = Math.round(tdee + dailyCalorieAdjustment)
+
+  let proteinPerKg = 1.6 // Base protein
+  if (goals.includes("ganhar-massa"))
+    proteinPerKg = 2.2 // Higher for muscle gain
+  else if (goals.includes("perder-peso")) proteinPerKg = 2.0 // Higher for muscle preservation
+
+  const protein = Math.round(weight * proteinPerKg)
+  const fats = Math.round(weight * 1.0) // 1g/kg - unchanged
   const carbs = Math.round((finalCalories - protein * 4 - fats * 9) / 4)
+
+  console.log(
+    `🧮 [SCIENTIFIC CALC] TMB: ${Math.round(tmb)}, TDEE: ${Math.round(tdee)}, Adjustment: ${dailyCalorieAdjustment}, Final: ${finalCalories}`,
+  )
 
   return {
     tmb: Math.round(tmb),
     tdee: Math.round(tdee),
-    finalCalories: Math.round(finalCalories),
+    finalCalories,
     protein,
     carbs,
     fats,
+    dailyCalorieAdjustment,
+    weeksToGoal: timeToGoal ? calculateWeeksToGoal(timeToGoal) : 0,
+  }
+}
+
+function calculateWeeksToGoal(timeToGoal: string): number {
+  try {
+    // Handle Brazilian date format: "10 de nov. de 2025"
+    const months = {
+      jan: 0,
+      fev: 1,
+      mar: 2,
+      abr: 3,
+      mai: 4,
+      jun: 5,
+      jul: 6,
+      ago: 7,
+      set: 8,
+      out: 9,
+      nov: 10,
+      dez: 11,
+    }
+
+    const parts = timeToGoal.toLowerCase().split(" ")
+    if (parts.length >= 5) {
+      const day = Number.parseInt(parts[0])
+      const monthAbbr = parts[2].replace(".", "").substring(0, 3)
+      const year = Number.parseInt(parts[4])
+
+      if (months[monthAbbr] !== undefined) {
+        const goalDate = new Date(year, months[monthAbbr], day)
+        const currentDate = new Date()
+        const timeDifferenceMs = goalDate.getTime() - currentDate.getTime()
+        const weeksToGoal = Math.max(1, Math.round(timeDifferenceMs / (1000 * 60 * 60 * 24 * 7)))
+        return weeksToGoal
+      }
+    }
+
+    // Fallback: try to parse as regular date
+    const goalDate = new Date(timeToGoal)
+    if (!isNaN(goalDate.getTime())) {
+      const currentDate = new Date()
+      const timeDifferenceMs = goalDate.getTime() - currentDate.getTime()
+      return Math.max(1, Math.round(timeDifferenceMs / (1000 * 60 * 60 * 24 * 7)))
+    }
+
+    return 12 // Default to 12 weeks if parsing fails
+  } catch (error) {
+    console.log("⚠️ [DATE PARSE] Error parsing timeToGoal:", timeToGoal)
+    return 12 // Default to 12 weeks
   }
 }
