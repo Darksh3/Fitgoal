@@ -193,9 +193,13 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
       const exercise = shuffled[j]
       exercises.push({
         name: exercise.name,
-        sets: 4,
-        reps: "8-12",
-        rest: "90s",
+        sets: quizData.experience === "iniciante" ? 3 : quizData.experience === "avancado" ? 5 : 4,
+        reps: quizData.goal?.includes("ganhar-massa")
+          ? "6-10"
+          : quizData.goal?.includes("perder-peso")
+            ? "12-20"
+            : "8-12",
+        rest: quizData.experience === "iniciante" ? "60s" : quizData.experience === "avancado" ? "120s" : "90s",
         description: exercise.description,
       })
     }
@@ -204,8 +208,8 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
       const baseExercise = exercisePool[exercises.length % exercisePool.length]
       exercises.push({
         name: `${baseExercise.name} (Variação)`,
-        sets: 3,
-        reps: "10-15",
+        sets: quizData.experience === "iniciante" ? 2 : 3,
+        reps: quizData.goal?.includes("perder-peso") ? "15-20" : "10-15",
         rest: "60s",
         description: `Variação do ${baseExercise.name.toLowerCase()}.`,
       })
@@ -374,15 +378,33 @@ JSON OBRIGATÓRIO:
       const workoutPrompt = `
 Crie EXATAMENTE ${requestedDays} dias de treino para ${quizData.gender}, ${quizData.experience}, ${quizData.workoutTime}.
 
+DADOS DO CLIENTE PARA PERSONALIZAÇÃO:
+- Experiência: ${quizData.experience}
+- Objetivo: ${quizData.goal?.join(", ")}
+- Biotipo: ${quizData.bodyType}
+- Áreas problemáticas: ${quizData.problemAreas?.join(", ") || "Nenhuma específica"}
+- Tempo disponível: ${quizData.workoutTime}
+- Equipamentos: ${quizData.equipment?.join(", ") || "Academia"}
+
 INSTRUÇÕES OBRIGATÓRIAS:
 - Cada dia deve ter EXATAMENTE ${exerciseRange.min}-${exerciseRange.max} exercícios (${exerciseRange.description})
-- Tempo de treino: ${quizData.workoutTime}
-- Experiência: ${quizData.experience}
-- Equipamentos: ${quizData.equipment?.join(", ") || "Academia"}
+- PERSONALIZE séries e repetições baseado no perfil do cliente:
+  * Iniciante: 2-3 séries, 12-15 repetições, descanso 60-90s
+  * Intermediário: 3-4 séries, 8-12 repetições, descanso 60-120s  
+  * Avançado: 4-5 séries, 6-10 repetições, descanso 90-180s
+- AJUSTE baseado no objetivo:
+  * Ganhar massa: Mais séries (3-5), menos reps (6-10), mais descanso (90-180s)
+  * Perder peso: Menos séries (2-3), mais reps (12-20), menos descanso (30-60s)
+  * Resistência: Séries moderadas (3-4), reps altas (15-25), descanso curto (30-45s)
+- FOQUE nas áreas problemáticas: ${quizData.problemAreas?.join(", ") || "desenvolvimento equilibrado"}
+- CONSIDERE o biotipo:
+  * Ectomorfo: Menos volume, mais intensidade, descanso maior
+  * Mesomorfo: Volume moderado, intensidade moderada
+  * Endomorfo: Mais volume, menos descanso, mais cardio
 
 JSON OBRIGATÓRIO:
 {
-  "days": [${Array.from({ length: requestedDays }, (_, i) => `{"day": "Dia ${i + 1}", "title": "[nome]", "focus": "[foco]", "duration": "${quizData.workoutTime || "45-60min"}", "exercises": [{"name": "[exercício específico]", "sets": 4, "reps": "8-12", "rest": "90s", "description": "[descrição detalhada]"}]}`).join(",")}],
+  "days": [${Array.from({ length: requestedDays }, (_, i) => `{"day": "Dia ${i + 1}", "title": "[nome]", "focus": "[foco]", "duration": "${quizData.workoutTime || "45-60min"}", "exercises": [{"name": "[exercício específico]", "sets": "[número personalizado baseado no perfil]", "reps": "[repetições personalizadas baseadas no objetivo]", "rest": "[descanso personalizado baseado na experiência]", "description": "[descrição detalhada]"}]}`).join(",")}],
   "weeklySchedule": "Treino ${requestedDays}x por semana"
 }`
 
