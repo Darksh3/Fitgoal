@@ -328,7 +328,7 @@ export async function POST(req: Request) {
       console.log(`🏋️ [EXERCISE COUNT] ${exerciseRange.description} para tempo: ${quizData.workoutTime}`)
 
       const dietPrompt = `
-OBJETIVO CRÍTICO: Criar dieta que SOME EXATAMENTE ${savedCalcs.finalCalories} kcal (±50 kcal máximo).
+OBJETIVO CRÍTICO: Criar dieta que SOME EXATAMENTE ${savedCalcs.finalCalories} kcal (±25 kcal máximo).
 
 DADOS CIENTÍFICOS SALVOS NO FIREBASE:
 - Calorias alvo: ${savedCalcs.finalCalories} kcal (TMB: ${savedCalcs.tmb}, TDEE: ${savedCalcs.tdee})
@@ -344,11 +344,12 @@ DADOS DO CLIENTE:
 - Preferências: ${quizData.diet !== "nao-sigo" ? quizData.diet : "Sem restrições"}
 
 INSTRUÇÕES MATEMÁTICAS OBRIGATÓRIAS:
-1. SOMA TOTAL EXATA: ${savedCalcs.finalCalories} kcal (±50 kcal máximo)
+1. SOMA TOTAL EXATA: ${savedCalcs.finalCalories} kcal (±25 kcal máximo - NÃO EXCEDER ${savedCalcs.finalCalories + 25} kcal)
 2. Distribuir em ${mealConfig.count} refeições: ${mealConfig.distribution.map((p, i) => `${mealConfig.names[i]}: ${Math.round(savedCalcs.finalCalories * p)} kcal`).join(", ")}
 3. EXEMPLO DE CÁLCULO: Arroz = 130 kcal/100g, para 400 kcal = 307g
-4. VALIDAÇÃO: Some todas as calorias dos alimentos antes de responder
-5. Use os valores EXATOS do Firebase: ${savedCalcs.protein}g proteína, ${savedCalcs.carbs}g carboidratos, ${savedCalcs.fats}g gorduras
+4. VALIDAÇÃO OBRIGATÓRIA: Some todas as calorias dos alimentos e AJUSTE as porções se necessário
+5. LIMITE RÍGIDO: Se a soma passar de ${savedCalcs.finalCalories + 25} kcal, REDUZA as porções
+6. Use os valores EXATOS do Firebase: ${savedCalcs.protein}g proteína, ${savedCalcs.carbs}g carboidratos, ${savedCalcs.fats}g gorduras
 
 JSON OBRIGATÓRIO:
 {
