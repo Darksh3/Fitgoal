@@ -589,14 +589,17 @@ export default function DietPage() {
 
   const displayTotals = {
     calories: (() => {
+      if (dietPlan?.totalDailyCalories && dietPlan.totalDailyCalories !== "0") {
+        return dietPlan.totalDailyCalories.includes("kcal")
+          ? dietPlan.totalDailyCalories
+          : `${dietPlan.totalDailyCalories} kcal`
+      }
+
       if (quizData) {
         const scientificCalories = calculateScientificCalories(quizData)
         return `${scientificCalories} kcal`
       }
 
-      if (dietPlan?.totalDailyCalories && dietPlan.totalDailyCalories !== "0") {
-        return `${dietPlan.totalDailyCalories} kcal`
-      }
       if (dietPlan?.calories && dietPlan.calories !== "0" && dietPlan.calories !== "0 kcal") {
         return dietPlan.calories.includes("kcal") ? dietPlan.calories : `${dietPlan.calories} kcal`
       }
@@ -672,7 +675,8 @@ export default function DietPage() {
               <p className="text-blue-800 font-medium">🔄 Sincronizar Valores</p>
               <p className="text-blue-700 text-sm mt-1">
                 Atualizar os valores salvos no plano de dieta com o cálculo científico atual (
-                {calculateScientificCalories(quizData)} kcal).
+                {calculateScientificCalories(quizData)} kcal). Valor atual salvo:{" "}
+                {dietPlan?.totalDailyCalories || "não encontrado"}.
               </p>
               <Button
                 onClick={updateSavedValuesWithScientificCalculation}
@@ -692,17 +696,20 @@ export default function DietPage() {
                   <CardTitle>Calorias Totais</CardTitle>
                   <CardDescription className="text-sm">
                     <div className="space-y-1">
-                      <div>Teórico (científico): {displayTotals.calories}</div>
+                      <div>
+                        Teórico (científico): {quizData ? `${calculateScientificCalories(quizData)} kcal` : "N/A"}
+                      </div>
+                      <div>Salvo no plano: {dietPlan?.totalDailyCalories || "N/A"}</div>
                       <div>Real (soma dos alimentos): {calculatedTotals.calories} kcal</div>
                       {Math.abs(
-                        Number.parseInt(displayTotals.calories.replace(/\D/g, "")) -
+                        Number.parseInt((dietPlan?.totalDailyCalories || "0").replace(/\D/g, "")) -
                           Number.parseInt(calculatedTotals.calories),
                       ) > 200 && <div className="text-orange-600 font-medium">⚠️ Diferença significativa detectada</div>}
                     </div>
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold">{displayTotals.calories}</p>
+                  <p className="text-2xl font-bold">{dietPlan?.totalDailyCalories || "N/A"}</p>
                   <p className="text-sm text-gray-600 mt-1">Soma real: {calculatedTotals.calories} kcal</p>
                 </CardContent>
               </Card>

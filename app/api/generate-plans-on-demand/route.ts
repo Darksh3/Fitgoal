@@ -42,78 +42,172 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
       {
         name: "Supino reto",
         description: "Deite-se em um banco reto e empurre a barra para cima até os braços estarem estendidos.",
+        type: "compound", // Exercício composto
       },
       {
         name: "Supino inclinado com halteres",
         description: "Deite-se em um banco inclinado e levante os halteres em direção ao teto.",
+        type: "compound",
       },
       {
         name: "Mergulho entre bancos",
         description: "Coloque as mãos em um banco e os pés em outro, abaixe o corpo e empurre para cima.",
+        type: "compound",
       },
-      { name: "Flexão de braços", description: "Com as mãos no chão, abaixe o corpo e empurre para cima." },
-      { name: "Peck Deck", description: "Sente-se na máquina e pressione as alças para frente, unindo os braços." },
+      {
+        name: "Flexão de braços",
+        description: "Com as mãos no chão, abaixe o corpo e empurre para cima.",
+        type: "compound",
+      },
+      {
+        name: "Peck Deck",
+        description: "Sente-se na máquina e pressione as alças para frente, unindo os braços.",
+        type: "isolation",
+      },
       {
         name: "Crucifixo com halteres",
         description: "Deite-se e abra os braços com halteres, depois una-os sobre o peito.",
+        type: "isolation",
       },
-      { name: "Supino declinado", description: "Em banco declinado, empurre a barra para cima." },
-      { name: "Pullover", description: "Deitado, puxe o halter por trás da cabeça até o peito." },
-      { name: "Cross over", description: "Na polia, cruze os cabos na frente do peito." },
+      { name: "Supino declinado", description: "Em banco declinado, empurre a barra para cima.", type: "compound" },
+      { name: "Pullover", description: "Deitado, puxe o halter por trás da cabeça até o peito.", type: "isolation" },
+      { name: "Cross over", description: "Na polia, cruze os cabos na frente do peito.", type: "isolation" },
     ],
     costas: [
-      { name: "Puxada na frente", description: "Puxe a barra em direção ao peito, mantendo as costas retas." },
-      { name: "Remada curvada", description: "Com o tronco inclinado, puxe os halteres em direção ao abdômen." },
-      { name: "Levantamento terra", description: "Levante a barra do chão mantendo as costas retas." },
-      { name: "Puxada na barra fixa", description: "Pendure-se na barra e puxe o corpo para cima." },
-      { name: "Remada unilateral", description: "Com um joelho e uma mão no banco, puxe o halter com a outra mão." },
+      {
+        name: "Puxada na frente",
+        description: "Puxe a barra em direção ao peito, mantendo as costas retas.",
+        type: "compound",
+      },
+      {
+        name: "Remada curvada",
+        description: "Com o tronco inclinado, puxe os halteres em direção ao abdômen.",
+        type: "compound",
+      },
+      {
+        name: "Levantamento terra",
+        description: "Levante a barra do chão mantendo as costas retas.",
+        type: "compound",
+      },
+      { name: "Puxada na barra fixa", description: "Pendure-se na barra e puxe o corpo para cima.", type: "compound" },
+      {
+        name: "Remada unilateral",
+        description: "Com um joelho e uma mão no banco, puxe o halter com a outra mão.",
+        type: "compound",
+      },
       {
         name: "Remada baixa",
         description: "Puxe o cabo em direção ao abdômen, mantendo os cotovelos próximos ao corpo.",
+        type: "compound",
       },
-      { name: "Puxada atrás", description: "Puxe a barra atrás da nuca, cuidado com a amplitude." },
-      { name: "Remada T", description: "Com barra T, puxe em direção ao abdômen." },
-      { name: "Shrug", description: "Eleve os ombros contraindo o trapézio." },
+      { name: "Puxada atrás", description: "Puxe a barra atrás da nuca, cuidado com a amplitude.", type: "compound" },
+      { name: "Remada T", description: "Com barra T, puxe em direção ao abdômen.", type: "compound" },
+      { name: "Shrug", description: "Eleve os ombros contraindo o trapézio.", type: "isolation" },
     ],
     triceps: [
-      { name: "Tríceps na polia alta", description: "Puxe a barra para baixo, estendendo os braços." },
+      {
+        name: "Tríceps na polia alta",
+        description: "Puxe a barra para baixo, estendendo os braços.",
+        type: "isolation",
+      },
       {
         name: "Tríceps francês",
         description: "De pé ou sentado, segure um halter acima da cabeça e abaixe-o atrás da cabeça.",
+        type: "isolation",
       },
-      { name: "Mergulho no banco", description: "Com as mãos no banco, abaixe e levante o corpo usando os tríceps." },
-      { name: "Tríceps testa", description: "Deitado, abaixe os halteres em direção à testa e estenda os braços." },
-      { name: "Tríceps coice", description: "Inclinado, estenda o braço para trás com halter." },
-      { name: "Tríceps supinado", description: "Com pegada supinada, estenda os braços na polia." },
+      {
+        name: "Mergulho no banco",
+        description: "Com as mãos no banco, abaixe e levante o corpo usando os tríceps.",
+        type: "compound",
+      },
+      {
+        name: "Tríceps testa",
+        description: "Deitado, abaixe os halteres em direção à testa e estenda os braços.",
+        type: "isolation",
+      },
+      { name: "Tríceps coice", description: "Inclinado, estenda o braço para trás com halter.", type: "isolation" },
+      { name: "Tríceps supinado", description: "Com pegada supinada, estenda os braços na polia.", type: "isolation" },
     ],
     biceps: [
-      { name: "Rosca direta", description: "Levante a barra em direção aos ombros, mantendo os cotovelos fixos." },
-      { name: "Rosca alternada", description: "Levante um halter de cada vez, alternando os braços." },
-      { name: "Rosca martelo", description: "Levante os halteres com pegada neutra, como se fosse um martelo." },
-      { name: "Rosca concentrada", description: "Sentado, apoie o cotovelo na coxa e levante o halter." },
-      { name: "Rosca 21", description: "7 repetições parciais baixo, 7 alto, 7 completas." },
-      { name: "Rosca cabo", description: "Na polia baixa, flexione os braços." },
+      {
+        name: "Rosca direta",
+        description: "Levante a barra em direção aos ombros, mantendo os cotovelos fixos.",
+        type: "isolation",
+      },
+      {
+        name: "Rosca alternada",
+        description: "Levante um halter de cada vez, alternando os braços.",
+        type: "isolation",
+      },
+      {
+        name: "Rosca martelo",
+        description: "Levante os halteres com pegada neutra, como se fosse um martelo.",
+        type: "isolation",
+      },
+      {
+        name: "Rosca concentrada",
+        description: "Sentado, apoie o cotovelo na coxa e levante o halter.",
+        type: "isolation",
+      },
+      { name: "Rosca 21", description: "7 repetições parciais baixo, 7 alto, 7 completas.", type: "isolation" },
+      { name: "Rosca cabo", description: "Na polia baixa, flexione os braços.", type: "isolation" },
     ],
     pernas: [
-      { name: "Agachamento", description: "Abaixe o corpo flexionando os joelhos e quadris, depois levante." },
-      { name: "Leg Press", description: "Na máquina, empurre a plataforma com os pés." },
-      { name: "Extensão de pernas", description: "Sentado na máquina, estenda as pernas para frente." },
-      { name: "Flexão de pernas", description: "Deitado na máquina, flexione as pernas em direção aos glúteos." },
-      { name: "Panturrilha em pé", description: "Levante-se na ponta dos pés, contraindo as panturrilhas." },
-      { name: "Stiff", description: "Com as pernas retas, abaixe a barra mantendo as costas retas." },
-      { name: "Afundo", description: "Dê um passo à frente e flexione ambos os joelhos." },
-      { name: "Cadeira extensora", description: "Sentado, estenda as pernas contra a resistência." },
-      { name: "Mesa flexora", description: "Deitado de bruços, flexione as pernas." },
-      { name: "Agachamento búlgaro", description: "Com um pé elevado atrás, agache com a perna da frente." },
+      {
+        name: "Agachamento",
+        description: "Abaixe o corpo flexionando os joelhos e quadris, depois levante.",
+        type: "compound",
+      },
+      { name: "Leg Press", description: "Na máquina, empurre a plataforma com os pés.", type: "compound" },
+      {
+        name: "Extensão de pernas",
+        description: "Sentado na máquina, estenda as pernas para frente.",
+        type: "isolation",
+      },
+      {
+        name: "Flexão de pernas",
+        description: "Deitado na máquina, flexione as pernas em direção aos glúteos.",
+        type: "isolation",
+      },
+      {
+        name: "Panturrilha em pé",
+        description: "Levante-se na ponta dos pés, contraindo as panturrilhas.",
+        type: "isolation",
+      },
+      { name: "Stiff", description: "Com as pernas retas, abaixe a barra mantendo as costas retas.", type: "compound" },
+      { name: "Afundo", description: "Dê um passo à frente e flexione ambos os joelhos.", type: "compound" },
+      { name: "Cadeira extensora", description: "Sentado, estenda as pernas contra a resistência.", type: "isolation" },
+      { name: "Mesa flexora", description: "Deitado de bruços, flexione as pernas.", type: "isolation" },
+      {
+        name: "Agachamento búlgaro",
+        description: "Com um pé elevado atrás, agache com a perna da frente.",
+        type: "compound",
+      },
     ],
     ombros: [
-      { name: "Desenvolvimento com halteres", description: "Sentado, levante os halteres acima da cabeça." },
-      { name: "Elevação lateral", description: "Levante os halteres lateralmente até a altura dos ombros." },
-      { name: "Elevação frontal", description: "Levante os halteres à frente até a altura dos ombros." },
-      { name: "Remada alta", description: "Puxe a barra em direção ao queixo, mantendo os cotovelos altos." },
-      { name: "Desenvolvimento militar", description: "Em pé, empurre a barra acima da cabeça." },
-      { name: "Elevação posterior", description: "Inclinado, eleve os halteres para trás." },
-      { name: "Arnold press", description: "Rotacione os halteres enquanto empurra para cima." },
+      {
+        name: "Desenvolvimento com halteres",
+        description: "Sentado, levante os halteres acima da cabeça.",
+        type: "compound",
+      },
+      {
+        name: "Elevação lateral",
+        description: "Levante os halteres lateralmente até a altura dos ombros.",
+        type: "isolation",
+      },
+      {
+        name: "Elevação frontal",
+        description: "Levante os halteres à frente até a altura dos ombros.",
+        type: "isolation",
+      },
+      {
+        name: "Remada alta",
+        description: "Puxe a barra em direção ao queixo, mantendo os cotovelos altos.",
+        type: "compound",
+      },
+      { name: "Desenvolvimento militar", description: "Em pé, empurre a barra acima da cabeça.", type: "compound" },
+      { name: "Elevação posterior", description: "Inclinado, eleve os halteres para trás.", type: "isolation" },
+      { name: "Arnold press", description: "Rotacione os halteres enquanto empurra para cima.", type: "compound" },
     ],
   }
 
@@ -191,9 +285,20 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
 
     for (let j = 0; j < finalExerciseCount; j++) {
       const exercise = shuffled[j]
+      const isProblematicArea =
+        quizData.problemAreas?.some(
+          (area) =>
+            (area.toLowerCase().includes("peito") && dayFocus.exercises.includes("peito")) ||
+            (area.toLowerCase().includes("braço") &&
+              (dayFocus.exercises.includes("biceps") || dayFocus.exercises.includes("triceps"))) ||
+            (area.toLowerCase().includes("perna") && dayFocus.exercises.includes("pernas")) ||
+            (area.toLowerCase().includes("costa") && dayFocus.exercises.includes("costas")) ||
+            (area.toLowerCase().includes("ombro") && dayFocus.exercises.includes("ombros")),
+        ) || false
+
       exercises.push({
         name: exercise.name,
-        sets: quizData.experience === "iniciante" ? 3 : quizData.experience === "avancado" ? 5 : 4,
+        sets: getSmartSets(exercise.type || "compound", isProblematicArea), // Use smart sets calculation
         reps: quizData.goal?.includes("ganhar-massa")
           ? "6-10"
           : quizData.goal?.includes("perder-peso")
@@ -227,6 +332,31 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
   }
 
   return days
+}
+
+const getSmartSets = (exerciseType: string, isProblematicArea = false, quizData: any) => {
+  let baseSets = exerciseType === "compound" ? 4 : 3 // Compostos: 4 séries, Isoladores: 3 séries
+
+  // Ajustes baseados na experiência
+  if (quizData.experience === "iniciante") {
+    baseSets = Math.max(2, baseSets - 1) // Reduz 1 série para iniciantes
+  } else if (quizData.experience === "avancado" && exerciseType === "compound") {
+    baseSets = Math.min(5, baseSets + 1) // Adiciona 1 série para avançados em compostos
+  }
+
+  // Ajuste para áreas problemáticas
+  if (isProblematicArea && exerciseType === "compound") {
+    baseSets = Math.min(5, baseSets + 1) // +1 série para áreas problemáticas em exercícios compostos
+  }
+
+  // Ajuste baseado no tempo disponível
+  if (quizData.workoutTime === "30min") {
+    baseSets = Math.max(2, baseSets - 1) // Reduz para treinos curtos
+  } else if (quizData.workoutTime === "mais-1h") {
+    baseSets = Math.min(5, baseSets + 1) // Aumenta para treinos longos
+  }
+
+  return baseSets
 }
 
 /**
@@ -389,38 +519,51 @@ DADOS DO CLIENTE PARA PERSONALIZAÇÃO:
 INSTRUÇÕES OBRIGATÓRIAS DE PERSONALIZAÇÃO:
 - Cada dia deve ter EXATAMENTE ${exerciseRange.min}-${exerciseRange.max} exercícios (${exerciseRange.description})
 
-SÉRIES E REPETIÇÕES OBRIGATÓRIAS BASEADAS NO PERFIL:
+SÉRIES INTELIGENTES BASEADAS NO TIPO DE EXERCÍCIO:
+
+REGRA FUNDAMENTAL DE SÉRIES:
+- EXERCÍCIOS COMPOSTOS/BÁSICOS: 4 séries (maior estímulo, trabalham múltiplos músculos)
+  * Exemplos: Agachamento, Supino, Levantamento Terra, Remada, Desenvolvimento
+- EXERCÍCIOS ISOLADORES/ACESSÓRIOS: 3 séries (finalização, menor custo/benefício)
+  * Exemplos: Rosca Bíceps, Tríceps Polia, Elevação Lateral, Extensão de Pernas
+
+AJUSTES BASEADOS NO PERFIL:
 
 EXPERIÊNCIA ${quizData.experience?.toUpperCase()}:
 ${
   quizData.experience === "iniciante"
-    ? "- SÉRIES: 2-3 séries por exercício\n- REPETIÇÕES: 12-15 repetições\n- DESCANSO: 60-90 segundos"
+    ? "- AJUSTE: -1 série em todos os exercícios (Compostos: 3 séries, Isoladores: 2 séries)\n- REPETIÇÕES: 12-15 repetições\n- DESCANSO: 60-90 segundos"
     : quizData.experience === "avancado"
-      ? "- SÉRIES: 4-5 séries por exercício\n- REPETIÇÕES: 6-10 repetições\n- DESCANSO: 90-180 segundos"
-      : "- SÉRIES: 3-4 séries por exercício\n- REPETIÇÕES: 8-12 repetições\n- DESCANSO: 60-120 segundos"
+      ? "- AJUSTE: +1 série apenas em compostos (Compostos: 5 séries, Isoladores: 3 séries)\n- REPETIÇÕES: 6-10 repetições\n- DESCANSO: 90-180 segundos"
+      : "- AJUSTE: Manter base (Compostos: 4 séries, Isoladores: 3 séries)\n- REPETIÇÕES: 8-12 repetições\n- DESCANSO: 60-120 segundos"
 }
 
-OBJETIVO ${quizData.goal?.join(", ").toUpperCase()}:
+TEMPO DISPONÍVEL ${quizData.workoutTime?.toUpperCase()}:
 ${
-  quizData.goal?.includes("ganhar-massa")
-    ? "- AJUSTE: +1 série, menos repetições (6-10), mais descanso (90-180s)"
-    : quizData.goal?.includes("perder-peso")
-      ? "- AJUSTE: -1 série, mais repetições (12-20), menos descanso (30-60s)"
-      : "- AJUSTE: Manter valores base da experiência"
+  quizData.workoutTime === "30min"
+    ? "- AJUSTE: -1 série em todos (volume reduzido para treino rápido)"
+    : quizData.workoutTime === "mais-1h"
+      ? "- AJUSTE: +1 série em compostos (mais volume para treino longo)"
+      : "- AJUSTE: Manter séries base"
 }
 
 ÁREAS PROBLEMÁTICAS: ${quizData.problemAreas?.join(", ") || "Nenhuma"}
 ${
   quizData.problemAreas?.length > 0
-    ? `- FOQUE EXTRA: +1 série nos exercícios para ${quizData.problemAreas.join(", ")}`
+    ? `- FOQUE EXTRA: +1 série APENAS nos exercícios COMPOSTOS para ${quizData.problemAreas.join(", ")}`
     : "- DESENVOLVIMENTO EQUILIBRADO"
 }
 
-NUNCA USE VALORES FIXOS COMO "4 SÉRIES" PARA TODOS. PERSONALIZE CADA EXERCÍCIO!
+VOLUME SEMANAL OTIMIZADO:
+- Mantenha 10-20 séries por grupo muscular por semana
+- Priorize exercícios compostos para eficiência
+- Use isoladores para finalização e correção de assimetrias
+
+NUNCA USE VALORES FIXOS! CATEGORIZE CADA EXERCÍCIO E APLIQUE AS REGRAS ACIMA!
 
 JSON OBRIGATÓRIO:
 {
-  "days": [${Array.from({ length: requestedDays }, (_, i) => `{"day": "Dia ${i + 1}", "title": "[nome]", "focus": "[foco]", "duration": "${quizData.workoutTime || "45-60min"}", "exercises": [{"name": "[exercício específico]", "sets": "[PERSONALIZADO: ${quizData.experience === "iniciante" ? "2-3" : quizData.experience === "avancado" ? "4-5" : "3-4"}]", "reps": "[PERSONALIZADO: ${quizData.goal?.includes("ganhar-massa") ? "6-10" : quizData.goal?.includes("perder-peso") ? "12-20" : "8-12"}]", "rest": "[PERSONALIZADO: ${quizData.experience === "iniciante" ? "60-90s" : quizData.experience === "avancado" ? "90-180s" : "60-120s"}]", "description": "[descrição detalhada]"}]}`).join(",")}],
+  "days": [${Array.from({ length: requestedDays }, (_, i) => `{"day": "Dia ${i + 1}", "title": "[nome]", "focus": "[foco]", "duration": "${quizData.workoutTime || "45-60min"}", "exercises": [{"name": "[exercício específico]", "sets": "[4 para COMPOSTOS, 3 para ISOLADORES + ajustes do perfil]", "reps": "[PERSONALIZADO: ${quizData.goal?.includes("ganhar-massa") ? "6-10" : quizData.goal?.includes("perder-peso") ? "12-20" : "8-12"}]", "rest": "[PERSONALIZADO: ${quizData.experience === "iniciante" ? "60-90s" : quizData.experience === "avancado" ? "120s" : "60-120s"}]", "description": "[descrição detalhada]"}]}`).join(",")}],
   "weeklySchedule": "Treino ${requestedDays}x por semana"
 }`
 
