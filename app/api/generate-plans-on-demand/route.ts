@@ -386,25 +386,41 @@ DADOS DO CLIENTE PARA PERSONALIZAÇÃO:
 - Tempo disponível: ${quizData.workoutTime}
 - Equipamentos: ${quizData.equipment?.join(", ") || "Academia"}
 
-INSTRUÇÕES OBRIGATÓRIAS:
+INSTRUÇÕES OBRIGATÓRIAS DE PERSONALIZAÇÃO:
 - Cada dia deve ter EXATAMENTE ${exerciseRange.min}-${exerciseRange.max} exercícios (${exerciseRange.description})
-- PERSONALIZE séries e repetições baseado no perfil do cliente:
-  * Iniciante: 2-3 séries, 12-15 repetições, descanso 60-90s
-  * Intermediário: 3-4 séries, 8-12 repetições, descanso 60-120s  
-  * Avançado: 4-5 séries, 6-10 repetições, descanso 90-180s
-- AJUSTE baseado no objetivo:
-  * Ganhar massa: Mais séries (3-5), menos reps (6-10), mais descanso (90-180s)
-  * Perder peso: Menos séries (2-3), mais reps (12-20), menos descanso (30-60s)
-  * Resistência: Séries moderadas (3-4), reps altas (15-25), descanso curto (30-45s)
-- FOQUE nas áreas problemáticas: ${quizData.problemAreas?.join(", ") || "desenvolvimento equilibrado"}
-- CONSIDERE o biotipo:
-  * Ectomorfo: Menos volume, mais intensidade, descanso maior
-  * Mesomorfo: Volume moderado, intensidade moderada
-  * Endomorfo: Mais volume, menos descanso, mais cardio
+
+SÉRIES E REPETIÇÕES OBRIGATÓRIAS BASEADAS NO PERFIL:
+
+EXPERIÊNCIA ${quizData.experience?.toUpperCase()}:
+${
+  quizData.experience === "iniciante"
+    ? "- SÉRIES: 2-3 séries por exercício\n- REPETIÇÕES: 12-15 repetições\n- DESCANSO: 60-90 segundos"
+    : quizData.experience === "avancado"
+      ? "- SÉRIES: 4-5 séries por exercício\n- REPETIÇÕES: 6-10 repetições\n- DESCANSO: 90-180 segundos"
+      : "- SÉRIES: 3-4 séries por exercício\n- REPETIÇÕES: 8-12 repetições\n- DESCANSO: 60-120 segundos"
+}
+
+OBJETIVO ${quizData.goal?.join(", ").toUpperCase()}:
+${
+  quizData.goal?.includes("ganhar-massa")
+    ? "- AJUSTE: +1 série, menos repetições (6-10), mais descanso (90-180s)"
+    : quizData.goal?.includes("perder-peso")
+      ? "- AJUSTE: -1 série, mais repetições (12-20), menos descanso (30-60s)"
+      : "- AJUSTE: Manter valores base da experiência"
+}
+
+ÁREAS PROBLEMÁTICAS: ${quizData.problemAreas?.join(", ") || "Nenhuma"}
+${
+  quizData.problemAreas?.length > 0
+    ? `- FOQUE EXTRA: +1 série nos exercícios para ${quizData.problemAreas.join(", ")}`
+    : "- DESENVOLVIMENTO EQUILIBRADO"
+}
+
+NUNCA USE VALORES FIXOS COMO "4 SÉRIES" PARA TODOS. PERSONALIZE CADA EXERCÍCIO!
 
 JSON OBRIGATÓRIO:
 {
-  "days": [${Array.from({ length: requestedDays }, (_, i) => `{"day": "Dia ${i + 1}", "title": "[nome]", "focus": "[foco]", "duration": "${quizData.workoutTime || "45-60min"}", "exercises": [{"name": "[exercício específico]", "sets": "[número personalizado baseado no perfil]", "reps": "[repetições personalizadas baseadas no objetivo]", "rest": "[descanso personalizado baseado na experiência]", "description": "[descrição detalhada]"}]}`).join(",")}],
+  "days": [${Array.from({ length: requestedDays }, (_, i) => `{"day": "Dia ${i + 1}", "title": "[nome]", "focus": "[foco]", "duration": "${quizData.workoutTime || "45-60min"}", "exercises": [{"name": "[exercício específico]", "sets": "[PERSONALIZADO: ${quizData.experience === "iniciante" ? "2-3" : quizData.experience === "avancado" ? "4-5" : "3-4"}]", "reps": "[PERSONALIZADO: ${quizData.goal?.includes("ganhar-massa") ? "6-10" : quizData.goal?.includes("perder-peso") ? "12-20" : "8-12"}]", "rest": "[PERSONALIZADO: ${quizData.experience === "iniciante" ? "60-90s" : quizData.experience === "avancado" ? "90-180s" : "60-120s"}]", "description": "[descrição detalhada]"}]}`).join(",")}],
   "weeklySchedule": "Treino ${requestedDays}x por semana"
 }`
 
