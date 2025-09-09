@@ -460,7 +460,7 @@ export async function POST(req: Request) {
       const dietPrompt = `
 Você é um nutricionista experiente. Crie uma dieta de ${savedCalcs.finalCalories} kcal EXATAS para ${quizData.gender}, ${quizData.age} anos.
 
-ALVO OBRIGATÓRIO: ${savedCalcs.finalCalories} kcal
+ALVO CRÍTICO OBRIGATÓRIO: ${savedCalcs.finalCalories} kcal (±10 kcal máximo)
 Proteína: ${savedCalcs.protein}g | Carboidratos: ${savedCalcs.carbs}g | Gorduras: ${savedCalcs.fats}g
 
 CLIENTE: ${quizData.currentWeight}kg, objetivo: ${quizData.goal?.join(", ")}, biotipo: ${quizData.bodyType}
@@ -468,24 +468,28 @@ ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
 
 REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
 
-INSTRUÇÕES CRÍTICAS:
-1. VOCÊ deve fornecer TODOS os valores nutricionais de cada alimento
-2. Use seu conhecimento nutricional para calcular calorias, proteínas, carboidratos e gorduras
-3. A soma TOTAL deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal
-4. Seja preciso com as quantidades e valores nutricionais
-5. Use alimentos reais com valores nutricionais corretos
+INSTRUÇÕES CRÍTICAS DE PRECISÃO CALÓRICA:
+1. VOCÊ deve calcular EXATAMENTE as quantidades para atingir as calorias de cada refeição
+2. Use seu conhecimento nutricional preciso (ex: Aveia = 389 kcal/100g, Banana = 89 kcal/100g)
+3. CALCULE a quantidade exata de cada alimento para atingir o alvo
+4. VERIFIQUE se a soma bate com o alvo da refeição
+5. AJUSTE as quantidades se necessário
 
-EXEMPLO DE FORMATO OBRIGATÓRIO:
-{
-  "name": "Aveia em flocos",
-  "quantity": "80g",
-  "calories": 311,
-  "protein": 13.5,
-  "carbs": 52.8,
-  "fats": 6.2
-}
+PROCESSO OBRIGATÓRIO PARA CADA REFEIÇÃO:
+1. Defina o alvo calórico da refeição
+2. Escolha alimentos apropriados
+3. CALCULE a quantidade exata de cada alimento para atingir o alvo
+4. VERIFIQUE se a soma bate com o alvo da refeição
+5. AJUSTE as quantidades se necessário
 
-JSON OBRIGATÓRIO:
+EXEMPLO DE CÁLCULO CORRETO:
+Refeição alvo: 567 kcal
+- Aveia (389 kcal/100g): Para 311 kcal → 311÷3.89 = 80g
+- Banana (89 kcal/100g): Para 134 kcal → 134÷0.89 = 150g  
+- Leite integral (64 kcal/100ml): Para 122 kcal → 122÷0.64 = 190ml
+TOTAL: 311+134+122 = 567 kcal ✅
+
+JSON OBRIGATÓRIO COM VALIDAÇÃO:
 {
   "totalDailyCalories": "${savedCalcs.finalCalories} kcal",
   "totalProtein": "${savedCalcs.protein}g",
@@ -501,16 +505,30 @@ JSON OBRIGATÓRIO:
         "foods": [
           {
             "name": "[alimento específico]",
-            "quantity": "[quantidade precisa]",
-            "calories": "[calorias que VOCÊ calculou]",
-            "protein": "[proteína que VOCÊ calculou]",
-            "carbs": "[carboidratos que VOCÊ calculou]",
-            "fats": "[gorduras que VOCÊ calculou]"
+            "quantity": "[quantidade CALCULADA para atingir calorias exatas]",
+            "calories": ${Math.round(targetCals * 0.6)},
+            "protein": "[proteína calculada]",
+            "carbs": "[carboidratos calculados]",
+            "fats": "[gorduras calculadas]"
+          },
+          {
+            "name": "[segundo alimento]",
+            "quantity": "[quantidade CALCULADA]",
+            "calories": ${Math.round(targetCals * 0.4)},
+            "protein": "[proteína calculada]",
+            "carbs": "[carboidratos calculados]",
+            "fats": "[gorduras calculadas]"
           }
         ]
       }`
     })
-    .join(",")}]
+    .join(",")}],
+  "validation": {
+    "totalCalculated": "[SOME todas as calorias dos alimentos]",
+    "targetCalories": ${savedCalcs.finalCalories},
+    "difference": "[diferença entre calculado e alvo]",
+    "isValid": "[true se diferença ≤ 10 kcal]"
+  }
 }`
 
       const workoutPrompt = `
@@ -635,13 +653,33 @@ JSON OBRIGATÓRIO:
             const parsed = JSON.parse(rawContent)
 
             if (parsed.meals && Array.isArray(parsed.meals) && parsed.meals.length === mealConfig.count) {
-              parsed.totalDailyCalories = `${savedCalcs.finalCalories} kcal`
-              parsed.totalProtein = `${savedCalcs.protein}g`
-              parsed.totalCarbs = `${savedCalcs.carbs}g`
-              parsed.totalFats = `${savedCalcs.fats}g`
+              // Calculate real sum of all food calories
+              let realTotalCalories = 0
+              parsed.meals.forEach((meal: any) => {
+                if (meal.foods && Array.isArray(meal.foods)) {
+                  meal.foods.forEach((food: any) => {
+                    realTotalCalories += Number(food.calories) || 0
+                  })
+                }
+              })
 
-              dietPlan = parsed
-              console.log("✅ [DIET SUCCESS] Generated and corrected")
+              console.log(
+                `🔍 [VALIDATION] Target: ${savedCalcs.finalCalories} kcal, AI Generated: ${realTotalCalories} kcal`,
+              )
+
+              // Only accept if within ±50 kcal tolerance
+              const difference = Math.abs(realTotalCalories - savedCalcs.finalCalories)
+              if (difference <= 50) {
+                parsed.totalDailyCalories = `${savedCalcs.finalCalories} kcal`
+                parsed.totalProtein = `${savedCalcs.protein}g`
+                parsed.totalCarbs = `${savedCalcs.carbs}g`
+                parsed.totalFats = `${savedCalcs.fats}g`
+
+                dietPlan = parsed
+                console.log(`✅ [DIET SUCCESS] Generated within tolerance (±${difference} kcal)`)
+              } else {
+                console.log(`❌ [DIET REJECTED] Too far from target (±${difference} kcal > 50 kcal limit)`)
+              }
             }
           } catch (e) {
             console.log("⚠️ [DIET] Parse error:", e)
@@ -690,7 +728,6 @@ JSON OBRIGATÓRIO:
       try {
         await userDocRef.set(
           {
-            plans: { dietPlan, workoutPlan },
             dietPlan,
             workoutPlan,
             finalResults: {
