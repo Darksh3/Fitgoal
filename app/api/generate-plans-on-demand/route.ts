@@ -468,9 +468,9 @@ OBJETIVO: ${quizData.goal?.join(", ")}
 ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
 
 CONFIGURAÇÃO: ${mealConfig.count} refeições
-${mealConfig.names.map((name, i) => 
-  `${name}: ${Math.round(savedCalcs.finalCalories * mealConfig.distribution[i])} kcal`
-).join('\n')}
+${mealConfig.names
+  .map((name, i) => `${name}: ${Math.round(savedCalcs.finalCalories * mealConfig.distribution[i])} kcal`)
+  .join("\n")}
 
 ⚠️ REGRA CRÍTICA DE VALIDAÇÃO:
 ANTES de responder, você DEVE:
@@ -493,10 +493,11 @@ JSON (sem texto adicional):
   "totalProtein": "${savedCalcs.protein}g", 
   "totalCarbs": "${savedCalcs.carbs}g",
   "totalFats": "${savedCalcs.fats}g",
-  "meals": [${mealConfig.names.map((name, i) => {
-    const targetCals = Math.round(savedCalcs.finalCalories * mealConfig.distribution[i]);
-    const time = ["07:00", "10:00", "12:00", "15:00", "19:00", "21:00"][i] || "08:00";
-    return `{
+  "meals": [${mealConfig.names
+    .map((name, i) => {
+      const targetCals = Math.round(savedCalcs.finalCalories * mealConfig.distribution[i])
+      const time = ["07:00", "10:00", "12:00", "15:00", "19:00", "21:00"][i] || "08:00"
+      return `{
       "name": "${name}",
       "time": "${time}",
       "totalCalories": ${targetCals},
@@ -510,8 +511,9 @@ JSON (sem texto adicional):
           "fats": [gramas]
         }
       ]
-    }`;
-  }).join(',')}]}`;
+    }`
+    })
+    .join(",")}]}`
 
       const workoutPrompt = `
 Crie EXATAMENTE ${requestedDays} dias de treino para ${quizData.gender}, ${quizData.experience}, ${quizData.workoutTime}.
@@ -597,23 +599,23 @@ JSON OBRIGATÓRIO:
 
       const generateWithTimeout = async (prompt: string, type: string) => {
         const timeout = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error(`${type} generation timeout`)), 60000) // Increased to 60s
+          setTimeout(() => reject(new Error(`${type} generation timeout`)), 60000)
         })
 
         const generation = openai.chat.completions.create({
-          model: \"gpt-4\",
-          messages: [\
+          model: "gpt-4",\
+          messages: [
             {\
-              role: "system",
+              role: \"system",
               content: `Você é um ${type === "diet" ? "nutricionista experiente" : "personal trainer experiente"}. Seja preciso com calorias.`,
             },
             { role: "user", content: prompt },
           ],
           temperature: 0.1,
-          response_format: { type: \"json_object\" },\
-          max_tokens: 4000, // Increased tokens\
+          response_format: { type: "json_object" },\
+          max_tokens: 4000,
         })
-
+        \
         return Promise.race([generation, timeout])
       }
 
@@ -623,34 +625,39 @@ JSON OBRIGATÓRIO:
       try {
         console.log("🚀 [PARALLEL] Starting diet and workout generation")
 
-        const [dietResponse, workoutResponse] = await Promise.allSettled([\
-          generateWithTimeout(dietPrompt, "diet"),
-          generateWithTimeout(workoutPrompt, \"workout"),\
-        ])
+        const [dietResponse, workoutResponse] = await Promise.allSettled(
+          [
+          generateWithTimeout(dietPrompt, "diet"),\
+          generateWithTimeout(workoutPrompt, "workout"),
+        ],
+        )
 
-        // Process diet response\
-        if (dietResponse.status === "fulfilled") {\
-          try {\
-            const rawContent = dietResponse.value.choices[0].message?.content || \"{}"\
+        // Process diet response
+        if (dietResponse.status === "fulfilled") {
+          try {
+            const rawContent = dietResponse.value.choices[0].message?.content || "{}"
             const parsed = JSON.parse(rawContent)
-\
-            if (parsed.meals && Array.isArray(parsed.meals) && parsed.meals.length === mealConfig.count) {\
-              const validateDietStrict = (parsed: any, target: number) => {\
-                const calculatedTotal = parsed.meals?.reduce((total, meal) => {\
-                  return total + (meal.foods?.reduce((mealSum, food) => mealSum + (food.calories || 0), 0) || 0);
-                }, 0) || 0;
+            \
+            if (parsed.meals && Array.isArray(parsed.meals) && parsed.meals.length === mealConfig.count) {
+              const validateDietStrict = (parsed: any, target: number) => {
+                const calculatedTotal =
+                  parsed.meals?.reduce((total, meal) => {
+                    return total + (meal.foods?.reduce((mealSum, food) => mealSum + (food.calories || 0), 0) || 0)
+                  }, 0) || 0
 
-                const difference = Math.abs(calculatedTotal - target);
+                const difference = Math.abs(calculatedTotal - target)
 
-                console.log(`🔍 [STRICT VALIDATION] Target: ${target}, Calculated: ${calculatedTotal}, Diff: ${difference}`);
+                console.log(
+                  `🔍 [STRICT VALIDATION] Target: ${target}, Calculated: ${calculatedTotal}, Diff: ${difference}`,
+                )
 
                 if (difference > 100) {
-                  console.log(`❌ [VALIDATION FAILED] Difference too large: ${difference} kcal`);
-                  return false;
+                  console.log(`❌ [VALIDATION FAILED] Difference too large: ${difference} kcal`)
+                  return false
                 }
 
-                return true;
-              };
+                return true
+              }
 
               if (validateDietStrict(parsed, savedCalcs.finalCalories)) {
                 // 1. Calcula soma real dos alimentos
@@ -681,7 +688,9 @@ JSON OBRIGATÓRIO:
                         const oldCalories = mainFood.calories || 0
                         const newCalories = Math.max(50, oldCalories + mealAdjustment) // Mínimo 50 kcal
 
-                        console.log(`  📝 [MEAL ${mealIndex + 1}] ${mainFood.name}: ${oldCalories} → ${newCalories} kcal`)
+                        console.log(
+                          `  📝 [MEAL ${mealIndex + 1}] ${mainFood.name}: ${oldCalories} → ${newCalories} kcal`,
+                        )
 
                         mainFood.calories = newCalories
 
@@ -736,8 +745,8 @@ JSON OBRIGATÓRIO:
               workoutPlan = parsed
               console.log("✅ [WORKOUT SUCCESS] Generated successfully")
             }
-          } catch (e) {\
-            console.log(\"⚠️ [WORKOUT] Parse error, using fallback")
+          } catch (e) {
+            console.log("⚠️ [WORKOUT] Parse error, using fallback")
           }
         }
       } catch (error) {
@@ -750,11 +759,11 @@ JSON OBRIGATÓRIO:
         return new Response(
           JSON.stringify({
             error: "Failed to generate diet plan. AI must provide all nutritional data.",
-            details: \"Please try again - the AI should calculate all food values.",
+            details: "Please try again - the AI should calculate all food values.",
           }),
           {
             status: 500,
-            headers: { "Content-Type": \"application/json" },
+            headers: { "Content-Type": "application/json" },
           },
         )
       }
@@ -763,21 +772,21 @@ JSON OBRIGATÓRIO:
         console.log("🔧 [WORKOUT FALLBACK] Using manual generation")
         workoutPlan = {
           days: generateFallbackWorkoutDays(requestedDays, quizData),
-          weeklySchedule: \`Treino ${requestedDays}x por semana`,
+          weeklySchedule: `Treino ${requestedDays}x por semana`,
         }
       }
-\
+
       try {
         await userDocRef.set(
           {
-            dietPlan,\
-            workoutPlan,\
-            finalResults: {\
+            dietPlan,
+            workoutPlan,
+            finalResults: {
               scientificTarget: savedCalcs.finalCalories,
               actualGenerated: dietPlan?.totalDailyCalories,
               valuesMatch: dietPlan?.totalDailyCalories === `${savedCalcs.finalCalories} kcal`,
               generatedAt: admin.firestore.FieldValue.serverTimestamp(),
-            },\
+            },
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           },
           { merge: true },
@@ -802,12 +811,13 @@ JSON OBRIGATÓRIO:
     }
 
     return await Promise.race([mainLogic(), timeoutPromise])
-  } catch (error: any) 
+  } catch (error: any) {
     console.error("❌ Fatal error:", error)
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     })
+  }
 }
 
 /**
