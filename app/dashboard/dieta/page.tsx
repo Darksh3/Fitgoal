@@ -590,55 +590,51 @@ export default function DietPage() {
   const displayTotals = {
     calories: (() => {
       if (dietPlan?.totalDailyCalories && dietPlan.totalDailyCalories !== "0") {
-        const savedValue = dietPlan.totalDailyCalories.includes("kcal")
+        return dietPlan.totalDailyCalories.includes("kcal")
           ? dietPlan.totalDailyCalories
           : `${dietPlan.totalDailyCalories} kcal`
-        console.log("[v0] Using saved plan calories:", savedValue)
-        return savedValue
       }
 
       if (quizData) {
         const scientificCalories = calculateScientificCalories(quizData)
-        console.log("[v0] Using scientific calculation calories:", scientificCalories)
         return `${scientificCalories} kcal`
       }
 
-      console.log("[v0] No valid calorie data found, showing unavailable")
+      if (dietPlan?.calories && dietPlan.calories !== "0" && dietPlan.calories !== "0 kcal") {
+        return dietPlan.calories.includes("kcal") ? dietPlan.calories : `${dietPlan.calories} kcal`
+      }
       return "Dados não disponíveis"
     })(),
     protein: (() => {
       if (dietPlan?.totalProtein && dietPlan.totalProtein !== "0g" && dietPlan.totalProtein !== "0") {
         return dietPlan.totalProtein.includes("g") ? dietPlan.totalProtein : `${dietPlan.totalProtein}g`
       }
-      console.log("[v0] No valid protein data found")
+      if (dietPlan?.protein && dietPlan.protein !== "0g" && dietPlan.protein !== "0") {
+        return dietPlan.protein.includes("g") ? dietPlan.protein : `${dietPlan.protein}g`
+      }
       return "Dados não disponíveis"
     })(),
     carbs: (() => {
       if (dietPlan?.totalCarbs && dietPlan.totalCarbs !== "0g" && dietPlan.totalCarbs !== "0") {
         return dietPlan.totalCarbs.includes("g") ? dietPlan.totalCarbs : `${dietPlan.totalCarbs}g`
       }
-      console.log("[v0] No valid carbs data found")
+      if (dietPlan?.carbs && dietPlan.carbs !== "0g" && dietPlan.carbs !== "0") {
+        return dietPlan.carbs.includes("g") ? dietPlan.carbs : `${dietPlan.carbs}g`
+      }
       return "Dados não disponíveis"
     })(),
     fats: (() => {
       if (dietPlan?.totalFats && dietPlan.totalFats !== "0g" && dietPlan.totalFats !== "0") {
         return dietPlan.totalFats.includes("g") ? dietPlan.totalFats : `${dietPlan.totalFats}g`
       }
-      console.log("[v0] No valid fats data found")
+      if (dietPlan?.fats && dietPlan.fats !== "0g" && dietPlan.fats !== "0") {
+        return dietPlan.fats.includes("g") ? dietPlan.fats : `${dietPlan.fats}g`
+      }
       return "Dados não disponíveis"
     })(),
   }
 
   const calculatedTotals = calculateTotalMacros(dietPlan?.meals || [])
-
-  console.log("[v0] Using diet plan values:", {
-    calories: dietPlan?.totalDailyCalories || "not found",
-    carbs: dietPlan?.totalCarbs || "not found",
-    fats: dietPlan?.totalFats || "not found",
-    proteins: dietPlan?.totalProtein || "not found",
-  })
-
-  console.log("[v0] rawDietPlan:", dietPlan)
 
   console.log("[v0] About to render, loading:", loading, "error:", error)
 

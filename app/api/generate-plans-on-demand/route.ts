@@ -390,10 +390,10 @@ function getMealCountByBodyType(bodyType: string) {
 export async function POST(req: Request) {
   try {
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error("Request timeout after 180 seconds")), 180000) // 3 minutos
+      setTimeout(() => reject(new Error("Request timeout after 90 seconds")), 90000)
     })
 
-    const processRequest = async () => {
+    const mainLogic = async () => {
       const { userId, quizData: providedQuizData, forceRegenerate } = await req.json()
 
       if (!userId) {
@@ -457,98 +457,60 @@ export async function POST(req: Request) {
       const exerciseRange = getExerciseCountRange(quizData.workoutTime || "45-60min")
       console.log(`🏋️ [EXERCISE COUNT] ${exerciseRange.description} para tempo: ${quizData.workoutTime}`)
 
-      // PROMPT CORRIGIDO PARA PRECISÃO CALÓRICA
       const dietPrompt = `
-Você é um nutricionista especialista em cálculo nutricional preciso.
+Você é um nutricionista experiente. Crie uma dieta de ${savedCalcs.finalCalories} kcal EXATAS para ${quizData.gender}, ${quizData.age} anos.
 
-MISSÃO CRÍTICA: Criar uma dieta de EXATAMENTE ${savedCalcs.finalCalories} kcal (diferença máxima: ±20 kcal).
+ALVO OBRIGATÓRIO: ${savedCalcs.finalCalories} kcal
+Proteína: ${savedCalcs.protein}g | Carboidratos: ${savedCalcs.carbs}g | Gorduras: ${savedCalcs.fats}g
 
-DADOS DO CLIENTE:
-- Peso: ${quizData.currentWeight}kg, ${quizData.gender}, ${quizData.age} anos
-- Objetivo: ${quizData.goal?.join(", ")}
-- Biotipo: ${quizData.bodyType}
-- Alergias: ${quizData.allergies !== "nao" ? quizData.allergyDetails : "Nenhuma"}
-- Preferências: ${quizData.diet !== "nao-sigo" ? quizData.diet : "Sem restrições"}
+CLIENTE: ${quizData.currentWeight}kg, objetivo: ${quizData.goal?.join(", ")}, biotipo: ${quizData.bodyType}
+${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
 
-ALVO NUTRICIONAL OBRIGATÓRIO:
-- Calorias totais: ${savedCalcs.finalCalories} kcal
-- Proteína: ${savedCalcs.protein}g
-- Carboidratos: ${savedCalcs.carbs}g  
-- Gorduras: ${savedCalcs.fats}g
+REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
 
-DISTRIBUIÇÃO DE REFEIÇÕES (${mealConfig.count} refeições):
-${mealConfig.names
-  .map((name, i) => {
-    const targetCals = Math.round(savedCalcs.finalCalories * mealConfig.distribution[i])
-    return `- ${name}: ${targetCals} kcal (${(mealConfig.distribution[i] * 100).toFixed(1)}%)`
-  })
-  .join("\n")}
+INSTRUÇÕES CRÍTICAS:
+1. VOCÊ deve fornecer TODOS os valores nutricionais de cada alimento
+2. Use seu conhecimento nutricional para calcular calorias, proteínas, carboidratos e gorduras
+3. A soma TOTAL deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal
+4. Seja preciso com as quantidades e valores nutricionais
+5. Use alimentos reais com valores nutricionais corretos
 
-PROCESSO OBRIGATÓRIO PARA CÁLCULO PRECISO:
+EXEMPLO DE FORMATO OBRIGATÓRIO:
+{
+  "name": "Aveia em flocos",
+  "quantity": "80g",
+  "calories": 311,
+  "protein": 13.5,
+  "carbs": 52.8,
+  "fats": 6.2
+}
 
-1. VALORES NUTRICIONAIS REAIS (use estes dados precisos):
-   - Aveia: 389 kcal/100g, 16.9g prot, 66.3g carb, 6.9g gord
-   - Arroz integral cozido: 111 kcal/100g, 2.3g prot, 22g carb, 0.9g gord
-   - Peito de frango grelhado: 165 kcal/100g, 31g prot, 0g carb, 3.6g gord
-   - Ovo inteiro: 155 kcal/100g, 13g prot, 1.1g carb, 11g gord
-   - Banana: 89 kcal/100g, 1.1g prot, 23g carb, 0.3g gord
-   - Batata doce: 86 kcal/100g, 2g prot, 20g carb, 0.1g gord
-   - Azeite: 884 kcal/100ml, 0g prot, 0g carb, 100g gord
-
-2. FÓRMULA DE CÁLCULO:
-   Quantidade necessária (g) = (Calorias desejadas × 100) ÷ kcal por 100g do alimento
-
-3. EXEMPLO PRÁTICO:
-   Refeição alvo: 400 kcal
-   - Aveia: Para 240 kcal → (240 × 100) ÷ 389 = 62g
-   - Banana: Para 160 kcal → (160 × 100) ÷ 89 = 180g
-   TOTAL: 240 + 160 = 400 kcal ✓
-
-4. VALIDAÇÃO OBRIGATÓRIA:
-   - SOME todas as calorias de todos os alimentos
-   - VERIFIQUE se o total = ${savedCalcs.finalCalories} kcal
-   - AJUSTE quantidades se necessário
-
-INSTRUÇÕES FINAIS:
-- Use APENAS os valores nutricionais fornecidos acima
-- CALCULE as quantidades exatas usando a fórmula
-- NÃO invente valores nutricionais
-- GARANTA que a soma total seja ${savedCalcs.finalCalories} kcal
-
-JSON OBRIGATÓRIO (calcule as quantidades exatas):
+JSON OBRIGATÓRIO:
 {
   "totalDailyCalories": "${savedCalcs.finalCalories} kcal",
   "totalProtein": "${savedCalcs.protein}g",
-  "totalCarbs": "${savedCalcs.carbs}g",
+  "totalCarbs": "${savedCalcs.carbs}g", 
   "totalFats": "${savedCalcs.fats}g",
-  "meals": [
-    ${mealConfig.names
-      .map((name, i) => {
-        const targetCals = Math.round(savedCalcs.finalCalories * mealConfig.distribution[i])
-        return `{
+  "meals": [${mealConfig.names
+    .map((name, i) => {
+      const targetCals = Math.round(savedCalcs.finalCalories * mealConfig.distribution[i])
+      return `{
         "name": "${name}",
         "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}",
-        "totalCalories": "${targetCals} kcal",
+        "totalCalories": ${targetCals},
         "foods": [
           {
-            "name": "[alimento da lista acima]",
-            "quantity": "[quantidade CALCULADA usando a fórmula]",
-            "calories": "[calorias baseadas na quantidade calculada]",
-            "protein": "[proteína calculada]",
-            "carbs": "[carboidratos calculados]",
-            "fats": "[gorduras calculadas]"
+            "name": "[alimento específico]",
+            "quantity": "[quantidade precisa]",
+            "calories": "[calorias que VOCÊ calculou]",
+            "protein": "[proteína que VOCÊ calculou]",
+            "carbs": "[carboidratos que VOCÊ calculou]",
+            "fats": "[gorduras que VOCÊ calculou]"
           }
         ]
       }`
-      })
-      .join(",\n    ")}
-  ],
-  "calorieValidation": {
-    "targetTotal": ${savedCalcs.finalCalories},
-    "calculatedTotal": "[SOME todas as calorias dos alimentos]",
-    "difference": "[diferença entre calculado e target]",
-    "isAccurate": "[true se diferença ≤ 20 kcal]"
-  }
+    })
+    .join(",")}]
 }`
 
       const workoutPrompt = `
@@ -594,7 +556,7 @@ REGRA FUNDAMENTAL DE SÉRIES:
 
 AJUSTES BASEADOS NO PERFIL:
 
-EXPERIÊNCIA ${quizData.experience?.toUpperCASE()}:
+EXPERIÊNCIA ${quizData.experience?.toUpperCase()}:
 ${
   quizData.experience === "iniciante"
     ? "- AJUSTE: -1 série em todos os exercícios (Compostos: 3 séries, Isoladores: 2 séries)\n- REPETIÇÕES: 12-15 repetições\n- DESCANSO: 60-90 segundos"
@@ -635,7 +597,7 @@ JSON OBRIGATÓRIO:
 
       const generateWithTimeout = async (prompt: string, type: string) => {
         const timeout = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error(`${type} generation timeout`)), 30000) // Reduzido para 30s
+          setTimeout(() => reject(new Error(`${type} generation timeout`)), 60000) // Increased to 60s
         })
 
         const generation = openai.chat.completions.create({
@@ -643,13 +605,13 @@ JSON OBRIGATÓRIO:
           messages: [
             {
               role: "system",
-              content: `Você é um ${type === "diet" ? "nutricionista especialista em cálculos nutricionais precisos" : "personal trainer experiente"}. Seja matematicamente preciso com calorias.`,
+              content: `Você é um ${type === "diet" ? "nutricionista experiente" : "personal trainer experiente"}. Seja preciso com calorias.`,
             },
             { role: "user", content: prompt },
           ],
           temperature: 0.1,
           response_format: { type: "json_object" },
-          max_tokens: 4000,
+          max_tokens: 4000, // Increased tokens
         })
 
         return Promise.race([generation, timeout])
@@ -658,165 +620,62 @@ JSON OBRIGATÓRIO:
       let dietPlan = null
       let workoutPlan = null
 
-      const maxRetries = 2 // Reduced max retries from 3 to 2 attempts
-      let dietRetries = 0
+      try {
+        console.log("🚀 [PARALLEL] Starting diet and workout generation")
 
-      while (!dietPlan && dietRetries < maxRetries) {
-        try {
-          console.log(`🚀 [DIET ATTEMPT ${dietRetries + 1}/${maxRetries}] Starting diet generation`)
+        const [dietResponse, workoutResponse] = await Promise.allSettled([
+          generateWithTimeout(dietPrompt, "diet"),
+          generateWithTimeout(workoutPrompt, "workout"),
+        ])
 
-          const [dietResponse, workoutResponse] = await Promise.allSettled([
-            generateWithTimeout(dietPrompt, "diet"),
-            generateWithTimeout(workoutPrompt, "workout"),
-          ])
+        // Process diet response
+        if (dietResponse.status === "fulfilled") {
+          try {
+            const rawContent = dietResponse.value.choices[0].message?.content || "{}"
+            const parsed = JSON.parse(rawContent)
 
-          // VALIDAÇÃO RIGOROSA DA RESPOSTA DA IA
-          if (dietResponse.status === "fulfilled") {
-            try {
-              const rawContent = dietResponse.value.choices[0].message?.content || "{}"
-              const parsed = JSON.parse(rawContent)
+            if (parsed.meals && Array.isArray(parsed.meals) && parsed.meals.length === mealConfig.count) {
+              parsed.totalDailyCalories = `${savedCalcs.finalCalories} kcal`
+              parsed.totalProtein = `${savedCalcs.protein}g`
+              parsed.totalCarbs = `${savedCalcs.carbs}g`
+              parsed.totalFats = `${savedCalcs.fats}g`
 
-              if (parsed.meals && Array.isArray(parsed.meals) && parsed.meals.length === mealConfig.count) {
-                // Calculate real sum of all food calories with detailed logging
-                let realTotalCalories = 0
-
-                console.log(`🔍 [DETAILED VALIDATION] Checking each meal:`)
-
-                parsed.meals.forEach((meal: any, mealIndex: number) => {
-                  let mealTotal = 0
-
-                  if (meal.foods && Array.isArray(meal.foods)) {
-                    meal.foods.forEach((food: any, foodIndex: number) => {
-                      const foodCalories = Number(food.calories?.toString().replace(/[^\d]/g, "")) || 0
-                      mealTotal += foodCalories
-                      console.log(`  📝 ${meal.name} - ${food.name}: ${food.quantity} = ${foodCalories} kcal`)
-                    })
-                  }
-
-                  realTotalCalories += mealTotal
-                  const targetMealCals = Math.round(savedCalcs.finalCalories * mealConfig.distribution[mealIndex])
-                  console.log(`  ✅ ${meal.name} total: ${mealTotal} kcal (target: ${targetMealCals} kcal)`)
-                })
-
-                console.log(
-                  `🎯 [FINAL VALIDATION] Target: ${savedCalcs.finalCalories} kcal, AI Generated: ${realTotalCalories} kcal`,
-                )
-
-                // Tolerância rigorosa baseada na tentativa
-                const tolerance = dietRetries === 0 ? 50 : dietRetries === 1 ? 100 : 150 // Muito mais rigorosa!
-                const difference = Math.abs(realTotalCalories - savedCalcs.finalCalories)
-
-                if (difference <= tolerance) {
-                  // Ajustar os totais para serem consistentes
-                  parsed.totalDailyCalories = `${realTotalCalories} kcal` // Use o valor real calculado
-                  parsed.totalProtein = `${savedCalcs.protein}g`
-                  parsed.totalCarbs = `${savedCalcs.carbs}g`
-                  parsed.totalFats = `${savedCalcs.fats}g`
-
-                  dietPlan = parsed
-                  console.log(
-                    `✅ [DIET SUCCESS] Generated within tolerance (±${difference} kcal, limit: ${tolerance} kcal)`,
-                  )
-                  break
-                } else {
-                  console.log(
-                    `❌ [DIET REJECTED] Attempt ${dietRetries + 1}: ±${difference} kcal > ${tolerance} kcal limit`,
-                  )
-                  console.log(
-                    `📊 [BREAKDOWN] Target per meal: ${mealConfig.distribution
-                      .map(
-                        (dist, idx) => `${mealConfig.names[idx]}: ${Math.round(savedCalcs.finalCalories * dist)} kcal`,
-                      )
-                      .join(", ")}`,
-                  )
-                }
-              } else {
-                console.log(
-                  `⚠️ [DIET STRUCTURE] Invalid meal structure: expected ${mealConfig.count} meals, got ${parsed.meals?.length || 0}`,
-                )
-              }
-            } catch (e) {
-              console.log(`⚠️ [DIET] Parse error on attempt ${dietRetries + 1}:`, e)
+              dietPlan = parsed
+              console.log("✅ [DIET SUCCESS] Generated and corrected")
             }
+          } catch (e) {
+            console.log("⚠️ [DIET] Parse error:", e)
           }
-
-          // Process workout response (only on first attempt)
-          if (dietRetries === 0 && workoutResponse.status === "fulfilled") {
-            try {
-              const parsed = JSON.parse(workoutResponse.value.choices[0].message?.content || "{}")
-              if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === requestedDays) {
-                workoutPlan = parsed
-                console.log("✅ [WORKOUT SUCCESS] Generated successfully")
-              }
-            } catch (e) {
-              console.log("⚠️ [WORKOUT] Parse error, will use fallback")
-            }
-          }
-
-          dietRetries++
-
-          if (!dietPlan && dietRetries < maxRetries) {
-            console.log(`🔄 [RETRY] Attempting diet generation again (${dietRetries + 1}/${maxRetries})`)
-            await new Promise((resolve) => setTimeout(resolve, 2000)) // Wait 2 seconds before retry
-          }
-        } catch (error) {
-          console.log(`⚠️ [ATTEMPT ${dietRetries + 1}] Generation failed:`, error)
-          dietRetries++
         }
+
+        // Process workout response
+        if (workoutResponse.status === "fulfilled") {
+          try {
+            const parsed = JSON.parse(workoutResponse.value.choices[0].message?.content || "{}")
+            if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === requestedDays) {
+              workoutPlan = parsed
+              console.log("✅ [WORKOUT SUCCESS] Generated successfully")
+            }
+          } catch (e) {
+            console.log("⚠️ [WORKOUT] Parse error, using fallback")
+          }
+        }
+      } catch (error) {
+        console.log("⚠️ [PARALLEL] Generation failed, using fallbacks")
       }
 
-      // FALLBACK MELHORADO SE A IA FALHAR
       if (!dietPlan) {
-        console.log(`❌ [DIET ERROR] AI failed after ${maxRetries} attempts, using calculated fallback`)
+        console.log("❌ [NO FALLBACK] AI must provide all nutritional data")
 
-        // Gerar fallback com valores exatos
-        const fallbackMeals = []
-        let runningTotal = 0
-
-        const foodDatabase = [
-          { name: "Peito de frango grelhado", kcal: 165, protein: 31, carbs: 0, fat: 3.6 },
-          { name: "Arroz integral cozido", kcal: 111, protein: 2.3, carbs: 22, fat: 0.9 },
-          { name: "Aveia", kcal: 389, protein: 16.9, carbs: 66.3, fat: 6.9 },
-          { name: "Banana", kcal: 89, protein: 1.1, carbs: 23, fat: 0.3 },
-          { name: "Azeite extra virgem", kcal: 884, protein: 0, carbs: 0, fat: 100 },
-        ]
-
-        for (let i = 0; i < mealConfig.count; i++) {
-          const targetMealCals = Math.round(savedCalcs.finalCalories * mealConfig.distribution[i])
-          const food = foodDatabase[i % foodDatabase.length]
-          const quantity = Math.round((targetMealCals * 100) / food.kcal)
-          const actualCalories = Math.round((food.kcal * quantity) / 100)
-
-          fallbackMeals.push({
-            name: mealConfig.names[i],
-            time: ["07:00", "10:00", "12:00", "15:00", "19:00", "21:00"][i] || "12:00",
-            totalCalories: `${actualCalories} kcal`,
-            foods: [
-              {
-                name: food.name,
-                quantity: `${quantity}g`,
-                calories: `${actualCalories} kcal`,
-                protein: `${Math.round((food.protein * quantity) / 100)}g`,
-                carbs: `${Math.round((food.carbs * quantity) / 100)}g`,
-                fats: `${Math.round((food.fat * quantity) / 100)}g`,
-              },
-            ],
-          })
-
-          runningTotal += actualCalories
-        }
-
-        dietPlan = {
-          totalDailyCalories: `${runningTotal} kcal`,
-          totalProtein: `${savedCalcs.protein}g`,
-          totalCarbs: `${savedCalcs.carbs}g`,
-          totalFats: `${savedCalcs.fats}g`,
-          meals: fallbackMeals,
-          note: "Generated using calculated fallback due to AI precision issues",
-        }
-
-        console.log(
-          `🔧 [FALLBACK SUCCESS] Generated: ${runningTotal} kcal (target: ${savedCalcs.finalCalories} kcal, diff: ${Math.abs(runningTotal - savedCalcs.finalCalories)} kcal)`,
+        return new Response(
+          JSON.stringify({
+            error: "Failed to generate diet plan. AI must provide all nutritional data.",
+            details: "Please try again - the AI should calculate all food values.",
+          }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          },
         )
       }
 
@@ -831,6 +690,7 @@ JSON OBRIGATÓRIO:
       try {
         await userDocRef.set(
           {
+            plans: { dietPlan, workoutPlan },
             dietPlan,
             workoutPlan,
             finalResults: {
@@ -862,7 +722,7 @@ JSON OBRIGATÓRIO:
       )
     }
 
-    return await Promise.race([timeoutPromise, processRequest()])
+    return await Promise.race([mainLogic(), timeoutPromise])
   } catch (error: any) {
     console.error("❌ Fatal error:", error)
     return new Response(JSON.stringify({ error: error.message }), {
