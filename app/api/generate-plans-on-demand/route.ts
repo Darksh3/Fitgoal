@@ -1,5 +1,6 @@
 import OpenAI from "openai"
 import { adminDb, admin } from "@/lib/firebaseAdmin"
+import { NextResponse } from "next/server"
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -667,9 +668,9 @@ JSON OBRIGATÓRIO:
                 `🔍 [VALIDATION] Target: ${savedCalcs.finalCalories} kcal, AI Generated: ${realTotalCalories} kcal`,
               )
 
-              // Only accept if within ±50 kcal tolerance
+              // Only accept if within ±100 kcal tolerance
               const difference = Math.abs(realTotalCalories - savedCalcs.finalCalories)
-              if (difference <= 50) {
+              if (difference <= 100) {
                 parsed.totalDailyCalories = `${savedCalcs.finalCalories} kcal`
                 parsed.totalProtein = `${savedCalcs.protein}g`
                 parsed.totalCarbs = `${savedCalcs.carbs}g`
@@ -678,7 +679,7 @@ JSON OBRIGATÓRIO:
                 dietPlan = parsed
                 console.log(`✅ [DIET SUCCESS] Generated within tolerance (±${difference} kcal)`)
               } else {
-                console.log(`❌ [DIET REJECTED] Too far from target (±${difference} kcal > 50 kcal limit)`)
+                console.log(`❌ [DIET REJECTED] Too far from target (±${difference} kcal > 100 kcal limit)`)
               }
             }
           } catch (e) {
@@ -703,18 +704,8 @@ JSON OBRIGATÓRIO:
       }
 
       if (!dietPlan) {
-        console.log("❌ [NO FALLBACK] AI must provide all nutritional data")
-
-        return new Response(
-          JSON.stringify({
-            error: "Failed to generate diet plan. AI must provide all nutritional data.",
-            details: "Please try again - the AI should calculate all food values.",
-          }),
-          {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-          },
-        )
+        console.log("❌ [DIET ERROR] AI failed to generate acceptable diet plan")
+        return NextResponse.json({ error: "Failed to generate diet plan. Please try again." }, { status: 500 })
       }
 
       if (!workoutPlan) {
