@@ -458,7 +458,7 @@ export async function POST(req: Request) {
       console.log(`🏋️ [EXERCISE COUNT] ${exerciseRange.description} para tempo: ${quizData.workoutTime}`)
 
       const dietPrompt = `
-Crie uma dieta de ${savedCalcs.finalCalories} kcal EXATAS para ${quizData.gender}, ${quizData.age} anos.
+Você é um nutricionista experiente. Crie uma dieta de ${savedCalcs.finalCalories} kcal EXATAS para ${quizData.gender}, ${quizData.age} anos.
 
 ALVO OBRIGATÓRIO: ${savedCalcs.finalCalories} kcal
 Proteína: ${savedCalcs.protein}g | Carboidratos: ${savedCalcs.carbs}g | Gorduras: ${savedCalcs.fats}g
@@ -468,15 +468,47 @@ ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
 
 REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
 
-REGRA CRÍTICA: A soma de TODAS as calorias deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal.
+INSTRUÇÕES CRÍTICAS:
+1. VOCÊ deve fornecer TODOS os valores nutricionais de cada alimento
+2. Use seu conhecimento nutricional para calcular calorias, proteínas, carboidratos e gorduras
+3. A soma TOTAL deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal
+4. Seja preciso com as quantidades e valores nutricionais
+5. Use alimentos reais com valores nutricionais corretos
 
-JSON:
+EXEMPLO DE FORMATO OBRIGATÓRIO:
+{
+  "name": "Aveia em flocos",
+  "quantity": "80g",
+  "calories": 311,
+  "protein": 13.5,
+  "carbs": 52.8,
+  "fats": 6.2
+}
+
+JSON OBRIGATÓRIO:
 {
   "totalDailyCalories": "${savedCalcs.finalCalories} kcal",
+  "totalProtein": "${savedCalcs.protein}g",
+  "totalCarbs": "${savedCalcs.carbs}g", 
+  "totalFats": "${savedCalcs.fats}g",
   "meals": [${mealConfig.names
     .map((name, i) => {
       const targetCals = Math.round(savedCalcs.finalCalories * mealConfig.distribution[i])
-      return `{"name": "${name}", "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}", "totalCalories": ${targetCals}, "foods": [{"name": "[alimento]", "quantity": "[quantidade]", "calories": ${Math.round(targetCals * 0.6)}}, {"name": "[alimento]", "quantity": "[quantidade]", "calories": ${Math.round(targetCals * 0.4)}}]}`
+      return `{
+        "name": "${name}",
+        "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}",
+        "totalCalories": ${targetCals},
+        "foods": [
+          {
+            "name": "[alimento específico]",
+            "quantity": "[quantidade precisa]",
+            "calories": "[calorias que VOCÊ calculou]",
+            "protein": "[proteína que VOCÊ calculou]",
+            "carbs": "[carboidratos que VOCÊ calculou]",
+            "fats": "[gorduras que VOCÊ calculou]"
+          }
+        ]
+      }`
     })
     .join(",")}]
 }`
@@ -633,65 +665,18 @@ JSON OBRIGATÓRIO:
       }
 
       if (!dietPlan) {
-        console.log("🔧 [DIET FALLBACK] Using exact scientific values")
+        console.log("❌ [NO FALLBACK] AI must provide all nutritional data")
 
-        const fallbackMeals = mealConfig.names.map((name, index) => {
-          const mealCalories = Math.round(savedCalcs.finalCalories * mealConfig.distribution[index])
-          return {
-            name,
-            time:
-              index === 0
-                ? "07:00"
-                : index === 1
-                  ? "10:00"
-                  : index === 2
-                    ? "12:00"
-                    : index === 3
-                      ? "15:00"
-                      : index === 4
-                        ? "19:00"
-                        : "21:00",
-            totalCalories: mealCalories,
-            foods: [
-              {
-                name:
-                  index === 0
-                    ? "Aveia"
-                    : index === 1
-                      ? "Banana"
-                      : index === 2
-                        ? "Arroz Integral"
-                        : index === 3
-                          ? "Iogurte Grego"
-                          : "Batata Doce",
-                quantity: "100g",
-                calories: Math.round(mealCalories * 0.6),
-              },
-              {
-                name:
-                  index === 0
-                    ? "Leite"
-                    : index === 1
-                      ? "Castanhas"
-                      : index === 2
-                        ? "Frango"
-                        : index === 3
-                          ? "Frutas"
-                          : "Salmão",
-                quantity: "100g",
-                calories: Math.round(mealCalories * 0.4),
-              },
-            ],
-          }
-        })
-
-        dietPlan = {
-          totalDailyCalories: `${savedCalcs.finalCalories} kcal`,
-          totalProtein: `${savedCalcs.protein}g`,
-          totalCarbs: `${savedCalcs.carbs}g`,
-          totalFats: `${savedCalcs.fats}g`,
-          meals: fallbackMeals,
-        }
+        return new Response(
+          JSON.stringify({
+            error: "Failed to generate diet plan. AI must provide all nutritional data.",
+            details: "Please try again - the AI should calculate all food values.",
+          }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          },
+        )
       }
 
       if (!workoutPlan) {
