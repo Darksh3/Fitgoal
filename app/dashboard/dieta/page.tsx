@@ -6,7 +6,7 @@ import { auth, db } from "@/lib/firebaseClient"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Clock, RefreshCw, Replace } from "lucide-react"
+import { Clock, RefreshCw, Replace, Download } from "lucide-react"
 import ProtectedRoute from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
@@ -638,13 +638,235 @@ export default function DietPage() {
 
   console.log("[v0] About to render, loading:", loading, "error:", error)
 
+  const downloadDietPDF = () => {
+    if (!dietPlan) return
+
+    // Create PDF content as HTML string
+    const pdfContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Plano de Dieta Personalizado</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+          .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3b82f6; padding-bottom: 20px; }
+          .header h1 { color: #3b82f6; margin: 0; font-size: 28px; }
+          .header p { color: #666; margin: 5px 0; }
+          .macros-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
+          .macro-card { background: #f8fafc; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0; }
+          .macro-title { font-weight: bold; color: #475569; font-size: 14px; margin-bottom: 5px; }
+          .macro-value { font-size: 24px; font-weight: bold; }
+          .calories { color: #3b82f6; }
+          .protein { color: #dc2626; }
+          .carbs { color: #d97706; }
+          .fats { color: #059669; }
+          .meal { margin: 20px 0; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; }
+          .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+          .meal-title { font-size: 18px; font-weight: bold; color: #1e293b; }
+          .meal-time { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+          .meal-calories { color: #666; font-size: 14px; }
+          .food-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+          .food-item:last-child { border-bottom: none; }
+          .food-name { font-weight: 500; }
+          .food-quantity { color: #3b82f6; font-size: 14px; }
+          .food-calories { color: #666; font-size: 14px; }
+          .food-macros { font-size: 12px; color: #666; margin-top: 2px; }
+          .tips { margin-top: 30px; }
+          .tips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+          .tip { padding: 15px; border-radius: 8px; }
+          .tip-1 { background: #dbeafe; border-left: 4px solid #3b82f6; }
+          .tip-2 { background: #dcfce7; border-left: 4px solid #059669; }
+          .tip-3 { background: #fef3c7; border-left: 4px solid #d97706; }
+          .tip-4 { background: #fee2e2; border-left: 4px solid #dc2626; }
+          .tip-title { font-weight: bold; margin-bottom: 5px; }
+          .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+          @media print { body { margin: 0; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>Plano de Dieta Personalizado</h1>
+          <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
+          <p>Plano científico baseado em suas necessidades individuais</p>
+        </div>
+
+        <div class="macros-grid">
+          <div class="macro-card">
+            <div class="macro-title">Calorias Totais</div>
+            <div class="macro-value calories">${dietPlan?.totalDailyCalories || displayTotals.calories}</div>
+          </div>
+          <div class="macro-card">
+            <div class="macro-title">Proteína</div>
+            <div class="macro-value protein">${displayTotals.protein}</div>
+          </div>
+          <div class="macro-card">
+            <div class="macro-title">Carboidratos</div>
+            <div class="macro-value carbs">${displayTotals.carbs}</div>
+          </div>
+          <div class="macro-card">
+            <div class="macro-title">Gorduras</div>
+            <div class="macro-value fats">${displayTotals.fats}</div>
+          </div>
+        </div>
+
+        ${dietPlan.meals
+          .map((meal, index) => {
+            if (!meal || typeof meal !== "object") return ""
+
+            return `
+            <div class="meal">
+              <div class="meal-header">
+                <div>
+                  <div class="meal-title">${meal.name || `Refeição ${index + 1}`}</div>
+                  <div class="meal-calories">${meal.calories || "0 kcal"}</div>
+                </div>
+                <div class="meal-time">${meal.time || "Horário não definido"}</div>
+              </div>
+              
+              ${
+                Array.isArray(meal.foods) && meal.foods.length > 0
+                  ? meal.foods
+                      .map((food, foodIndex) => {
+                        let foodName = ""
+                        let foodQuantity = ""
+                        let foodCalories = ""
+                        let macros = ""
+
+                        if (typeof food === "string") {
+                          const patterns = [
+                            /(\d+g?)\s*de?\s*(.+)/i,
+                            /(.+?)\s*-\s*(\d+g?)/i,
+                            /(.+?)\s*$$(\d+g?)$$/i,
+                            /(\d+)\s*unidades?\s*de?\s*(.+)/i,
+                            /(\d+)\s*(.+)/i,
+                          ]
+
+                          let matched = false
+                          for (const pattern of patterns) {
+                            const match = food.match(pattern)
+                            if (match) {
+                              if (/\d/.test(match[1])) {
+                                foodQuantity = match[1]
+                                foodName = match[2]?.trim()
+                              } else {
+                                foodName = match[1]?.trim()
+                                foodQuantity = match[2]
+                              }
+                              matched = true
+                              break
+                            }
+                          }
+
+                          if (!matched) {
+                            foodName = food.trim()
+                          }
+
+                          foodName = foodName
+                            .replace(/^(de\s+|da\s+|do\s+)/i, "")
+                            .replace(/\s+/g, " ")
+                            .trim()
+                        } else if (food && typeof food === "object") {
+                          foodName = food.name || `Alimento ${foodIndex + 1}`
+                          foodQuantity = food.quantity || ""
+                          foodCalories = food.calories ? `${food.calories} kcal` : ""
+
+                          if (food.protein || food.carbs || food.fats) {
+                            const macrosParts = []
+                            if (food.protein) macrosParts.push(`P: ${food.protein}g`)
+                            if (food.carbs) macrosParts.push(`C: ${food.carbs}g`)
+                            if (food.fats) macrosParts.push(`G: ${food.fats}g`)
+                            macros = macrosParts.join(" | ")
+                          }
+                        } else {
+                          foodName = `Alimento ${foodIndex + 1}`
+                        }
+
+                        if (!foodName || foodName.trim() === "") {
+                          foodName = `Alimento ${foodIndex + 1}`
+                        }
+
+                        return `
+                    <div class="food-item">
+                      <div>
+                        <div class="food-name">${foodName}</div>
+                        ${foodQuantity ? `<div class="food-quantity">${foodQuantity}</div>` : ""}
+                        ${macros ? `<div class="food-macros">${macros}</div>` : ""}
+                      </div>
+                      ${foodCalories ? `<div class="food-calories">${foodCalories}</div>` : ""}
+                    </div>
+                  `
+                      })
+                      .join("")
+                  : '<div class="food-item"><div class="food-name">Nenhum alimento especificado</div></div>'
+              }
+            </div>
+          `
+          })
+          .join("")}
+
+        <div class="tips">
+          <h2>Dicas Nutricionais</h2>
+          <div class="tips-grid">
+            <div class="tip tip-1">
+              <div class="tip-title">Dica 1</div>
+              <div>Coma alimentos ricos em proteínas para manter seu corpo saudável.</div>
+            </div>
+            <div class="tip tip-2">
+              <div class="tip-title">Dica 2</div>
+              <div>Inclua frutas e vegetais em suas refeições para obter vitaminas e minerais.</div>
+            </div>
+            <div class="tip tip-3">
+              <div class="tip-title">Dica 3</div>
+              <div>Controle suas porções para evitar excesso de calorias.</div>
+            </div>
+            <div class="tip tip-4">
+              <div class="tip-title">Dica 4</div>
+              <div>Evite alimentos processados e ricos em açúcares.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <p>Este plano foi gerado com base em cálculos científicos personalizados para suas necessidades.</p>
+          <p>Consulte sempre um nutricionista para orientações específicas.</p>
+        </div>
+      </body>
+      </html>
+    `
+
+    // Create blob and download
+    const blob = new Blob([pdfContent], { type: "text/html" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `plano-dieta-${new Date().toISOString().split("T")[0]}.html`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-white">
         <div className="container mx-auto px-4 py-8">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Plano de Dieta</h1>
-            {error && <p className="text-red-500">{error}</p>}
+            <div className="flex items-center gap-4">
+              {dietPlan && (
+                <Button
+                  onClick={downloadDietPDF}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2 bg-transparent"
+                >
+                  <Download className="h-4 w-4" />
+                  Baixar PDF
+                </Button>
+              )}
+              {error && <p className="text-red-500">{error}</p>}
+            </div>
           </div>
 
           {loading && <p className="text-gray-500">Carregando plano de dieta...</p>}
