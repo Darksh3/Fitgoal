@@ -332,12 +332,12 @@ export async function POST(req: Request) {
               "time": "07:00",
               "foods": [
                 {
-                  "name": "Ovos inteiros",
-                  "quantity": "3 unidades",
-                  "calories": 210,
-                  "protein": 18,
-                  "carbs": 1,
-                  "fat": 15
+                  "name": "[nome do alimento]",
+                  "quantity": "[quantidade]",
+                  "calories": "[calorias calculadas pela IA]",
+                  "protein": "[proteína em gramas]",
+                  "carbs": "[carboidratos em gramas]",
+                  "fat": "[gordura em gramas]"
                 }
               ],
               "totalCalories": 450,

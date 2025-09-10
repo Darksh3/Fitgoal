@@ -155,13 +155,13 @@ Retorne JSON com nova refeição equivalente:
         substitutionData = {
           substitutes: [
             {
-              name: "Aveia em flocos",
-              quantity: "50g",
+              name: "Alimento substituto",
+              quantity: "quantidade apropriada",
               calories: targetMacros.calories || 200,
               protein: targetMacros.protein + "g" || "6g",
               carbs: targetMacros.carbs + "g" || "30g",
               fats: targetMacros.fats + "g" || "3g",
-              reason: "Substituto padrão rico em fibras",
+              reason: "Substituto com macros equivalentes",
             },
           ],
         }
@@ -172,16 +172,16 @@ Retorne JSON com nova refeição equivalente:
             time: "07:00",
             foods: [
               {
-                name: "Aveia em flocos",
-                quantity: "50g",
+                name: "Alimento principal",
+                quantity: "quantidade calculada",
                 calories: Math.round((targetMacros.calories || 400) * 0.6),
                 protein: Math.round((targetMacros.protein || 20) * 0.6) + "g",
                 carbs: Math.round((targetMacros.carbs || 50) * 0.6) + "g",
                 fats: Math.round((targetMacros.fats || 10) * 0.6) + "g",
               },
               {
-                name: "Banana",
-                quantity: "100g",
+                name: "Alimento complementar",
+                quantity: "quantidade calculada",
                 calories: Math.round((targetMacros.calories || 400) * 0.4),
                 protein: Math.round((targetMacros.protein || 20) * 0.4) + "g",
                 carbs: Math.round((targetMacros.carbs || 50) * 0.4) + "g",

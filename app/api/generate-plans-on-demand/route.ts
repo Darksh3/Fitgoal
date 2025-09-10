@@ -839,13 +839,50 @@ function calculateScientificCalories(data: any) {
 
   const finalCalories = Math.round(tdee + dailyCalorieAdjustment)
 
-  let proteinPerKg = 1.6 // Base protein
-  if (goals.includes("ganhar-massa"))
-    proteinPerKg = 2.2 // Higher for muscle gain
-  else if (goals.includes("perder-peso")) proteinPerKg = 2.0 // Higher for muscle preservation
+  // Proteína baseada em objetivo E biotipo
+  let proteinPerKg = 1.6
+  if (goals.includes("ganhar-massa")) {
+    switch (bodyType) {
+      case "ectomorfo":
+        proteinPerKg = 2.5
+        break // Mais difícil ganhar massa
+      case "mesomorfo":
+        proteinPerKg = 2.2
+        break // Resposta padrão boa
+      case "endomorfo":
+        proteinPerKg = 2.0
+        break // Ganha massa mais fácil
+    }
+  } else if (goals.includes("perder-peso")) {
+    switch (bodyType) {
+      case "ectomorfo":
+        proteinPerKg = 1.8
+        break // Preserva massa facilmente
+      case "mesomorfo":
+        proteinPerKg = 2.0
+        break // Equilíbrio
+      case "endomorfo":
+        proteinPerKg = 2.2
+        break // Precisa mais para preservar
+    }
+  }
+
+  // Gorduras por biotipo
+  let fatsPerKg = 1.0
+  switch (bodyType) {
+    case "ectomorfo":
+      fatsPerKg = 1.2
+      break // Tolera mais gorduras
+    case "mesomorfo":
+      fatsPerKg = 1.0
+      break // Padrão equilibrado
+    case "endomorfo":
+      fatsPerKg = 0.8
+      break // Controla mais gorduras
+  }
 
   const protein = Math.round(weight * proteinPerKg)
-  const fats = Math.round(weight * 1.0) // 1g/kg - unchanged
+  const fats = Math.round(weight * fatsPerKg)
   const carbs = Math.round((finalCalories - protein * 4 - fats * 9) / 4)
 
   console.log(

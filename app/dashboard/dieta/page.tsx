@@ -820,6 +820,13 @@ export default function DietPage() {
                                 <div className="flex-1">
                                   <p className="font-medium text-gray-900">{foodName}</p>
                                   {foodQuantity && <p className="text-sm text-blue-600 font-medium">{foodQuantity}</p>}
+                                  {typeof food === "object" && food && (food.protein || food.carbs || food.fats) && (
+                                    <div className="flex gap-3 mt-1 text-xs text-gray-500">
+                                      {food.protein && <span className="text-red-500">P: {food.protein}g</span>}
+                                      {food.carbs && <span className="text-yellow-500">C: {food.carbs}g</span>}
+                                      {food.fats && <span className="text-green-500">G: {food.fats}g</span>}
+                                    </div>
+                                  )}
                                 </div>
                                 <div className="flex items-center gap-3">
                                   {foodCalories && (
@@ -837,9 +844,15 @@ export default function DietPage() {
                                     className="h-8 px-2"
                                   >
                                     {replacingFood?.mealIndex === index && replacingFood?.foodIndex === foodIndex ? (
-                                      <RefreshCw className="h-3 w-3 animate-spin" />
+                                      <>
+                                        <RefreshCw className="h-3 w-3 mr-2 animate-spin" />
+                                        Substituindo Alimento...
+                                      </>
                                     ) : (
-                                      <Replace className="h-3 w-3" />
+                                      <>
+                                        <Replace className="h-3 w-3 mr-2" />
+                                        Substituir Alimento
+                                      </>
                                     )}
                                   </Button>
                                 </div>
