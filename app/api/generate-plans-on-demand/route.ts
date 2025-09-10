@@ -474,12 +474,27 @@ ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
 
 REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
 
+REFERÊNCIA NUTRICIONAL OBRIGATÓRIA:
+- Use EXCLUSIVAMENTE dados das tabelas USDA (United States Department of Agriculture) e TACO (Tabela Brasileira de Composição de Alimentos)
+- Para alimentos brasileiros: priorize TACO
+- Para alimentos internacionais: use USDA
+- NUNCA invente valores nutricionais - use apenas dados oficiais dessas bases
+
+EXEMPLOS DE VALORES OFICIAIS TACO/USDA:
+- Arroz branco cozido: 128 kcal/100g (TACO)
+- Feijão carioca cozido: 76 kcal/100g (TACO)
+- Peito de frango grelhado: 165 kcal/100g (USDA)
+- Banana prata: 89 kcal/100g (TACO)
+- Aveia em flocos: 394 kcal/100g (USDA)
+- Ovo de galinha inteiro: 155 kcal/100g (TACO)
+
 INSTRUÇÕES CRÍTICAS:
-1. VOCÊ deve fornecer TODOS os valores nutricionais de cada alimento
-2. Use seu conhecimento nutricional para calcular calorias, proteínas, carboidratos e gorduras
-3. A soma TOTAL deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal
-4. Seja preciso com as quantidades e valores nutricionais
-5. Use alimentos reais com valores nutricionais corretos
+1. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO
+2. Cite a fonte (USDA ou TACO) para cada alimento quando possível
+3. Use valores por 100g das tabelas oficiais e calcule proporcionalmente
+4. A soma TOTAL deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal
+5. Seja preciso com as quantidades baseadas nos valores oficiais
+6. Prefira alimentos com dados bem documentados nas tabelas
 
 EXEMPLO DE FORMATO OBRIGATÓRIO:
 {
