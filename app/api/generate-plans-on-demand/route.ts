@@ -794,7 +794,7 @@ function calculateScientificCalories(data: any) {
 
   // TMB (Mifflin-St Jeor) - unchanged, already correct
   let tmb
-  if (gender.toLowerCase() === "feminino") {
+  if (gender.toLowerCase().includes("fem") || gender.toLowerCase().includes("mulher")) {
     tmb = 10 * weight + 6.25 * height - 5 * age - 161
   } else {
     tmb = 10 * weight + 6.25 * height - 5 * age + 5
