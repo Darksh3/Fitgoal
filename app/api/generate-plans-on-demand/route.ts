@@ -422,6 +422,12 @@ export async function POST(req: Request) {
       const scientificCalcs = calculateScientificCalories(quizData)
       console.log(`🧮 [SCIENTIFIC CALCULATION] Target: ${scientificCalcs.finalCalories} kcal`)
 
+      console.log("=== DEBUG DADOS RECEBIDOS ===")
+      console.log("bodyType:", quizData.bodyType)
+      console.log("timeToGoal:", quizData.timeToGoal)
+      console.log("trainingDaysPerWeek:", quizData.trainingDaysPerWeek)
+      console.log("scientificCalcs enviados:", scientificCalcs)
+
       console.log(`🔍 [FIREBASE DEBUG] Saving to document: users/${userId}`)
       console.log(`🔍 [FIREBASE DEBUG] Scientific calculations to save:`, {
         finalCalories: scientificCalcs.finalCalories,
