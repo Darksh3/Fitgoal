@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, User, Target, Activity, Ruler, Save, TrendingUp } from "lucide-react"
 import { auth, db } from "@/lib/firebase"
-import { collection, addDoc, query, orderBy, limit, getDocs } from "firebase/firestore"
+import { collection, addDoc, query, orderBy, limit, getDocs, doc, getDoc } from "firebase/firestore"
 import { useAuthState } from "react-firebase-hooks/auth"
 
 interface QuizData {
@@ -60,10 +60,58 @@ export default function ProgressoPage() {
   const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
-    const savedQuizData = localStorage.getItem("quizData")
-    if (savedQuizData) {
-      setQuizData(JSON.parse(savedQuizData))
+    const loadUserData = async () => {
+      if (!user) return
+
+      try {
+        // Try Firebase first
+        const userDocRef = doc(db, "users", user.uid)
+        const userDoc = await getDoc(userDocRef)
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data()
+          if (userData.quizData) {
+            setQuizData(userData.quizData)
+
+            // Pre-fill weight and height from quiz data
+            setMeasurements((prev) => ({
+              ...prev,
+              weight: userData.quizData.currentWeight || prev.weight,
+              height: userData.quizData.height || prev.height,
+            }))
+          }
+        } else {
+          // Fallback to localStorage
+          const savedQuizData = localStorage.getItem("quizData")
+          if (savedQuizData) {
+            const parsedData = JSON.parse(savedQuizData)
+            setQuizData(parsedData)
+
+            // Pre-fill weight and height from localStorage quiz data
+            setMeasurements((prev) => ({
+              ...prev,
+              weight: parsedData.currentWeight || prev.weight,
+              height: parsedData.height || prev.height,
+            }))
+          }
+        }
+      } catch (error) {
+        console.error("Error loading user data:", error)
+        // Fallback to localStorage on error
+        const savedQuizData = localStorage.getItem("quizData")
+        if (savedQuizData) {
+          const parsedData = JSON.parse(savedQuizData)
+          setQuizData(parsedData)
+          setMeasurements((prev) => ({
+            ...prev,
+            weight: parsedData.currentWeight || prev.weight,
+            height: parsedData.height || prev.height,
+          }))
+        }
+      }
     }
+
+    loadUserData()
 
     if (user) {
       loadMeasurementHistory()

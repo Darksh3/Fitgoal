@@ -249,7 +249,7 @@ export default function ResultsPage() {
           </Button>
           <Button
             variant="outline"
-            className="border-lime-500 text-lime-500 hover:bg-lime-500 hover:text-white py-6 px-8 text-lg rounded-full bg-transparent"
+            className="border-2 border-lime-500 text-lime-500 hover:bg-lime-500 hover:text-white py-6 px-8 text-lg rounded-full bg-gray-800"
             onClick={() => router.push("/quiz")}
           >
             Refazer Quiz

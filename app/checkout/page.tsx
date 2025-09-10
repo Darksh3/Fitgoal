@@ -111,15 +111,15 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
       <Button
         type="submit"
         disabled={processing || !stripe || !elements || !currentPlan}
-        className={`w-full py-6 text-xl font-bold rounded-full ${
+        className={`w-full py-6 text-xl font-bold rounded-full transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
           currentPlan?.color === "yellow"
-            ? "bg-yellow-500"
+            ? "bg-yellow-500 hover:bg-yellow-400 text-black border-2 border-yellow-400"
             : currentPlan?.color === "orange"
-              ? "bg-orange-500"
+              ? "bg-orange-500 hover:bg-orange-400 text-white border-2 border-orange-400"
               : currentPlan?.color === "purple"
-                ? "bg-purple-500"
-                : "bg-lime-500"
-        }`}
+                ? "bg-purple-500 hover:bg-purple-400 text-white border-2 border-purple-400"
+                : "bg-lime-500 hover:bg-lime-400 text-black border-2 border-lime-400"
+        } ${processing ? "opacity-75 cursor-not-allowed" : ""}`}
       >
         {processing ? "Processando..." : `Finalizar Compra - ${formatCurrency(currentPlan.total)}`}
       </Button>

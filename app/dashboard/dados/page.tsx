@@ -22,6 +22,8 @@ interface QuizData {
   workoutTime: string
   experience: string
   trainingDaysPerWeek: string
+  age?: string
+  height?: string
 }
 
 interface PersonalData {
@@ -103,31 +105,73 @@ export default function DadosPage() {
 
             try {
               const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid))
-              if (userDoc.exists() && userDoc.data().personalData) {
-                const mergedPersonalData = { ...localPersonalData, ...userDoc.data().personalData }
-                setPersonalData(mergedPersonalData)
-                localStorage.setItem("personalData", JSON.stringify(mergedPersonalData))
+              if (userDoc.exists()) {
+                const userData = userDoc.data()
+
+                if (userData.personalData) {
+                  const mergedPersonalData = { ...localPersonalData, ...userData.personalData }
+                  setPersonalData(mergedPersonalData)
+                  localStorage.setItem("personalData", JSON.stringify(mergedPersonalData))
+                } else {
+                  // Pre-fill from quiz data if available
+                  const preFilledData = {
+                    ...localPersonalData,
+                    age: userData.quizData?.age || localQuizData?.age || localPersonalData?.age || "",
+                    height: userData.quizData?.height || localQuizData?.height || localPersonalData?.height || "",
+                    email: auth.currentUser.email || localPersonalData?.email || "",
+                  }
+                  setPersonalData(preFilledData)
+                }
               } else {
-                setPersonalData(localPersonalData || personalData)
+                const preFilledData = {
+                  ...localPersonalData,
+                  age: localQuizData?.age || localPersonalData?.age || "",
+                  height: localQuizData?.height || localPersonalData?.height || "",
+                  email: auth.currentUser.email || localPersonalData?.email || "",
+                }
+                setPersonalData(preFilledData)
               }
             } catch (error) {
               console.log("[v0] No personal data in users collection, using localStorage")
-              setPersonalData(localPersonalData || personalData)
+              const preFilledData = {
+                ...localPersonalData,
+                age: localQuizData?.age || localPersonalData?.age || "",
+                height: localQuizData?.height || localPersonalData?.height || "",
+                email: auth.currentUser.email || localPersonalData?.email || "",
+              }
+              setPersonalData(preFilledData)
             }
           } else {
             console.log("[v0] No Firestore leads data found, using localStorage")
             setQuizData(localQuizData)
-            setPersonalData(localPersonalData || personalData)
+            const preFilledData = {
+              ...localPersonalData,
+              age: localQuizData?.age || localPersonalData?.age || "",
+              height: localQuizData?.height || localPersonalData?.height || "",
+              email: auth.currentUser?.email || localPersonalData?.email || "",
+            }
+            setPersonalData(preFilledData)
           }
         } catch (error) {
           console.error("[v0] Error fetching from Firestore:", error)
           setQuizData(localQuizData)
-          setPersonalData(localPersonalData || personalData)
+          const preFilledData = {
+            ...localPersonalData,
+            age: localQuizData?.age || localPersonalData?.age || "",
+            height: localQuizData?.height || localPersonalData?.height || "",
+            email: auth.currentUser?.email || localPersonalData?.email || "",
+          }
+          setPersonalData(preFilledData)
         }
       } else {
         console.log("[v0] No authenticated user, using localStorage only")
         setQuizData(localQuizData)
-        setPersonalData(localPersonalData || personalData)
+        const preFilledData = {
+          ...localPersonalData,
+          age: localQuizData?.age || localPersonalData?.age || "",
+          height: localQuizData?.height || localPersonalData?.height || "",
+        }
+        setPersonalData(preFilledData)
       }
 
       setIsLoading(false)
