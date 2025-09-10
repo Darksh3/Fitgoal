@@ -270,6 +270,15 @@ export default function QuizPage() {
     return `${day} de ${month}. de ${year}`
   }
 
+  const getCurrentDate = () => {
+    const currentDate = new Date()
+    const months = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
+    const day = currentDate.getDate()
+    const month = months[currentDate.getMonth()]
+    const year = currentDate.getFullYear()
+    return `${day} de ${month}. de ${year}`
+  }
+
   const generateAndSavePlan = async (data: QuizData, userId: string) => {
     console.log("generateAndSavePlan: Iniciando para userId:", userId)
 
@@ -917,7 +926,7 @@ export default function QuizPage() {
             </svg>
           </div>
           <div className="flex justify-between text-sm text-gray-400">
-            <span>10 de jun. de 2025</span>
+            <span>{getCurrentDate()}</span>
             <span>{quizData.timeToGoal}</span>
           </div>
           <Button
