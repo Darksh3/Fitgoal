@@ -259,10 +259,8 @@ export async function POST(req: Request) {
 
         let calorieAdjustment = 0
         if (goal.toLowerCase().includes("ganho") || goal.toLowerCase().includes("massa")) {
-          // Calcular superávit baseado na meta
           const weightDifference = targetWeight - weight
 
-          // Calcular semanas até a meta
           const targetDate = new Date(
             timeToGoal.replace(/(\d+) de (\w+)\. de (\d+)/, (match, day, month, year) => {
               const months: { [key: string]: string } = {
@@ -289,16 +287,45 @@ export async function POST(req: Request) {
             Math.ceil((targetDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24 * 7)),
           )
 
-          // Ganho semanal necessário (kg/semana)
           const weeklyGainNeeded = Math.max(0.2, weightDifference / weeksToGoal)
-
-          // Superávit diário necessário (7700 kcal por kg de ganho)
           calorieAdjustment = Math.round((weeklyGainNeeded * 7700) / 7)
-
-          // Limitar entre 300-1000 kcal para segurança
-          calorieAdjustment = Math.min(1000, Math.max(300, calorieAdjustment))
         } else if (goal.toLowerCase().includes("perda") || goal.toLowerCase().includes("emagrecer")) {
-          calorieAdjustment = -400 // Déficit moderado
+          const weightDifference = weight - targetWeight // Positive value for weight loss
+
+          const targetDate = new Date(
+            timeToGoal.replace(/(\d+) de (\w+)\. de (\d+)/, (match, day, month, year) => {
+              const months: { [key: string]: string } = {
+                jan: "01",
+                fev: "02",
+                mar: "03",
+                abr: "04",
+                mai: "05",
+                jun: "06",
+                jul: "07",
+                ago: "08",
+                set: "09",
+                out: "10",
+                nov: "11",
+                dez: "12",
+              }
+              return `${year}-${months[month]}-${day.padStart(2, "0")}`
+            }),
+          )
+
+          const currentDate = new Date()
+          const weeksToGoal = Math.max(
+            4, // Minimum 4 weeks for safe weight loss
+            Math.ceil((targetDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24 * 7)),
+          )
+
+          // Safe weekly loss: max 1kg/week (0.5-1kg recommended)
+          const weeklyLossNeeded = Math.min(1.0, Math.max(0.3, weightDifference / weeksToGoal))
+
+          // Calculate deficit (7700 kcal per kg of fat loss)
+          const calculatedDeficit = Math.round((weeklyLossNeeded * 7700) / 7)
+
+          // Safety limits: minimum -200 kcal, maximum -1300 kcal per day
+          calorieAdjustment = -Math.min(1300, Math.max(200, calculatedDeficit))
         }
 
         const targetCalories = Math.round(tdee + calorieAdjustment)
