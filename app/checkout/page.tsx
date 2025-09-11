@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { CreditCard, Check } from "lucide-react"
+import { CreditCard, Check, ShoppingCart, User, Lock } from "lucide-react"
 import { loadStripe } from "@stripe/stripe-js"
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js"
 import { auth, onAuthStateChanged, db } from "@/lib/firebaseClient"
@@ -111,19 +111,70 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
       <Button
         type="submit"
         disabled={processing || !stripe || !elements || !currentPlan}
-        className={`w-full py-6 text-xl font-bold rounded-full transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
-          currentPlan?.color === "yellow"
-            ? "bg-yellow-500 hover:bg-yellow-400 text-black border-2 border-yellow-400"
-            : currentPlan?.color === "orange"
-              ? "bg-orange-500 hover:bg-orange-400 text-white border-2 border-orange-400"
-              : currentPlan?.color === "purple"
-                ? "bg-purple-500 hover:bg-purple-400 text-white border-2 border-purple-400"
-                : "bg-lime-500 hover:bg-lime-400 text-black border-2 border-lime-400"
-        } ${processing ? "opacity-75 cursor-not-allowed" : ""}`}
+        className={`w-full py-6 text-xl font-bold rounded-full transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 bg-lime-500 hover:bg-lime-400 text-white border-2 border-lime-400 ${
+          processing ? "opacity-75 cursor-not-allowed" : ""
+        }`}
       >
-        {processing ? "Processando..." : `Finalizar Compra - ${formatCurrency(currentPlan.total)}`}
+        {processing ? (
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+            Processando...
+          </div>
+        ) : (
+          <div className="flex items-center justify-center">
+            <Lock className="h-5 w-5 mr-2" />
+            Finalizar Compra - {formatCurrency(currentPlan.total)}
+          </div>
+        )}
       </Button>
     </form>
+  )
+}
+
+// Componente para indicador de progresso
+function ProgressIndicator({ currentStep }: { currentStep: number }) {
+  const steps = [
+    { number: 1, title: "Escolher Plano", icon: ShoppingCart },
+    { number: 2, title: "Dados Pessoais", icon: User },
+    { number: 3, title: "Pagamento", icon: CreditCard },
+  ]
+
+  return (
+    <div className="flex justify-center mb-8">
+      <div className="flex items-center space-x-4">
+        {steps.map((step, index) => {
+          const Icon = step.icon
+          const isActive = currentStep >= step.number
+          const isCompleted = currentStep > step.number
+          
+          return (
+            <React.Fragment key={step.number}>
+              <div className="flex flex-col items-center">
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                    isActive
+                      ? "bg-lime-500 text-white"
+                      : "bg-gray-600 text-gray-400"
+                  }`}
+                >
+                  {isCompleted ? (
+                    <Check className="h-5 w-5" />
+                  ) : (
+                    <Icon className="h-5 w-5" />
+                  )}
+                </div>
+                <span className="mt-1 text-xs text-gray-300 text-center">
+                  {step.title}
+                </span>
+              </div>
+              {index < steps.length - 1 && (
+                <div className={`w-12 h-1 ${isActive ? 'bg-lime-500' : 'bg-gray-600'}`}></div>
+              )}
+            </React.Fragment>
+          )
+        })}
+      </div>
+    </div>
   )
 }
 
@@ -239,6 +290,13 @@ export default function CheckoutPage() {
   }
 
   const currentPlan = selectedPlan ? plans[selectedPlan as keyof typeof plans] : null
+  
+  // Determinar o passo atual
+  const getCurrentStep = () => {
+    if (!selectedPlan) return 1
+    if (!formData.phone || !formData.cpf) return 2
+    return 3
+  }
 
   const handlePaymentSuccess = () => router.push("/success?embedded=true")
   const handlePaymentError = (msg: string) => setError(msg)
@@ -251,14 +309,18 @@ export default function CheckoutPage() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-white text-center mb-8">Escolha seu Plano</h1>
 
+        {/* Indicador de Progresso */}
+        <ProgressIndicator currentStep={getCurrentStep()} />
+
+        {/* Grid de Planos */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {Object.entries(plans).map(([key, plan]) => (
             <Card
               key={key}
               className={`cursor-pointer transition-all duration-200 ${
                 selectedPlan === key
-                  ? "bg-gray-700 border-2 border-lime-500 ring-2 ring-lime-500/20"
-                  : "bg-gray-800 border-gray-700 hover:bg-gray-750"
+                  ? "bg-gray-700 border-2 border-lime-500 ring-2 ring-lime-500/20 transform scale-105"
+                  : "bg-gray-800 border-gray-700 hover:bg-gray-750 hover:border-gray-600"
               }`}
               onClick={() => setSelectedPlan(key)}
             >
@@ -286,49 +348,125 @@ export default function CheckoutPage() {
           ))}
         </div>
 
+        {/* Preview do Total */}
+        {selectedPlan ? (
+          <div className="text-center mb-8 p-6 bg-gray-800 rounded-lg border border-lime-500">
+            <div className="flex items-center justify-center mb-4">
+              <Check className="h-6 w-6 text-lime-500 mr-2" />
+              <p className="text-lime-400 font-semibold">Plano Selecionado: {currentPlan?.name}</p>
+            </div>
+            <div className="text-3xl font-bold text-white mb-2">
+              Total: {formatCurrency(currentPlan?.total || 0)}
+            </div>
+            <p className="text-gray-300">Continue preenchendo os dados abaixo</p>
+          </div>
+        ) : (
+          <div className="text-center mb-8 p-6 bg-gray-800 rounded-lg border border-gray-700">
+            <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-300 mb-4">Selecione um plano acima para continuar</p>
+            <Button disabled className="w-full max-w-md py-4 text-lg bg-gray-600 text-gray-400 cursor-not-allowed">
+              Escolha um plano para prosseguir
+            </Button>
+          </div>
+        )}
+
+        {/* Formulário - aparece apenas quando plano está selecionado */}
         {selectedPlan && (
           <>
             <Card className="bg-gray-800 border-gray-700 mb-6">
               <CardHeader>
-                <CardTitle className="text-white">Dados Pessoais</CardTitle>
+                <CardTitle className="text-white flex items-center">
+                  <User className="h-5 w-5 mr-2" />
+                  Dados Pessoais
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Input value={formData.name} readOnly className="bg-gray-700 border-gray-600 text-white" />
-                <Input value={formData.email} readOnly className="bg-gray-700 border-gray-600 text-white" />
-                <Input
-                  placeholder="Telefone"
-                  value={formData.phone}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
-                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                />
-                <Input
-                  placeholder="CPF"
-                  value={formData.cpf}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, cpf: e.target.value }))}
-                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Nome</label>
+                    <Input 
+                      value={formData.name} 
+                      readOnly 
+                      className="bg-gray-700 border-gray-600 text-white" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <Input 
+                      value={formData.email} 
+                      readOnly 
+                      className="bg-gray-700 border-gray-600 text-white" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Telefone *</label>
+                    <Input
+                      placeholder="(11) 99999-9999"
+                      value={formData.phone}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">CPF *</label>
+                    <Input
+                      placeholder="000.000.000-00"
+                      value={formData.cpf}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, cpf: e.target.value }))}
+                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                      required
+                    />
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
-            <Elements stripe={stripePromise}>
-              <StripePaymentForm
-                formData={formData}
-                currentPlan={currentPlan}
-                userEmail={userEmail}
-                quizAnswers={quizAnswers}
-                clientUid={clientUid}
-                onError={handlePaymentError}
-                onSuccess={handlePaymentSuccess}
-              />
-            </Elements>
+            {/* Componente de Pagamento */}
+            {formData.phone && formData.cpf && (
+              <Elements stripe={stripePromise}>
+                <StripePaymentForm
+                  formData={formData}
+                  currentPlan={currentPlan}
+                  userEmail={userEmail}
+                  quizAnswers={quizAnswers}
+                  clientUid={clientUid}
+                  onError={handlePaymentError}
+                  onSuccess={handlePaymentSuccess}
+                />
+              </Elements>
+            )}
+
+            {/* Mensagem para completar dados */}
+            {(!formData.phone || !formData.cpf) && (
+              <div className="text-center p-6 bg-gray-800 rounded-lg border border-gray-700">
+                <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-300 mb-4">Complete seus dados pessoais para prosseguir com o pagamento</p>
+                <div className="text-sm text-gray-400">
+                  Campos obrigatórios: Telefone e CPF
+                </div>
+              </div>
+            )}
           </>
         )}
 
-        {!selectedPlan && (
-          <div className="text-center text-gray-400 mt-8">
-            <p>Selecione um plano acima para continuar com o pagamento</p>
+        {/* Garantias de Segurança */}
+        <div className="mt-8 text-center">
+          <div className="flex items-center justify-center space-x-6 text-gray-400 text-sm">
+            <div className="flex items-center">
+              <Lock className="h-4 w-4 mr-1" />
+              Pagamento Seguro
+            </div>
+            <div className="flex items-center">
+              <Check className="h-4 w-4 mr-1" />
+              SSL Certificado
+            </div>
+            <div className="flex items-center">
+              <CreditCard className="h-4 w-4 mr-1" />
+              Stripe Protegido
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
