@@ -109,23 +109,26 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
       </Card>
 
       <Button
-        type="submit"
-        disabled={processing || !stripe || !elements || !currentPlan}
-        className={`w-full py-6 text-xl font-bold rounded-full transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 bg-lime-500 hover:bg-lime-400 text-white border-2 border-lime-400 ${
-          processing ? "opacity-75 cursor-not-allowed" : ""
-        }`}
-      >
+  type="submit"
+  disabled={processing || !stripe || !elements || !currentPlan}
+  className={`relative w-full py-6 text-xl font-bold rounded-full transition-all duration-300 shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 bg-gradient-to-r from-lime-400 to-lime-500 hover:from-lime-500 hover:to-lime-600 text-gray-900 border-2 border-lime-300 hover:border-lime-200 overflow-hidden ${
+    processing ? "opacity-75 cursor-not-allowed" : ""
+  }`}
+>
         {processing ? (
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-            Processando...
-          </div>
-        ) : (
-          <div className="flex items-center justify-center">
-            <Lock className="h-5 w-5 mr-2" />
-            Finalizar Compra - {formatCurrency(currentPlan.total)}
-          </div>
-        )}
+  <div className="flex items-center justify-center relative z-10">
+    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900 mr-2"></div>
+    Processando...
+  </div>
+) : (
+  <>
+    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 opacity-0 hover:opacity-100 transition-opacity duration-500" />
+    <div className="flex items-center justify-center relative z-10">
+      <Lock className="h-5 w-5 mr-2" />
+      Finalizar Compra - {formatCurrency(currentPlan.total)}
+    </div>
+  </>
+)}
       </Button>
     </form>
   )
