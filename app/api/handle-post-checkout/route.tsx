@@ -227,6 +227,9 @@ export async function POST(req: Request) {
         const trainingDays = Number.parseInt(userData.trainingDaysPerWeek) || 5
         const goal = userData.goal || "Ganho de massa muscular"
         const experience = userData.experience || "Iniciante"
+        const bodyType = userData.bodyType || "mesomorfo"
+        const targetWeight = Number.parseFloat(userData.targetWeight) || weight + 8
+        const timeToGoal = userData.timeToGoal || "26 de nov. de 2025"
 
         // 1. TMB = (10 × peso[kg]) + (6.25 × altura[cm]) - (5 × idade) + 5
         let tmb: number
@@ -246,33 +249,102 @@ export async function POST(req: Request) {
           activityMultiplier = 1.6 // Regularmente ativo
         }
 
-        const tdee = tmb * activityMultiplier
+        let tdee = tmb * activityMultiplier
 
-        // 3. Superávit para ganho de massa: Calorias_diárias = TDEE + 600
+        if (bodyType === "ectomorfo") {
+          tdee *= 1.1 // +10% para ectomorfos
+        } else if (bodyType === "endomorfo") {
+          tdee *= 0.95 // -5% para endomorfos
+        }
+
         let calorieAdjustment = 0
         if (goal.toLowerCase().includes("ganho") || goal.toLowerCase().includes("massa")) {
-          calorieAdjustment = 600 // Superávit moderado conforme especificado
+          // Calcular superávit baseado na meta
+          const weightDifference = targetWeight - weight
+
+          // Calcular semanas até a meta
+          const targetDate = new Date(
+            timeToGoal.replace(/(\d+) de (\w+)\. de (\d+)/, (match, day, month, year) => {
+              const months: { [key: string]: string } = {
+                jan: "01",
+                fev: "02",
+                mar: "03",
+                abr: "04",
+                mai: "05",
+                jun: "06",
+                jul: "07",
+                ago: "08",
+                set: "09",
+                out: "10",
+                nov: "11",
+                dez: "12",
+              }
+              return `${year}-${months[month]}-${day.padStart(2, "0")}`
+            }),
+          )
+
+          const currentDate = new Date()
+          const weeksToGoal = Math.max(
+            1,
+            Math.ceil((targetDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24 * 7)),
+          )
+
+          // Ganho semanal necessário (kg/semana)
+          const weeklyGainNeeded = Math.max(0.2, weightDifference / weeksToGoal)
+
+          // Superávit diário necessário (7700 kcal por kg de ganho)
+          calorieAdjustment = Math.round((weeklyGainNeeded * 7700) / 7)
+
+          // Limitar entre 300-1000 kcal para segurança
+          calorieAdjustment = Math.min(1000, Math.max(300, calorieAdjustment))
         } else if (goal.toLowerCase().includes("perda") || goal.toLowerCase().includes("emagrecer")) {
           calorieAdjustment = -400 // Déficit moderado
         }
 
         const targetCalories = Math.round(tdee + calorieAdjustment)
 
-        // 4. Proteínas: 1.8 a 2.2 × peso[kg], Gorduras: 0.8 a 1.2 × peso[kg]
-        let proteinMultiplier = 2.0 // Padrão
-        let fatMultiplier = 1.0 // Padrão
-
-        // Ajustar baseado na experiência e objetivo
-        if (experience === "Avançado" || goal.toLowerCase().includes("massa")) {
-          proteinMultiplier = 2.2 // Máximo para ganho muscular
-          fatMultiplier = 1.2 // Máximo para suporte hormonal
-        } else if (experience === "Iniciante") {
-          proteinMultiplier = 1.8 // Mínimo
-          fatMultiplier = 0.8 // Mínimo
+        let proteinPerKg = 1.6
+        if (goal.toLowerCase().includes("ganho") || goal.toLowerCase().includes("massa")) {
+          switch (bodyType) {
+            case "ectomorfo":
+              proteinPerKg = 2.5
+              break // Mais difícil ganhar massa
+            case "mesomorfo":
+              proteinPerKg = 2.2
+              break // Resposta padrão boa
+            case "endomorfo":
+              proteinPerKg = 2.0
+              break // Ganha massa mais fácil
+          }
+        } else if (goal.toLowerCase().includes("perda") || goal.toLowerCase().includes("emagrecer")) {
+          switch (bodyType) {
+            case "ectomorfo":
+              proteinPerKg = 1.8
+              break // Preserva massa facilmente
+            case "mesomorfo":
+              proteinPerKg = 2.0
+              break // Equilíbrio
+            case "endomorfo":
+              proteinPerKg = 2.2
+              break // Precisa mais para preservar
+          }
         }
 
-        const proteinGrams = Math.round(weight * proteinMultiplier)
-        const fatGrams = Math.round(weight * fatMultiplier)
+        let fatsPerKg = 1.0
+        switch (bodyType) {
+          case "ectomorfo":
+            fatsPerKg = 1.2
+            break // Tolera mais gorduras
+          case "mesomorfo":
+            fatsPerKg = 1.0
+            break // Padrão equilibrado
+          case "endomorfo":
+            fatsPerKg = 0.8
+            break // Controla mais gorduras
+        }
+
+        const proteinGrams = Math.round(weight * proteinPerKg)
+        const fatGrams = Math.round(weight * fatsPerKg)
 
         // Carboidratos: (Calorias_totais - (Proteínas × 4 + Gorduras × 9)) ÷ 4
         const proteinCalories = proteinGrams * 4
@@ -440,6 +512,8 @@ export async function POST(req: Request) {
         experience: quizAnswersFromMetadata.experience,
         workoutTime: quizAnswersFromMetadata.workoutTime,
         waterIntake: quizAnswersFromMetadata.waterIntake,
+        targetWeight: quizAnswersFromMetadata.targetWeight,
+        timeToGoal: quizAnswersFromMetadata.timeToGoal,
         // Include any other fields that might exist
         ...quizAnswersFromMetadata,
       },
