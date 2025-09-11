@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -146,29 +146,21 @@ function ProgressIndicator({ currentStep }: { currentStep: number }) {
           const Icon = step.icon
           const isActive = currentStep >= step.number
           const isCompleted = currentStep > step.number
-          
+
           return (
             <React.Fragment key={step.number}>
               <div className="flex flex-col items-center">
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                    isActive
-                      ? "bg-lime-500 text-white"
-                      : "bg-gray-600 text-gray-400"
+                    isActive ? "bg-lime-500 text-white" : "bg-gray-600 text-gray-400"
                   }`}
                 >
-                  {isCompleted ? (
-                    <Check className="h-5 w-5" />
-                  ) : (
-                    <Icon className="h-5 w-5" />
-                  )}
+                  {isCompleted ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
                 </div>
-                <span className="mt-1 text-xs text-gray-300 text-center">
-                  {step.title}
-                </span>
+                <span className="mt-1 text-xs text-gray-300 text-center">{step.title}</span>
               </div>
               {index < steps.length - 1 && (
-                <div className={`w-12 h-1 ${isActive ? 'bg-lime-500' : 'bg-gray-600'}`}></div>
+                <div className={`w-12 h-1 ${isActive ? "bg-lime-500" : "bg-gray-600"}`}></div>
               )}
             </React.Fragment>
           )
@@ -290,7 +282,7 @@ export default function CheckoutPage() {
   }
 
   const currentPlan = selectedPlan ? plans[selectedPlan as keyof typeof plans] : null
-  
+
   // Determinar o passo atual
   const getCurrentStep = () => {
     if (!selectedPlan) return 1
@@ -355,9 +347,7 @@ export default function CheckoutPage() {
               <Check className="h-6 w-6 text-lime-500 mr-2" />
               <p className="text-lime-400 font-semibold">Plano Selecionado: {currentPlan?.name}</p>
             </div>
-            <div className="text-3xl font-bold text-white mb-2">
-              Total: {formatCurrency(currentPlan?.total || 0)}
-            </div>
+            <div className="text-3xl font-bold text-white mb-2">Total: {formatCurrency(currentPlan?.total || 0)}</div>
             <p className="text-gray-300">Continue preenchendo os dados abaixo</p>
           </div>
         ) : (
@@ -384,19 +374,11 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">Nome</label>
-                    <Input 
-                      value={formData.name} 
-                      readOnly 
-                      className="bg-gray-700 border-gray-600 text-white" 
-                    />
+                    <Input value={formData.name} readOnly className="bg-gray-700 border-gray-600 text-white" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
-                    <Input 
-                      value={formData.email} 
-                      readOnly 
-                      className="bg-gray-700 border-gray-600 text-white" 
-                    />
+                    <Input value={formData.email} readOnly className="bg-gray-700 border-gray-600 text-white" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">Telefone *</label>
@@ -442,9 +424,7 @@ export default function CheckoutPage() {
               <div className="text-center p-6 bg-gray-800 rounded-lg border border-gray-700">
                 <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-300 mb-4">Complete seus dados pessoais para prosseguir com o pagamento</p>
-                <div className="text-sm text-gray-400">
-                  Campos obrigatórios: Telefone e CPF
-                </div>
+                <div className="text-sm text-gray-400">Campos obrigatórios: Telefone e CPF</div>
               </div>
             )}
           </>
