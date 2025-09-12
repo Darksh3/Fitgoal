@@ -109,26 +109,33 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
       </Card>
 
       <Button
-  type="submit"
-  disabled={processing || !stripe || !elements || !currentPlan}
-  className={`relative w-full py-6 text-xl font-bold rounded-full transition-all duration-300 shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 bg-gradient-to-r from-lime-400 to-lime-500 hover:from-lime-500 hover:to-lime-600 text-gray-900 border-2 border-lime-300 hover:border-lime-200 overflow-hidden ${
-    processing ? "opacity-75 cursor-not-allowed" : ""
-  }`}
->
+        type="submit"
+        disabled={processing || !stripe || !elements || !currentPlan}
+        className={`relative w-full py-6 text-xl font-bold rounded-full transition-all duration-300 shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 bg-gradient-to-r from-lime-400 to-lime-500 hover:from-lime-500 hover:to-lime-600 text-gray-900 border-4 border-lime-300 hover:border-lime-200 overflow-hidden ${
+          processing ? "opacity-75 cursor-not-allowed" : ""
+        }`}
+        style={{
+          background: processing
+            ? "linear-gradient(45deg, #84cc16, #65a30d)"
+            : "linear-gradient(45deg, #a3e635, #84cc16)",
+          boxShadow: "0 8px 32px rgba(163, 230, 53, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)",
+          textShadow: "0 1px 2px rgba(0, 0, 0, 0.3)",
+        }}
+      >
         {processing ? (
-  <div className="flex items-center justify-center relative z-10">
-    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900 mr-2"></div>
-    Processando...
-  </div>
-) : (
-  <>
-    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 opacity-0 hover:opacity-100 transition-opacity duration-500" />
-    <div className="flex items-center justify-center relative z-10">
-      <Lock className="h-5 w-5 mr-2" />
-      Finalizar Compra - {formatCurrency(currentPlan.total)}
-    </div>
-  </>
-)}
+          <div className="flex items-center justify-center relative z-10">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900 mr-2"></div>
+            Processando...
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-center relative z-10">
+              <Lock className="h-6 w-6 mr-3" />
+              <span className="font-black text-xl">Finalizar Compra - {formatCurrency(currentPlan.total)}</span>
+              <div className="ml-3 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">SEGURO</div>
+            </div>
+          </>
+        )}
       </Button>
     </form>
   )
@@ -398,8 +405,17 @@ export default function CheckoutPage() {
                     <Input
                       placeholder="000.000.000-00"
                       value={formData.cpf}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, cpf: e.target.value }))}
-                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                      onChange={(e) => {
+                        let value = e.target.value.replace(/\D/g, "")
+                        if (value.length <= 11) {
+                          value = value.replace(/(\d{3})(\d)/, "$1.$2")
+                          value = value.replace(/(\d{3})(\d)/, "$1.$2")
+                          value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+                        }
+                        setFormData((prev) => ({ ...prev, cpf: value }))
+                      }}
+                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-lime-500 focus:border-lime-500"
+                      maxLength={14}
                       required
                     />
                   </div>
