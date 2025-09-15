@@ -11,6 +11,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
+    const userDocRef = adminDb.collection("users").doc(userId)
+    const userDoc = await userDocRef.get()
+    const currentPlans = userDoc.exists() ? userDoc.data() : {}
+
     const analysisPrompt = `
     Você é um personal trainer e nutricionista especialista em análise corporal. Analise esta foto de progresso fitness e forneça um feedback detalhado e motivacional.
 
@@ -23,6 +27,18 @@ export async function POST(request: NextRequest) {
     - Peso atual: ${userQuizData?.currentWeight || "Não informado"}kg
     - Meta de peso: ${userQuizData?.goalWeight || "Não informado"}kg
 
+    PLANOS ATUAIS DO USUÁRIO:
+    - Calorias atuais: ${currentPlans?.dietPlan?.totalDailyCalories || "Não informado"}
+    - Dias de treino: ${currentPlans?.workoutPlan?.days?.length || "Não informado"}
+    - Proteína atual: ${currentPlans?.dietPlan?.totalProtein || "Não informado"}
+
+    ANÁLISE INTELIGENTE OBRIGATÓRIA:
+    Com base na foto e nos dados do usuário, você deve:
+    1. Analisar o progresso visual atual
+    2. Comparar com os objetivos declarados
+    3. Verificar se os planos atuais estão adequados
+    4. Sugerir otimizações ESPECÍFICAS apenas se necessário
+
     Forneça uma análise em JSON com esta estrutura:
     {
       "pontosForts": ["ponto forte 1", "ponto forte 2", "ponto forte 3"],
@@ -32,8 +48,26 @@ export async function POST(request: NextRequest) {
       "focoPrincipal": "principal área que precisa de atenção",
       "progressoGeral": "avaliação geral do físico atual",
       "recomendacoesTreino": ["recomendação 1", "recomendação 2"],
-      "recomendacoesDieta": ["recomendação 1", "recomendação 2"]
+      "recomendacoesDieta": ["recomendação 1", "recomendação 2"],
+      "otimizacaoNecessaria": true/false,
+      "otimizacoesSugeridas": {
+        "dieta": {
+          "necessaria": true/false,
+          "mudancas": ["mudança específica 1", "mudança específica 2"],
+          "justificativa": "Por que essas mudanças são necessárias"
+        },
+        "treino": {
+          "necessaria": true/false,
+          "mudancas": ["mudança específica 1", "mudança específica 2"],
+          "justificativa": "Por que essas mudanças são necessárias"
+        }
+      }
     }
+
+    CRITÉRIOS PARA SUGERIR OTIMIZAÇÕES:
+    - Dieta: Se a composição corporal não está evoluindo conforme esperado
+    - Treino: Se há desequilíbrios musculares ou falta de definição em áreas específicas
+    - APENAS sugira mudanças se realmente necessário baseado na análise visual
 
     Seja específico, motivacional e profissional. Base suas observações no que consegue ver na foto.
     `
@@ -49,7 +83,7 @@ export async function POST(request: NextRequest) {
           ],
         },
       ],
-      maxTokens: 1000,
+      maxTokens: 1500,
       temperature: 0.7,
     })
 
@@ -71,6 +105,11 @@ export async function POST(request: NextRequest) {
         progressoGeral: "Bom ponto de partida para evolução",
         recomendacoesTreino: ["Treino de força 3x por semana", "Cardio moderado"],
         recomendacoesDieta: ["Aumente proteínas", "Controle carboidratos"],
+        otimizacaoNecessaria: false,
+        otimizacoesSugeridas: {
+          dieta: { necessaria: false, mudancas: [], justificativa: "" },
+          treino: { necessaria: false, mudancas: [], justificativa: "" },
+        },
       }
     }
 
@@ -81,6 +120,11 @@ export async function POST(request: NextRequest) {
       analysis,
       createdAt: new Date().toISOString(),
       userQuizData: userQuizData || {},
+      currentPlansSnapshot: {
+        dietPlan: currentPlans?.dietPlan || null,
+        workoutPlan: currentPlans?.workoutPlan || null,
+        scientificCalculations: currentPlans?.scientificCalculations || null,
+      },
     }
 
     const docRef = await adminDb.collection("progressPhotos").add(photoData)

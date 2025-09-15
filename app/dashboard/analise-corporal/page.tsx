@@ -10,7 +10,7 @@ import { collection, query, where, orderBy, onSnapshot, doc, getDoc } from "fire
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Upload, Camera, Eye, Sparkles, TrendingUp } from "lucide-react"
+import { ArrowLeft, Upload, Camera, Eye, Sparkles, TrendingUp, Settings, CheckCircle, AlertCircle } from "lucide-react"
 
 interface ProgressPhoto {
   id: string
@@ -26,6 +26,19 @@ interface ProgressPhoto {
     progressoGeral: string
     recomendacoesTreino: string[]
     recomendacoesDieta: string[]
+    otimizacaoNecessaria?: boolean
+    otimizacoesSugeridas?: {
+      dieta: {
+        necessaria: boolean
+        mudancas: string[]
+        justificativa: string
+      }
+      treino: {
+        necessaria: boolean
+        mudancas: string[]
+        justificativa: string
+      }
+    }
   }
   comparison?: {
     evolucaoGeral: string
@@ -45,6 +58,8 @@ export default function AnaliseCorporalPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isComparing, setIsComparing] = useState(false)
   const [quizData, setQuizData] = useState<any>(null)
+  const [isApplyingOptimization, setIsApplyingOptimization] = useState<string | null>(null)
+  const [optimizationSuccess, setOptimizationSuccess] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -78,6 +93,33 @@ export default function AnaliseCorporalPage() {
 
     return () => unsubscribe()
   }, [user])
+
+  const handleApplyOptimization = async (photoId: string, optimizations: any) => {
+    if (!user) return
+
+    setIsApplyingOptimization(photoId)
+    try {
+      const response = await fetch("/api/apply-optimization", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.uid,
+          optimizations,
+          photoId,
+        }),
+      })
+
+      const result = await response.json()
+      if (result.success) {
+        setOptimizationSuccess(photoId)
+        setTimeout(() => setOptimizationSuccess(null), 3000)
+      }
+    } catch (error) {
+      console.error("Error applying optimization:", error)
+    } finally {
+      setIsApplyingOptimization(null)
+    }
+  }
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -312,6 +354,72 @@ export default function AnaliseCorporalPage() {
                           </div>
                         </div>
                       </div>
+
+                      {photo.analysis.otimizacaoNecessaria && photo.analysis.otimizacoesSugeridas && (
+                        <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                          <div className="flex items-start space-x-2">
+                            <Settings className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                            <div className="space-y-2 flex-1">
+                              <p className="text-sm font-medium text-orange-800">Otimizações Sugeridas:</p>
+
+                              {photo.analysis.otimizacoesSugeridas.dieta.necessaria && (
+                                <div className="text-xs space-y-1">
+                                  <span className="font-medium text-orange-700">Dieta:</span>
+                                  <ul className="list-disc list-inside ml-2 text-orange-600">
+                                    {photo.analysis.otimizacoesSugeridas.dieta.mudancas.map((mudanca, i) => (
+                                      <li key={i}>{mudanca}</li>
+                                    ))}
+                                  </ul>
+                                  <p className="text-xs text-orange-600 italic">
+                                    {photo.analysis.otimizacoesSugeridas.dieta.justificativa}
+                                  </p>
+                                </div>
+                              )}
+
+                              {photo.analysis.otimizacoesSugeridas.treino.necessaria && (
+                                <div className="text-xs space-y-1">
+                                  <span className="font-medium text-orange-700">Treino:</span>
+                                  <ul className="list-disc list-inside ml-2 text-orange-600">
+                                    {photo.analysis.otimizacoesSugeridas.treino.mudancas.map((mudanca, i) => (
+                                      <li key={i}>{mudanca}</li>
+                                    ))}
+                                  </ul>
+                                  <p className="text-xs text-orange-600 italic">
+                                    {photo.analysis.otimizacoesSugeridas.treino.justificativa}
+                                  </p>
+                                </div>
+                              )}
+
+                              <div className="flex space-x-2 mt-3">
+                                {optimizationSuccess === photo.id ? (
+                                  <div className="flex items-center text-green-600 text-xs">
+                                    <CheckCircle className="h-3 w-3 mr-1" />
+                                    Otimizações aplicadas!
+                                  </div>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    onClick={() =>
+                                      handleApplyOptimization(photo.id, photo.analysis?.otimizacoesSugeridas)
+                                    }
+                                    disabled={isApplyingOptimization === photo.id}
+                                    className="text-xs h-6 px-2 bg-orange-600 hover:bg-orange-700"
+                                  >
+                                    {isApplyingOptimization === photo.id ? (
+                                      "Aplicando..."
+                                    ) : (
+                                      <>
+                                        <AlertCircle className="h-3 w-3 mr-1" />
+                                        Aplicar Otimizações
+                                      </>
+                                    )}
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       {photo.comparison && (
                         <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
