@@ -131,7 +131,7 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
           <>
             <div className="flex items-center justify-center relative z-10">
               <Lock className="h-6 w-6 mr-3" />
-              <span className="font-black text-xl">Finalizar Compra - {formatCurrency(currentPlan.total)}</span>
+              <span className="font-black text-xl">Finalizar Compra</span>
               <div className="ml-3 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">SEGURO</div>
             </div>
           </>
