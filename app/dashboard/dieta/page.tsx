@@ -6,7 +6,7 @@ import { auth, db } from "@/lib/firebaseClient"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Clock, RefreshCw, Replace, Download } from "lucide-react"
+import { Clock, RefreshCw, Replace, Download, Plus, RotateCcw, Trash2 } from "lucide-react"
 import ProtectedRoute from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
@@ -25,6 +25,31 @@ export default function DietPage() {
   const [replacingFood, setReplacingFood] = useState<{ mealIndex: number; foodIndex: number } | null>(null)
   const [userPreferences, setUserPreferences] = useState<any>(null)
   const [quizData, setQuizData] = useState<any>(null)
+  const [manualAdjustments, setManualAdjustments] = useState<{
+    addedFoods: Array<{
+      name: string
+      calories: number
+      protein: number
+      carbs: number
+      fats: number
+      mealIndex?: number
+    }>
+    removedFoods: Array<{
+      mealIndex: number
+      foodIndex: number
+      name: string
+      calories: number
+    }>
+  }>({ addedFoods: [], removedFoods: [] })
+  const [showAddFoodModal, setShowAddFoodModal] = useState(false)
+  const [newFood, setNewFood] = useState({
+    name: "",
+    calories: "",
+    protein: "",
+    carbs: "",
+    fats: "",
+    mealIndex: 0,
+  })
   const router = useRouter()
 
   console.log("[v0] Component state:", { user: !!user, loading, error, dietPlan: !!dietPlan, quizData: !!quizData })
@@ -32,6 +57,120 @@ export default function DietPage() {
   useEffect(() => {
     setIsHydrated(true)
   }, [])
+
+  const handleAddFood = async () => {
+    if (!newFood.name || !newFood.calories) {
+      alert("Nome e calorias são obrigatórios")
+      return
+    }
+
+    const foodToAdd = {
+      name: newFood.name,
+      calories: Number(newFood.calories),
+      protein: Number(newFood.protein) || 0,
+      carbs: Number(newFood.carbs) || 0,
+      fats: Number(newFood.fats) || 0,
+      mealIndex: newFood.mealIndex,
+    }
+
+    const updatedAdjustments = {
+      ...manualAdjustments,
+      addedFoods: [...manualAdjustments.addedFoods, foodToAdd],
+    }
+
+    setManualAdjustments(updatedAdjustments)
+
+    // Save to Firebase
+    if (user) {
+      try {
+        const userDocRef = doc(db, "users", user.uid)
+        await updateDoc(userDocRef, {
+          manualDietAdjustments: updatedAdjustments,
+        })
+      } catch (error) {
+        console.error("Error saving manual adjustments:", error)
+      }
+    }
+
+    setNewFood({ name: "", calories: "", protein: "", carbs: "", fats: "", mealIndex: 0 })
+    setShowAddFoodModal(false)
+  }
+
+  const handleRemoveFood = async (mealIndex: number, foodIndex: number) => {
+    if (!dietPlan?.meals[mealIndex]?.foods[foodIndex]) return
+
+    const foodToRemove = dietPlan.meals[mealIndex].foods[foodIndex]
+    let foodName = ""
+    let foodCalories = 0
+
+    if (typeof foodToRemove === "string") {
+      foodName = foodToRemove
+      const match = foodToRemove.match(/(\d+(?:\.\d+)?)\s*kcal/i)
+      if (match) {
+        foodCalories = Number.parseFloat(match[1])
+      }
+    } else if (foodToRemove && typeof foodToRemove === "object") {
+      foodName = foodToRemove.name || `Alimento ${foodIndex + 1}`
+      const caloriesStr = foodToRemove.calories?.toString() || "0"
+      const match = caloriesStr.match(/(\d+(?:\.\d+)?)/)
+      if (match) {
+        foodCalories = Number.parseFloat(match[1])
+      }
+    }
+
+    const removedFood = {
+      mealIndex,
+      foodIndex,
+      name: foodName,
+      calories: foodCalories,
+    }
+
+    const updatedAdjustments = {
+      ...manualAdjustments,
+      removedFoods: [...manualAdjustments.removedFoods, removedFood],
+    }
+
+    setManualAdjustments(updatedAdjustments)
+
+    // Save to Firebase
+    if (user) {
+      try {
+        const userDocRef = doc(db, "users", user.uid)
+        await updateDoc(userDocRef, {
+          manualDietAdjustments: updatedAdjustments,
+        })
+      } catch (error) {
+        console.error("Error saving manual adjustments:", error)
+      }
+    }
+  }
+
+  const calculateAdjustedTotals = (originalTotals: any) => {
+    let adjustedCalories = Number.parseFloat(originalTotals.calories) || 0
+    let adjustedProtein = Number.parseFloat(originalTotals.protein) || 0
+    let adjustedCarbs = Number.parseFloat(originalTotals.carbs) || 0
+    let adjustedFats = Number.parseFloat(originalTotals.fats) || 0
+
+    // Add calories from added foods
+    manualAdjustments.addedFoods.forEach((food) => {
+      adjustedCalories += food.calories
+      adjustedProtein += food.protein
+      adjustedCarbs += food.carbs
+      adjustedFats += food.fats
+    })
+
+    // Subtract calories from removed foods
+    manualAdjustments.removedFoods.forEach((food) => {
+      adjustedCalories -= food.calories
+    })
+
+    return {
+      calories: `${Math.round(adjustedCalories)}`,
+      protein: `${Math.round(adjustedProtein)}g`,
+      carbs: `${Math.round(adjustedCarbs)}g`,
+      fats: `${Math.round(adjustedFats)}g`,
+    }
+  }
 
   useEffect(() => {
     console.log("[v0] useEffect triggered, user:", !!user, "isHydrated:", isHydrated)
@@ -46,10 +185,9 @@ export default function DietPage() {
 
           if (userDocSnap.exists()) {
             const userData = userDocSnap.data()
-            console.log("[v0] User data loaded:", {
-              hasQuizData: !!userData.quizData,
-              hasDietPlan: !!userData.dietPlan,
-            })
+            if (userData.manualDietAdjustments) {
+              setManualAdjustments(userData.manualDietAdjustments)
+            }
 
             if (userData.quizData) {
               setQuizData(userData.quizData)
@@ -635,6 +773,7 @@ export default function DietPage() {
   }
 
   const calculatedTotals = calculateTotalMacros(dietPlan?.meals || [])
+  const adjustedTotals = calculateAdjustedTotals(calculatedTotals)
 
   console.log("[v0] About to render, loading:", loading, "error:", error)
 
@@ -912,35 +1051,24 @@ export default function DietPage() {
           )}
 
           {dietPlan && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Calorias Totais</CardTitle>
-                  <CardDescription className="text-sm">
-                    <div className="space-y-1">
-                      <div>
-                        Teórico (científico): {quizData ? `${calculateScientificCalories(quizData)} kcal` : "N/A"}
-                      </div>
-                      <div>Salvo no plano: {dietPlan?.totalDailyCalories || "N/A"}</div>
-                      <div>Real (soma dos alimentos): {calculatedTotals.calories} kcal</div>
-                      {Math.abs(
-                        Number.parseInt((dietPlan?.totalDailyCalories || "0").replace(/\D/g, "")) -
-                          Number.parseInt(calculatedTotals.calories),
-                      ) > 200 && <div className="text-orange-600 font-medium">⚠️ Diferença significativa detectada</div>}
-                    </div>
-                  </CardDescription>
+                  <CardTitle>Calorias Reais</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold">{dietPlan?.totalDailyCalories || "N/A"}</p>
-                  <p className="text-sm text-gray-600 mt-1">Soma real: {calculatedTotals.calories} kcal</p>
+                  <p className="text-2xl font-bold text-blue-600">{adjustedTotals.calories} kcal</p>
+                  {(manualAdjustments.addedFoods.length > 0 || manualAdjustments.removedFoods.length > 0) && (
+                    <p className="text-xs text-gray-500 mt-1">(Original: {calculatedTotals.calories} kcal)</p>
+                  )}
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>Proteína</CardTitle>
+                  <CardTitle>Proteínas</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold text-red-600">{displayTotals.protein}</p>
+                  <p className="text-2xl font-bold text-red-600">{adjustedTotals.protein}</p>
                 </CardContent>
               </Card>
               <Card>
@@ -948,7 +1076,7 @@ export default function DietPage() {
                   <CardTitle>Carboidratos</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold text-yellow-600">{displayTotals.carbs}</p>
+                  <p className="text-2xl font-bold text-yellow-600">{adjustedTotals.carbs}</p>
                 </CardContent>
               </Card>
               <Card>
@@ -956,9 +1084,114 @@ export default function DietPage() {
                   <CardTitle>Gorduras</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold text-green-600">{displayTotals.fats}</p>
+                  <p className="text-2xl font-bold text-green-600">{adjustedTotals.fats}</p>
                 </CardContent>
               </Card>
+            </div>
+          )}
+
+          {dietPlan && (
+            <div className="mb-6 flex gap-4">
+              <Button onClick={() => setShowAddFoodModal(true)} className="bg-lime-500 hover:bg-lime-600 text-white">
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar Alimento
+              </Button>
+
+              {(manualAdjustments.addedFoods.length > 0 || manualAdjustments.removedFoods.length > 0) && (
+                <Button onClick={() => setManualAdjustments({ addedFoods: [], removedFoods: [] })} variant="outline">
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Resetar Alterações
+                </Button>
+              )}
+            </div>
+          )}
+
+          {showAddFoodModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+                <h3 className="text-lg font-semibold mb-4">Adicionar Alimento</h3>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Nome do Alimento *</label>
+                    <input
+                      type="text"
+                      value={newFood.name}
+                      onChange={(e) => setNewFood({ ...newFood, name: e.target.value })}
+                      className="w-full p-2 border rounded-md"
+                      placeholder="Ex: Banana"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Calorias *</label>
+                    <input
+                      type="number"
+                      value={newFood.calories}
+                      onChange={(e) => setNewFood({ ...newFood, calories: e.target.value })}
+                      className="w-full p-2 border rounded-md"
+                      placeholder="Ex: 105"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Proteína (g)</label>
+                      <input
+                        type="number"
+                        value={newFood.protein}
+                        onChange={(e) => setNewFood({ ...newFood, protein: e.target.value })}
+                        className="w-full p-2 border rounded-md"
+                        placeholder="0"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Carboidratos (g)</label>
+                      <input
+                        type="number"
+                        value={newFood.carbs}
+                        onChange={(e) => setNewFood({ ...newFood, carbs: e.target.value })}
+                        className="w-full p-2 border rounded-md"
+                        placeholder="0"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Gorduras (g)</label>
+                      <input
+                        type="number"
+                        value={newFood.fats}
+                        onChange={(e) => setNewFood({ ...newFood, fats: e.target.value })}
+                        className="w-full p-2 border rounded-md"
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Adicionar à Refeição</label>
+                    <select
+                      value={newFood.mealIndex}
+                      onChange={(e) => setNewFood({ ...newFood, mealIndex: Number(e.target.value) })}
+                      className="w-full p-2 border rounded-md"
+                    >
+                      {dietPlan?.meals.map((meal, index) => (
+                        <option key={index} value={index}>
+                          {meal.name || `Refeição ${index + 1}`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 mt-6">
+                  <Button onClick={handleAddFood} className="flex-1">
+                    Adicionar
+                  </Button>
+                  <Button onClick={() => setShowAddFoodModal(false)} variant="outline" className="flex-1">
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
 
@@ -968,6 +1201,17 @@ export default function DietPage() {
                 if (!meal || typeof meal !== "object") {
                   return null
                 }
+
+                const filteredFoods = Array.isArray(meal.foods)
+                  ? meal.foods.filter(
+                      (_, foodIndex) =>
+                        !manualAdjustments.removedFoods.some(
+                          (removed) => removed.mealIndex === index && removed.foodIndex === foodIndex,
+                        ),
+                    )
+                  : []
+
+                const manualFoodsForMeal = manualAdjustments.addedFoods.filter((food) => food.mealIndex === index)
 
                 return (
                   <Card key={index}>
@@ -983,8 +1227,17 @@ export default function DietPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        {Array.isArray(meal.foods) && meal.foods.length > 0 ? (
-                          meal.foods.map((food, foodIndex) => {
+                        {filteredFoods.length > 0 ? (
+                          filteredFoods.map((food, foodIndex) => {
+                            const originalIndex =
+                              meal.foods?.findIndex(
+                                (originalFood, idx) =>
+                                  originalFood === food &&
+                                  !manualAdjustments.removedFoods.some(
+                                    (removed) => removed.mealIndex === index && removed.foodIndex <= idx,
+                                  ),
+                              ) ?? foodIndex
+
                             let foodName = ""
                             let foodQuantity = ""
                             let foodCalories = ""
@@ -1050,6 +1303,7 @@ export default function DietPage() {
                                     </div>
                                   )}
                                 </div>
+
                                 <div className="flex items-center gap-3">
                                   {foodCalories && (
                                     <div className="text-right">
@@ -1057,23 +1311,32 @@ export default function DietPage() {
                                     </div>
                                   )}
                                   <Button
-                                    onClick={() => handleReplaceFood(index, foodIndex)}
+                                    onClick={() => handleRemoveFood(index, originalIndex)}
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 px-2 text-red-600 hover:text-red-700"
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleReplaceFood(index, originalIndex)}
                                     disabled={
-                                      replacingFood?.mealIndex === index && replacingFood?.foodIndex === foodIndex
+                                      replacingFood?.mealIndex === index && replacingFood?.foodIndex === originalIndex
                                     }
                                     variant="outline"
                                     size="sm"
                                     className="h-8 px-2"
                                   >
-                                    {replacingFood?.mealIndex === index && replacingFood?.foodIndex === foodIndex ? (
+                                    {replacingFood?.mealIndex === index &&
+                                    replacingFood?.foodIndex === originalIndex ? (
                                       <>
                                         <RefreshCw className="h-3 w-3 mr-2 animate-spin" />
-                                        Substituindo Alimento...
+                                        Substituindo...
                                       </>
                                     ) : (
                                       <>
                                         <Replace className="h-3 w-3 mr-2" />
-                                        Substituir Alimento
+                                        Substituir
                                       </>
                                     )}
                                   </Button>
@@ -1084,6 +1347,45 @@ export default function DietPage() {
                         ) : (
                           <p className="text-gray-500 text-sm">Nenhum alimento especificado</p>
                         )}
+
+                        {manualFoodsForMeal.map((food, foodIndex) => (
+                          <div
+                            key={`manual-${foodIndex}`}
+                            className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0 bg-lime-50"
+                          >
+                            <div className="flex-1">
+                              <p className="font-medium text-gray-900">{food.name}</p>
+                              <p className="text-xs text-lime-600 font-medium">Adicionado manualmente</p>
+                              <div className="flex gap-3 mt-1 text-xs text-gray-500">
+                                <span className="text-red-500">P: {food.protein}g</span>
+                                <span className="text-yellow-500">C: {food.carbs}g</span>
+                                <span className="text-green-500">G: {food.fats}g</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="text-right">
+                                <p className="text-sm text-gray-600">{food.calories} kcal</p>
+                              </div>
+                              <Button
+                                onClick={() => {
+                                  const updatedAdjustments = {
+                                    ...manualAdjustments,
+                                    addedFoods: manualAdjustments.addedFoods.filter(
+                                      (_, idx) => !(manualAdjustments.addedFoods.indexOf(food) === idx),
+                                    ),
+                                  }
+                                  setManualAdjustments(updatedAdjustments)
+                                }}
+                                variant="outline"
+                                size="sm"
+                                className="h-8 px-2 text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+
                         {Array.isArray(meal.foods) && meal.foods.length > 0 && (
                           <div className="pt-3 border-t border-gray-200">
                             <Button
