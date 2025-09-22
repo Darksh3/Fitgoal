@@ -155,11 +155,17 @@ export default function DietPage() {
     if (dietPlan?.meals) {
       dietPlan.meals.forEach((meal: any, mealIndex: number) => {
         let mealCalories = 0
+        let mealProtein = 0
+        let mealCarbs = 0
+        let mealFats = 0
 
         // Always try to sum from individual foods first for accuracy
         if (Array.isArray(meal.foods)) {
           meal.foods.forEach((food: any, foodIndex: number) => {
             let foodCalories = 0
+            let foodProtein = 0
+            let foodCarbs = 0
+            let foodFats = 0
 
             if (typeof food === "object" && food.calories) {
               // Extract number from various formats: "190 kcal", "190", 190
@@ -167,6 +173,19 @@ export default function DietPage() {
               const match = caloriesStr.match(/(\d+(?:\.\d+)?)/)
               if (match) {
                 foodCalories = Number.parseFloat(match[1])
+              }
+
+              if (food.protein) {
+                const proteinMatch = food.protein.toString().match(/(\d+(?:\.\d+)?)/)
+                if (proteinMatch) foodProtein = Number.parseFloat(proteinMatch[1])
+              }
+              if (food.carbs) {
+                const carbsMatch = food.carbs.toString().match(/(\d+(?:\.\d+)?)/)
+                if (carbsMatch) foodCarbs = Number.parseFloat(carbsMatch[1])
+              }
+              if (food.fats) {
+                const fatsMatch = food.fats.toString().match(/(\d+(?:\.\d+)?)/)
+                if (fatsMatch) foodFats = Number.parseFloat(fatsMatch[1])
               }
             } else if (typeof food === "string") {
               // Extract from string format like "Aveia 150g - 190 kcal"
@@ -178,7 +197,12 @@ export default function DietPage() {
 
             if (!isNaN(foodCalories) && foodCalories > 0) {
               mealCalories += foodCalories
-              console.log(`[v0] Food ${foodIndex} in meal ${mealIndex}: ${foodCalories} kcal`)
+              mealProtein += foodProtein
+              mealCarbs += foodCarbs
+              mealFats += foodFats
+              console.log(
+                `[v0] Food ${foodIndex} in meal ${mealIndex}: ${foodCalories} kcal, P:${foodProtein}g, C:${foodCarbs}g, F:${foodFats}g`,
+              )
             }
           })
         }
@@ -196,8 +220,11 @@ export default function DietPage() {
         adjustedCalories += mealCalories
         console.log(`[v0] Meal ${mealIndex} total: ${mealCalories} kcal`)
 
-        // Add meal macros if available
-        if (meal.macros) {
+        if (mealProtein > 0 || mealCarbs > 0 || mealFats > 0) {
+          adjustedProtein += mealProtein
+          adjustedCarbs += mealCarbs
+          adjustedFats += mealFats
+        } else if (meal.macros) {
           adjustedProtein += Number.parseFloat(meal.macros.protein?.match(/(\d+\.?\d*)/)?.[1] || "0")
           adjustedCarbs += Number.parseFloat(meal.macros.carbs?.match(/(\d+\.?\d*)/)?.[1] || "0")
           adjustedFats += Number.parseFloat(meal.macros.fats?.match(/(\d+\.?\d*)/)?.[1] || "0")
@@ -209,6 +236,9 @@ export default function DietPage() {
           adjustedProtein += estimatedProtein
           adjustedCarbs += estimatedCarbs
           adjustedFats += estimatedFats
+          console.log(
+            `[v0] Estimated macros for meal ${mealIndex}: P:${estimatedProtein.toFixed(1)}g, C:${estimatedCarbs.toFixed(1)}g, F:${estimatedFats.toFixed(1)}g`,
+          )
         }
       })
     }
@@ -589,11 +619,17 @@ export default function DietPage() {
     meals.forEach((meal, mealIndex) => {
       if (meal && typeof meal === "object") {
         let mealCalories = 0
+        let mealProtein = 0
+        let mealCarbs = 0
+        let mealFats = 0
 
         // Always try to sum from individual foods first for accuracy
         if (Array.isArray(meal.foods)) {
           meal.foods.forEach((food, foodIndex) => {
             let foodCalories = 0
+            let foodProtein = 0
+            let foodCarbs = 0
+            let foodFats = 0
 
             if (typeof food === "object" && food.calories) {
               // Extract number from various formats: "190 kcal", "190", 190
@@ -601,6 +637,19 @@ export default function DietPage() {
               const match = caloriesStr.match(/(\d+(?:\.\d+)?)/)
               if (match) {
                 foodCalories = Number.parseFloat(match[1])
+              }
+
+              if (food.protein) {
+                const proteinMatch = food.protein.toString().match(/(\d+(?:\.\d+)?)/)
+                if (proteinMatch) foodProtein = Number.parseFloat(proteinMatch[1])
+              }
+              if (food.carbs) {
+                const carbsMatch = food.carbs.toString().match(/(\d+(?:\.\d+)?)/)
+                if (carbsMatch) foodCarbs = Number.parseFloat(carbsMatch[1])
+              }
+              if (food.fats) {
+                const fatsMatch = food.fats.toString().match(/(\d+(?:\.\d+)?)/)
+                if (fatsMatch) foodFats = Number.parseFloat(fatsMatch[1])
               }
             } else if (typeof food === "string") {
               // Extract from string format like "Aveia 150g - 190 kcal"
@@ -612,7 +661,12 @@ export default function DietPage() {
 
             if (!isNaN(foodCalories) && foodCalories > 0) {
               mealCalories += foodCalories
-              console.log(`[v0] Food ${foodIndex} in meal ${mealIndex}: ${foodCalories} kcal`)
+              mealProtein += foodProtein
+              mealCarbs += foodCarbs
+              mealFats += foodFats
+              console.log(
+                `[v0] Food ${foodIndex} in meal ${mealIndex}: ${foodCalories} kcal, P:${foodProtein}g, C:${foodCarbs}g, F:${foodFats}g`,
+              )
             }
           })
         }
@@ -630,7 +684,11 @@ export default function DietPage() {
         totalCalories += mealCalories
         console.log(`[v0] Meal ${mealIndex} total: ${mealCalories} kcal`)
 
-        if (meal.macros && typeof meal.macros === "object") {
+        if (mealProtein > 0 || mealCarbs > 0 || mealFats > 0) {
+          totalProtein += mealProtein
+          totalCarbs += mealCarbs
+          totalFats += mealFats
+        } else if (meal.macros && typeof meal.macros === "object") {
           const extractMacro = (macroValue: any) => {
             if (!macroValue) return 0
             const match = macroValue.toString().match(/(\d+(?:\.\d+)?)/)
@@ -640,6 +698,17 @@ export default function DietPage() {
           totalProtein += extractMacro(meal.macros.protein)
           totalCarbs += extractMacro(meal.macros.carbs)
           totalFats += extractMacro(meal.macros.fats)
+        } else if (mealCalories > 0) {
+          // Estimate macros from calories using standard ratios
+          const estimatedProtein = (mealCalories * 0.25) / 4 // 25% protein
+          const estimatedCarbs = (mealCalories * 0.45) / 4 // 45% carbs
+          const estimatedFats = (mealCalories * 0.3) / 9 // 30% fats
+          totalProtein += estimatedProtein
+          totalCarbs += estimatedCarbs
+          totalFats += estimatedFats
+          console.log(
+            `[v0] Estimated macros for meal ${mealIndex}: P:${estimatedProtein.toFixed(1)}g, C:${estimatedCarbs.toFixed(1)}g, F:${estimatedFats.toFixed(1)}g`,
+          )
         }
       }
     })
@@ -1089,11 +1158,17 @@ export default function DietPage() {
     meals.forEach((meal, mealIndex) => {
       if (meal && typeof meal === "object") {
         let mealCalories = 0
+        let mealProtein = 0
+        let mealCarbs = 0
+        let mealFats = 0
 
         // Always try to sum from individual foods first for accuracy
         if (Array.isArray(meal.foods)) {
           meal.foods.forEach((food, foodIndex) => {
             let foodCalories = 0
+            let foodProtein = 0
+            let foodCarbs = 0
+            let foodFats = 0
 
             if (typeof food === "object" && food.calories) {
               // Extract number from various formats: "190 kcal", "190", 190
@@ -1101,6 +1176,19 @@ export default function DietPage() {
               const match = caloriesStr.match(/(\d+(?:\.\d+)?)/)
               if (match) {
                 foodCalories = Number.parseFloat(match[1])
+              }
+
+              if (food.protein) {
+                const proteinMatch = food.protein.toString().match(/(\d+(?:\.\d+)?)/)
+                if (proteinMatch) foodProtein = Number.parseFloat(proteinMatch[1])
+              }
+              if (food.carbs) {
+                const carbsMatch = food.carbs.toString().match(/(\d+(?:\.\d+)?)/)
+                if (carbsMatch) foodCarbs = Number.parseFloat(carbsMatch[1])
+              }
+              if (food.fats) {
+                const fatsMatch = food.fats.toString().match(/(\d+(?:\.\d+)?)/)
+                if (fatsMatch) foodFats = Number.parseFloat(fatsMatch[1])
               }
             } else if (typeof food === "string") {
               // Extract from string format like "Aveia 150g - 190 kcal"
@@ -1112,7 +1200,12 @@ export default function DietPage() {
 
             if (!isNaN(foodCalories) && foodCalories > 0) {
               mealCalories += foodCalories
-              console.log(`[v0] Food ${foodIndex} in meal ${mealIndex}: ${foodCalories} kcal`)
+              mealProtein += foodProtein
+              mealCarbs += foodCarbs
+              mealFats += foodFats
+              console.log(
+                `[v0] Food ${foodIndex} in meal ${mealIndex}: ${foodCalories} kcal, P:${foodProtein}g, C:${foodCarbs}g, F:${foodFats}g`,
+              )
             }
           })
         }
@@ -1130,35 +1223,32 @@ export default function DietPage() {
         totalCalories += mealCalories
         console.log(`[v0] Meal ${mealIndex} total: ${mealCalories} kcal`)
 
-        let mealProtein = 0
-        let mealCarbs = 0
-        let mealFats = 0
-
-        // Try to get macros from meal.macros first
-        if (meal.macros && typeof meal.macros === "object") {
+        if (mealProtein > 0 || mealCarbs > 0 || mealFats > 0) {
+          totalProtein += mealProtein
+          totalCarbs += mealCarbs
+          totalFats += mealFats
+        } else if (meal.macros && typeof meal.macros === "object") {
           const extractMacro = (macroValue: any) => {
             if (!macroValue) return 0
             const match = macroValue.toString().match(/(\d+(?:\.\d+)?)/)
             return match ? Number.parseFloat(match[1]) : 0
           }
 
-          mealProtein = extractMacro(meal.macros.protein)
-          mealCarbs = extractMacro(meal.macros.carbs)
-          mealFats = extractMacro(meal.macros.fats)
+          totalProtein += extractMacro(meal.macros.protein)
+          totalCarbs += extractMacro(meal.macros.carbs)
+          totalFats += extractMacro(meal.macros.fats)
+        } else if (mealCalories > 0) {
+          // Estimate macros from calories using standard ratios
+          const estimatedProtein = (mealCalories * 0.25) / 4 // 25% protein
+          const estimatedCarbs = (mealCalories * 0.45) / 4 // 45% carbs
+          const estimatedFats = (mealCalories * 0.3) / 9 // 30% fats
+          totalProtein += estimatedProtein
+          totalCarbs += estimatedCarbs
+          totalFats += estimatedFats
+          console.log(
+            `[v0] Estimated macros for meal ${mealIndex}: P:${estimatedProtein.toFixed(1)}g, C:${estimatedCarbs.toFixed(1)}g, F:${estimatedFats.toFixed(1)}g`,
+          )
         }
-
-        // If no macros available, estimate from calories using standard ratios
-        if (mealProtein === 0 && mealCarbs === 0 && mealFats === 0 && mealCalories > 0) {
-          // Standard macro distribution: 25% protein, 45% carbs, 30% fats
-          mealProtein = (mealCalories * 0.25) / 4 // 4 kcal per gram of protein
-          mealCarbs = (mealCalories * 0.45) / 4 // 4 kcal per gram of carbs
-          mealFats = (mealCalories * 0.3) / 9 // 9 kcal per gram of fat
-          console.log(`[v0] Estimated macros for meal ${mealIndex}: P:${mealProtein}g C:${mealCarbs}g F:${mealFats}g`)
-        }
-
-        totalProtein += mealProtein
-        totalCarbs += mealCarbs
-        totalFats += mealFats
       }
     })
 
