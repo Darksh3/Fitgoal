@@ -12,6 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Upload, Camera, Eye, Sparkles, TrendingUp, Settings, CheckCircle, AlertCircle } from "lucide-react"
 
+import IzaChat from "@/components/iza-chat"
+
 interface ProgressPhoto {
   id: string
   createdAt: string
@@ -152,6 +154,11 @@ export default function AnaliseCorporalPage() {
       const analysisResult = await analysisResponse.json()
 
       if (analysisResult.success) {
+        const analysisEvent = new CustomEvent("photoAnalysisComplete", {
+          detail: analysisResult.analysis,
+        })
+        window.dispatchEvent(analysisEvent)
+
         setIsComparing(true)
         const comparisonResponse = await fetch("/api/compare-progress", {
           method: "POST",
@@ -464,6 +471,8 @@ export default function AnaliseCorporalPage() {
           </Card>
         )}
       </div>
+
+      <IzaChat />
     </div>
   )
 }
