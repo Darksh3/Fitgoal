@@ -127,18 +127,28 @@ export default function AnaliseCorporalPage() {
     const file = event.target.files?.[0]
     if (!file || !user) return
 
+    console.log("[v0] Starting photo upload and analysis")
     setIsAnalyzing(true)
 
     try {
       const formData = new FormData()
       formData.append("file", file)
 
+      console.log("[v0] Uploading photo...")
       const uploadResponse = await fetch("/api/upload-photo", {
         method: "POST",
         body: formData,
       })
 
       const { photoUrl } = await uploadResponse.json()
+      console.log("[v0] Photo uploaded, URL:", photoUrl)
+
+      console.log("[v0] Starting analysis with data:", {
+        photoUrl,
+        photoType: selectedPhotoType,
+        userId: user.uid,
+        userQuizData: quizData,
+      })
 
       const analysisResponse = await fetch("/api/analyze-photo", {
         method: "POST",
@@ -152,8 +162,10 @@ export default function AnaliseCorporalPage() {
       })
 
       const analysisResult = await analysisResponse.json()
+      console.log("[v0] Analysis result:", analysisResult)
 
       if (analysisResult.success) {
+        console.log("[v0] Dispatching photoAnalysisComplete event with:", analysisResult.analysis)
         const analysisEvent = new CustomEvent("photoAnalysisComplete", {
           detail: analysisResult.analysis,
         })
@@ -172,9 +184,11 @@ export default function AnaliseCorporalPage() {
 
         const comparisonResult = await comparisonResponse.json()
         console.log("[v0] Comparison result:", comparisonResult)
+      } else {
+        console.log("[v0] Analysis failed:", analysisResult)
       }
     } catch (error) {
-      console.error("Error uploading and analyzing photo:", error)
+      console.error("[v0] Error uploading and analyzing photo:", error)
     } finally {
       setIsAnalyzing(false)
       setIsComparing(false)

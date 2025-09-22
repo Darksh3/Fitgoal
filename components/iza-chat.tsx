@@ -45,9 +45,11 @@ export default function IzaChat({ onNewAnalysis }: IzaChatProps) {
   // Listen for new analysis results
   useEffect(() => {
     const handleAnalysisComplete = (event: CustomEvent) => {
+      console.log("[v0] IzaChat received photoAnalysisComplete event:", event.detail)
       const analysisData = event.detail
 
       // Open chat automatically
+      console.log("[v0] Opening Iza chat automatically")
       setIsOpen(true)
 
       // Add analysis message from Iza
@@ -60,6 +62,7 @@ export default function IzaChat({ onNewAnalysis }: IzaChatProps) {
         analysisData,
       }
 
+      console.log("[v0] Adding analysis message to chat:", analysisMessage)
       setMessages((prev) => [...prev, analysisMessage])
 
       if (onNewAnalysis) {
@@ -67,9 +70,11 @@ export default function IzaChat({ onNewAnalysis }: IzaChatProps) {
       }
     }
 
+    console.log("[v0] IzaChat: Adding event listener for photoAnalysisComplete")
     window.addEventListener("photoAnalysisComplete", handleAnalysisComplete as EventListener)
 
     return () => {
+      console.log("[v0] IzaChat: Removing event listener for photoAnalysisComplete")
       window.removeEventListener("photoAnalysisComplete", handleAnalysisComplete as EventListener)
     }
   }, [onNewAnalysis])
