@@ -819,81 +819,135 @@ function calculateScientificCalories(data: any) {
 
   let dailyCalorieAdjustment = 0
 
-  if (goals.includes("perder-peso") || goals.includes("emagrecer")) {
-    // Weight loss: calculate deficit based on goal
-    const weightDifference = Math.abs(weight - targetWeight)
-    if (timeToGoal && weightDifference > 0) {
+  // REGRA CRÍTICA: Se peso meta < peso atual = SEMPRE déficit (queima de gordura)
+  // Se peso meta > peso atual = SEMPRE surplus (ganho de peso)
+  // Se peso meta = peso atual = manutenção ou seguir objetivo declarado
+
+  const weightDifference = targetWeight - weight
+
+  if (weightDifference < -0.5) {
+    // PESO META MENOR QUE ATUAL = PERDA DE PESO (prioridade máxima)
+    console.log(`🔥 [PRIORITY] Target weight (${targetWeight}kg) < current weight (${weight}kg) = FAT LOSS MODE`)
+
+    const weightToLose = Math.abs(weightDifference)
+    if (timeToGoal && weightToLose > 0) {
       const weeksToGoal = calculateWeeksToGoal(timeToGoal)
       if (weeksToGoal > 0) {
-        const weeklyWeightChange = weightDifference / weeksToGoal
-        // 7700 kcal = 1kg, so daily deficit = (kg per week * 7700) / 7 days
-        dailyCalorieAdjustment = -Math.round((weeklyWeightChange * 7700) / 7)
+        const weeklyWeightChange = weightToLose / weeksToGoal
+        // Déficit seguro: máximo 1kg por semana (7700 kcal)
+        const maxWeeklyLoss = Math.min(weeklyWeightChange, 1.0)
+        dailyCalorieAdjustment = -Math.round((maxWeeklyLoss * 7700) / 7)
+        // Limitar déficit máximo para segurança
+        dailyCalorieAdjustment = Math.max(dailyCalorieAdjustment, -800)
       } else {
-        dailyCalorieAdjustment = -500 // Default moderate deficit
+        dailyCalorieAdjustment = -500 // Déficit moderado padrão
       }
     } else {
-      dailyCalorieAdjustment = -500 // Default moderate deficit
+      dailyCalorieAdjustment = -500 // Déficit moderado padrão
     }
-  } else if (goals.includes("ganhar-massa") || goals.includes("ganhar-peso")) {
-    // Weight gain: calculate surplus based on goal
-    const weightDifference = Math.abs(targetWeight - weight)
-    if (timeToGoal && weightDifference > 0) {
+  } else if (weightDifference > 0.5) {
+    // PESO META MAIOR QUE ATUAL = GANHO DE PESO
+    console.log(`💪 [PRIORITY] Target weight (${targetWeight}kg) > current weight (${weight}kg) = WEIGHT GAIN MODE`)
+
+    const weightToGain = weightDifference
+    if (timeToGoal && weightToGain > 0) {
       const weeksToGoal = calculateWeeksToGoal(timeToGoal)
       if (weeksToGoal > 0) {
-        const weeklyWeightChange = weightDifference / weeksToGoal
-        // 7700 kcal = 1kg, so daily surplus = (kg per week * 7700) / 7 days
-        dailyCalorieAdjustment = Math.round((weeklyWeightChange * 7700) / 7)
+        const weeklyWeightChange = weightToGain / weeksToGoal
+        // Surplus seguro: máximo 0.5kg por semana
+        const maxWeeklyGain = Math.min(weeklyWeightChange, 0.5)
+        dailyCalorieAdjustment = Math.round((maxWeeklyGain * 7700) / 7)
+        // Limitar surplus máximo
+        dailyCalorieAdjustment = Math.min(dailyCalorieAdjustment, 600)
       } else {
-        dailyCalorieAdjustment = 500 // Default moderate surplus
+        dailyCalorieAdjustment = 300 // Surplus conservador padrão
       }
     } else {
-      dailyCalorieAdjustment = 500 // Default moderate surplus
+      dailyCalorieAdjustment = 300 // Surplus conservador padrão
     }
+  } else {
+    // PESO META = PESO ATUAL = seguir objetivo declarado ou manutenção
+    console.log(`⚖️ [PRIORITY] Target weight (${targetWeight}kg) ≈ current weight (${weight}kg) = FOLLOW DECLARED GOALS`)
+
+    if (goals.includes("perder-peso") || goals.includes("emagrecer")) {
+      dailyCalorieAdjustment = -300 // Déficit leve para recomposição
+    } else if (goals.includes("ganhar-massa") || goals.includes("ganhar-peso")) {
+      dailyCalorieAdjustment = 200 // Surplus leve para recomposição
+    }
+    // Manutenção: dailyCalorieAdjustment = 0
   }
-  // Maintenance: no adjustment (dailyCalorieAdjustment = 0)
 
   const finalCalories = Math.round(tdee + dailyCalorieAdjustment)
 
-  // Proteína baseada em objetivo E biotipo
   let proteinPerKg = 1.6
-  if (goals.includes("ganhar-massa")) {
+
+  if (weightDifference < -0.5) {
+    // PERDA DE PESO = mais proteína para preservar massa muscular
     switch (bodyType) {
       case "ectomorfo":
-        proteinPerKg = 2.5
-        break // Mais difícil ganhar massa
+        proteinPerKg = 2.0 // Preserva massa facilmente
+        break
       case "mesomorfo":
-        proteinPerKg = 2.2
-        break // Resposta padrão boa
+        proteinPerKg = 2.2 // Equilíbrio
+        break
       case "endomorfo":
-        proteinPerKg = 2.0
-        break // Ganha massa mais fácil
+        proteinPerKg = 2.5 // Precisa mais para preservar massa
+        break
+      default:
+        proteinPerKg = 2.2
     }
-  } else if (goals.includes("perder-peso")) {
+  } else if (weightDifference > 0.5) {
+    // GANHO DE PESO = proteína para construção muscular
     switch (bodyType) {
       case "ectomorfo":
-        proteinPerKg = 1.8
-        break // Preserva massa facilmente
+        proteinPerKg = 2.5 // Mais difícil ganhar massa
+        break
       case "mesomorfo":
-        proteinPerKg = 2.0
-        break // Equilíbrio
+        proteinPerKg = 2.2 // Resposta padrão boa
+        break
       case "endomorfo":
+        proteinPerKg = 2.0 // Ganha massa mais fácil
+        break
+      default:
         proteinPerKg = 2.2
-        break // Precisa mais para preservar
     }
+  } else {
+    // RECOMPOSIÇÃO CORPORAL = proteína alta para manter/ganhar massa
+    proteinPerKg = 2.0
   }
 
-  // Gorduras por biotipo
   let fatsPerKg = 1.0
-  switch (bodyType) {
-    case "ectomorfo":
-      fatsPerKg = 1.2
-      break // Tolera mais gorduras
-    case "mesomorfo":
-      fatsPerKg = 1.0
-      break // Padrão equilibrado
-    case "endomorfo":
-      fatsPerKg = 0.8
-      break // Controla mais gorduras
+
+  if (weightDifference < -0.5) {
+    // PERDA DE PESO = menos gorduras para maior déficit
+    switch (bodyType) {
+      case "ectomorfo":
+        fatsPerKg = 0.9
+        break
+      case "mesomorfo":
+        fatsPerKg = 0.8
+        break
+      case "endomorfo":
+        fatsPerKg = 0.7 // Controla mais gorduras
+        break
+      default:
+        fatsPerKg = 0.8
+    }
+  } else {
+    // GANHO DE PESO ou MANUTENÇÃO = gorduras normais
+    switch (bodyType) {
+      case "ectomorfo":
+        fatsPerKg = 1.2 // Tolera mais gorduras
+        break
+      case "mesomorfo":
+        fatsPerKg = 1.0 // Padrão equilibrado
+        break
+      case "endomorfo":
+        fatsPerKg = 0.9 // Controla um pouco
+        break
+      default:
+        fatsPerKg = 1.0
+    }
   }
 
   const protein = Math.round(weight * proteinPerKg)
@@ -902,6 +956,9 @@ function calculateScientificCalories(data: any) {
 
   console.log(
     `🧮 [SCIENTIFIC CALC] TMB: ${Math.round(tmb)}, TDEE: ${Math.round(tdee)}, Adjustment: ${dailyCalorieAdjustment}, Final: ${finalCalories}`,
+  )
+  console.log(
+    `🎯 [REAL GOAL] Weight: ${weight}kg → ${targetWeight}kg (${weightDifference > 0 ? "+" : ""}${weightDifference.toFixed(1)}kg) = ${dailyCalorieAdjustment > 0 ? "SURPLUS" : dailyCalorieAdjustment < 0 ? "DEFICIT" : "MAINTENANCE"}`,
   )
 
   return {
@@ -913,6 +970,7 @@ function calculateScientificCalories(data: any) {
     fats,
     dailyCalorieAdjustment,
     weeksToGoal: timeToGoal ? calculateWeeksToGoal(timeToGoal) : 0,
+    realGoal: weightDifference < -0.5 ? "fat-loss" : weightDifference > 0.5 ? "weight-gain" : "body-recomposition",
   }
 }
 

@@ -151,29 +151,64 @@ export default function DietPage() {
     let adjustedCarbs = 0
     let adjustedFats = 0
 
-    // Calculate totals from actual diet plan meals
+    // Calculate totals from actual diet plan meals - sum individual foods
     if (dietPlan?.meals) {
-      dietPlan.meals.forEach((meal: any) => {
-        // Add meal calories
-        const mealCalories = Number.parseInt(meal.calories?.match(/(\d+)/)?.[1] || "0")
+      dietPlan.meals.forEach((meal: any, mealIndex: number) => {
+        let mealCalories = 0
+
+        // Always try to sum from individual foods first for accuracy
+        if (Array.isArray(meal.foods)) {
+          meal.foods.forEach((food: any, foodIndex: number) => {
+            let foodCalories = 0
+
+            if (typeof food === "object" && food.calories) {
+              // Extract number from various formats: "190 kcal", "190", 190
+              const caloriesStr = food.calories.toString()
+              const match = caloriesStr.match(/(\d+(?:\.\d+)?)/)
+              if (match) {
+                foodCalories = Number.parseFloat(match[1])
+              }
+            } else if (typeof food === "string") {
+              // Extract from string format like "Aveia 150g - 190 kcal"
+              const match = food.match(/(\d+(?:\.\d+)?)\s*kcal/i)
+              if (match) {
+                foodCalories = Number.parseFloat(match[1])
+              }
+            }
+
+            if (!isNaN(foodCalories) && foodCalories > 0) {
+              mealCalories += foodCalories
+              console.log(`[v0] Food ${foodIndex} in meal ${mealIndex}: ${foodCalories} kcal`)
+            }
+          })
+        }
+
+        // Only use meal.calories as fallback if no food calories found
+        if (mealCalories === 0 && meal.calories) {
+          const caloriesStr = meal.calories.toString()
+          const match = caloriesStr.match(/(\d+(?:\.\d+)?)/)
+          if (match) {
+            mealCalories = Number.parseFloat(match[1])
+            console.log(`[v0] Using meal.calories fallback for meal ${mealIndex}: ${mealCalories} kcal`)
+          }
+        }
+
         adjustedCalories += mealCalories
+        console.log(`[v0] Meal ${mealIndex} total: ${mealCalories} kcal`)
 
         // Add meal macros if available
         if (meal.macros) {
           adjustedProtein += Number.parseFloat(meal.macros.protein?.match(/(\d+\.?\d*)/)?.[1] || "0")
           adjustedCarbs += Number.parseFloat(meal.macros.carbs?.match(/(\d+\.?\d*)/)?.[1] || "0")
           adjustedFats += Number.parseFloat(meal.macros.fats?.match(/(\d+\.?\d*)/)?.[1] || "0")
-        }
-
-        // If meal doesn't have macros, try to extract from individual foods
-        if (!meal.macros && meal.foods) {
-          meal.foods.forEach((food: any) => {
-            if (typeof food === "object" && food) {
-              adjustedProtein += Number.parseFloat(food.protein || "0")
-              adjustedCarbs += Number.parseFloat(food.carbs || "0")
-              adjustedFats += Number.parseFloat(food.fats || "0")
-            }
-          })
+        } else if (mealCalories > 0) {
+          // Estimate macros from calories using standard ratios
+          const estimatedProtein = (mealCalories * 0.25) / 4 // 25% protein
+          const estimatedCarbs = (mealCalories * 0.45) / 4 // 45% carbs
+          const estimatedFats = (mealCalories * 0.3) / 9 // 30% fats
+          adjustedProtein += estimatedProtein
+          adjustedCarbs += estimatedCarbs
+          adjustedFats += estimatedFats
         }
       })
     }
@@ -190,7 +225,6 @@ export default function DietPage() {
     manualAdjustments.removedFoods.forEach((food) => {
       adjustedCalories -= food.calories
       // For removed foods, we only have calories, so we need to estimate macros
-      // This is unavoidable since we don't store macro data for removed items
       const estimatedProtein = (food.calories * 0.25) / 4 // 25% protein
       const estimatedCarbs = (food.calories * 0.45) / 4 // 45% carbs
       const estimatedFats = (food.calories * 0.3) / 9 // 30% fats
@@ -198,6 +232,8 @@ export default function DietPage() {
       adjustedCarbs -= estimatedCarbs
       adjustedFats -= estimatedFats
     })
+
+    console.log("[v0] Final adjusted totals:", { adjustedCalories, adjustedProtein, adjustedCarbs, adjustedFats })
 
     return {
       calories: `${Math.round(adjustedCalories)}`,
