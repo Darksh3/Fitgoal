@@ -921,7 +921,7 @@ export default function DietPage() {
         <div class="macros-grid">
           <div class="macro-card">
             <div class="macro-title">Calorias Totais</div>
-            <div class="macro-value calories">${dietPlan?.totalDailyCalories || displayTotals.calories}</div>
+            <div class="macro-value calories">${displayTotals.calories}</div>
           </div>
           <div class="macro-card">
             <div class="macro-title">Proteína</div>
