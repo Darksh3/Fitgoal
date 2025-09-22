@@ -5,15 +5,26 @@ import { adminDb } from "@/lib/firebase-admin"
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("[v0] API: Starting photo analysis")
+
     const { photoUrl, photoType, userId, userQuizData } = await request.json()
+    console.log("[v0] API: Received data:", {
+      photoUrl: !!photoUrl,
+      photoType,
+      userId: !!userId,
+      userQuizData: !!userQuizData,
+    })
 
     if (!photoUrl || !photoType || !userId) {
+      console.log("[v0] API: Missing required fields")
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
+    console.log("[v0] API: Fetching user data from Firebase")
     const userDocRef = adminDb.collection("users").doc(userId)
     const userDoc = await userDocRef.get()
     const currentPlans = userDoc.exists() ? userDoc.data() : {}
+    console.log("[v0] API: User data fetched successfully")
 
     const analysisPrompt = `
     Você é um personal trainer e nutricionista especialista em análise corporal. Analise esta foto de progresso fitness e forneça um feedback detalhado e motivacional.
@@ -49,15 +60,15 @@ export async function POST(request: NextRequest) {
       "progressoGeral": "avaliação geral do físico atual",
       "recomendacoesTreino": ["recomendação 1", "recomendação 2"],
       "recomendacoesDieta": ["recomendação 1", "recomendação 2"],
-      "otimizacaoNecessaria": true/false,
+      "otimizacaoNecessaria": true,
       "otimizacoesSugeridas": {
         "dieta": {
-          "necessaria": true/false,
+          "necessaria": true,
           "mudancas": ["mudança específica 1", "mudança específica 2"],
           "justificativa": "Por que essas mudanças são necessárias"
         },
         "treino": {
-          "necessaria": true/false,
+          "necessaria": true,
           "mudancas": ["mudança específica 1", "mudança específica 2"],
           "justificativa": "Por que essas mudanças são necessárias"
         }
@@ -71,6 +82,13 @@ export async function POST(request: NextRequest) {
 
     Seja específico, motivacional e profissional. Base suas observações no que consegue ver na foto.
     `
+
+    console.log("[v0] API: Starting AI analysis")
+
+    if (!process.env.OPENAI_API_KEY) {
+      console.error("[v0] API: OPENAI_API_KEY not found")
+      return NextResponse.json({ error: "AI service not configured" }, { status: 500 })
+    }
 
     const { text } = await generateText({
       model: openai("gpt-4o"),
@@ -87,11 +105,15 @@ export async function POST(request: NextRequest) {
       temperature: 0.7,
     })
 
+    console.log("[v0] API: AI analysis completed, parsing response")
+
     let analysis
     try {
       analysis = JSON.parse(text || "{}")
+      console.log("[v0] API: Response parsed successfully")
     } catch (parseError) {
-      console.error("Error parsing AI response:", parseError)
+      console.error("[v0] API: Error parsing AI response:", parseError)
+      console.log("[v0] API: Raw AI response:", text)
       analysis = {
         pontosForts: ["Postura adequada", "Comprometimento com o processo", "Boa disposição para mudança"],
         areasParaMelhorar: ["Definição muscular", "Composição corporal", "Simetria"],
@@ -113,6 +135,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    console.log("[v0] API: Saving to Firebase")
     const photoData = {
       userId,
       photoUrl,
@@ -128,6 +151,7 @@ export async function POST(request: NextRequest) {
     }
 
     const docRef = await adminDb.collection("progressPhotos").add(photoData)
+    console.log("[v0] API: Photo analysis saved successfully")
 
     return NextResponse.json({
       success: true,
@@ -135,7 +159,13 @@ export async function POST(request: NextRequest) {
       photoId: docRef.id,
     })
   } catch (error) {
-    console.error("Error analyzing photo:", error)
-    return NextResponse.json({ error: "Failed to analyze photo" }, { status: 500 })
+    console.error("[v0] API: Error analyzing photo:", error)
+    return NextResponse.json(
+      {
+        error: "Failed to analyze photo",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
   }
 }
