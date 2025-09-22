@@ -43,44 +43,34 @@ export async function POST(request: NextRequest) {
     - Dias de treino: ${currentPlans?.workoutPlan?.days?.length || "Não informado"}
     - Proteína atual: ${currentPlans?.dietPlan?.totalProtein || "Não informado"}
 
-    ANÁLISE INTELIGENTE OBRIGATÓRIA:
-    Com base na foto e nos dados do usuário, você deve:
-    1. Analisar o progresso visual atual
-    2. Comparar com os objetivos declarados
-    3. Verificar se os planos atuais estão adequados
-    4. Sugerir otimizações ESPECÍFICAS apenas se necessário
+    IMPORTANTE: Responda APENAS com um JSON válido, sem texto adicional antes ou depois. Analise a foto real e forneça feedback específico baseado no que você vê.
 
-    Forneça uma análise em JSON com esta estrutura:
+    Estrutura JSON obrigatória:
     {
-      "pontosForts": ["ponto forte 1", "ponto forte 2", "ponto forte 3"],
-      "areasParaMelhorar": ["área 1", "área 2", "área 3"],
-      "dicasEspecificas": ["dica 1", "dica 2", "dica 3"],
-      "motivacao": "mensagem motivacional personalizada",
-      "focoPrincipal": "principal área que precisa de atenção",
-      "progressoGeral": "avaliação geral do físico atual",
-      "recomendacoesTreino": ["recomendação 1", "recomendação 2"],
-      "recomendacoesDieta": ["recomendação 1", "recomendação 2"],
+      "pontosForts": ["observação específica da foto", "outro ponto forte visual", "terceiro ponto"],
+      "areasParaMelhorar": ["área específica vista na foto", "segunda área", "terceira área"],
+      "dicasEspecificas": ["dica baseada na análise visual", "segunda dica específica", "terceira dica"],
+      "motivacao": "mensagem motivacional personalizada baseada no que vê na foto",
+      "focoPrincipal": "principal área que precisa de atenção baseada na análise visual",
+      "progressoGeral": "avaliação específica do físico atual visto na foto",
+      "recomendacoesTreino": ["recomendação específica baseada na foto", "segunda recomendação"],
+      "recomendacoesDieta": ["recomendação nutricional específica", "segunda recomendação"],
       "otimizacaoNecessaria": true,
       "otimizacoesSugeridas": {
         "dieta": {
           "necessaria": true,
-          "mudancas": ["mudança específica 1", "mudança específica 2"],
-          "justificativa": "Por que essas mudanças são necessárias"
+          "mudancas": ["mudança específica baseada na análise", "segunda mudança"],
+          "justificativa": "Justificativa baseada no que vê na foto"
         },
         "treino": {
           "necessaria": true,
-          "mudancas": ["mudança específica 1", "mudança específica 2"],
-          "justificativa": "Por que essas mudanças são necessárias"
+          "mudancas": ["mudança específica no treino", "segunda mudança"],
+          "justificativa": "Justificativa baseada na composição corporal vista"
         }
       }
     }
 
-    CRITÉRIOS PARA SUGERIR OTIMIZAÇÕES:
-    - Dieta: Se a composição corporal não está evoluindo conforme esperado
-    - Treino: Se há desequilíbrios musculares ou falta de definição em áreas específicas
-    - APENAS sugira mudanças se realmente necessário baseado na análise visual
-
-    Seja específico, motivacional e profissional. Base suas observações no que consegue ver na foto.
+    Analise a foto real e seja específico sobre o que consegue observar visualmente.
     `
 
     console.log("[v0] API: Starting AI analysis")
@@ -109,28 +99,41 @@ export async function POST(request: NextRequest) {
 
     let analysis
     try {
-      analysis = JSON.parse(text || "{}")
+      const cleanedText = text
+        .trim()
+        .replace(/```json\n?/g, "")
+        .replace(/```\n?/g, "")
+      analysis = JSON.parse(cleanedText)
       console.log("[v0] API: Response parsed successfully")
     } catch (parseError) {
       console.error("[v0] API: Error parsing AI response:", parseError)
       console.log("[v0] API: Raw AI response:", text)
+
       analysis = {
-        pontosForts: ["Postura adequada", "Comprometimento com o processo", "Boa disposição para mudança"],
-        areasParaMelhorar: ["Definição muscular", "Composição corporal", "Simetria"],
-        dicasEspecificas: [
-          "Mantenha consistência no treino",
-          "Foque na alimentação balanceada",
-          "Hidrate-se adequadamente",
+        pontosForts: [
+          "Comprometimento em acompanhar o progresso com fotos",
+          "Postura adequada para análise",
+          "Iniciativa de buscar feedback profissional",
         ],
-        motivacao: "Você está no caminho certo! Cada foto é um passo em direção ao seu objetivo.",
-        focoPrincipal: "Consistência no treino e dieta",
-        progressoGeral: "Bom ponto de partida para evolução",
-        recomendacoesTreino: ["Treino de força 3x por semana", "Cardio moderado"],
-        recomendacoesDieta: ["Aumente proteínas", "Controle carboidratos"],
+        areasParaMelhorar: [
+          "Aguardando análise mais detalhada",
+          "Foco na consistência do plano atual",
+          "Monitoramento regular do progresso",
+        ],
+        dicasEspecificas: [
+          `Mantenha o foco no seu objetivo: ${userQuizData?.goal || "evolução física"}`,
+          "Continue seguindo seu plano de treino atual",
+          "Tire fotos semanais para acompanhar mudanças",
+        ],
+        motivacao: `Ótimo trabalho em acompanhar seu progresso! Com seu objetivo de ${userQuizData?.goal || "evolução"} e dedicação, você está no caminho certo.`,
+        focoPrincipal: "Consistência no plano atual",
+        progressoGeral: "Análise em andamento - continue o bom trabalho",
+        recomendacoesTreino: ["Manter frequência atual", "Foco na execução correta"],
+        recomendacoesDieta: ["Seguir plano nutricional atual", "Hidratação adequada"],
         otimizacaoNecessaria: false,
         otimizacoesSugeridas: {
-          dieta: { necessaria: false, mudancas: [], justificativa: "" },
-          treino: { necessaria: false, mudancas: [], justificativa: "" },
+          dieta: { necessaria: false, mudancas: [], justificativa: "Aguardando análise completa" },
+          treino: { necessaria: false, mudancas: [], justificativa: "Aguardando análise completa" },
         },
       }
     }
