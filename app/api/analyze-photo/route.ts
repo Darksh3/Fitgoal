@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     console.log("[v0] API: Fetching user data from Firebase")
     const userDocRef = adminDb.collection("users").doc(userId)
     const userDoc = await userDocRef.get()
-    const currentPlans = userDoc.exists() ? userDoc.data() : {}
+    const currentPlans = userDoc.exists ? userDoc.data() : {}
     console.log("[v0] API: User data fetched successfully")
 
     const analysisPrompt = `
