@@ -785,7 +785,7 @@ function calculateScientificCalories(data: any) {
   const height = Number.parseFloat(data.height) || 170
   const age = Number.parseFloat(data.age) || 25
   const gender = data.gender || "masculino"
-  const trainingDays = data.trainingDaysPerWeek || 5
+  const trainingDaysPerWeek = data.trainingDaysPerWeek || 5
   const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
 
   const targetWeight = Number.parseFloat(data.targetWeight) || weight
@@ -801,13 +801,13 @@ function calculateScientificCalories(data: any) {
   }
 
   let activityMultiplier
-  if (trainingDays <= 1)
+  if (trainingDaysPerWeek <= 1)
     activityMultiplier = 1.2 // Sedentário
-  else if (trainingDays <= 3)
+  else if (trainingDaysPerWeek <= 3)
     activityMultiplier = 1.375 // Leve
-  else if (trainingDays <= 5)
+  else if (trainingDaysPerWeek <= 5)
     activityMultiplier = 1.55 // Moderado
-  else if (trainingDays <= 6)
+  else if (trainingDaysPerWeek <= 6)
     activityMultiplier = 1.725 // Intenso
   else activityMultiplier = 1.9 // Muito intenso
 
@@ -878,6 +878,28 @@ function calculateScientificCalories(data: any) {
   }
 
   const finalCalories = Math.round(tdee + dailyCalorieAdjustment)
+
+  let safeCalories = finalCalories
+
+  // Minimum calorie safety limits based on gender and activity
+  const minCaloriesWomen = trainingDaysPerWeek >= 4 ? 1400 : 1200
+  const minCaloriesMen = trainingDaysPerWeek >= 4 ? 1600 : 1400
+  const absoluteMinimum = gender === "mulher" ? minCaloriesWomen : minCaloriesMen
+
+  if (safeCalories < absoluteMinimum) {
+    console.log(`⚠️ [SAFETY] Calories too low (${safeCalories}), adjusting to minimum safe level (${absoluteMinimum})`)
+    safeCalories = absoluteMinimum
+
+    // Recalculate adjustment to reflect the safety override
+    dailyCalorieAdjustment = safeCalories - tdee
+  }
+
+  // Additional safety check: never go below TMB for extended periods
+  if (safeCalories < tmb * 1.1) {
+    console.log(`⚠️ [SAFETY] Calories below 110% of TMB (${Math.round(tmb * 1.1)}), adjusting for metabolic safety`)
+    safeCalories = Math.round(tmb * 1.1)
+    dailyCalorieAdjustment = safeCalories - tdee
+  }
 
   let proteinPerKg = 1.6
 
@@ -952,21 +974,28 @@ function calculateScientificCalories(data: any) {
 
   const protein = Math.round(weight * proteinPerKg)
   const fats = Math.round(weight * fatsPerKg)
-  const carbs = Math.round((finalCalories - protein * 4 - fats * 9) / 4)
+
+  // Ensure protein doesn't get too low due to calorie restrictions
+  const minProtein = Math.round(weight * 1.8) // Minimum 1.8g/kg even in extreme deficit
+  const finalProtein = Math.max(protein, minProtein)
+
+  // Recalculate carbs with corrected protein and safe calories
+  const carbs = Math.round((safeCalories - finalProtein * 4 - fats * 9) / 4)
 
   console.log(
-    `🧮 [SCIENTIFIC CALC] TMB: ${Math.round(tmb)}, TDEE: ${Math.round(tdee)}, Adjustment: ${dailyCalorieAdjustment}, Final: ${finalCalories}`,
+    `🧮 [SCIENTIFIC CALC] TMB: ${Math.round(tmb)}, TDEE: ${Math.round(tdee)}, Adjustment: ${dailyCalorieAdjustment}, Final: ${safeCalories}`,
   )
   console.log(
     `🎯 [REAL GOAL] Weight: ${weight}kg → ${targetWeight}kg (${weightDifference > 0 ? "+" : ""}${weightDifference.toFixed(1)}kg) = ${dailyCalorieAdjustment > 0 ? "SURPLUS" : dailyCalorieAdjustment < 0 ? "DEFICIT" : "MAINTENANCE"}`,
   )
+  console.log(`🥩 [MACROS] Protein: ${finalProtein}g (${proteinPerKg}g/kg), Fats: ${fats}g, Carbs: ${carbs}g`)
 
   return {
     tmb: Math.round(tmb),
     tdee: Math.round(tdee),
-    finalCalories,
-    protein,
-    carbs,
+    finalCalories: safeCalories,
+    protein: finalProtein,
+    carbs: Math.max(carbs, 50), // Minimum carbs for brain function
     fats,
     dailyCalorieAdjustment,
     weeksToGoal: timeToGoal ? calculateWeeksToGoal(timeToGoal) : 0,
