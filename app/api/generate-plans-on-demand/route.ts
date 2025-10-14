@@ -408,7 +408,7 @@ export async function POST(req: Request) {
         const userDocRef = adminDb.collection("users").doc(userId)
         const docSnap = await userDocRef.get()
         if (!docSnap.exists || !docSnap.data()?.quizData) {
-          return new Response(JSON.stringify({ error: "Quiz data not found." }), {
+          return new Response(JSON.JSON.stringify({ error: "Quiz data not found." }), {
             status: 404,
             headers: { "Content-Type": "application/json" },
           })
@@ -464,75 +464,88 @@ export async function POST(req: Request) {
       console.log(`🏋️ [EXERCISE COUNT] ${exerciseRange.description} para tempo: ${quizData.workoutTime}`)
 
       const dietPrompt = `
-Você é um nutricionista experiente. Crie uma dieta de ${savedCalcs.finalCalories} kcal EXATAS para ${quizData.gender}, ${quizData.age} anos.
+Você é um nutricionista experiente. Crie uma dieta para ${quizData.gender}, ${quizData.age} anos.
 
-ALVO OBRIGATÓRIO: ${savedCalcs.finalCalories} kcal
-Proteína: ${savedCalcs.protein}g | Carboidratos: ${savedCalcs.carbs}g | Gorduras: ${savedCalcs.fats}g
+ALVOS NUTRICIONAIS OBRIGATÓRIOS:
+- CALORIAS: ${savedCalcs.finalCalories} kcal
+- PROTEÍNA: ${savedCalcs.protein}g
+- CARBOIDRATOS: ${savedCalcs.carbs}g
+- GORDURAS: ${savedCalcs.fats}g
 
 CLIENTE: ${quizData.currentWeight}kg, objetivo: ${quizData.goal?.join(", ")}, biotipo: ${quizData.bodyType}
 ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
 
 REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
 
-REFERÊNCIA NUTRICIONAL OBRIGATÓRIA:
-- Use EXCLUSIVAMENTE dados das tabelas USDA (United States Department of Agriculture) e TACO (Tabela Brasileira de Composição de Alimentos)
-- Para alimentos brasileiros: priorize TACO
-- Para alimentos internacionais: use USDA
-- NUNCA invente valores nutricionais - use apenas dados oficiais dessas bases
+SUA TAREFA: Escolha APENAS os alimentos adequados para cada refeição com seus valores nutricionais por 100g.
+O sistema calculará automaticamente as porções exatas para atingir TODOS os alvos nutricionais.
 
-EXEMPLOS DE VALORES OFICIAIS TACO/USDA:
-- Arroz branco cozido: 128 kcal/100g (TACO)
-- Feijão carioca cozido: 76 kcal/100g (TACO)
-- Peito de frango grelhado: 165 kcal/100g (USDA)
-- Banana prata: 89 kcal/100g (TACO)
-- Aveia em flocos: 394 kcal/100g (USDA)
-- Ovo de galinha inteiro: 155 kcal/100g (TACO)
+REFERÊNCIA NUTRICIONAL OBRIGATÓRIA (USDA/TACO):
+Use APENAS alimentos com dados conhecidos das tabelas USDA/TACO:
 
-INSTRUÇÕES CRÍTICAS:
-1. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO
-2. Cite a fonte (USDA ou TACO) para cada alimento quando possível
-3. Use valores por 100g das tabelas oficiais e calcule proporcionalmente
-4. A soma TOTAL deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal
-5. Seja preciso com as quantidades baseadas nos valores oficiais
-6. Prefira alimentos com dados bem documentados nas tabelas
+PROTEÍNAS:
+- Peito de frango grelhado: 165 kcal/100g, P:31g, C:0g, F:3.6g
+- Ovo inteiro: 155 kcal/100g, P:13g, C:1.1g, F:11g
+- Tilápia grelhada: 96 kcal/100g, P:20g, C:0g, F:1.7g
+- Carne moída magra: 250 kcal/100g, P:26g, C:0g, F:17g
+- Whey protein: 400 kcal/100g, P:80g, C:8g, F:5g
 
-EXEMPLO DE FORMATO OBRIGATÓRIO:
+CARBOIDRATOS:
+- Arroz branco cozido: 128 kcal/100g, P:2.7g, C:28g, F:0.3g
+- Batata doce: 86 kcal/100g, P:1.6g, C:20g, F:0.1g
+- Aveia em flocos: 394 kcal/100g, P:13.9g, C:66.6g, F:8.5g
+- Banana prata: 89 kcal/100g, P:1.3g, C:22g, F:0.1g
+- Pão integral: 247 kcal/100g, P:13g, C:41g, F:4g
+- Macarrão integral cozido: 124 kcal/100g, P:5g, C:26g, F:0.5g
+
+LEGUMINOSAS:
+- Feijão carioca cozido: 76 kcal/100g, P:4.8g, C:13.6g, F:0.5g
+- Lentilha cozida: 116 kcal/100g, P:9g, C:20g, F:0.4g
+- Grão de bico cozido: 164 kcal/100g, P:8.9g, C:27g, F:2.6g
+
+GORDURAS SAUDÁVEIS:
+- Azeite de oliva: 884 kcal/100g, P:0g, C:0g, F:100g
+- Abacate: 160 kcal/100g, P:2g, C:8.5g, F:14.7g
+- Castanha do Pará: 656 kcal/100g, P:14g, C:12g, F:66g
+- Amendoim: 567 kcal/100g, P:26g, C:16g, F:49g
+
+VEGETAIS (baixa caloria):
+- Brócolis cozido: 35 kcal/100g, P:2.4g, C:7g, F:0.4g
+- Alface: 15 kcal/100g, P:1.4g, C:2.9g, F:0.2g
+- Tomate: 18 kcal/100g, P:0.9g, C:3.9g, F:0.2g
+
+LATICÍNIOS:
+- Iogurte natural integral: 61 kcal/100g, P:3.5g, C:4.7g, F:3.3g
+- Queijo cottage: 98 kcal/100g, P:11g, C:3.4g, F:4.3g
+- Leite integral: 61 kcal/100g, P:3.2g, C:4.8g, F:3.3g
+
+FORMATO JSON OBRIGATÓRIO:
 {
-  "name": "Aveia em flocos",
-  "quantity": "80g",
-  "calories": 311,
-  "protein": 13.5,
-  "carbs": 52.8,
-  "fats": 6.2
-}
-
-JSON OBRIGATÓRIO:
-{
-  "totalDailyCalories": "${savedCalcs.finalCalories} kcal",
-  "totalProtein": "${savedCalcs.protein}g",
-  "totalCarbs": "${savedCalcs.carbs}g", 
-  "totalFats": "${savedCalcs.fats}g",
   "meals": [${mealConfig.names
-    .map((name, i) => {
-      const targetCals = Math.round(savedCalcs.finalCalories * mealConfig.distribution[i])
-      return `{
+    .map(
+      (name, i) => `{
         "name": "${name}",
         "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}",
-        "totalCalories": ${targetCals},
+        "targetCalories": ${Math.round(savedCalcs.finalCalories * mealConfig.distribution[i])},
+        "targetProtein": ${Math.round(savedCalcs.protein * mealConfig.distribution[i])},
+        "targetCarbs": ${Math.round(savedCalcs.carbs * mealConfig.distribution[i])},
+        "targetFats": ${Math.round(savedCalcs.fats * mealConfig.distribution[i])},
         "foods": [
           {
-            "name": "[alimento específico]",
-            "quantity": "[quantidade precisa]",
-            "calories": "[calorias que VOCÊ calculou]",
-            "protein": "[proteína que VOCÊ calculou]",
-            "carbs": "[carboidratos que VOCÊ calculou]",
-            "fats": "[gorduras que VOCÊ calculou]"
+            "name": "[alimento específico da tabela USDA/TACO]",
+            "caloriesPer100g": [valor exato da tabela],
+            "proteinPer100g": [valor exato da tabela],
+            "carbsPer100g": [valor exato da tabela],
+            "fatsPer100g": [valor exato da tabela]
           }
         ]
-      }`
-    })
+      }`,
+    )
     .join(",")}]
-}`
+}
+
+IMPORTANTE:Você pode escolher os alimentos que achar melhor para o usuario, não precisa seguir essa lista obrigatoriamente, ela é apenas um norte, mas sempre respeitando a quantidade de macros, pois não pode ser menos e nem mais que o calculado.
+`
 
       const workoutPrompt = `
 Crie EXATAMENTE ${requestedDays} dias de treino para ${quizData.gender}, ${quizData.experience}, ${quizData.workoutTime}.
@@ -656,37 +669,214 @@ JSON OBRIGATÓRIO:
             const parsed = JSON.parse(rawContent)
 
             if (parsed.meals && Array.isArray(parsed.meals) && parsed.meals.length === mealConfig.count) {
-              // Calculate real total from AI-generated foods
-              const realTotal = parsed.meals.reduce((total, meal) => {
-                return total + meal.foods.reduce((mealTotal, food) => mealTotal + (food.calories || 0), 0)
-              }, 0)
+              console.log(`🔧 [HYBRID SYSTEM] AI provided foods, calculating exact portions to match ALL macros...`)
 
-              console.log(`[DIET] Target: ${savedCalcs.finalCalories} kcal, AI Generated: ${realTotal} kcal`)
+              parsed.meals.forEach((meal, mealIndex) => {
+                const targetCalories = Math.round(savedCalcs.finalCalories * mealConfig.distribution[mealIndex])
+                const targetProtein = Math.round(savedCalcs.protein * mealConfig.distribution[mealIndex])
+                const targetCarbs = Math.round(savedCalcs.carbs * mealConfig.distribution[mealIndex])
+                const targetFats = Math.round(savedCalcs.fats * mealConfig.distribution[mealIndex])
 
-              // Check if difference is significant and adjust if needed
-              const difference = savedCalcs.finalCalories - realTotal
-              if (Math.abs(difference) > 50) {
-                console.log(`[DIET] Adjusting foods by ${difference} kcal`)
-                const adjustmentPerMeal = Math.round(difference / parsed.meals.length)
+                console.log(
+                  `🎯 [MEAL ${mealIndex + 1}] Targets: ${targetCalories} kcal, P:${targetProtein}g, C:${targetCarbs}g, F:${targetFats}g`,
+                )
 
-                parsed.meals.forEach((meal, index) => {
-                  if (meal.foods && meal.foods.length > 0) {
-                    const mainFood = meal.foods[0]
-                    if (mainFood) {
-                      mainFood.calories = Math.max(50, (mainFood.calories || 0) + adjustmentPerMeal)
-                      meal.totalCalories = meal.foods.reduce((sum, food) => sum + (food.calories || 0), 0)
+                // Calculate initial quantities based on proportional distribution
+                meal.foods.forEach((food) => {
+                  if (food.caloriesPer100g && food.proteinPer100g !== undefined) {
+                    // Start with calorie-based quantity
+                    const proportionalQuantity = (targetCalories / meal.foods.length / food.caloriesPer100g) * 100
+                    food.quantity = `${Math.round(proportionalQuantity)}g`
+                    food.calories = Math.round((proportionalQuantity / 100) * food.caloriesPer100g)
+                    food.protein = Math.round((proportionalQuantity / 100) * food.proteinPer100g)
+                    food.carbs = Math.round((proportionalQuantity / 100) * food.carbsPer100g)
+                    food.fats = Math.round((proportionalQuantity / 100) * food.fatsPer100g)
+                  } else {
+                    console.log(`⚠️ [MISSING DATA] ${food.name} missing nutritional data`)
+                    food.quantity = "100g"
+                    food.calories = Math.round(targetCalories / meal.foods.length)
+                    food.protein = Math.round(targetProtein / meal.foods.length)
+                    food.carbs = Math.round(targetCarbs / meal.foods.length)
+                    food.fats = Math.round(targetFats / meal.foods.length)
+                  }
+                })
+
+                // Calculate current meal totals
+                const mealCalories = meal.foods.reduce((sum, food) => sum + (food.calories || 0), 0)
+                const mealProtein = meal.foods.reduce((sum, food) => sum + (food.protein || 0), 0)
+                let mealCarbs = meal.foods.reduce((sum, food) => sum + (food.carbs || 0), 0)
+                let mealFats = meal.foods.reduce((sum, food) => sum + (food.fats || 0), 0)
+
+                console.log(
+                  `📊 [BEFORE ADJUST] Meal ${mealIndex + 1}: ${mealCalories} kcal, P:${mealProtein}g, C:${mealCarbs}g, F:${mealFats}g`,
+                )
+
+                // Priority: Protein > Fats > Carbs (adjust carbs last for flexibility)
+
+                // 1. Adjust protein sources
+                const proteinDiff = targetProtein - mealProtein
+                if (Math.abs(proteinDiff) > 2) {
+                  const proteinFood = meal.foods.find((f) => (f.proteinPer100g || 0) > 15) // High protein food
+                  if (proteinFood && proteinFood.proteinPer100g) {
+                    const currentQty = Number.parseFloat(proteinFood.quantity) || 100
+                    const adjustment = (proteinDiff / proteinFood.proteinPer100g) * 100
+                    const newQty = Math.max(50, currentQty + adjustment) // Minimum 50g
+                    proteinFood.quantity = `${Math.round(newQty)}g`
+                    proteinFood.calories = Math.round((newQty / 100) * proteinFood.caloriesPer100g)
+                    proteinFood.protein = Math.round((newQty / 100) * proteinFood.proteinPer100g)
+                    proteinFood.carbs = Math.round((newQty / 100) * proteinFood.carbsPer100g)
+                    proteinFood.fats = Math.round((newQty / 100) * proteinFood.fatsPer100g)
+                    console.log(`🥩 [PROTEIN ADJUST] ${proteinFood.name}: ${currentQty}g → ${newQty}g`)
+                  }
+                }
+
+                // 2. Adjust fat sources
+                mealFats = meal.foods.reduce((sum, food) => sum + (food.fats || 0), 0)
+                const fatsDiff = targetFats - mealFats
+                if (Math.abs(fatsDiff) > 2) {
+                  const fatFood = meal.foods.find((f) => (f.fatsPer100g || 0) > 10) // High fat food
+                  if (fatFood && fatFood.fatsPer100g) {
+                    const currentQty = Number.parseFloat(fatFood.quantity) || 100
+                    const adjustment = (fatsDiff / fatFood.fatsPer100g) * 100
+                    const newQty = Math.max(10, currentQty + adjustment) // Minimum 10g
+                    fatFood.quantity = `${Math.round(newQty)}g`
+                    fatFood.calories = Math.round((newQty / 100) * fatFood.caloriesPer100g)
+                    fatFood.protein = Math.round((newQty / 100) * fatFood.proteinPer100g)
+                    fatFood.carbs = Math.round((newQty / 100) * fatFood.carbsPer100g)
+                    fatFood.fats = Math.round((newQty / 100) * fatFood.fatsPer100g)
+                    console.log(`🥑 [FAT ADJUST] ${fatFood.name}: ${currentQty}g → ${newQty}g`)
+                  }
+                }
+
+                // 3. Adjust carb sources (most flexible)
+                mealCarbs = meal.foods.reduce((sum, food) => sum + (food.carbs || 0), 0)
+                const carbsDiff = targetCarbs - mealCarbs
+                if (Math.abs(carbsDiff) > 5) {
+                  const carbFood = meal.foods.find((f) => (f.carbsPer100g || 0) > 20) // High carb food
+                  if (carbFood && carbFood.carbsPer100g) {
+                    const currentQty = Number.parseFloat(carbFood.quantity) || 100
+                    const adjustment = (carbsDiff / carbFood.carbsPer100g) * 100
+                    const newQty = Math.max(50, currentQty + adjustment) // Minimum 50g
+                    carbFood.quantity = `${Math.round(newQty)}g`
+                    carbFood.calories = Math.round((newQty / 100) * carbFood.caloriesPer100g)
+                    carbFood.protein = Math.round((newQty / 100) * carbFood.proteinPer100g)
+                    carbFood.carbs = Math.round((newQty / 100) * carbFood.carbsPer100g)
+                    carbFood.fats = Math.round((newQty / 100) * carbFood.fatsPer100g)
+                    console.log(`🍚 [CARB ADJUST] ${carbFood.name}: ${currentQty}g → ${newQty}g`)
+                  }
+                }
+
+                // Recalculate final meal totals
+                meal.totalCalories = meal.foods.reduce((sum, food) => sum + (food.calories || 0), 0)
+                meal.totalProtein = meal.foods.reduce((sum, food) => sum + (food.protein || 0), 0)
+                meal.totalCarbs = meal.foods.reduce((sum, food) => sum + (food.carbs || 0), 0)
+                meal.totalFats = meal.foods.reduce((sum, food) => sum + (food.fats || 0), 0)
+
+                console.log(
+                  `✅ [AFTER ADJUST] Meal ${mealIndex + 1}: ${meal.totalCalories} kcal, P:${meal.totalProtein}g, C:${meal.totalCarbs}g, F:${meal.totalFats}g`,
+                )
+              })
+
+              // Calculate final daily totals
+              const finalCalories = parsed.meals.reduce((total, meal) => total + (meal.totalCalories || 0), 0)
+              const finalProtein = parsed.meals.reduce((total, meal) => total + (meal.totalProtein || 0), 0)
+              const finalCarbs = parsed.meals.reduce((total, meal) => total + (meal.totalCarbs || 0), 0)
+              const finalFats = parsed.meals.reduce((total, meal) => total + (meal.totalFats || 0), 0)
+
+              console.log(
+                `🎯 [FINAL TOTALS] Generated: ${finalCalories} kcal, P:${finalProtein}g, C:${finalCarbs}g, F:${finalFats}g`,
+              )
+              console.log(
+                `🎯 [TARGET TOTALS] Target: ${savedCalcs.finalCalories} kcal, P:${savedCalcs.protein}g, C:${savedCalcs.carbs}g, F:${savedCalcs.fats}g`,
+              )
+
+              const calDiff = savedCalcs.finalCalories - finalCalories
+              const protDiff = savedCalcs.protein - finalProtein
+              const carbDiff = savedCalcs.carbs - finalCarbs
+              const fatDiff = savedCalcs.fats - finalFats
+
+              if (
+                Math.abs(calDiff) > 100 ||
+                Math.abs(protDiff) > 10 ||
+                Math.abs(carbDiff) > 15 ||
+                Math.abs(fatDiff) > 5
+              ) {
+                console.log(`🔧 [FINE TUNE] Applying final adjustments...`)
+                console.log(`   Calories: ${calDiff > 0 ? "+" : ""}${calDiff} kcal`)
+                console.log(`   Protein: ${protDiff > 0 ? "+" : ""}${protDiff}g`)
+                console.log(`   Carbs: ${carbDiff > 0 ? "+" : ""}${carbDiff}g`)
+                console.log(`   Fats: ${fatDiff > 0 ? "+" : ""}${fatDiff}g`)
+
+                // Distribute adjustments across meals proportionally
+                parsed.meals.forEach((meal, idx) => {
+                  const mealProportion = mealConfig.distribution[idx]
+
+                  // Adjust the dominant macro source in each meal
+                  if (Math.abs(protDiff) > 5) {
+                    const proteinFood = meal.foods.find((f) => (f.proteinPer100g || 0) > 15)
+                    if (proteinFood && proteinFood.proteinPer100g) {
+                      const adjustment = ((protDiff * mealProportion) / proteinFood.proteinPer100g) * 100
+                      const currentQty = Number.parseFloat(proteinFood.quantity) || 100
+                      const newQty = Math.max(50, currentQty + adjustment)
+                      proteinFood.quantity = `${Math.round(newQty)}g`
+                      proteinFood.calories = Math.round((newQty / 100) * proteinFood.caloriesPer100g)
+                      proteinFood.protein = Math.round((newQty / 100) * proteinFood.proteinPer100g)
+                      proteinFood.carbs = Math.round((newQty / 100) * proteinFood.carbsPer100g)
+                      proteinFood.fats = Math.round((newQty / 100) * proteinFood.fatsPer100g)
                     }
                   }
+
+                  if (Math.abs(carbDiff) > 10) {
+                    const carbFood = meal.foods.find((f) => (f.carbsPer100g || 0) > 20)
+                    if (carbFood && carbFood.carbsPer100g) {
+                      const adjustment = ((carbDiff * mealProportion) / carbFood.carbsPer100g) * 100
+                      const currentQty = Number.parseFloat(carbFood.quantity) || 100
+                      const newQty = Math.max(50, currentQty + adjustment)
+                      carbFood.quantity = `${Math.round(newQty)}g`
+                      carbFood.calories = Math.round((newQty / 100) * carbFood.caloriesPer100g)
+                      carbFood.protein = Math.round((newQty / 100) * carbFood.proteinPer100g)
+                      carbFood.carbs = Math.round((newQty / 100) * carbFood.carbsPer100g)
+                      carbFood.fats = Math.round((newQty / 100) * carbFood.fatsPer100g)
+                    }
+                  }
+
+                  // Recalculate meal totals after fine-tuning
+                  meal.totalCalories = meal.foods.reduce((sum, food) => sum + (food.calories || 0), 0)
+                  meal.totalProtein = meal.foods.reduce((sum, food) => sum + (food.protein || 0), 0)
+                  meal.totalCarbs = meal.foods.reduce((sum, food) => sum + (food.carbs || 0), 0)
+                  meal.totalFats = meal.foods.reduce((sum, food) => sum + (food.fats || 0), 0)
                 })
               }
 
+              // Set final values to match scientific calculation exactly
               parsed.totalDailyCalories = `${savedCalcs.finalCalories} kcal`
               parsed.totalProtein = `${savedCalcs.protein}g`
               parsed.totalCarbs = `${savedCalcs.carbs}g`
               parsed.totalFats = `${savedCalcs.fats}g`
 
+              // Store actual generated values for comparison
+              parsed.actualGenerated = {
+                calories: parsed.meals.reduce((total, meal) => total + (meal.totalCalories || 0), 0),
+                protein: parsed.meals.reduce((total, meal) => total + (meal.totalProtein || 0), 0),
+                carbs: parsed.meals.reduce((total, meal) => total + (meal.totalCarbs || 0), 0),
+                fats: parsed.meals.reduce((total, meal) => total + (meal.totalFats || 0), 0),
+              }
+
+              console.log(`✅ [DIET SUCCESS] Hybrid system completed with macro matching`)
+              console.log(
+                `📊 [ACCURACY] Calories: ${parsed.actualGenerated.calories}/${savedCalcs.finalCalories} (${Math.round((parsed.actualGenerated.calories / savedCalcs.finalCalories) * 100)}%)`,
+              )
+              console.log(
+                `📊 [ACCURACY] Protein: ${parsed.actualGenerated.protein}/${savedCalcs.protein}g (${Math.round((parsed.actualGenerated.protein / savedCalcs.protein) * 100)}%)`,
+              )
+              console.log(
+                `📊 [ACCURACY] Carbs: ${parsed.actualGenerated.carbs}/${savedCalcs.carbs}g (${Math.round((parsed.actualGenerated.carbs / savedCalcs.carbs) * 100)}%)`,
+              )
+              console.log(
+                `📊 [ACCURACY] Fats: ${parsed.actualGenerated.fats}/${savedCalcs.fats}g (${Math.round((parsed.actualGenerated.fats / savedCalcs.fats) * 100)}%)`,
+              )
+
               dietPlan = parsed
-              console.log("✅ [DIET SUCCESS] Generated and corrected")
             }
           } catch (e) {
             console.log("⚠️ [DIET] Parse error:", e)
