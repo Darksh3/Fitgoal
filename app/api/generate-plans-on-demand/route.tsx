@@ -466,31 +466,53 @@ export async function POST(req: Request) {
       const dietPrompt = `
 Você é um nutricionista experiente. Crie uma dieta de ${savedCalcs.finalCalories} kcal EXATAS para ${quizData.gender}, ${quizData.age} anos.
 
-ALVO OBRIGATÓRIO: ${savedCalcs.finalCalories} kcal
-Proteína: ${savedCalcs.protein}g | Carboidratos: ${savedCalcs.carbs}g | Gorduras: ${savedCalcs.fats}g
+ALVOS NUTRICIONAIS OBRIGATÓRIOS:
+- CALORIAS: ${savedCalcs.finalCalories} kcal
+- PROTEÍNA: ${savedCalcs.protein}g
+- CARBOIDRATOS: ${savedCalcs.carbs}g
+- GORDURAS: ${savedCalcs.fats}g
 
 CLIENTE: ${quizData.currentWeight}kg, objetivo: ${quizData.goal?.join(", ")}, biotipo: ${quizData.bodyType}
 ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
+
+${
+  quizData.usesSupplement === "sim" && quizData.supplementName && quizData.supplementBrand
+    ? `
+SUPLEMENTO EM USO:
+- Nome: ${quizData.supplementName}
+- Marca: ${quizData.supplementBrand}
+- IMPORTANTE: Busque os dados nutricionais completos deste suplemento específico (calorias, proteínas, carboidratos, gorduras por dose)
+- Inclua este suplemento em uma das refeições apropriadas (geralmente pós-treino ou café da manhã)
+- Ajuste os outros alimentos para atingir exatamente ${savedCalcs.finalCalories} kcal considerando o suplemento
+`
+    : quizData.wantsSupplementSuggestion === "sim"
+      ? `
+SUGESTÃO DE SUPLEMENTO GROWTH:
+- Analise o perfil do cliente (objetivo: ${quizData.goal?.join(", ")}, biotipo: ${quizData.bodyType})
+- Sugira UM suplemento Growth apropriado:
+  * Para ganho de massa: Whey Protein Growth ou Hipercalórico Growth
+  * Para perda de peso: Whey Protein Isolado Growth
+  * Para performance: Creatina Growth
+- Inclua o suplemento sugerido em uma refeição apropriada
+- Use valores nutricionais reais do produto Growth
+- Ajuste os outros alimentos para atingir ${savedCalcs.finalCalories} kcal
+`
+      : ""
+  // </CHANGE>
+}
 
 REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
 
 REFERÊNCIA NUTRICIONAL OBRIGATÓRIA:
 - Use EXCLUSIVAMENTE dados das tabelas USDA (United States Department of Agriculture) e TACO (Tabela Brasileira de Composição de Alimentos)
+- Para suplementos: use dados oficiais do fabricante
 - Para alimentos brasileiros: priorize TACO
 - Para alimentos internacionais: use USDA
 - NUNCA invente valores nutricionais - use apenas dados oficiais dessas bases
 
-EXEMPLOS DE VALORES OFICIAIS TACO/USDA:
-- Arroz branco cozido: 128 kcal/100g (TACO)
-- Feijão carioca cozido: 76 kcal/100g (TACO)
-- Peito de frango grelhado: 165 kcal/100g (USDA)
-- Banana prata: 89 kcal/100g (TACO)
-- Aveia em flocos: 394 kcal/100g (USDA)
-- Ovo de galinha inteiro: 155 kcal/100g (TACO)
-
 INSTRUÇÕES CRÍTICAS:
-1. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO
-2. Cite a fonte (USDA ou TACO) para cada alimento quando possível
+1. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO (ou fabricante para suplementos)
+2. Cite a fonte (USDA, TACO, ou Fabricante) para cada alimento quando possível
 3. Use valores por 100g das tabelas oficiais e calcule proporcionalmente
 4. A soma TOTAL deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal
 5. Seja preciso com as quantidades baseadas nos valores oficiais
@@ -510,7 +532,7 @@ JSON OBRIGATÓRIO:
 {
   "totalDailyCalories": "${savedCalcs.finalCalories} kcal",
   "totalProtein": "${savedCalcs.protein}g",
-  "totalCarbs": "${savedCalcs.carbs}g", 
+  "totalCarbs": "${savedCalcs.carbs}g",
   "totalFats": "${savedCalcs.fats}g",
   "meals": [${mealConfig.names
     .map((name, i) => {
