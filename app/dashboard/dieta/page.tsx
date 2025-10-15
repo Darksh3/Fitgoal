@@ -727,142 +727,234 @@ export default function DietPage() {
     if (!quizData) return 2200
 
     const weight = Number.parseFloat(quizData.currentWeight) || 70
-    const height = Number.parseFloat(quizData.height) || (quizData.gender === "mulher" ? 165 : 175)
+    const height = Number.parseFloat(quizData.height) || 170
     const age = Number.parseFloat(quizData.age) || 25
-    const gender = quizData.gender
-    const goals = quizData.goal || []
-    const bodyType = quizData.bodyType
-    const trainingDays = Number.parseFloat(quizData.trainingDaysPerWeek) || 3
+    const gender = quizData.gender || "masculino"
+    const trainingDaysPerWeek = quizData.trainingDaysPerWeek || 5
+    const goals = Array.isArray(quizData.goal) ? quizData.goal : [quizData.goal || "ganhar-massa"]
+
     const targetWeight = Number.parseFloat(quizData.targetWeight) || weight
-    const timeToGoal = quizData.timeToGoal
+    const timeToGoal = quizData.timeToGoal || ""
+    const bodyType = quizData.bodyType || ""
 
-    if (isNaN(weight) || isNaN(height) || isNaN(age) || isNaN(trainingDays) || isNaN(targetWeight)) {
-      console.log("[v0] Invalid numeric values detected, using fallback calculation")
-      return 2200
+    const isFemale = gender.toLowerCase().includes("fem") || gender.toLowerCase().includes("mulher")
+
+    // TMB (Mifflin-St Jeor)
+    let tmb
+    if (isFemale) {
+      tmb = 10 * weight + 6.25 * height - 5 * age - 161
+    } else {
+      tmb = 10 * weight + 6.25 * height - 5 * age + 5
     }
 
-    // Mifflin-St Jeor formula
-    const bmr =
-      gender === "mulher" ? 10 * weight + 6.25 * height - 5 * age - 161 : 10 * weight + 6.25 * height - 5 * age + 5
-
-    if (isNaN(bmr)) {
-      console.log("[v0] BMR calculation resulted in NaN, using fallback")
-      return 2200
+    // Fator de atividade base
+    let baseActivityMultiplier
+    if (trainingDaysPerWeek <= 1) {
+      baseActivityMultiplier = 1.2
+    } else if (trainingDaysPerWeek <= 3) {
+      baseActivityMultiplier = 1.375
+    } else if (trainingDaysPerWeek <= 5) {
+      baseActivityMultiplier = 1.55
+    } else if (trainingDaysPerWeek <= 6) {
+      baseActivityMultiplier = 1.725
+    } else {
+      baseActivityMultiplier = 1.9
     }
 
-    // Activity factor based on training days
-    let activityFactor = 1.2 // Sedentário
-    if (trainingDays >= 6)
-      activityFactor = 2.0 // Atleta
-    else if (trainingDays >= 4)
-      activityFactor = 1.6 // Regularmente ativo
-    else if (trainingDays >= 2) activityFactor = 1.6 // Regularmente ativo
-
-    let dailyCalories = bmr * activityFactor
-
-    // Body type adjustments
-    if (bodyType === "ectomorfo") {
-      dailyCalories *= 1.1
-    } else if (bodyType === "endomorfo") {
-      dailyCalories *= 0.95
+    // Ajuste do fator de atividade por somatótipo
+    let activityMultiplier = baseActivityMultiplier
+    if (bodyType.toLowerCase() === "ectomorfo") {
+      activityMultiplier = baseActivityMultiplier * 1.05
+    } else if (bodyType.toLowerCase() === "endomorfo") {
+      activityMultiplier = baseActivityMultiplier * 0.95
     }
 
+    let tdee = tmb * activityMultiplier
+
+    // Ajuste metabólico por somatótipo
+    let metabolicAdjustment = 1.0
+    if (bodyType.toLowerCase() === "ectomorfo") {
+      metabolicAdjustment = isFemale ? 1.12 : 1.15
+    } else if (bodyType.toLowerCase() === "endomorfo") {
+      metabolicAdjustment = isFemale ? 0.92 : 0.95
+    }
+
+    tdee = tdee * metabolicAdjustment
+
+    // Ajuste calórico baseado no objetivo
+    let dailyCalorieAdjustment = 0
     const weightDifference = targetWeight - weight
 
-    if (Math.abs(weightDifference) > 0.5 && timeToGoal && typeof timeToGoal === "string" && timeToGoal.trim() !== "") {
-      try {
-        // Parse Brazilian date format (e.g., "10 de nov. de 2025")
-        let goalDate: Date
-
-        if (timeToGoal.includes(" de ")) {
-          // Handle Brazilian format
-          const monthMap: { [key: string]: number } = {
-            jan: 0,
-            fev: 1,
-            mar: 2,
-            abr: 3,
-            mai: 4,
-            jun: 5,
-            jul: 6,
-            ago: 7,
-            set: 8,
-            out: 9,
-            nov: 10,
-            dez: 11,
-          }
-
-          const parts = timeToGoal.split(" de ")
-          if (parts.length === 3) {
-            const day = Number.parseInt(parts[0])
-            const monthStr = parts[1].toLowerCase().substring(0, 3)
-            const year = Number.parseInt(parts[2])
-            const month = monthMap[monthStr]
-
-            if (!isNaN(day) && !isNaN(year) && month !== undefined) {
-              goalDate = new Date(year, month, day)
-            } else {
-              throw new Error("Invalid Brazilian date format")
-            }
+    if (weightDifference < -0.5) {
+      // Perda de peso
+      const weightToLose = Math.abs(weightDifference)
+      if (timeToGoal && weightToLose > 0) {
+        const weeksToGoal = calculateWeeksToGoal(timeToGoal)
+        if (weeksToGoal > 0) {
+          const weeklyWeightChange = weightToLose / weeksToGoal
+          let maxWeeklyLoss
+          if (bodyType.toLowerCase() === "ectomorfo") {
+            maxWeeklyLoss = Math.min(weeklyWeightChange, 0.5)
+          } else if (bodyType.toLowerCase() === "endomorfo") {
+            maxWeeklyLoss = Math.min(weeklyWeightChange, 1.0)
           } else {
-            throw new Error("Invalid Brazilian date format")
+            maxWeeklyLoss = Math.min(weeklyWeightChange, 0.75)
           }
+          dailyCalorieAdjustment = -Math.round((maxWeeklyLoss * 7700) / 7)
+          const maxDeficit = isFemale
+            ? bodyType.toLowerCase() === "endomorfo"
+              ? -700
+              : -600
+            : bodyType.toLowerCase() === "endomorfo"
+              ? -900
+              : -800
+          dailyCalorieAdjustment = Math.max(dailyCalorieAdjustment, maxDeficit)
         } else {
-          // Try standard date parsing
-          goalDate = new Date(timeToGoal)
+          dailyCalorieAdjustment =
+            bodyType.toLowerCase() === "ectomorfo" ? -400 : bodyType.toLowerCase() === "endomorfo" ? -600 : -500
         }
-
-        const currentDate = new Date()
-        const timeDifferenceMs = goalDate.getTime() - currentDate.getTime()
-
-        if (isNaN(timeDifferenceMs) || timeDifferenceMs <= 0) {
-          throw new Error("Invalid date calculation")
+      } else {
+        dailyCalorieAdjustment =
+          bodyType.toLowerCase() === "ectomorfo" ? -400 : bodyType.toLowerCase() === "endomorfo" ? -600 : -500
+      }
+    } else if (weightDifference > 0.5) {
+      // Ganho de peso
+      const weightToGain = weightDifference
+      if (timeToGoal && weightToGain > 0) {
+        const weeksToGoal = calculateWeeksToGoal(timeToGoal)
+        if (weeksToGoal > 0) {
+          const weeklyWeightChange = weightToGain / weeksToGoal
+          let maxWeeklyGain
+          if (bodyType.toLowerCase() === "ectomorfo") {
+            maxWeeklyGain = Math.min(weeklyWeightChange, 0.75)
+          } else if (bodyType.toLowerCase() === "endomorfo") {
+            maxWeeklyGain = Math.min(weeklyWeightChange, 0.4)
+          } else {
+            maxWeeklyGain = Math.min(weeklyWeightChange, 0.5)
+          }
+          dailyCalorieAdjustment = Math.round((maxWeeklyGain * 7700) / 7)
+          const maxSurplus =
+            bodyType.toLowerCase() === "ectomorfo"
+              ? isFemale
+                ? 700
+                : 850
+              : bodyType.toLowerCase() === "endomorfo"
+                ? isFemale
+                  ? 400
+                  : 500
+                : isFemale
+                  ? 500
+                  : 600
+          dailyCalorieAdjustment = Math.min(dailyCalorieAdjustment, maxSurplus)
+        } else {
+          dailyCalorieAdjustment =
+            bodyType.toLowerCase() === "ectomorfo"
+              ? isFemale
+                ? 600
+                : 700
+              : bodyType.toLowerCase() === "endomorfo"
+                ? isFemale
+                  ? 300
+                  : 400
+                : isFemale
+                  ? 400
+                  : 500
         }
-
-        const weeksToGoal = Math.max(1, timeDifferenceMs / (1000 * 60 * 60 * 24 * 7))
-
-        // Calculate required weekly weight change
-        const weeklyWeightChange = weightDifference / weeksToGoal
-
-        // Calculate daily calorie adjustment (7700 kcal = 1kg of body mass)
-        const dailyCalorieAdjustment = (weeklyWeightChange * 7700) / 7
-
-        if (isNaN(dailyCalorieAdjustment) || !isFinite(dailyCalorieAdjustment)) {
-          throw new Error("Invalid calorie adjustment calculation")
-        }
-
-        console.log("[v0] Personalized calorie calculation:", {
-          weightDifference,
-          weeksToGoal: Math.round(weeksToGoal),
-          weeklyWeightChange: weeklyWeightChange.toFixed(2),
-          dailyCalorieAdjustment: Math.round(dailyCalorieAdjustment),
-        })
-
-        dailyCalories += dailyCalorieAdjustment
-      } catch (error) {
-        console.log("[v0] Error in personalized calculation, falling back to original logic:", error)
-        // Fallback to original logic for edge cases
-        if (goals.includes("perder-peso")) {
-          dailyCalories *= 0.85 // 15% déficit
-        } else if (goals.includes("ganhar-massa")) {
-          dailyCalories += 600 // +600 kcal superávit moderado
-        }
+      } else {
+        dailyCalorieAdjustment =
+          bodyType.toLowerCase() === "ectomorfo"
+            ? isFemale
+              ? 600
+              : 700
+            : bodyType.toLowerCase() === "endomorfo"
+              ? isFemale
+                ? 300
+                : 400
+              : isFemale
+                ? 400
+                : 500
       }
     } else {
-      // Fallback to original logic for edge cases
-      if (goals.includes("perder-peso")) {
-        dailyCalories *= 0.85 // 15% déficit
-      } else if (goals.includes("ganhar-massa")) {
-        dailyCalories += 600 // +600 kcal superávit moderado
+      // Manutenção/Recomposição
+      if (goals.includes("perder-peso") || goals.includes("emagrecer")) {
+        dailyCalorieAdjustment = bodyType.toLowerCase() === "endomorfo" ? -400 : -300
+      } else if (goals.includes("ganhar-massa") || goals.includes("ganhar-peso")) {
+        dailyCalorieAdjustment =
+          bodyType.toLowerCase() === "ectomorfo" ? 400 : bodyType.toLowerCase() === "endomorfo" ? 200 : 300
       }
     }
 
-    const finalCalories = Math.round(dailyCalories)
-    if (isNaN(finalCalories) || !isFinite(finalCalories) || finalCalories <= 0) {
-      console.log("[v0] Final calculation resulted in invalid value, using fallback")
-      return 2200
+    const finalCalories = Math.round(tdee + dailyCalorieAdjustment)
+    let safeCalories = finalCalories
+
+    // Limites de segurança
+    const minCaloriesWomen = trainingDaysPerWeek >= 4 ? 1400 : 1200
+    const minCaloriesMen = trainingDaysPerWeek >= 4 ? 1600 : 1400
+    const absoluteMinimum = isFemale ? minCaloriesWomen : minCaloriesMen
+
+    if (safeCalories < absoluteMinimum) {
+      safeCalories = absoluteMinimum
     }
 
-    return finalCalories
+    if (safeCalories < tmb * 1.1) {
+      safeCalories = Math.round(tmb * 1.1)
+    }
+
+    return safeCalories
+  }
+
+  const calculateWeeksToGoal = (timeToGoal: string): number => {
+    try {
+      let goalDate: Date
+
+      if (timeToGoal.includes(" de ")) {
+        const monthMap: { [key: string]: number } = {
+          jan: 0,
+          fev: 1,
+          mar: 2,
+          abr: 3,
+          mai: 4,
+          jun: 5,
+          jul: 6,
+          ago: 7,
+          set: 8,
+          out: 9,
+          nov: 10,
+          dez: 11,
+        }
+
+        const parts = timeToGoal.split(" de ")
+        if (parts.length === 3) {
+          const day = Number.parseInt(parts[0])
+          const monthStr = parts[1].toLowerCase().substring(0, 3)
+          const year = Number.parseInt(parts[2])
+          const month = monthMap[monthStr]
+
+          if (!isNaN(day) && !isNaN(year) && month !== undefined) {
+            goalDate = new Date(year, month, day)
+          } else {
+            return 0
+          }
+        } else {
+          return 0
+        }
+      } else {
+        goalDate = new Date(timeToGoal)
+      }
+
+      const currentDate = new Date()
+      const timeDifferenceMs = goalDate.getTime() - currentDate.getTime()
+
+      if (isNaN(timeDifferenceMs) || timeDifferenceMs <= 0) {
+        return 0
+      }
+
+      const weeksToGoal = Math.max(1, timeDifferenceMs / (1000 * 60 * 60 * 24 * 7))
+      return Math.round(weeksToGoal)
+    } catch (error) {
+      console.error("Error calculating weeks to goal:", error)
+      return 0
+    }
   }
 
   const displayTotals = (() => {

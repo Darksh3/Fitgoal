@@ -408,7 +408,7 @@ export async function POST(req: Request) {
         const userDocRef = adminDb.collection("users").doc(userId)
         const docSnap = await userDocRef.get()
         if (!docSnap.exists || !docSnap.data()?.quizData) {
-          return new Response(JSON.JSON.stringify({ error: "Quiz data not found." }), {
+          return new Response(JSON.stringify({ error: "Quiz data not found." }), {
             status: 404,
             headers: { "Content-Type": "application/json" },
           })
@@ -464,88 +464,75 @@ export async function POST(req: Request) {
       console.log(`🏋️ [EXERCISE COUNT] ${exerciseRange.description} para tempo: ${quizData.workoutTime}`)
 
       const dietPrompt = `
-Você é um nutricionista experiente. Crie uma dieta para ${quizData.gender}, ${quizData.age} anos.
+Você é um nutricionista experiente. Crie uma dieta de ${savedCalcs.finalCalories} kcal EXATAS para ${quizData.gender}, ${quizData.age} anos.
 
-ALVOS NUTRICIONAIS OBRIGATÓRIOS:
-- CALORIAS: ${savedCalcs.finalCalories} kcal
-- PROTEÍNA: ${savedCalcs.protein}g
-- CARBOIDRATOS: ${savedCalcs.carbs}g
-- GORDURAS: ${savedCalcs.fats}g
+ALVO OBRIGATÓRIO: ${savedCalcs.finalCalories} kcal
+Proteína: ${savedCalcs.protein}g | Carboidratos: ${savedCalcs.carbs}g | Gorduras: ${savedCalcs.fats}g
 
 CLIENTE: ${quizData.currentWeight}kg, objetivo: ${quizData.goal?.join(", ")}, biotipo: ${quizData.bodyType}
 ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
 
 REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
 
-SUA TAREFA: Escolha APENAS os alimentos adequados para cada refeição com seus valores nutricionais por 100g.
-O sistema calculará automaticamente as porções exatas para atingir TODOS os alvos nutricionais.
+REFERÊNCIA NUTRICIONAL OBRIGATÓRIA:
+- Use EXCLUSIVAMENTE dados das tabelas USDA (United States Department of Agriculture) e TACO (Tabela Brasileira de Composição de Alimentos)
+- Para alimentos brasileiros: priorize TACO
+- Para alimentos internacionais: use USDA
+- NUNCA invente valores nutricionais - use apenas dados oficiais dessas bases
 
-REFERÊNCIA NUTRICIONAL OBRIGATÓRIA (USDA/TACO):
-Use APENAS alimentos com dados conhecidos das tabelas USDA/TACO:
+EXEMPLOS DE VALORES OFICIAIS TACO/USDA:
+- Arroz branco cozido: 128 kcal/100g (TACO)
+- Feijão carioca cozido: 76 kcal/100g (TACO)
+- Peito de frango grelhado: 165 kcal/100g (USDA)
+- Banana prata: 89 kcal/100g (TACO)
+- Aveia em flocos: 394 kcal/100g (USDA)
+- Ovo de galinha inteiro: 155 kcal/100g (TACO)
 
-PROTEÍNAS:
-- Peito de frango grelhado: 165 kcal/100g, P:31g, C:0g, F:3.6g
-- Ovo inteiro: 155 kcal/100g, P:13g, C:1.1g, F:11g
-- Tilápia grelhada: 96 kcal/100g, P:20g, C:0g, F:1.7g
-- Carne moída magra: 250 kcal/100g, P:26g, C:0g, F:17g
-- Whey protein: 400 kcal/100g, P:80g, C:8g, F:5g
+INSTRUÇÕES CRÍTICAS:
+1. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO
+2. Cite a fonte (USDA ou TACO) para cada alimento quando possível
+3. Use valores por 100g das tabelas oficiais e calcule proporcionalmente
+4. A soma TOTAL deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal
+5. Seja preciso com as quantidades baseadas nos valores oficiais
+6. Prefira alimentos com dados bem documentados nas tabelas
 
-CARBOIDRATOS:
-- Arroz branco cozido: 128 kcal/100g, P:2.7g, C:28g, F:0.3g
-- Batata doce: 86 kcal/100g, P:1.6g, C:20g, F:0.1g
-- Aveia em flocos: 394 kcal/100g, P:13.9g, C:66.6g, F:8.5g
-- Banana prata: 89 kcal/100g, P:1.3g, C:22g, F:0.1g
-- Pão integral: 247 kcal/100g, P:13g, C:41g, F:4g
-- Macarrão integral cozido: 124 kcal/100g, P:5g, C:26g, F:0.5g
-
-LEGUMINOSAS:
-- Feijão carioca cozido: 76 kcal/100g, P:4.8g, C:13.6g, F:0.5g
-- Lentilha cozida: 116 kcal/100g, P:9g, C:20g, F:0.4g
-- Grão de bico cozido: 164 kcal/100g, P:8.9g, C:27g, F:2.6g
-
-GORDURAS SAUDÁVEIS:
-- Azeite de oliva: 884 kcal/100g, P:0g, C:0g, F:100g
-- Abacate: 160 kcal/100g, P:2g, C:8.5g, F:14.7g
-- Castanha do Pará: 656 kcal/100g, P:14g, C:12g, F:66g
-- Amendoim: 567 kcal/100g, P:26g, C:16g, F:49g
-
-VEGETAIS (baixa caloria):
-- Brócolis cozido: 35 kcal/100g, P:2.4g, C:7g, F:0.4g
-- Alface: 15 kcal/100g, P:1.4g, C:2.9g, F:0.2g
-- Tomate: 18 kcal/100g, P:0.9g, C:3.9g, F:0.2g
-
-LATICÍNIOS:
-- Iogurte natural integral: 61 kcal/100g, P:3.5g, C:4.7g, F:3.3g
-- Queijo cottage: 98 kcal/100g, P:11g, C:3.4g, F:4.3g
-- Leite integral: 61 kcal/100g, P:3.2g, C:4.8g, F:3.3g
-
-FORMATO JSON OBRIGATÓRIO:
+EXEMPLO DE FORMATO OBRIGATÓRIO:
 {
-  "meals": [${mealConfig.names
-    .map(
-      (name, i) => `{
-        "name": "${name}",
-        "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}",
-        "targetCalories": ${Math.round(savedCalcs.finalCalories * mealConfig.distribution[i])},
-        "targetProtein": ${Math.round(savedCalcs.protein * mealConfig.distribution[i])},
-        "targetCarbs": ${Math.round(savedCalcs.carbs * mealConfig.distribution[i])},
-        "targetFats": ${Math.round(savedCalcs.fats * mealConfig.distribution[i])},
-        "foods": [
-          {
-            "name": "[alimento específico da tabela USDA/TACO]",
-            "caloriesPer100g": [valor exato da tabela],
-            "proteinPer100g": [valor exato da tabela],
-            "carbsPer100g": [valor exato da tabela],
-            "fatsPer100g": [valor exato da tabela]
-          }
-        ]
-      }`,
-    )
-    .join(",")}]
+  "name": "Aveia em flocos",
+  "quantity": "80g",
+  "calories": 311,
+  "protein": 13.5,
+  "carbs": 52.8,
+  "fats": 6.2
 }
 
-IMPORTANTE:Você pode escolher os alimentos que achar melhor para o usuario, não precisa seguir essa lista obrigatoriamente, ela é apenas um norte, mas sempre respeitando a quantidade de macros, pois não pode ser menos e nem mais que o calculado.
-`
+JSON OBRIGATÓRIO:
+{
+  "totalDailyCalories": "${savedCalcs.finalCalories} kcal",
+  "totalProtein": "${savedCalcs.protein}g",
+  "totalCarbs": "${savedCalcs.carbs}g", 
+  "totalFats": "${savedCalcs.fats}g",
+  "meals": [${mealConfig.names
+    .map((name, i) => {
+      const targetCals = Math.round(savedCalcs.finalCalories * mealConfig.distribution[i])
+      return `{
+        "name": "${name}",
+        "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}",
+        "totalCalories": ${targetCals},
+        "foods": [
+          {
+            "name": "[alimento específico]",
+            "quantity": "[quantidade precisa]",
+            "calories": "[calorias que VOCÊ calculou]",
+            "protein": "[proteína que VOCÊ calculou]",
+            "carbs": "[carboidratos que VOCÊ calculou]",
+            "fats": "[gorduras que VOCÊ calculou]"
+          }
+        ]
+      }`
+    })
+    .join(",")}]
+}`
 
       const workoutPrompt = `
 Crie EXATAMENTE ${requestedDays} dias de treino para ${quizData.gender}, ${quizData.experience}, ${quizData.workoutTime}.
@@ -669,214 +656,37 @@ JSON OBRIGATÓRIO:
             const parsed = JSON.parse(rawContent)
 
             if (parsed.meals && Array.isArray(parsed.meals) && parsed.meals.length === mealConfig.count) {
-              console.log(`🔧 [HYBRID SYSTEM] AI provided foods, calculating exact portions to match ALL macros...`)
+              // Calculate real total from AI-generated foods
+              const realTotal = parsed.meals.reduce((total, meal) => {
+                return total + meal.foods.reduce((mealTotal, food) => mealTotal + (food.calories || 0), 0)
+              }, 0)
 
-              parsed.meals.forEach((meal, mealIndex) => {
-                const targetCalories = Math.round(savedCalcs.finalCalories * mealConfig.distribution[mealIndex])
-                const targetProtein = Math.round(savedCalcs.protein * mealConfig.distribution[mealIndex])
-                const targetCarbs = Math.round(savedCalcs.carbs * mealConfig.distribution[mealIndex])
-                const targetFats = Math.round(savedCalcs.fats * mealConfig.distribution[mealIndex])
+              console.log(`[DIET] Target: ${savedCalcs.finalCalories} kcal, AI Generated: ${realTotal} kcal`)
 
-                console.log(
-                  `🎯 [MEAL ${mealIndex + 1}] Targets: ${targetCalories} kcal, P:${targetProtein}g, C:${targetCarbs}g, F:${targetFats}g`,
-                )
+              // Check if difference is significant and adjust if needed
+              const difference = savedCalcs.finalCalories - realTotal
+              if (Math.abs(difference) > 50) {
+                console.log(`[DIET] Adjusting foods by ${difference} kcal`)
+                const adjustmentPerMeal = Math.round(difference / parsed.meals.length)
 
-                // Calculate initial quantities based on proportional distribution
-                meal.foods.forEach((food) => {
-                  if (food.caloriesPer100g && food.proteinPer100g !== undefined) {
-                    // Start with calorie-based quantity
-                    const proportionalQuantity = (targetCalories / meal.foods.length / food.caloriesPer100g) * 100
-                    food.quantity = `${Math.round(proportionalQuantity)}g`
-                    food.calories = Math.round((proportionalQuantity / 100) * food.caloriesPer100g)
-                    food.protein = Math.round((proportionalQuantity / 100) * food.proteinPer100g)
-                    food.carbs = Math.round((proportionalQuantity / 100) * food.carbsPer100g)
-                    food.fats = Math.round((proportionalQuantity / 100) * food.fatsPer100g)
-                  } else {
-                    console.log(`⚠️ [MISSING DATA] ${food.name} missing nutritional data`)
-                    food.quantity = "100g"
-                    food.calories = Math.round(targetCalories / meal.foods.length)
-                    food.protein = Math.round(targetProtein / meal.foods.length)
-                    food.carbs = Math.round(targetCarbs / meal.foods.length)
-                    food.fats = Math.round(targetFats / meal.foods.length)
-                  }
-                })
-
-                // Calculate current meal totals
-                const mealCalories = meal.foods.reduce((sum, food) => sum + (food.calories || 0), 0)
-                const mealProtein = meal.foods.reduce((sum, food) => sum + (food.protein || 0), 0)
-                let mealCarbs = meal.foods.reduce((sum, food) => sum + (food.carbs || 0), 0)
-                let mealFats = meal.foods.reduce((sum, food) => sum + (food.fats || 0), 0)
-
-                console.log(
-                  `📊 [BEFORE ADJUST] Meal ${mealIndex + 1}: ${mealCalories} kcal, P:${mealProtein}g, C:${mealCarbs}g, F:${mealFats}g`,
-                )
-
-                // Priority: Protein > Fats > Carbs (adjust carbs last for flexibility)
-
-                // 1. Adjust protein sources
-                const proteinDiff = targetProtein - mealProtein
-                if (Math.abs(proteinDiff) > 2) {
-                  const proteinFood = meal.foods.find((f) => (f.proteinPer100g || 0) > 15) // High protein food
-                  if (proteinFood && proteinFood.proteinPer100g) {
-                    const currentQty = Number.parseFloat(proteinFood.quantity) || 100
-                    const adjustment = (proteinDiff / proteinFood.proteinPer100g) * 100
-                    const newQty = Math.max(50, currentQty + adjustment) // Minimum 50g
-                    proteinFood.quantity = `${Math.round(newQty)}g`
-                    proteinFood.calories = Math.round((newQty / 100) * proteinFood.caloriesPer100g)
-                    proteinFood.protein = Math.round((newQty / 100) * proteinFood.proteinPer100g)
-                    proteinFood.carbs = Math.round((newQty / 100) * proteinFood.carbsPer100g)
-                    proteinFood.fats = Math.round((newQty / 100) * proteinFood.fatsPer100g)
-                    console.log(`🥩 [PROTEIN ADJUST] ${proteinFood.name}: ${currentQty}g → ${newQty}g`)
-                  }
-                }
-
-                // 2. Adjust fat sources
-                mealFats = meal.foods.reduce((sum, food) => sum + (food.fats || 0), 0)
-                const fatsDiff = targetFats - mealFats
-                if (Math.abs(fatsDiff) > 2) {
-                  const fatFood = meal.foods.find((f) => (f.fatsPer100g || 0) > 10) // High fat food
-                  if (fatFood && fatFood.fatsPer100g) {
-                    const currentQty = Number.parseFloat(fatFood.quantity) || 100
-                    const adjustment = (fatsDiff / fatFood.fatsPer100g) * 100
-                    const newQty = Math.max(10, currentQty + adjustment) // Minimum 10g
-                    fatFood.quantity = `${Math.round(newQty)}g`
-                    fatFood.calories = Math.round((newQty / 100) * fatFood.caloriesPer100g)
-                    fatFood.protein = Math.round((newQty / 100) * fatFood.proteinPer100g)
-                    fatFood.carbs = Math.round((newQty / 100) * fatFood.carbsPer100g)
-                    fatFood.fats = Math.round((newQty / 100) * fatFood.fatsPer100g)
-                    console.log(`🥑 [FAT ADJUST] ${fatFood.name}: ${currentQty}g → ${newQty}g`)
-                  }
-                }
-
-                // 3. Adjust carb sources (most flexible)
-                mealCarbs = meal.foods.reduce((sum, food) => sum + (food.carbs || 0), 0)
-                const carbsDiff = targetCarbs - mealCarbs
-                if (Math.abs(carbsDiff) > 5) {
-                  const carbFood = meal.foods.find((f) => (f.carbsPer100g || 0) > 20) // High carb food
-                  if (carbFood && carbFood.carbsPer100g) {
-                    const currentQty = Number.parseFloat(carbFood.quantity) || 100
-                    const adjustment = (carbsDiff / carbFood.carbsPer100g) * 100
-                    const newQty = Math.max(50, currentQty + adjustment) // Minimum 50g
-                    carbFood.quantity = `${Math.round(newQty)}g`
-                    carbFood.calories = Math.round((newQty / 100) * carbFood.caloriesPer100g)
-                    carbFood.protein = Math.round((newQty / 100) * carbFood.proteinPer100g)
-                    carbFood.carbs = Math.round((newQty / 100) * carbFood.carbsPer100g)
-                    carbFood.fats = Math.round((newQty / 100) * carbFood.fatsPer100g)
-                    console.log(`🍚 [CARB ADJUST] ${carbFood.name}: ${currentQty}g → ${newQty}g`)
-                  }
-                }
-
-                // Recalculate final meal totals
-                meal.totalCalories = meal.foods.reduce((sum, food) => sum + (food.calories || 0), 0)
-                meal.totalProtein = meal.foods.reduce((sum, food) => sum + (food.protein || 0), 0)
-                meal.totalCarbs = meal.foods.reduce((sum, food) => sum + (food.carbs || 0), 0)
-                meal.totalFats = meal.foods.reduce((sum, food) => sum + (food.fats || 0), 0)
-
-                console.log(
-                  `✅ [AFTER ADJUST] Meal ${mealIndex + 1}: ${meal.totalCalories} kcal, P:${meal.totalProtein}g, C:${meal.totalCarbs}g, F:${meal.totalFats}g`,
-                )
-              })
-
-              // Calculate final daily totals
-              const finalCalories = parsed.meals.reduce((total, meal) => total + (meal.totalCalories || 0), 0)
-              const finalProtein = parsed.meals.reduce((total, meal) => total + (meal.totalProtein || 0), 0)
-              const finalCarbs = parsed.meals.reduce((total, meal) => total + (meal.totalCarbs || 0), 0)
-              const finalFats = parsed.meals.reduce((total, meal) => total + (meal.totalFats || 0), 0)
-
-              console.log(
-                `🎯 [FINAL TOTALS] Generated: ${finalCalories} kcal, P:${finalProtein}g, C:${finalCarbs}g, F:${finalFats}g`,
-              )
-              console.log(
-                `🎯 [TARGET TOTALS] Target: ${savedCalcs.finalCalories} kcal, P:${savedCalcs.protein}g, C:${savedCalcs.carbs}g, F:${savedCalcs.fats}g`,
-              )
-
-              const calDiff = savedCalcs.finalCalories - finalCalories
-              const protDiff = savedCalcs.protein - finalProtein
-              const carbDiff = savedCalcs.carbs - finalCarbs
-              const fatDiff = savedCalcs.fats - finalFats
-
-              if (
-                Math.abs(calDiff) > 100 ||
-                Math.abs(protDiff) > 10 ||
-                Math.abs(carbDiff) > 15 ||
-                Math.abs(fatDiff) > 5
-              ) {
-                console.log(`🔧 [FINE TUNE] Applying final adjustments...`)
-                console.log(`   Calories: ${calDiff > 0 ? "+" : ""}${calDiff} kcal`)
-                console.log(`   Protein: ${protDiff > 0 ? "+" : ""}${protDiff}g`)
-                console.log(`   Carbs: ${carbDiff > 0 ? "+" : ""}${carbDiff}g`)
-                console.log(`   Fats: ${fatDiff > 0 ? "+" : ""}${fatDiff}g`)
-
-                // Distribute adjustments across meals proportionally
-                parsed.meals.forEach((meal, idx) => {
-                  const mealProportion = mealConfig.distribution[idx]
-
-                  // Adjust the dominant macro source in each meal
-                  if (Math.abs(protDiff) > 5) {
-                    const proteinFood = meal.foods.find((f) => (f.proteinPer100g || 0) > 15)
-                    if (proteinFood && proteinFood.proteinPer100g) {
-                      const adjustment = ((protDiff * mealProportion) / proteinFood.proteinPer100g) * 100
-                      const currentQty = Number.parseFloat(proteinFood.quantity) || 100
-                      const newQty = Math.max(50, currentQty + adjustment)
-                      proteinFood.quantity = `${Math.round(newQty)}g`
-                      proteinFood.calories = Math.round((newQty / 100) * proteinFood.caloriesPer100g)
-                      proteinFood.protein = Math.round((newQty / 100) * proteinFood.proteinPer100g)
-                      proteinFood.carbs = Math.round((newQty / 100) * proteinFood.carbsPer100g)
-                      proteinFood.fats = Math.round((newQty / 100) * proteinFood.fatsPer100g)
+                parsed.meals.forEach((meal, index) => {
+                  if (meal.foods && meal.foods.length > 0) {
+                    const mainFood = meal.foods[0]
+                    if (mainFood) {
+                      mainFood.calories = Math.max(50, (mainFood.calories || 0) + adjustmentPerMeal)
+                      meal.totalCalories = meal.foods.reduce((sum, food) => sum + (food.calories || 0), 0)
                     }
                   }
-
-                  if (Math.abs(carbDiff) > 10) {
-                    const carbFood = meal.foods.find((f) => (f.carbsPer100g || 0) > 20)
-                    if (carbFood && carbFood.carbsPer100g) {
-                      const adjustment = ((carbDiff * mealProportion) / carbFood.carbsPer100g) * 100
-                      const currentQty = Number.parseFloat(carbFood.quantity) || 100
-                      const newQty = Math.max(50, currentQty + adjustment)
-                      carbFood.quantity = `${Math.round(newQty)}g`
-                      carbFood.calories = Math.round((newQty / 100) * carbFood.caloriesPer100g)
-                      carbFood.protein = Math.round((newQty / 100) * carbFood.proteinPer100g)
-                      carbFood.carbs = Math.round((newQty / 100) * carbFood.carbsPer100g)
-                      carbFood.fats = Math.round((newQty / 100) * carbFood.fatsPer100g)
-                    }
-                  }
-
-                  // Recalculate meal totals after fine-tuning
-                  meal.totalCalories = meal.foods.reduce((sum, food) => sum + (food.calories || 0), 0)
-                  meal.totalProtein = meal.foods.reduce((sum, food) => sum + (food.protein || 0), 0)
-                  meal.totalCarbs = meal.foods.reduce((sum, food) => sum + (food.carbs || 0), 0)
-                  meal.totalFats = meal.foods.reduce((sum, food) => sum + (food.fats || 0), 0)
                 })
               }
 
-              // Set final values to match scientific calculation exactly
               parsed.totalDailyCalories = `${savedCalcs.finalCalories} kcal`
               parsed.totalProtein = `${savedCalcs.protein}g`
               parsed.totalCarbs = `${savedCalcs.carbs}g`
               parsed.totalFats = `${savedCalcs.fats}g`
 
-              // Store actual generated values for comparison
-              parsed.actualGenerated = {
-                calories: parsed.meals.reduce((total, meal) => total + (meal.totalCalories || 0), 0),
-                protein: parsed.meals.reduce((total, meal) => total + (meal.totalProtein || 0), 0),
-                carbs: parsed.meals.reduce((total, meal) => total + (meal.totalCarbs || 0), 0),
-                fats: parsed.meals.reduce((total, meal) => total + (meal.totalFats || 0), 0),
-              }
-
-              console.log(`✅ [DIET SUCCESS] Hybrid system completed with macro matching`)
-              console.log(
-                `📊 [ACCURACY] Calories: ${parsed.actualGenerated.calories}/${savedCalcs.finalCalories} (${Math.round((parsed.actualGenerated.calories / savedCalcs.finalCalories) * 100)}%)`,
-              )
-              console.log(
-                `📊 [ACCURACY] Protein: ${parsed.actualGenerated.protein}/${savedCalcs.protein}g (${Math.round((parsed.actualGenerated.protein / savedCalcs.protein) * 100)}%)`,
-              )
-              console.log(
-                `📊 [ACCURACY] Carbs: ${parsed.actualGenerated.carbs}/${savedCalcs.carbs}g (${Math.round((parsed.actualGenerated.carbs / savedCalcs.carbs) * 100)}%)`,
-              )
-              console.log(
-                `📊 [ACCURACY] Fats: ${parsed.actualGenerated.fats}/${savedCalcs.fats}g (${Math.round((parsed.actualGenerated.fats / savedCalcs.fats) * 100)}%)`,
-              )
-
               dietPlan = parsed
+              console.log("✅ [DIET SUCCESS] Generated and corrected")
             }
           } catch (e) {
             console.log("⚠️ [DIET] Parse error:", e)
@@ -969,6 +779,7 @@ JSON OBRIGATÓRIO:
 
 /**
  * Calcula o número de calorias baseado nos dados do cliente
+ * Considera: Tipo Corporal (Somatótipo) + Gênero + Objetivo
  */
 function calculateScientificCalories(data: any) {
   const weight = Number.parseFloat(data.currentWeight) || 70
@@ -982,261 +793,397 @@ function calculateScientificCalories(data: any) {
   const timeToGoal = data.timeToGoal || ""
   const bodyType = data.bodyType || ""
 
-  // TMB (Mifflin-St Jeor) - unchanged, already correct
+  const isFemale = gender.toLowerCase().includes("fem") || gender.toLowerCase().includes("mulher")
+
+  // ============================================
+  // 1. TMB (Mifflin-St Jeor) - PADRÃO CIENTÍFICO
+  // ============================================
   let tmb
-  if (gender.toLowerCase().includes("fem") || gender.toLowerCase().includes("mulher")) {
+  if (isFemale) {
     tmb = 10 * weight + 6.25 * height - 5 * age - 161
   } else {
     tmb = 10 * weight + 6.25 * height - 5 * age + 5
   }
 
-  let activityMultiplier
-  if (trainingDaysPerWeek <= 1)
-    activityMultiplier = 1.2 // Sedentário
-  else if (trainingDaysPerWeek <= 3)
-    activityMultiplier = 1.375 // Leve
-  else if (trainingDaysPerWeek <= 5)
-    activityMultiplier = 1.55 // Moderado
-  else if (trainingDaysPerWeek <= 6)
-    activityMultiplier = 1.725 // Intenso
-  else activityMultiplier = 1.9 // Muito intenso
+  // ============================================
+  // 2. FATOR DE ATIVIDADE AJUSTADO POR SOMATÓTIPO
+  // ============================================
+  let baseActivityMultiplier
+  if (trainingDaysPerWeek <= 1) {
+    baseActivityMultiplier = 1.2 // Sedentário
+  } else if (trainingDaysPerWeek <= 3) {
+    baseActivityMultiplier = 1.375 // Leve
+  } else if (trainingDaysPerWeek <= 5) {
+    baseActivityMultiplier = 1.55 // Moderado (base)
+  } else if (trainingDaysPerWeek <= 6) {
+    baseActivityMultiplier = 1.725 // Intenso
+  } else {
+    baseActivityMultiplier = 1.9 // Muito intenso
+  }
+
+  // Ajuste do fator de atividade por somatótipo
+  let activityMultiplier = baseActivityMultiplier
+
+  if (bodyType.toLowerCase() === "ectomorfo") {
+    // Ectomorfo: NEAT alto, metabolismo acelerado
+    activityMultiplier = baseActivityMultiplier * 1.05 // +5% no fator
+    console.log(`🔥 [ECTOMORFO] Fator de atividade aumentado: ${baseActivityMultiplier} → ${activityMultiplier}`)
+  } else if (bodyType.toLowerCase() === "endomorfo") {
+    // Endomorfo: NEAT baixo, metabolismo mais lento
+    activityMultiplier = baseActivityMultiplier * 0.95 // -5% no fator
+    console.log(`🐢 [ENDOMORFO] Fator de atividade reduzido: ${baseActivityMultiplier} → ${activityMultiplier}`)
+  }
+  // Mesomorfo: usa o valor base (sem ajuste)
 
   let tdee = tmb * activityMultiplier
 
+  // ============================================
+  // 3. AJUSTE METABÓLICO POR SOMATÓTIPO
+  // ============================================
+  let metabolicAdjustment = 1.0
+
   if (bodyType.toLowerCase() === "ectomorfo") {
-    tdee = tdee * 1.1 // +10% for ectomorphs
+    // Ectomorfo: +12-15% (metabolismo rápido)
+    metabolicAdjustment = isFemale ? 1.12 : 1.15
+    console.log(
+      `🔥 [ECTOMORFO ${isFemale ? "F" : "M"}] Ajuste metabólico: +${((metabolicAdjustment - 1) * 100).toFixed(0)}%`,
+    )
+  } else if (bodyType.toLowerCase() === "endomorfo") {
+    // Endomorfo: -5-8% (metabolismo lento)
+    metabolicAdjustment = isFemale ? 0.92 : 0.95
+    console.log(
+      `🐢 [ENDOMORFO ${isFemale ? "F" : "M"}] Ajuste metabólico: ${((metabolicAdjustment - 1) * 100).toFixed(0)}%`,
+    )
   }
+  // Mesomorfo: 1.0 (sem ajuste - metabolismo equilibrado)
 
+  tdee = tdee * metabolicAdjustment
+
+  // ============================================
+  // 4. AJUSTE CALÓRICO BASEADO NO OBJETIVO
+  // ============================================
   let dailyCalorieAdjustment = 0
-
-  // REGRA CRÍTICA: Se peso meta < peso atual = SEMPRE déficit (queima de gordura)
-  // Se peso meta > peso atual = SEMPRE surplus (ganho de peso)
-  // Se peso meta = peso atual = manutenção ou seguir objetivo declarado
-
   const weightDifference = targetWeight - weight
 
   if (weightDifference < -0.5) {
-    // PESO META MENOR QUE ATUAL = PERDA DE PESO (prioridade máxima)
+    // ========== MODO: PERDA DE PESO ==========
     console.log(`🔥 [PRIORITY] Target weight (${targetWeight}kg) < current weight (${weight}kg) = FAT LOSS MODE`)
 
     const weightToLose = Math.abs(weightDifference)
+
     if (timeToGoal && weightToLose > 0) {
       const weeksToGoal = calculateWeeksToGoal(timeToGoal)
       if (weeksToGoal > 0) {
         const weeklyWeightChange = weightToLose / weeksToGoal
-        // Déficit seguro: máximo 1kg por semana (7700 kcal)
-        const maxWeeklyLoss = Math.min(weeklyWeightChange, 1.0)
+
+        // LIMITES SEGUROS DE PERDA POR SEMANA (ajustados por somatótipo)
+        let maxWeeklyLoss
+        if (bodyType.toLowerCase() === "ectomorfo") {
+          maxWeeklyLoss = Math.min(weeklyWeightChange, 0.5) // Ectomorfo: máx 0.5kg/semana (perde massa fácil)
+        } else if (bodyType.toLowerCase() === "endomorfo") {
+          maxWeeklyLoss = Math.min(weeklyWeightChange, 1.0) // Endomorfo: pode perder até 1kg/semana
+        } else {
+          maxWeeklyLoss = Math.min(weeklyWeightChange, 0.75) // Mesomorfo: 0.75kg/semana
+        }
+
         dailyCalorieAdjustment = -Math.round((maxWeeklyLoss * 7700) / 7)
-        // Limitar déficit máximo para segurança
-        dailyCalorieAdjustment = Math.max(dailyCalorieAdjustment, -800)
+
+        // LIMITES MÁXIMOS DE DÉFICIT (por gênero e somatótipo)
+        let maxDeficit
+        if (isFemale) {
+          maxDeficit = bodyType.toLowerCase() === "endomorfo" ? -700 : -600
+        } else {
+          maxDeficit = bodyType.toLowerCase() === "endomorfo" ? -900 : -800
+        }
+
+        dailyCalorieAdjustment = Math.max(dailyCalorieAdjustment, maxDeficit)
       } else {
-        dailyCalorieAdjustment = -500 // Déficit moderado padrão
+        // Déficit padrão por somatótipo
+        if (bodyType.toLowerCase() === "ectomorfo") {
+          dailyCalorieAdjustment = -400 // Déficit leve
+        } else if (bodyType.toLowerCase() === "endomorfo") {
+          dailyCalorieAdjustment = -600 // Déficit maior
+        } else {
+          dailyCalorieAdjustment = -500 // Déficit moderado
+        }
       }
     } else {
-      dailyCalorieAdjustment = -500 // Déficit moderado padrão
+      // Déficit padrão por somatótipo
+      if (bodyType.toLowerCase() === "ectomorfo") {
+        dailyCalorieAdjustment = -400
+      } else if (bodyType.toLowerCase() === "endomorfo") {
+        dailyCalorieAdjustment = -600
+      } else {
+        dailyCalorieAdjustment = -500
+      }
     }
   } else if (weightDifference > 0.5) {
-    // PESO META MAIOR QUE ATUAL = GANHO DE PESO
+    // ========== MODO: GANHO DE PESO ==========
     console.log(`💪 [PRIORITY] Target weight (${targetWeight}kg) > current weight (${weight}kg) = WEIGHT GAIN MODE`)
 
     const weightToGain = weightDifference
+
     if (timeToGoal && weightToGain > 0) {
       const weeksToGoal = calculateWeeksToGoal(timeToGoal)
       if (weeksToGoal > 0) {
         const weeklyWeightChange = weightToGain / weeksToGoal
-        // Surplus seguro: máximo 0.5kg por semana
-        const maxWeeklyGain = Math.min(weeklyWeightChange, 0.5)
+
+        // LIMITES SEGUROS DE GANHO POR SEMANA (ajustados por somatótipo)
+        let maxWeeklyGain
+        if (bodyType.toLowerCase() === "ectomorfo") {
+          maxWeeklyGain = Math.min(weeklyWeightChange, 0.75) // Ectomorfo: pode tentar até 0.75kg/semana
+        } else if (bodyType.toLowerCase() === "endomorfo") {
+          maxWeeklyGain = Math.min(weeklyWeightChange, 0.4) // Endomorfo: máx 0.4kg (ganha gordura fácil)
+        } else {
+          maxWeeklyGain = Math.min(weeklyWeightChange, 0.5) // Mesomorfo: 0.5kg/semana (padrão)
+        }
+
         dailyCalorieAdjustment = Math.round((maxWeeklyGain * 7700) / 7)
-        // Limitar surplus máximo
-        dailyCalorieAdjustment = Math.min(dailyCalorieAdjustment, 600)
+
+        // LIMITES MÁXIMOS DE SURPLUS (por gênero e somatótipo)
+        let maxSurplus
+        if (bodyType.toLowerCase() === "ectomorfo") {
+          maxSurplus = isFemale ? 700 : 850 // Ectomorfo: pode surplus maior
+        } else if (bodyType.toLowerCase() === "endomorfo") {
+          maxSurplus = isFemale ? 400 : 500 // Endomorfo: surplus conservador
+        } else {
+          maxSurplus = isFemale ? 500 : 600 // Mesomorfo: surplus moderado
+        }
+
+        dailyCalorieAdjustment = Math.min(dailyCalorieAdjustment, maxSurplus)
       } else {
-        dailyCalorieAdjustment = 300 // Surplus conservador padrão
+        // Surplus padrão por somatótipo
+        if (bodyType.toLowerCase() === "ectomorfo") {
+          dailyCalorieAdjustment = isFemale ? 600 : 700
+        } else if (bodyType.toLowerCase() === "endomorfo") {
+          dailyCalorieAdjustment = isFemale ? 300 : 400
+        } else {
+          dailyCalorieAdjustment = isFemale ? 400 : 500
+        }
       }
     } else {
-      dailyCalorieAdjustment = 300 // Surplus conservador padrão
+      // Surplus padrão por somatótipo
+      if (bodyType.toLowerCase() === "ectomorfo") {
+        dailyCalorieAdjustment = isFemale ? 600 : 700
+      } else if (bodyType.toLowerCase() === "endomorfo") {
+        dailyCalorieAdjustment = isFemale ? 300 : 400
+      } else {
+        dailyCalorieAdjustment = isFemale ? 400 : 500
+      }
     }
   } else {
-    // PESO META = PESO ATUAL = seguir objetivo declarado ou manutenção
+    // ========== MODO: MANUTENÇÃO/RECOMPOSIÇÃO ==========
     console.log(`⚖️ [PRIORITY] Target weight (${targetWeight}kg) ≈ current weight (${weight}kg) = FOLLOW DECLARED GOALS`)
 
     if (goals.includes("perder-peso") || goals.includes("emagrecer")) {
-      dailyCalorieAdjustment = -300 // Déficit leve para recomposição
+      dailyCalorieAdjustment = bodyType.toLowerCase() === "endomorfo" ? -400 : -300
     } else if (goals.includes("ganhar-massa") || goals.includes("ganhar-peso")) {
-      dailyCalorieAdjustment = 200 // Surplus leve para recomposição
+      if (bodyType.toLowerCase() === "ectomorfo") {
+        dailyCalorieAdjustment = 400
+      } else if (bodyType.toLowerCase() === "endomorfo") {
+        dailyCalorieAdjustment = 200
+      } else {
+        dailyCalorieAdjustment = 300
+      }
     }
-    // Manutenção: dailyCalorieAdjustment = 0
   }
 
   const finalCalories = Math.round(tdee + dailyCalorieAdjustment)
-
   let safeCalories = finalCalories
 
-  // Minimum calorie safety limits based on gender and activity
+  // ============================================
+  // 5. LIMITES DE SEGURANÇA POR GÊNERO
+  // ============================================
   const minCaloriesWomen = trainingDaysPerWeek >= 4 ? 1400 : 1200
   const minCaloriesMen = trainingDaysPerWeek >= 4 ? 1600 : 1400
-  const absoluteMinimum = gender === "mulher" ? minCaloriesWomen : minCaloriesMen
+  const absoluteMinimum = isFemale ? minCaloriesWomen : minCaloriesMen
 
   if (safeCalories < absoluteMinimum) {
     console.log(`⚠️ [SAFETY] Calories too low (${safeCalories}), adjusting to minimum safe level (${absoluteMinimum})`)
     safeCalories = absoluteMinimum
-
-    // Recalculate adjustment to reflect the safety override
     dailyCalorieAdjustment = safeCalories - tdee
   }
 
-  // Additional safety check: never go below TMB for extended periods
+  // Nunca abaixo de 110% do TMB
   if (safeCalories < tmb * 1.1) {
     console.log(`⚠️ [SAFETY] Calories below 110% of TMB (${Math.round(tmb * 1.1)}), adjusting for metabolic safety`)
     safeCalories = Math.round(tmb * 1.1)
     dailyCalorieAdjustment = safeCalories - tdee
   }
 
+  // ============================================
+  // 6. MACRONUTRIENTES AJUSTADOS
+  // ============================================
   let proteinPerKg = 1.6
-
-  if (weightDifference < -0.5) {
-    // PERDA DE PESO = mais proteína para preservar massa muscular
-    switch (bodyType) {
-      case "ectomorfo":
-        proteinPerKg = 2.0 // Preserva massa facilmente
-        break
-      case "mesomorfo":
-        proteinPerKg = 2.2 // Equilíbrio
-        break
-      case "endomorfo":
-        proteinPerKg = 2.5 // Precisa mais para preservar massa
-        break
-      default:
-        proteinPerKg = 2.2
-    }
-  } else if (weightDifference > 0.5) {
-    // GANHO DE PESO = proteína para construção muscular
-    switch (bodyType) {
-      case "ectomorfo":
-        proteinPerKg = 2.5 // Mais difícil ganhar massa
-        break
-      case "mesomorfo":
-        proteinPerKg = 2.2 // Resposta padrão boa
-        break
-      case "endomorfo":
-        proteinPerKg = 2.0 // Ganha massa mais fácil
-        break
-      default:
-        proteinPerKg = 2.2
-    }
-  } else {
-    // RECOMPOSIÇÃO CORPORAL = proteína alta para manter/ganhar massa
-    proteinPerKg = 2.0
-  }
-
   let fatsPerKg = 1.0
 
+  // PROTEÍNA baseada em objetivo + somatótipo + gênero
   if (weightDifference < -0.5) {
-    // PERDA DE PESO = menos gorduras para maior déficit
-    switch (bodyType) {
-      case "ectomorfo":
-        fatsPerKg = 0.9
-        break
-      case "mesomorfo":
-        fatsPerKg = 0.8
-        break
-      case "endomorfo":
-        fatsPerKg = 0.7 // Controla mais gorduras
-        break
-      default:
-        fatsPerKg = 0.8
+    // PERDA DE PESO - mais proteína para preservar massa
+    if (bodyType.toLowerCase() === "ectomorfo") {
+      proteinPerKg = isFemale ? 2.0 : 2.2 // Preserva massa facilmente
+    } else if (bodyType.toLowerCase() === "mesomorfo") {
+      proteinPerKg = isFemale ? 2.2 : 2.4
+    } else if (bodyType.toLowerCase() === "endomorfo") {
+      proteinPerKg = isFemale ? 2.4 : 2.6 // Precisa mais para preservar
+    } else {
+      proteinPerKg = isFemale ? 2.0 : 2.2
+    }
+  } else if (weightDifference > 0.5) {
+    // GANHO DE PESO - proteína para construção
+    if (bodyType.toLowerCase() === "ectomorfo") {
+      proteinPerKg = isFemale ? 2.3 : 2.5 // Mais difícil ganhar
+    } else if (bodyType.toLowerCase() === "mesomorfo") {
+      proteinPerKg = isFemale ? 2.0 : 2.2 // Responde bem
+    } else if (bodyType.toLowerCase() === "endomorfo") {
+      proteinPerKg = isFemale ? 1.9 : 2.0 // Ganha mais fácil
+    } else {
+      proteinPerKg = isFemale ? 2.0 : 2.2
     }
   } else {
-    // GANHO DE PESO ou MANUTENÇÃO = gorduras normais
-    switch (bodyType) {
-      case "ectomorfo":
-        fatsPerKg = 1.2 // Tolera mais gorduras
-        break
-      case "mesomorfo":
-        fatsPerKg = 1.0 // Padrão equilibrado
-        break
-      case "endomorfo":
-        fatsPerKg = 0.9 // Controla um pouco
-        break
-      default:
-        fatsPerKg = 1.0
+    // MANUTENÇÃO/RECOMPOSIÇÃO
+    proteinPerKg = isFemale ? 1.8 : 2.0
+  }
+
+  // GORDURAS baseadas em objetivo + somatótipo + gênero
+  if (weightDifference < -0.5) {
+    // PERDA DE PESO - menos gorduras
+    if (bodyType.toLowerCase() === "ectomorfo") {
+      fatsPerKg = isFemale ? 1.0 : 0.9 // Mulheres precisam mais gordura
+    } else if (bodyType.toLowerCase() === "mesomorfo") {
+      fatsPerKg = isFemale ? 0.9 : 0.8
+    } else if (bodyType.toLowerCase() === "endomorfo") {
+      fatsPerKg = isFemale ? 0.8 : 0.7
+    } else {
+      fatsPerKg = isFemale ? 0.9 : 0.8
     }
+  } else {
+    // GANHO/MANUTENÇÃO - gorduras normais/maiores
+    if (bodyType.toLowerCase() === "ectomorfo") {
+      fatsPerKg = isFemale ? 1.3 : 1.2 // Tolera bem
+    } else if (bodyType.toLowerCase() === "mesomorfo") {
+      fatsPerKg = isFemale ? 1.1 : 1.0
+    } else if (bodyType.toLowerCase() === "endomorfo") {
+      fatsPerKg = isFemale ? 1.0 : 0.9 // Controlar um pouco
+    } else {
+      fatsPerKg = isFemale ? 1.1 : 1.0
+    }
+  }
+
+  // ATENÇÃO: Mulheres precisam mínimo de gordura para função hormonal
+  if (isFemale && fatsPerKg < 0.8) {
+    fatsPerKg = 0.8 // Mínimo absoluto para mulheres
+    console.log(`⚠️ [FEMALE SAFETY] Fat intake adjusted to minimum safe level (0.8g/kg)`)
   }
 
   const protein = Math.round(weight * proteinPerKg)
   const fats = Math.round(weight * fatsPerKg)
 
-  // Ensure protein doesn't get too low due to calorie restrictions
-  const minProtein = Math.round(weight * 1.8) // Minimum 1.8g/kg even in extreme deficit
+  // Proteína mínima (mais baixa para mulheres)
+  const minProtein = Math.round(weight * (isFemale ? 1.6 : 1.8))
   const finalProtein = Math.max(protein, minProtein)
 
-  // Recalculate carbs with corrected protein and safe calories
+  // Carboidratos = calorias restantes
   const carbs = Math.round((safeCalories - finalProtein * 4 - fats * 9) / 4)
 
-  console.log(
-    `🧮 [SCIENTIFIC CALC] TMB: ${Math.round(tmb)}, TDEE: ${Math.round(tdee)}, Adjustment: ${dailyCalorieAdjustment}, Final: ${safeCalories}`,
-  )
-  console.log(
-    `🎯 [REAL GOAL] Weight: ${weight}kg → ${targetWeight}kg (${weightDifference > 0 ? "+" : ""}${weightDifference.toFixed(1)}kg) = ${dailyCalorieAdjustment > 0 ? "SURPLUS" : dailyCalorieAdjustment < 0 ? "DEFICIT" : "MAINTENANCE"}`,
-  )
-  console.log(`🥩 [MACROS] Protein: ${finalProtein}g (${proteinPerKg}g/kg), Fats: ${fats}g, Carbs: ${carbs}g`)
+  // ============================================
+  // 7. LOGS DETALHADOS
+  // ============================================
+  console.log(`
+╔═══════════════════════════════════════════════════════════╗
+║  CÁLCULO CIENTÍFICO COMPLETO                              ║
+╚═══════════════════════════════════════════════════════════╝
+
+👤 PERFIL:
+   Gênero: ${isFemale ? "Feminino" : "Masculino"}
+   Somatótipo: ${bodyType || "Não especificado"}
+   Peso: ${weight}kg → ${targetWeight}kg (${weightDifference > 0 ? "+" : ""}${weightDifference.toFixed(1)}kg)
+   
+🧮 CÁLCULOS BASE:
+   TMB: ${Math.round(tmb)} kcal
+   Fator Atividade (base): ${baseActivityMultiplier}
+   Fator Atividade (ajustado): ${activityMultiplier.toFixed(3)}
+   TDEE (inicial): ${Math.round(tmb * activityMultiplier)} kcal
+   Ajuste Metabólico: ${(metabolicAdjustment * 100).toFixed(1)}%
+   TDEE (final): ${Math.round(tdee)} kcal
+   
+🎯 OBJETIVO:
+   Ajuste Diário: ${dailyCalorieAdjustment > 0 ? "+" : ""}${dailyCalorieAdjustment} kcal
+   Modo: ${weightDifference < -0.5 ? "PERDA DE PESO" : weightDifference > 0.5 ? "GANHO DE PESO" : "MANUTENÇÃO"}
+   
+📊 RESULTADO FINAL:
+   Calorias: ${safeCalories} kcal
+   Proteína: ${finalProtein}g (${proteinPerKg.toFixed(1)}g/kg)
+   Gorduras: ${fats}g (fatsPerKg.toFixed(1)}g/kg)
+   Carboidratos: ${Math.max(carbs, 50)}g
+  `)
 
   return {
     tmb: Math.round(tmb),
     tdee: Math.round(tdee),
     finalCalories: safeCalories,
     protein: finalProtein,
-    carbs: Math.max(carbs, 50), // Minimum carbs for brain function
+    carbs: Math.max(carbs, 50),
     fats,
     dailyCalorieAdjustment,
     weeksToGoal: timeToGoal ? calculateWeeksToGoal(timeToGoal) : 0,
     realGoal: weightDifference < -0.5 ? "fat-loss" : weightDifference > 0.5 ? "weight-gain" : "body-recomposition",
+    metabolicAdjustment: metabolicAdjustment,
+    activityMultiplier: activityMultiplier,
   }
 }
 
 function calculateWeeksToGoal(timeToGoal: string): number {
   try {
-    // Handle Brazilian date format: "10 de nov. de 2025"
-    const months = {
-      jan: 0,
-      fev: 1,
-      mar: 2,
-      abr: 3,
-      mai: 4,
-      jun: 5,
-      jul: 6,
-      ago: 7,
-      set: 8,
-      out: 9,
-      nov: 10,
-      dez: 11,
-    }
+    // Parse Brazilian date format (e.g., "10 de dez. de 2025")
+    let goalDate: Date
 
-    const parts = timeToGoal.toLowerCase().split(" ")
-    if (parts.length >= 5) {
-      const day = Number.parseInt(parts[0])
-      const monthAbbr = parts[2].replace(".", "").substring(0, 3)
-      const year = Number.parseInt(parts[4])
-
-      if (months[monthAbbr] !== undefined) {
-        const goalDate = new Date(year, months[monthAbbr], day)
-        const currentDate = new Date()
-        const timeDifferenceMs = goalDate.getTime() - currentDate.getTime()
-        const weeksToGoal = Math.max(1, Math.round(timeDifferenceMs / (1000 * 60 * 60 * 24 * 7)))
-        return weeksToGoal
+    if (timeToGoal.includes(" de ")) {
+      const monthMap: { [key: string]: number } = {
+        jan: 0,
+        fev: 1,
+        mar: 2,
+        abr: 3,
+        mai: 4,
+        jun: 5,
+        jul: 6,
+        ago: 7,
+        set: 8,
+        out: 9,
+        nov: 10,
+        dez: 11,
       }
+
+      const parts = timeToGoal.split(" de ")
+      if (parts.length === 3) {
+        const day = Number.parseInt(parts[0])
+        const monthStr = parts[1].toLowerCase().substring(0, 3)
+        const year = Number.parseInt(parts[2])
+        const month = monthMap[monthStr]
+
+        if (!isNaN(day) && !isNaN(year) && month !== undefined) {
+          goalDate = new Date(year, month, day)
+        } else {
+          return 0
+        }
+      } else {
+        return 0
+      }
+    } else {
+      goalDate = new Date(timeToGoal)
     }
 
-    // Fallback: try to parse as regular date
-    const goalDate = new Date(timeToGoal)
-    if (!isNaN(goalDate.getTime())) {
-      const currentDate = new Date()
-      const timeDifferenceMs = goalDate.getTime() - currentDate.getTime()
-      return Math.max(1, Math.round(timeDifferenceMs / (1000 * 60 * 60 * 24 * 7)))
+    const currentDate = new Date()
+    const timeDifferenceMs = goalDate.getTime() - currentDate.getTime()
+
+    if (isNaN(timeDifferenceMs) || timeDifferenceMs <= 0) {
+      return 0
     }
 
-    return 12 // Default to 12 weeks if parsing fails
+    const weeksToGoal = Math.max(1, timeDifferenceMs / (1000 * 60 * 60 * 24 * 7))
+    return Math.round(weeksToGoal)
   } catch (error) {
-    console.log("⚠️ [DATE PARSE] Error parsing timeToGoal:", timeToGoal)
-    return 12 // Default to 12 weeks
+    console.error("Error calculating weeks to goal:", error)
+    return 0
   }
 }
