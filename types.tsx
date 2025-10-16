@@ -50,10 +50,8 @@ export interface QuizData {
   waterIntake: string
   dietPreferences: string
   allergyDetails: string
-  usesSupplement: string
-  supplementName: string
-  supplementBrand: string
-  wantsSupplementSuggestion: string
+  wantsSupplement: string
+  supplementType?: string
   // </CHANGE>
   completedAt: string
   createdAt: string
