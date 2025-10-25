@@ -461,9 +461,9 @@ export default function QuizPage() {
 
     switch (bodyType) {
       case "ectomorfo":
-        return isWoman ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
+        return isWoman ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorfo-real-new.png"
       case "mesomorfo":
-        return isWoman ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorph-real-new.png"
+        return isWoman ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorfo-real-new.png"
       case "endomorfo":
         return isWoman ? "/images/female-endomorph-real-new.png" : "/images/male-endomorph-real-new.png"
       default:
@@ -484,7 +484,7 @@ export default function QuizPage() {
     } else if (currentStep === 13 && quizData.wantsSupplement === "nao") {
       setCurrentStep(15) // Skip to height question
       // </CHANGE>
-    } else if (currentStep === 14) {
+    } else if (currentStep === 14 && quizData.currentWeight !== "" && Number.parseFloat(quizData.currentWeight) > 0) {
       // Updated from step 13 to 14
       const timeToGoal = calculateTimeToGoal()
       updateQuizData("timeToGoal", timeToGoal)
@@ -493,12 +493,12 @@ export default function QuizPage() {
       } else {
         setCurrentStep(currentStep + 1)
       }
-    } else if (currentStep === 15) {
+    } else if (currentStep === 15 && quizData.targetWeight !== "" && Number.parseFloat(quizData.targetWeight) > 0) {
       // Updated from step 14 to 15
       if (quizData.importantEvent !== "nenhum") {
-        setCurrentStep(16) // Updated from 15 to 16
+        setCurrentStep(17) // Updated from 15 to 16
       } else {
-        setCurrentStep(17) // Updated from 16 to 17
+        setCurrentStep(19) // Updated from 16 to 17
       }
     } else if (currentStep === 16) {
       // Updated from step 15 to 16
@@ -605,15 +605,15 @@ export default function QuizPage() {
         return gender === "female" ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
       }
       if (type === "ectomorfo") {
-        return gender === "female" ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
+        return gender === "female" ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorfo-real-new.png"
       }
       if (type === "mesomorfo") {
-        return gender === "female" ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorph-real-new.png"
+        return gender === "female" ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorfo-real-new.png"
       }
       if (type === "endomorfo") {
         return gender === "female" ? "/images/female-endomorph-real-new.png" : "/images/male-endomorph-real-new.png"
       }
-      return gender === "female" ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
+      return gender === "female" ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorfo-real-new.png"
     }
     return (
       <div className={`${className} relative`}>
@@ -1020,9 +1020,9 @@ export default function QuizPage() {
           const isWoman = quizData.gender === "mulher"
           switch (type) {
             case "ectomorfo":
-              return isWoman ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
+              return isWoman ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorfo-real-new.png"
             case "mesomorfo":
-              return isWoman ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorph-real-new.png"
+              return isWoman ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorfo-real-new.png"
             case "endomorfo":
               return isWoman ? "/images/female-endomorph-real-new.png" : "/images/male-endomorph-real-new.png"
             default:
