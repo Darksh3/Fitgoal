@@ -83,6 +83,7 @@ const initialQuizData: QuizData = {
   weightUnit: "kg",
   timeToGoal: "",
   name: "",
+  // </CHANGE> Removed importantEvent and eventDate from initial data
   workoutTime: "",
   experience: "",
   equipment: [],
@@ -150,9 +151,7 @@ export default function QuizPage() {
   const [showTimeCalculation, setShowTimeCalculation] = useState(false)
   const [showIMCResult, setShowIMCResult] = useState(false)
   const [showLoading, setShowLoading] = useState(false)
-  // </CHANGE>
-  const [totalSteps, setTotalSteps] = useState(25) // Updated totalSteps from 27 to 25 (removed 2 event-related steps)
-  // </CHANGE>
+  const [totalSteps, setTotalSteps] = useState(24)
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
 
@@ -457,11 +456,11 @@ export default function QuizPage() {
 
     switch (bodyType) {
       case "ectomorfo":
-        return isWoman ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorfo-real-new.png"
+        return isWoman ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
       case "mesomorfo":
-        return isWoman ? "/images/female-mesomorfo-real-new.png" : "/images/male-mesomorfo-real-new.png"
+        return isWoman ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorph-real-new.png"
       case "endomorfo":
-        return isWoman ? "/images/female-endomorfo-real-new.png" : "/images/male-endomorfo-real-new.png"
+        return isWoman ? "/images/female-endomorph-real-new.png" : "/images/male-endomorph-real-new.png"
       default:
         return getBodyImage(quizData.gender)
     }
@@ -476,18 +475,12 @@ export default function QuizPage() {
       setShowWaterCongrats(true)
     } else if (currentStep === 11 && quizData.allergies === "nao") {
       setCurrentStep(13)
+      // </CHANGE>
     } else if (currentStep === 13 && quizData.wantsSupplement === "nao") {
-      setCurrentStep(14) // Go to current weight question, not height
-    } else if (currentStep === 14) {
-      // This condition was added as part of the update. It correctly follows step 13 if supplement is chosen.
-      const timeToGoal = calculateTimeToGoal()
-      updateQuizData("timeToGoal", timeToGoal)
-      if (timeToGoal) {
-        setShowTimeCalculation(true)
-      } else {
-        setCurrentStep(currentStep + 1)
-      }
-      // </CHANGE> Removed event-related navigation logic (cases 17 and 18)
+      setCurrentStep(14)
+    } else if (currentStep === 15 && quizData.timeToGoal) {
+      // Check if timeToGoal is calculated
+      setShowTimeCalculation(true)
     } else if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1)
     }
@@ -499,9 +492,7 @@ export default function QuizPage() {
         // Updated from step 12 to 13
         setCurrentStep(11) // Updated from 10 to 11
       } else if (currentStep === 14 && quizData.wantsSupplement === "nao") {
-        // Corrected this to check currentStep === 14 for supplement skip back
         setCurrentStep(13)
-        // </CHANGE> Removed event-related back navigation logic
       } else {
         setCurrentStep(currentStep - 1)
       }
@@ -581,15 +572,15 @@ export default function QuizPage() {
         return gender === "female" ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
       }
       if (type === "ectomorfo") {
-        return gender === "female" ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
+        return gender === "female" ? "/images/female-ectomorfo-real-new.png" : "/images/male-ectomorfo-real-new.png"
       }
       if (type === "mesomorfo") {
-        return gender === "female" ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorph-real-new.png"
+        return gender === "female" ? "/images/female-mesomorfo-real-new.png" : "/images/male-mesomorfo-real-new.png"
       }
       if (type === "endomorfo") {
-        return gender === "female" ? "/images/female-endomorph-real-new.png" : "/images/male-endomorph-real-new.png"
+        return gender === "female" ? "/images/female-endomorfo-real-new.png" : "/images/male-endomorfo-real-new.png"
       }
-      return gender === "female" ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
+      return gender === "female" ? "/images/female-ectomorfo-real-new.png" : "/images/male-ectomorfo-real-new.png"
     }
     return (
       <div className={`${className} relative`}>
@@ -1378,7 +1369,7 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
+                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
                   quizData.allergies === "sim" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => updateQuizData("allergies", "sim")}
@@ -1389,7 +1380,7 @@ export default function QuizPage() {
                 />
               </div>
               <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
+                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
                   quizData.allergies === "nao" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => updateQuizData("allergies", "nao")}
@@ -1428,7 +1419,7 @@ export default function QuizPage() {
             <div className="space-y-4">
               <Button
                 variant="outline"
-                className={`w-full h-auto bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between ${
+                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between h-auto ${
                   quizData.wantsSupplement === "sim" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => {
@@ -1453,7 +1444,7 @@ export default function QuizPage() {
               </Button>
               <Button
                 variant="outline"
-                className={`w-full h-auto bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between ${
+                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between h-auto ${
                   quizData.wantsSupplement === "nao" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => {
@@ -1525,7 +1516,7 @@ export default function QuizPage() {
             <div className="space-y-6">
               <Input
                 type="text"
-                placeholder="Seu nome"
+                placeholder="Digite seu nome"
                 value={quizData.name}
                 onChange={(e) => updateQuizData("name", e.target.value)}
                 className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
@@ -1533,9 +1524,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      // </CHANGE>
-
-      case 17: // Old case 19 - workout time
+      case 17:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1563,7 +1552,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 18: // Old case 20 - experience
+      case 18:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1598,7 +1587,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 19: // Old case 21 - equipment
+      case 19:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1630,7 +1619,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 20: // Old case 22 - cardio preference
+      case 20:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1661,7 +1650,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 21: // Old case 23 - pullups preference
+      case 21:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1692,7 +1681,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 22: // Old case 24 - yoga preference
+      case 22:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1723,7 +1712,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 23: // Old case 25 - training days per week
+      case 23:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1753,24 +1742,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 24: // Old case 26 - name (duplicate removed, keeping this one)
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Confirme o seu nome</h2>
-            </div>
-            <div className="space-y-6">
-              <Input
-                type="text"
-                placeholder="Digite seu nome"
-                value={quizData.name}
-                onChange={(e) => updateQuizData("name", e.target.value)}
-                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
-              />
-            </div>
-          </div>
-        )
-      case 25: // Old case 27 - email (final step)
+      case 24:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1821,36 +1793,28 @@ export default function QuizPage() {
         return quizData.allergyDetails.trim() !== ""
       case 13:
         return quizData.wantsSupplement !== ""
-      // </CHANGE>
-
       case 14:
         return quizData.currentWeight !== "" && Number.parseFloat(quizData.currentWeight) > 0
       case 15:
         return quizData.targetWeight !== "" && Number.parseFloat(quizData.targetWeight) > 0
-      case 16: // Validation for step 16 (Name)
+      case 16:
         return quizData.name.trim() !== ""
-      // </CHANGE> Removed validations for cases 17 and 18 (event questions)
-      case 17: // Old case 19 - workout time
+      case 17:
         return quizData.workoutTime !== ""
-      case 18: // Old case 20 - experience
+      case 18:
         return quizData.experience !== ""
-      case 19: // Old case 21 - equipment
+      case 19:
         return quizData.equipment.length > 0
-      case 20: // Old case 22 - cardio
+      case 20:
         return quizData.exercisePreferences.cardio !== ""
-      case 21: // Old case 23 - pullups
+      case 21:
         return quizData.exercisePreferences.pullups !== ""
-      case 22: // Old case 24 - yoga
+      case 22:
         return quizData.exercisePreferences.yoga !== ""
-      case 23: // Old case 25 - training days
+      case 23:
         return quizData.trainingDaysPerWeek >= 1 && quizData.trainingDaysPerWeek <= 7
-      case 24: // Old case 26 - name confirmation
-        return quizData.name.trim() !== ""
-      case 25: // Old case 27 - email
+      case 24:
         return quizData.email.trim() !== "" && quizData.email.includes("@")
-      // ... rest of validations with updated numbers ...
-      // </CHANGE>
-
       default:
         return true
     }
