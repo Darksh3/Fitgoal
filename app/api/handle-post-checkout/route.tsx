@@ -394,6 +394,39 @@ export async function POST(req: Request) {
 
       const nutrition = calculateNutrition(quizAnswersFromMetadata)
 
+      const supplementsData = {
+        hipercalorico: {
+          name: "Hipercalórico Growth",
+          portion: "170g (12 dosadores)",
+          calories: 615,
+          carbs: 108,
+          protein: 37,
+          fat: 3.7,
+          fiber: 1.9,
+          sodium: 268,
+        },
+        "whey-protein": {
+          name: "Whey Protein Concentrado 80% Growth",
+          portion: "30g (2 dosadores)",
+          calories: 119,
+          carbs: 2.3,
+          protein: 24,
+          fat: 1.5, // Calculated from remaining calories
+          fiber: 0,
+          sodium: 50,
+        },
+      }
+
+      let supplementName = ""
+      let supplementInfo = null
+      if (quizAnswersFromMetadata.supplementType === "hipercalorico") {
+        supplementName = "Hipercalórico Growth"
+        supplementInfo = supplementsData.hipercalorico
+      } else if (quizAnswersFromMetadata.supplementType === "whey-protein") {
+        supplementName = "Whey Protein Growth"
+        supplementInfo = supplementsData["whey-protein"]
+      }
+
       const dietPrompt = `
         Crie um plano alimentar personalizado em português brasileiro usando EXATAMENTE estes valores calculados:
 
@@ -408,14 +441,31 @@ export async function POST(req: Request) {
         - Objetivo: ${quizAnswersFromMetadata.goal || "Ganho de massa muscular"}
         - Restrições: ${quizAnswersFromMetadata.allergyDetails || "Nenhuma"}
         - Preferências: ${quizAnswersFromMetadata.diet || "Sem restrições"}
-        ${quizAnswersFromMetadata.wantsSupplement === "sim" ? `- Suplementação: O usuário QUER suplementação. ${quizAnswersFromMetadata.supplements ? `Suplementos sugeridos: ${quizAnswersFromMetadata.supplements}` : "Sugira suplementos apropriados para o objetivo."}` : ""}
+        ${
+          quizAnswersFromMetadata.wantsSupplement === "sim" && supplementInfo
+            ? `- Suplementação: O usuário QUER suplementação. Suplemento recomendado: ${supplementInfo.name}
+        
+        VALORES NUTRICIONAIS OFICIAIS DO ${supplementInfo.name.toUpperCase()} (USE EXATAMENTE ESTES VALORES):
+        - Porção: ${supplementInfo.portion}
+        - Calorias: ${supplementInfo.calories} kcal
+        - Carboidratos: ${supplementInfo.carbs}g
+        - Proteínas: ${supplementInfo.protein}g
+        - Gorduras: ${supplementInfo.fat}g
+        - Fibras: ${supplementInfo.fiber}g
+        - Sódio: ${supplementInfo.sodium}mg`
+            : ""
+        }
 
         INSTRUÇÕES:
         - Crie 5-6 refeições que SOMEM exatamente os valores calculados
         - Use alimentos brasileiros comuns
         - Respeite todas as restrições alimentares
         - Distribua os macros proporcionalmente entre as refeições
-        ${quizAnswersFromMetadata.wantsSupplement === "sim" ? `- IMPORTANTE: Inclua uma seção de suplementos recomendados com horários e dosagens específicas. ${quizAnswersFromMetadata.supplements ? `Inclua obrigatoriamente: ${quizAnswersFromMetadata.supplements}` : "Sugira suplementos como Whey Protein, Creatina, BCAA, Hipercalórico (se ganho de massa), etc."}` : ""}
+        ${
+          quizAnswersFromMetadata.wantsSupplement === "sim" && supplementInfo
+            ? `- IMPORTANTE: Inclua uma seção de suplementos recomendados. OBRIGATORIAMENTE inclua o ${supplementInfo.name} com os valores nutricionais EXATOS fornecidos acima (${supplementInfo.portion}: ${supplementInfo.calories} kcal, ${supplementInfo.carbs}g carbs, ${supplementInfo.protein}g proteína, ${supplementInfo.fat}g gordura). Especifique o horário ideal de consumo baseado no objetivo do usuário. Você pode adicionar outros suplementos complementares se achar necessário (como Creatina, BCAA, Ômega 3, etc).`
+            : ""
+        }
 
         Responda APENAS com JSON válido:
         {
@@ -435,7 +485,7 @@ export async function POST(req: Request) {
                 {
                   "name": "[nome do alimento]",
                   "quantity": "[quantidade]",
-                  "calories": "[calorias calculadas pela IA]",
+                  "calories": "[calorias]",
                   "protein": "[proteína em gramas]",
                   "carbs": "[carboidratos em gramas]",
                   "fat": "[gordura em gramas]"
@@ -448,12 +498,18 @@ export async function POST(req: Request) {
             }
           ],
           ${
-            quizAnswersFromMetadata.wantsSupplement === "sim"
+            quizAnswersFromMetadata.wantsSupplement === "sim" && supplementInfo
               ? `"supplements": [
             {
-              "name": "Nome do Suplemento",
-              "dosage": "Dosagem (ex: 30g, 5g, 2 cápsulas)",
-              "timing": "Horário (ex: Pós-treino, Antes de dormir, Com café da manhã)",
+              "name": "${supplementInfo.name}",
+              "portion": "${supplementInfo.portion}",
+              "calories": ${supplementInfo.calories},
+              "protein": ${supplementInfo.protein},
+              "carbs": ${supplementInfo.carbs},
+              "fat": ${supplementInfo.fat},
+              "fiber": ${supplementInfo.fiber},
+              "sodium": ${supplementInfo.sodium},
+              "timing": "Horário ideal baseado no objetivo (ex: Pós-treino para ganho de massa, Entre refeições para hipercalórico)",
               "benefits": "Benefícios específicos para o objetivo do usuário"
             }
           ],`
@@ -477,7 +533,7 @@ export async function POST(req: Request) {
             "Consuma ${nutrition.proteinGrams}g de proteína diariamente",
             "Beba pelo menos ${Math.round((Number.parseFloat(quizAnswersFromMetadata.currentWeight) || 70) * 35)}ml de água por dia",
             "Faça refeições a cada 3-4 horas"
-            ${quizAnswersFromMetadata.wantsSupplement === "sim" ? `, "Siga a suplementação recomendada nos horários indicados para melhores resultados"` : ""}
+            ${quizAnswersFromMetadata.wantsSupplement === "sim" && supplementInfo ? `, "Siga a suplementação recomendada nos horários indicados para melhores resultados"` : ""}
           ]
         }
       `
@@ -558,6 +614,7 @@ export async function POST(req: Request) {
         timeToGoal: quizAnswersFromMetadata.timeToGoal,
         wantsSupplement: quizAnswersFromMetadata.wantsSupplement,
         supplements: quizAnswersFromMetadata.supplements,
+        supplementType: quizAnswersFromMetadata.supplementType,
         // Include any other fields that might exist
         ...quizAnswersFromMetadata,
       },
