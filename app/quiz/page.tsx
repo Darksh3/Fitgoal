@@ -1417,10 +1417,10 @@ export default function QuizPage() {
               <p className="text-gray-300">Por exemplo: Hipercalórico, Whey Protein...</p>
             </div>
             <div className="space-y-4">
-              <Button
-                variant="outline"
-                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between h-auto ${
-                  quizData.wantsSupplement === "sim" ? "border-2 border-lime-500" : "border border-gray-700"
+              <button
+                type="button"
+                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 ${
+                  quizData.wantsSupplement === "sim" ? "border-lime-500" : "border-gray-700"
                 }`}
                 onClick={() => {
                   updateQuizData("wantsSupplement", "sim")
@@ -1441,11 +1441,11 @@ export default function QuizPage() {
                 <CheckCircle
                   className={`h-6 w-6 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
                 />
-              </Button>
-              <Button
-                variant="outline"
-                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between h-auto ${
-                  quizData.wantsSupplement === "nao" ? "border-2 border-lime-500" : "border border-gray-700"
+              </button>
+              <button
+                type="button"
+                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 ${
+                  quizData.wantsSupplement === "nao" ? "border-lime-500" : "border-gray-700"
                 }`}
                 onClick={() => {
                   updateQuizData("wantsSupplement", "nao")
@@ -1454,8 +1454,9 @@ export default function QuizPage() {
               >
                 <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
                 <X className={`h-6 w-6 ${quizData.wantsSupplement === "nao" ? "text-lime-500" : "text-gray-500"}`} />
-              </Button>
+              </button>
             </div>
+            {/* </CHANGE> */}
             {quizData.wantsSupplement === "sim" && quizData.supplementType && (
               <div className="bg-lime-500/10 border border-lime-500 rounded-lg p-4 text-center">
                 <p className="text-lime-400 font-semibold">
