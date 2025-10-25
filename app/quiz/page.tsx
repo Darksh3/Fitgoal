@@ -1455,6 +1455,7 @@ export default function QuizPage() {
                   quizData.wantsSupplement === "sim" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => {
+                  updateQuizData("wantsSupplement", "sim")
                   // Determine supplement type based on body type, body fat, and problem areas
                   const isEctomorph = quizData.bodyType === "ectomorfo"
                   const hasHighBodyFat = quizData.gender === "mulher" ? quizData.bodyFat > 30 : quizData.bodyFat > 20
@@ -1465,11 +1466,7 @@ export default function QuizPage() {
                     supplementType = "hipercalorico"
                   }
 
-                  setQuizData((prev) => ({
-                    ...prev,
-                    wantsSupplement: "sim",
-                    supplementType: supplementType,
-                  }))
+                  updateQuizData("supplementType", supplementType)
                 }}
               >
                 <h3 className="text-lg font-bold text-white">Sim, pode adicionar</h3>
@@ -1482,11 +1479,8 @@ export default function QuizPage() {
                   quizData.wantsSupplement === "nao" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => {
-                  setQuizData((prev) => ({
-                    ...prev,
-                    wantsSupplement: "nao",
-                    supplementType: "",
-                  }))
+                  updateQuizData("wantsSupplement", "nao")
+                  updateQuizData("supplementType", "")
                 }}
               >
                 <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
