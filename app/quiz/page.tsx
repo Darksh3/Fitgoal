@@ -38,7 +38,6 @@ interface QuizData {
   allergyDetails: string
   wantsSupplement: string
   supplementType: string
-  // </CHANGE>
   height: string
   heightUnit: string
   currentWeight: string
@@ -46,8 +45,6 @@ interface QuizData {
   weightUnit: string
   timeToGoal: string
   name: string
-  importantEvent: string
-  eventDate: string
   workoutTime: string
   experience: string
   equipment: string[]
@@ -86,8 +83,6 @@ const initialQuizData: QuizData = {
   weightUnit: "kg",
   timeToGoal: "",
   name: "",
-  importantEvent: "",
-  eventDate: "",
   workoutTime: "",
   experience: "",
   equipment: [],
@@ -155,7 +150,8 @@ export default function QuizPage() {
   const [showTimeCalculation, setShowTimeCalculation] = useState(false)
   const [showIMCResult, setShowIMCResult] = useState(false)
   const [showLoading, setShowLoading] = useState(false)
-  const [totalSteps, setTotalSteps] = useState(26)
+  // </CHANGE>
+  const [totalSteps, setTotalSteps] = useState(25) // Updated totalSteps from 27 to 25 (removed 2 event-related steps)
   // </CHANGE>
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
@@ -461,11 +457,11 @@ export default function QuizPage() {
 
     switch (bodyType) {
       case "ectomorfo":
-        return isWoman ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
+        return isWoman ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorfo-real-new.png"
       case "mesomorfo":
-        return isWoman ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorph-real-new.png"
+        return isWoman ? "/images/female-mesomorfo-real-new.png" : "/images/male-mesomorfo-real-new.png"
       case "endomorfo":
-        return isWoman ? "/images/female-endomorph-real-new.png" : "/images/male-endomorph-real-new.png"
+        return isWoman ? "/images/female-endomorfo-real-new.png" : "/images/male-endomorfo-real-new.png"
       default:
         return getBodyImage(quizData.gender)
     }
@@ -480,12 +476,10 @@ export default function QuizPage() {
       setShowWaterCongrats(true)
     } else if (currentStep === 11 && quizData.allergies === "nao") {
       setCurrentStep(13)
-      // </CHANGE>
     } else if (currentStep === 13 && quizData.wantsSupplement === "nao") {
-      setCurrentStep(15) // Skip to height question
-      // </CHANGE>
+      setCurrentStep(14) // Go to current weight question, not height
     } else if (currentStep === 14) {
-      // Updated from step 13 to 14
+      // This condition was added as part of the update. It correctly follows step 13 if supplement is chosen.
       const timeToGoal = calculateTimeToGoal()
       updateQuizData("timeToGoal", timeToGoal)
       if (timeToGoal) {
@@ -493,16 +487,7 @@ export default function QuizPage() {
       } else {
         setCurrentStep(currentStep + 1)
       }
-    } else if (currentStep === 15) {
-      // Updated from step 14 to 15
-      if (quizData.importantEvent !== "nenhum") {
-        setCurrentStep(16) // Updated from 15 to 16
-      } else {
-        setCurrentStep(17) // Updated from 16 to 17
-      }
-    } else if (currentStep === 16) {
-      // Updated from step 15 to 16
-      setCurrentStep(17) // Updated from 16 to 17
+      // </CHANGE> Removed event-related navigation logic (cases 17 and 18)
     } else if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1)
     }
@@ -513,19 +498,10 @@ export default function QuizPage() {
       if (currentStep === 13 && quizData.allergies === "nao") {
         // Updated from step 12 to 13
         setCurrentStep(11) // Updated from 10 to 11
-      } else if (currentStep === 15 && quizData.wantsSupplement === "nao") {
+      } else if (currentStep === 14 && quizData.wantsSupplement === "nao") {
+        // Corrected this to check currentStep === 14 for supplement skip back
         setCurrentStep(13)
-        // </CHANGE>
-      } else if (currentStep === 16) {
-        // Updated from step 15 to 16
-        setCurrentStep(15) // Updated from 14 to 15
-      } else if (currentStep === 17) {
-        // Updated from step 16 to 17
-        if (quizData.importantEvent !== "nenhum") {
-          setCurrentStep(16) // Updated from 15 to 16
-        } else {
-          setCurrentStep(15) // Updated from 14 to 15
-        }
+        // </CHANGE> Removed event-related back navigation logic
       } else {
         setCurrentStep(currentStep - 1)
       }
@@ -1402,7 +1378,7 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
+                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
                   quizData.allergies === "sim" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => updateQuizData("allergies", "sim")}
@@ -1413,7 +1389,7 @@ export default function QuizPage() {
                 />
               </div>
               <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
+                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
                   quizData.allergies === "nao" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => updateQuizData("allergies", "nao")}
@@ -1450,8 +1426,9 @@ export default function QuizPage() {
               <p className="text-gray-300">Por exemplo: Hipercalórico, Whey Protein...</p>
             </div>
             <div className="space-y-4">
-              <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
+              <Button
+                variant="outline"
+                className={`w-full h-auto bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between ${
                   quizData.wantsSupplement === "sim" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => {
@@ -1473,9 +1450,10 @@ export default function QuizPage() {
                 <CheckCircle
                   className={`h-6 w-6 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
                 />
-              </div>
-              <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
+              </Button>
+              <Button
+                variant="outline"
+                className={`w-full h-auto bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between ${
                   quizData.wantsSupplement === "nao" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => {
@@ -1485,7 +1463,7 @@ export default function QuizPage() {
               >
                 <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
                 <X className={`h-6 w-6 ${quizData.wantsSupplement === "nao" ? "text-lime-500" : "text-gray-500"}`} />
-              </div>
+              </Button>
             </div>
             {quizData.wantsSupplement === "sim" && quizData.supplementType && (
               <div className="bg-lime-500/10 border border-lime-500 rounded-lg p-4 text-center">
@@ -1542,14 +1520,14 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual é a sua altura?</h2>
+              <h2 className="text-3xl font-bold text-white">Qual é o seu nome?</h2>
             </div>
             <div className="space-y-6">
               <Input
-                type="number"
-                placeholder={`Altura, cm`}
-                value={quizData.height}
-                onChange={(e) => updateQuizData("height", e.target.value)}
+                type="text"
+                placeholder="Seu nome"
+                value={quizData.name}
+                onChange={(e) => updateQuizData("name", e.target.value)}
                 className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
               />
             </div>
@@ -1557,52 +1535,7 @@ export default function QuizPage() {
         )
       // </CHANGE>
 
-      case 17:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Você tem algum evento importante chegando?</h2>
-            </div>
-            <div className="space-y-4">
-              {[
-                { value: "ferias", label: "Férias", icon: "🏖️" },
-                { value: "casamento", label: "Casamento", icon: "💒" },
-                { value: "formatura", label: "Formatura", icon: "🎓" },
-                { value: "aniversario", label: "Aniversário", icon: "🎂" },
-                { value: "outro", label: "Outro evento", icon: "🎉" },
-                { value: "nenhum", label: "Nenhum evento específico", icon: "📅" },
-              ].map((event) => (
-                <div
-                  key={event.value}
-                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
-                    quizData.importantEvent === event.value ? "border-2 border-lime-500" : "border border-gray-700"
-                  }`}
-                  onClick={() => updateQuizData("importantEvent", event.value)}
-                >
-                  <span className="text-2xl">{event.icon}</span>
-                  <h3 className="text-lg font-bold text-white">{event.label}</h3>
-                </div>
-              ))}
-            </div>
-          </div>
-        )
-      case 18:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Quando é o seu evento?</h2>
-            </div>
-            <div className="space-y-6">
-              <Input
-                type="date"
-                value={quizData.eventDate}
-                onChange={(e) => updateQuizData("eventDate", e.target.value)}
-                className="bg-gray-800 border-gray-600 text-white text-center text-xl"
-              />
-            </div>
-          </div>
-        )
-      case 19:
+      case 17: // Old case 19 - workout time
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1630,7 +1563,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 20:
+      case 18: // Old case 20 - experience
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1665,7 +1598,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 21:
+      case 19: // Old case 21 - equipment
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1697,7 +1630,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 22:
+      case 20: // Old case 22 - cardio preference
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1728,7 +1661,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 23:
+      case 21: // Old case 23 - pullups preference
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1759,7 +1692,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 24:
+      case 22: // Old case 24 - yoga preference
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1790,7 +1723,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 25: // NOVO PASSO: Dias de treino por semana (antigo 23)
+      case 23: // Old case 25 - training days per week
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1820,11 +1753,11 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 26: // NOVO PASSO: Qual é o seu nome? (antigo 22)
+      case 24: // Old case 26 - name (duplicate removed, keeping this one)
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual é o seu nome?</h2>
+              <h2 className="text-3xl font-bold text-white">Confirme o seu nome</h2>
             </div>
             <div className="space-y-6">
               <Input
@@ -1837,7 +1770,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 27: // Antigo passo 24, agora 24 (último passo)
+      case 25: // Old case 27 - email (final step)
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1894,29 +1827,26 @@ export default function QuizPage() {
         return quizData.currentWeight !== "" && Number.parseFloat(quizData.currentWeight) > 0
       case 15:
         return quizData.targetWeight !== "" && Number.parseFloat(quizData.targetWeight) > 0
-      case 16:
-        return quizData.height !== "" && Number.parseFloat(quizData.height) > 0
-      case 17:
-        return quizData.importantEvent !== ""
-      case 18:
-        return quizData.eventDate !== ""
-      case 19:
-        return quizData.workoutTime !== ""
-      case 20:
-        return quizData.experience !== ""
-      case 21:
-        return quizData.equipment.length > 0
-      case 22:
-        return quizData.exercisePreferences.cardio !== ""
-      case 23:
-        return quizData.exercisePreferences.pullups !== ""
-      case 24:
-        return quizData.exercisePreferences.yoga !== ""
-      case 25:
-        return quizData.trainingDaysPerWeek >= 1 && quizData.trainingDaysPerWeek <= 7
-      case 26:
+      case 16: // Validation for step 16 (Name)
         return quizData.name.trim() !== ""
-      case 27:
+      // </CHANGE> Removed validations for cases 17 and 18 (event questions)
+      case 17: // Old case 19 - workout time
+        return quizData.workoutTime !== ""
+      case 18: // Old case 20 - experience
+        return quizData.experience !== ""
+      case 19: // Old case 21 - equipment
+        return quizData.equipment.length > 0
+      case 20: // Old case 22 - cardio
+        return quizData.exercisePreferences.cardio !== ""
+      case 21: // Old case 23 - pullups
+        return quizData.exercisePreferences.pullups !== ""
+      case 22: // Old case 24 - yoga
+        return quizData.exercisePreferences.yoga !== ""
+      case 23: // Old case 25 - training days
+        return quizData.trainingDaysPerWeek >= 1 && quizData.trainingDaysPerWeek <= 7
+      case 24: // Old case 26 - name confirmation
+        return quizData.name.trim() !== ""
+      case 25: // Old case 27 - email
         return quizData.email.trim() !== "" && quizData.email.includes("@")
       // ... rest of validations with updated numbers ...
       // </CHANGE>
