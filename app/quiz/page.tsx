@@ -216,8 +216,6 @@ export default function QuizPage() {
   }
 
   const updateQuizData = (key: keyof QuizData, value: any) => {
-    console.log("[v0] updateQuizData called with:", { key, value, currentQuizData: quizData })
-
     const newData = { ...quizData, [key]: value }
 
     if (key === "currentWeight" || key === "height") {
@@ -232,7 +230,6 @@ export default function QuizPage() {
       }
     }
 
-    console.log("[v0] updateQuizData setting new data:", newData)
     setQuizData(newData)
   }
 
@@ -978,10 +975,7 @@ export default function QuizPage() {
                 min="16"
                 max="80"
                 value={quizData.age || ""}
-                onChange={(e) => {
-                  console.log("[v0] Age input changed:", e.target.value)
-                  updateQuizData("age", Number.parseInt(e.target.value) || 0)
-                }}
+                onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
                 className="w-full p-4 text-xl text-center bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-lime-500 focus:outline-none"
                 placeholder="Digite sua idade"
               />
@@ -1361,10 +1355,7 @@ export default function QuizPage() {
                 type="number"
                 placeholder={`Altura, cm`}
                 value={quizData.height}
-                onChange={(e) => {
-                  console.log("[v0] Height input changed:", e.target.value)
-                  updateQuizData("height", e.target.value)
-                }}
+                onChange={(e) => updateQuizData("height", e.target.value)}
                 className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
               />
             </div>

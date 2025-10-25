@@ -408,12 +408,14 @@ export async function POST(req: Request) {
         - Objetivo: ${quizAnswersFromMetadata.goal || "Ganho de massa muscular"}
         - Restrições: ${quizAnswersFromMetadata.allergyDetails || "Nenhuma"}
         - Preferências: ${quizAnswersFromMetadata.diet || "Sem restrições"}
+        ${quizAnswersFromMetadata.wantsSupplement === "sim" ? `- Suplementação: O usuário QUER suplementação. ${quizAnswersFromMetadata.supplements ? `Suplementos sugeridos: ${quizAnswersFromMetadata.supplements}` : "Sugira suplementos apropriados para o objetivo."}` : ""}
 
         INSTRUÇÕES:
         - Crie 5-6 refeições que SOMEM exatamente os valores calculados
         - Use alimentos brasileiros comuns
         - Respeite todas as restrições alimentares
         - Distribua os macros proporcionalmente entre as refeições
+        ${quizAnswersFromMetadata.wantsSupplement === "sim" ? `- IMPORTANTE: Inclua uma seção de suplementos recomendados com horários e dosagens específicas. ${quizAnswersFromMetadata.supplements ? `Inclua obrigatoriamente: ${quizAnswersFromMetadata.supplements}` : "Sugira suplementos como Whey Protein, Creatina, BCAA, Hipercalórico (se ganho de massa), etc."}` : ""}
 
         Responda APENAS com JSON válido:
         {
@@ -445,6 +447,18 @@ export async function POST(req: Request) {
               "totalFat": 20
             }
           ],
+          ${
+            quizAnswersFromMetadata.wantsSupplement === "sim"
+              ? `"supplements": [
+            {
+              "name": "Nome do Suplemento",
+              "dosage": "Dosagem (ex: 30g, 5g, 2 cápsulas)",
+              "timing": "Horário (ex: Pós-treino, Antes de dormir, Com café da manhã)",
+              "benefits": "Benefícios específicos para o objetivo do usuário"
+            }
+          ],`
+              : ""
+          }
           "totalDailyCalories": ${nutrition.targetCalories},
           "macros": {
             "protein": ${nutrition.proteinGrams},
@@ -463,6 +477,7 @@ export async function POST(req: Request) {
             "Consuma ${nutrition.proteinGrams}g de proteína diariamente",
             "Beba pelo menos ${Math.round((Number.parseFloat(quizAnswersFromMetadata.currentWeight) || 70) * 35)}ml de água por dia",
             "Faça refeições a cada 3-4 horas"
+            ${quizAnswersFromMetadata.wantsSupplement === "sim" ? `, "Siga a suplementação recomendada nos horários indicados para melhores resultados"` : ""}
           ]
         }
       `
@@ -541,6 +556,8 @@ export async function POST(req: Request) {
         waterIntake: quizAnswersFromMetadata.waterIntake,
         targetWeight: quizAnswersFromMetadata.targetWeight,
         timeToGoal: quizAnswersFromMetadata.timeToGoal,
+        wantsSupplement: quizAnswersFromMetadata.wantsSupplement,
+        supplements: quizAnswersFromMetadata.supplements,
         // Include any other fields that might exist
         ...quizAnswersFromMetadata,
       },
