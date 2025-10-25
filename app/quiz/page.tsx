@@ -1416,16 +1416,16 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">Podemos adicionar algum suplemento à sua dieta?</h2>
               <p className="text-gray-300">Por exemplo: Hipercalórico, Whey Protein...</p>
             </div>
-            <div className="space-y-4 relative z-10 pointer-events-auto">
+            <div className="space-y-4">
               <button
                 type="button"
                 className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
-                  quizData.wantsSupplement === "sim" ? "border-lime-500" : "border-gray-700"
+                  quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500/10" : "border-gray-700"
                 }`}
-                onClick={(e) => {
-                  e.stopPropagation()
+                onClick={() => {
                   console.log("[v0] Sim button clicked")
-                  updateQuizData("wantsSupplement", "sim")
+                  console.log("[v0] Current wantsSupplement:", quizData.wantsSupplement)
+
                   // Determine supplement type based on body type, body fat, and problem areas
                   const isEctomorph = quizData.bodyType === "ectomorfo"
                   const hasHighBodyFat = quizData.gender === "mulher" ? quizData.bodyFat > 30 : quizData.bodyFat > 20
@@ -1436,7 +1436,15 @@ export default function QuizPage() {
                     supplementType = "hipercalorico"
                   }
 
-                  updateQuizData("supplementType", supplementType)
+                  // Update both fields
+                  setQuizData((prev) => ({
+                    ...prev,
+                    wantsSupplement: "sim",
+                    supplementType: supplementType,
+                  }))
+
+                  console.log("[v0] Updated wantsSupplement to: sim")
+                  console.log("[v0] Updated supplementType to:", supplementType)
                 }}
               >
                 <h3 className="text-lg font-bold text-white">Sim, pode adicionar</h3>
@@ -1447,13 +1455,20 @@ export default function QuizPage() {
               <button
                 type="button"
                 className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
-                  quizData.wantsSupplement === "nao" ? "border-lime-500" : "border-gray-700"
+                  quizData.wantsSupplement === "nao" ? "border-lime-500 bg-lime-500/10" : "border-gray-700"
                 }`}
-                onClick={(e) => {
-                  e.stopPropagation()
+                onClick={() => {
                   console.log("[v0] Não button clicked")
-                  updateQuizData("wantsSupplement", "nao")
-                  updateQuizData("supplementType", "")
+                  console.log("[v0] Current wantsSupplement:", quizData.wantsSupplement)
+
+                  // Update both fields
+                  setQuizData((prev) => ({
+                    ...prev,
+                    wantsSupplement: "nao",
+                    supplementType: "",
+                  }))
+
+                  console.log("[v0] Updated wantsSupplement to: nao")
                 }}
               >
                 <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
