@@ -1416,13 +1416,15 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">Podemos adicionar algum suplemento à sua dieta?</h2>
               <p className="text-gray-300">Por exemplo: Hipercalórico, Whey Protein...</p>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-4 relative z-10 pointer-events-auto">
               <button
                 type="button"
-                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 ${
+                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
                   quizData.wantsSupplement === "sim" ? "border-lime-500" : "border-gray-700"
                 }`}
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation()
+                  console.log("[v0] Sim button clicked")
                   updateQuizData("wantsSupplement", "sim")
                   // Determine supplement type based on body type, body fat, and problem areas
                   const isEctomorph = quizData.bodyType === "ectomorfo"
@@ -1444,10 +1446,12 @@ export default function QuizPage() {
               </button>
               <button
                 type="button"
-                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 ${
+                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
                   quizData.wantsSupplement === "nao" ? "border-lime-500" : "border-gray-700"
                 }`}
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation()
+                  console.log("[v0] Não button clicked")
                   updateQuizData("wantsSupplement", "nao")
                   updateQuizData("supplementType", "")
                 }}
