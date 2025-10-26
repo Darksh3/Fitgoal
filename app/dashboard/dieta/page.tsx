@@ -151,6 +151,15 @@ export default function DietPage() {
     let adjustedCarbs = 0
     let adjustedFats = 0
 
+    if (dietPlan?.supplements && Array.isArray(dietPlan.supplements)) {
+      dietPlan.supplements.forEach((supplement: any) => {
+        adjustedCalories += Number(supplement.calories) || 0
+        adjustedProtein += Number(supplement.protein) || 0
+        adjustedCarbs += Number(supplement.carbs) || 0
+        adjustedFats += Number(supplement.fat) || 0
+      })
+    }
+
     // Calculate totals from actual diet plan meals - sum individual foods
     if (dietPlan?.meals) {
       dietPlan.meals.forEach((meal: any, mealIndex: number) => {
@@ -615,6 +624,15 @@ export default function DietPage() {
     let totalProtein = 0
     let totalCarbs = 0
     let totalFats = 0
+
+    if (dietPlan?.supplements && Array.isArray(dietPlan.supplements)) {
+      dietPlan.supplements.forEach((supplement: any) => {
+        totalCalories += Number(supplement.calories) || 0
+        totalProtein += Number(supplement.protein) || 0
+        totalCarbs += Number(supplement.carbs) || 0
+        totalFats += Number(supplement.fat) || 0
+      })
+    }
 
     meals.forEach((meal, mealIndex) => {
       if (meal && typeof meal === "object") {
@@ -1247,6 +1265,15 @@ export default function DietPage() {
     let totalCarbs = 0
     let totalFats = 0
 
+    if (dietPlan?.supplements && Array.isArray(dietPlan.supplements)) {
+      dietPlan.supplements.forEach((supplement: any) => {
+        totalCalories += Number(supplement.calories) || 0
+        totalProtein += Number(supplement.protein) || 0
+        totalCarbs += Number(supplement.carbs) || 0
+        totalFats += Number(supplement.fat) || 0
+      })
+    }
+
     meals.forEach((meal, mealIndex) => {
       if (meal && typeof meal === "object") {
         let mealCalories = 0
@@ -1565,6 +1592,78 @@ export default function DietPage() {
 
           {dietPlan && (
             <div className="space-y-4">
+              {dietPlan.supplements && Array.isArray(dietPlan.supplements) && dietPlan.supplements.length > 0 && (
+                <Card className="border-lime-500 border-2 bg-lime-50">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center text-lime-700">
+                        <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                          />
+                        </svg>
+                        Suplementação Recomendada
+                      </CardTitle>
+                      <Badge variant="secondary" className="bg-lime-600 text-white">
+                        Incluído nos macros
+                      </Badge>
+                    </div>
+                    <CardDescription className="text-lime-700">
+                      Suplementos personalizados para seu objetivo
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {dietPlan.supplements.map((supplement: any, index: number) => (
+                        <div key={index} className="p-4 bg-white rounded-lg border border-lime-200 shadow-sm">
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h3 className="font-bold text-lg text-gray-900">{supplement.name}</h3>
+                              <p className="text-sm text-gray-600">{supplement.portion}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-lime-600">{supplement.calories} kcal</p>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-3 mb-3">
+                            <div className="text-center p-2 bg-red-50 rounded">
+                              <p className="text-xs text-gray-600">Proteína</p>
+                              <p className="text-sm font-bold text-red-600">{supplement.protein}g</p>
+                            </div>
+                            <div className="text-center p-2 bg-yellow-50 rounded">
+                              <p className="text-xs text-gray-600">Carboidratos</p>
+                              <p className="text-sm font-bold text-yellow-600">{supplement.carbs}g</p>
+                            </div>
+                            <div className="text-center p-2 bg-green-50 rounded">
+                              <p className="text-xs text-gray-600">Gorduras</p>
+                              <p className="text-sm font-bold text-green-600">{supplement.fat}g</p>
+                            </div>
+                          </div>
+
+                          {supplement.timing && (
+                            <div className="mb-2 p-2 bg-blue-50 rounded">
+                              <p className="text-xs font-medium text-blue-700">⏰ Horário ideal:</p>
+                              <p className="text-sm text-blue-900">{supplement.timing}</p>
+                            </div>
+                          )}
+
+                          {supplement.benefits && (
+                            <div className="p-2 bg-purple-50 rounded">
+                              <p className="text-xs font-medium text-purple-700">✨ Benefícios:</p>
+                              <p className="text-sm text-purple-900">{supplement.benefits}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {dietPlan.meals.map((meal, index) => {
                 if (!meal || typeof meal !== "object") {
                   return null
