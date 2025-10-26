@@ -427,6 +427,10 @@ export async function POST(req: Request) {
         supplementInfo = supplementsData["whey-protein"]
       }
 
+      console.log("[v0] Quiz data retrieved:", JSON.stringify(quizAnswersFromMetadata, null, 2))
+      console.log("[v0] Supplement info - wantsSupplement:", quizAnswersFromMetadata.wantsSupplement)
+      console.log("[v0] Supplement info - supplementType:", quizAnswersFromMetadata.supplementType)
+
       const dietPrompt = `
         Crie um plano alimentar personalizado em português brasileiro usando EXATAMENTE estes valores calculados:
 

@@ -39,6 +39,8 @@ export async function POST(req: Request) {
       email,
       planType,
       clientUid,
+      hasQuizAnswers: !!quizAnswers,
+      supplementType: quizAnswers?.supplementType,
     })
 
     try {
@@ -67,25 +69,41 @@ export async function POST(req: Request) {
       )
     }
 
-    // Create the checkout session
     console.log("DEBUG: Criando sessão de checkout no Stripe...")
 
-    const essentialMetadata = {
+    const metadata: any = {
       clientUid: clientUid,
       planType: planType,
       email: email,
     }
 
-    console.log("DEBUG: Essential metadata:", {
-      totalSize: JSON.stringify(essentialMetadata).length,
-      fields: Object.keys(essentialMetadata),
+    // Adicionar quizAnswers ao metadata se disponível
+    if (quizAnswers) {
+      try {
+        // Stripe metadata tem limite de 500 caracteres por campo e 50 campos
+        // Vamos serializar os dados essenciais
+        metadata.quizAnswers = JSON.stringify(quizAnswers)
+        console.log("DEBUG: quizAnswers adicionado ao metadata:", {
+          supplementType: quizAnswers.supplementType,
+          wantsSupplement: quizAnswers.wantsSupplement,
+          metadataSize: metadata.quizAnswers.length,
+        })
+      } catch (serializeError) {
+        console.error("ERRO: Falha ao serializar quizAnswers:", serializeError)
+        // Continue sem quizAnswers no metadata - será recuperado do Firebase
+      }
+    }
+
+    console.log("DEBUG: Metadata final:", {
+      totalSize: JSON.stringify(metadata).length,
+      fields: Object.keys(metadata),
     })
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
         {
-          price: planType, // Use the price ID directly
+          price: planType,
           quantity: 1,
         },
       ],
@@ -93,7 +111,7 @@ export async function POST(req: Request) {
       customer_email: email,
       success_url: `${process.env.NEXT_PUBLIC_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_URL}/checkout`,
-      metadata: essentialMetadata,
+      metadata: metadata,
     })
 
     console.log(`DEBUG: Sessão de checkout Stripe criada com sucesso: ${session.id}`)
