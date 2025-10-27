@@ -474,19 +474,44 @@ ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
 
 REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
 
+${
+  quizData.wantsSupplement === "sim"
+    ? `
+SUPLEMENTAÇÃO RECOMENDADA:
+O cliente aceitou suplementação. Você DEVE incluir o seguinte suplemento na dieta:
+${
+  quizData.supplementType === "hipercalorico"
+    ? `
+- Hipercalórico Growth (170g - 12 dosadores)
+  * Calorias: 615 kcal
+  * Carboidratos: 108g
+  * Proteínas: 37g
+  * Gorduras: 3.7g
+  * Horário sugerido: Pós-treino ou entre refeições
+  * Benefícios: Ganho de massa muscular, aumento calórico
+`
+    : `
+- Whey Protein Growth (30g - 2 dosadores)
+  * Calorias: 119 kcal
+  * Carboidratos: 2.3g
+  * Proteínas: 24g
+  * Gorduras: 1.5g
+  * Horário sugerido: Pós-treino
+  * Benefícios: Recuperação muscular, síntese proteica
+`
+}
+
+IMPORTANTE: Você DEVE incluir este suplemento no JSON final na seção "supplements" com os valores exatos acima.
+Os macros do suplemento já estão INCLUÍDOS no total de ${savedCalcs.finalCalories} kcal.
+`
+    : ""
+}
+
 REFERÊNCIA NUTRICIONAL OBRIGATÓRIA:
 - Use EXCLUSIVAMENTE dados das tabelas USDA (United States Department of Agriculture) e TACO (Tabela Brasileira de Composição de Alimentos)
 - Para alimentos brasileiros: priorize TACO
 - Para alimentos internacionais: use USDA
 - NUNCA invente valores nutricionais - use apenas dados oficiais dessas bases
-
-EXEMPLOS DE VALORES OFICIAIS TACO/USDA:
-- Arroz branco cozido: 128 kcal/100g (TACO)
-- Feijão carioca cozido: 76 kcal/100g (TACO)
-- Peito de frango grelhado: 165 kcal/100g (USDA)
-- Banana prata: 89 kcal/100g (TACO)
-- Aveia em flocos: 394 kcal/100g (USDA)
-- Ovo de galinha inteiro: 155 kcal/100g (TACO)
 
 INSTRUÇÕES CRÍTICAS:
 1. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO
@@ -510,7 +535,7 @@ JSON OBRIGATÓRIO:
 {
   "totalDailyCalories": "${savedCalcs.finalCalories} kcal",
   "totalProtein": "${savedCalcs.protein}g",
-  "totalCarbs": "${savedCalcs.carbs}g", 
+  "totalCarbs": "${savedCalcs.carbs}g",
   "totalFats": "${savedCalcs.fats}g",
   "meals": [${mealConfig.names
     .map((name, i) => {
@@ -531,7 +556,19 @@ JSON OBRIGATÓRIO:
         ]
       }`
     })
-    .join(",")}]
+    .join(",")}],
+  "supplements": ${
+    quizData.wantsSupplement === "sim"
+      ? `[{
+    "name": "${quizData.supplementType === "hipercalorico" ? "Hipercalórico Growth" : "Whey Protein Growth"}",
+    "quantity": "${quizData.supplementType === "hipercalorico" ? "170g (12 dosadores)" : "30g (2 dosadores)"}",
+    "calories": ${quizData.supplementType === "hipercalorico" ? 615 : 119},
+    "protein": ${quizData.supplementType === "hipercalorico" ? 37 : 24},
+    "carbs": ${quizData.supplementType === "hipercalorico" ? 108 : 2.3},
+    "fats": ${quizData.supplementType === "hipercalorico" ? 3.7 : 1.5}
+  }]`
+      : "[]"
+  }
 }`
 
       const workoutPrompt = `
@@ -544,6 +581,8 @@ DADOS DO CLIENTE PARA PERSONALIZAÇÃO:
 - Áreas problemáticas: ${quizData.problemAreas?.join(", ") || "Nenhuma específica"}
 - Tempo disponível: ${quizData.workoutTime}
 - Equipamentos: ${quizData.equipment?.join(", ") || "Academia"}
+- Peso atual: ${quizData.currentWeight}
+- Genero: ${quizData.gender}
 
 INSTRUÇÕES OBRIGATÓRIAS DE PERSONALIZAÇÃO:
 - Cada dia deve ter EXATAMENTE ${exerciseRange.min}-${exerciseRange.max} exercícios (${exerciseRange.description})
@@ -1117,7 +1156,7 @@ function calculateScientificCalories(data: any) {
    Gênero: ${isFemale ? "Feminino" : "Masculino"}
    Somatótipo: ${bodyType || "Não especificado"}
    Peso: ${weight}kg → ${targetWeight}kg (${weightDifference > 0 ? "+" : ""}${weightDifference.toFixed(1)}kg)
-   
+
 🧮 CÁLCULOS BASE:
    TMB: ${Math.round(tmb)} kcal
    Fator Atividade (base): ${baseActivityMultiplier}
@@ -1125,11 +1164,11 @@ function calculateScientificCalories(data: any) {
    TDEE (inicial): ${Math.round(tmb * activityMultiplier)} kcal
    Ajuste Metabólico: ${(metabolicAdjustment * 100).toFixed(1)}%
    TDEE (final): ${Math.round(tdee)} kcal
-   
+
 🎯 OBJETIVO:
    Ajuste Diário: ${dailyCalorieAdjustment > 0 ? "+" : ""}${dailyCalorieAdjustment} kcal
    Modo: ${weightDifference < -0.5 ? "PERDA DE PESO" : weightDifference > 0.5 ? "GANHO DE PESO" : "MANUTENÇÃO"}
-   
+
 📊 RESULTADO FINAL:
    Calorias: ${safeCalories} kcal
    Proteína: ${finalProtein}g (${proteinPerKg.toFixed(1)}g/kg)

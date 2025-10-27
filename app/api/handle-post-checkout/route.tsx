@@ -428,8 +428,21 @@ export async function POST(req: Request) {
       }
 
       console.log("[v0] Quiz data retrieved:", JSON.stringify(quizAnswersFromMetadata, null, 2))
-      console.log("[v0] Supplement info - wantsSupplement:", quizAnswersFromMetadata.wantsSupplement)
-      console.log("[v0] Supplement info - supplementType:", quizAnswersFromMetadata.supplementType)
+      console.log("[v0] ===== SUPPLEMENT DEBUG =====")
+      console.log("[v0] wantsSupplement value:", quizAnswersFromMetadata.wantsSupplement)
+      console.log("[v0] wantsSupplement type:", typeof quizAnswersFromMetadata.wantsSupplement)
+      console.log("[v0] supplementType value:", quizAnswersFromMetadata.supplementType)
+      console.log("[v0] supplementType type:", typeof quizAnswersFromMetadata.supplementType)
+      console.log(
+        "[v0] Condition check (wantsSupplement === 'sim'):",
+        quizAnswersFromMetadata.wantsSupplement === "sim",
+      )
+      console.log("[v0] supplementInfo:", supplementInfo)
+      console.log(
+        "[v0] Will include supplements in prompt:",
+        quizAnswersFromMetadata.wantsSupplement === "sim" && supplementInfo,
+      )
+      console.log("[v0] ===========================")
 
       const dietPrompt = `
         Crie um plano alimentar personalizado em português brasileiro usando EXATAMENTE estes valores calculados:
