@@ -475,10 +475,11 @@ ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
 REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
 
 ${
-  quizData.wantsSupplement === "sim"
+  quizData.wantsSupplement === "sim" && quizData.supplementType
     ? `
-SUPLEMENTAÇÃO RECOMENDADA:
-O cliente aceitou suplementação. Você DEVE incluir o seguinte suplemento na dieta:
+SUPLEMENTAÇÃO OBRIGATÓRIA:
+O cliente aceitou suplementação. Você DEVE incluir o seguinte suplemento:
+
 ${
   quizData.supplementType === "hipercalorico"
     ? `
@@ -501,8 +502,11 @@ ${
 `
 }
 
-IMPORTANTE: Você DEVE incluir este suplemento no JSON final na seção "supplements" com os valores exatos acima.
-Os macros do suplemento já estão INCLUÍDOS no total de ${savedCalcs.finalCalories} kcal.
+IMPORTANTE: 
+- Você DEVE incluir este suplemento no JSON final na seção "supplements" com os valores exatos acima.
+- Os macros do suplemento JÁ ESTÃO INCLUÍDOS no total de ${savedCalcs.finalCalories} kcal.
+- Portanto, distribua apenas ${savedCalcs.finalCalories - (quizData.supplementType === "hipercalorico" ? 615 : 119)} kcal entre as refeições.
+- O total final (refeições + suplemento) deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal.
 `
     : ""
 }
@@ -558,7 +562,7 @@ JSON OBRIGATÓRIO:
     })
     .join(",")}],
   "supplements": ${
-    quizData.wantsSupplement === "sim"
+    quizData.wantsSupplement === "sim" && quizData.supplementType
       ? `[{
     "name": "${quizData.supplementType === "hipercalorico" ? "Hipercalórico Growth" : "Whey Protein Growth"}",
     "quantity": "${quizData.supplementType === "hipercalorico" ? "170g (12 dosadores)" : "30g (2 dosadores)"}",
@@ -1046,8 +1050,7 @@ function calculateScientificCalories(data: any) {
     }
   }
 
-  const finalCalories = Math.round(tdee + dailyCalorieAdjustment)
-  let safeCalories = finalCalories
+  const safeCalories = Math.round(tdee + dailyCalorieAdjustment)
 
   // ============================================
   // 5. LIMITES DE SEGURANÇA POR GÊNERO
@@ -1056,96 +1059,136 @@ function calculateScientificCalories(data: any) {
   const minCaloriesMen = trainingDaysPerWeek >= 4 ? 1600 : 1400
   const absoluteMinimum = isFemale ? minCaloriesWomen : minCaloriesMen
 
-  if (safeCalories < absoluteMinimum) {
-    console.log(`⚠️ [SAFETY] Calories too low (${safeCalories}), adjusting to minimum safe level (${absoluteMinimum})`)
-    safeCalories = absoluteMinimum
-    dailyCalorieAdjustment = safeCalories - tdee
+  let finalSafeCalories = safeCalories
+  if (finalSafeCalories < absoluteMinimum) {
+    console.log(
+      `⚠️ [SAFETY] Calories too low (${finalSafeCalories}), adjusting to minimum safe level (${absoluteMinimum})`,
+    )
+    finalSafeCalories = absoluteMinimum
   }
 
   // Nunca abaixo de 110% do TMB
-  if (safeCalories < tmb * 1.1) {
+  if (finalSafeCalories < tmb * 1.1) {
     console.log(`⚠️ [SAFETY] Calories below 110% of TMB (${Math.round(tmb * 1.1)}), adjusting for metabolic safety`)
-    safeCalories = Math.round(tmb * 1.1)
-    dailyCalorieAdjustment = safeCalories - tdee
+    finalSafeCalories = Math.round(tmb * 1.1)
   }
 
   // ============================================
-  // 6. MACRONUTRIENTES AJUSTADOS
+  // 6. AJUSTE PARA SUPLEMENTAÇÃO
   // ============================================
-  let proteinPerKg = 1.6
-  let fatsPerKg = 1.0
+  let supplementCalories = 0
+  let supplementProtein = 0
+  let supplementCarbs = 0
+  let supplementFats = 0
+
+  if (data.wantsSupplement === "sim" && data.supplementType) {
+    if (data.supplementType === "hipercalorico") {
+      // Hipercalórico Growth (170g)
+      supplementCalories = 615
+      supplementProtein = 37
+      supplementCarbs = 108
+      supplementFats = 3.7
+    } else if (data.supplementType === "whey-protein") {
+      // Whey Protein Growth (30g)
+      supplementCalories = 119
+      supplementProtein = 24
+      supplementCarbs = 2.3
+      supplementFats = 1.5
+    }
+
+    console.log(
+      `💊 [SUPPLEMENT] Adding ${data.supplementType}: ${supplementCalories} kcal, ${supplementProtein}g protein, ${supplementCarbs}g carbs, ${supplementFats}g fats`,
+    )
+  }
+
+  // Proteína base e gordura base antes de adicionar suplemento
+  let proteinBase = 1.6
+  let fatsBase = 1.0
+
+  // ============================================
+  // 7. MACRONUTRIENTES AJUSTADOS
+  // ============================================
 
   // PROTEÍNA baseada em objetivo + somatótipo + gênero
   if (weightDifference < -0.5) {
     // PERDA DE PESO - mais proteína para preservar massa
     if (bodyType.toLowerCase() === "ectomorfo") {
-      proteinPerKg = isFemale ? 2.0 : 2.2 // Preserva massa facilmente
+      proteinBase = isFemale ? 2.0 : 2.2 // Preserva massa facilmente
     } else if (bodyType.toLowerCase() === "mesomorfo") {
-      proteinPerKg = isFemale ? 2.2 : 2.4
+      proteinBase = isFemale ? 2.2 : 2.4
     } else if (bodyType.toLowerCase() === "endomorfo") {
-      proteinPerKg = isFemale ? 2.4 : 2.6 // Precisa mais para preservar
+      proteinBase = isFemale ? 2.4 : 2.6 // Precisa mais para preservar
     } else {
-      proteinPerKg = isFemale ? 2.0 : 2.2
+      proteinBase = isFemale ? 2.0 : 2.2
     }
   } else if (weightDifference > 0.5) {
     // GANHO DE PESO - proteína para construção
     if (bodyType.toLowerCase() === "ectomorfo") {
-      proteinPerKg = isFemale ? 2.3 : 2.5 // Mais difícil ganhar
+      proteinBase = isFemale ? 2.3 : 2.5 // Mais difícil ganhar
     } else if (bodyType.toLowerCase() === "mesomorfo") {
-      proteinPerKg = isFemale ? 2.0 : 2.2 // Responde bem
+      proteinBase = isFemale ? 2.0 : 2.2 // Responde bem
     } else if (bodyType.toLowerCase() === "endomorfo") {
-      proteinPerKg = isFemale ? 1.9 : 2.0 // Ganha mais fácil
+      proteinBase = isFemale ? 1.9 : 2.0 // Ganha mais fácil
     } else {
-      proteinPerKg = isFemale ? 2.0 : 2.2
+      proteinBase = isFemale ? 2.0 : 2.2
     }
   } else {
     // MANUTENÇÃO/RECOMPOSIÇÃO
-    proteinPerKg = isFemale ? 1.8 : 2.0
+    proteinBase = isFemale ? 1.8 : 2.0
   }
 
   // GORDURAS baseadas em objetivo + somatótipo + gênero
   if (weightDifference < -0.5) {
     // PERDA DE PESO - menos gorduras
     if (bodyType.toLowerCase() === "ectomorfo") {
-      fatsPerKg = isFemale ? 1.0 : 0.9 // Mulheres precisam mais gordura
+      fatsBase = isFemale ? 1.0 : 0.9 // Mulheres precisam mais gordura
     } else if (bodyType.toLowerCase() === "mesomorfo") {
-      fatsPerKg = isFemale ? 0.9 : 0.8
+      fatsBase = isFemale ? 0.9 : 0.8
     } else if (bodyType.toLowerCase() === "endomorfo") {
-      fatsPerKg = isFemale ? 0.8 : 0.7
+      fatsBase = isFemale ? 0.8 : 0.7
     } else {
-      fatsPerKg = isFemale ? 0.9 : 0.8
+      fatsBase = isFemale ? 0.9 : 0.8
     }
   } else {
     // GANHO/MANUTENÇÃO - gorduras normais/maiores
     if (bodyType.toLowerCase() === "ectomorfo") {
-      fatsPerKg = isFemale ? 1.3 : 1.2 // Tolera bem
+      fatsBase = isFemale ? 1.3 : 1.2 // Tolera bem
     } else if (bodyType.toLowerCase() === "mesomorfo") {
-      fatsPerKg = isFemale ? 1.1 : 1.0
+      fatsBase = isFemale ? 1.1 : 1.0
     } else if (bodyType.toLowerCase() === "endomorfo") {
-      fatsPerKg = isFemale ? 1.0 : 0.9 // Controlar um pouco
+      fatsBase = isFemale ? 1.0 : 0.9 // Controlar um pouco
     } else {
-      fatsPerKg = isFemale ? 1.1 : 1.0
+      fatsBase = isFemale ? 1.1 : 1.0
     }
   }
 
   // ATENÇÃO: Mulheres precisam mínimo de gordura para função hormonal
-  if (isFemale && fatsPerKg < 0.8) {
-    fatsPerKg = 0.8 // Mínimo absoluto para mulheres
+  if (isFemale && fatsBase < 0.8) {
+    fatsBase = 0.8 // Mínimo absoluto para mulheres
     console.log(`⚠️ [FEMALE SAFETY] Fat intake adjusted to minimum safe level (0.8g/kg)`)
   }
 
-  const protein = Math.round(weight * proteinPerKg)
-  const fats = Math.round(weight * fatsPerKg)
+  const protein = Math.round(weight * proteinBase)
+  const fats = Math.round(weight * fatsBase)
 
   // Proteína mínima (mais baixa para mulheres)
   const minProtein = Math.round(weight * (isFemale ? 1.6 : 1.8))
   const finalProtein = Math.max(protein, minProtein)
 
+  // Calorias totais do plano para distribuir entre carbo e proteína/gordura
+  const totalCaloriesForDistribution = supplementCalories > 0 ? finalSafeCalories : safeCalories
+
   // Carboidratos = calorias restantes
-  const carbs = Math.round((safeCalories - finalProtein * 4 - fats * 9) / 4)
+  const carbs = Math.round((totalCaloriesForDistribution - finalProtein * 4 - fats * 9) / 4)
+
+  // Ensure carbs are not negative and have a minimum value
+  const finalCarbs = Math.max(carbs, 50) // Minimum 50g of carbs
+
+  // Now, recalculate total calories based on final macros
+  const finalTotalCalories = finalProtein * 4 + finalCarbs * 4 + fats * 9 + supplementCalories
 
   // ============================================
-  // 7. LOGS DETALHADOS
+  // 8. LOGS DETALHADOS
   // ============================================
   console.log(`
 ╔═══════════════════════════════════════════════════════════╗
@@ -1170,19 +1213,21 @@ function calculateScientificCalories(data: any) {
    Modo: ${weightDifference < -0.5 ? "PERDA DE PESO" : weightDifference > 0.5 ? "GANHO DE PESO" : "MANUTENÇÃO"}
 
 📊 RESULTADO FINAL:
-   Calorias: ${safeCalories} kcal
-   Proteína: ${finalProtein}g (${proteinPerKg.toFixed(1)}g/kg)
-   Gorduras: ${fats}g (fatsPerKg.toFixed(1)}g/kg)
-   Carboidratos: ${Math.max(carbs, 50)}g
+   Calorias (alimentos): ${safeCalories} kcal
+   ${supplementCalories > 0 ? `Calorias (suplemento): ${supplementCalories} kcal` : ""}
+   TOTAL FINAL: ${finalTotalCalories} kcal
+   Proteína: ${finalProtein}g (${proteinBase.toFixed(1)}g/kg)
+   Gorduras: ${fats}g (${fatsBase.toFixed(1)}g/kg)
+   Carboidratos: ${finalCarbs}g
   `)
 
   return {
     tmb: Math.round(tmb),
     tdee: Math.round(tdee),
-    finalCalories: safeCalories,
+    finalCalories: finalTotalCalories,
     protein: finalProtein,
-    carbs: Math.max(carbs, 50),
-    fats,
+    carbs: finalCarbs,
+    fats: fats,
     dailyCalorieAdjustment,
     weeksToGoal: timeToGoal ? calculateWeeksToGoal(timeToGoal) : 0,
     realGoal: weightDifference < -0.5 ? "fat-loss" : weightDifference > 0.5 ? "weight-gain" : "body-recomposition",

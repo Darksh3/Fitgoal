@@ -50,6 +50,12 @@ export default function DietPage() {
     fats: "",
     mealIndex: 0,
   })
+  const [editingFood, setEditingFood] = useState<{
+    mealIndex: number
+    foodIndex: number
+    food: any
+    isSupplement?: boolean
+  } | null>(null)
   const router = useRouter()
 
   console.log("[v0] Component state:", { user: !!user, loading, error, dietPlan: !!dietPlan, quizData: !!quizData })
@@ -142,6 +148,74 @@ export default function DietPage() {
       } catch (error) {
         console.error("Error saving manual adjustments:", error)
       }
+    }
+  }
+
+  const handleEditFood = async () => {
+    if (!editingFood || !dietPlan) return
+
+    try {
+      if (editingFood.isSupplement) {
+        // Edit supplement
+        const updatedSupplements = [...(dietPlan.supplements || [])]
+        updatedSupplements[editingFood.foodIndex] = {
+          ...updatedSupplements[editingFood.foodIndex],
+          name: editingFood.food.name,
+          portion: editingFood.food.quantity || editingFood.food.portion,
+          calories: Number(editingFood.food.calories),
+          protein: Number(editingFood.food.protein),
+          carbs: Number(editingFood.food.carbs),
+          fat: Number(editingFood.food.fats),
+        }
+
+        const updatedDietPlan = {
+          ...dietPlan,
+          supplements: updatedSupplements,
+        }
+
+        setDietPlan(updatedDietPlan)
+        await saveDietPlan(updatedDietPlan)
+      } else {
+        // Edit regular food
+        const updatedMeals = [...dietPlan.meals]
+        const meal = updatedMeals[editingFood.mealIndex]
+
+        if (typeof meal.foods[editingFood.foodIndex] === "string") {
+          // Convert string to object format
+          meal.foods[editingFood.foodIndex] = {
+            name: editingFood.food.name,
+            quantity: editingFood.food.quantity,
+            calories: editingFood.food.calories,
+            protein: editingFood.food.protein,
+            carbs: editingFood.food.carbs,
+            fats: editingFood.food.fats,
+          }
+        } else {
+          // Update existing object
+          meal.foods[editingFood.foodIndex] = {
+            ...meal.foods[editingFood.foodIndex],
+            name: editingFood.food.name,
+            quantity: editingFood.food.quantity,
+            calories: editingFood.food.calories,
+            protein: editingFood.food.protein,
+            carbs: editingFood.food.carbs,
+            fats: editingFood.food.fats,
+          }
+        }
+
+        const updatedDietPlan = {
+          ...dietPlan,
+          meals: updatedMeals,
+        }
+
+        setDietPlan(updatedDietPlan)
+        await saveDietPlan(updatedDietPlan)
+      }
+
+      setEditingFood(null)
+    } catch (error) {
+      console.error("Error editing food:", error)
+      setError("Erro ao editar alimento. Tente novamente.")
     }
   }
 
@@ -1590,6 +1664,123 @@ export default function DietPage() {
             </div>
           )}
 
+          {editingFood && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <h3 className="text-lg font-semibold mb-4">
+                  {editingFood.isSupplement ? "Editar Suplemento" : "Editar Alimento"}
+                </h3>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Nome *</label>
+                    <input
+                      type="text"
+                      value={editingFood.food.name}
+                      onChange={(e) =>
+                        setEditingFood({
+                          ...editingFood,
+                          food: { ...editingFood.food, name: e.target.value },
+                        })
+                      }
+                      className="w-full p-2 border rounded-md"
+                      placeholder="Ex: Banana"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Quantidade</label>
+                    <input
+                      type="text"
+                      value={editingFood.food.quantity || editingFood.food.portion || ""}
+                      onChange={(e) =>
+                        setEditingFood({
+                          ...editingFood,
+                          food: { ...editingFood.food, quantity: e.target.value },
+                        })
+                      }
+                      className="w-full p-2 border rounded-md"
+                      placeholder="Ex: 100g ou 1 unidade"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Calorias *</label>
+                    <input
+                      type="number"
+                      value={editingFood.food.calories}
+                      onChange={(e) =>
+                        setEditingFood({
+                          ...editingFood,
+                          food: { ...editingFood.food, calories: e.target.value },
+                        })
+                      }
+                      className="w-full p-2 border rounded-md"
+                      placeholder="Ex: 105"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Proteína (g)</label>
+                      <input
+                        type="number"
+                        value={editingFood.food.protein}
+                        onChange={(e) =>
+                          setEditingFood({
+                            ...editingFood,
+                            food: { ...editingFood.food, protein: e.target.value },
+                          })
+                        }
+                        className="w-full p-2 border rounded-md"
+                        placeholder="0"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Carboidratos (g)</label>
+                      <input
+                        type="number"
+                        value={editingFood.food.carbs}
+                        onChange={(e) =>
+                          setEditingFood({
+                            ...editingFood,
+                            food: { ...editingFood.food, carbs: e.target.value },
+                          })
+                        }
+                        className="w-full p-2 border rounded-md"
+                        placeholder="0"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Gorduras (g)</label>
+                      <input
+                        type="number"
+                        value={editingFood.food.fats || editingFood.food.fat || ""}
+                        onChange={(e) =>
+                          setEditingFood({
+                            ...editingFood,
+                            food: { ...editingFood.food, fats: e.target.value },
+                          })
+                        }
+                        className="w-full p-2 border rounded-md"
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 mt-6">
+                  <Button onClick={handleEditFood} className="flex-1">
+                    Salvar Alterações
+                  </Button>
+                  <Button onClick={() => setEditingFood(null)} variant="outline" className="flex-1">
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {dietPlan && (
             <div className="space-y-4">
               {dietPlan.supplements && Array.isArray(dietPlan.supplements) && dietPlan.supplements.length > 0 && (
@@ -1620,12 +1811,43 @@ export default function DietPage() {
                       {dietPlan.supplements.map((supplement: any, index: number) => (
                         <div key={index} className="p-4 bg-white rounded-lg border border-lime-200 shadow-sm">
                           <div className="flex justify-between items-start mb-3">
-                            <div>
+                            <div className="flex-1">
                               <h3 className="font-bold text-lg text-gray-900">{supplement.name}</h3>
                               <p className="text-sm text-gray-600">{supplement.portion}</p>
                             </div>
-                            <div className="text-right">
-                              <p className="text-lg font-bold text-lime-600">{supplement.calories} kcal</p>
+                            <div className="flex items-center gap-2">
+                              <div className="text-right">
+                                <p className="text-lg font-bold text-lime-600">{supplement.calories} kcal</p>
+                              </div>
+                              <Button
+                                onClick={() =>
+                                  setEditingFood({
+                                    mealIndex: -1,
+                                    foodIndex: index,
+                                    isSupplement: true,
+                                    food: {
+                                      name: supplement.name,
+                                      quantity: supplement.portion,
+                                      calories: supplement.calories,
+                                      protein: supplement.protein,
+                                      carbs: supplement.carbs,
+                                      fats: supplement.fat,
+                                    },
+                                  })
+                                }
+                                variant="outline"
+                                size="sm"
+                                className="h-8 px-2"
+                              >
+                                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                  />
+                                </svg>
+                              </Button>
                             </div>
                           </div>
 
@@ -1771,12 +1993,48 @@ export default function DietPage() {
                                   )}
                                 </div>
 
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2">
                                   {foodCalories && (
                                     <div className="text-right">
                                       <p className="text-sm text-gray-600">{foodCalories}</p>
                                     </div>
                                   )}
+                                  <Button
+                                    onClick={() => {
+                                      const extractNumber = (value: any) => {
+                                        if (!value) return ""
+                                        const match = value.toString().match(/(\d+(?:\.\d+)?)/)
+                                        return match ? match[1] : ""
+                                      }
+
+                                      setEditingFood({
+                                        mealIndex: index,
+                                        foodIndex: originalIndex,
+                                        food: {
+                                          name: foodName,
+                                          quantity: foodQuantity,
+                                          calories: extractNumber(
+                                            typeof food === "object" ? food.calories : foodCalories,
+                                          ),
+                                          protein: extractNumber(typeof food === "object" ? food.protein : ""),
+                                          carbs: extractNumber(typeof food === "object" ? food.carbs : ""),
+                                          fats: extractNumber(typeof food === "object" ? food.fats : ""),
+                                        },
+                                      })
+                                    }}
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 px-2"
+                                  >
+                                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                      />
+                                    </svg>
+                                  </Button>
                                   <Button
                                     onClick={() => handleRemoveFood(index, originalIndex)}
                                     variant="outline"
