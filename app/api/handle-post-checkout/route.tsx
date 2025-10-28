@@ -216,6 +216,49 @@ export async function POST(req: Request) {
     let dietPlan = existingUserData.dietPlan
     let workoutPlan = existingUserData.workoutPlan
 
+    let plansAlreadyGenerated = false
+    if (clientUidFromSource) {
+      try {
+        const userDocRef = adminDb.collection("users").doc(clientUidFromSource)
+        const userDoc = await userDocRef.get()
+        if (userDoc.exists()) {
+          const userData = userDoc.data()
+          // Verificar se os planos existem e foram gerados recentemente (últimos 10 minutos)
+          if (userData?.dietPlan && userData?.workoutPlan) {
+            const dietTimestamp = userData.dietPlan.createdAt
+            const now = Date.now()
+            const tenMinutesAgo = now - 10 * 60 * 1000
+
+            if (dietTimestamp && new Date(dietTimestamp).getTime() > tenMinutesAgo) {
+              plansAlreadyGenerated = true
+              console.log("[v0] Planos já foram gerados durante o checkout, pulando geração")
+            }
+          }
+        }
+      } catch (error) {
+        console.error("[v0] Erro ao verificar planos existentes:", error)
+      }
+    }
+
+    if (!plansAlreadyGenerated && clientUidFromSource) {
+      console.log("[v0] Gerando planos pois não foram encontrados planos recentes...")
+      try {
+        const generateResponse = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/generate-plans-on-demand`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: clientUidFromSource }),
+        })
+
+        if (!generateResponse.ok) {
+          console.error("[v0] Erro ao gerar planos após pagamento")
+        } else {
+          console.log("[v0] Planos gerados com sucesso após pagamento")
+        }
+      } catch (error) {
+        console.error("[v0] Erro na chamada de geração de planos:", error)
+      }
+    }
+
     if (!dietPlan || !workoutPlan) {
       console.log("DEBUG: Gerando novos planos (diet/workout) para o usuário:", finalUserUid)
 

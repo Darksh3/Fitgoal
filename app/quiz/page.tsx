@@ -514,7 +514,6 @@ export default function QuizPage() {
         Number.parseFloat(quizData.currentWeight),
         Number.parseFloat(quizData.height),
       )
-      // Atualiza quizData com os resultados do IMC antes de enviar para a API
       const updatedQuizData = {
         ...quizData,
         imc: imc,
@@ -534,13 +533,32 @@ export default function QuizPage() {
         console.error("[QUIZ] Storage failed:", error)
       }
 
-      const saved = await generateAndSavePlan(updatedQuizData, currentUser.uid) // Passa os dados atualizados
-      console.log("handleSubmit: generateAndSavePlan retornou:", saved)
+      const userDocRef = doc(db, "users", currentUser.uid)
+      const leadDocRef = doc(db, "leads", currentUser.uid)
 
-      if (!saved) {
-        alert("Erro ao gerar seu plano. Tente novamente.")
-        return
-      }
+      await setDoc(
+        userDocRef,
+        {
+          quizData: updatedQuizData,
+          email: updatedQuizData.email,
+          name: updatedQuizData.name,
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true },
+      )
+
+      await setDoc(
+        leadDocRef,
+        {
+          quizData: updatedQuizData,
+          email: updatedQuizData.email,
+          name: updatedQuizData.name,
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true },
+      )
+
+      console.log("handleSubmit: Quiz data saved to Firestore (users and leads collections) successfully")
 
       if (imc > 0) {
         setShowIMCResult(true)

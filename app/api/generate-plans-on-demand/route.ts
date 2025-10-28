@@ -478,7 +478,7 @@ ${
   quizData.wantsSupplement === "sim" && quizData.supplementType
     ? `
 SUPLEMENTAÇÃO OBRIGATÓRIA:
-O cliente aceitou suplementação. Você DEVE incluir o seguinte suplemento:
+O cliente aceitou suplementação. Então você DEVE incluir o seguinte suplemento no calculo total de macros quando for criar a dieta, no total de macros da dieta o suplemento ja deve estar incluso:
 
 ${
   quizData.supplementType === "hipercalorico"
@@ -585,8 +585,6 @@ DADOS DO CLIENTE PARA PERSONALIZAÇÃO:
 - Áreas problemáticas: ${quizData.problemAreas?.join(", ") || "Nenhuma específica"}
 - Tempo disponível: ${quizData.workoutTime}
 - Equipamentos: ${quizData.equipment?.join(", ") || "Academia"}
-- Peso atual: ${quizData.currentWeight}
-- Genero: ${quizData.gender}
 
 INSTRUÇÕES OBRIGATÓRIAS DE PERSONALIZAÇÃO:
 - Cada dia deve ter EXATAMENTE ${exerciseRange.min}-${exerciseRange.max} exercícios (${exerciseRange.description})

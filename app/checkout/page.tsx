@@ -230,6 +230,29 @@ export default function CheckoutPage() {
                 }
               }
             }
+
+            if (user.uid && (stored || quizAnswers)) {
+              console.log("[v0] Iniciando geração de planos em background...")
+              try {
+                fetch("/api/generate-plans-on-demand", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ userId: user.uid }),
+                })
+                  .then((response) => {
+                    if (response.ok) {
+                      console.log("[v0] Planos gerados com sucesso em background")
+                    } else {
+                      console.error("[v0] Erro ao gerar planos em background")
+                    }
+                  })
+                  .catch((err) => {
+                    console.error("[v0] Erro na chamada de geração de planos:", err)
+                  })
+              } catch (err) {
+                console.error("[v0] Erro ao iniciar geração de planos:", err)
+              }
+            }
           } else {
             console.log("[v0] Usuário não autenticado")
             if (!stored) {
