@@ -394,7 +394,13 @@ export async function POST(req: Request) {
     })
 
     const mainLogic = async () => {
-      const { userId, quizData: providedQuizData, forceRegenerate } = await req.json()
+      // Replacing the original JSON parsing with specific checks
+      const body = await req.json()
+      const userId = body.userId
+      const providedQuizData = body.quizData
+      const forceRegenerate = body.forceRegenerate
+
+      console.log("🔍 [DEBUG] Starting plan generation for userId:", userId)
 
       if (!userId) {
         return new Response(JSON.stringify({ error: "userId is required." }), {
@@ -403,18 +409,35 @@ export async function POST(req: Request) {
         })
       }
 
+      const userDocRef = adminDb.collection("users").doc(userId)
+      const userDoc = await userDocRef.get()
+
+      if (!userDoc.exists) {
+        return new Response(JSON.stringify({ error: "User not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        })
+      }
+
+      const userData = userDoc.data()
       let quizData = providedQuizData
       if (!quizData) {
-        const userDocRef = adminDb.collection("users").doc(userId)
-        const docSnap = await userDocRef.get()
-        if (!docSnap.exists || !docSnap.data()?.quizData) {
+        if (!userData?.quizData) {
           return new Response(JSON.stringify({ error: "Quiz data not found." }), {
             status: 404,
             headers: { "Content-Type": "application/json" },
           })
         }
-        quizData = docSnap.data()?.quizData
+        quizData = userData.quizData
       }
+
+      console.log("📋 [DEBUG] Full quizData received:", JSON.stringify(quizData, null, 2))
+      console.log("💊 [DEBUG] wantsSupplement value:", quizData.wantsSupplement)
+      console.log("💊 [DEBUG] wantsSupplement type:", typeof quizData.wantsSupplement)
+      console.log("💊 [DEBUG] supplementType value:", quizData.supplementType)
+      console.log("💊 [DEBUG] supplementType type:", typeof quizData.supplementType)
+      console.log("💊 [DEBUG] Condition check (wantsSupplement === 'sim'):", quizData.wantsSupplement === "sim")
+      console.log("💊 [DEBUG] Condition check (supplementType exists):", !!quizData.supplementType)
 
       const requestedDays = quizData.trainingDaysPerWeek || 5
       console.log(`🎯 [CRITICAL] User ${userId} requested EXACTLY ${requestedDays} training days`)
@@ -437,7 +460,6 @@ export async function POST(req: Request) {
       })
 
       // Save scientific calculations to Firebase before AI generation
-      const userDocRef = adminDb.collection("users").doc(userId)
       await userDocRef.set(
         {
           scientificCalculations: {
@@ -463,12 +485,16 @@ export async function POST(req: Request) {
       const exerciseRange = getExerciseCountRange(quizData.workoutTime || "45-60min")
       console.log(`🏋️ [EXERCISE COUNT] ${exerciseRange.description} para tempo: ${quizData.workoutTime}`)
 
+      // Moved supplement macro calculation here for clarity and better use in prompts
       const supplementMacros =
         quizData.wantsSupplement === "sim" && quizData.supplementType === "hipercalorico"
           ? { calories: 615, protein: 37, carbs: 108, fats: 3.7 }
           : quizData.wantsSupplement === "sim" && quizData.supplementType === "whey-protein"
             ? { calories: 119, protein: 24, carbs: 2.3, fats: 1.5 }
             : { calories: 0, protein: 0, carbs: 0, fats: 0 }
+
+      console.log("💊 [DEBUG] Supplement macros calculated:", supplementMacros)
+      console.log("💊 [DEBUG] Will subtract from totals:", supplementMacros.calories > 0)
 
       const caloriesForMeals = savedCalcs.finalCalories - supplementMacros.calories
       const proteinForMeals = savedCalcs.protein - supplementMacros.protein
@@ -480,6 +506,11 @@ export async function POST(req: Request) {
       console.log(
         `🔍 [SUPPLEMENT ADJUSTMENT] Total final: ${caloriesForMeals} + ${supplementMacros.calories} = ${savedCalcs.finalCalories} kcal`,
       )
+      console.log("🤖 [DEBUG] Values being sent to AI prompt:")
+      console.log("   - Calories for meals:", caloriesForMeals)
+      console.log("   - Protein for meals:", proteinForMeals)
+      console.log("   - Carbs for meals:", carbsForMeals)
+      console.log("   - Fats for meals:", fatsForMeals)
 
       const dietPrompt = `
 Você é um nutricionista experiente. Crie uma dieta para ${quizData.gender}, ${quizData.age} anos.
@@ -487,16 +518,18 @@ Você é um nutricionista experiente. Crie uma dieta para ${quizData.gender}, ${
 ${
   quizData.wantsSupplement === "sim" && quizData.supplementType
     ? `
-IMPORTANTE - SUPLEMENTAÇÃO INCLUÍDA:
-O cliente aceitou suplementação. O suplemento JÁ ESTÁ CONTABILIZADO no total de macros.
+⚠️ ATENÇÃO - SUPLEMENTAÇÃO JÁ INCLUÍDA NO CÁLCULO TOTAL ⚠️
 
-ALVO PARA AS REFEIÇÕES (SEM O SUPLEMENTO):
-- Calorias: ${Math.round(caloriesForMeals)} kcal
-- Proteína: ${Math.round(proteinForMeals)}g
-- Carboidratos: ${Math.round(carbsForMeals)}g
-- Gorduras: ${Math.round(fatsForMeals)}g
+O cliente aceitou suplementação. Você DEVE criar as refeições com os valores REDUZIDOS abaixo,
+pois o suplemento JÁ FOI SUBTRAÍDO DO TOTAL. NÃO adicione as calorias do suplemento por cima!
 
-SUPLEMENTO A SER ADICIONADO:
+CRIE AS REFEIÇÕES COM ESTES VALORES (JÁ DESCONTADO O SUPLEMENTO):
+- Calorias das refeições: ${Math.round(caloriesForMeals)} kcal (NÃO ${savedCalcs.finalCalories} kcal!)
+- Proteína das refeições: ${Math.round(proteinForMeals)}g
+- Carboidratos das refeições: ${Math.round(carbsForMeals)}g
+- Gorduras das refeições: ${Math.round(fatsForMeals)}g
+
+DEPOIS, ADICIONE O SUPLEMENTO NA SEÇÃO "supplements":
 ${
   quizData.supplementType === "hipercalorico"
     ? `- Hipercalórico Growth (170g - 12 dosadores)
@@ -515,11 +548,8 @@ ${
   * Benefícios: Recuperação muscular, síntese proteica`
 }
 
-TOTAL FINAL (REFEIÇÕES + SUPLEMENTO):
-- Calorias: ${savedCalcs.finalCalories} kcal EXATAS
-- Proteína: ${savedCalcs.protein}g
-- Carboidratos: ${savedCalcs.carbs}g
-- Gorduras: ${savedCalcs.fats}g
+RESULTADO FINAL (REFEIÇÕES + SUPLEMENTO = TOTAL CIENTÍFICO):
+${Math.round(caloriesForMeals)} kcal (refeições) + ${supplementMacros.calories} kcal (suplemento) = ${savedCalcs.finalCalories} kcal TOTAL
 `
     : `
 ALVO OBRIGATÓRIO:
@@ -530,7 +560,7 @@ ALVO OBRIGATÓRIO:
 `
 }
 
-CLIENTE: ${quizData.currentWeight}kg, objetivo: ${quizData.goal?.join(", ")}, biotipo: ${quizData.bodyType}
+CLIENTE: ${quizData.gender}, ${quizData.age} anos, ${quizData.currentWeight}kg, objetivo: ${quizData.goal?.join(", ")}, biotipo: ${quizData.bodyType}
 ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
 
 REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
@@ -539,7 +569,15 @@ INSTRUÇÕES CRÍTICAS:
 1. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO
 2. Cite a fonte (USDA ou TACO) para cada alimento quando possível
 3. Use valores por 100g das tabelas oficiais e calcule proporcionalmente
-4. A soma TOTAL das REFEIÇÕES deve ser EXATAMENTE ${Math.round(caloriesForMeals)} kcal e atingir os macros: ${Math.round(proteinForMeals)}g Proteína, ${Math.round(carbsForMeals)}g Carboidratos, ${Math.round(fatsForMeals)}g Gorduras
+4. A soma TOTAL das REFEIÇÕES deve ser EXATAMENTE ${
+        quizData.wantsSupplement === "sim" && quizData.supplementType
+          ? Math.round(caloriesForMeals)
+          : savedCalcs.finalCalories
+      } kcal e atingir os macros: ${quizData.wantsSupplement === "sim" && quizData.supplementType ? Math.round(proteinForMeals) : savedCalcs.protein}g Proteína, ${
+        quizData.wantsSupplement === "sim" && quizData.supplementType ? Math.round(carbsForMeals) : savedCalcs.carbs
+      }g Carboidratos, ${
+        quizData.wantsSupplement === "sim" && quizData.supplementType ? Math.round(fatsForMeals) : savedCalcs.fats
+      }g Gorduras
 5. A soma TOTAL da dieta (refeições + suplemento) deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal e atingir os macros: ${savedCalcs.protein}g Proteína, ${savedCalcs.carbs}g Carboidratos, ${savedCalcs.fats}g Gorduras
 6. Seja preciso com as quantidades baseadas nos valores oficiais
 7. EVITE alimentos caros ou incomuns no Brasil (como salmão, quinoa, aspargos, kale, chia). Priorize alimentos acessíveis e comuns na alimentação brasileira (arroz, feijão, frango, ovos, batata, etc.)
@@ -747,10 +785,16 @@ JSON OBRIGATÓRIO:
 
               dietPlan = parsed
               console.log("✅ [DIET SUCCESS] Generated and corrected")
+            } else {
+              console.log(
+                `[DIET] Meal count mismatch. Expected ${mealConfig.count}, got ${parsed.meals?.length || "undefined"}`,
+              )
             }
           } catch (e) {
             console.log("⚠️ [DIET] Parse error:", e)
           }
+        } else if (dietResponse.status === "rejected") {
+          console.error("❌ [DIET] Generation failed:", dietResponse.reason)
         }
 
         // Process workout response
@@ -760,18 +804,24 @@ JSON OBRIGATÓRIO:
             if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === requestedDays) {
               workoutPlan = parsed
               console.log("✅ [WORKOUT SUCCESS] Generated successfully")
+            } else {
+              console.log(
+                `[WORKOUT] Days count mismatch. Expected ${requestedDays}, got ${parsed.days?.length || "undefined"}`,
+              )
             }
           } catch (e) {
             console.log("⚠️ [WORKOUT] Parse error, using fallback")
           }
+        } else if (workoutResponse.status === "rejected") {
+          console.error("❌ [WORKOUT] Generation failed:", workoutResponse.reason)
         }
       } catch (error) {
         console.log("⚠️ [PARALLEL] Generation failed, using fallbacks")
       }
 
       if (!dietPlan) {
-        console.log("❌ [NO FALLBACK] AI must provide all nutritional data")
-
+        console.log("❌ [NO DIET PLAN] AI must provide all nutritional data. Using placeholder and returning error.")
+        // Return an error if diet plan generation failed and no fallback is appropriate
         return new Response(
           JSON.stringify({
             error: "Failed to generate diet plan. AI must provide all nutritional data.",
