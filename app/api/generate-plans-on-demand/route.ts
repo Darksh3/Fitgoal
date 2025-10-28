@@ -463,67 +463,86 @@ export async function POST(req: Request) {
       const exerciseRange = getExerciseCountRange(quizData.workoutTime || "45-60min")
       console.log(`🏋️ [EXERCISE COUNT] ${exerciseRange.description} para tempo: ${quizData.workoutTime}`)
 
-      const dietPrompt = `
-Você é um nutricionista experiente. Crie uma dieta de ${savedCalcs.finalCalories} kcal EXATAS para ${quizData.gender}, ${quizData.age} anos.
+      const supplementMacros =
+        quizData.wantsSupplement === "sim" && quizData.supplementType === "hipercalorico"
+          ? { calories: 615, protein: 37, carbs: 108, fats: 3.7 }
+          : quizData.wantsSupplement === "sim" && quizData.supplementType === "whey-protein"
+            ? { calories: 119, protein: 24, carbs: 2.3, fats: 1.5 }
+            : { calories: 0, protein: 0, carbs: 0, fats: 0 }
 
-ALVO OBRIGATÓRIO: ${savedCalcs.finalCalories} kcal
-Proteína: ${savedCalcs.protein}g | Carboidratos: ${savedCalcs.carbs}g | Gorduras: ${savedCalcs.fats}g
+      const caloriesForMeals = savedCalcs.finalCalories - supplementMacros.calories
+      const proteinForMeals = savedCalcs.protein - supplementMacros.protein
+      const carbsForMeals = savedCalcs.carbs - supplementMacros.carbs
+      const fatsForMeals = savedCalcs.fats - supplementMacros.fats
+
+      console.log(`🔍 [SUPPLEMENT ADJUSTMENT] Suplemento: ${supplementMacros.calories} kcal`)
+      console.log(`🔍 [SUPPLEMENT ADJUSTMENT] Calorias para refeições: ${caloriesForMeals} kcal`)
+      console.log(
+        `🔍 [SUPPLEMENT ADJUSTMENT] Total final: ${caloriesForMeals} + ${supplementMacros.calories} = ${savedCalcs.finalCalories} kcal`,
+      )
+
+      const dietPrompt = `
+Você é um nutricionista experiente. Crie uma dieta para ${quizData.gender}, ${quizData.age} anos.
+
+${
+  quizData.wantsSupplement === "sim" && quizData.supplementType
+    ? `
+IMPORTANTE - SUPLEMENTAÇÃO INCLUÍDA:
+O cliente aceitou suplementação. O suplemento JÁ ESTÁ CONTABILIZADO no total de macros.
+
+ALVO PARA AS REFEIÇÕES (SEM O SUPLEMENTO):
+- Calorias: ${Math.round(caloriesForMeals)} kcal
+- Proteína: ${Math.round(proteinForMeals)}g
+- Carboidratos: ${Math.round(carbsForMeals)}g
+- Gorduras: ${Math.round(fatsForMeals)}g
+
+SUPLEMENTO A SER ADICIONADO:
+${
+  quizData.supplementType === "hipercalorico"
+    ? `- Hipercalórico Growth (170g - 12 dosadores)
+  * Calorias: 615 kcal
+  * Carboidratos: 108g
+  * Proteínas: 37g
+  * Gorduras: 3.7g
+  * Horário sugerido: Pós-treino ou entre refeições
+  * Benefícios: Ganho de massa muscular, aumento calórico`
+    : `- Whey Protein Growth (30g - 2 dosadores)
+  * Calorias: 119 kcal
+  * Carboidratos: 2.3g
+  * Proteínas: 24g
+  * Gorduras: 1.5g
+  * Horário sugerido: Pós-treino
+  * Benefícios: Recuperação muscular, síntese proteica`
+}
+
+TOTAL FINAL (REFEIÇÕES + SUPLEMENTO):
+- Calorias: ${savedCalcs.finalCalories} kcal EXATAS
+- Proteína: ${savedCalcs.protein}g
+- Carboidratos: ${savedCalcs.carbs}g
+- Gorduras: ${savedCalcs.fats}g
+`
+    : `
+ALVO OBRIGATÓRIO:
+- Calorias: ${savedCalcs.finalCalories} kcal EXATAS
+- Proteína: ${savedCalcs.protein}g
+- Carboidratos: ${savedCalcs.carbs}g
+- Gorduras: ${savedCalcs.fats}g
+`
+}
 
 CLIENTE: ${quizData.currentWeight}kg, objetivo: ${quizData.goal?.join(", ")}, biotipo: ${quizData.bodyType}
 ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
 
 REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
 
-${
-  quizData.wantsSupplement === "sim" && quizData.supplementType
-    ? `
-SUPLEMENTAÇÃO OBRIGATÓRIA:
-O cliente aceitou suplementação. Então você DEVE incluir o seguinte suplemento no calculo total de macros quando for criar a dieta, no total de macros da dieta o suplemento ja deve estar incluso:
-
-${
-  quizData.supplementType === "hipercalorico"
-    ? `
-- Hipercalórico Growth (170g - 12 dosadores)
-  * Calorias: 615 kcal
-  * Carboidratos: 108g
-  * Proteínas: 37g
-  * Gorduras: 3.7g
-  * Horário sugerido: Pós-treino ou entre refeições
-  * Benefícios: Ganho de massa muscular, aumento calórico
-`
-    : `
-- Whey Protein Growth (30g - 2 dosadores)
-  * Calorias: 119 kcal
-  * Carboidratos: 2.3g
-  * Proteínas: 24g
-  * Gorduras: 1.5g
-  * Horário sugerido: Pós-treino
-  * Benefícios: Recuperação muscular, síntese proteica
-`
-}
-
-IMPORTANTE: 
-- Você DEVE incluir este suplemento no JSON final na seção "supplements" com os valores exatos acima.
-- Os macros do suplemento JÁ ESTÃO INCLUÍDOS no total de ${savedCalcs.finalCalories} kcal.
-- Portanto, distribua apenas ${savedCalcs.finalCalories - (quizData.supplementType === "hipercalorico" ? 615 : 119)} kcal entre as refeições.
-- O total final (refeições + suplemento) deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal.
-`
-    : ""
-}
-
-REFERÊNCIA NUTRICIONAL OBRIGATÓRIA:
-- Use EXCLUSIVAMENTE dados das tabelas USDA (United States Department of Agriculture) e TACO (Tabela Brasileira de Composição de Alimentos)
-- Para alimentos brasileiros: priorize TACO
-- Para alimentos internacionais: use USDA
-- NUNCA invente valores nutricionais - use apenas dados oficiais dessas bases
-
 INSTRUÇÕES CRÍTICAS:
 1. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO
 2. Cite a fonte (USDA ou TACO) para cada alimento quando possível
 3. Use valores por 100g das tabelas oficiais e calcule proporcionalmente
-4. A soma TOTAL deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal
-5. Seja preciso com as quantidades baseadas nos valores oficiais
-6. Prefira alimentos com dados bem documentados nas tabelas
+4. A soma TOTAL das REFEIÇÕES deve ser EXATAMENTE ${Math.round(caloriesForMeals)} kcal e atingir os macros: ${Math.round(proteinForMeals)}g Proteína, ${Math.round(carbsForMeals)}g Carboidratos, ${Math.round(fatsForMeals)}g Gorduras
+5. A soma TOTAL da dieta (refeições + suplemento) deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal e atingir os macros: ${savedCalcs.protein}g Proteína, ${savedCalcs.carbs}g Carboidratos, ${savedCalcs.fats}g Gorduras
+6. Seja preciso com as quantidades baseadas nos valores oficiais
+7. EVITE alimentos caros ou incomuns no Brasil (como salmão, quinoa, aspargos, kale, chia). Priorize alimentos acessíveis e comuns na alimentação brasileira (arroz, feijão, frango, ovos, batata, etc.)
 
 EXEMPLO DE FORMATO OBRIGATÓRIO:
 {
@@ -543,7 +562,7 @@ JSON OBRIGATÓRIO:
   "totalFats": "${savedCalcs.fats}g",
   "meals": [${mealConfig.names
     .map((name, i) => {
-      const targetCals = Math.round(savedCalcs.finalCalories * mealConfig.distribution[i])
+      const targetCals = Math.round(caloriesForMeals * mealConfig.distribution[i])
       return `{
         "name": "${name}",
         "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}",
@@ -599,7 +618,7 @@ DIVISÃO DE TREINO VS ÁREAS DE FOCO - REGRAS CRÍTICAS:
 
 2. ÁREAS PROBLEMÁTICAS (apenas para dar ÊNFASE EXTRA):
    - "Peito" = treino normal + mais séries/exercícios para peitoral
-   - "Braços" = treino normal + mais séries/exercícios para bíceps e tríceps  
+   - "Braços" = treino normal + mais séries/exercícios para bíceps e tríceps
    - "Pernas" = treino normal + mais séries/exercícios para membros inferiores
    - "Corpo inteiro" = desenvolvimento equilibrado, SEM foco específico
 
