@@ -484,9 +484,10 @@ export default function DietPage() {
       })
 
       console.log("[v0] Diet plan saved successfully")
+      setError(null)
     } catch (error) {
       console.error("[v0] Error saving diet plan:", error)
-      setError("Erro ao salvar alterações. Tente novamente.")
+      throw new Error("Erro ao salvar alterações. Tente novamente.")
     }
   }
 
@@ -838,7 +839,7 @@ export default function DietPage() {
       calories: totalCalories > 0 ? `${Math.round(totalCalories)}` : "0",
       protein: totalProtein > 0 ? `${Math.round(totalProtein)}g` : "0g",
       carbs: totalCarbs > 0 ? `${Math.round(totalCarbs)}g` : "0g",
-      fats: totalFats > 0 ? `${Math.round(totalFats)}g` : "0g",
+      fats: totalCarbs > 0 ? `${Math.round(totalCarbs)}g` : "0g",
     }
   }
 
