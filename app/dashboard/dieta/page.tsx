@@ -155,18 +155,37 @@ export default function DietPage() {
     if (!editingFood || !dietPlan) return
 
     try {
+      const validateNumber = (value: any, fieldName: string): number => {
+        const num = Number(value)
+        if (isNaN(num) || num < 0) {
+          console.error(`[v0] Invalid ${fieldName}:`, value)
+          throw new Error(`Valor inválido para ${fieldName}`)
+        }
+        return num
+      }
+
+      console.log("[v0] Editing food:", editingFood)
+
       if (editingFood.isSupplement) {
         // Edit supplement
         const updatedSupplements = [...(dietPlan.supplements || [])]
+
+        const calories = validateNumber(editingFood.food.calories, "calorias")
+        const protein = validateNumber(editingFood.food.protein, "proteínas")
+        const carbs = validateNumber(editingFood.food.carbs, "carboidratos")
+        const fat = validateNumber(editingFood.food.fats, "gorduras")
+
         updatedSupplements[editingFood.foodIndex] = {
           ...updatedSupplements[editingFood.foodIndex],
           name: editingFood.food.name,
           portion: editingFood.food.quantity || editingFood.food.portion,
-          calories: Number(editingFood.food.calories),
-          protein: Number(editingFood.food.protein),
-          carbs: Number(editingFood.food.carbs),
-          fat: Number(editingFood.food.fats),
+          calories,
+          protein,
+          carbs,
+          fat,
         }
+
+        console.log("[v0] Updated supplement:", updatedSupplements[editingFood.foodIndex])
 
         const updatedDietPlan = {
           ...dietPlan,
@@ -180,15 +199,20 @@ export default function DietPage() {
         const updatedMeals = [...dietPlan.meals]
         const meal = updatedMeals[editingFood.mealIndex]
 
+        const calories = validateNumber(editingFood.food.calories, "calorias")
+        const protein = validateNumber(editingFood.food.protein, "proteínas")
+        const carbs = validateNumber(editingFood.food.carbs, "carboidratos")
+        const fats = validateNumber(editingFood.food.fats, "gorduras")
+
         if (typeof meal.foods[editingFood.foodIndex] === "string") {
           // Convert string to object format
           meal.foods[editingFood.foodIndex] = {
             name: editingFood.food.name,
             quantity: editingFood.food.quantity,
-            calories: editingFood.food.calories,
-            protein: editingFood.food.protein,
-            carbs: editingFood.food.carbs,
-            fats: editingFood.food.fats,
+            calories,
+            protein,
+            carbs,
+            fats,
           }
         } else {
           // Update existing object
@@ -196,12 +220,14 @@ export default function DietPage() {
             ...meal.foods[editingFood.foodIndex],
             name: editingFood.food.name,
             quantity: editingFood.food.quantity,
-            calories: editingFood.food.calories,
-            protein: editingFood.food.protein,
-            carbs: editingFood.food.carbs,
-            fats: editingFood.food.fats,
+            calories,
+            protein,
+            carbs,
+            fats,
           }
         }
+
+        console.log("[v0] Updated food:", meal.foods[editingFood.foodIndex])
 
         const updatedDietPlan = {
           ...dietPlan,
@@ -214,8 +240,9 @@ export default function DietPage() {
 
       setEditingFood(null)
     } catch (error) {
-      console.error("Error editing food:", error)
-      setError("Erro ao editar alimento. Tente novamente.")
+      console.error("[v0] Error editing food:", error)
+      const errorMessage = error instanceof Error ? error.message : "Erro ao editar alimento. Tente novamente."
+      setError(errorMessage)
     }
   }
 
