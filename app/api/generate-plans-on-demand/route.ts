@@ -14,7 +14,7 @@ function getExerciseCountRange(workoutTime: string) {
       return { min: 4, max: 4, description: "4 exercícios (treino rápido)" }
     case "45min":
       return { min: 5, max: 5, description: "5 exercícios (treino moderado)" }
-    case "1hora":
+    case "1h": // Changed "1hora" to "1h" for consistency
       return { min: 6, max: 7, description: "6-7 exercícios (treino completo)" }
     case "mais-1h":
       return { min: 7, max: 8, description: "7-8 exercícios (treino longo)" }
@@ -519,13 +519,13 @@ export async function POST(req: Request) {
       const dietPrompt = `
 Você é um nutricionista especializado em criar planos alimentares personalizados.
 
-IMPORTANTE - CÁLCULO DE CALORIAS:
+IMPORTANTE - CÁLCULO DE CALORIAS E MACROS:
 ${
   quizData.wantsSupplement === "sim" && quizData.supplementType
     ? `
 ⚠️ O CLIENTE ACEITOU SUPLEMENTAÇÃO!
 - Valor científico TOTAL: ${savedCalcs.finalCalories} kcal
-- Suplemento (${quizData.supplementType}): ${savedCalcs.supplementCalories} kcal
+- Suplemento (${quizData.supplementType}): ${savedCalcs.supplementCalories} kcal (${savedCalcs.supplementProtein}g proteína, ${savedCalcs.supplementCarbs}g carboidratos, ${savedCalcs.supplementFats}g gorduras)
 - VOCÊ DEVE CRIAR AS REFEIÇÕES COM: ${caloriesForMeals} kcal
 - O suplemento será adicionado DEPOIS, totalizando ${savedCalcs.finalCalories} kcal
 
@@ -543,22 +543,46 @@ ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
 
 REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
 
-INSTRUÇÕES CRÍTICAS:
+INSTRUÇÕES CRÍTICAS - DISTRIBUIÇÃO DE MACROS:
+⚠️ VOCÊ DEVE SEGUIR EXATAMENTE ESTES VALORES CALCULADOS CIENTIFICAMENTE:
+
+${
+  quizData.wantsSupplement === "sim" && quizData.supplementType
+    ? `
+MACROS PARA AS REFEIÇÕES (sem suplemento):
+- Calorias: ${Math.round(caloriesForMeals)} kcal
+- Proteínas: ${Math.round(proteinForMeals)}g (${(((proteinForMeals * 4) / caloriesForMeals) * 100).toFixed(1)}%)
+- Carboidratos: ${Math.round(carbsForMeals)}g (${(((carbsForMeals * 4) / caloriesForMeals) * 100).toFixed(1)}%)
+- Gorduras: ${Math.round(fatsForMeals)}g (${(((fatsForMeals * 9) / caloriesForMeals) * 100).toFixed(1)}%)
+
+MACROS TOTAIS (refeições + suplemento):
+- Calorias: ${savedCalcs.finalCalories} kcal
+- Proteínas: ${savedCalcs.protein}g
+- Carboidratos: ${savedCalcs.carbs}g
+- Gorduras: ${savedCalcs.fats}g
+`
+    : `
+MACROS TOTAIS:
+- Calorias: ${savedCalcs.finalCalories} kcal
+- Proteínas: ${savedCalcs.protein}g (${(((savedCalcs.protein * 4) / savedCalcs.finalCalories) * 100).toFixed(1)}%)
+- Carboidratos: ${savedCalcs.carbs}g (${(((savedCalcs.carbs * 4) / savedCalcs.finalCalories) * 100).toFixed(1)}%)
+- Gorduras: ${savedCalcs.fats}g (${(((savedCalcs.fats * 9) / savedCalcs.finalCalories) * 100).toFixed(1)}%)
+`
+}
+
+🎯 REGRAS OBRIGATÓRIAS:
+1. A soma das REFEIÇÕES deve atingir EXATAMENTE os valores acima
+2. NÃO faça sua própria distribuição de macros - use os valores fornecidos
+3. Distribua os macros proporcionalmente entre as ${mealConfig.count} refeições
+4. Cada refeição deve contribuir para atingir os totais especificados
+5. Priorize alimentos brasileiros comuns e acessíveis (arroz, feijão, frango, ovos, batata, etc.)
+6. Evite alimentos caros ou incomuns no Brasil (salmão, quinoa, aspargos, etc.)
+
+FONTES DE DADOS NUTRICIONAIS:
 1. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO
 2. Cite a fonte (USDA ou TACO) para cada alimento quando possível
 3. Use valores por 100g das tabelas oficiais e calcule proporcionalmente
-4. A soma TOTAL das REFEIÇÕES deve ser EXATAMENTE ${
-        quizData.wantsSupplement === "sim" && quizData.supplementType
-          ? Math.round(caloriesForMeals)
-          : savedCalcs.finalCalories
-      } kcal e atingir os macros: ${quizData.wantsSupplement === "sim" && quizData.supplementType ? Math.round(proteinForMeals) : savedCalcs.protein}g Proteína, ${
-        quizData.wantsSupplement === "sim" && quizData.supplementType ? Math.round(carbsForMeals) : savedCalcs.carbs
-      }g Carboidratos, ${
-        quizData.wantsSupplement === "sim" && quizData.supplementType ? Math.round(fatsForMeals) : savedCalcs.fats
-      }g Gorduras
-5. A soma TOTAL da dieta (refeições + suplemento) deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal e atingir os macros: ${savedCalcs.protein}g Proteína, ${savedCalcs.carbs}g Carboidratos, ${savedCalcs.fats}g Gorduras
-6. Seja preciso com as quantidades baseadas nos valores oficiais
-7. EVITE alimentos caros ou incomuns no Brasil (como salmão, quinoa, aspargos, kale, chia). Priorize alimentos acessíveis e comuns na alimentação brasileira (arroz, feijão, frango, ovos, batata, etc.)
+4. Seja preciso com as quantidades baseadas nos valores oficiais
 
 EXEMPLO DE FORMATO OBRIGATÓRIO:
 {
@@ -1196,28 +1220,14 @@ function calculateScientificCalories(data: any) {
   }
 
   // GORDURAS baseadas em objetivo + somatótipo + gênero
-  if (weightDifference < -0.5) {
-    // PERDA DE PESO - menos gorduras
-    if (bodyType.toLowerCase() === "ectomorfo") {
-      fatsBase = isFemale ? 1.0 : 0.9 // Mulheres precisam mais gordura
-    } else if (bodyType.toLowerCase() === "mesomorfo") {
-      fatsBase = isFemale ? 0.9 : 0.8
-    } else if (bodyType.toLowerCase() === "endomorfo") {
-      fatsBase = isFemale ? 0.8 : 0.7
-    } else {
-      fatsBase = isFemale ? 0.9 : 0.8
-    }
+  if (bodyType.toLowerCase() === "ectomorfo") {
+    fatsBase = isFemale ? 1.3 : 1.2 // Tolera bem
+  } else if (bodyType.toLowerCase() === "mesomorfo") {
+    fatsBase = isFemale ? 1.1 : 1.0
+  } else if (bodyType.toLowerCase() === "endomorfo") {
+    fatsBase = isFemale ? 1.0 : 0.9 // Controlar um pouco
   } else {
-    // GANHO/MANUTENÇÃO - gorduras normais/maiores
-    if (bodyType.toLowerCase() === "ectomorfo") {
-      fatsBase = isFemale ? 1.3 : 1.2 // Tolera bem
-    } else if (bodyType.toLowerCase() === "mesomorfo") {
-      fatsBase = isFemale ? 1.1 : 1.0
-    } else if (bodyType.toLowerCase() === "endomorfo") {
-      fatsBase = isFemale ? 1.0 : 0.9 // Controlar um pouco
-    } else {
-      fatsBase = isFemale ? 1.1 : 1.0
-    }
+    fatsBase = isFemale ? 1.1 : 1.0
   }
 
   // ATENÇÃO: Mulheres precisam mínimo de gordura para função hormonal
