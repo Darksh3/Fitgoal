@@ -272,12 +272,12 @@ export default function HomePage() {
     },
     trimestral: {
       name: "Plano Trimestral",
-      originalPrice: 79.9,
-      price: 65.67,
+      originalPrice: 239.7,
+      price: 194.7,
       period: "mês",
-      total: 197,
-      savings: 42.23,
-      savePercentage: "18%",
+      total: 194.7,
+      savings: 44.9,
+      savePercentage: "19%",
       color: "orange",
       popular: true,
       description: "Melhor custo-benefício. Perfeito para ver resultados reais.",
@@ -290,11 +290,11 @@ export default function HomePage() {
     },
     semestral: {
       name: "Plano Semestral",
-      originalPrice: 79.9,
-      price: 49.5,
+      originalPrice: 479.4,
+      price: 299.4,
       period: "mês",
-      total: 297,
-      savings: 182.4,
+      total: 299.4,
+      savings: 179.9,
       savePercentage: "38%",
       color: "purple",
       bestValue: true,
@@ -594,11 +594,11 @@ export default function HomePage() {
                 <p className="text-gray-300 text-sm mb-4 min-h-[40px]">{plans.trimestral.description}</p>
                 <div className="mb-6">
                   <div className="text-gray-400 line-through text-lg">R$ 239,70</div>
-                  <div className="text-5xl font-bold text-orange-400 mb-1">R$ 197</div>
-                  <div className="text-gray-300 text-sm">R$ 65,67/mês</div>
+                  <div className="text-5xl font-bold text-orange-400 mb-1">R$ 194,70</div>
+                  <div className="text-gray-300 text-sm">R$ 64,90/mês</div>
                 </div>
                 <div className="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full text-xs font-bold inline-block mb-6">
-                  ECONOMIZE 18%
+                  ECONOMIZE 19%
                 </div>
                 <ul className="space-y-3 mb-8 text-left">
                   {plans.trimestral.features.map((feature, index) => (
@@ -627,8 +627,8 @@ export default function HomePage() {
                 <p className="text-gray-400 text-sm mb-4 min-h-[40px]">{plans.semestral.description}</p>
                 <div className="mb-6">
                   <div className="text-gray-400 line-through text-lg">R$ 479,40</div>
-                  <div className="text-5xl font-bold text-purple-400 mb-1">R$ 297</div>
-                  <div className="text-gray-300 text-sm">R$ 49,50/mês</div>
+                  <div className="text-5xl font-bold text-purple-400 mb-1">R$ 299,40</div>
+                  <div className="text-gray-300 text-sm">R$ 49,90/mês</div>
                 </div>
                 <div className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full text-xs font-bold inline-block mb-6">
                   ECONOMIZE 38%

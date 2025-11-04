@@ -109,6 +109,13 @@ export async function POST(req: Request) {
       ],
       mode: "subscription",
       customer_email: email,
+      payment_method_options: {
+        card: {
+          installments: {
+            enabled: true,
+          },
+        },
+      },
       success_url: `${process.env.NEXT_PUBLIC_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_URL}/checkout`,
       metadata: metadata,

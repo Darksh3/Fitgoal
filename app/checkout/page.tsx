@@ -284,8 +284,8 @@ export default function CheckoutPage() {
     trimestral: {
       name: "Plano Trimestral",
       priceId: "price_1SPs2cPRgKqdJdqNbiXZYLhI",
-      price: 65.67,
-      total: 197,
+      price: 64.9,
+      total: 194.7,
       color: "orange",
       duration: "3 meses",
       description: "Melhor custo-benefício. Perfeito para ver resultados reais.",
@@ -294,8 +294,8 @@ export default function CheckoutPage() {
     semestral: {
       name: "Plano Semestral",
       priceId: "price_1SPrzGPRgKqdJdqNNLfhAYNo",
-      price: 49.5,
-      total: 297,
+      price: 49.9,
+      total: 299.4,
       color: "purple",
       duration: "6 meses",
       description: "Para quem quer mudar o corpo de verdade e economizar.",
