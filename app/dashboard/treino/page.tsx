@@ -9,7 +9,9 @@ import { Badge } from "@/components/ui/badge"
 import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download } from "lucide-react"
 import ProtectedRoute from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
-import html2pdf from "html2pdf.js"
+import dynamic from "next/dynamic"
+
+const html2pdf = dynamic(() => import("html2pdf.js"), { ssr: false })
 
 interface Exercise {
   name: string
