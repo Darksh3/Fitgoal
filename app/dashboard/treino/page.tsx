@@ -6,9 +6,10 @@ import { auth, db } from "@/lib/firebaseClient"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw } from "lucide-react"
+import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download } from "lucide-react"
 import ProtectedRoute from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
+import html2pdf from "html2pdf.js"
 
 interface Exercise {
   name: string
@@ -128,7 +129,7 @@ const debugDataFlow = (stage: string, data: any) => {
   }
 }
 
-export default function WorkoutPage() {
+export default function TreinoPage() {
   const [user, loading] = useAuthState(auth)
   const [userData, setUserData] = useState<UserData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -279,6 +280,140 @@ export default function WorkoutPage() {
       console.log("[TREINO] Exercise substitution saved successfully")
     } catch (error) {
       console.error("[TREINO] Error saving exercise substitution:", error)
+    }
+  }
+
+  const downloadWorkoutPDF = async () => {
+    if (!userData?.workoutPlan) return
+
+    try {
+      const workoutPlan = userData.workoutPlan
+
+      // Create PDF content as HTML string
+      const pdfContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Plano de Treino Personalizado</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3b82f6; padding-bottom: 20px; }
+            .header h1 { color: #3b82f6; margin: 0; font-size: 28px; }
+            .header p { color: #666; margin: 5px 0; }
+            .workout-day { margin: 20px 0; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; page-break-inside: avoid; }
+            .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
+            .day-title { font-size: 20px; font-weight: bold; color: #1e293b; }
+            .day-focus { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+            .day-duration { color: #666; font-size: 14px; margin-top: 5px; }
+            .exercise { padding: 15px; margin: 10px 0; background: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 4px; }
+            .exercise-name { font-weight: bold; font-size: 16px; color: #1e293b; margin-bottom: 8px; }
+            .exercise-details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 8px 0; }
+            .detail { font-size: 14px; color: #475569; }
+            .detail-label { font-weight: 600; color: #3b82f6; }
+            .exercise-description { font-size: 14px; color: #666; margin-top: 8px; line-height: 1.5; }
+            .tips { margin-top: 30px; page-break-before: always; }
+            .tips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+            .tip { padding: 15px; border-radius: 8px; }
+            .tip-1 { background: #dbeafe; border-left: 4px solid #3b82f6; }
+            .tip-2 { background: #dcfce7; border-left: 4px solid #059669; }
+            .tip-3 { background: #fef3c7; border-left: 4px solid #d97706; }
+            .tip-4 { background: #fee2e2; border-left: 4px solid #dc2626; }
+            .tip-title { font-weight: bold; margin-bottom: 5px; }
+            .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Plano de Treino Personalizado</h1>
+            <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
+            <p>${workoutPlan.weeklySchedule || "Plano semanal personalizado"}</p>
+          </div>
+
+          ${workoutPlan.days
+            .map(
+              (day) => `
+            <div class="workout-day">
+              <div class="day-header">
+                <div class="day-title">${day.day} - ${day.title}</div>
+                <div class="day-focus">${day.focus}</div>
+                <div class="day-duration">Duração: ${day.duration}</div>
+              </div>
+              
+              ${day.exercises
+                .map(
+                  (exercise) => `
+                <div class="exercise">
+                  <div class="exercise-name">${exercise.name}</div>
+                  <div class="exercise-details">
+                    <div class="detail"><span class="detail-label">Séries:</span> ${exercise.sets}</div>
+                    <div class="detail"><span class="detail-label">Repetições:</span> ${exercise.reps}</div>
+                    <div class="detail"><span class="detail-label">Descanso:</span> ${exercise.rest}</div>
+                  </div>
+                  <div class="exercise-description">${exercise.description}</div>
+                </div>
+              `,
+                )
+                .join("")}
+            </div>
+          `,
+            )
+            .join("")}
+
+          ${
+            workoutPlan.tips && Array.isArray(workoutPlan.tips) && workoutPlan.tips.length > 0
+              ? `
+            <div class="tips">
+              <h2 style="color: #1e293b; margin-bottom: 10px;">Dicas Importantes</h2>
+              <div class="tips-grid">
+                ${workoutPlan.tips
+                  .map(
+                    (tip, index) => `
+                  <div class="tip tip-${(index % 4) + 1}">
+                    <div class="tip-title">Dica ${index + 1}</div>
+                    <div>${tip}</div>
+                  </div>
+                `,
+                  )
+                  .join("")}
+              </div>
+            </div>
+          `
+              : ""
+          }
+
+          <div class="footer">
+            <p><strong>FitGoal</strong> - Seu plano de treino personalizado</p>
+            <p>Este plano foi criado especificamente para você com base em seus objetivos e experiência.</p>
+          </div>
+        </body>
+        </html>
+      `
+
+      // Create a temporary div to hold the HTML content
+      const tempDiv = document.createElement("div")
+      tempDiv.innerHTML = pdfContent
+      tempDiv.style.position = "absolute"
+      tempDiv.style.left = "-9999px"
+      document.body.appendChild(tempDiv)
+
+      // Configure PDF options
+      const options = {
+        margin: 10,
+        filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      }
+
+      // Generate and download PDF
+      await html2pdf().set(options).from(tempDiv).save()
+
+      // Clean up
+      document.body.removeChild(tempDiv)
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error)
+      alert("Erro ao gerar PDF. Tente novamente.")
     }
   }
 
@@ -434,7 +569,18 @@ export default function WorkoutPage() {
       <div className="min-h-screen bg-white">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Seu Plano de Treino</h1>
+            <div className="flex items-center justify-between mb-2">
+              <h1 className="text-3xl font-bold text-gray-900">Seu Plano de Treino</h1>
+              <Button
+                onClick={downloadWorkoutPDF}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 bg-transparent"
+              >
+                <Download className="h-4 w-4" />
+                Baixar PDF
+              </Button>
+            </div>
             <p className="text-gray-600">Plano personalizado para atingir seus objetivos</p>
           </div>
 

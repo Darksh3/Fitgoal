@@ -1146,83 +1146,86 @@ export default function DietPage() {
 
   console.log("[v0] About to render, loading:", loading, "error:", error)
 
-  const downloadDietPDF = () => {
+  const downloadDietPDF = async () => {
     if (!dietPlan) return
 
-    // Create PDF content as HTML string
-    const pdfContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>Plano de Dieta Personalizado</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
-          .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3b82f6; padding-bottom: 20px; }
-          .header h1 { color: #3b82f6; margin: 0; font-size: 28px; }
-          .header p { color: #666; margin: 5px 0; }
-          .macros-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
-          .macro-card { background: #f8fafc; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0; }
-          .macro-title { font-weight: bold; color: #475569; font-size: 14px; margin-bottom: 5px; }
-          .macro-value { font-size: 24px; font-weight: bold; }
-          .calories { color: #3b82f6; }
-          .protein { color: #dc2626; }
-          .carbs { color: #d97706; }
-          .fats { color: #059669; }
-          .meal { margin: 20px 0; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; }
-          .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
-          .meal-title { font-size: 18px; font-weight: bold; color: #1e293b; }
-          .meal-time { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
-          .meal-calories { color: #666; font-size: 14px; }
-          .food-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
-          .food-item:last-child { border-bottom: none; }
-          .food-name { font-weight: 500; }
-          .food-quantity { color: #3b82f6; font-size: 14px; }
-          .food-calories { color: #666; font-size: 14px; }
-          .food-macros { font-size: 12px; color: #666; margin-top: 2px; }
-          .tips { margin-top: 30px; }
-          .tips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-          .tip { padding: 15px; border-radius: 8px; }
-          .tip-1 { background: #dbeafe; border-left: 4px solid #3b82f6; }
-          .tip-2 { background: #dcfce7; border-left: 4px solid #059669; }
-          .tip-3 { background: #fef3c7; border-left: 4px solid #d97706; }
-          .tip-4 { background: #fee2e2; border-left: 4px solid #dc2626; }
-          .tip-title { font-weight: bold; margin-bottom: 5px; }
-          .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
-          @media print { body { margin: 0; } }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>Plano de Dieta Personalizado</h1>
-          <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
-          <p>Plano científico baseado em suas necessidades individuais</p>
-        </div>
+    try {
+      // Dynamically import html2pdf to avoid SSR issues
+      const html2pdf = (await import("html2pdf.js")).default
 
-        <div class="macros-grid">
-          <div class="macro-card">
-            <div class="macro-title">Calorias Totais</div>
-            <div class="macro-value calories">${displayTotals.calories}</div>
+      // Create PDF content as HTML string
+      const pdfContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Plano de Dieta Personalizado</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3b82f6; padding-bottom: 20px; }
+            .header h1 { color: #3b82f6; margin: 0; font-size: 28px; }
+            .header p { color: #666; margin: 5px 0; }
+            .macros-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
+            .macro-card { background: #f8fafc; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0; }
+            .macro-title { font-weight: bold; color: #475569; font-size: 14px; margin-bottom: 5px; }
+            .macro-value { font-size: 24px; font-weight: bold; }
+            .calories { color: #3b82f6; }
+            .protein { color: #dc2626; }
+            .carbs { color: #d97706; }
+            .fats { color: #059669; }
+            .meal { margin: 20px 0; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; page-break-inside: avoid; }
+            .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+            .meal-title { font-size: 18px; font-weight: bold; color: #1e293b; }
+            .meal-time { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+            .meal-calories { color: #666; font-size: 14px; }
+            .food-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+            .food-item:last-child { border-bottom: none; }
+            .food-name { font-weight: 500; }
+            .food-quantity { color: #3b82f6; font-size: 14px; }
+            .food-calories { color: #666; font-size: 14px; }
+            .food-macros { font-size: 12px; color: #666; margin-top: 2px; }
+            .tips { margin-top: 30px; page-break-inside: avoid; }
+            .tips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+            .tip { padding: 15px; border-radius: 8px; }
+            .tip-1 { background: #dbeafe; border-left: 4px solid #3b82f6; }
+            .tip-2 { background: #dcfce7; border-left: 4px solid #059669; }
+            .tip-3 { background: #fef3c7; border-left: 4px solid #d97706; }
+            .tip-4 { background: #fee2e2; border-left: 4px solid #dc2626; }
+            .tip-title { font-weight: bold; margin-bottom: 5px; }
+            .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Plano de Dieta Personalizado</h1>
+            <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
+            <p>Plano científico baseado em suas necessidades individuais</p>
           </div>
-          <div class="macro-card">
-            <div class="macro-title">Proteína</div>
-            <div class="macro-value protein">${displayTotals.protein}</div>
-          </div>
-          <div class="macro-card">
-            <div class="macro-title">Carboidratos</div>
-            <div class="macro-value carbs">${displayTotals.carbs}</div>
-          </div>
-          <div class="macro-card">
-            <div class="macro-title">Gorduras</div>
-            <div class="macro-value fats">${displayTotals.fats}</div>
-          </div>
-        </div>
 
-        ${dietPlan.meals
-          .map((meal, index) => {
-            if (!meal || typeof meal !== "object") return ""
+          <div class="macros-grid">
+            <div class="macro-card">
+              <div class="macro-title">Calorias Totais</div>
+              <div class="macro-value calories">${displayTotals.calories}</div>
+            </div>
+            <div class="macro-card">
+              <div class="macro-title">Proteína</div>
+              <div class="macro-value protein">${displayTotals.protein}</div>
+            </div>
+            <div class="macro-card">
+              <div class="macro-title">Carboidratos</div>
+              <div class="macro-value carbs">${displayTotals.carbs}</div>
+            </div>
+            <div class="macro-card">
+              <div class="macro-title">Gorduras</div>
+              <div class="macro-value fats">${displayTotals.fats}</div>
+            </div>
+          </div>
 
-            return `
+          ${dietPlan.meals
+            .map((meal, index) => {
+              if (!meal || typeof meal !== "object") return ""
+
+              return `
             <div class="meal">
               <div class="meal-header">
                 <div>
@@ -1310,49 +1313,64 @@ export default function DietPage() {
               }
             </div>
           `
-          })
-          .join("")}
+            })
+            .join("")}
 
-        <div class="tips">
-          <h2>Dicas Nutricionais</h2>
-          <div class="tips-grid">
-            <div class="tip tip-1">
-              <div class="tip-title">Dica 1</div>
-              <div>Coma alimentos ricos em proteínas para manter seu corpo saudável.</div>
+          ${
+            dietPlan.tips && Array.isArray(dietPlan.tips) && dietPlan.tips.length > 0
+              ? `
+            <div class="tips">
+              <h2 style="color: #1e293b; margin-bottom: 10px;">Dicas Importantes</h2>
+              <div class="tips-grid">
+                ${dietPlan.tips
+                  .map(
+                    (tip, index) => `
+                  <div class="tip tip-${(index % 4) + 1}">
+                    <div class="tip-title">Dica ${index + 1}</div>
+                    <div>${tip}</div>
+                  </div>
+                `,
+                  )
+                  .join("")}
+              </div>
             </div>
-            <div class="tip tip-2">
-              <div class="tip-title">Dica 2</div>
-              <div>Inclua frutas e vegetais em suas refeições para obter vitaminas e minerais.</div>
-            </div>
-            <div class="tip tip-3">
-              <div class="tip-title">Dica 3</div>
-              <div>Controle suas porções para evitar excesso de calorias.</div>
-            </div>
-            <div class="tip tip-4">
-              <div class="tip-title">Dica 4</div>
-              <div>Evite alimentos processados e ricos em açúcares.</div>
-            </div>
+          `
+              : ""
+          }
+
+          <div class="footer">
+            <p><strong>FitGoal</strong> - Seu plano de dieta personalizado</p>
+            <p>Este plano foi criado especificamente para você com base em seus objetivos e necessidades.</p>
           </div>
-        </div>
+        </body>
+        </html>
+      `
 
-        <div class="footer">
-          <p>Este plano foi gerado com base em cálculos científicos personalizados para suas necessidades.</p>
-          <p>Consulte sempre um nutricionista para orientações específicas.</p>
-        </div>
-      </body>
-      </html>
-    `
+      // Create a temporary div to hold the HTML content
+      const tempDiv = document.createElement("div")
+      tempDiv.innerHTML = pdfContent
+      tempDiv.style.position = "absolute"
+      tempDiv.style.left = "-9999px"
+      document.body.appendChild(tempDiv)
 
-    // Create blob and download
-    const blob = new Blob([pdfContent], { type: "text/html" })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = `plano-dieta-${new Date().toISOString().split("T")[0]}.html`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+      // Configure PDF options
+      const options = {
+        margin: 10,
+        filename: `plano-dieta-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      }
+
+      // Generate and download PDF
+      await html2pdf().set(options).from(tempDiv).save()
+
+      // Clean up
+      document.body.removeChild(tempDiv)
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error)
+      alert("Erro ao gerar PDF. Tente novamente.")
+    }
   }
 
   const calculateTotals = (meals: any[]) => {
@@ -1479,7 +1497,7 @@ export default function DietPage() {
       calories: totalCalories > 0 ? `${Math.round(totalCalories)}` : "0",
       protein: totalProtein > 0 ? `${Math.round(totalProtein)}g` : "0g",
       carbs: totalCarbs > 0 ? `${Math.round(totalCarbs)}g` : "0g",
-      fats: totalFats > 0 ? `${Math.round(totalFats)}g` : "0g",
+      fats: totalCarbs > 0 ? `${Math.round(totalCarbs)}g` : "0g",
     }
   }
 

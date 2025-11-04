@@ -19,6 +19,11 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
   const stripe = useStripe()
   const elements = useElements()
   const [processing, setProcessing] = useState(false)
+  const [installments, setInstallments] = useState(1)
+
+  const maxInstallments = Math.min(6, Math.floor(currentPlan.total / 50)) // Min R$50 per installment, max 6x
+  const installmentOptions = Array.from({ length: maxInstallments }, (_, i) => i + 1)
+  const installmentValue = currentPlan.total / installments
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -38,6 +43,7 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
           email: userEmail,
           planType: currentPlan.priceId,
           clientUid: clientUid,
+          installments: installments,
         }),
       })
 
@@ -68,6 +74,7 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
             paymentMethodId: setupIntent.payment_method,
             priceId: currentPlan.priceId,
             clientUid,
+            installments: installments,
           }),
         })
 
@@ -108,6 +115,43 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
         </CardContent>
       </Card>
 
+      <Card className="bg-gray-800 border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-white">Parcelamento</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {installmentOptions.map((option) => {
+              const value = currentPlan.total / option
+              const isSelected = installments === option
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setInstallments(option)}
+                  className={`w-full p-4 rounded-lg border-2 transition-all ${
+                    isSelected ? "border-lime-500 bg-lime-500/10" : "border-gray-600 bg-gray-700 hover:border-gray-500"
+                  }`}
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="text-white font-semibold">
+                      {option}x de {formatCurrency(value)}
+                    </span>
+                    {option === 1 && (
+                      <span className="text-xs bg-lime-500 text-gray-900 px-2 py-1 rounded-full font-bold">
+                        À VISTA
+                      </span>
+                    )}
+                    {isSelected && <Check className="h-5 w-5 text-lime-500" />}
+                  </div>
+                  <div className="text-sm text-gray-400 mt-1">Total: {formatCurrency(currentPlan.total)} sem juros</div>
+                </button>
+              )
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
       <Button
         type="submit"
         disabled={processing || !stripe || !elements || !currentPlan}
@@ -131,7 +175,9 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
           <>
             <div className="flex items-center justify-center relative z-10">
               <Lock className="h-6 w-6 mr-3" />
-              <span className="font-black text-xl">Finalizar Compra</span>
+              <span className="font-black text-xl">
+                Pagar {installments}x de {formatCurrency(installmentValue)}
+              </span>
               <div className="ml-3 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">SEGURO</div>
             </div>
           </>
@@ -151,7 +197,7 @@ function ProgressIndicator({ currentStep }: { currentStep: number }) {
 
   return (
     <div className="flex justify-center mb-8">
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4 text-gray-400 text-sm">
         {steps.map((step, index) => {
           const Icon = step.icon
           const isActive = currentStep >= step.number
@@ -304,7 +350,6 @@ export default function CheckoutPage() {
 
   const currentPlan = selectedPlan ? plans[selectedPlan as keyof typeof plans] : null
 
-  // Determinar o passo atual
   const getCurrentStep = () => {
     if (!selectedPlan) return 1
     if (!formData.phone || !formData.cpf) return 2

@@ -7,7 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(req: Request) {
   try {
-    const { customerId, paymentMethodId, priceId, clientUid } = await req.json()
+    const { customerId, paymentMethodId, priceId, clientUid, installments = 1 } = await req.json()
 
     if (!customerId || !paymentMethodId || !priceId || !clientUid) {
       console.error("Missing required fields for subscription creation:", {
@@ -19,11 +19,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 })
     }
 
+    const validInstallments = Math.min(Math.max(1, installments), 6)
+
     console.log("DEBUG: Creating subscription:", {
       customerId,
       paymentMethodId,
       priceId,
       clientUid,
+      installments: validInstallments,
     })
 
     // Attach payment method to customer
@@ -49,11 +52,26 @@ export async function POST(req: Request) {
       payment_settings: {
         payment_method_types: ["card"],
         save_default_payment_method: "on_subscription",
+        payment_method_options: {
+          card: {
+            installments: {
+              enabled: validInstallments > 1,
+              plan:
+                validInstallments > 1
+                  ? {
+                      count: validInstallments,
+                      type: "fixed_count" as const,
+                    }
+                  : undefined,
+            },
+          },
+        },
       },
       expand: ["latest_invoice.payment_intent"],
       metadata: {
         clientUid: clientUid,
         priceId: priceId,
+        installments: validInstallments.toString(),
       },
     })
 
