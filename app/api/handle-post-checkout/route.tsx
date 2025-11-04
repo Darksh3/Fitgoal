@@ -98,9 +98,9 @@ export async function POST(req: Request) {
 
     const planNames: { [key: string]: string } = {
       price_1RajatPRgKqdJdqNnb9HQe17: "Plano Premium Mensal",
-      price_1RajgKPRgKqdJdqNTnkZb2zD: "Plano Semestral",
+      price_1SPrzGPRgKqdJdqNNLfhAYNo: "Plano Semestral",
       price_1RajgKPRgKqdJdqNnhxim8dd: "Plano Premium Anual",
-      price_1RajgKPRgKqdJdqNPqgehqnX: "Plano Trimestral",
+      price_1SPs2cPRgKqdJdqNbiXZYLhI: "Plano Trimestral",
       price_1RdpDTPRgKqdJdqNrvZccKxj: "Plano Anual Teste",
     }
 

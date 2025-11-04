@@ -19,7 +19,6 @@ import {
   Users,
   Award,
   TrendingUp,
-  Crown,
   ChevronDown,
   ChevronUp,
 } from "lucide-react"
@@ -261,50 +260,51 @@ export default function HomePage() {
   const plans = {
     mensal: {
       name: "Plano Mensal",
-      originalPrice: 99.9, // Ajustado para um valor base para cálculo de economia
+      originalPrice: 147.9,
       price: 79.9,
       period: "mês",
       total: 79.9,
-      savings: 20.0, // 99.90 - 79.90
-      savePercentage: "20%", // (20.00 / 99.90) * 100
+      savings: 68.0,
+      savePercentage: "46%",
       color: "lime",
-      features: ["Treino personalizado", "Dieta personalizada", "Suporte via chat"],
+      description: "Para experimentar, sem compromisso.",
+      features: ["Treino 100% personalizado", "Dieta adaptada ao seu biotipo", "Suporte via chat"],
     },
     trimestral: {
       name: "Plano Trimestral",
-      originalPrice: 99.9,
-      price: 57.9,
+      originalPrice: 79.9,
+      price: 65.67,
       period: "mês",
-      total: 57.9 * 3, // Total para 3 meses
-      savings: 99.9 - 57.9, // Economia por mês
-      savePercentage: "42%", // (42.00 / 99.90) * 100
+      total: 197,
+      savings: 42.23,
+      savePercentage: "18%",
       color: "orange",
       popular: true,
-      features: ["Tudo do plano mensal", "Ajustes mensais do plano", "Relatórios de progresso"],
+      description: "Melhor custo-benefício. Perfeito para ver resultados reais.",
+      features: [
+        "Tudo do plano mensal",
+        "Ajustes mensais personalizados",
+        "Acompanhamento de progresso",
+        "Relatórios detalhados",
+      ],
     },
     semestral: {
       name: "Plano Semestral",
-      originalPrice: 99.9,
-      price: 64.9,
+      originalPrice: 79.9,
+      price: 49.5,
       period: "mês",
-      total: 64.9 * 6, // Total para 6 meses
-      savings: 99.9 - 64.9, // Economia por mês
-      savePercentage: "35%", // (35.00 / 99.90) * 100
+      total: 297,
+      savings: 182.4,
+      savePercentage: "38%",
       color: "purple",
       bestValue: true,
-      features: ["Tudo dos planos anteriores", "Consultoria nutricional", "Suporte prioritário"],
-    },
-    anual: {
-      name: "Plano Anual",
-      originalPrice: 99.9,
-      price: 49.9,
-      period: "mês",
-      total: 49.9 * 12, // Total para 12 meses
-      savings: 99.9 - 49.9, // Economia por mês
-      savePercentage: "50%", // (50.00 / 99.90) * 100
-      color: "yellow",
-      premium: true,
-      features: ["Tudo dos planos anteriores", "Acompanhamento pessoal", "Acesso vitalício"],
+      description: "Para quem quer mudar o corpo de verdade e economizar.",
+      features: [
+        "Tudo dos planos anteriores",
+        "Consultoria nutricional completa",
+        "Suporte prioritário 24/7",
+        "Planos de treino avançados",
+      ],
     },
   }
 
@@ -553,146 +553,99 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {/* Plano Mensal */}
-            <Card className="bg-gray-700 border-gray-600 p-6 text-center relative">
+            <Card className="bg-gray-700 border-gray-600 p-6 text-center relative hover:scale-105 transition-transform duration-300">
               <CardContent className="p-0">
-                <h3 className="text-2xl font-bold text-white mb-4">Mensal</h3>
+                <h3 className="text-2xl font-bold text-white mb-2">Mensal</h3>
+                <p className="text-gray-400 text-sm mb-4 min-h-[40px]">{plans.mensal.description}</p>
                 <div className="mb-6">
                   <div className="text-gray-400 line-through text-lg">R$ 147,90</div>
-                  <div className="text-4xl font-bold text-lime-400">R$ 79,90</div>
+                  <div className="text-5xl font-bold text-lime-400 mb-1">R$ 79,90</div>
                   <div className="text-gray-300 text-sm">por mês</div>
                 </div>
-                <div className="text-lime-400 text-xs font-bold">ECONOMIZE 46%</div>
+                <div className="bg-lime-500/20 text-lime-400 px-3 py-1 rounded-full text-xs font-bold inline-block mb-6">
+                  ECONOMIZE 46%
+                </div>
                 <ul className="space-y-3 mb-8 text-left">
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Treino personalizado</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Dieta personalizada</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Suporte via chat</span>
-                  </li>
+                  {plans.mensal.features.map((feature, index) => (
+                    <li key={index} className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-lime-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-gray-300">{feature}</span>
+                    </li>
+                  ))}
                 </ul>
                 <Button
                   onClick={() => goToCheckout("mensal")}
-                  className="w-full bg-lime-500 hover:bg-lime-600 text-white"
+                  className="w-full bg-lime-500 hover:bg-lime-600 text-white font-bold py-3"
                 >
                   Escolher Plano
                 </Button>
               </CardContent>
             </Card>
 
-            {/* Plano Trimestral */}
-            <Card className="bg-gray-700 border-gray-600 p-6 text-center relative">
+            {/* Plano Trimestral - RECOMENDADO */}
+            <Card className="bg-gradient-to-b from-orange-500/20 to-orange-600/20 border-orange-500 border-2 p-6 text-center relative transform scale-105 shadow-2xl shadow-orange-500/30">
               <CardContent className="p-0">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                  POPULAR
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                  ⭐ RECOMENDADO
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-4">Trimestral</h3>
+                <h3 className="text-2xl font-bold text-white mb-2 mt-2">Trimestral</h3>
+                <p className="text-gray-300 text-sm mb-4 min-h-[40px]">{plans.trimestral.description}</p>
                 <div className="mb-6">
-                  <div className="text-gray-400 line-through text-lg">R$ 97,90/mês</div>
-                  <div className="text-4xl font-bold text-lime-400">R$ 57,90</div>
-                  <div className="text-gray-300 text-sm">por mês</div>
-                  <div className="text-orange-400 text-xs font-bold">ECONOMIZE 41%</div>
+                  <div className="text-gray-400 line-through text-lg">R$ 239,70</div>
+                  <div className="text-5xl font-bold text-orange-400 mb-1">R$ 197</div>
+                  <div className="text-gray-300 text-sm">R$ 65,67/mês</div>
+                </div>
+                <div className="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full text-xs font-bold inline-block mb-6">
+                  ECONOMIZE 18%
                 </div>
                 <ul className="space-y-3 mb-8 text-left">
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Tudo do plano mensal</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Ajustes mensais do plano</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Relatórios de progresso</span>
-                  </li>
+                  {plans.trimestral.features.map((feature, index) => (
+                    <li key={index} className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-orange-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-gray-300">{feature}</span>
+                    </li>
+                  ))}
                 </ul>
                 <Button
                   onClick={() => goToCheckout("trimestral")}
-                  className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                  className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-3 shadow-lg"
                 >
-                  Escolher Plano
+                  Escolher Recomendado
                 </Button>
               </CardContent>
             </Card>
 
             {/* Plano Semestral */}
-            <Card className="bg-gray-700 border-gray-600 p-6 text-center relative">
+            <Card className="bg-gray-700 border-gray-600 p-6 text-center relative hover:scale-105 transition-transform duration-300">
               <CardContent className="p-0">
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                  MELHOR CUSTO
+                  MELHOR VALOR
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-4">Semestral</h3>
+                <h3 className="text-2xl font-bold text-white mb-2">Semestral</h3>
+                <p className="text-gray-400 text-sm mb-4 min-h-[40px]">{plans.semestral.description}</p>
                 <div className="mb-6">
-                  <div className="text-gray-400 line-through text-lg">R$ 77,90/mês</div>
-                  <div className="text-4xl font-bold text-lime-400">R$ 64,90</div>
-                  <div className="text-gray-300 text-sm">por mês</div>
-                  <div className="text-purple-400 text-xs font-bold">ECONOMIZE 17%</div>
+                  <div className="text-gray-400 line-through text-lg">R$ 479,40</div>
+                  <div className="text-5xl font-bold text-purple-400 mb-1">R$ 297</div>
+                  <div className="text-gray-300 text-sm">R$ 49,50/mês</div>
+                </div>
+                <div className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full text-xs font-bold inline-block mb-6">
+                  ECONOMIZE 38%
                 </div>
                 <ul className="space-y-3 mb-8 text-left">
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Tudo dos planos anteriores</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Consultoria nutricional</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Suporte prioritário</span>
-                  </li>
+                  {plans.semestral.features.map((feature, index) => (
+                    <li key={index} className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-purple-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-gray-300">{feature}</span>
+                    </li>
+                  ))}
                 </ul>
                 <Button
                   onClick={() => goToCheckout("semestral")}
-                  className="w-full bg-purple-500 hover:bg-purple-600 text-white"
+                  className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3"
                 >
                   Escolher Plano
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Plano Anual */}
-            <Card className="bg-gradient-to-b from-yellow-500/20 to-yellow-600/20 border-yellow-500 p-6 text-center relative">
-              <CardContent className="p-0">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black px-3 py-1 rounded-full text-xs font-bold flex items-center">
-                  <Crown className="h-3 w-3 mr-1" />
-                  PREMIUM
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4">Anual</h3>
-                <div className="mb-6">
-                  <div className="text-gray-400 line-through text-lg">R$ 67,90/mês</div>
-                  <div className="text-4xl font-bold text-yellow-400">R$ 49,90</div>
-                  <div className="text-gray-300 text-sm">por mês</div>
-                  <div className="text-yellow-400 text-xs font-bold">ECONOMIZE 26%</div>
-                </div>
-                <ul className="space-y-3 mb-8 text-left">
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-yellow-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Tudo dos planos anteriores</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-yellow-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Acompanhamento pessoal</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-yellow-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm">Acesso vitalício</span>
-                  </li>
-                </ul>
-                <Button
-                  onClick={() => goToCheckout("anual")}
-                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold"
-                >
-                  <Crown className="h-4 w-4 mr-2" />
-                  Escolher Premium
                 </Button>
               </CardContent>
             </Card>

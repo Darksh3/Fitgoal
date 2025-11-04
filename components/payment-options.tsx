@@ -37,7 +37,7 @@ export default function PaymentOptions({ initialName = "", initialEmail = "", qu
     },
     trimestral: {
       name: "Plano Trimestral",
-      priceId: "price_1RajgKPRgKqdJdqNPqgehqnX",
+      priceId: "price_1SPs2cPRgKqdJdqNbiXZYLhI", // Updated to new Stripe Price ID for trimestral plan
       originalPrice: 97.9,
       price: 67.9,
       period: "mês",
@@ -49,7 +49,7 @@ export default function PaymentOptions({ initialName = "", initialEmail = "", qu
     },
     semestral: {
       name: "Plano Semestral",
-      priceId: "price_1RajgKPRgKqdJdqNTnkZb2zD",
+      priceId: "price_1SPrzGPRgKqdJdqNNLfhAYNo", // Updated to new Stripe Price ID for semestral plan
       originalPrice: 77.9,
       price: 47.9,
       period: "mês",
@@ -73,7 +73,7 @@ export default function PaymentOptions({ initialName = "", initialEmail = "", qu
     },
     "anual-teste": {
       name: "Anual Teste",
-      priceId: "price_1Pj234567890abcdef", // Substitua pelo Price ID real do Stripe para o plano de teste
+      priceId: "price_1Pj234567890abcdef",
       originalPrice: 1.0,
       price: 1.0,
       period: "ano",

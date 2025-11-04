@@ -275,42 +275,30 @@ export default function CheckoutPage() {
     mensal: {
       name: "Plano Mensal",
       priceId: "price_1RajatPRgKqdJdqNnb9HQe17",
-      originalPrice: 147.9,
-      price: 97.9,
-      total: 97.9,
-      savings: 50.0,
+      price: 79.9,
+      total: 79.9,
       color: "lime",
       duration: "1 mês",
+      description: "Para experimentar, sem compromisso.",
     },
     trimestral: {
       name: "Plano Trimestral",
-      priceId: "price_1RajgKPRgKqdJdqNPqgehqnX",
-      originalPrice: 97.9,
-      price: 67.9,
-      total: 203.7,
-      savings: 90.0,
+      priceId: "price_1SPs2cPRgKqdJdqNbiXZYLhI",
+      price: 65.67,
+      total: 197,
       color: "orange",
       duration: "3 meses",
+      description: "Melhor custo-benefício. Perfeito para ver resultados reais.",
+      recommended: true,
     },
     semestral: {
       name: "Plano Semestral",
-      priceId: "price_1RajgKPRgKqdJdqNTnkZb2zD",
-      originalPrice: 77.9,
-      price: 47.9,
-      total: 287.4,
-      savings: 180.0,
+      priceId: "price_1SPrzGPRgKqdJdqNNLfhAYNo",
+      price: 49.5,
+      total: 297,
       color: "purple",
       duration: "6 meses",
-    },
-    anual: {
-      name: "Plano Anual",
-      priceId: "price_1RajgKPRgKqdJdqNnhxim8dd",
-      originalPrice: 67.9,
-      price: 29.9,
-      total: 358.8,
-      savings: 456.0,
-      color: "yellow",
-      duration: "12 meses",
+      description: "Para quem quer mudar o corpo de verdade e economizar.",
     },
   }
 
@@ -338,17 +326,22 @@ export default function CheckoutPage() {
         <ProgressIndicator currentStep={getCurrentStep()} />
 
         {/* Grid de Planos */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {Object.entries(plans).map(([key, plan]) => (
             <Card
               key={key}
-              className={`cursor-pointer transition-all duration-200 ${
+              className={`cursor-pointer transition-all duration-200 relative ${
                 selectedPlan === key
                   ? "bg-gray-700 border-2 border-lime-500 ring-2 ring-lime-500/20 transform scale-105"
                   : "bg-gray-800 border-gray-700 hover:bg-gray-750 hover:border-gray-600"
               }`}
               onClick={() => setSelectedPlan(key)}
             >
+              {plan.recommended && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  RECOMENDADO
+                </div>
+              )}
               <CardHeader className="text-center pb-2">
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-white text-lg">{plan.name}</CardTitle>
@@ -358,16 +351,13 @@ export default function CheckoutPage() {
               </CardHeader>
               <CardContent className="text-center">
                 <div className="mb-2">
-                  <span className="text-gray-400 line-through text-sm">{formatCurrency(plan.originalPrice)}</span>
-                </div>
-                <div className="mb-2">
                   <span className="text-2xl font-bold text-white">{formatCurrency(plan.price)}</span>
                   <span className="text-gray-400 text-sm">/mês</span>
                 </div>
                 <div className="mb-4">
                   <span className="text-lg font-semibold text-white">Total: {formatCurrency(plan.total)}</span>
                 </div>
-                <div className="text-sm text-lime-500">Economize {formatCurrency(plan.savings)}</div>
+                <p className="text-sm text-gray-400 italic">{plan.description}</p>
               </CardContent>
             </Card>
           ))}
