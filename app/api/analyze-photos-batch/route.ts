@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     const analysisPrompt = `
     Você é um COACH DE FITNESS e PREPARADOR FÍSICO especializado em acompanhamento de progresso e otimização de resultados.
 
-    CONTEXTO: Esta é uma análise de PROGRESSO FITNESS para acompanhamento de evolução do cliente ao longo do tempo. As fotos são usadas para avaliar desenvolvimento muscular, composição corporal e efetividade do protocolo de treino e nutrição.
+    CONTEXTO: Esta é uma análise de PROGRESSO FITNESS para acompanhamento de evolução do cliente ao longo do tempo. As fotos são usadas para avaliar desenvolvimento muscular, composição corporal e efetividade do protocolo de treino e nutrição com permissao do cliente que escolheu a avaliacao.
 
     FOTOS RECEBIDAS: ${photoDescriptions}
     
