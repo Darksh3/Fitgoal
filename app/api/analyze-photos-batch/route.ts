@@ -106,125 +106,103 @@ export async function POST(request: NextRequest) {
       .join(", ")
 
     const analysisPrompt = `
-    Você é um PERSONAL TRAINER ESPORTIVO e NUTRICIONISTA CLÍNICO certificado pela ISSA e ACE com 15 anos de experiência em análise de composição corporal, periodização de treino e prescrição dietética individualizada.
+    Você é um COACH DE FITNESS e PREPARADOR FÍSICO especializado em acompanhamento de progresso e otimização de resultados.
 
-    FOTOS RECEBIDAS PARA ANÁLISE 360°: ${photoDescriptions}
+    CONTEXTO: Esta é uma análise de PROGRESSO FITNESS para acompanhamento de evolução do cliente ao longo do tempo. As fotos são usadas para avaliar desenvolvimento muscular, composição corporal e efetividade do protocolo de treino e nutrição.
+
+    FOTOS RECEBIDAS: ${photoDescriptions}
     
-    DADOS ANTROPOMÉTRICOS E OBJETIVOS:
-    - Objetivo primário: ${userQuizData?.goal || "Não informado"}
-    - Biotipo somatotípico: ${userQuizData?.bodyType || "Não informado"}
-    - Nível de experiência: ${userQuizData?.experience || "Não informado"}
-    - Peso corporal atual: ${userQuizData?.currentWeight || "Não informado"}kg
-    - Meta de peso: ${userQuizData?.goalWeight || "Não informado"}kg
+    PERFIL DO CLIENTE:
+    - Objetivo: ${userQuizData?.goal || "Não informado"}
+    - Biotipo: ${userQuizData?.bodyType || "Não informado"}
+    - Experiência: ${userQuizData?.experience || "Não informado"}
+    - Peso atual: ${userQuizData?.currentWeight || "Não informado"}kg
+    - Meta: ${userQuizData?.goalWeight || "Não informado"}kg
     - Altura: ${userQuizData?.height || "Não informado"}cm
     - Idade: ${userQuizData?.age || "Não informado"} anos
-    - Sexo biológico: ${userQuizData?.gender || "Não informado"}
 
-    PROTOCOLO NUTRICIONAL ATUAL (INCLUINDO SUPLEMENTAÇÃO):
-    - Calorias totais diárias REAIS: ${Math.round(realTotalCalories)} kcal
-    - Proteína total diária REAL: ${Math.round(realTotalProtein)}g (${((realTotalProtein / (userQuizData?.currentWeight || 70)) * 1).toFixed(2)}g/kg)
-    - Carboidratos totais: ${Math.round(realTotalCarbs)}g
-    - Gorduras totais: ${Math.round(realTotalFats)}g
-    - Número de refeições: ${dietPlan?.meals?.length || "Não informado"}
-    - Suplementação: ${dietPlan?.supplements?.length > 0 ? dietPlan.supplements.map((s: any) => s.name).join(", ") : "Nenhuma"}
+    PROTOCOLO NUTRICIONAL ATUAL:
+    - Calorias diárias: ${Math.round(realTotalCalories)} kcal
+    - Proteína diária: ${Math.round(realTotalProtein)}g (${((realTotalProtein / (userQuizData?.currentWeight || 70)) * 1).toFixed(2)}g/kg)
+    - Carboidratos: ${Math.round(realTotalCarbs)}g
+    - Gorduras: ${Math.round(realTotalFats)}g
+    - Refeições: ${dietPlan?.meals?.length || "Não informado"}
+    - Suplementos: ${dietPlan?.supplements?.length > 0 ? dietPlan.supplements.map((s: any) => s.name).join(", ") : "Nenhum"}
 
-    PROTOCOLO DE TREINAMENTO ATUAL:
-    - Frequência semanal: ${currentPlans?.workoutPlan?.days?.length || "Não informado"}x/semana
-    - Divisão de treino: ${currentPlans?.workoutPlan?.days?.map((d: any) => d.name).join(", ") || "Não informado"}
-    - Volume total estimado: ${currentPlans?.workoutPlan?.days?.reduce((acc: number, day: any) => acc + (day.exercises?.length || 0), 0) || "Não informado"} exercícios/semana
-
-    CÁLCULOS CIENTÍFICOS BASELINE:
-    - TMB (Taxa Metabólica Basal): ${currentPlans?.scientificCalculations?.bmr || "Não calculado"} kcal
-    - TDEE (Gasto Energético Total): ${currentPlans?.scientificCalculations?.tdee || "Não calculado"} kcal
-    - Necessidade proteica mínima: ${currentPlans?.scientificCalculations?.proteinNeeds || "Não calculado"}
+    PROTOCOLO DE TREINO ATUAL:
+    - Frequência: ${currentPlans?.workoutPlan?.days?.length || "Não informado"}x/semana
+    - Divisão: ${currentPlans?.workoutPlan?.days?.map((d: any) => d.name).join(", ") || "Não informado"}
+    - Volume: ${currentPlans?.workoutPlan?.days?.reduce((acc: number, day: any) => acc + (day.exercises?.length || 0), 0) || "Não informado"} exercícios/semana
 
     ═══════════════════════════════════════════════════════════════════════════
 
-    PROTOCOLO DE ANÁLISE PROFISSIONAL AVANÇADA:
+    ANÁLISE SOLICITADA:
 
-    Você deve realizar uma avaliação COMPLETA e TÉCNICA considerando TODAS as fotos fornecidas simultaneamente para análise tridimensional do físico.
+    Com base nas fotos de progresso fornecidas, avalie:
 
-    ETAPAS OBRIGATÓRIAS DA ANÁLISE:
+    1. DESENVOLVIMENTO MUSCULAR OBSERVADO:
+       - Quais grupos musculares estão bem desenvolvidos
+       - Quais grupos precisam de mais atenção
+       - Simetria e proporções gerais
+       - Estimativa de composição corporal (massa muscular vs gordura)
 
-    1. AVALIAÇÃO DE COMPOSIÇÃO CORPORAL (Análise Visual Profissional):
-       - Estime o percentual de gordura corporal com base nos pontos de referência visuais (definição abdominal, vascularização, separação muscular)
-       - Avalie o desenvolvimento muscular por grupo (superior/inferior, anterior/posterior)
-       - Identifique assimetrias musculares significativas entre hemicorpos
-       - Avalie proporções estéticas (relação ombro-cintura, desenvolvimento de deltoides, trapézio, dorsais)
-       - Identifique pontos de estagnação ou subdesenvolvimento muscular
+    2. EFETIVIDADE DO PROTOCOLO ATUAL:
+       - O protocolo de treino está gerando os resultados esperados?
+       - A nutrição (${Math.round(realTotalCalories)} kcal, ${Math.round(realTotalProtein)}g proteína) está adequada para o objetivo?
+       - Há sinais de overtraining ou undertraining?
 
-    2. ANÁLISE CRÍTICA DO PROTOCOLO ATUAL vs FÍSICO OBSERVADO:
-       - Compare o físico atual com o objetivo declarado e calcule a "distância" até a meta
-       - Avalie se o intake calórico REAL (${Math.round(realTotalCalories)} kcal) está adequado para o físico e objetivo
-       - Verifique se a ingestão proteica REAL (${Math.round(realTotalProtein)}g = ${((realTotalProtein / (userQuizData?.currentWeight || 70)) * 1).toFixed(2)}g/kg) é suficiente
-       - Analise se o volume e frequência de treino estão compatíveis com o desenvolvimento muscular observado
-       - Identifique sinais de overtraining, undertraining ou má periodização
+    3. RECOMENDAÇÕES PRÁTICAS:
+       - Ajustes específicos no treino (exercícios, volume, frequência)
+       - Ajustes na nutrição (calorias, macros)
+       - Foco prioritário para as próximas semanas
 
-    3. PRESCRIÇÃO DE AJUSTES QUANTIFICADOS:
-       - Se necessário ajuste calórico, especifique o valor EXATO (ex: aumentar 300kcal, reduzir 250kcal)
-       - Se necessário ajuste proteico, especifique o valor EXATO em gramas e g/kg
-       - Se necessário ajuste no treino, especifique exercícios, séries, repetições e frequência
-       - Justifique TECNICAMENTE cada ajuste baseado na análise visual e dados antropométricos
-
-    4. LINGUAGEM E POSTURA PROFISSIONAL:
-       - Use terminologia técnica apropriada (hipertrofia, déficit/superávit calórico, periodização, sarcoplasma, miofibrilar)
-       - Seja DIRETO, CRÍTICO e HONESTO - não use linguagem motivacional genérica
-       - Aponte deficiências sem rodeios, mas sempre com justificativa técnica
-       - Foque em DADOS OBSERVÁVEIS e AÇÕES CONCRETAS mensuráveis
+    4. FEEDBACK MOTIVACIONAL:
+       - Reconheça os pontos fortes observados
+       - Seja honesto sobre áreas que precisam melhorar
+       - Estime tempo realista para atingir o objetivo
 
     ═══════════════════════════════════════════════════════════════════════════
 
-    RESPONDA EXCLUSIVAMENTE EM JSON VÁLIDO (sem markdown, sem explicações extras):
+    IMPORTANTE: Responda APENAS com JSON válido (sem markdown, sem texto extra):
 
     {
       "pontosForts": [
-        "Observação técnica específica do desenvolvimento muscular observado nas fotos",
-        "Segunda característica positiva identificada na análise visual",
-        "Terceiro aspecto favorável do físico atual"
+        "Ponto forte específico observado nas fotos",
+        "Segundo aspecto positivo do desenvolvimento",
+        "Terceiro ponto favorável identificado"
       ],
       "areasParaMelhorar": [
-        "Área crítica prioritária que necessita intervenção URGENTE com base na análise visual",
-        "Segunda deficiência identificada que impacta os resultados",
-        "Terceira área de subdesenvolvimento ou estagnação observada"
+        "Área prioritária que precisa de atenção com base nas fotos",
+        "Segunda área para melhorar",
+        "Terceira área de foco"
       ],
       "dicasEspecificas": [
-        "Ação concreta, mensurável e imediatamente aplicável (ex: aumentar volume de treino de pernas em 30%)",
-        "Segunda recomendação técnica específica com métrica clara",
-        "Terceira orientação prática baseada na análise do físico"
+        "Dica prática e específica baseada na análise (ex: aumentar volume de treino de pernas)",
+        "Segunda recomendação concreta",
+        "Terceira orientação aplicável"
       ],
-      "motivacao": "Feedback profissional direto sobre o estado atual do físico, potencial de evolução e realismo da meta considerando o protocolo atual. Seja honesto sobre o tempo estimado para atingir o objetivo.",
-      "focoPrincipal": "Área prioritária única que terá o maior impacto nos resultados se otimizada (ex: aumentar ingestão calórica, corrigir assimetria de desenvolvimento, aumentar volume de treino)",
-      "progressoGeral": "Avaliação técnica detalhada: percentual de gordura estimado (ex: 18-20%), classificação de massa muscular (baixa/média/alta), condicionamento geral, e análise comparativa entre desenvolvimento de membros superiores e inferiores considerando todos os ângulos fotografados",
+      "motivacao": "Mensagem motivacional honesta sobre o estado atual e potencial de evolução",
+      "focoPrincipal": "Área única mais importante para focar agora",
+      "progressoGeral": "Avaliação detalhada: estimativa de % de gordura, nível de massa muscular, condicionamento geral, comparação entre desenvolvimento superior e inferior considerando todas as fotos",
       "recomendacoesTreino": [
-        "Ajuste específico e quantificado no protocolo de treino com justificativa técnica baseada no desenvolvimento muscular observado (ex: adicionar 2 exercícios compostos para posterior de coxa devido ao subdesenvolvimento observado na foto de costas)",
-        "Segunda recomendação técnica de treino com métrica clara e justificativa anatômica"
+        "Ajuste específico no treino com justificativa (ex: adicionar 2 exercícios para posterior devido ao desenvolvimento observado)",
+        "Segunda recomendação de treino"
       ],
       "recomendacoesDieta": [
-        "Ajuste nutricional QUANTIFICADO com valor exato (ex: aumentar ingestão calórica de ${Math.round(realTotalCalories)}kcal para ${Math.round(realTotalCalories + 300)}kcal para promover superávit de 300kcal)",
-        "Segunda recomendação dietética específica com valores e justificativa metabólica (ex: aumentar proteína de ${Math.round(realTotalProtein)}g para ${Math.round(realTotalProtein + 30)}g para atingir 2.2g/kg)"
+        "Ajuste específico na dieta com valores (ex: aumentar 200kcal para ganho de massa)",
+        "Segunda recomendação nutricional"
       ],
-      "otimizacaoNecessaria": true ou false,
       "otimizacoesSugeridas": {
-        "dieta": {
-          "necessaria": true ou false,
-          "mudancas": [
-            "Mudança ESPECÍFICA e QUANTIFICADA com valores exatos (ex: Aumentar calorias de ${Math.round(realTotalCalories)}kcal para ${Math.round(realTotalCalories + 300)}kcal)",
-            "Segunda mudança concreta com métrica clara"
-          ],
-          "justificativa": "Justificativa técnica detalhada baseada na composição corporal observada em todos os ângulos, relacionando com o objetivo declarado e os cálculos de TDEE/TMB"
-        },
         "treino": {
-          "necessaria": true ou false,
-          "mudancas": [
-            "Mudança ESPECÍFICA no protocolo com exercícios, séries e repetições (ex: Adicionar 3x12 Stiff na perna A e 3x15 Mesa Flexora na perna B para corrigir subdesenvolvimento de posterior)",
-            "Segunda alteração concreta com volume e intensidade definidos"
-          ],
-          "justificativa": "Justificativa técnica detalhada baseada no desenvolvimento muscular observado em todos os ângulos, identificando grupos musculares subdesenvolvidos ou assimetrias"
+          "mudancas": ["Mudança específica 1", "Mudança específica 2"],
+          "justificativa": "Explicação técnica baseada nas fotos"
+        },
+        "dieta": {
+          "mudancas": ["Ajuste específico 1", "Ajuste específico 2"],
+          "justificativa": "Explicação baseada no objetivo e físico atual"
         }
       }
     }
-
-    LEMBRE-SE: Seja CRÍTICO, TÉCNICO, DIRETO e QUANTIFICADO. Não use linguagem motivacional vaga. Cada recomendação deve ter NÚMEROS e MÉTRICAS específicas. Analise o físico como um profissional experiente faria em uma consulta presencial.
     `
 
     console.log("[v0] API: Starting AI analysis with multiple photos and real diet data")
