@@ -22,6 +22,7 @@ import {
   History,
   ChevronDown,
   ChevronUp,
+  X,
 } from "lucide-react"
 
 interface ProgressPhoto {
@@ -61,12 +62,21 @@ interface ProgressPhoto {
   }
 }
 
+interface PendingPhoto {
+  file: File
+  preview: string
+  type: "front" | "back" | "side"
+}
+
 export default function AnaliseCorporalPage() {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [user] = useAuthState(auth)
   const [photos, setPhotos] = useState<ProgressPhoto[]>([])
+
+  const [pendingPhotos, setPendingPhotos] = useState<PendingPhoto[]>([])
   const [selectedPhotoType, setSelectedPhotoType] = useState<"front" | "back" | "side">("front")
+
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isComparing, setIsComparing] = useState(false)
   const [quizData, setQuizData] = useState<any>(null)
@@ -210,6 +220,115 @@ export default function AnaliseCorporalPage() {
       console.error("Error applying workout optimization:", error)
     } finally {
       setIsApplyingWorkout(null)
+    }
+  }
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file || !user) return
+
+    // Check if this photo type already exists in pending
+    const existingIndex = pendingPhotos.findIndex((p) => p.type === selectedPhotoType)
+
+    const preview = URL.createObjectURL(file)
+    const newPhoto: PendingPhoto = {
+      file,
+      preview,
+      type: selectedPhotoType,
+    }
+
+    if (existingIndex >= 0) {
+      // Replace existing photo of same type
+      const updated = [...pendingPhotos]
+      URL.revokeObjectURL(updated[existingIndex].preview)
+      updated[existingIndex] = newPhoto
+      setPendingPhotos(updated)
+    } else {
+      // Add new photo
+      setPendingPhotos([...pendingPhotos, newPhoto])
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
+
+  const handleRemovePendingPhoto = (type: "front" | "back" | "side") => {
+    const photo = pendingPhotos.find((p) => p.type === type)
+    if (photo) {
+      URL.revokeObjectURL(photo.preview)
+    }
+    setPendingPhotos(pendingPhotos.filter((p) => p.type !== type))
+  }
+
+  const handleAnalyzePhotos = async () => {
+    if (!user || pendingPhotos.length === 0) return
+
+    setIsAnalyzing(true)
+    setCurrentAnalysis(null)
+
+    try {
+      console.log("[v0] Starting photo upload and analysis process")
+
+      const uploadedPhotos = await Promise.all(
+        pendingPhotos.map(async (photo) => {
+          const formData = new FormData()
+          formData.append("file", photo.file)
+          formData.append("userId", user.uid)
+          formData.append("photoType", photo.type)
+
+          console.log("[v0] Uploading photo:", photo.type)
+          const uploadResponse = await fetch("/api/upload-photo", {
+            method: "POST",
+            body: formData,
+          })
+
+          if (!uploadResponse.ok) {
+            throw new Error(`Failed to upload ${photo.type} photo`)
+          }
+
+          const uploadData = await uploadResponse.json()
+          console.log("[v0] Photo uploaded successfully:", uploadData.url)
+
+          return {
+            photoUrl: uploadData.url,
+            photoType: photo.type,
+          }
+        }),
+      )
+
+      console.log("[v0] All photos uploaded, starting AI analysis")
+
+      const analysisResponse = await fetch("/api/analyze-photos-batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          photos: uploadedPhotos,
+          userId: user.uid,
+          userQuizData: quizData,
+        }),
+      })
+
+      if (!analysisResponse.ok) {
+        const errorData = await analysisResponse.json()
+        throw new Error(errorData.error || "Failed to analyze photos")
+      }
+
+      const analysisData = await analysisResponse.json()
+      console.log("[v0] Analysis completed successfully")
+      console.log("[v0] Real diet totals used:", analysisData.realDietTotals)
+
+      setCurrentAnalysis(analysisData.analysis)
+      setPendingPhotos([])
+      setActiveTab("history")
+
+      alert("Análise profissional concluída! Verifique o histórico para ver os resultados detalhados.")
+    } catch (error) {
+      console.error("[v0] Error in analysis process:", error)
+      alert(error instanceof Error ? error.message : "Erro ao analisar fotos. Tente novamente.")
+    } finally {
+      setIsAnalyzing(false)
     }
   }
 
@@ -365,8 +484,11 @@ export default function AnaliseCorporalPage() {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Camera className="h-5 w-5 text-blue-600" />
-                  <span>Adicionar Nova Foto</span>
+                  <span>Adicionar Fotos para Análise</span>
                 </CardTitle>
+                <p className="text-sm text-gray-600 mt-2">
+                  Adicione 2 ou 3 fotos (frente, costas e/ou lateral) e envie todas juntas para análise completa
+                </p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -389,14 +511,66 @@ export default function AnaliseCorporalPage() {
                   </div>
                 </div>
 
-                <div className="flex space-x-3">
-                  <Button onClick={() => fileInputRef.current?.click()} className="flex-1" disabled={isAnalyzing}>
-                    <Upload className="h-4 w-4 mr-2" />
-                    {isAnalyzing ? "Analisando..." : "Escolher Foto"}
-                  </Button>
-                </div>
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full"
+                  disabled={isAnalyzing}
+                  variant="outline"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Adicionar Foto {getPhotoTypeLabel(selectedPhotoType)}
+                </Button>
 
-                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
+
+                {pendingPhotos.length > 0 && (
+                  <div className="space-y-3">
+                    <p className="text-sm font-medium text-gray-700">Fotos adicionadas ({pendingPhotos.length}):</p>
+                    <div className="grid grid-cols-3 gap-3">
+                      {pendingPhotos.map((photo) => (
+                        <div key={photo.type} className="relative">
+                          <div className="aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden">
+                            <img
+                              src={photo.preview || "/placeholder.svg"}
+                              alt={getPhotoTypeLabel(photo.type)}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <Badge className={`absolute top-2 left-2 ${getPhotoTypeColor(photo.type)}`}>
+                            {getPhotoTypeLabel(photo.type)}
+                          </Badge>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-2 right-2"
+                            onClick={() => handleRemovePendingPhoto(photo.type)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Button
+                      onClick={handleAnalyzePhotos}
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                      disabled={isAnalyzing}
+                      size="lg"
+                    >
+                      {isAnalyzing ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                          Analisando...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-5 w-5 mr-2" />
+                          Enviar para Análise Profissional
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
 
                 <div className="p-4 bg-blue-100 rounded-lg">
                   <h4 className="font-medium text-blue-800 mb-2">📸 Dicas para melhores fotos:</h4>
