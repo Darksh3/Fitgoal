@@ -2,315 +2,203 @@ import { type NextRequest, NextResponse } from "next/server"
 import { openai } from "@ai-sdk/openai"
 import { generateText } from "ai"
 import { adminDb } from "@/lib/firebase-admin"
-import { FieldValue } from "firebase-admin/firestore"
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("[v0] API: Starting batch photo analysis")
-
     const body = await request.json()
-    const { photos, userId, userQuizData } = body
+    const { userId, photos, userQuizData, currentPlans } = body
 
-    console.log("[v0] API: Received data:", {
-      photosCount: photos?.length,
-      photoUrls: photos?.map((p: any) => p.photoUrl?.substring(0, 50)),
-      userId: !!userId,
-      userQuizData: !!userQuizData,
-    })
+    console.log("[v0] Batch analysis request received for user:", userId)
+    console.log("[v0] Number of photos:", photos?.length)
 
-    if (!photos || photos.length === 0 || !userId) {
-      console.log("[v0] API: Missing required fields")
+    if (!userId || !photos || photos.length === 0) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const invalidPhotos = photos.filter((p: any) => !p.photoUrl || !p.photoUrl.startsWith("http"))
-    if (invalidPhotos.length > 0) {
-      console.error("[v0] API: Invalid photo URLs detected:", invalidPhotos)
-      return NextResponse.json(
-        {
-          error: "Invalid photo URLs",
-          details: "Some photos were not uploaded correctly",
-        },
-        { status: 400 },
-      )
+    if (!process.env.OPENAI_API_KEY) {
+      console.error("[v0] OPENAI_API_KEY not found")
+      return NextResponse.json({ error: "OpenAI API key not configured" }, { status: 500 })
     }
-
-    console.log("[v0] API: Fetching user data from Firebase")
-    const userDocRef = adminDb.collection("users").doc(userId)
-    const userDoc = await userDocRef.get()
-
-    if (!userDoc.exists) {
-      console.error("[v0] API: User not found:", userId)
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
-    }
-
-    const currentPlans = userDoc.data() || {}
-    console.log("[v0] API: User data fetched successfully")
 
     const dietPlan = currentPlans?.dietPlan
-    let realTotalCalories = 0
-    let realTotalProtein = 0
-    let realTotalCarbs = 0
-    let realTotalFats = 0
+    const supplementCalories =
+      dietPlan?.supplements?.reduce((sum: number, supp: any) => sum + (supp.calories || 0), 0) || 0
+    const supplementProtein =
+      dietPlan?.supplements?.reduce((sum: number, supp: any) => sum + (supp.protein || 0), 0) || 0
+    const supplementCarbs = dietPlan?.supplements?.reduce((sum: number, supp: any) => sum + (supp.carbs || 0), 0) || 0
+    const supplementFats = dietPlan?.supplements?.reduce((sum: number, supp: any) => sum + (supp.fats || 0), 0) || 0
 
-    // Add supplement macros
-    if (dietPlan?.supplements && Array.isArray(dietPlan.supplements)) {
-      dietPlan.supplements.forEach((supplement: any) => {
-        realTotalCalories += Number(supplement.calories) || 0
-        realTotalProtein += Number(supplement.protein) || 0
-        realTotalCarbs += Number(supplement.carbs) || 0
-        realTotalFats += Number(supplement.fat) || 0
-      })
-    }
+    const realTotalCalories = (dietPlan?.totalDailyCalories || 0) + supplementCalories
+    const realTotalProtein = (dietPlan?.totalProtein || 0) + supplementProtein
+    const realTotalCarbs = (dietPlan?.totalCarbs || 0) + supplementCarbs
+    const realTotalFats = (dietPlan?.totalFats || 0) + supplementFats
 
-    // Add meal macros
-    if (dietPlan?.meals && Array.isArray(dietPlan.meals)) {
-      dietPlan.meals.forEach((meal: any) => {
-        if (Array.isArray(meal.foods)) {
-          meal.foods.forEach((food: any) => {
-            if (typeof food === "object" && food.calories) {
-              const caloriesMatch = food.calories.toString().match(/(\d+(?:\.\d+)?)/)
-              if (caloriesMatch) realTotalCalories += Number.parseFloat(caloriesMatch[1])
-
-              if (food.protein) {
-                const proteinMatch = food.protein.toString().match(/(\d+(?:\.\d+)?)/)
-                if (proteinMatch) realTotalProtein += Number.parseFloat(proteinMatch[1])
-              }
-              if (food.carbs) {
-                const carbsMatch = food.carbs.toString().match(/(\d+(?:\.\d+)?)/)
-                if (carbsMatch) realTotalCarbs += Number.parseFloat(carbsMatch[1])
-              }
-              if (food.fats) {
-                const fatsMatch = food.fats.toString().match(/(\d+(?:\.\d+)?)/)
-                if (fatsMatch) realTotalFats += Number.parseFloat(fatsMatch[1])
-              }
-            }
-          })
-        }
-      })
-    }
-
-    console.log("[v0] API: Real diet totals (including supplements):", {
+    console.log("[v0] Real nutrition values (with supplements):", {
       calories: realTotalCalories,
       protein: realTotalProtein,
       carbs: realTotalCarbs,
       fats: realTotalFats,
     })
 
-    // Build photo descriptions for prompt
-    const photoDescriptions = photos
-      .map((photo: any) => {
-        const typeLabel = photo.photoType === "front" ? "Frente" : photo.photoType === "back" ? "Costas" : "Lateral"
-        return `Foto ${typeLabel}`
-      })
-      .join(", ")
+    const prompt = `Você é um treinador de atletismo e especialista em biomecânica com 15 anos de experiência analisando fotos de progresso de atletas para otimizar performance e prevenir lesões.
 
-    const analysisPrompt = `
-    Você é um COACH DE FITNESS e PREPARADOR FÍSICO especializado em acompanhamento de progresso e otimização de resultados.
+CONTEXTO DO ATLETA:
+- Objetivo: ${userQuizData?.goal || "Não informado"}
+- Peso atual: ${userQuizData?.currentWeight || "Não informado"}kg
+- Meta: ${userQuizData?.goalWeight || "Não informado"}kg
+- Altura: ${userQuizData?.height || "Não informado"}cm
+- Idade: ${userQuizData?.age || "Não informado"} anos
 
-    CONTEXTO: Esta é uma análise de PROGRESSO FITNESS para acompanhamento de evolução do cliente ao longo do tempo. As fotos são usadas para avaliar desenvolvimento muscular, composição corporal e efetividade do protocolo de treino e nutrição.
+PROTOCOLO NUTRICIONAL ATUAL:
+- Calorias diárias: ${Math.round(realTotalCalories)} kcal
+- Proteína diária: ${Math.round(realTotalProtein)}g
+- Carboidratos: ${Math.round(realTotalCarbs)}g
+- Gorduras: ${Math.round(realTotalFats)}g
 
-    FOTOS RECEBIDAS: ${photoDescriptions}
-    
-    PERFIL DO CLIENTE:
-    - Objetivo: ${userQuizData?.goal || "Não informado"}
-    - Biotipo: ${userQuizData?.bodyType || "Não informado"}
-    - Experiência: ${userQuizData?.experience || "Não informado"}
-    - Peso atual: ${userQuizData?.currentWeight || "Não informado"}kg
-    - Meta: ${userQuizData?.goalWeight || "Não informado"}kg
-    - Altura: ${userQuizData?.height || "Não informado"}cm
-    - Idade: ${userQuizData?.age || "Não informado"} anos
+PROTOCOLO DE TREINO ATUAL:
+- Frequência: ${currentPlans?.workoutPlan?.days?.length || "Não informado"}x/semana
+- Divisão: ${currentPlans?.workoutPlan?.days?.map((d: any) => d.name).join(", ") || "Não informado"}
 
-    PROTOCOLO NUTRICIONAL ATUAL:
-    - Calorias diárias: ${Math.round(realTotalCalories)} kcal
-    - Proteína diária: ${Math.round(realTotalProtein)}g (${((realTotalProtein / (userQuizData?.currentWeight || 70)) * 1).toFixed(2)}g/kg)
-    - Carboidratos: ${Math.round(realTotalCarbs)}g
-    - Gorduras: ${Math.round(realTotalFats)}g
-    - Refeições: ${dietPlan?.meals?.length || "Não informado"}
-    - Suplementos: ${dietPlan?.supplements?.length > 0 ? dietPlan.supplements.map((s: any) => s.name).join(", ") : "Nenhum"}
+TAREFA: Analise as fotos de progresso do atleta e forneça feedback sobre:
 
-    PROTOCOLO DE TREINO ATUAL:
-    - Frequência: ${currentPlans?.workoutPlan?.days?.length || "Não informado"}x/semana
-    - Divisão: ${currentPlans?.workoutPlan?.days?.map((d: any) => d.name).join(", ") || "Não informado"}
-    - Volume: ${currentPlans?.workoutPlan?.days?.reduce((acc: number, day: any) => acc + (day.exercises?.length || 0), 0) || "Não informado"} exercícios/semana
+1. DESENVOLVIMENTO MUSCULAR observado (grupos musculares visíveis, simetria)
+2. EFETIVIDADE do protocolo atual (treino + nutrição)
+3. AJUSTES RECOMENDADOS específicos e quantificados
+4. FEEDBACK MOTIVACIONAL honesto e profissional
 
-    ═══════════════════════════════════════════════════════════════════════════
+Responda APENAS com JSON válido (sem markdown, sem texto antes/depois):
 
-    ANÁLISE SOLICITADA:
-
-    Com base nas fotos de progresso fornecidas, avalie:
-
-    1. DESENVOLVIMENTO MUSCULAR OBSERVADO:
-       - Quais grupos musculares estão bem desenvolvidos
-       - Quais grupos precisam de mais atenção
-       - Simetria e proporções gerais
-       - Estimativa de composição corporal (massa muscular vs gordura)
-
-    2. EFETIVIDADE DO PROTOCOLO ATUAL:
-       - O protocolo de treino está gerando os resultados esperados?
-       - A nutrição (${Math.round(realTotalCalories)} kcal, ${Math.round(realTotalProtein)}g proteína) está adequada para o objetivo?
-       - Há sinais de overtraining ou undertraining?
-
-    3. RECOMENDAÇÕES PRÁTICAS:
-       - Ajustes específicos no treino (exercícios, volume, frequência)
-       - Ajustes na nutrição (calorias, macros)
-       - Foco prioritário para as próximas semanas
-
-    4. FEEDBACK MOTIVACIONAL:
-       - Reconheça os pontos fortes observados
-       - Seja honesto sobre áreas que precisam melhorar
-       - Estime tempo realista para atingir o objetivo
-
-    ═══════════════════════════════════════════════════════════════════════════
-
-    IMPORTANTE: Responda APENAS com JSON válido (sem markdown, sem texto extra):
-
-    {
-      "pontosForts": [
-        "Ponto forte específico observado nas fotos",
-        "Segundo aspecto positivo do desenvolvimento",
-        "Terceiro ponto favorável identificado"
-      ],
-      "areasParaMelhorar": [
-        "Área prioritária que precisa de atenção com base nas fotos",
-        "Segunda área para melhorar",
-        "Terceira área de foco"
-      ],
-      "dicasEspecificas": [
-        "Dica prática e específica baseada na análise (ex: aumentar volume de treino de pernas)",
-        "Segunda recomendação concreta",
-        "Terceira orientação aplicável"
-      ],
-      "motivacao": "Mensagem motivacional honesta sobre o estado atual e potencial de evolução",
-      "focoPrincipal": "Área única mais importante para focar agora",
-      "progressoGeral": "Avaliação detalhada: estimativa de % de gordura, nível de massa muscular, condicionamento geral, comparação entre desenvolvimento superior e inferior considerando todas as fotos",
-      "recomendacoesTreino": [
-        "Ajuste específico no treino com justificativa (ex: adicionar 2 exercícios para posterior devido ao desenvolvimento observado)",
-        "Segunda recomendação de treino"
-      ],
-      "recomendacoesDieta": [
-        "Ajuste específico na dieta com valores (ex: aumentar 200kcal para ganho de massa)",
-        "Segunda recomendação nutricional"
-      ],
-      "otimizacoesSugeridas": {
-        "treino": {
-          "mudancas": ["Mudança específica 1", "Mudança específica 2"],
-          "justificativa": "Explicação técnica baseada nas fotos"
-        },
-        "dieta": {
-          "mudancas": ["Ajuste específico 1", "Ajuste específico 2"],
-          "justificativa": "Explicação baseada no objetivo e físico atual"
-        }
-      }
+{
+  "motivacao": "Mensagem motivacional personalizada baseada no que você observou (2-3 frases)",
+  "pontosForts": [
+    "Primeiro ponto forte específico observado",
+    "Segundo ponto forte",
+    "Terceiro ponto forte"
+  ],
+  "areasParaMelhorar": [
+    "Primeira área prioritária com base nas fotos",
+    "Segunda área para melhorar",
+    "Terceira área de foco"
+  ],
+  "dicasEspecificas": [
+    "Dica prática específica (ex: aumentar volume de treino de pernas em 20%)",
+    "Segunda dica técnica",
+    "Terceira recomendação"
+  ],
+  "focoPrincipal": "Foco prioritário único para as próximas 4 semanas",
+  "progressoGeral": "Avaliação honesta do progresso observado (3-4 frases técnicas)",
+  "recomendacoesTreino": [
+    "Ajuste específico no treino com justificativa",
+    "Segunda recomendação de treino"
+  ],
+  "recomendacoesDieta": [
+    "Ajuste específico na dieta com valores (ex: aumentar proteína para 2.2g/kg)",
+    "Segunda recomendação nutricional"
+  ],
+  "otimizacoesSugeridas": {
+    "treino": {
+      "mudancas": ["Mudança específica 1", "Mudança específica 2"],
+      "justificativa": "Por que essas mudanças são necessárias"
+    },
+    "dieta": {
+      "mudancas": ["Ajuste nutricional 1", "Ajuste nutricional 2"],
+      "justificativa": "Razão técnica para os ajustes"
     }
-    `
+  }
+}`
 
-    console.log("[v0] API: Starting AI analysis with multiple photos and real diet data")
+    console.log("[v0] Calling OpenAI with", photos.length, "photos")
 
-    if (!process.env.OPENAI_API_KEY) {
-      console.error("[v0] API: OPENAI_API_KEY not found")
-      return NextResponse.json(
-        {
-          error: "AI service not configured",
-          details: "OpenAI API key is missing",
-        },
-        { status: 500 },
-      )
-    }
-
-    // Build content array with text and all images
-    const content: any[] = [{ type: "text", text: analysisPrompt }]
-    photos.forEach((photo: any) => {
-      console.log("[v0] API: Adding photo to analysis:", photo.photoType, photo.photoUrl.substring(0, 50))
-      content.push({ type: "image", image: photo.photoUrl })
-    })
+    const imageContent = photos.map((photo: any) => ({
+      type: "image_url" as const,
+      image_url: {
+        url: photo.url,
+        detail: "high" as const,
+      },
+    }))
 
     const { text } = await generateText({
       model: openai("gpt-4o"),
       messages: [
         {
           role: "user",
-          content,
+          content: [{ type: "text", text: prompt }, ...imageContent],
         },
       ],
       maxTokens: 4500,
       temperature: 0.7,
     })
 
-    console.log("[v0] API: AI analysis completed, parsing response")
-    console.log("[v0] API: Raw AI response length:", text.length)
-    console.log("[v0] API: Raw AI response preview:", text.substring(0, 200))
+    console.log("[v0] OpenAI response received, length:", text.length)
+    console.log("[v0] Raw response preview:", text.substring(0, 200))
+
+    let cleanedText = text.trim()
+
+    // Remove markdown code blocks if present
+    cleanedText = cleanedText.replace(/```json\n?/g, "").replace(/```\n?/g, "")
+
+    // Find JSON object boundaries
+    const jsonStart = cleanedText.indexOf("{")
+    const jsonEnd = cleanedText.lastIndexOf("}") + 1
+
+    if (jsonStart === -1 || jsonEnd === 0) {
+      console.error("[v0] No JSON found in response:", cleanedText)
+      throw new Error(`No JSON found in AI response. Raw response: ${cleanedText}`)
+    }
+
+    cleanedText = cleanedText.substring(jsonStart, jsonEnd)
+
+    console.log("[v0] Cleaned JSON:", cleanedText.substring(0, 200))
 
     let analysis
     try {
-      const cleanedText = text
-        .trim()
-        .replace(/```json\n?/g, "")
-        .replace(/```\n?/g, "")
-        .replace(/^[^{]*/, "") // Remove any text before the first {
-        .replace(/[^}]*$/, "") // Remove any text after the last }
-
-      console.log("[v0] API: Cleaned text preview:", cleanedText.substring(0, 200))
       analysis = JSON.parse(cleanedText)
-      console.log("[v0] API: Response parsed successfully")
-      console.log("[v0] API: Analysis keys:", Object.keys(analysis))
+      console.log("[v0] Successfully parsed analysis")
     } catch (parseError) {
-      console.error("[v0] API: Error parsing AI response:", parseError)
-      console.log("[v0] API: Full raw AI response:", text)
-      throw new Error(
-        `Failed to parse AI response: ${parseError instanceof Error ? parseError.message : "Unknown error"}. Raw response: ${text.substring(0, 500)}`,
-      )
+      console.error("[v0] JSON parse error:", parseError)
+      console.error("[v0] Attempted to parse:", cleanedText)
+      throw new Error(`Failed to parse AI response: ${parseError}. Raw response: ${cleanedText}`)
     }
 
-    console.log("[v0] API: Saving to Firebase")
-
-    const batchPhotoData = {
+    const analysisData = {
       userId,
-      photos: photos.map((photo: any) => ({
-        photoUrl: photo.photoUrl,
-        photoType: photo.photoType,
+      photos: photos.map((p: any) => ({
+        url: p.url,
+        type: p.type,
       })),
       analysis,
-      createdAt: FieldValue.serverTimestamp(),
-      userQuizData: userQuizData || {},
-      batchAnalysis: true,
-      batchPhotoCount: photos.length,
-      currentPlansSnapshot: {
-        dietPlan: currentPlans?.dietPlan || null,
-        workoutPlan: currentPlans?.workoutPlan || null,
-        scientificCalculations: currentPlans?.scientificCalculations || null,
-        realDietTotals: {
-          calories: Math.round(realTotalCalories),
-          protein: Math.round(realTotalProtein),
-          carbs: Math.round(realTotalCarbs),
-          fats: Math.round(realTotalFats),
-          proteinPerKg: ((realTotalProtein / (userQuizData?.currentWeight || 70)) * 1).toFixed(2),
+      userQuizData,
+      currentPlans: {
+        workout: currentPlans?.workoutPlan,
+        diet: {
+          ...currentPlans?.dietPlan,
+          realTotalCalories,
+          realTotalProtein,
+          realTotalCarbs,
+          realTotalFats,
         },
       },
+      createdAt: new Date().toISOString(),
     }
 
-    const docRef = await adminDb.collection("progressPhotos").add(batchPhotoData)
-    console.log("[v0] API: Batch analysis saved with ID:", docRef.id)
+    console.log("[v0] Saving to Firebase...")
 
-    console.log("[v0] API: Batch photo analysis completed and saved successfully")
+    const docRef = await adminDb.collection("progressPhotos").add(analysisData)
+
+    console.log("[v0] Saved to Firebase with ID:", docRef.id)
 
     return NextResponse.json({
       success: true,
       analysis,
-      photoId: docRef.id,
-      realDietTotals: {
-        calories: Math.round(realTotalCalories),
-        protein: Math.round(realTotalProtein),
-        carbs: Math.round(realTotalCarbs),
-        fats: Math.round(realTotalFats),
-      },
+      documentId: docRef.id,
     })
-  } catch (error) {
-    console.error("[v0] API: Error analyzing photos:", error)
+  } catch (error: any) {
+    console.error("[v0] Analysis API error:", error)
     return NextResponse.json(
       {
         error: "Failed to analyze photos",
-        details: error instanceof Error ? error.message : "Unknown error",
+        details: error.message,
+        stack: error.stack,
       },
       { status: 500 },
     )
