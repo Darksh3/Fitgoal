@@ -103,21 +103,9 @@ export default function AnaliseCorporalPage() {
     }
   }
 
-  useEffect(() => {
+  // Function to load history data
+  const loadHistory = async () => {
     if (!user) return
-
-    const loadQuizData = async () => {
-      try {
-        const userDoc = await getDoc(doc(db, "users", user.uid))
-        if (userDoc.exists()) {
-          setQuizData(userDoc.data().quizData || {})
-        }
-      } catch (error) {
-        console.error("Error loading quiz data:", error)
-      }
-    }
-
-    loadQuizData()
 
     const photosQuery = query(
       collection(db, "progressPhotos"),
@@ -134,6 +122,34 @@ export default function AnaliseCorporalPage() {
     })
 
     return () => unsubscribe()
+  }
+
+  useEffect(() => {
+    if (!user) return
+
+    const loadQuizData = async () => {
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid))
+        if (userDoc.exists()) {
+          setQuizData(userDoc.data().quizData || {})
+        }
+      } catch (error) {
+        console.error("Error loading quiz data:", error)
+      }
+    }
+
+    loadQuizData()
+    const unsubscribeHistory = loadHistory()
+
+    return () => {
+      if (unsubscribeHistory) {
+        // Ensure unsubscribeHistory is a function before calling it
+        const unsubscribeFn = unsubscribeHistory
+        if (typeof unsubscribeFn === "function") {
+          unsubscribeFn()
+        }
+      }
+    }
   }, [user])
 
   const handleApplyOptimization = async (photoId: string, optimizations: any) => {
@@ -275,8 +291,6 @@ export default function AnaliseCorporalPage() {
         pendingPhotos.map(async (photo) => {
           const formData = new FormData()
           formData.append("file", photo.file)
-          formData.append("userId", user.uid)
-          formData.append("photoType", photo.type)
 
           console.log("[v0] Uploading photo:", photo.type)
           const uploadResponse = await fetch("/api/upload-photo", {
@@ -289,10 +303,10 @@ export default function AnaliseCorporalPage() {
           }
 
           const uploadData = await uploadResponse.json()
-          console.log("[v0] Photo uploaded successfully:", uploadData.url)
+          console.log("[v0] Photo uploaded successfully:", uploadData.photoUrl)
 
           return {
-            photoUrl: uploadData.url,
+            photoUrl: uploadData.photoUrl,
             photoType: photo.type,
           }
         }),
@@ -312,7 +326,8 @@ export default function AnaliseCorporalPage() {
 
       if (!analysisResponse.ok) {
         const errorData = await analysisResponse.json()
-        throw new Error(errorData.error || "Failed to analyze photos")
+        console.error("[v0] Analysis API error:", errorData)
+        throw new Error(errorData.details || errorData.error || "Failed to analyze photos")
       }
 
       const analysisData = await analysisResponse.json()
@@ -320,7 +335,10 @@ export default function AnaliseCorporalPage() {
       console.log("[v0] Real diet totals used:", analysisData.realDietTotals)
 
       setCurrentAnalysis(analysisData.analysis)
+      pendingPhotos.forEach((photo) => URL.revokeObjectURL(photo.preview))
       setPendingPhotos([])
+
+      await loadHistory()
       setActiveTab("history")
 
       alert("Análise profissional concluída! Verifique o histórico para ver os resultados detalhados.")

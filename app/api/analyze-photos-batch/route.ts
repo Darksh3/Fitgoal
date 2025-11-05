@@ -7,9 +7,12 @@ export async function POST(request: NextRequest) {
   try {
     console.log("[v0] API: Starting batch photo analysis")
 
-    const { photos, userId, userQuizData } = await request.json()
+    const body = await request.json()
+    const { photos, userId, userQuizData } = body
+
     console.log("[v0] API: Received data:", {
       photosCount: photos?.length,
+      photoUrls: photos?.map((p: any) => p.photoUrl?.substring(0, 50)),
       userId: !!userId,
       userQuizData: !!userQuizData,
     })
@@ -19,10 +22,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
+    const invalidPhotos = photos.filter((p: any) => !p.photoUrl || !p.photoUrl.startsWith("http"))
+    if (invalidPhotos.length > 0) {
+      console.error("[v0] API: Invalid photo URLs detected:", invalidPhotos)
+      return NextResponse.json(
+        {
+          error: "Invalid photo URLs",
+          details: "Some photos were not uploaded correctly",
+        },
+        { status: 400 },
+      )
+    }
+
     console.log("[v0] API: Fetching user data from Firebase")
     const userDocRef = adminDb.collection("users").doc(userId)
     const userDoc = await userDocRef.get()
-    const currentPlans = userDoc.exists ? userDoc.data() : {}
+
+    if (!userDoc.exists) {
+      console.error("[v0] API: User not found:", userId)
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    }
+
+    const currentPlans = userDoc.data() || {}
     console.log("[v0] API: User data fetched successfully")
 
     const dietPlan = currentPlans?.dietPlan
@@ -209,12 +230,19 @@ export async function POST(request: NextRequest) {
 
     if (!process.env.OPENAI_API_KEY) {
       console.error("[v0] API: OPENAI_API_KEY not found")
-      return NextResponse.json({ error: "AI service not configured" }, { status: 500 })
+      return NextResponse.json(
+        {
+          error: "AI service not configured",
+          details: "OpenAI API key is missing",
+        },
+        { status: 500 },
+      )
     }
 
     // Build content array with text and all images
     const content: any[] = [{ type: "text", text: analysisPrompt }]
     photos.forEach((photo: any) => {
+      console.log("[v0] API: Adding photo to analysis:", photo.photoType, photo.photoUrl.substring(0, 50))
       content.push({ type: "image", image: photo.photoUrl })
     })
 
@@ -226,7 +254,7 @@ export async function POST(request: NextRequest) {
           content,
         },
       ],
-      maxTokens: 3000, // Increased for more detailed analysis
+      maxTokens: 3000,
       temperature: 0.7,
     })
 
