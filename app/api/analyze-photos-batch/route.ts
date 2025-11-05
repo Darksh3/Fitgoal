@@ -109,20 +109,20 @@ Responda APENAS com JSON válido (sem markdown, sem texto antes/depois):
 
     console.log("[v0] Calling OpenAI with", photos.length, "photos")
 
-    const imageContent = photos.map((photo: any) => ({
-      type: "image_url" as const,
-      image_url: {
-        url: photo.url,
-        detail: "high" as const,
-      },
-    }))
+    const content: any[] = [
+      { type: "text", text: prompt },
+      ...photos.map((photo: any) => ({
+        type: "image",
+        image: photo.url,
+      })),
+    ]
 
     const { text } = await generateText({
       model: openai("gpt-4o"),
       messages: [
         {
           role: "user",
-          content: [{ type: "text", text: prompt }, ...imageContent],
+          content,
         },
       ],
       maxTokens: 4500,
