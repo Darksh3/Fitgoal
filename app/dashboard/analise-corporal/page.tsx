@@ -350,6 +350,17 @@ export default function AnaliseCorporalPage() {
       if (!analysisResponse.ok) {
         const errorData = await analysisResponse.json()
         console.error("[v0] Analysis API error:", errorData)
+
+        if (errorData.policyViolation) {
+          alert(`❌ ${errorData.error}\n\n${errorData.details}\n\n` + "Por favor, ajuste as fotos e tente novamente.")
+        } else if (errorData.parseError) {
+          alert(
+            `⚠️ ${errorData.error}\n\n${errorData.details}\n\n` +
+              "Entre em contato com o suporte se o problema persistir.",
+          )
+        } else {
+          alert(errorData.details || errorData.error || "Failed to analyze photos")
+        }
         throw new Error(errorData.details || errorData.error || "Failed to analyze photos")
       }
 
@@ -434,7 +445,7 @@ export default function AnaliseCorporalPage() {
         const comparisonResponse = await fetch("/api/compare-progress", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+          body: JSON.JSON.stringify({
             userId: user.uid,
             currentPhotoUrl: photoUrl,
             photoType: selectedPhotoType,

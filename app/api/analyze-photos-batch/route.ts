@@ -241,14 +241,49 @@ export async function POST(request: NextRequest) {
     console.log("[v0] API: Raw AI response length:", text.length)
     console.log("[v0] API: Raw AI response preview:", text.substring(0, 200))
 
+    const policyRefusalPatterns = [
+      "I'm sorry, I can't assist with that",
+      "I cannot assist with that",
+      "I'm unable to assist",
+      "I can't help with that",
+      "I cannot help with that",
+      "I'm not able to assist",
+      "against my guidelines",
+      "violates my guidelines",
+      "content policy",
+    ]
+
+    const isRefusal = policyRefusalPatterns.some((pattern) => text.toLowerCase().includes(pattern.toLowerCase()))
+
+    if (isRefusal) {
+      console.error("[v0] API: OpenAI refused to analyze content due to policy violation")
+      return NextResponse.json(
+        {
+          error: "Política de Conteúdo Violada",
+          details:
+            "A OpenAI recusou analisar as fotos enviadas. Isso pode acontecer quando:\n\n" +
+            "• As fotos mostram muito do corpo (use roupas de treino adequadas)\n" +
+            "• A análise é interpretada como avaliação médica/diagnóstico\n" +
+            "• O conteúdo viola as políticas de uso da OpenAI\n\n" +
+            "Sugestões:\n" +
+            "• Tire fotos com roupas de treino (shorts e top/camiseta)\n" +
+            "• Certifique-se de que as fotos são apenas para acompanhamento fitness\n" +
+            "• Evite fotos muito próximas ou em ângulos inadequados\n\n" +
+            `Resposta da IA: ${text}`,
+          policyViolation: true,
+        },
+        { status: 400 },
+      )
+    }
+
     let analysis
     try {
       const cleanedText = text
         .trim()
         .replace(/```json\n?/g, "")
         .replace(/```\n?/g, "")
-        .replace(/^[^{]*/, "") // Remove any text before the first {
-        .replace(/[^}]*$/, "") // Remove any text after the last }
+        .replace(/^[^{]*/, "")
+        .replace(/[^}]*$/, "")
 
       console.log("[v0] API: Cleaned text preview:", cleanedText.substring(0, 200))
       analysis = JSON.parse(cleanedText)
@@ -257,8 +292,17 @@ export async function POST(request: NextRequest) {
     } catch (parseError) {
       console.error("[v0] API: Error parsing AI response:", parseError)
       console.log("[v0] API: Full raw AI response:", text)
-      throw new Error(
-        `Failed to parse AI response: ${parseError instanceof Error ? parseError.message : "Unknown error"}. Raw response: ${text.substring(0, 500)}`,
+
+      return NextResponse.json(
+        {
+          error: "Erro ao processar resposta da IA",
+          details:
+            "A IA retornou uma resposta que não pôde ser processada corretamente.\n\n" +
+            `Erro: ${parseError instanceof Error ? parseError.message : "Erro desconhecido"}\n\n` +
+            `Resposta completa da IA:\n${text}`,
+          parseError: true,
+        },
+        { status: 500 },
       )
     }
 
