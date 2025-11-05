@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { openai } from "@ai-sdk/openai"
 import { generateText } from "ai"
 import { adminDb } from "@/lib/firebase-admin"
+import { FieldValue } from "firebase-admin/firestore"
 
 export async function POST(request: NextRequest) {
   try {
@@ -303,43 +304,40 @@ export async function POST(request: NextRequest) {
 
     console.log("[v0] API: Saving to Firebase")
 
-    const photoIds = await Promise.all(
-      photos.map(async (photo: any) => {
-        const photoData = {
-          userId,
-          photoUrl: photo.photoUrl,
-          photoType: photo.photoType,
-          analysis,
-          createdAt: new Date().toISOString(),
-          userQuizData: userQuizData || {},
-          batchAnalysis: true,
-          batchPhotoCount: photos.length,
-          currentPlansSnapshot: {
-            dietPlan: currentPlans?.dietPlan || null,
-            workoutPlan: currentPlans?.workoutPlan || null,
-            scientificCalculations: currentPlans?.scientificCalculations || null,
-            realDietTotals: {
-              calories: Math.round(realTotalCalories),
-              protein: Math.round(realTotalProtein),
-              carbs: Math.round(realTotalCarbs),
-              fats: Math.round(realTotalFats),
-              proteinPerKg: ((realTotalProtein / (userQuizData?.currentWeight || 70)) * 1).toFixed(2),
-            },
-          },
-        }
+    const batchPhotoData = {
+      userId,
+      photos: photos.map((photo: any) => ({
+        photoUrl: photo.photoUrl,
+        photoType: photo.photoType,
+      })),
+      analysis,
+      createdAt: FieldValue.serverTimestamp(),
+      userQuizData: userQuizData || {},
+      batchAnalysis: true,
+      batchPhotoCount: photos.length,
+      currentPlansSnapshot: {
+        dietPlan: currentPlans?.dietPlan || null,
+        workoutPlan: currentPlans?.workoutPlan || null,
+        scientificCalculations: currentPlans?.scientificCalculations || null,
+        realDietTotals: {
+          calories: Math.round(realTotalCalories),
+          protein: Math.round(realTotalProtein),
+          carbs: Math.round(realTotalCarbs),
+          fats: Math.round(realTotalFats),
+          proteinPerKg: ((realTotalProtein / (userQuizData?.currentWeight || 70)) * 1).toFixed(2),
+        },
+      },
+    }
 
-        const docRef = await adminDb.collection("progressPhotos").add(photoData)
-        console.log("[v0] API: Photo saved with ID:", docRef.id)
-        return docRef.id
-      }),
-    )
+    const docRef = await adminDb.collection("progressPhotos").add(batchPhotoData)
+    console.log("[v0] API: Batch analysis saved with ID:", docRef.id)
 
     console.log("[v0] API: Batch photo analysis completed and saved successfully")
 
     return NextResponse.json({
       success: true,
       analysis,
-      photoIds,
+      photoId: docRef.id,
       realDietTotals: {
         calories: Math.round(realTotalCalories),
         protein: Math.round(realTotalProtein),
