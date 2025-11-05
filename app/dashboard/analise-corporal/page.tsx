@@ -930,23 +930,57 @@ export default function AnaliseCorporalPage() {
             ) : (
               <div className="grid grid-cols-1 gap-6">
                 {photos.map((photo) => {
-                  const photosList = photo.photos || [{ photoUrl: photo.photoUrl, photoType: photo.photoType }]
-                  const displayDate = photo.createdAt?.toDate
-                    ? photo.createdAt.toDate().toLocaleDateString("pt-BR")
-                    : "Data não disponível"
+                  const photosList =
+                    photo.photos || (photo.photoUrl ? [{ photoUrl: photo.photoUrl, photoType: photo.photoType }] : [])
+
+                  // Handle different date formats from Firebase
+                  let displayDate = "Data não disponível"
+                  try {
+                    if (photo.createdAt) {
+                      if (typeof photo.createdAt === "string") {
+                        displayDate = new Date(photo.createdAt).toLocaleDateString("pt-BR", {
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                        })
+                      } else if (photo.createdAt.toDate) {
+                        displayDate = photo.createdAt.toDate().toLocaleDateString("pt-BR", {
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                        })
+                      } else if (photo.createdAt.seconds) {
+                        displayDate = new Date(photo.createdAt.seconds * 1000).toLocaleDateString("pt-BR", {
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                        })
+                      }
+                    }
+                  } catch (error) {
+                    console.error("[v0] Error formatting date:", error)
+                  }
 
                   return (
                     <Card key={photo.id} className="overflow-hidden">
                       <CardHeader className="bg-muted/50">
                         <div className="flex items-center justify-between">
-                          <div>
-                            <CardTitle className="text-lg">
-                              Análise de {displayDate}
-                              {photo.batchAnalysis && ` (${photo.batchPhotoCount} fotos)`}
-                            </CardTitle>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {photosList.map((p: any) => p.photoType).join(", ")}
-                            </p>
+                          <div className="flex items-center gap-3">
+                            {photosList.length > 0 && photosList[0].photoUrl && (
+                              <div className="w-16 h-20 rounded-lg overflow-hidden bg-gray-100">
+                                <img
+                                  src={photosList[0].photoUrl || "/placeholder.svg"}
+                                  alt="Thumbnail"
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            )}
+                            <div>
+                              <CardTitle className="text-lg">Análise de {displayDate}</CardTitle>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {photosList.length} {photosList.length === 1 ? "foto" : "fotos"}
+                              </p>
+                            </div>
                           </div>
                           <Button
                             variant="ghost"
@@ -960,22 +994,24 @@ export default function AnaliseCorporalPage() {
                       </CardHeader>
 
                       <CardContent className="p-6">
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                          {photosList.map((p: any, idx: number) => (
-                            <div key={idx} className="relative aspect-[3/4] rounded-lg overflow-hidden">
-                              <img
-                                src={p.photoUrl || "/placeholder.svg"}
-                                alt={`Foto ${p.photoType}`}
-                                className="w-full h-full object-cover"
-                              />
-                              <div className="absolute top-2 left-2">
-                                <Badge variant="secondary" className="text-xs">
-                                  {p.photoType === "front" ? "Frente" : p.photoType === "back" ? "Costas" : "Lateral"}
-                                </Badge>
+                        {photosList.length > 0 && (
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                            {photosList.map((p: any, idx: number) => (
+                              <div key={idx} className="relative aspect-[3/4] rounded-lg overflow-hidden bg-gray-100">
+                                <img
+                                  src={p.photoUrl || "/placeholder.svg"}
+                                  alt={`Foto ${p.photoType}`}
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute top-2 left-2">
+                                  <Badge variant="secondary" className="text-xs">
+                                    {p.photoType === "front" ? "Frente" : p.photoType === "back" ? "Costas" : "Lateral"}
+                                  </Badge>
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
+                            ))}
+                          </div>
+                        )}
 
                         {photo.analysis && (
                           <>

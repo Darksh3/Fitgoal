@@ -255,11 +255,13 @@ export async function POST(request: NextRequest) {
           content,
         },
       ],
-      maxTokens: 3000,
+      maxTokens: 4500,
       temperature: 0.7,
     })
 
     console.log("[v0] API: AI analysis completed, parsing response")
+    console.log("[v0] API: Raw AI response length:", text.length)
+    console.log("[v0] API: Raw AI response preview:", text.substring(0, 200))
 
     let analysis
     try {
@@ -267,39 +269,19 @@ export async function POST(request: NextRequest) {
         .trim()
         .replace(/```json\n?/g, "")
         .replace(/```\n?/g, "")
+        .replace(/^[^{]*/, "") // Remove any text before the first {
+        .replace(/[^}]*$/, "") // Remove any text after the last }
+
+      console.log("[v0] API: Cleaned text preview:", cleanedText.substring(0, 200))
       analysis = JSON.parse(cleanedText)
       console.log("[v0] API: Response parsed successfully")
+      console.log("[v0] API: Analysis keys:", Object.keys(analysis))
     } catch (parseError) {
       console.error("[v0] API: Error parsing AI response:", parseError)
-      console.log("[v0] API: Raw AI response:", text)
-
-      analysis = {
-        pontosForts: [
-          "Comprometimento demonstrado ao documentar progresso com múltiplas fotos",
-          "Postura adequada para análise profissional",
-          "Iniciativa de buscar feedback técnico especializado",
-        ],
-        areasParaMelhorar: [
-          "Análise detalhada em processamento - aguarde resposta completa",
-          "Foco na consistência do protocolo atual enquanto aguarda feedback",
-          "Monitoramento semanal recomendado para acompanhamento preciso",
-        ],
-        dicasEspecificas: [
-          `Mantenha foco no objetivo: ${userQuizData?.goal || "evolução física"}`,
-          `Continue com ingestão de ${Math.round(realTotalCalories)}kcal e ${Math.round(realTotalProtein)}g proteína`,
-          "Documente fotos semanalmente no mesmo horário e condições de iluminação",
-        ],
-        motivacao: `Protocolo atual: ${Math.round(realTotalCalories)}kcal, ${Math.round(realTotalProtein)}g proteína (${((realTotalProtein / (userQuizData?.currentWeight || 70)) * 1).toFixed(2)}g/kg), treino ${currentPlans?.workoutPlan?.days?.length || 0}x/semana. Análise completa em processamento.`,
-        focoPrincipal: "Consistência no protocolo atual até análise completa",
-        progressoGeral: "Análise técnica em andamento - múltiplas fotos recebidas para avaliação 360°",
-        recomendacoesTreino: ["Manter frequência e volume atuais", "Foco na execução técnica perfeita"],
-        recomendacoesDieta: [`Manter ${Math.round(realTotalCalories)}kcal atuais`, "Hidratação mínima 35ml/kg"],
-        otimizacaoNecessaria: false,
-        otimizacoesSugeridas: {
-          dieta: { necessaria: false, mudancas: [], justificativa: "Aguardando análise completa do físico" },
-          treino: { necessaria: false, mudancas: [], justificativa: "Aguardando análise completa do físico" },
-        },
-      }
+      console.log("[v0] API: Full raw AI response:", text)
+      throw new Error(
+        `Failed to parse AI response: ${parseError instanceof Error ? parseError.message : "Unknown error"}. Raw response: ${text.substring(0, 500)}`,
+      )
     }
 
     console.log("[v0] API: Saving to Firebase")
