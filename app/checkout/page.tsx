@@ -21,8 +21,22 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
   const [processing, setProcessing] = useState(false)
   const [installments, setInstallments] = useState(1)
 
-  const maxInstallments = Math.min(6, Math.floor(currentPlan.total / 50)) // Min R$50 per installment, max 6x
-  const installmentOptions = Array.from({ length: maxInstallments }, (_, i) => i + 1)
+  const maxInstallments = 6
+  const minInstallmentValue = 50
+
+  // Para o plano semestral, permitir até 6 parcelas independente do valor mínimo
+  const isSemestral = currentPlan?.priceId === "price_1SPrzGPRgKqdJdqNNLfhAYNo"
+
+  const calculateMaxInstallments = () => {
+    if (isSemestral) {
+      return maxInstallments // Semestral: sempre até 6x
+    }
+    // Outros planos: respeitar mínimo de R$ 50 por parcela
+    return Math.min(maxInstallments, Math.floor(currentPlan.total / minInstallmentValue))
+  }
+
+  const availableInstallments = calculateMaxInstallments()
+  const installmentOptions = Array.from({ length: availableInstallments }, (_, i) => i + 1)
   const installmentValue = currentPlan.total / installments
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -120,34 +134,28 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
           <CardTitle className="text-white">Parcelamento</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {installmentOptions.map((option) => {
               const value = currentPlan.total / option
-              const isSelected = installments === option
               return (
                 <button
                   key={option}
                   type="button"
                   onClick={() => setInstallments(option)}
-                  className={`w-full p-4 rounded-lg border-2 transition-all ${
-                    isSelected ? "border-lime-500 bg-lime-500/10" : "border-gray-600 bg-gray-700 hover:border-gray-500"
+                  className={`w-full p-3 rounded-lg border-2 transition-all ${
+                    installments === option
+                      ? "border-lime-400 bg-lime-400/10 text-lime-400"
+                      : "border-gray-700 bg-gray-800/50 text-gray-300 hover:border-gray-600"
                   }`}
                 >
                   <div className="flex justify-between items-center">
-                    <span className="text-white font-semibold">
-                      {option}x de {formatCurrency(value)}
-                    </span>
-                    {option === 1 && (
-                      <span className="text-xs bg-lime-500 text-gray-900 px-2 py-1 rounded-full font-bold">
-                        À VISTA
-                      </span>
-                    )}
-                    {isSelected && <Check className="h-5 w-5 text-lime-500" />}
+                    <span className="font-medium">{option}x sem juros</span>
+                    <span className="text-sm">{formatCurrency(value)}/mês</span>
                   </div>
-                  <div className="text-sm text-gray-400 mt-1">Total: {formatCurrency(currentPlan.total)} sem juros</div>
                 </button>
               )
             })}
+            <div className="text-sm text-gray-400 mt-1">Total: {formatCurrency(currentPlan.total)} sem juros</div>
           </div>
         </CardContent>
       </Card>
