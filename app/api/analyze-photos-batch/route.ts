@@ -239,14 +239,12 @@ export async function POST(request: NextRequest) {
     let fullResponse: any = null
     try {
       console.log("[v0] 🔍 DEBUG: Calling Google Gemini Flash API...")
-      console.log("[v0] 🔍 DEBUG: Model: gemini-1.5-flash")
+      console.log("[v0] 🔍 DEBUG: Model: gemini-1.5-flash-latest")
       console.log("[v0] 🔍 DEBUG: Number of images:", photos.length)
       console.log("[v0] 🔍 DEBUG: Prompt length:", analysisPrompt.length, "characters")
 
       const response = await generateText({
-        model: google("gemini-1.5-flash", {
-          apiKey: apiKey,
-        }),
+        model: google("gemini-1.5-flash-latest"),
         messages: [
           {
             role: "user",
