@@ -301,7 +301,7 @@ export default function AnaliseCorporalPage() {
 
   const handleAnalyzePhotos = async () => {
     if (pendingPhotos.length === 0) {
-      alert("Por favor, adicione pelo menos uma foto antes de analisar.")
+      alert("Por favor, envie pelo menos uma foto para análise")
       return
     }
 
@@ -311,10 +311,10 @@ export default function AnaliseCorporalPage() {
     try {
       console.log("[v0] Starting photo upload and analysis process")
 
-      const uploadedPhotos = []
+      const uploadedPhotos: { photoUrl: string; photoType: string }[] = []
 
       for (const pendingPhoto of pendingPhotos) {
-        console.log("[v0] Uploading photo:", pendingPhoto.type)
+        console.log(`[v0] Uploading photo: ${pendingPhoto.type}`)
 
         const formData = new FormData()
         formData.append("file", pendingPhoto.file)
@@ -326,7 +326,7 @@ export default function AnaliseCorporalPage() {
         })
 
         if (!uploadResponse.ok) {
-          const errorData = await uploadResponse.json() // Corrected: Use uploadResponse here
+          const errorData = await uploadResponse.json()
           console.error("[v0] ❌ Upload failed:", errorData)
           throw new Error(`Failed to upload ${pendingPhoto.type} photo: ${errorData.error || "Unknown error"}`)
         }
@@ -352,6 +352,7 @@ export default function AnaliseCorporalPage() {
         },
         body: JSON.stringify({
           photos: uploadedPhotos,
+          userId: user?.uid, // Added userId
         }),
       })
 
