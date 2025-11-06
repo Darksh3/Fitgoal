@@ -8,6 +8,17 @@ export async function POST(request: NextRequest) {
   try {
     console.log("[v0] API: Starting batch photo analysis")
 
+    if (!process.env.GOOGLE_API_KEY) {
+      console.error("[v0] API: Google API key is missing")
+      return NextResponse.json(
+        {
+          error: "AI service not configured",
+          details: "Google API key is missing",
+        },
+        { status: 500 },
+      )
+    }
+
     const body = await request.json()
     const { photos, userId, userQuizData } = body
 
@@ -206,17 +217,6 @@ export async function POST(request: NextRequest) {
 
     console.log("[v0] API: Starting AI analysis with multiple photos and real diet data")
 
-    if (!process.env.GOOGLE_API_KEY) {
-      console.error("[v0] API: GOOGLE_API_KEY not found")
-      return NextResponse.json(
-        {
-          error: "AI service not configured",
-          details: "Google API key is missing",
-        },
-        { status: 500 },
-      )
-    }
-
     console.log("[v0] API: Preparing to call Gemini Flash with", photos.length, "photos")
     console.log("[v0] API: Photo types:", photos.map((p: any) => p.photoType).join(", "))
 
@@ -237,7 +237,7 @@ export async function POST(request: NextRequest) {
 
       const response = await generateText({
         model: google("gemini-1.5-flash", {
-          apiKey: process.env.GOOGLE_API_KEY || "AIzaSyBu9NpMoNpPcovvVNqQVfvOou_DJeuwEnw",
+          apiKey: process.env.GOOGLE_API_KEY,
         }),
         messages: [
           {
