@@ -8,16 +8,24 @@ export async function POST(request: NextRequest) {
   try {
     console.log("[v0] API: Starting batch photo analysis")
 
-    if (!process.env.GOOGLE_API_KEY) {
+    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GOOGLE_API_KEY
+
+    console.log("[v0] API: Checking Google API key...")
+    console.log("[v0] API: GOOGLE_GENERATIVE_AI_API_KEY exists:", !!process.env.GOOGLE_GENERATIVE_AI_API_KEY)
+    console.log("[v0] API: GOOGLE_API_KEY exists:", !!process.env.GOOGLE_API_KEY)
+
+    if (!apiKey) {
       console.error("[v0] API: Google API key is missing")
       return NextResponse.json(
         {
           error: "AI service not configured",
-          details: "Google API key is missing",
+          details: "Google API key is missing. Please add GOOGLE_GENERATIVE_AI_API_KEY environment variable.",
         },
         { status: 500 },
       )
     }
+
+    console.log("[v0] API: Google API key found, length:", apiKey.length)
 
     const body = await request.json()
     const { photos, userId, userQuizData } = body
@@ -237,7 +245,7 @@ export async function POST(request: NextRequest) {
 
       const response = await generateText({
         model: google("gemini-1.5-flash", {
-          apiKey: process.env.GOOGLE_API_KEY,
+          apiKey: apiKey,
         }),
         messages: [
           {
