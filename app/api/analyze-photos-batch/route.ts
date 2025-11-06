@@ -218,6 +218,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    console.log("[v0] API: Preparing to call OpenAI with", photos.length, "photos")
+    console.log("[v0] API: Photo types:", photos.map((p: any) => p.photoType).join(", "))
+
     // Build content array with text and all images
     const content: any[] = [{ type: "text", text: analysisPrompt }]
     photos.forEach((photo: any) => {
@@ -225,21 +228,71 @@ export async function POST(request: NextRequest) {
       content.push({ type: "image", image: photo.photoUrl })
     })
 
-    const { text } = await generateText({
-      model: openai("gpt-4o"),
-      messages: [
+    let text: string
+    let fullResponse: any = null
+    try {
+      console.log("[v0] 🔍 DEBUG: Calling OpenAI API...")
+      console.log("[v0] 🔍 DEBUG: Model: gpt-4o")
+      console.log("[v0] 🔍 DEBUG: Number of images:", photos.length)
+      console.log("[v0] 🔍 DEBUG: Prompt length:", analysisPrompt.length, "characters")
+
+      const response = await generateText({
+        model: openai("gpt-4o"),
+        messages: [
+          {
+            role: "user",
+            content,
+          },
+        ],
+        maxTokens: 4500,
+        temperature: 0.7,
+      })
+
+      fullResponse = response
+      text = response.text
+
+      console.log("[v0] ✅ OpenAI API Response Received:")
+      console.log("[v0] 🔍 Response length:", text.length, "characters")
+      console.log("[v0] 🔍 Full response object keys:", Object.keys(response))
+      console.log(
+        "[v0] 🔍 Response metadata:",
+        JSON.stringify(
+          {
+            finishReason: response.finishReason,
+            usage: response.usage,
+            warnings: response.warnings,
+          },
+          null,
+          2,
+        ),
+      )
+      console.log("[v0] 🔍 COMPLETE RAW RESPONSE TEXT:")
+      console.log("═══════════════════════════════════════════════════════════")
+      console.log(text)
+      console.log("═══════════════════════════════════════════════════════════")
+    } catch (aiError: any) {
+      console.error("[v0] ❌ OpenAI API Error Details:")
+      console.error("[v0] 🔍 Error type:", aiError?.constructor?.name)
+      console.error("[v0] 🔍 Error message:", aiError?.message)
+      console.error("[v0] 🔍 Error code:", aiError?.code)
+      console.error("[v0] 🔍 Error status:", aiError?.status)
+      console.error("[v0] 🔍 Full error object:", JSON.stringify(aiError, null, 2))
+
+      return NextResponse.json(
         {
-          role: "user",
-          content,
+          error: "Erro na chamada da IA",
+          details: aiError instanceof Error ? aiError.message : "Erro desconhecido ao chamar a IA",
+          errorType: aiError?.constructor?.name,
+          errorCode: aiError?.code,
+          errorStatus: aiError?.status,
+          fullError: aiError,
+          aiError: true,
         },
-      ],
-      maxTokens: 4500,
-      temperature: 0.7,
-    })
+        { status: 500 },
+      )
+    }
 
     console.log("[v0] API: AI analysis completed, parsing response")
-    console.log("[v0] API: Raw AI response length:", text.length)
-    console.log("[v0] API: Raw AI response preview:", text.substring(0, 200))
 
     const policyRefusalPatterns = [
       "I'm sorry, I can't assist with that",
@@ -251,13 +304,32 @@ export async function POST(request: NextRequest) {
       "against my guidelines",
       "violates my guidelines",
       "content policy",
+      "não posso ajudar",
+      "não posso auxiliar",
+      "desculpe",
     ]
 
     const isRefusal = policyRefusalPatterns.some((pattern) => text.toLowerCase().includes(pattern.toLowerCase()))
 
     if (isRefusal) {
-      console.error("[v0] API: ❌ OpenAI refused to analyze content due to policy violation")
-      console.error("[v0] API: Refusal message:", text)
+      console.error("[v0] ❌ POLICY VIOLATION DETECTED:")
+      console.error("[v0] 🔍 Refusal reason: OpenAI content policy")
+      console.error("[v0] 🔍 Complete refusal message:")
+      console.error("═══════════════════════════════════════════════════════════")
+      console.error(text)
+      console.error("═══════════════════════════════════════════════════════════")
+      console.error(
+        "[v0] 🔍 Response metadata:",
+        JSON.stringify(
+          {
+            finishReason: fullResponse?.finishReason,
+            usage: fullResponse?.usage,
+          },
+          null,
+          2,
+        ),
+      )
+
       return NextResponse.json(
         {
           error: "Política de Conteúdo Violada",
@@ -270,8 +342,13 @@ export async function POST(request: NextRequest) {
             "• Tire fotos com roupas de treino (shorts e top/camiseta)\n" +
             "• Certifique-se de que as fotos são apenas para acompanhamento fitness\n" +
             "• Evite fotos muito próximas ou em ângulos inadequados\n\n" +
-            `Resposta da IA: ${text}`,
+            `Resposta completa da OpenAI:\n${text}`,
           policyViolation: true,
+          rawResponse: text,
+          responseMetadata: {
+            finishReason: fullResponse?.finishReason,
+            usage: fullResponse?.usage,
+          },
         },
         { status: 400 },
       )
@@ -288,10 +365,10 @@ export async function POST(request: NextRequest) {
 
       console.log("[v0] API: Cleaned text preview:", cleanedText.substring(0, 200))
       analysis = JSON.parse(cleanedText)
-      console.log("[v0] API: Response parsed successfully")
+      console.log("[v0] API: ✅ Response parsed successfully")
       console.log("[v0] API: Analysis keys:", Object.keys(analysis))
     } catch (parseError) {
-      console.error("[v0] API: Error parsing AI response:", parseError)
+      console.error("[v0] API: ❌ Error parsing AI response:", parseError)
       console.log("[v0] API: Full raw AI response:", text)
 
       return NextResponse.json(
@@ -302,10 +379,13 @@ export async function POST(request: NextRequest) {
             `Erro: ${parseError instanceof Error ? parseError.message : "Erro desconhecido"}\n\n` +
             `Resposta completa da IA:\n${text}`,
           parseError: true,
+          rawResponse: text,
         },
         { status: 500 },
       )
     }
+
+    console.log("[v0] API: ✅ Analysis valid, saving to Firebase")
 
     console.log("[v0] API: Saving to Firebase")
 
@@ -351,7 +431,7 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error("[v0] API: Error analyzing photos:", error)
+    console.error("[v0] API: ❌ Unexpected error analyzing photos:", error)
     return NextResponse.json(
       {
         error: "Failed to analyze photos",

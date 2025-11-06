@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { auth, db } from "@/lib/firebase"
-import { collection, query, where, orderBy, onSnapshot, doc, getDoc, deleteDoc } from "firebase/firestore"
+import { doc, getDoc, deleteDoc } from "firebase/firestore"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -111,40 +111,38 @@ export default function AnaliseCorporalPage() {
     }
   }
 
-  // Function to load history data
   const loadHistory = async () => {
     if (!user) return
 
     console.log("[v0] Loading history for user:", user.uid)
 
-    const photosQuery = query(
-      collection(db, "progressPhotos"),
-      where("userId", "==", user.uid),
-      orderBy("createdAt", "desc"),
-    )
+    try {
+      const token = await user.getIdToken()
 
-    const unsubscribe = onSnapshot(
-      photosQuery,
-      (snapshot) => {
-        console.log("[v0] History snapshot received, documents:", snapshot.docs.length)
-        const photosData = snapshot.docs.map((doc) => {
-          const data = doc.data()
-          console.log("[v0] Document data:", doc.id, data)
-          return {
-            id: doc.id,
-            ...data,
-          }
-        }) as ProgressPhoto[]
+      const response = await fetch("/api/get-progress-history", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
 
-        console.log("[v0] Loaded photos:", photosData.length)
-        setPhotos(photosData)
-      },
-      (error) => {
-        console.error("[v0] Error loading history:", error)
-      },
-    )
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error("[v0] ❌ Error loading history:", errorData)
+        return
+      }
 
-    return unsubscribe
+      const data = await response.json()
+      console.log("[v0] ✅ History loaded successfully:", data.photos.length, "photos")
+
+      const photosData = data.photos.map((photo: any) => ({
+        ...photo,
+        createdAt: photo.createdAt ? new Date(photo.createdAt) : new Date(),
+      }))
+
+      setPhotos(photosData)
+    } catch (error) {
+      console.error("[v0] ❌ Error loading history:", error)
+    }
   }
 
   useEffect(() => {
@@ -302,7 +300,10 @@ export default function AnaliseCorporalPage() {
   }
 
   const handleAnalyzePhotos = async () => {
-    if (!user || pendingPhotos.length === 0) return
+    if (pendingPhotos.length === 0) {
+      alert("Por favor, adicione pelo menos uma foto antes de analisar.")
+      return
+    }
 
     setIsAnalyzing(true)
     setCurrentAnalysis(null)
@@ -310,77 +311,87 @@ export default function AnaliseCorporalPage() {
     try {
       console.log("[v0] Starting photo upload and analysis process")
 
-      const uploadedPhotos = await Promise.all(
-        pendingPhotos.map(async (photo) => {
-          const formData = new FormData()
-          formData.append("file", photo.file)
+      const uploadedPhotos = []
 
-          console.log("[v0] Uploading photo:", photo.type)
-          const uploadResponse = await fetch("/api/upload-photo", {
-            method: "POST",
-            body: formData,
-          })
+      for (const pendingPhoto of pendingPhotos) {
+        console.log("[v0] Uploading photo:", pendingPhoto.type)
 
-          if (!uploadResponse.ok) {
-            throw new Error(`Failed to upload ${photo.type} photo`)
-          }
+        const formData = new FormData()
+        formData.append("photo", pendingPhoto.file)
+        formData.append("photoType", pendingPhoto.type)
 
-          const uploadData = await uploadResponse.json()
-          console.log("[v0] Photo uploaded successfully:", uploadData.photoUrl)
+        const uploadResponse = await fetch("/api/upload-photo", {
+          method: "POST",
+          body: formData,
+        })
 
-          return {
-            photoUrl: uploadData.photoUrl,
-            photoType: photo.type,
-          }
-        }),
-      )
+        if (!uploadResponse.ok) {
+          throw new Error(`Failed to upload ${pendingPhoto.type} photo`)
+        }
+
+        const uploadData = await uploadResponse.json()
+        console.log("[v0] Photo uploaded successfully:", uploadData.photoUrl)
+
+        uploadedPhotos.push({
+          photoUrl: uploadData.photoUrl,
+          photoType: pendingPhoto.type,
+        })
+      }
 
       console.log("[v0] All photos uploaded, starting AI analysis")
 
+      const token = await user?.getIdToken()
+
       const analysisResponse = await fetch("/api/analyze-photos-batch", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           photos: uploadedPhotos,
-          userId: user.uid,
-          userQuizData: quizData,
         }),
       })
 
-      if (!analysisResponse.ok) {
-        const errorData = await analysisResponse.json()
-        console.error("[v0] ❌ Analysis FAILED with status:", analysisResponse.status)
-        console.error("[v0] Error details:", errorData)
+      const analysisData = await analysisResponse.json()
 
-        if (errorData.policyViolation) {
-          alert(`❌ ${errorData.error}\n\n${errorData.details}\n\n` + "Por favor, ajuste as fotos e tente novamente.")
-        } else if (errorData.parseError) {
+      if (!analysisResponse.ok) {
+        console.error("[v0] ❌ Analysis FAILED with status:", analysisResponse.status)
+        console.error("[v0] Error details:", analysisData)
+
+        if (analysisData.policyViolation) {
           alert(
-            `⚠️ ${errorData.error}\n\n${errorData.details}\n\n` +
-              "Entre em contato com o suporte se o problema persistir.",
+            "⚠️ Violação de Política de Conteúdo\n\n" +
+              "A OpenAI recusou analisar as fotos enviadas.\n\n" +
+              "Isso pode acontecer quando:\n" +
+              "• As fotos mostram muito do corpo\n" +
+              "• A análise é interpretada como avaliação médica\n" +
+              "• O conteúdo viola políticas de uso\n\n" +
+              "Sugestões:\n" +
+              "• Use roupas de treino adequadas\n" +
+              "• Certifique-se de que é apenas acompanhamento fitness\n" +
+              "• Evite fotos muito próximas ou ângulos inadequados",
           )
         } else {
-          alert(errorData.details || errorData.error || "Failed to analyze photos")
+          alert(`Erro na análise: ${analysisData.details || analysisData.error || "Erro desconhecido"}`)
         }
-        throw new Error(errorData.details || errorData.error || "Failed to analyze photos")
+        return
       }
 
-      const analysisData = await analysisResponse.json()
       console.log("[v0] ✅ Analysis completed successfully")
       console.log("[v0] Real diet totals used:", analysisData.realDietTotals)
 
       setCurrentAnalysis(analysisData.analysis)
-      pendingPhotos.forEach((photo) => URL.revokeObjectURL(photo.preview))
       setPendingPhotos([])
 
-      setTimeout(async () => {
-        await loadHistory()
-        setActiveTab("history")
-        alert("Análise profissional concluída! Verifique o histórico para ver os resultados detalhados.")
-      }, 1000)
+      console.log("[v0] Reloading history after successful analysis")
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await loadHistory()
+
+      alert("Análise profissional concluída! Verifique o histórico para ver os resultados detalhados.")
     } catch (error) {
       console.error("[v0] ❌ Error in analysis process:", error)
-      alert(error instanceof Error ? error.message : "Erro ao analisar fotos. Tente novamente.")
+      alert(`Erro ao processar análise: ${error instanceof Error ? error.message : "Erro desconhecido"}`)
     } finally {
       setIsAnalyzing(false)
     }
