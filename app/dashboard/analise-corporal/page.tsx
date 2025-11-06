@@ -317,7 +317,7 @@ export default function AnaliseCorporalPage() {
         console.log("[v0] Uploading photo:", pendingPhoto.type)
 
         const formData = new FormData()
-        formData.append("photo", pendingPhoto.file)
+        formData.append("file", pendingPhoto.file)
         formData.append("photoType", pendingPhoto.type)
 
         const uploadResponse = await fetch("/api/upload-photo", {
@@ -326,7 +326,9 @@ export default function AnaliseCorporalPage() {
         })
 
         if (!uploadResponse.ok) {
-          throw new Error(`Failed to upload ${pendingPhoto.type} photo`)
+          const errorData = await uploadResponse.json() // Corrected: Use uploadResponse here
+          console.error("[v0] ❌ Upload failed:", errorData)
+          throw new Error(`Failed to upload ${pendingPhoto.type} photo: ${errorData.error || "Unknown error"}`)
         }
 
         const uploadData = await uploadResponse.json()
@@ -457,7 +459,8 @@ export default function AnaliseCorporalPage() {
         const comparisonResponse = await fetch("/api/compare-progress", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.JSON.stringify({
+          body: JSON.stringify({
+            // Corrected from JSON.JSON.stringify
             userId: user.uid,
             currentPhotoUrl: photoUrl,
             photoType: selectedPhotoType,
