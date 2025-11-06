@@ -108,11 +108,11 @@ export async function POST(request: NextRequest) {
     const analysisPrompt = `
     Você é um COACH DE FITNESS e PREPARADOR FÍSICO especializado em acompanhamento de progresso e otimização de resultados.
 
-    CONTEXTO: Esta é uma análise de PROGRESSO FITNESS para acompanhamento de evolução do cliente ao longo do tempo. As fotos são usadas para avaliar desenvolvimento muscular, composição corporal e efetividade do protocolo de treino e nutrição com permissao do cliente que escolheu a avaliacao.
+    CONTEXTO: Esta é uma análise de PROGRESSO FITNESS para acompanhamento da minha evolução ao longo do tempo treinando. As fotos são usadas para avaliar desenvolvimento muscular, composição corporal e efetividade do protocolo de treino e nutrição.
 
     FOTOS RECEBIDAS: ${photoDescriptions}
     
-    PERFIL DO CLIENTE:
+    MEU PERFIL:
     - Objetivo: ${userQuizData?.goal || "Não informado"}
     - Biotipo: ${userQuizData?.bodyType || "Não informado"}
     - Experiência: ${userQuizData?.experience || "Não informado"}
@@ -136,15 +136,12 @@ export async function POST(request: NextRequest) {
 
     ═══════════════════════════════════════════════════════════════════════════
 
-    ANÁLISE SOLICITADA:
-
-    Com base nas fotos de progresso fornecidas, avalie:
+    Com base nas fotos de progresso fornecidas, preciso que me ajude dizendo:
 
     1. DESENVOLVIMENTO MUSCULAR OBSERVADO:
        - Quais grupos musculares estão bem desenvolvidos
        - Quais grupos precisam de mais atenção
        - Simetria e proporções gerais
-       - Estimativa de composição corporal (massa muscular vs gordura)
 
     2. EFETIVIDADE DO PROTOCOLO ATUAL:
        - O protocolo de treino está gerando os resultados esperados?
@@ -183,7 +180,7 @@ export async function POST(request: NextRequest) {
       ],
       "motivacao": "Mensagem motivacional honesta sobre o estado atual e potencial de evolução",
       "focoPrincipal": "Área única mais importante para focar agora",
-      "progressoGeral": "Avaliação detalhada: estimativa de % de gordura, nível de massa muscular, condicionamento geral, comparação entre desenvolvimento superior e inferior considerando todas as fotos",
+      "progressoGeral": "Avaliação detalhada: condicionamento geral, comparação entre desenvolvimento superior e inferior considerando todas as fotos",
       "recomendacoesTreino": [
         "Ajuste específico no treino com justificativa (ex: adicionar 2 exercícios para posterior devido ao desenvolvimento observado)",
         "Segunda recomendação de treino"
