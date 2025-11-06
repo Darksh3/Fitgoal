@@ -349,7 +349,8 @@ export default function AnaliseCorporalPage() {
 
       if (!analysisResponse.ok) {
         const errorData = await analysisResponse.json()
-        console.error("[v0] Analysis API error:", errorData)
+        console.error("[v0] ❌ Analysis FAILED with status:", analysisResponse.status)
+        console.error("[v0] Error details:", errorData)
 
         if (errorData.policyViolation) {
           alert(`❌ ${errorData.error}\n\n${errorData.details}\n\n` + "Por favor, ajuste as fotos e tente novamente.")
@@ -365,7 +366,7 @@ export default function AnaliseCorporalPage() {
       }
 
       const analysisData = await analysisResponse.json()
-      console.log("[v0] Analysis completed successfully")
+      console.log("[v0] ✅ Analysis completed successfully")
       console.log("[v0] Real diet totals used:", analysisData.realDietTotals)
 
       setCurrentAnalysis(analysisData.analysis)
@@ -378,7 +379,7 @@ export default function AnaliseCorporalPage() {
         alert("Análise profissional concluída! Verifique o histórico para ver os resultados detalhados.")
       }, 1000)
     } catch (error) {
-      console.error("[v0] Error in analysis process:", error)
+      console.error("[v0] ❌ Error in analysis process:", error)
       alert(error instanceof Error ? error.message : "Erro ao analisar fotos. Tente novamente.")
     } finally {
       setIsAnalyzing(false)

@@ -256,7 +256,8 @@ export async function POST(request: NextRequest) {
     const isRefusal = policyRefusalPatterns.some((pattern) => text.toLowerCase().includes(pattern.toLowerCase()))
 
     if (isRefusal) {
-      console.error("[v0] API: OpenAI refused to analyze content due to policy violation")
+      console.error("[v0] API: ❌ OpenAI refused to analyze content due to policy violation")
+      console.error("[v0] API: Refusal message:", text)
       return NextResponse.json(
         {
           error: "Política de Conteúdo Violada",
