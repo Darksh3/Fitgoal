@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { openai } from "@ai-sdk/openai"
+import { google } from "@ai-sdk/google"
 import { generateText } from "ai"
 import { adminDb } from "@/lib/firebase-admin"
 import { FieldValue } from "firebase-admin/firestore"
@@ -206,18 +206,18 @@ export async function POST(request: NextRequest) {
 
     console.log("[v0] API: Starting AI analysis with multiple photos and real diet data")
 
-    if (!process.env.OPENAI_API_KEY) {
-      console.error("[v0] API: OPENAI_API_KEY not found")
+    if (!process.env.GOOGLE_API_KEY) {
+      console.error("[v0] API: GOOGLE_API_KEY not found")
       return NextResponse.json(
         {
           error: "AI service not configured",
-          details: "OpenAI API key is missing",
+          details: "Google API key is missing",
         },
         { status: 500 },
       )
     }
 
-    console.log("[v0] API: Preparing to call OpenAI with", photos.length, "photos")
+    console.log("[v0] API: Preparing to call Gemini Flash with", photos.length, "photos")
     console.log("[v0] API: Photo types:", photos.map((p: any) => p.photoType).join(", "))
 
     // Build content array with text and all images
@@ -230,13 +230,15 @@ export async function POST(request: NextRequest) {
     let text: string
     let fullResponse: any = null
     try {
-      console.log("[v0] 🔍 DEBUG: Calling OpenAI API...")
-      console.log("[v0] 🔍 DEBUG: Model: gpt-4o")
+      console.log("[v0] 🔍 DEBUG: Calling Google Gemini Flash API...")
+      console.log("[v0] 🔍 DEBUG: Model: gemini-1.5-flash")
       console.log("[v0] 🔍 DEBUG: Number of images:", photos.length)
       console.log("[v0] 🔍 DEBUG: Prompt length:", analysisPrompt.length, "characters")
 
       const response = await generateText({
-        model: openai("gpt-4o"),
+        model: google("gemini-1.5-flash", {
+          apiKey: process.env.GOOGLE_API_KEY || "AIzaSyBu9NpMoNpPcovvVNqQVfvOou_DJeuwEnw",
+        }),
         messages: [
           {
             role: "user",
@@ -250,7 +252,7 @@ export async function POST(request: NextRequest) {
       fullResponse = response
       text = response.text
 
-      console.log("[v0] ✅ OpenAI API Response Received:")
+      console.log("[v0] ✅ Gemini API Response Received:")
       console.log("[v0] 🔍 Response length:", text.length, "characters")
       console.log("[v0] 🔍 Full response object keys:", Object.keys(response))
       console.log(
@@ -270,7 +272,7 @@ export async function POST(request: NextRequest) {
       console.log(text)
       console.log("═══════════════════════════════════════════════════════════")
     } catch (aiError: any) {
-      console.error("[v0] ❌ OpenAI API Error Details:")
+      console.error("[v0] ❌ Gemini API Error Details:")
       console.error("[v0] 🔍 Error type:", aiError?.constructor?.name)
       console.error("[v0] 🔍 Error message:", aiError?.message)
       console.error("[v0] 🔍 Error code:", aiError?.code)
