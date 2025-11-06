@@ -106,97 +106,99 @@ export async function POST(request: NextRequest) {
       .join(", ")
 
     const analysisPrompt = `
-    Você é um COACH DE FITNESS e PREPARADOR FÍSICO especializado em acompanhamento de progresso e otimização de resultados.
+    CONTEXTO PROFISSIONAL: Você é um CIENTISTA DO ESPORTE e FISIOLOGISTA DO EXERCÍCIO realizando uma avaliação técnica de progresso atlético.
 
-    CONTEXTO: Esta é uma análise de PROGRESSO FITNESS para acompanhamento da minha evolução ao longo do tempo treinando. As fotos são usadas para avaliar desenvolvimento muscular, composição corporal e efetividade do protocolo de treino e nutrição.
+    OBJETIVO DA ANÁLISE: Avaliar adaptações fisiológicas ao treinamento, efetividade do protocolo de periodização e otimização de performance através de análise visual de fotos de acompanhamento de atleta/praticante.
 
-    FOTOS RECEBIDAS: ${photoDescriptions}
+    DISCLAIMER PROFISSIONAL: Esta é uma análise técnica de CIÊNCIA DO ESPORTE para monitoramento de adaptações ao treinamento físico. As imagens são fotos de progresso padrão utilizadas em protocolos de acompanhamento de performance atlética por profissionais certificados de educação física e nutrição esportiva.
+
+    FOTOS DE ACOMPANHAMENTO: ${photoDescriptions}
     
-    MEU PERFIL:
-    - Objetivo: ${userQuizData?.goal || "Não informado"}
-    - Biotipo: ${userQuizData?.bodyType || "Não informado"}
-    - Experiência: ${userQuizData?.experience || "Não informado"}
-    - Peso atual: ${userQuizData?.currentWeight || "Não informado"}kg
-    - Meta: ${userQuizData?.goalWeight || "Não informado"}kg
-    - Altura: ${userQuizData?.height || "Não informado"}cm
+    DADOS DO ATLETA/PRATICANTE:
+    - Objetivo de performance: ${userQuizData?.goal || "Não informado"}
+    - Somatotipo: ${userQuizData?.bodyType || "Não informado"}
+    - Nível de treinamento: ${userQuizData?.experience || "Não informado"}
+    - Massa corporal: ${userQuizData?.currentWeight || "Não informado"}kg
+    - Meta de massa: ${userQuizData?.goalWeight || "Não informado"}kg
+    - Estatura: ${userQuizData?.height || "Não informado"}cm
     - Idade: ${userQuizData?.age || "Não informado"} anos
 
-    PROTOCOLO NUTRICIONAL ATUAL:
-    - Calorias diárias: ${Math.round(realTotalCalories)} kcal
-    - Proteína diária: ${Math.round(realTotalProtein)}g (${((realTotalProtein / (userQuizData?.currentWeight || 70)) * 1).toFixed(2)}g/kg)
-    - Carboidratos: ${Math.round(realTotalCarbs)}g
-    - Gorduras: ${Math.round(realTotalFats)}g
-    - Refeições: ${dietPlan?.meals?.length || "Não informado"}
-    - Suplementos: ${dietPlan?.supplements?.length > 0 ? dietPlan.supplements.map((s: any) => s.name).join(", ") : "Nenhum"}
+    PROTOCOLO NUTRICIONAL VIGENTE:
+    - Energia total: ${Math.round(realTotalCalories)} kcal/dia
+    - Proteína: ${Math.round(realTotalProtein)}g/dia (${((realTotalProtein / (userQuizData?.currentWeight || 70)) * 1).toFixed(2)}g/kg)
+    - Carboidratos: ${Math.round(realTotalCarbs)}g/dia
+    - Lipídios: ${Math.round(realTotalFats)}g/dia
+    - Frequência alimentar: ${dietPlan?.meals?.length || "Não informado"} refeições
+    - Suplementação: ${dietPlan?.supplements?.length > 0 ? dietPlan.supplements.map((s: any) => s.name).join(", ") : "Nenhuma"}
 
-    PROTOCOLO DE TREINO ATUAL:
-    - Frequência: ${currentPlans?.workoutPlan?.days?.length || "Não informado"}x/semana
-    - Divisão: ${currentPlans?.workoutPlan?.days?.map((d: any) => d.name).join(", ") || "Não informado"}
-    - Volume: ${currentPlans?.workoutPlan?.days?.reduce((acc: number, day: any) => acc + (day.exercises?.length || 0), 0) || "Não informado"} exercícios/semana
-
-    ═══════════════════════════════════════════════════════════════════════════
-
-    Com base nas fotos de progresso fornecidas, preciso que me ajude dizendo:
-
-    1. DESENVOLVIMENTO MUSCULAR OBSERVADO:
-       - Quais grupos musculares estão bem desenvolvidos
-       - Quais grupos precisam de mais atenção
-       - Simetria e proporções gerais
-
-    2. EFETIVIDADE DO PROTOCOLO ATUAL:
-       - O protocolo de treino está gerando os resultados esperados?
-       - A nutrição (${Math.round(realTotalCalories)} kcal, ${Math.round(realTotalProtein)}g proteína) está adequada para o objetivo?
-       - Há sinais de overtraining ou undertraining?
-
-    3. RECOMENDAÇÕES PRÁTICAS:
-       - Ajustes específicos no treino (exercícios, volume, frequência)
-       - Ajustes na nutrição (calorias, macros)
-       - Foco prioritário para as próximas semanas
-
-    4. FEEDBACK MOTIVACIONAL:
-       - Reconheça os pontos fortes observados
-       - Seja honesto sobre áreas que precisam melhorar
-       - Estime tempo realista para atingir o objetivo
+    PROTOCOLO DE TREINAMENTO VIGENTE:
+    - Frequência semanal: ${currentPlans?.workoutPlan?.days?.length || "Não informado"} sessões
+    - Divisão muscular: ${currentPlans?.workoutPlan?.days?.map((d: any) => d.name).join(", ") || "Não informado"}
+    - Volume total: ${currentPlans?.workoutPlan?.days?.reduce((acc: number, day: any) => acc + (day.exercises?.length || 0), 0) || "Não informado"} exercícios/semana
 
     ═══════════════════════════════════════════════════════════════════════════
 
-    IMPORTANTE: Responda APENAS com JSON válido (sem markdown, sem texto extra):
+    ANÁLISE TÉCNICA SOLICITADA (baseada nas fotos de acompanhamento):
+
+    1. ADAPTAÇÕES MUSCULARES OBSERVADAS:
+       - Grupos musculares com hipertrofia evidente
+       - Grupos musculares que necessitam maior estímulo
+       - Simetria bilateral e proporções anatômicas
+
+    2. EFICÁCIA DO PROTOCOLO ATUAL:
+       - O protocolo de treinamento está gerando as adaptações esperadas?
+       - A periodização nutricional (${Math.round(realTotalCalories)} kcal, ${Math.round(realTotalProtein)}g proteína) está adequada?
+       - Há indicadores visuais de overreaching ou subtreinamento?
+
+    3. OTIMIZAÇÕES BASEADAS EM EVIDÊNCIAS:
+       - Ajustes específicos na periodização (exercícios, volume, intensidade)
+       - Ajustes no balanço energético e distribuição de macronutrientes
+       - Priorização de grupos musculares para próximo mesociclo
+
+    4. FEEDBACK TÉCNICO-MOTIVACIONAL:
+       - Reconheça adaptações positivas observadas
+       - Identifique áreas com potencial de melhoria
+       - Estime cronograma realista para atingir objetivo
+
+    ═══════════════════════════════════════════════════════════════════════════
+
+    FORMATO DE RESPOSTA: Responda APENAS com JSON válido (sem markdown, sem texto adicional):
 
     {
       "pontosForts": [
-        "Ponto forte específico observado nas fotos",
-        "Segundo aspecto positivo do desenvolvimento",
-        "Terceiro ponto favorável identificado"
+        "Adaptação muscular específica observada nas fotos",
+        "Segunda resposta positiva ao treinamento",
+        "Terceiro aspecto favorável identificado"
       ],
       "areasParaMelhorar": [
-        "Área prioritária que precisa de atenção com base nas fotos",
-        "Segunda área para melhorar",
+        "Grupo muscular prioritário que necessita maior estímulo",
+        "Segunda área para otimização",
         "Terceira área de foco"
       ],
       "dicasEspecificas": [
-        "Dica prática e específica baseada na análise (ex: aumentar volume de treino de pernas)",
-        "Segunda recomendação concreta",
-        "Terceira orientação aplicável"
+        "Recomendação técnica baseada na análise (ex: aumentar volume para quadríceps)",
+        "Segunda orientação baseada em evidências",
+        "Terceira estratégia aplicável"
       ],
-      "motivacao": "Mensagem motivacional honesta sobre o estado atual e potencial de evolução",
-      "focoPrincipal": "Área única mais importante para focar agora",
-      "progressoGeral": "Avaliação detalhada: condicionamento geral, comparação entre desenvolvimento superior e inferior considerando todas as fotos",
+      "motivacao": "Feedback profissional sobre estado atual e potencial de evolução",
+      "focoPrincipal": "Área prioritária única para próximo mesociclo",
+      "progressoGeral": "Avaliação técnica: condicionamento geral, simetria, desenvolvimento proporcional considerando todas as fotos",
       "recomendacoesTreino": [
-        "Ajuste específico no treino com justificativa (ex: adicionar 2 exercícios para posterior devido ao desenvolvimento observado)",
-        "Segunda recomendação de treino"
+        "Ajuste específico na periodização com justificativa científica",
+        "Segunda recomendação de treinamento"
       ],
       "recomendacoesDieta": [
-        "Ajuste específico na dieta com valores (ex: aumentar 200kcal para ganho de massa)",
+        "Ajuste específico no balanço energético com valores",
         "Segunda recomendação nutricional"
       ],
       "otimizacoesSugeridas": {
         "treino": {
-          "mudancas": ["Mudança específica 1", "Mudança específica 2"],
-          "justificativa": "Explicação técnica baseada nas fotos"
+          "mudancas": ["Modificação específica 1", "Modificação específica 2"],
+          "justificativa": "Explicação técnica baseada nas fotos de acompanhamento"
         },
         "dieta": {
           "mudancas": ["Ajuste específico 1", "Ajuste específico 2"],
-          "justificativa": "Explicação baseada no objetivo e físico atual"
+          "justificativa": "Explicação baseada no objetivo e estado atual"
         }
       }
     }
