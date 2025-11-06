@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { google } from "@ai-sdk/google"
+import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { generateText } from "ai"
 import { adminDb } from "@/lib/firebase-admin"
 import { FieldValue } from "firebase-admin/firestore"
@@ -26,6 +26,10 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("[v0] API: Google API key found, length:", apiKey.length)
+
+    const google = createGoogleGenerativeAI({
+      apiKey: apiKey,
+    })
 
     const body = await request.json()
     const { photos, userId, userQuizData } = body
@@ -239,12 +243,12 @@ export async function POST(request: NextRequest) {
     let fullResponse: any = null
     try {
       console.log("[v0] 🔍 DEBUG: Calling Google Gemini Flash API...")
-      console.log("[v0] 🔍 DEBUG: Model: gemini-1.5-flash-latest")
+      console.log("[v0] 🔍 DEBUG: Model: gemini-1.5-flash")
       console.log("[v0] 🔍 DEBUG: Number of images:", photos.length)
       console.log("[v0] 🔍 DEBUG: Prompt length:", analysisPrompt.length, "characters")
 
       const response = await generateText({
-        model: google("gemini-1.5-flash-latest"),
+        model: google("gemini-1.5-flash"),
         messages: [
           {
             role: "user",
