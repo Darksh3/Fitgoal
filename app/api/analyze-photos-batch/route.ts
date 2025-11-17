@@ -106,102 +106,11 @@ export async function POST(request: NextRequest) {
       .join(", ")
 
     const analysisPrompt = `
-    Você é um COACH DE FITNESS e PREPARADOR FÍSICO especializado em acompanhamento de progresso e otimização de resultados.
-
-    CONTEXTO: Esta é uma análise de PROGRESSO FITNESS para acompanhamento de evolução do cliente ao longo do tempo. As fotos são usadas para avaliar desenvolvimento muscular, composição corporal e efetividade do protocolo de treino e nutrição com permissao do cliente que escolheu a avaliacao.
-
-    FOTOS RECEBIDAS: ${photoDescriptions}
-    
-    PERFIL DO CLIENTE:
-    - Objetivo: ${userQuizData?.goal || "Não informado"}
-    - Biotipo: ${userQuizData?.bodyType || "Não informado"}
-    - Experiência: ${userQuizData?.experience || "Não informado"}
-    - Peso atual: ${userQuizData?.currentWeight || "Não informado"}kg
-    - Meta: ${userQuizData?.goalWeight || "Não informado"}kg
-    - Altura: ${userQuizData?.height || "Não informado"}cm
-    - Idade: ${userQuizData?.age || "Não informado"} anos
-
-    PROTOCOLO NUTRICIONAL ATUAL:
-    - Calorias diárias: ${Math.round(realTotalCalories)} kcal
-    - Proteína diária: ${Math.round(realTotalProtein)}g (${((realTotalProtein / (userQuizData?.currentWeight || 70)) * 1).toFixed(2)}g/kg)
-    - Carboidratos: ${Math.round(realTotalCarbs)}g
-    - Gorduras: ${Math.round(realTotalFats)}g
-    - Refeições: ${dietPlan?.meals?.length || "Não informado"}
-    - Suplementos: ${dietPlan?.supplements?.length > 0 ? dietPlan.supplements.map((s: any) => s.name).join(", ") : "Nenhum"}
-
-    PROTOCOLO DE TREINO ATUAL:
-    - Frequência: ${currentPlans?.workoutPlan?.days?.length || "Não informado"}x/semana
-    - Divisão: ${currentPlans?.workoutPlan?.days?.map((d: any) => d.name).join(", ") || "Não informado"}
-    - Volume: ${currentPlans?.workoutPlan?.days?.reduce((acc: number, day: any) => acc + (day.exercises?.length || 0), 0) || "Não informado"} exercícios/semana
-
-    ═══════════════════════════════════════════════════════════════════════════
-
-    ANÁLISE SOLICITADA:
-
-    Com base nas fotos de progresso fornecidas, avalie:
-
-    1. DESENVOLVIMENTO MUSCULAR OBSERVADO:
-       - Quais grupos musculares estão bem desenvolvidos
-       - Quais grupos precisam de mais atenção
-       - Simetria e proporções gerais
-       - Estimativa de composição corporal (massa muscular vs gordura)
-
-    2. EFETIVIDADE DO PROTOCOLO ATUAL:
-       - O protocolo de treino está gerando os resultados esperados?
-       - A nutrição (${Math.round(realTotalCalories)} kcal, ${Math.round(realTotalProtein)}g proteína) está adequada para o objetivo?
-       - Há sinais de overtraining ou undertraining?
-
-    3. RECOMENDAÇÕES PRÁTICAS:
-       - Ajustes específicos no treino (exercícios, volume, frequência)
-       - Ajustes na nutrição (calorias, macros)
-       - Foco prioritário para as próximas semanas
-
-    4. FEEDBACK MOTIVACIONAL:
-       - Reconheça os pontos fortes observados
-       - Seja honesto sobre áreas que precisam melhorar
-       - Estime tempo realista para atingir o objetivo
-
-    ═══════════════════════════════════════════════════════════════════════════
-
-    IMPORTANTE: Responda APENAS com JSON válido (sem markdown, sem texto extra):
+    Olhe para a foto e responda APENAS com JSON válido (sem markdown, sem texto extra):
 
     {
-      "pontosForts": [
-        "Ponto forte específico observado nas fotos",
-        "Segundo aspecto positivo do desenvolvimento",
-        "Terceiro ponto favorável identificado"
-      ],
-      "areasParaMelhorar": [
-        "Área prioritária que precisa de atenção com base nas fotos",
-        "Segunda área para melhorar",
-        "Terceira área de foco"
-      ],
-      "dicasEspecificas": [
-        "Dica prática e específica baseada na análise (ex: aumentar volume de treino de pernas)",
-        "Segunda recomendação concreta",
-        "Terceira orientação aplicável"
-      ],
-      "motivacao": "Mensagem motivacional honesta sobre o estado atual e potencial de evolução",
-      "focoPrincipal": "Área única mais importante para focar agora",
-      "progressoGeral": "Avaliação detalhada: estimativa de % de gordura, nível de massa muscular, condicionamento geral, comparação entre desenvolvimento superior e inferior considerando todas as fotos",
-      "recomendacoesTreino": [
-        "Ajuste específico no treino com justificativa (ex: adicionar 2 exercícios para posterior devido ao desenvolvimento observado)",
-        "Segunda recomendação de treino"
-      ],
-      "recomendacoesDieta": [
-        "Ajuste específico na dieta com valores (ex: aumentar 200kcal para ganho de massa)",
-        "Segunda recomendação nutricional"
-      ],
-      "otimizacoesSugeridas": {
-        "treino": {
-          "mudancas": ["Mudança específica 1", "Mudança específica 2"],
-          "justificativa": "Explicação técnica baseada nas fotos"
-        },
-        "dieta": {
-          "mudancas": ["Ajuste específico 1", "Ajuste específico 2"],
-          "justificativa": "Explicação baseada no objetivo e físico atual"
-        }
-      }
+      "corDaCamisa": "Descreva a cor da camisa que a pessoa está usando",
+      "observacao": "Alguma observação adicional sobre a roupa"
     }
     `
 
@@ -302,8 +211,8 @@ export async function POST(request: NextRequest) {
     try {
       const cleanedText = text
         .trim()
-        .replace(/```json\n?/g, "")
-        .replace(/```\n?/g, "")
+        .replace(/\`\`\`json\n?/g, "")
+        .replace(/\`\`\`\n?/g, "")
         .replace(/^[^{]*/, "")
         .replace(/[^}]*$/, "")
 
