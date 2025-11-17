@@ -129,7 +129,8 @@ ${dietPlan ? `\n[Plano Alimentar Atual]\n${JSON.stringify(dietPlan, null, 2)}` :
     console.log("[v0] API: User context prepared")
     console.log("[v0] API: Number of photos to analyze:", photos.length)
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+    console.log("[v0] API: Initializing Gemini 1.5 Pro...")
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" })
 
     const imageParts = await Promise.all(
       photos.map(async (photo: any) => {
