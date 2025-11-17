@@ -1,32 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { GoogleGenerativeAI } from "@google/generative-ai"
+import { openai } from "@ai-sdk/openai"
+import { generateText } from "ai"
 import { adminDb } from "@/lib/firebase-admin"
 import { FieldValue } from "firebase-admin/firestore"
 
 export async function POST(request: NextRequest) {
   try {
     console.log("[v0] API: Starting batch photo analysis")
-
-    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GOOGLE_API_KEY
-
-    console.log("[v0] API: Checking Google API key...")
-    console.log("[v0] API: GOOGLE_GENERATIVE_AI_API_KEY exists:", !!process.env.GOOGLE_GENERATIVE_AI_API_KEY)
-    console.log("[v0] API: GOOGLE_API_KEY exists:", !!process.env.GOOGLE_API_KEY)
-
-    if (!apiKey) {
-      console.error("[v0] API: Google API key is missing")
-      return NextResponse.json(
-        {
-          error: "AI service not configured",
-          details: "Google API key is missing. Please add GOOGLE_GENERATIVE_AI_API_KEY environment variable.",
-        },
-        { status: 500 },
-      )
-    }
-
-    console.log("[v0] API: Google API key found, length:", apiKey.length)
-
-    const genAI = new GoogleGenerativeAI(apiKey)
 
     const body = await request.json()
     const { photos, userId, userQuizData } = body
@@ -73,6 +53,7 @@ export async function POST(request: NextRequest) {
     let realTotalCarbs = 0
     let realTotalFats = 0
 
+    // Add supplement macros
     if (dietPlan?.supplements && Array.isArray(dietPlan.supplements)) {
       dietPlan.supplements.forEach((supplement: any) => {
         realTotalCalories += Number(supplement.calories) || 0
@@ -82,6 +63,7 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Add meal macros
     if (dietPlan?.meals && Array.isArray(dietPlan.meals)) {
       dietPlan.meals.forEach((meal: any) => {
         if (Array.isArray(meal.foods)) {
@@ -115,104 +97,166 @@ export async function POST(request: NextRequest) {
       fats: realTotalFats,
     })
 
-    const userContext = `
-Dados do Usuário:
-- Idade: ${currentPlans?.age || "Não informada"}
-- Peso Atual: ${currentPlans?.weight || "Não informado"} kg
-- Altura: ${currentPlans?.height || "Não informada"} cm
-- Objetivo: ${currentPlans?.goal || "Não informado"}
-- Nível de Atividade: ${currentPlans?.activityLevel || "Não informado"}
-- Biotipo: ${currentPlans?.bodyType || "Não informado"}
-${dietPlan ? `\n[Plano Alimentar Atual]\n${JSON.stringify(dietPlan, null, 2)}` : ""}
-    `.trim()
-
-    console.log("[v0] API: User context prepared")
-    console.log("[v0] API: Number of photos to analyze:", photos.length)
-
-    console.log("[v0] API: Initializing Gemini 1.5 Pro...")
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" })
-
-    const imageParts = await Promise.all(
-      photos.map(async (photo: any) => {
-        const response = await fetch(photo.photoUrl)
-        const buffer = await response.arrayBuffer()
-        return {
-          inlineData: {
-            data: Buffer.from(buffer).toString("base64"),
-            mimeType: "image/jpeg",
-          },
-        }
+    // Build photo descriptions for prompt
+    const photoDescriptions = photos
+      .map((photo: any) => {
+        const typeLabel = photo.photoType === "front" ? "Frente" : photo.photoType === "back" ? "Costas" : "Lateral"
+        return `Foto ${typeLabel}`
       })
-    )
+      .join(", ")
 
-    const prompt = `
-CONTEXTO PROFISSIONAL
-Você é um especialista em ciência do esporte e avaliação física. Sua função é realizar uma análise técnica objetiva de adaptações morfológicas ao treinamento.
+    const analysisPrompt = `
+    Você é um COACH DE FITNESS e PREPARADOR FÍSICO especializado em acompanhamento de progresso e otimização de resultados.
 
-${userContext}
+    CONTEXTO: Esta é uma análise de PROGRESSO FITNESS para acompanhamento de evolução do cliente ao longo do tempo. As fotos são usadas para avaliar desenvolvimento muscular, composição corporal e efetividade do protocolo de treino e nutrição com permissao do cliente que escolheu a avaliacao.
 
-PROTOCOLO DE AVALIAÇÃO
-Analise as fotografias fornecidas utilizando os seguintes parâmetros antropométricos e biomecânicos:
+    FOTOS RECEBIDAS: ${photoDescriptions}
+    
+    PERFIL DO CLIENTE:
+    - Objetivo: ${userQuizData?.goal || "Não informado"}
+    - Biotipo: ${userQuizData?.bodyType || "Não informado"}
+    - Experiência: ${userQuizData?.experience || "Não informado"}
+    - Peso atual: ${userQuizData?.currentWeight || "Não informado"}kg
+    - Meta: ${userQuizData?.goalWeight || "Não informado"}kg
+    - Altura: ${userQuizData?.height || "Não informado"}cm
+    - Idade: ${userQuizData?.age || "Não informado"} anos
 
-1. ANÁLISE POSTURAL E SIMETRIA
-   - Alinhamento da coluna vertebral
-   - Distribuição de massa corporal
-   - Simetria bilateral
+    PROTOCOLO NUTRICIONAL ATUAL:
+    - Calorias diárias: ${Math.round(realTotalCalories)} kcal
+    - Proteína diária: ${Math.round(realTotalProtein)}g (${((realTotalProtein / (userQuizData?.currentWeight || 70)) * 1).toFixed(2)}g/kg)
+    - Carboidratos: ${Math.round(realTotalCarbs)}g
+    - Gorduras: ${Math.round(realTotalFats)}g
+    - Refeições: ${dietPlan?.meals?.length || "Não informado"}
+    - Suplementos: ${dietPlan?.supplements?.length > 0 ? dietPlan.supplements.map((s: any) => s.name).join(", ") : "Nenhum"}
 
-2. COMPOSIÇÃO CORPORAL VISUAL
-   - Estimativa de percentual de gordura corporal
-   - Desenvolvimento muscular relativo
-   - Áreas de maior/menor densidade muscular
+    PROTOCOLO DE TREINO ATUAL:
+    - Frequência: ${currentPlans?.workoutPlan?.days?.length || "Não informado"}x/semana
+    - Divisão: ${currentPlans?.workoutPlan?.days?.map((d: any) => d.name).join(", ") || "Não informado"}
+    - Volume: ${currentPlans?.workoutPlan?.days?.reduce((acc: number, day: any) => acc + (day.exercises?.length || 0), 0) || "Não informado"} exercícios/semana
 
-3. ADAPTAÇÕES AO TREINAMENTO
-   - Grupos musculares mais desenvolvidos
-   - Potenciais desequilíbrios musculares
-   - Zonas de acúmulo adiposo
+    ═══════════════════════════════════════════════════════════════════════════
 
-4. RECOMENDAÇÕES TÉCNICAS
-   - Periodização de treino sugerida
-   - Grupos musculares prioritários
-   - Estratégias nutricionais gerais
-   - Marcos de progressão sugeridos
+    ANÁLISE SOLICITADA:
 
-FORMATO DE RESPOSTA (JSON):
-{
-  "analysis": "Análise técnica detalhada em português",
-  "recommendations": "Recomendações profissionais específicas"
-}
+    Com base nas fotos de progresso fornecidas, avalie:
 
-DISCLAIMER: Esta é uma avaliação visual preliminar para fins educacionais. Recomenda-se avaliação presencial com profissionais certificados.
-`
+    1. DESENVOLVIMENTO MUSCULAR OBSERVADO:
+       - Quais grupos musculares estão bem desenvolvidos
+       - Quais grupos precisam de mais atenção
+       - Simetria e proporções gerais
+       - Estimativa de composição corporal (massa muscular vs gordura)
 
-    console.log("[v0] API: Sending request to Gemini...")
+    2. EFETIVIDADE DO PROTOCOLO ATUAL:
+       - O protocolo de treino está gerando os resultados esperados?
+       - A nutrição (${Math.round(realTotalCalories)} kcal, ${Math.round(realTotalProtein)}g proteína) está adequada para o objetivo?
+       - Há sinais de overtraining ou undertraining?
 
-    const result = await model.generateContent([prompt, ...imageParts])
-    const response = await result.response
-    const text = response.text()
+    3. RECOMENDAÇÕES PRÁTICAS:
+       - Ajustes específicos no treino (exercícios, volume, frequência)
+       - Ajustes na nutrição (calorias, macros)
+       - Foco prioritário para as próximas semanas
 
-    console.log("[v0] API: Gemini response received")
-    console.log("[v0] API: Response text:", text)
+    4. FEEDBACK MOTIVACIONAL:
+       - Reconheça os pontos fortes observados
+       - Seja honesto sobre áreas que precisam melhorar
+       - Estime tempo realista para atingir o objetivo
 
-    let analysisData
-    try {
-      const jsonMatch = text.match(/\{[\s\S]*\}/)
-      if (jsonMatch) {
-        analysisData = JSON.parse(jsonMatch[0])
-      } else {
-        analysisData = {
-          analysis: text,
-          recommendations: "Consulte um profissional para recomendações personalizadas.",
+    ═══════════════════════════════════════════════════════════════════════════
+
+    IMPORTANTE: Responda APENAS com JSON válido (sem markdown, sem texto extra):
+
+    {
+      "pontosForts": [
+        "Ponto forte específico observado nas fotos",
+        "Segundo aspecto positivo do desenvolvimento",
+        "Terceiro ponto favorável identificado"
+      ],
+      "areasParaMelhorar": [
+        "Área prioritária que precisa de atenção com base nas fotos",
+        "Segunda área para melhorar",
+        "Terceira área de foco"
+      ],
+      "dicasEspecificas": [
+        "Dica prática e específica baseada na análise (ex: aumentar volume de treino de pernas)",
+        "Segunda recomendação concreta",
+        "Terceira orientação aplicável"
+      ],
+      "motivacao": "Mensagem motivacional honesta sobre o estado atual e potencial de evolução",
+      "focoPrincipal": "Área única mais importante para focar agora",
+      "progressoGeral": "Avaliação detalhada: estimativa de % de gordura, nível de massa muscular, condicionamento geral, comparação entre desenvolvimento superior e inferior considerando todas as fotos",
+      "recomendacoesTreino": [
+        "Ajuste específico no treino com justificativa (ex: adicionar 2 exercícios para posterior devido ao desenvolvimento observado)",
+        "Segunda recomendação de treino"
+      ],
+      "recomendacoesDieta": [
+        "Ajuste específico na dieta com valores (ex: aumentar 200kcal para ganho de massa)",
+        "Segunda recomendação nutricional"
+      ],
+      "otimizacoesSugeridas": {
+        "treino": {
+          "mudancas": ["Mudança específica 1", "Mudança específica 2"],
+          "justificativa": "Explicação técnica baseada nas fotos"
+        },
+        "dieta": {
+          "mudancas": ["Ajuste específico 1", "Ajuste específico 2"],
+          "justificativa": "Explicação baseada no objetivo e físico atual"
         }
       }
-    } catch (parseError) {
-      console.error("[v0] API: Failed to parse JSON response:", parseError)
-      analysisData = {
-        analysis: text,
-        recommendations: "Consulte um profissional para recomendações personalizadas.",
-      }
+    }
+    `
+
+    console.log("[v0] API: Starting AI analysis with multiple photos and real diet data")
+
+    if (!process.env.OPENAI_API_KEY) {
+      console.error("[v0] API: OPENAI_API_KEY not found")
+      return NextResponse.json(
+        {
+          error: "AI service not configured",
+          details: "OpenAI API key is missing",
+        },
+        { status: 500 },
+      )
+    }
+
+    console.log("[v0] API: Preparing to call OpenAI with", photos.length, "photos")
+    console.log("[v0] API: Photo types:", photos.map((p: any) => p.photoType).join(", "))
+
+    // Build content array with text and all images
+    const content: any[] = [{ type: "text", text: analysisPrompt }]
+    photos.forEach((photo: any) => {
+      console.log("[v0] API: Adding photo to analysis:", photo.photoType, photo.photoUrl.substring(0, 50))
+      content.push({ type: "image", image: photo.photoUrl })
+    })
+
+    let text: string
+    try {
+      const response = await generateText({
+        model: openai("gpt-4o"),
+        messages: [
+          {
+            role: "user",
+            content,
+          },
+        ],
+        maxTokens: 4500,
+        temperature: 0.7,
+      })
+      text = response.text
+      console.log("[v0] API: ✅ AI call successful, response length:", text.length)
+    } catch (aiError) {
+      console.error("[v0] API: ❌ AI call failed:", aiError)
+      return NextResponse.json(
+        {
+          error: "Erro na chamada da IA",
+          details: aiError instanceof Error ? aiError.message : "Erro desconhecido ao chamar a IA",
+          aiError: true,
+        },
+        { status: 500 },
+      )
     }
 
     console.log("[v0] API: AI analysis completed, parsing response")
+    console.log("[v0] API: Raw AI response preview:", text.substring(0, 200))
 
     const policyRefusalPatterns = [
       "I'm sorry, I can't assist with that",
@@ -232,24 +276,8 @@ DISCLAIMER: Esta é uma avaliação visual preliminar para fins educacionais. Re
     const isRefusal = policyRefusalPatterns.some((pattern) => text.toLowerCase().includes(pattern.toLowerCase()))
 
     if (isRefusal) {
-      console.error("[v0] ❌ POLICY VIOLATION DETECTED:")
-      console.error("[v0] 🔍 Refusal reason: OpenAI content policy")
-      console.error("[v0] 🔍 Complete refusal message:")
-      console.error("═══════════════════════════════════════════════════════════")
-      console.error(text)
-      console.error("═══════════════════════════════════════════════════════════")
-      console.error(
-        "[v0] 🔍 Response metadata:",
-        JSON.stringify(
-          {
-            finishReason: response.finishReason,
-            usage: response.usage,
-          },
-          null,
-          2,
-        ),
-      )
-
+      console.error("[v0] API: ❌ OpenAI refused to analyze content due to policy violation")
+      console.error("[v0] API: Refusal message:", text)
       return NextResponse.json(
         {
           error: "Política de Conteúdo Violada",
@@ -262,58 +290,96 @@ DISCLAIMER: Esta é uma avaliação visual preliminar para fins educacionais. Re
             "• Tire fotos com roupas de treino (shorts e top/camiseta)\n" +
             "• Certifique-se de que as fotos são apenas para acompanhamento fitness\n" +
             "• Evite fotos muito próximas ou em ângulos inadequados\n\n" +
-            `Resposta completa da OpenAI:\n${text}`,
+            `Resposta da IA: ${text}`,
           policyViolation: true,
           rawResponse: text,
-          responseMetadata: {
-            finishReason: response.finishReason,
-            usage: response.usage,
-          },
         },
         { status: 400 },
       )
     }
 
+    let analysis
+    try {
+      const cleanedText = text
+        .trim()
+        .replace(/```json\n?/g, "")
+        .replace(/```\n?/g, "")
+        .replace(/^[^{]*/, "")
+        .replace(/[^}]*$/, "")
+
+      console.log("[v0] API: Cleaned text preview:", cleanedText.substring(0, 200))
+      analysis = JSON.parse(cleanedText)
+      console.log("[v0] API: ✅ Response parsed successfully")
+      console.log("[v0] API: Analysis keys:", Object.keys(analysis))
+    } catch (parseError) {
+      console.error("[v0] API: ❌ Error parsing AI response:", parseError)
+      console.log("[v0] API: Full raw AI response:", text)
+
+      return NextResponse.json(
+        {
+          error: "Erro ao processar resposta da IA",
+          details:
+            "A IA retornou uma resposta que não pôde ser processada corretamente.\n\n" +
+            `Erro: ${parseError instanceof Error ? parseError.message : "Erro desconhecido"}\n\n` +
+            `Resposta completa da IA:\n${text}`,
+          parseError: true,
+          rawResponse: text,
+        },
+        { status: 500 },
+      )
+    }
+
     console.log("[v0] API: ✅ Analysis valid, saving to Firebase")
 
-    const progressEntry = {
-      date: new Date().toISOString(),
+    console.log("[v0] API: Saving to Firebase")
+
+    const batchPhotoData = {
+      userId,
       photos: photos.map((photo: any) => ({
         photoUrl: photo.photoUrl,
         photoType: photo.photoType,
       })),
-      analysis: analysisData.analysis,
-      recommendations: analysisData.recommendations,
-      weight: currentPlans?.weight || null,
+      analysis,
       createdAt: FieldValue.serverTimestamp(),
+      userQuizData: userQuizData || {},
+      batchAnalysis: true,
+      batchPhotoCount: photos.length,
+      currentPlansSnapshot: {
+        dietPlan: currentPlans?.dietPlan || null,
+        workoutPlan: currentPlans?.workoutPlan || null,
+        scientificCalculations: currentPlans?.scientificCalculations || null,
+        realDietTotals: {
+          calories: Math.round(realTotalCalories),
+          protein: Math.round(realTotalProtein),
+          carbs: Math.round(realTotalCarbs),
+          fats: Math.round(realTotalFats),
+          proteinPerKg: ((realTotalProtein / (userQuizData?.currentWeight || 70)) * 1).toFixed(2),
+        },
+      },
     }
 
-    console.log("[v0] API: Saving progress to Firebase")
+    const docRef = await adminDb.collection("progressPhotos").add(batchPhotoData)
+    console.log("[v0] API: Batch analysis saved with ID:", docRef.id)
 
-    await adminDb.collection("users").doc(userId).collection("progress").add(progressEntry)
-
-    console.log("[v0] API: Progress saved successfully")
+    console.log("[v0] API: Batch photo analysis completed and saved successfully")
 
     return NextResponse.json({
       success: true,
-      analysis: analysisData.analysis,
-      recommendations: analysisData.recommendations,
+      analysis,
+      photoId: docRef.id,
+      realDietTotals: {
+        calories: Math.round(realTotalCalories),
+        protein: Math.round(realTotalProtein),
+        carbs: Math.round(realTotalCarbs),
+        fats: Math.round(realTotalFats),
+      },
     })
-  } catch (error: any) {
-    console.error("[v0] API: Error in batch analysis:", error)
-    console.error("[v0] API: Error details:", {
-      message: error.message,
-      stack: error.stack,
-      name: error.name,
-    })
-
+  } catch (error) {
+    console.error("[v0] API: ❌ Unexpected error analyzing photos:", error)
     return NextResponse.json(
       {
-        error: "Erro na chamada da IA",
-        details: error.message,
-        errorType: error.name,
-        fullError: JSON.stringify(error, Object.getOwnPropertyNames(error)),
-        attr: error.attr,
+        error: "Failed to analyze photos",
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },
     )
