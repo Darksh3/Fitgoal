@@ -267,19 +267,29 @@ Retorne APENAS este JSON:
 
     console.log("[v0] API: ✅ Analysis completed successfully")
 
-    console.log("[v0] API: Saving to Firebase")
+    const formattedAnalysis = {
+      pontosForts: analysis.avaliacaoGeral?.pontosPositivos || [],
+      areasParaMelhorar: analysis.avaliacaoGeral?.pontosMelhoria || [],
+      motivacao: analysis.resumo || "Continue focado nos seus objetivos!",
+      dicasTreino: analysis.planoTreino?.exerciciosFoco || [],
+      recomendacoesNutricao: [
+        analysis.ajustesNutricionais?.avaliacaoCalorias,
+        analysis.ajustesNutricionais?.avaliacaoProteina,
+        analysis.ajustesNutricionais?.sugestoes?.calorias
+      ].filter(Boolean)
+    }
 
-    const batchPhotoData = {
+    console.log("[v0] API: Saving to Firebase progressHistory collection")
+
+    const historyData = {
       userId,
       photos: photos.map((photo: any) => ({
         photoUrl: photo.photoUrl,
         photoType: photo.photoType,
       })),
-      analysis,
+      analysis: formattedAnalysis,
       createdAt: FieldValue.serverTimestamp(),
       userQuizData: userQuizData || {},
-      batchAnalysis: true,
-      batchPhotoCount: photos.length,
       currentPlansSnapshot: {
         dietPlan: currentPlans?.dietPlan || null,
         workoutPlan: currentPlans?.workoutPlan || null,
@@ -294,14 +304,14 @@ Retorne APENAS este JSON:
       },
     }
 
-    const docRef = await adminDb.collection("progressPhotos").add(batchPhotoData)
-    console.log("[v0] API: Batch analysis saved with ID:", docRef.id)
+    const docRef = await adminDb.collection("progressHistory").add(historyData)
+    console.log("[v0] API: Analysis saved to progressHistory with ID:", docRef.id)
 
     console.log("[v0] API: Batch photo analysis completed and saved successfully")
 
     return NextResponse.json({
       success: true,
-      analysis,
+      analysis: formattedAnalysis,
       photoId: docRef.id,
       realDietTotals: {
         calories: Math.round(realTotalCalories),
