@@ -181,7 +181,7 @@ Retorne APENAS este JSON:
     
     for (const variation of promptVariations) {
       attemptNumber++
-      console.log(`[v0] API: Attempt ${attemptNumber}/${maxAttempts} using ${variation.id} prompt`)
+      console.log(`[v0] API: 🔄 Attempt ${attemptNumber}/${maxAttempts} using ${variation.id} prompt`)
       
       try {
         const messageContent: any[] = [{ type: "text", text: variation.prompt }]
@@ -195,6 +195,7 @@ Retorne APENAS este JSON:
           console.log(`[v0] API: Added ${photos.length} images to request`)
         }
         
+        console.log(`[v0] API: Calling OpenAI API...`)
         const response = await generateText({
           model: openai("gpt-4o"),
           messages: [
@@ -208,7 +209,8 @@ Retorne APENAS este JSON:
         })
         
         rawResponse = response.text
-        console.log(`[v0] API: Received response, length: ${rawResponse.length}`)
+        console.log(`[v0] API: ✅ Received response, length: ${rawResponse.length}`)
+        console.log(`[v0] API: Response preview: ${rawResponse.substring(0, 200)}...`)
         
         const refusalIndicators = [
           "can't assist", "cannot assist", "unable to", "can't help",
@@ -220,14 +222,16 @@ Retorne APENAS este JSON:
         )
         
         if (isRefusal) {
-          console.log(`[v0] API: OpenAI refused with ${variation.id} prompt, trying next...`)
+          console.log(`[v0] API: ❌ OpenAI refused with ${variation.id} prompt, trying next...`)
           continue
         }
         
+        console.log(`[v0] API: Parsing JSON response...`)
         const jsonStart = rawResponse.indexOf("{")
         const jsonEnd = rawResponse.lastIndexOf("}") + 1
         
         if (jsonStart === -1 || jsonEnd === 0) {
+          console.log(`[v0] API: ❌ No JSON found in response`)
           throw new Error("No JSON found in response")
         }
         
@@ -237,36 +241,44 @@ Retorne APENAS este JSON:
           .replace(/\`\`\`/g, "")
           .trim()
         
+        console.log(`[v0] API: Attempting to parse JSON string...`)
         analysis = JSON.parse(jsonString)
-        console.log(`[v0] API: ✅ Successfully parsed response with ${variation.id}`)
+        console.log(`[v0] API: ✅✅✅ Successfully parsed response with ${variation.id}`)
+        console.log(`[v0] API: Analysis object keys:`, Object.keys(analysis))
         break
         
       } catch (error) {
-        console.error(`[v0] API: Error with ${variation.id}:`, error)
+        console.error(`[v0] API: ❌ Error with ${variation.id}:`, error)
+        console.log(`[v0] API: Attempt ${attemptNumber} of ${maxAttempts} failed`)
         
         if (attemptNumber === maxAttempts) {
-          console.log("[v0] API: All attempts failed, using fallback")
+          console.log("[v0] API: ⚠️ All attempts failed, creating fallback analysis")
           analysis = createFallbackAnalysis(userQuizData, {
             calories: realTotalCalories,
             protein: realTotalProtein,
             carbs: realTotalCarbs,
             fats: realTotalFats
           })
+          console.log("[v0] API: ✅ Fallback analysis created")
         }
       }
     }
     
     if (!analysis) {
+      console.log("[v0] API: ⚠️ No analysis after all attempts, creating final fallback")
       analysis = createFallbackAnalysis(userQuizData, {
         calories: realTotalCalories,
         protein: realTotalProtein, 
         carbs: realTotalCarbs,
         fats: realTotalFats
       })
+      console.log("[v0] API: ✅ Final fallback analysis created")
     }
 
     console.log("[v0] API: ✅ Analysis completed successfully")
+    console.log("[v0] API: Analysis structure:", JSON.stringify(analysis, null, 2))
 
+    console.log("[v0] API: Formatting analysis for storage...")
     const formattedAnalysis = {
       pontosForts: analysis.avaliacaoGeral?.pontosPositivos || [],
       areasParaMelhorar: analysis.avaliacaoGeral?.pontosMelhoria || [],
@@ -278,11 +290,11 @@ Retorne APENAS este JSON:
         analysis.ajustesNutricionais?.sugestoes?.calorias
       ].filter(Boolean)
     }
+    console.log("[v0] API: ✅ Formatted analysis:", JSON.stringify(formattedAnalysis, null, 2))
 
-    console.log("[v0] API: Saving to Firebase progressHistory collection")
+    console.log("[v0] API: 💾 Preparing to save to Firebase progressHistory collection")
     console.log("[v0] DEBUG: userId:", userId)
     console.log("[v0] DEBUG: photos count:", photos.length)
-    console.log("[v0] DEBUG: formattedAnalysis:", JSON.stringify(formattedAnalysis, null, 2))
 
     const historyData = {
       userId,
@@ -307,17 +319,20 @@ Retorne APENAS este JSON:
       },
     }
 
+    console.log("[v0] API: History data prepared:", JSON.stringify(historyData, null, 2).substring(0, 500))
+
     let docRef
     try {
-      console.log("[v0] DEBUG: About to save to progressHistory...")
+      console.log("[v0] DEBUG: 🔥 About to call adminDb.collection('progressHistory').add()...")
       docRef = await adminDb.collection("progressHistory").add(historyData)
-      console.log("[v0] API: ✅ Analysis saved to progressHistory with ID:", docRef.id)
+      console.log("[v0] API: ✅✅✅ Analysis saved to progressHistory with ID:", docRef.id)
     } catch (saveError) {
-      console.error("[v0] API: ❌ Error saving to progressHistory:", saveError)
+      console.error("[v0] API: ❌❌❌ Error saving to progressHistory:", saveError)
+      console.error("[v0] API: Error details:", JSON.stringify(saveError, null, 2))
       throw saveError
     }
 
-    console.log("[v0] API: Batch photo analysis completed and saved successfully")
+    console.log("[v0] API: 🎉 Batch photo analysis completed and saved successfully")
 
     return NextResponse.json({
       success: true,
