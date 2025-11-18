@@ -276,7 +276,12 @@ Retorne APENAS este JSON:
     }
 
     console.log("[v0] API: ✅ Analysis completed successfully")
-    console.log("[v0] API: Analysis structure:", JSON.stringify(analysis, null, 2))
+    
+    try {
+      console.log("[v0] API: Analysis structure:", JSON.stringify(analysis, null, 2))
+    } catch (stringifyError) {
+      console.log("[v0] API: Could not stringify analysis (non-critical):", stringifyError)
+    }
 
     console.log("[v0] API: Formatting analysis for storage...")
     const formattedAnalysis = {
