@@ -996,6 +996,9 @@ export default function AnaliseCorporalPage() {
 
                       {isExpanded && (
                         <CardContent className="p-6 pt-0">
+                          {console.log("[v0] Photo analysis data:", photo.analysis)}
+                          {console.log("[v0] Photo full data:", photo)}
+                          
                           {/* Photos Grid */}
                           {photosList.length > 0 && (
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
@@ -1013,6 +1016,14 @@ export default function AnaliseCorporalPage() {
                                   </div>
                                 </div>
                               ))}
+                            </div>
+                          )}
+
+                          {!photo.analysis && (
+                            <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200 mb-4">
+                              <p className="text-yellow-800 text-sm">
+                                ⚠️ Nenhuma análise disponível para esta avaliação.
+                              </p>
                             </div>
                           )}
 
