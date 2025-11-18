@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation'
 import { useAuthState } from "react-firebase-hooks/auth"
 import { auth, db } from "@/lib/firebase"
 import { collection, query, where, orderBy, onSnapshot, doc, getDoc, deleteDoc } from "firebase/firestore"
@@ -11,19 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  ArrowLeft,
-  Upload,
-  Camera,
-  Sparkles,
-  Settings,
-  CheckCircle,
-  Trash2,
-  History,
-  ChevronDown,
-  ChevronUp,
-  X,
-} from "lucide-react"
+import { ArrowLeft, Upload, Camera, Sparkles, Settings, CheckCircle, Trash2, History, ChevronDown, ChevronUp, X } from 'lucide-react'
 
 interface ProgressPhoto {
   id: string
@@ -940,7 +928,7 @@ export default function AnaliseCorporalPage() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 gap-4">
                 {photos.map((photo) => {
                   const photosList =
                     photo.photos || (photo.photoUrl ? [{ photoUrl: photo.photoUrl, photoType: photo.photoType }] : [])
@@ -973,220 +961,225 @@ export default function AnaliseCorporalPage() {
                     console.error("[v0] Error formatting date:", error)
                   }
 
+                  const isExpanded = expandedAnalysis === photo.id
+
                   return (
-                    <Card key={photo.id} className="overflow-hidden">
-                      <CardHeader className="bg-muted/50">
+                    <Card key={photo.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                      <CardHeader 
+                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => setExpandedAnalysis(isExpanded ? null : photo.id)}
+                      >
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            {photosList.length > 0 && photosList[0].photoUrl && (
-                              <div className="w-16 h-20 rounded-lg overflow-hidden bg-gray-100">
-                                <img
-                                  src={photosList[0].photoUrl || "/placeholder.svg"}
-                                  alt="Thumbnail"
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
+                          <CardTitle className="text-lg font-semibold">
+                            Avaliação dia {displayDate}
+                          </CardTitle>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDeletePhoto(photo.id)
+                              }}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                            {isExpanded ? (
+                              <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                            ) : (
+                              <ChevronDown className="h-5 w-5 text-muted-foreground" />
                             )}
-                            <div>
-                              <CardTitle className="text-lg">Análise de {displayDate}</CardTitle>
-                              <p className="text-sm text-muted-foreground mt-1">
-                                {photosList.length} {photosList.length === 1 ? "foto" : "fotos"}
-                              </p>
-                            </div>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeletePhoto(photo.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
                         </div>
                       </CardHeader>
 
-                      <CardContent className="p-6">
-                        {photosList.length > 0 && (
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                            {photosList.map((p: any, idx: number) => (
-                              <div key={idx} className="relative aspect-[3/4] rounded-lg overflow-hidden bg-gray-100">
-                                <img
-                                  src={p.photoUrl || "/placeholder.svg"}
-                                  alt={`Foto ${p.photoType}`}
-                                  className="w-full h-full object-cover"
-                                />
-                                <div className="absolute top-2 left-2">
-                                  <Badge variant="secondary" className="text-xs">
-                                    {p.photoType === "front" ? "Frente" : p.photoType === "back" ? "Costas" : "Lateral"}
-                                  </Badge>
+                      {isExpanded && (
+                        <CardContent className="p-6 pt-0">
+                          {/* Photos Grid */}
+                          {photosList.length > 0 && (
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                              {photosList.map((p: any, idx: number) => (
+                                <div key={idx} className="relative aspect-[3/4] rounded-lg overflow-hidden bg-gray-100">
+                                  <img
+                                    src={p.photoUrl || "/placeholder.svg"}
+                                    alt={`Foto ${p.photoType}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                  <div className="absolute top-2 left-2">
+                                    <Badge variant="secondary" className="text-xs">
+                                      {p.photoType === "front" ? "Frente" : p.photoType === "back" ? "Costas" : "Lateral"}
+                                    </Badge>
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                              ))}
+                            </div>
+                          )}
 
-                        {photo.analysis && (
-                          <>
-                            {photo.analysis.motivacao && (
-                              <div className="p-4 bg-green-50 rounded-lg mb-4">
-                                <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
-                                  <Sparkles className="h-4 w-4" />
-                                  Motivação
-                                </h4>
-                                <p className="text-gray-700">{photo.analysis.motivacao}</p>
-                              </div>
-                            )}
+                          {/* Analysis Content */}
+                          {photo.analysis && (
+                            <>
+                              {photo.analysis.motivacao && (
+                                <div className="p-4 bg-green-50 rounded-lg mb-4">
+                                  <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
+                                    <Sparkles className="h-4 w-4" />
+                                    Motivação
+                                  </h4>
+                                  <p className="text-gray-700">{photo.analysis.motivacao}</p>
+                                </div>
+                              )}
 
-                            {photo.analysis.pontosForts && photo.analysis.pontosForts.length > 0 && (
-                              <div className="p-4 bg-white rounded-lg border mb-4">
-                                <h4 className="font-semibold text-green-800 mb-2">✅ Pontos Fortes</h4>
-                                <ul className="space-y-1">
-                                  {photo.analysis.pontosForts.map((ponto, idx) => (
-                                    <li key={idx} className="text-gray-700">
-                                      • {ponto}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
+                              {photo.analysis.pontosForts && photo.analysis.pontosForts.length > 0 && (
+                                <div className="p-4 bg-white rounded-lg border mb-4">
+                                  <h4 className="font-semibold text-green-800 mb-2">✅ Pontos Fortes</h4>
+                                  <ul className="space-y-1">
+                                    {photo.analysis.pontosForts.map((ponto, idx) => (
+                                      <li key={idx} className="text-gray-700">
+                                        • {ponto}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
 
-                            {photo.analysis.areasParaMelhorar && photo.analysis.areasParaMelhorar.length > 0 && (
-                              <div className="p-4 bg-white rounded-lg border mb-4">
-                                <h4 className="font-semibold text-orange-800 mb-2">⚠️ Áreas para Melhorar</h4>
-                                <ul className="space-y-1">
-                                  {photo.analysis.areasParaMelhorar.map((area, idx) => (
-                                    <li key={idx} className="text-gray-700">
-                                      • {area}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
+                              {photo.analysis.areasParaMelhorar && photo.analysis.areasParaMelhorar.length > 0 && (
+                                <div className="p-4 bg-white rounded-lg border mb-4">
+                                  <h4 className="font-semibold text-orange-800 mb-2">⚠️ Áreas para Melhorar</h4>
+                                  <ul className="space-y-1">
+                                    {photo.analysis.areasParaMelhorar.map((area, idx) => (
+                                      <li key={idx} className="text-gray-700">
+                                        • {area}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
 
-                            {photo.analysis.dicasEspecificas && photo.analysis.dicasEspecificas.length > 0 && (
-                              <div className="p-4 bg-white rounded-lg border mb-4">
-                                <h4 className="font-semibold text-blue-800 mb-2">💡 Dicas Específicas</h4>
-                                <ul className="space-y-1">
-                                  {photo.analysis.dicasEspecificas.map((dica, idx) => (
-                                    <li key={idx} className="text-gray-700">
-                                      • {dica}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
+                              {photo.analysis.dicasEspecificas && photo.analysis.dicasEspecificas.length > 0 && (
+                                <div className="p-4 bg-white rounded-lg border mb-4">
+                                  <h4 className="font-semibold text-blue-800 mb-2">💡 Dicas Específicas</h4>
+                                  <ul className="space-y-1">
+                                    {photo.analysis.dicasEspecificas.map((dica, idx) => (
+                                      <li key={idx} className="text-gray-700">
+                                        • {dica}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
 
-                            {photo.analysis.recomendacoesTreino && photo.analysis.recomendacoesTreino.length > 0 && (
-                              <div className="p-4 bg-white rounded-lg border mb-4">
-                                <h4 className="font-semibold text-red-800 mb-2">🏋️ Recomendações de Treino</h4>
-                                <ul className="space-y-1">
-                                  {photo.analysis.recomendacoesTreino.map((rec, idx) => (
-                                    <li key={idx} className="text-gray-700">
-                                      • {rec}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
+                              {photo.analysis.recomendacoesTreino && photo.analysis.recomendacoesTreino.length > 0 && (
+                                <div className="p-4 bg-white rounded-lg border mb-4">
+                                  <h4 className="font-semibold text-red-800 mb-2">🏋️ Recomendações de Treino</h4>
+                                  <ul className="space-y-1">
+                                    {photo.analysis.recomendacoesTreino.map((rec, idx) => (
+                                      <li key={idx} className="text-gray-700">
+                                        • {rec}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
 
-                            {photo.analysis.recomendacoesDieta && photo.analysis.recomendacoesDieta.length > 0 && (
-                              <div className="p-4 bg-white rounded-lg border mb-4">
-                                <h4 className="font-semibold text-yellow-800 mb-2">🥗 Recomendações de Dieta</h4>
-                                <ul className="space-y-1">
-                                  {photo.analysis.recomendacoesDieta.map((rec, idx) => (
-                                    <li key={idx} className="text-gray-700">
-                                      • {rec}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
+                              {photo.analysis.recomendacoesDieta && photo.analysis.recomendacoesDieta.length > 0 && (
+                                <div className="p-4 bg-white rounded-lg border mb-4">
+                                  <h4 className="font-semibold text-yellow-800 mb-2">🥗 Recomendações de Dieta</h4>
+                                  <ul className="space-y-1">
+                                    {photo.analysis.recomendacoesDieta.map((rec, idx) => (
+                                      <li key={idx} className="text-gray-700">
+                                        • {rec}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
 
-                            {/* Optimization buttons for history items */}
-                            {photo.analysis.otimizacoesSugeridas && (
-                              <div className="space-y-4 pt-4 border-t">
-                                <h4 className="font-semibold text-gray-800 flex items-center gap-2">
-                                  <Settings className="h-4 w-4" />
-                                  Otimizações Sugeridas
-                                </h4>
+                              {/* Optimization buttons for history items */}
+                              {photo.analysis.otimizacoesSugeridas && (
+                                <div className="space-y-4 pt-4 border-t">
+                                  <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                                    <Settings className="h-4 w-4" />
+                                    Otimizações Sugeridas
+                                  </h4>
 
-                                {photo.analysis.otimizacoesSugeridas.dieta?.necessaria && (
-                                  <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                                    <h5 className="font-medium text-yellow-900 mb-2">🥗 Ajustes na Dieta</h5>
-                                    <p className="text-sm text-yellow-800 mb-2">
-                                      {photo.analysis.otimizacoesSugeridas.dieta.justificativa}
-                                    </p>
-                                    <ul className="text-sm text-yellow-700 space-y-1 mb-3">
-                                      {photo.analysis.otimizacoesSugeridas.dieta.mudancas.map((mudanca, idx) => (
-                                        <li key={idx}>• {mudanca}</li>
-                                      ))}
-                                    </ul>
-                                    <Button
-                                      onClick={() =>
-                                        handleApplyDietOptimization(photo.id, photo.analysis.otimizacoesSugeridas.dieta)
-                                      }
-                                      disabled={isApplyingDiet === photo.id}
-                                      className="w-full bg-yellow-600 hover:bg-yellow-700"
-                                    >
-                                      {isApplyingDiet === photo.id ? (
-                                        <>
-                                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                                          Aplicando...
-                                        </>
-                                      ) : dietOptimizationSuccess === photo.id ? (
-                                        <>
-                                          <CheckCircle className="h-4 w-4 mr-2" />
-                                          Aplicado com Sucesso!
-                                        </>
-                                      ) : (
-                                        "Aderir Alterações na Minha Dieta"
-                                      )}
-                                    </Button>
-                                  </div>
-                                )}
+                                  {photo.analysis.otimizacoesSugeridas.dieta?.necessaria && (
+                                    <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                      <h5 className="font-medium text-yellow-900 mb-2">🥗 Ajustes na Dieta</h5>
+                                      <p className="text-sm text-yellow-800 mb-2">
+                                        {photo.analysis.otimizacoesSugeridas.dieta.justificativa}
+                                      </p>
+                                      <ul className="text-sm text-yellow-700 space-y-1 mb-3">
+                                        {photo.analysis.otimizacoesSugeridas.dieta.mudancas.map((mudanca, idx) => (
+                                          <li key={idx}>• {mudanca}</li>
+                                        ))}
+                                      </ul>
+                                      <Button
+                                        onClick={() =>
+                                          handleApplyDietOptimization(photo.id, photo.analysis.otimizacoesSugeridas.dieta)
+                                        }
+                                        disabled={isApplyingDiet === photo.id}
+                                        className="w-full bg-yellow-600 hover:bg-yellow-700"
+                                      >
+                                        {isApplyingDiet === photo.id ? (
+                                          <>
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                            Aplicando...
+                                          </>
+                                        ) : dietOptimizationSuccess === photo.id ? (
+                                          <>
+                                            <CheckCircle className="h-4 w-4 mr-2" />
+                                            Aplicado com Sucesso!
+                                          </>
+                                        ) : (
+                                          "Aderir Alterações na Minha Dieta"
+                                        )}
+                                      </Button>
+                                    </div>
+                                  )}
 
-                                {photo.analysis.otimizacoesSugeridas.treino?.necessaria && (
-                                  <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                                    <h5 className="font-medium text-red-900 mb-2">🏋️ Ajustes no Treino</h5>
-                                    <p className="text-sm text-red-800 mb-2">
-                                      {photo.analysis.otimizacoesSugeridas.treino.justificativa}
-                                    </p>
-                                    <ul className="text-sm text-red-700 space-y-1 mb-3">
-                                      {photo.analysis.otimizacoesSugeridas.treino.mudancas.map((mudanca, idx) => (
-                                        <li key={idx}>• {mudanca}</li>
-                                      ))}
-                                    </ul>
-                                    <Button
-                                      onClick={() =>
-                                        handleApplyWorkoutOptimization(
-                                          photo.id,
-                                          photo.analysis.otimizacoesSugeridas.treino,
-                                        )
-                                      }
-                                      disabled={isApplyingWorkout === photo.id}
-                                      className="w-full bg-red-600 hover:bg-red-700"
-                                    >
-                                      {isApplyingWorkout === photo.id ? (
-                                        <>
-                                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                                          Aplicando...
-                                        </>
-                                      ) : workoutOptimizationSuccess === photo.id ? (
-                                        <>
-                                          <CheckCircle className="h-4 w-4 mr-2" />
-                                          Aplicado com Sucesso!
-                                        </>
-                                      ) : (
-                                        "Aderir Alterações no Meu Treino"
-                                      )}
-                                    </Button>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </CardContent>
+                                  {photo.analysis.otimizacoesSugeridas.treino?.necessaria && (
+                                    <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                                      <h5 className="font-medium text-red-900 mb-2">🏋️ Ajustes no Treino</h5>
+                                      <p className="text-sm text-red-800 mb-2">
+                                        {photo.analysis.otimizacoesSugeridas.treino.justificativa}
+                                      </p>
+                                      <ul className="text-sm text-red-700 space-y-1 mb-3">
+                                        {photo.analysis.otimizacoesSugeridas.treino.mudancas.map((mudanca, idx) => (
+                                          <li key={idx}>• {mudanca}</li>
+                                        ))}
+                                      </ul>
+                                      <Button
+                                        onClick={() =>
+                                          handleApplyWorkoutOptimization(
+                                            photo.id,
+                                            photo.analysis.otimizacoesSugeridas.treino,
+                                          )
+                                        }
+                                        disabled={isApplyingWorkout === photo.id}
+                                        className="w-full bg-red-600 hover:bg-red-700"
+                                      >
+                                        {isApplyingWorkout === photo.id ? (
+                                          <>
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                            Aplicando...
+                                          </>
+                                        ) : workoutOptimizationSuccess === photo.id ? (
+                                          <>
+                                            <CheckCircle className="h-4 w-4 mr-2" />
+                                            Aplicado com Sucesso!
+                                          </>
+                                        ) : (
+                                          "Aderir Alterações no Meu Treino"
+                                        )}
+                                      </Button>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </CardContent>
+                      )}
                     </Card>
                   )
                 })}
