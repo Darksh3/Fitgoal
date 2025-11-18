@@ -106,13 +106,62 @@ export async function POST(request: NextRequest) {
       .join(", ")
 
     const analysisPrompt = `
-    Olhe para a foto e responda APENAS com JSON válido (sem markdown, sem texto extra):
+Você é um personal trainer e nutricionista especializado. Analise as fotos do usuário (${photoDescriptions}) e forneça um feedback detalhado e profissional.
 
-    {
-      "corDaCamisa": "Descreva a cor da camisa que a pessoa está usando",
-      "observacao": "Alguma observação adicional sobre a roupa"
-    }
-    `
+**DADOS DO USUÁRIO:**
+- Objetivo: ${userQuizData?.goal || "Não informado"}
+- Peso atual: ${userQuizData?.currentWeight || "Não informado"} kg
+- Altura: ${userQuizData?.height || "Não informado"} cm
+- Idade: ${userQuizData?.age || "Não informado"} anos
+- Sexo: ${userQuizData?.gender || "Não informado"}
+- Nível de atividade: ${userQuizData?.activityLevel || "Não informado"}
+
+**PLANO ALIMENTAR REAL DO USUÁRIO (valores reais consumidos):**
+- Calorias totais diárias: ${Math.round(realTotalCalories)} kcal
+- Proteínas: ${Math.round(realTotalProtein)}g (${((realTotalProtein / (userQuizData?.currentWeight || 70)) * 1).toFixed(2)}g/kg)
+- Carboidratos: ${Math.round(realTotalCarbs)}g
+- Gorduras: ${Math.round(realTotalFats)}g
+
+Forneça sua análise NO SEGUINTE FORMATO JSON (sem markdown, sem explicações extras, APENAS o JSON):
+
+{
+  "composicaoCorporal": {
+    "percentualGorduraEstimado": "Estimativa visual do % de gordura corporal (ex: 18-22%)",
+    "massaMuscularVisivel": "Avaliação da massa muscular visível (baixa/moderada/boa/excelente)",
+    "observacoes": "Observações sobre estrutura corporal, simetria, proporções"
+  },
+  "avaliacaoPostural": {
+    "postura": "Análise da postura nas fotos",
+    "pontosMelhoria": ["Lista de pontos posturais a melhorar"]
+  },
+  "gruposMusculares": {
+    "maisDesenvolvidaos": ["Grupos musculares que parecem mais desenvolvidos"],
+    "precisamAtencao": ["Grupos que precisam de mais trabalho"]
+  },
+  "feedbackTreino": {
+    "focoSugerido": "Com base no objetivo (${userQuizData?.goal}), qual deve ser o foco do treino",
+    "sugestoesTreino": ["Sugestões específicas de tipos de exercícios ou splits"],
+    "frequenciaSugerida": "Quantos dias por semana treinar e como dividir"
+  },
+  "feedbackNutricional": {
+    "avaliacaoDieta": "Análise se as ${Math.round(realTotalCalories)} kcal e ${Math.round(realTotalProtein)}g de proteína estão adequadas para o objetivo",
+    "ajustesSugeridos": ["Sugestões específicas de ajuste baseadas na DIETA REAL do usuário"],
+    "hidratacao": "Recomendações de hidratação"
+  },
+  "progressoObservacoes": {
+    "pontosPositivos": ["Pontos positivos visíveis nas fotos"],
+    "areasDesenvolver": ["Áreas que precisam de desenvolvimento"],
+    "motivacao": "Mensagem motivacional personalizada"
+  },
+  "resumoExecutivo": "Um resumo em 2-3 frases do estado atual e próximos passos recomendados"
+}
+
+IMPORTANTE: 
+- Base suas recomendações nutricionais nos valores REAIS fornecidos (${Math.round(realTotalCalories)} kcal, ${Math.round(realTotalProtein)}g proteína)
+- Considere o objetivo específico: ${userQuizData?.goal}
+- Seja honesto mas encorajador
+- Retorne APENAS o JSON, sem markdown nem texto adicional
+`
 
     console.log("[v0] API: Starting AI analysis with multiple photos and real diet data")
 
