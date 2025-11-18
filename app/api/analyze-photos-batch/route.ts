@@ -307,9 +307,10 @@ Retorne APENAS este JSON:
       },
     }
 
+    let docRef
     try {
       console.log("[v0] DEBUG: About to save to progressHistory...")
-      const docRef = await adminDb.collection("progressHistory").add(historyData)
+      docRef = await adminDb.collection("progressHistory").add(historyData)
       console.log("[v0] API: ✅ Analysis saved to progressHistory with ID:", docRef.id)
     } catch (saveError) {
       console.error("[v0] API: ❌ Error saving to progressHistory:", saveError)
