@@ -280,6 +280,9 @@ Retorne APENAS este JSON:
     }
 
     console.log("[v0] API: Saving to Firebase progressHistory collection")
+    console.log("[v0] DEBUG: userId:", userId)
+    console.log("[v0] DEBUG: photos count:", photos.length)
+    console.log("[v0] DEBUG: formattedAnalysis:", JSON.stringify(formattedAnalysis, null, 2))
 
     const historyData = {
       userId,
@@ -304,8 +307,14 @@ Retorne APENAS este JSON:
       },
     }
 
-    const docRef = await adminDb.collection("progressHistory").add(historyData)
-    console.log("[v0] API: Analysis saved to progressHistory with ID:", docRef.id)
+    try {
+      console.log("[v0] DEBUG: About to save to progressHistory...")
+      const docRef = await adminDb.collection("progressHistory").add(historyData)
+      console.log("[v0] API: ✅ Analysis saved to progressHistory with ID:", docRef.id)
+    } catch (saveError) {
+      console.error("[v0] API: ❌ Error saving to progressHistory:", saveError)
+      throw saveError
+    }
 
     console.log("[v0] API: Batch photo analysis completed and saved successfully")
 
