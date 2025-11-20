@@ -8,6 +8,19 @@ export async function POST(request: NextRequest) {
   try {
     console.log("[v0] API: Starting batch photo analysis")
 
+    console.log("[v0] API: Validating Firebase Admin initialization...")
+    if (!adminDb) {
+      console.error("[v0] API: adminDb is not initialized!")
+      return NextResponse.json(
+        {
+          error: "Database service not configured",
+          details: "Firebase Admin SDK failed to initialize",
+        },
+        { status: 500 },
+      )
+    }
+    console.log("[v0] API: Firebase Admin validated successfully")
+
     const body = await request.json()
     const { photos, userId, userQuizData } = body
 
