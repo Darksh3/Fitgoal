@@ -99,9 +99,10 @@ export async function POST(request: NextRequest) {
 
     console.log("[v0] API: Fetching previous analysis for comparison")
     let previousAnalysis = null
+    let previousPhotos: Array<{ photoUrl: string; photoType: string }> = []
     try {
       const previousAnalysisSnapshot = await adminDb
-        .collection("progressHistory")
+        .collection("progressPhotos")
         .where("userId", "==", userId)
         .orderBy("createdAt", "desc")
         .limit(1)
@@ -115,7 +116,14 @@ export async function POST(request: NextRequest) {
           analysis: prevData.analysis,
           photos: prevData.photos,
         }
+        if (prevData.photos && Array.isArray(prevData.photos)) {
+          previousPhotos = prevData.photos.map((p: any) => ({
+            photoUrl: p.photoUrl,
+            photoType: p.photoType || "unknown",
+          }))
+        }
         console.log("[v0] API: Previous analysis found from:", previousAnalysis.date)
+        console.log("[v0] API: Previous photos found:", previousPhotos.length)
       } else {
         console.log("[v0] API: No previous analysis found - this is the first analysis")
       }
@@ -131,22 +139,26 @@ IMPORTANTE: Seja direto e objetivo. Evite repetições e explique apenas o essen
 ${
   previousAnalysis
     ? `
-IMPORTANTE: Esta NÃO é a primeira análise do cliente. Há uma análise anterior de ${previousAnalysis.date.toLocaleDateString("pt-BR")}.
+IMPORTANTE: Esta NÃO é a primeira análise do cliente. Há uma análise anterior de ${previousAnalysis.date.toLocaleDateString("pt-BR")} (há ${Math.ceil((new Date().getTime() - previousAnalysis.date.getTime()) / (1000 * 60 * 60 * 24))} dias).
+
+VOCÊ RECEBERÁ AS FOTOS ANTERIORES E AS FOTOS ATUAIS PARA COMPARAÇÃO VISUAL DIRETA.
+
+FOTOS ANTERIORES (${previousPhotos.length}): Essas fotos foram tiradas na análise anterior e serão enviadas primeiro.
+FOTOS ATUAIS (${photos.length}): Essas fotos foram tiradas agora e serão enviadas depois das anteriores.
 
 ANÁLISE ANTERIOR:
 ${JSON.stringify(previousAnalysis.analysis, null, 2)}
 
-FOTOS ANTERIORES: O cliente tinha ${previousAnalysis.photos?.length || 0} foto(s) na análise anterior.
-
-VOCÊ DEVE FAZER UMA ANÁLISE COMPARATIVA DE PROGRESSO:
-- Compare o desenvolvimento muscular atual vs anterior
-- Identifique melhorias visíveis (ganho muscular, perda de gordura, definição, postura, etc)
-- Identifique áreas que regrediram ou estagnaram
-- Avalie se o progresso está adequado para o tempo decorrido (~${Math.ceil((new Date().getTime() - previousAnalysis.date.getTime()) / (1000 * 60 * 60 * 24))} dias)
-- Seja específico sobre O QUE mudou e QUANTO mudou visualmente
+VOCÊ DEVE FAZER UMA ANÁLISE COMPARATIVA VISUAL DETALHADA:
+- Compare VISUALMENTE as fotos antigas vs atuais (mesmas poses)
+- Identifique melhorias VISÍVEIS: ganho muscular, perda de gordura, definição, postura, vascularização
+- Identifique áreas que regrediram ou estagnaram VISUALMENTE
+- Avalie se o progresso VISUAL está adequado para ${Math.ceil((new Date().getTime() - previousAnalysis.date.getTime()) / (1000 * 60 * 60 * 24))} dias
+- Seja ESPECÍFICO: cite grupos musculares, percentuais estimados de mudança, áreas que mudaram
+- Compare postura, simetria, proporções entre as fotos
 `
     : `
-IMPORTANTE: Esta é a PRIMEIRA análise do cliente. Não há dados anteriores para comparação.
+IMPORTANTE: Esta é a PRIMEIRA análise do cliente. Não há dados ou fotos anteriores para comparação.
 Foque em estabelecer uma linha de base detalhada para futuras comparações.
 `
 }
@@ -169,8 +181,23 @@ DIETA ATUAL REAL (calculada com suplementos):
 TREINO ATUAL:
 ${currentPlans?.workoutPlan ? JSON.stringify(currentPlans.workoutPlan, null, 2) : "Não definido"}
 
+${
+  previousPhotos.length > 0
+    ? `
+ORDEM DAS FOTOS QUE VOCÊ VAI RECEBER:
+1. FOTOS ANTERIORES (análise de ${previousAnalysis?.date.toLocaleDateString("pt-BR")}):
+${previousPhotos.map((p: any, i: number) => `   ${i + 1}. ${p.photoType} (ANTIGA)`).join("\n")}
+
+2. FOTOS ATUAIS (análise de hoje):
+${photos.map((p: any, i: number) => `   ${i + 1}. ${p.photoType} (ATUAL)`).join("\n")}
+
+COMPARE AS FOTOS DO MESMO TIPO (ex: frente antiga vs frente atual) VISUALMENTE.
+`
+    : `
 FOTOS RECEBIDAS PARA ANÁLISE ATUAL:
 ${photos.map((p: any) => `- ${p.type}: disponível para análise visual`).join("\n")}
+`
+}
 
 INSTRUÇÕES DE ANÁLISE - USE ESTE FORMATO EXATO:
 
@@ -190,10 +217,11 @@ RESPONDA EM JSON COM A SEGUINTE ESTRUTURA OBRIGATÓRIA:
     previousAnalysis
       ? `"evolucaoComparada": {
     "diasDesdeUltimaAnalise": ${Math.ceil((new Date().getTime() - previousAnalysis.date.getTime()) / (1000 * 60 * 60 * 24))},
-    "resumo": "resumo geral do progresso desde a última análise",
-    "melhorias": ["melhoria 1 específica", "melhoria 2 específica"],
-    "retrocessos": ["retrocesso 1 se houver"],
-    "avaliacaoRitmo": "adequado/rápido/lento"
+    "resumo": "resumo VISUAL do progresso comparando as fotos antigas vs atuais",
+    "melhorias": ["melhoria VISUAL específica 1 (cite grupo muscular e mudança)", "melhoria VISUAL 2"],
+    "retrocessos": ["retrocesso VISUAL 1 se houver", "retrocesso VISUAL 2 se houver"],
+    "estagnacoes": ["área que não mudou visualmente 1 se houver"],
+    "avaliacaoRitmo": "adequado/rápido/lento com base no tempo decorrido e mudanças VISUAIS"
   },`
       : ""
   }
@@ -209,7 +237,7 @@ RESPONDA EM JSON COM A SEGUINTE ESTRUTURA OBRIGATÓRIA:
       "sugestoes": ["ajuste específico 1 se necessário (ex: +200 kcal, -50g carbs)", "ajuste 2 se necessário"]
     }
   },
-  "conclusaoGeral": "${previousAnalysis ? `síntese profissional que DEVE incluir uma avaliação específica da evolução do cliente desde a última análise (melhorias visíveis, áreas que progrediram, ritmo de progresso) e motivação para continuar` : `síntese profissional estabelecendo linha de base para futuras comparações e motivação para iniciar a jornada`}"
+  "conclusaoGeral": "${previousAnalysis ? `síntese profissional que DEVE incluir uma avaliação específica da EVOLUÇÃO VISUAL do cliente desde a última análise (cite mudanças VISÍVEIS específicas nas fotos, grupos musculares que progrediram VISUALMENTE, mudanças em definição/volume) e motivação personalizada baseada no progresso real observado` : `síntese profissional estabelecendo linha de base VISUAL detalhada para futuras comparações e motivação para iniciar a jornada`}"
 }
 
 IMPORTANTE:
@@ -220,11 +248,10 @@ IMPORTANTE:
 - pontosAMelhorar: Grupos atrasados, assimetrias, áreas prioritárias
 - sobreTreino: Análise concisa se está adequado para o objetivo
 - sobreDieta: Avaliação direta se está gerando resultados
-- evolucaoComparada: Compare em tópicos diretos (se houver análise anterior)
+${previousAnalysis ? "- evolucaoComparada: COMPARE AS FOTOS VISUALMENTE - cite mudanças ESPECÍFICAS que você VÊ nas imagens" : ""}
 - ajustes.necessario: true SOMENTE se realmente precisar de mudanças
 - Se treino/dieta estão adequados, mantenha status "adequado" e sugestoes vazias []
-${previousAnalysis ? "- Mencione progresso de forma objetiva em relação à análise anterior" : ""}
-${previousAnalysis ? "- Na conclusaoGeral, resumo evolutivo em 2-3 frases destacando mudanças específicas" : ""}`
+${previousAnalysis ? "- Na conclusaoGeral, mencione MUDANÇAS VISUAIS ESPECÍFICAS que você observou comparando as fotos" : ""}`
 
     console.log("[v0] API: Starting AI analysis with multiple photos and real diet data")
 
@@ -239,13 +266,26 @@ ${previousAnalysis ? "- Na conclusaoGeral, resumo evolutivo em 2-3 frases destac
       )
     }
 
-    console.log("[v0] API: Preparing to call OpenAI with", photos.length, "photos")
-    console.log("[v0] API: Photo types:", photos.map((p: any) => p.photoType).join(", "))
+    console.log("[v0] API: Preparing to call OpenAI with", photos.length, "current photos")
+    if (previousPhotos.length > 0) {
+      console.log("[v0] API: Including", previousPhotos.length, "previous photos for comparison")
+    }
 
-    // Build content array with text and all images
     const content: any[] = [{ type: "text", text: systemPrompt }]
+
+    // Add previous photos first (marked as OLD in the prompt)
+    if (previousPhotos.length > 0) {
+      console.log("[v0] API: Adding previous photos for visual comparison:")
+      previousPhotos.forEach((photo: any) => {
+        console.log("[v0] API:   - Previous photo:", photo.photoType, photo.photoUrl.substring(0, 50))
+        content.push({ type: "image", image: photo.photoUrl })
+      })
+    }
+
+    // Then add current photos
+    console.log("[v0] API: Adding current photos:")
     photos.forEach((photo: any) => {
-      console.log("[v0] API: Adding photo to analysis:", photo.photoType, photo.photoUrl.substring(0, 50))
+      console.log("[v0] API:   - Current photo:", photo.photoType, photo.photoUrl.substring(0, 50))
       content.push({ type: "image", image: photo.photoUrl })
     })
 
