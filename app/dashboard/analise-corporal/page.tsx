@@ -56,6 +56,31 @@ interface ProgressPhoto {
         justificativa: string
       }
     }
+    // Updated properties
+    resumoExecutivo?: string
+    composicaoCorporal?: {
+      percentualGorduraEstimado: string
+      observacoes: string
+    }
+    avaliacaoPostural?: {
+      postura: string
+      observacoes: string
+    }
+    gruposMusculares?: string[]
+    feedbackTreino?: {
+      frequenciaSugerida?: string
+      tiposExercicio?: string[]
+      intensidade?: string
+    }
+    feedbackNutricional?: {
+      hidratacao?: string
+      ajustesCaloricos?: string
+      recomendacoesMacros?: string
+    }
+    progressoObservacoes?: {
+      melhorias?: string[]
+      mensagemMotivacional?: string
+    }
   }
   createdAt: any
   batchAnalysis?: boolean
@@ -1029,171 +1054,133 @@ export default function AnaliseCorporalPage() {
                           )}
 
                           {photo.analysis ? (
-                            <>
-                              {photo.analysis.motivacao && (
-                                <div className="p-4 bg-green-50 rounded-lg mb-4">
+                            <div className="space-y-4">
+                              {photo.analysis.resumoExecutivo && (
+                                <div className="p-4 bg-green-50 rounded-lg">
                                   <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
                                     <Sparkles className="h-4 w-4" />
-                                    Motivação
+                                    Resumo Executivo
                                   </h4>
-                                  <p className="text-gray-700">{photo.analysis.motivacao}</p>
+                                  <p className="text-gray-700">{photo.analysis.resumoExecutivo}</p>
                                 </div>
                               )}
 
-                              {photo.analysis.pontosForts && photo.analysis.pontosForts.length > 0 && (
-                                <div className="p-4 bg-white rounded-lg border mb-4">
-                                  <h4 className="font-semibold text-green-800 mb-2">✅ Pontos Fortes</h4>
+                              {photo.analysis.composicaoCorporal && (
+                                <div className="p-4 bg-white rounded-lg border">
+                                  <h4 className="font-semibold text-blue-800 mb-2">📊 Composição Corporal</h4>
+                                  <p className="text-gray-700">
+                                    {photo.analysis.composicaoCorporal.percentualGorduraEstimado}
+                                  </p>
+                                  <p className="text-sm text-gray-600 mt-2">
+                                    {photo.analysis.composicaoCorporal.observacoes}
+                                  </p>
+                                </div>
+                              )}
+
+                              {photo.analysis.avaliacaoPostural && (
+                                <div className="p-4 bg-white rounded-lg border">
+                                  <h4 className="font-semibold text-purple-800 mb-2">🧘 Avaliação Postural</h4>
+                                  <p className="text-sm text-gray-600 mb-2">
+                                    <strong>Postura:</strong> {photo.analysis.avaliacaoPostural.postura}
+                                  </p>
+                                  <p className="text-sm text-gray-600">
+                                    <strong>Observações:</strong> {photo.analysis.avaliacaoPostural.observacoes}
+                                  </p>
+                                </div>
+                              )}
+
+                              {photo.analysis.gruposMusculares && photo.analysis.gruposMusculares.length > 0 && (
+                                <div className="p-4 bg-white rounded-lg border">
+                                  <h4 className="font-semibold text-red-800 mb-2">💪 Grupos Musculares</h4>
                                   <ul className="space-y-1">
-                                    {photo.analysis.pontosForts.map((ponto, idx) => (
+                                    {photo.analysis.gruposMusculares.map((grupo: string, idx: number) => (
                                       <li key={idx} className="text-gray-700">
-                                        • {ponto}
+                                        • {grupo}
                                       </li>
                                     ))}
                                   </ul>
                                 </div>
                               )}
 
-                              {photo.analysis.areasParaMelhorar && photo.analysis.areasParaMelhorar.length > 0 && (
-                                <div className="p-4 bg-white rounded-lg border mb-4">
-                                  <h4 className="font-semibold text-orange-800 mb-2">⚠️ Áreas para Melhorar</h4>
-                                  <ul className="space-y-1">
-                                    {photo.analysis.areasParaMelhorar.map((area, idx) => (
-                                      <li key={idx} className="text-gray-700">
-                                        • {area}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
-
-                              {photo.analysis.dicasEspecificas && photo.analysis.dicasEspecificas.length > 0 && (
-                                <div className="p-4 bg-white rounded-lg border mb-4">
-                                  <h4 className="font-semibold text-blue-800 mb-2">💡 Dicas Específicas</h4>
-                                  <ul className="space-y-1">
-                                    {photo.analysis.dicasEspecificas.map((dica, idx) => (
-                                      <li key={idx} className="text-gray-700">
-                                        • {dica}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
-
-                              {photo.analysis.recomendacoesTreino && photo.analysis.recomendacoesTreino.length > 0 && (
-                                <div className="p-4 bg-white rounded-lg border mb-4">
-                                  <h4 className="font-semibold text-red-800 mb-2">🏋️ Recomendações de Treino</h4>
-                                  <ul className="space-y-1">
-                                    {photo.analysis.recomendacoesTreino.map((rec, idx) => (
-                                      <li key={idx} className="text-gray-700">
-                                        • {rec}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
-
-                              {photo.analysis.recomendacoesDieta && photo.analysis.recomendacoesDieta.length > 0 && (
-                                <div className="p-4 bg-white rounded-lg border mb-4">
-                                  <h4 className="font-semibold text-yellow-800 mb-2">🥗 Recomendações de Dieta</h4>
-                                  <ul className="space-y-1">
-                                    {photo.analysis.recomendacoesDieta.map((rec, idx) => (
-                                      <li key={idx} className="text-gray-700">
-                                        • {rec}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
-
-                              {photo.analysis.otimizacoesSugeridas && (
-                                <div className="space-y-4 pt-4 border-t">
-                                  <h4 className="font-semibold text-gray-800 flex items-center gap-2">
-                                    <Settings className="h-4 w-4" />
-                                    Otimizações Sugeridas
-                                  </h4>
-
-                                  {photo.analysis.otimizacoesSugeridas.dieta?.necessaria && (
-                                    <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                                      <h5 className="font-medium text-yellow-900 mb-2">🥗 Ajustes na Dieta</h5>
-                                      <p className="text-sm text-yellow-800 mb-2">
-                                        {photo.analysis.otimizacoesSugeridas.dieta.justificativa}
-                                      </p>
-                                      <ul className="text-sm text-yellow-700 space-y-1 mb-3">
-                                        {photo.analysis.otimizacoesSugeridas.dieta.mudancas.map((mudanca, idx) => (
-                                          <li key={idx}>• {mudanca}</li>
-                                        ))}
-                                      </ul>
-                                      <Button
-                                        onClick={() =>
-                                          handleApplyDietOptimization(
-                                            photo.id,
-                                            photo.analysis.otimizacoesSugeridas.dieta,
-                                          )
-                                        }
-                                        disabled={isApplyingDiet === photo.id}
-                                        className="w-full bg-yellow-600 hover:bg-yellow-700"
-                                      >
-                                        {isApplyingDiet === photo.id ? (
-                                          <>
-                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                                            Aplicando...
-                                          </>
-                                        ) : dietOptimizationSuccess === photo.id ? (
-                                          <>
-                                            <CheckCircle className="h-4 w-4 mr-2" />
-                                            Aplicado com Sucesso!
-                                          </>
-                                        ) : (
-                                          "Aderir Alterações na Minha Dieta"
+                              {photo.analysis.feedbackTreino && (
+                                <div className="p-4 bg-white rounded-lg border">
+                                  <h4 className="font-semibold text-orange-800 mb-2">🏋️ Feedback de Treino</h4>
+                                  {photo.analysis.feedbackTreino.frequenciaSugerida && (
+                                    <p className="text-sm text-gray-700 mb-2">
+                                      <strong>Frequência:</strong> {photo.analysis.feedbackTreino.frequenciaSugerida}
+                                    </p>
+                                  )}
+                                  {photo.analysis.feedbackTreino.tiposExercicio && (
+                                    <div className="text-sm text-gray-700 mb-2">
+                                      <strong>Tipos de Exercício:</strong>
+                                      <ul className="ml-4 mt-1">
+                                        {photo.analysis.feedbackTreino.tiposExercicio.map(
+                                          (tipo: string, idx: number) => (
+                                            <li key={idx}>• {tipo}</li>
+                                          ),
                                         )}
-                                      </Button>
+                                      </ul>
                                     </div>
                                   )}
-
-                                  {photo.analysis.otimizacoesSugeridas.treino?.necessaria && (
-                                    <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                                      <h5 className="font-medium text-red-900 mb-2">🏋️ Ajustes no Treino</h5>
-                                      <p className="text-sm text-red-800 mb-2">
-                                        {photo.analysis.otimizacoesSugeridas.treino.justificativa}
-                                      </p>
-                                      <ul className="text-sm text-red-700 space-y-1 mb-3">
-                                        {photo.analysis.otimizacoesSugeridas.treino.mudancas.map((mudanca, idx) => (
-                                          <li key={idx}>• {mudanca}</li>
-                                        ))}
-                                      </ul>
-                                      <Button
-                                        onClick={() =>
-                                          handleApplyWorkoutOptimization(
-                                            photo.id,
-                                            photo.analysis.otimizacoesSugeridas.treino,
-                                          )
-                                        }
-                                        disabled={isApplyingWorkout === photo.id}
-                                        className="w-full bg-red-600 hover:bg-red-700"
-                                      >
-                                        {isApplyingWorkout === photo.id ? (
-                                          <>
-                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                                            Aplicando...
-                                          </>
-                                        ) : workoutOptimizationSuccess === photo.id ? (
-                                          <>
-                                            <CheckCircle className="h-4 w-4 mr-2" />
-                                            Aplicado com Sucesso!
-                                          </>
-                                        ) : (
-                                          "Aderir Alterações no Meu Treino"
-                                        )}
-                                      </Button>
-                                    </div>
+                                  {photo.analysis.feedbackTreino.intensidade && (
+                                    <p className="text-sm text-gray-700">
+                                      <strong>Intensidade:</strong> {photo.analysis.feedbackTreino.intensidade}
+                                    </p>
                                   )}
                                 </div>
                               )}
-                            </>
+
+                              {photo.analysis.feedbackNutricional && (
+                                <div className="p-4 bg-white rounded-lg border">
+                                  <h4 className="font-semibold text-yellow-800 mb-2">🥗 Feedback Nutricional</h4>
+                                  {photo.analysis.feedbackNutricional.hidratacao && (
+                                    <p className="text-sm text-gray-700 mb-2">
+                                      <strong>Hidratação:</strong> {photo.analysis.feedbackNutricional.hidratacao}
+                                    </p>
+                                  )}
+                                  {photo.analysis.feedbackNutricional.ajustesCaloricos && (
+                                    <p className="text-sm text-gray-700 mb-2">
+                                      <strong>Ajustes Calóricos:</strong>{" "}
+                                      {photo.analysis.feedbackNutricional.ajustesCaloricos}
+                                    </p>
+                                  )}
+                                  {photo.analysis.feedbackNutricional.recomendacoesMacros && (
+                                    <p className="text-sm text-gray-700">
+                                      <strong>Macros:</strong> {photo.analysis.feedbackNutricional.recomendacoesMacros}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+
+                              {photo.analysis.progressoObservacoes && (
+                                <div className="p-4 bg-white rounded-lg border">
+                                  <h4 className="font-semibold text-indigo-800 mb-2">📈 Progresso & Observações</h4>
+                                  {photo.analysis.progressoObservacoes.melhorias && (
+                                    <div className="mb-3">
+                                      <p className="text-sm font-medium text-gray-700 mb-1">Melhorias:</p>
+                                      <ul className="ml-4 space-y-1">
+                                        {photo.analysis.progressoObservacoes.melhorias.map(
+                                          (melhoria: string, idx: number) => (
+                                            <li key={idx} className="text-gray-600 text-sm">
+                                              ✓ {melhoria}
+                                            </li>
+                                          ),
+                                        )}
+                                      </ul>
+                                    </div>
+                                  )}
+                                  {photo.analysis.progressoObservacoes.mensagemMotivacional && (
+                                    <p className="text-sm text-gray-700 italic border-l-2 border-green-500 pl-3">
+                                      {photo.analysis.progressoObservacoes.mensagemMotivacional}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           ) : (
-                            <p className="text-muted-foreground text-center py-4">
-                              Nenhuma análise disponível para esta avaliação.
-                            </p>
+                            <div className="p-8 text-center text-gray-500">
+                              <p>Nenhuma análise disponível para esta avaliação.</p>
+                            </div>
                           )}
                         </CardContent>
                       )}
