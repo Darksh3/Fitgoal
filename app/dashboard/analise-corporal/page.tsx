@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { auth, db } from "@/lib/firebase"
 import { collection, query, where, orderBy, onSnapshot, doc, getDoc, deleteDoc } from "firebase/firestore"
@@ -11,7 +11,19 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Upload, Camera, Sparkles, Settings, CheckCircle, Trash2, History, ChevronDown, ChevronUp, X } from 'lucide-react'
+import {
+  ArrowLeft,
+  Upload,
+  Camera,
+  Sparkles,
+  Settings,
+  CheckCircle,
+  Trash2,
+  History,
+  ChevronDown,
+  ChevronUp,
+  X,
+} from "lucide-react"
 
 interface ProgressPhoto {
   id: string
@@ -928,31 +940,30 @@ export default function AnaliseCorporalPage() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-4">
                 {photos.map((photo) => {
                   const photosList =
                     photo.photos || (photo.photoUrl ? [{ photoUrl: photo.photoUrl, photoType: photo.photoType }] : [])
 
-                  // Handle different date formats from Firebase
                   let displayDate = "Data não disponível"
                   try {
                     if (photo.createdAt) {
                       if (typeof photo.createdAt === "string") {
                         displayDate = new Date(photo.createdAt).toLocaleDateString("pt-BR", {
                           day: "2-digit",
-                          month: "long",
+                          month: "2-digit",
                           year: "numeric",
                         })
                       } else if (photo.createdAt.toDate) {
                         displayDate = photo.createdAt.toDate().toLocaleDateString("pt-BR", {
                           day: "2-digit",
-                          month: "long",
+                          month: "2-digit",
                           year: "numeric",
                         })
                       } else if (photo.createdAt.seconds) {
                         displayDate = new Date(photo.createdAt.seconds * 1000).toLocaleDateString("pt-BR", {
                           day: "2-digit",
-                          month: "long",
+                          month: "2-digit",
                           year: "numeric",
                         })
                       }
@@ -965,14 +976,12 @@ export default function AnaliseCorporalPage() {
 
                   return (
                     <Card key={photo.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                      <CardHeader 
-                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                      <CardHeader
+                        className="cursor-pointer hover:bg-muted/50 transition-colors py-4"
                         onClick={() => setExpandedAnalysis(isExpanded ? null : photo.id)}
                       >
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg font-semibold">
-                            Avaliação dia {displayDate}
-                          </CardTitle>
+                          <CardTitle className="text-lg font-medium">Avaliação dia {displayDate}</CardTitle>
                           <div className="flex items-center gap-2">
                             <Button
                               variant="ghost"
@@ -981,7 +990,7 @@ export default function AnaliseCorporalPage() {
                                 e.stopPropagation()
                                 handleDeletePhoto(photo.id)
                               }}
-                              className="text-destructive hover:text-destructive"
+                              className="text-muted-foreground hover:text-destructive"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -995,11 +1004,7 @@ export default function AnaliseCorporalPage() {
                       </CardHeader>
 
                       {isExpanded && (
-                        <CardContent className="p-6 pt-0">
-                          {console.log("[v0] Photo analysis data:", photo.analysis)}
-                          {console.log("[v0] Photo full data:", photo)}
-                          
-                          {/* Photos Grid */}
+                        <CardContent className="px-6 pb-6">
                           {photosList.length > 0 && (
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                               {photosList.map((p: any, idx: number) => (
@@ -1011,7 +1016,11 @@ export default function AnaliseCorporalPage() {
                                   />
                                   <div className="absolute top-2 left-2">
                                     <Badge variant="secondary" className="text-xs">
-                                      {p.photoType === "front" ? "Frente" : p.photoType === "back" ? "Costas" : "Lateral"}
+                                      {p.photoType === "front"
+                                        ? "Frente"
+                                        : p.photoType === "back"
+                                          ? "Costas"
+                                          : "Lateral"}
                                     </Badge>
                                   </div>
                                 </div>
@@ -1019,16 +1028,7 @@ export default function AnaliseCorporalPage() {
                             </div>
                           )}
 
-                          {!photo.analysis && (
-                            <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200 mb-4">
-                              <p className="text-yellow-800 text-sm">
-                                ⚠️ Nenhuma análise disponível para esta avaliação.
-                              </p>
-                            </div>
-                          )}
-
-                          {/* Analysis Content */}
-                          {photo.analysis && (
+                          {photo.analysis ? (
                             <>
                               {photo.analysis.motivacao && (
                                 <div className="p-4 bg-green-50 rounded-lg mb-4">
@@ -1105,7 +1105,6 @@ export default function AnaliseCorporalPage() {
                                 </div>
                               )}
 
-                              {/* Optimization buttons for history items */}
                               {photo.analysis.otimizacoesSugeridas && (
                                 <div className="space-y-4 pt-4 border-t">
                                   <h4 className="font-semibold text-gray-800 flex items-center gap-2">
@@ -1126,7 +1125,10 @@ export default function AnaliseCorporalPage() {
                                       </ul>
                                       <Button
                                         onClick={() =>
-                                          handleApplyDietOptimization(photo.id, photo.analysis.otimizacoesSugeridas.dieta)
+                                          handleApplyDietOptimization(
+                                            photo.id,
+                                            photo.analysis.otimizacoesSugeridas.dieta,
+                                          )
                                         }
                                         disabled={isApplyingDiet === photo.id}
                                         className="w-full bg-yellow-600 hover:bg-yellow-700"
@@ -1188,6 +1190,10 @@ export default function AnaliseCorporalPage() {
                                 </div>
                               )}
                             </>
+                          ) : (
+                            <p className="text-muted-foreground text-center py-4">
+                              Nenhuma análise disponível para esta avaliação.
+                            </p>
                           )}
                         </CardContent>
                       )}
