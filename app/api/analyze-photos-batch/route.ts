@@ -155,37 +155,37 @@ Retorne APENAS este JSON:
     }
 
     console.log("[v0] API: Preparing multi-attempt strategy")
-    
+
     const promptVariations = [
       {
         id: "ultra-safe",
         prompt: `Gere um plano de fitness para objetivo "${userQuizData?.goal}" com dieta de ${Math.round(realTotalCalories)} kcal. Retorne apenas JSON com recomendações de treino e nutrição seguindo este formato: ${safeAnalysisPrompt}`,
-        useImages: false
+        useImages: false,
       },
       {
-        id: "safe-generic", 
+        id: "safe-generic",
         prompt: safeAnalysisPrompt,
-        useImages: true
+        useImages: true,
       },
       {
         id: "data-only",
         prompt: `Baseado em: ${userQuizData?.currentWeight}kg, objetivo ${userQuizData?.goal}, ${Math.round(realTotalCalories)} kcal/dia. Gere JSON com plano de treino e ajustes nutricionais no formato: ${safeAnalysisPrompt}`,
-        useImages: false
-      }
+        useImages: false,
+      },
     ]
 
     let analysis
     let rawResponse = ""
     let attemptNumber = 0
     const maxAttempts = promptVariations.length
-    
+
     for (const variation of promptVariations) {
       attemptNumber++
       console.log(`[v0] API: 🔄 Attempt ${attemptNumber}/${maxAttempts} using ${variation.id} prompt`)
-      
+
       try {
         const messageContent: any[] = [{ type: "text", text: variation.prompt }]
-        
+
         if (variation.useImages && photos && photos.length > 0) {
           photos.forEach((photo: any) => {
             if (photo.photoUrl && photo.photoUrl.startsWith("http")) {
@@ -194,89 +194,91 @@ Retorne APENAS este JSON:
           })
           console.log(`[v0] API: Added ${photos.length} images to request`)
         }
-        
+
         console.log(`[v0] API: Calling OpenAI API...`)
         const response = await generateText({
-          model: openai("gpt-4o"),
+          model: openai("gpt-5.1"),
           messages: [
             {
               role: "user",
               content: messageContent,
             },
           ],
-          maxTokens: 3000,
-          temperature: 0.5,
         })
-        
+
         rawResponse = response.text
         console.log(`[v0] API: ✅ Received response, length: ${rawResponse.length}`)
         console.log(`[v0] API: Response preview: ${rawResponse.substring(0, 200)}...`)
-        
+
         const refusalIndicators = [
-          "can't assist", "cannot assist", "unable to", "can't help",
-          "cannot help", "against my", "content policy", "não posso", "desculpe"
+          "can't assist",
+          "cannot assist",
+          "unable to",
+          "can't help",
+          "cannot help",
+          "against my",
+          "content policy",
+          "não posso",
+          "desculpe",
         ]
-        
-        const isRefusal = refusalIndicators.some(indicator => 
-          rawResponse.toLowerCase().includes(indicator)
-        )
-        
+
+        const isRefusal = refusalIndicators.some((indicator) => rawResponse.toLowerCase().includes(indicator))
+
         if (isRefusal) {
           console.log(`[v0] API: ❌ OpenAI refused with ${variation.id} prompt, trying next...`)
           continue
         }
-        
+
         console.log(`[v0] API: Parsing JSON response...`)
         const jsonStart = rawResponse.indexOf("{")
         const jsonEnd = rawResponse.lastIndexOf("}") + 1
-        
+
         if (jsonStart === -1 || jsonEnd === 0) {
           console.log(`[v0] API: ❌ No JSON found in response`)
           throw new Error("No JSON found in response")
         }
-        
+
         const jsonString = rawResponse
           .substring(jsonStart, jsonEnd)
-          .replace(/\`\`\`json/g, "")
-          .replace(/\`\`\`/g, "")
+          .replace(/```json/g, "")
+          .replace(/```/g, "")
           .trim()
-        
+
         console.log(`[v0] API: Attempting to parse JSON string...`)
         analysis = JSON.parse(jsonString)
         console.log(`[v0] API: ✅✅✅ Successfully parsed response with ${variation.id}`)
         console.log(`[v0] API: Analysis object keys:`, Object.keys(analysis))
         break
-        
       } catch (error) {
         console.error(`[v0] API: ❌ Error with ${variation.id}:`, error)
         console.log(`[v0] API: Attempt ${attemptNumber} of ${maxAttempts} failed`)
-        
+
         if (attemptNumber === maxAttempts) {
           console.log("[v0] API: ⚠️ All attempts failed, creating fallback analysis")
           analysis = createFallbackAnalysis(userQuizData, {
             calories: realTotalCalories,
             protein: realTotalProtein,
             carbs: realTotalCarbs,
-            fats: realTotalFats
+            fats: realTotalFats,
           })
           console.log("[v0] API: ✅ Fallback analysis created")
         }
       }
     }
-    
+
     if (!analysis) {
       console.log("[v0] API: ⚠️ No analysis after all attempts, creating final fallback")
       analysis = createFallbackAnalysis(userQuizData, {
         calories: realTotalCalories,
-        protein: realTotalProtein, 
+        protein: realTotalProtein,
         carbs: realTotalCarbs,
-        fats: realTotalFats
+        fats: realTotalFats,
       })
       console.log("[v0] API: ✅ Final fallback analysis created")
     }
 
     console.log("[v0] API: ✅ Analysis completed successfully")
-    
+
     try {
       console.log("[v0] API: Analysis structure:", JSON.stringify(analysis, null, 2))
     } catch (stringifyError) {
@@ -292,8 +294,8 @@ Retorne APENAS este JSON:
       recomendacoesNutricao: [
         analysis.ajustesNutricionais?.avaliacaoCalorias,
         analysis.ajustesNutricionais?.avaliacaoProteina,
-        analysis.ajustesNutricionais?.sugestoes?.calorias
-      ].filter(Boolean)
+        analysis.ajustesNutricionais?.sugestoes?.calorias,
+      ].filter(Boolean),
     }
     console.log("[v0] API: ✅ Formatted analysis:", JSON.stringify(formattedAnalysis, null, 2))
 
@@ -366,7 +368,7 @@ function createFallbackAnalysis(userData: any, nutrition: any) {
   const weight = userData?.currentWeight || 70
   const goal = userData?.goal || "geral"
   const proteinPerKg = nutrition.protein / weight
-  
+
   return {
     avaliacaoGeral: {
       nivelPrograma: "Em desenvolvimento",
@@ -374,27 +376,23 @@ function createFallbackAnalysis(userData: any, nutrition: any) {
       pontosPositivos: [
         "Programa estruturado em andamento",
         "Plano nutricional definido",
-        "Objetivos claros estabelecidos"
+        "Objetivos claros estabelecidos",
       ],
       pontosMelhoria: [
         "Manter consistência no programa",
         "Ajustar nutrição conforme necessário",
-        "Acompanhar métricas de progresso"
-      ]
+        "Acompanhar métricas de progresso",
+      ],
     },
     planoTreino: {
-      tipoTreinoIdeal: goal.includes("ganhar") ? "Hipertrofia" : 
-                       goal.includes("perder") ? "Definição" : "Recomposição",
+      tipoTreinoIdeal: goal.includes("ganhar") ? "Hipertrofia" : goal.includes("perder") ? "Definição" : "Recomposição",
       divisaoSemanal: "3-5 dias: Push/Pull/Legs ou Upper/Lower",
-      exerciciosFoco: [
-        "Agachamento", "Terra", "Supino", "Remada", "Desenvolvimento"
-      ],
-      volumeIntensidade: "10-20 séries/semana por grupo, 6-12 repetições"
+      exerciciosFoco: ["Agachamento", "Terra", "Supino", "Remada", "Desenvolvimento"],
+      volumeIntensidade: "10-20 séries/semana por grupo, 6-12 repetições",
     },
     ajustesNutricionais: {
       avaliacaoCalorias: `${Math.round(nutrition.calories)} kcal - ${
-        goal.includes("ganhar") ? "adequado para ganho" :
-        goal.includes("perder") ? "adequado para perda" : "manutenção"
+        goal.includes("ganhar") ? "adequado para ganho" : goal.includes("perder") ? "adequado para perda" : "manutenção"
       }`,
       avaliacaoProteina: `${Math.round(nutrition.protein)}g (${proteinPerKg.toFixed(1)}g/kg) - ${
         proteinPerKg >= 2.0 ? "adequado" : "aumentar"
@@ -402,27 +400,19 @@ function createFallbackAnalysis(userData: any, nutrition: any) {
       sugestoes: {
         calorias: "Manter atual e ajustar conforme progresso",
         proteina: proteinPerKg < 2.0 ? `Aumentar para ${Math.round(weight * 2.2)}g` : "Manter",
-        distribuicao: "40% carb, 30% prot, 30% gord"
-      }
+        distribuicao: "40% carb, 30% prot, 30% gord",
+      },
     },
     progressao: {
       faseAtual: "Fase inicial/intermediária",
-      metasCurtoPrazo: [
-        "Estabelecer rotina consistente",
-        "Aumentar cargas em 5-10%", 
-        "Melhorar técnica de execução"
-      ],
+      metasCurtoPrazo: ["Estabelecer rotina consistente", "Aumentar cargas em 5-10%", "Melhorar técnica de execução"],
       metasMedioPrazo: [
         goal.includes("ganhar") ? "Ganhar 2-3kg massa magra" : "Reduzir 5-8% gordura",
         "Aumentar força em 15-20%",
-        "Desenvolver hábitos sustentáveis"
+        "Desenvolver hábitos sustentáveis",
       ],
-      marcadoresProgresso: [
-        "Peso e medidas semanais",
-        "Força nos exercícios principais",
-        "Energia e recuperação"
-      ]
+      marcadoresProgresso: ["Peso e medidas semanais", "Força nos exercícios principais", "Energia e recuperação"],
     },
-    resumo: `Foco em ${goal}. Manter ${Math.round(nutrition.calories)} kcal e ${Math.round(nutrition.protein)}g proteína. Treinar 3-5x/semana com progressão de carga. Acompanhar métricas semanalmente.`
+    resumo: `Foco em ${goal}. Manter ${Math.round(nutrition.calories)} kcal e ${Math.round(nutrition.protein)}g proteína. Treinar 3-5x/semana com progressão de carga. Acompanhar métricas semanalmente.`,
   }
 }
