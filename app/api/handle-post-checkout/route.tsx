@@ -623,8 +623,8 @@ export async function POST(req: Request) {
       `
 
       const [dietResult, workoutResult] = await Promise.all([
-        generateText({ model: openai("gpt-4o"), prompt: dietPrompt, response_format: { type: "json_object" } }),
-        generateText({ model: openai("gpt-4o"), prompt: workoutPrompt, response_format: { type: "json_object" } }),
+        generateText({ model: openai("gpt-5.1"), prompt: dietPrompt, response_format: { type: "json_object" } }),
+        generateText({ model: openai("gpt-5.1"), prompt: workoutPrompt, response_format: { type: "json_object" } }),
       ])
 
       dietPlan = extractJson(dietResult.text)

@@ -126,6 +126,8 @@ export async function POST(request: NextRequest) {
 
     const systemPrompt = `Você é um personal trainer e nutricionista esportivo altamente especializado. Analise as fotos de composição corporal fornecidas e forneça uma avaliação profissional DETALHADA e TÉCNICA.
 
+IMPORTANTE: Seja direto e objetivo. Evite repetições e explique apenas o essencial de forma técnica e profissional.
+
 ${
   previousAnalysis
     ? `
@@ -207,19 +209,22 @@ RESPONDA EM JSON COM A SEGUINTE ESTRUTURA OBRIGATÓRIA:
       "sugestoes": ["ajuste específico 1 se necessário (ex: +200 kcal, -50g carbs)", "ajuste 2 se necessário"]
     }
   },
-  "conclusaoGeral": "síntese profissional e motivacional completa"
+  "conclusaoGeral": "${previousAnalysis ? `síntese profissional que DEVE incluir uma avaliação específica da evolução do cliente desde a última análise (melhorias visíveis, áreas que progrediram, ritmo de progresso) e motivação para continuar` : `síntese profissional estabelecendo linha de base para futuras comparações e motivação para iniciar a jornada`}"
 }
 
 IMPORTANTE:
-- pontosFortes: Liste os grupos musculares bem desenvolvidos, boa postura, simetria, definição, etc
-- pontosAMelhorar: Liste grupos atrasados, assimetrias, áreas com mais gordura, postura a corrigir
-- sobreTreino: Analise se o treino atual está adequado para o objetivo do cliente
-- sobreDieta: Analise se a dieta atual está gerando os resultados esperados
-- evolucaoComparada: OBRIGATÓRIO se houver análise anterior - compare em detalhes
+- Seja DIRETO e OBJETIVO em todas as seções
+- Liste apenas os pontos mais importantes (3-5 itens por seção)
+- Use frases curtas e técnicas, evite repetições
+- pontosFortes: Grupos musculares bem desenvolvidos, postura, simetria
+- pontosAMelhorar: Grupos atrasados, assimetrias, áreas prioritárias
+- sobreTreino: Análise concisa se está adequado para o objetivo
+- sobreDieta: Avaliação direta se está gerando resultados
+- evolucaoComparada: Compare em tópicos diretos (se houver análise anterior)
 - ajustes.necessario: true SOMENTE se realmente precisar de mudanças
 - Se treino/dieta estão adequados, mantenha status "adequado" e sugestoes vazias []
-- Seja específico, técnico e honesto
-${previousAnalysis ? "- SEMPRE mencione o progresso (positivo ou negativo) em relação à análise anterior" : ""}`
+${previousAnalysis ? "- Mencione progresso de forma objetiva em relação à análise anterior" : ""}
+${previousAnalysis ? "- Na conclusaoGeral, resumo evolutivo em 2-3 frases destacando mudanças específicas" : ""}`
 
     console.log("[v0] API: Starting AI analysis with multiple photos and real diet data")
 
@@ -254,7 +259,7 @@ ${previousAnalysis ? "- SEMPRE mencione o progresso (positivo ou negativo) em re
             content,
           },
         ],
-        maxTokens: 4500,
+        maxTokens: 2500,
         temperature: 0.7,
       })
       text = response.text
