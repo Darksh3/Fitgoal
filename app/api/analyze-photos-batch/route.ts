@@ -170,107 +170,56 @@ ${currentPlans?.workoutPlan ? JSON.stringify(currentPlans.workoutPlan, null, 2) 
 FOTOS RECEBIDAS PARA ANÁLISE ATUAL:
 ${photos.map((p: any) => `- ${p.type}: disponível para análise visual`).join("\n")}
 
-INSTRUÇÕES DE ANÁLISE:
+INSTRUÇÕES DE ANÁLISE - USE ESTE FORMATO EXATO:
 
-${
-  previousAnalysis
-    ? `
-1. ANÁLISE COMPARATIVA DE PROGRESSO (OBRIGATÓRIO):
-   - Compare cada aspecto atual vs anterior
-   - Quantifique mudanças visíveis (ex: "Ombros 15% mais desenvolvidos", "Definição abdominal melhorou 2 níveis")
-   - Identifique o que melhorou, o que piorou, o que estagnou
-   - Avalie se o ritmo de progresso está adequado
-`
-    : `
-1. ESTABELECER LINHA DE BASE (primeira análise):
-   - Documente estado atual detalhadamente
-   - Estabeleça pontos de referência para futuras comparações
-`
-}
+RESPONDA EM JSON COM A SEGUINTE ESTRUTURA OBRIGATÓRIA:
 
-2. ANÁLISE POR FOTO (frente, costas, lateral):
-   Para cada foto, identifique:
-   - Pontos Fortes (✅): Grupos musculares desenvolvidos, simetria, postura positiva
-   - Áreas para Melhorar (⚠️): Grupos atrasados, assimetrias, postura a corrigir
-   - Desenvolvimento percentual estimado de cada grupo muscular visível
-
-3. COMPOSIÇÃO CORPORAL:
-   - Percentual de gordura estimado
-   - Nível de massa muscular
-   - Retenção de líquidos visível
-   - Qualidade da pele e vascularização
-
-4. AJUSTES DE TREINO:
-   - Status: "adequado" ou "necessário"
-   - Se necessário, forneça ajustes ESPECÍFICOS com exercícios, séries, repetições
-   - Priorize grupos musculares que precisam mais atenção
-   ${previousAnalysis ? "- Considere o progresso observado para determinar se mudanças são necessárias" : ""}
-
-5. AJUSTES NUTRICIONAIS:
-   - Status: "adequado" ou "necessário"
-   - Compare dieta atual com objetivo do cliente
-   - Se necessário, sugira ajustes ESPECÍFICOS (±X kcal, ±Xg proteína, etc)
-   ${previousAnalysis ? "- Considere se a dieta atual está gerando os resultados esperados" : ""}
-
-6. RESUMO EXECUTIVO:
-   - Síntese profissional da avaliação
-   ${previousAnalysis ? "- Destaque o progresso geral e próximos passos" : "- Estabeleça expectativas e próximos passos"}
-   - Mensagem motivacional personalizada
-
-IMPORTANTE:
-- Só sugira ajustes se realmente necessário
-- Se está adequado, confirme que o cliente está no caminho certo
-- Seja específico, técnico e honesto
-- Use linguagem profissional mas acessível
-${previousAnalysis ? "- SEMPRE mencione o progresso (positivo ou negativo) em relação à análise anterior" : ""}
-
-FORMATO DE RESPOSTA (JSON):
 {
-  ${
-    previousAnalysis
-      ? `
-  "progressoComparativo": {
-    "diasDesdeUltimaAnalise": número,
-    "resumoProgresso": "texto descritivo geral do progresso",
-    "melhorias": ["melhoria 1 com detalhes", "melhoria 2 com detalhes"],
-    "retrocessos": ["retrocesso 1 se houver", "retrocesso 2 se houver"],
-    "estagnacoes": ["área estagnada 1 se houver"],
-    "avaliacaoRitmo": "adequado/rápido/lento",
-    "observacoes": "análise detalhada da evolução"
-  },
-  `
-      : ""
-  }
-  "analisePorFoto": {
-    "frente": {
-      "pontosFortes": ["ponto 1", "ponto 2"],
-      "areasParaMelhorar": ["área 1", "área 2"],
-      "desenvolvimentoMuscular": {
-        "ombros": "percentual%",
-        "peitorais": "percentual%",
-        "bracos": "percentual%",
-        "abdomen": "percentual%",
-        "pernas": "percentual%"
-      }
-    },
-    "costas": { /* mesmo formato */ },
-    "lateral": { /* mesmo formato */ }
-  },
+  "pontosFortes": ["ponto forte 1 com detalhes", "ponto forte 2 com detalhes"],
+  "pontosAMelhorar": ["área 1 com detalhes", "área 2 com detalhes"],
   "composicaoCorporal": {
     "percentualGorduraEstimado": "X-Y%",
-    "nivelMassaMuscular": "iniciante/intermediário/avançado",
-    "observacoes": "detalhes adicionais"
+    "massaMuscular": "iniciante/intermediário/avançado",
+    "observacoes": "detalhes sobre composição"
   },
-  "ajustesTreino": {
-    "status": "adequado" ou "necessário",
-    "sugestoes": ["sugestão específica 1 se necessário", "sugestão 2 se necessário"]
+  "sobreTreino": "análise detalhada do treino atual e o que está funcionando",
+  "sobreDieta": "análise detalhada da dieta atual e se está adequada para o objetivo",
+  ${
+    previousAnalysis
+      ? `"evolucaoComparada": {
+    "diasDesdeUltimaAnalise": ${Math.ceil((new Date().getTime() - previousAnalysis.date.getTime()) / (1000 * 60 * 60 * 24))},
+    "resumo": "resumo geral do progresso desde a última análise",
+    "melhorias": ["melhoria 1 específica", "melhoria 2 específica"],
+    "retrocessos": ["retrocesso 1 se houver"],
+    "avaliacaoRitmo": "adequado/rápido/lento"
+  },`
+      : ""
+  }
+  "dicas": ["dica prática 1", "dica prática 2", "dica prática 3"],
+  "ajustes": {
+    "necessario": true/false,
+    "treino": {
+      "status": "adequado" ou "ajuste necessário",
+      "sugestoes": ["ajuste específico 1 se necessário", "ajuste 2 se necessário"]
+    },
+    "dieta": {
+      "status": "adequado" ou "ajuste necessário",
+      "sugestoes": ["ajuste específico 1 se necessário (ex: +200 kcal, -50g carbs)", "ajuste 2 se necessário"]
+    }
   },
-  "ajustesNutricionais": {
-    "status": "adequado" ou "necessário",
-    "sugestoes": ["ajuste específico 1 se necessário", "ajuste 2 se necessário"]
-  },
-  "resumoExecutivo": "síntese profissional completa da avaliação"
-}`
+  "conclusaoGeral": "síntese profissional e motivacional completa"
+}
+
+IMPORTANTE:
+- pontosFortes: Liste os grupos musculares bem desenvolvidos, boa postura, simetria, definição, etc
+- pontosAMelhorar: Liste grupos atrasados, assimetrias, áreas com mais gordura, postura a corrigir
+- sobreTreino: Analise se o treino atual está adequado para o objetivo do cliente
+- sobreDieta: Analise se a dieta atual está gerando os resultados esperados
+- evolucaoComparada: OBRIGATÓRIO se houver análise anterior - compare em detalhes
+- ajustes.necessario: true SOMENTE se realmente precisar de mudanças
+- Se treino/dieta estão adequados, mantenha status "adequado" e sugestoes vazias []
+- Seja específico, técnico e honesto
+${previousAnalysis ? "- SEMPRE mencione o progresso (positivo ou negativo) em relação à análise anterior" : ""}`
 
     console.log("[v0] API: Starting AI analysis with multiple photos and real diet data")
 
