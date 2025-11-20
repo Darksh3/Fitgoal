@@ -61,11 +61,56 @@ interface ProgressPhoto {
     composicaoCorporal?: {
       percentualGorduraEstimado: string
       observacoes: string
+      pontosFortes?: string[]
+      pontosAtencao?: string[]
     }
-    avaliacaoPostural?: {
-      postura: string
-      observacoes: string
+    avaliacaoPorAngulo?: {
+      frente: string
+      costas: string
+      lateral: string
     }
+    desenvolvimentoMuscular?: {
+      pontosFortes?: Array<{
+        grupo: string
+        descricao: string
+        percentualDesenvolvimento?: string
+      }>
+      areasParaMelhorar?: Array<{
+        grupo: string
+        descricao: string
+        recomendacao?: string
+      }>
+    }
+    ajustesSugeridosTreino?: {
+      oqueManter?: string[]
+      oqueMudar?: Array<{
+        mudanca: string
+        razao?: string
+        como?: string
+      }>
+    }
+    ajustesSugeridosDieta?: {
+      avaliacaoAtual?: string
+      ajustesEspecificos?: Array<{
+        ajuste: string
+        quantidade?: string
+        redistribuicao?: string
+        razao?: string
+      }>
+      macrosAlvo?: {
+        calorias?: string
+        proteina?: string
+        carboidratos?: string
+        gorduras?: string
+      }
+    }
+    progressao?: {
+      statusAtual?: string
+      proximosPassos?: string
+      expectativas?: string
+      motivacao?: string
+    }
+    // Original properties (kept for backward compatibility or if specific parts are still used)
     gruposMusculares?: string[]
     feedbackTreino?: {
       frequenciaSugerida?: string
@@ -109,6 +154,8 @@ export default function AnaliseCorporalPage() {
 
   const [pendingPhotos, setPendingPhotos] = useState<PendingPhoto[]>([])
   const [selectedPhotoType, setSelectedPhotoType] = useState<"front" | "back" | "side">("front")
+
+  const [hasConsent, setHasConsent] = useState(false)
 
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isComparing, setIsComparing] = useState(false)
@@ -630,10 +677,25 @@ export default function AnaliseCorporalPage() {
                       ))}
                     </div>
 
+                    <div className="flex items-start space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <input
+                        type="checkbox"
+                        id="consent-checkbox"
+                        checked={hasConsent}
+                        onChange={(e) => setHasConsent(e.target.checked)}
+                        className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <label htmlFor="consent-checkbox" className="text-sm text-gray-700 cursor-pointer">
+                        Autorizo o envio das minhas fotos para análise profissional por inteligência artificial.
+                        Compreendo que as imagens serão processadas de forma segura e confidencial para gerar feedback
+                        personalizado sobre minha composição corporal e progresso fitness.
+                      </label>
+                    </div>
+
                     <Button
                       onClick={handleAnalyzePhotos}
                       className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                      disabled={isAnalyzing}
+                      disabled={isAnalyzing || !hasConsent}
                       size="lg"
                     >
                       {isAnalyzing ? (
@@ -1055,127 +1117,325 @@ export default function AnaliseCorporalPage() {
 
                           {photo.analysis ? (
                             <div className="space-y-4">
+                              {/* Executive Summary */}
                               {photo.analysis.resumoExecutivo && (
-                                <div className="p-4 bg-green-50 rounded-lg">
-                                  <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
-                                    <Sparkles className="h-4 w-4" />
-                                    Resumo Executivo
-                                  </h4>
-                                  <p className="text-gray-700">{photo.analysis.resumoExecutivo}</p>
+                                <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                                  <p className="text-sm leading-relaxed">{photo.analysis.resumoExecutivo}</p>
                                 </div>
                               )}
 
+                              {/* Muscle Development */}
+                              {photo.analysis.desenvolvimentoMuscular && (
+                                <div className="space-y-3 p-4 bg-white rounded-lg border">
+                                  <h4 className="font-semibold text-base">DESENVOLVIMENTO MUSCULAR</h4>
+
+                                  {/* Strong Points */}
+                                  {photo.analysis.desenvolvimentoMuscular.pontosFortes?.length > 0 && (
+                                    <div className="space-y-2">
+                                      {photo.analysis.desenvolvimentoMuscular.pontosFortes.map(
+                                        (ponto: any, idx: number) => (
+                                          <div key={idx} className="flex gap-2 text-sm">
+                                            <span className="text-green-500 flex-shrink-0">✅</span>
+                                            <div className="flex-1">
+                                              <span className="font-medium">{ponto.grupo}:</span>{" "}
+                                              <span className="text-muted-foreground">
+                                                {ponto.descricao}
+                                                {ponto.percentualDesenvolvimento &&
+                                                  ` (${ponto.percentualDesenvolvimento})`}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        ),
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {/* Areas to Improve */}
+                                  {photo.analysis.desenvolvimentoMuscular.areasParaMelhorar?.length > 0 && (
+                                    <div className="space-y-2">
+                                      {photo.analysis.desenvolvimentoMuscular.areasParaMelhorar.map(
+                                        (area: any, idx: number) => (
+                                          <div key={idx} className="flex gap-2 text-sm">
+                                            <span className="text-yellow-500 flex-shrink-0">⚠️</span>
+                                            <div className="flex-1">
+                                              <span className="font-medium">{area.grupo}:</span>{" "}
+                                              <span className="text-muted-foreground">{area.descricao}</span>
+                                              {area.recomendacao && (
+                                                <p className="text-xs text-muted-foreground mt-1">
+                                                  → {area.recomendacao}
+                                                </p>
+                                              )}
+                                            </div>
+                                          </div>
+                                        ),
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Body Composition */}
                               {photo.analysis.composicaoCorporal && (
-                                <div className="p-4 bg-white rounded-lg border">
-                                  <h4 className="font-semibold text-blue-800 mb-2">📊 Composição Corporal</h4>
-                                  <p className="text-gray-700">
-                                    {photo.analysis.composicaoCorporal.percentualGorduraEstimado}
-                                  </p>
-                                  <p className="text-sm text-gray-600 mt-2">
-                                    {photo.analysis.composicaoCorporal.observacoes}
-                                  </p>
-                                </div>
-                              )}
+                                <div className="space-y-3 p-4 bg-white rounded-lg border">
+                                  <h4 className="font-semibold text-base">COMPOSIÇÃO CORPORAL</h4>
 
-                              {photo.analysis.avaliacaoPostural && (
-                                <div className="p-4 bg-white rounded-lg border">
-                                  <h4 className="font-semibold text-purple-800 mb-2">🧘 Avaliação Postural</h4>
-                                  <p className="text-sm text-gray-600 mb-2">
-                                    <strong>Postura:</strong> {photo.analysis.avaliacaoPostural.postura}
-                                  </p>
-                                  <p className="text-sm text-gray-600">
-                                    <strong>Observações:</strong> {photo.analysis.avaliacaoPostural.observacoes}
-                                  </p>
-                                </div>
-                              )}
-
-                              {photo.analysis.gruposMusculares && photo.analysis.gruposMusculares.length > 0 && (
-                                <div className="p-4 bg-white rounded-lg border">
-                                  <h4 className="font-semibold text-red-800 mb-2">💪 Grupos Musculares</h4>
-                                  <ul className="space-y-1">
-                                    {photo.analysis.gruposMusculares.map((grupo: string, idx: number) => (
-                                      <li key={idx} className="text-gray-700">
-                                        • {grupo}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
-
-                              {photo.analysis.feedbackTreino && (
-                                <div className="p-4 bg-white rounded-lg border">
-                                  <h4 className="font-semibold text-orange-800 mb-2">🏋️ Feedback de Treino</h4>
-                                  {photo.analysis.feedbackTreino.frequenciaSugerida && (
-                                    <p className="text-sm text-gray-700 mb-2">
-                                      <strong>Frequência:</strong> {photo.analysis.feedbackTreino.frequenciaSugerida}
+                                  {photo.analysis.composicaoCorporal.percentualGorduraEstimado && (
+                                    <p className="text-sm">
+                                      <span className="font-medium">Gordura Corporal Estimada:</span>{" "}
+                                      {photo.analysis.composicaoCorporal.percentualGorduraEstimado}
                                     </p>
                                   )}
-                                  {photo.analysis.feedbackTreino.tiposExercicio && (
-                                    <div className="text-sm text-gray-700 mb-2">
-                                      <strong>Tipos de Exercício:</strong>
-                                      <ul className="ml-4 mt-1">
-                                        {photo.analysis.feedbackTreino.tiposExercicio.map(
-                                          (tipo: string, idx: number) => (
-                                            <li key={idx}>• {tipo}</li>
+
+                                  {photo.analysis.composicaoCorporal.pontosFortes?.length > 0 && (
+                                    <div className="space-y-1">
+                                      {photo.analysis.composicaoCorporal.pontosFortes.map(
+                                        (ponto: string, idx: number) => (
+                                          <div key={idx} className="flex gap-2 text-sm">
+                                            <span className="text-green-500">✅</span>
+                                            <span className="text-muted-foreground">{ponto}</span>
+                                          </div>
+                                        ),
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {photo.analysis.composicaoCorporal.pontosAtencao?.length > 0 && (
+                                    <div className="space-y-1">
+                                      {photo.analysis.composicaoCorporal.pontosAtencao.map(
+                                        (ponto: string, idx: number) => (
+                                          <div key={idx} className="flex gap-2 text-sm">
+                                            <span className="text-yellow-500">⚠️</span>
+                                            <span className="text-muted-foreground">{ponto}</span>
+                                          </div>
+                                        ),
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Analysis by Angle */}
+                              {photo.analysis.avaliacaoPorAngulo && (
+                                <div className="space-y-3 p-4 bg-white rounded-lg border">
+                                  <h4 className="font-semibold text-base">ANÁLISE POR ÂNGULO</h4>
+                                  <div className="space-y-2 text-sm">
+                                    {photo.analysis.avaliacaoPorAngulo.frente && (
+                                      <div>
+                                        <span className="font-medium">Frente:</span>{" "}
+                                        <span className="text-muted-foreground">
+                                          {photo.analysis.avaliacaoPorAngulo.frente}
+                                        </span>
+                                      </div>
+                                    )}
+                                    {photo.analysis.avaliacaoPorAngulo.costas && (
+                                      <div>
+                                        <span className="font-medium">Costas:</span>{" "}
+                                        <span className="text-muted-foreground">
+                                          {photo.analysis.avaliacaoPorAngulo.costas}
+                                        </span>
+                                      </div>
+                                    )}
+                                    {photo.analysis.avaliacaoPorAngulo.lateral && (
+                                      <div>
+                                        <span className="font-medium">Lateral:</span>{" "}
+                                        <span className="text-muted-foreground">
+                                          {photo.analysis.avaliacaoPorAngulo.lateral}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Training Adjustments */}
+                              {photo.analysis.ajustesSugeridosTreino && (
+                                <div className="space-y-3 p-4 bg-white rounded-lg border">
+                                  <h4 className="font-semibold text-base">AJUSTES SUGERIDOS - TREINO</h4>
+
+                                  {photo.analysis.ajustesSugeridosTreino.oqueManter?.length > 0 && (
+                                    <div>
+                                      <p className="text-sm font-medium mb-2">✅ O que está funcionando:</p>
+                                      <ul className="space-y-1 text-sm text-muted-foreground">
+                                        {photo.analysis.ajustesSugeridosTreino.oqueManter.map(
+                                          (item: string, idx: number) => (
+                                            <li key={idx}>→ {item}</li>
                                           ),
                                         )}
                                       </ul>
                                     </div>
                                   )}
-                                  {photo.analysis.feedbackTreino.intensidade && (
-                                    <p className="text-sm text-gray-700">
-                                      <strong>Intensidade:</strong> {photo.analysis.feedbackTreino.intensidade}
+
+                                  {photo.analysis.ajustesSugeridosTreino.oqueMudar?.length > 0 && (
+                                    <div className="space-y-2">
+                                      <p className="text-sm font-medium">🔄 Mudanças recomendadas:</p>
+                                      {photo.analysis.ajustesSugeridosTreino.oqueMudar.map(
+                                        (mudanca: any, idx: number) => (
+                                          <div
+                                            key={idx}
+                                            className="pl-4 border-l-2 border-primary/20 space-y-1 text-sm"
+                                          >
+                                            <p className="font-medium">{mudanca.mudanca}</p>
+                                            {mudanca.razao && (
+                                              <p className="text-muted-foreground">Por quê: {mudanca.razao}</p>
+                                            )}
+                                            {mudanca.como && (
+                                              <p className="text-muted-foreground">Como: {mudanca.como}</p>
+                                            )}
+                                          </div>
+                                        ),
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Diet Adjustments */}
+                              {photo.analysis.ajustesSugeridosDieta && (
+                                <div className="space-y-3 p-4 bg-white rounded-lg border">
+                                  <h4 className="font-semibold text-base">AJUSTES SUGERIDOS - DIETA</h4>
+
+                                  {photo.analysis.ajustesSugeridosDieta.avaliacaoAtual && (
+                                    <p className="text-sm text-muted-foreground">
+                                      {photo.analysis.ajustesSugeridosDieta.avaliacaoAtual}
+                                    </p>
+                                  )}
+
+                                  {photo.analysis.ajustesSugeridosDieta.ajustesEspecificos?.length > 0 && (
+                                    <div className="space-y-2">
+                                      {photo.analysis.ajustesSugeridosDieta.ajustesEspecificos.map(
+                                        (ajuste: any, idx: number) => (
+                                          <div
+                                            key={idx}
+                                            className="pl-4 border-l-2 border-primary/20 space-y-1 text-sm"
+                                          >
+                                            <p className="font-medium">
+                                              → {ajuste.ajuste}
+                                              {ajuste.quantidade && ` (${ajuste.quantidade})`}
+                                            </p>
+                                            {ajuste.redistribuicao && (
+                                              <p className="text-muted-foreground">
+                                                Redistribuir: {ajuste.redistribuicao}
+                                              </p>
+                                            )}
+                                            {ajuste.razao && (
+                                              <p className="text-muted-foreground">Razão: {ajuste.razao}</p>
+                                            )}
+                                          </div>
+                                        ),
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {photo.analysis.ajustesSugeridosDieta.macrosAlvo && (
+                                    <div className="p-3 bg-muted/50 rounded-lg space-y-1 text-sm">
+                                      <p className="font-medium mb-2">Macros Alvo Recomendados:</p>
+                                      {photo.analysis.ajustesSugeridosDieta.macrosAlvo.calorias && (
+                                        <p>Calorias: {photo.analysis.ajustesSugeridosDieta.macrosAlvo.calorias}</p>
+                                      )}
+                                      {photo.analysis.ajustesSugeridosDieta.macrosAlvo.proteina && (
+                                        <p>Proteína: {photo.analysis.ajustesSugeridosDieta.macrosAlvo.proteina}</p>
+                                      )}
+                                      {photo.analysis.ajustesSugeridosDieta.macrosAlvo.carboidratos && (
+                                        <p>
+                                          Carboidratos: {photo.analysis.ajustesSugeridosDieta.macrosAlvo.carboidratos}
+                                        </p>
+                                      )}
+                                      {photo.analysis.ajustesSugeridosDieta.macrosAlvo.gorduras && (
+                                        <p>Gorduras: {photo.analysis.ajustesSugeridosDieta.macrosAlvo.gorduras}</p>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Progress */}
+                              {photo.analysis.progressao && (
+                                <div className="space-y-3 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                                  <h4 className="font-semibold text-base">PROGRESSÃO</h4>
+
+                                  {photo.analysis.progressao.statusAtual && (
+                                    <p className="text-sm">{photo.analysis.progressao.statusAtual}</p>
+                                  )}
+
+                                  {photo.analysis.progressao.proximosPassos && (
+                                    <div>
+                                      <p className="text-sm font-medium">Próximos Passos:</p>
+                                      <p className="text-sm text-muted-foreground">
+                                        {photo.analysis.progressao.proximosPassos}
+                                      </p>
+                                    </div>
+                                  )}
+
+                                  {photo.analysis.progressao.expectativas && (
+                                    <div>
+                                      <p className="text-sm font-medium">O que esperar:</p>
+                                      <p className="text-sm text-muted-foreground">
+                                        {photo.analysis.progressao.expectativas}
+                                      </p>
+                                    </div>
+                                  )}
+
+                                  {photo.analysis.progressao.motivacao && (
+                                    <p className="text-sm font-medium text-primary mt-3">
+                                      💪 {photo.analysis.progressao.motivacao}
                                     </p>
                                   )}
                                 </div>
                               )}
 
-                              {photo.analysis.feedbackNutricional && (
-                                <div className="p-4 bg-white rounded-lg border">
-                                  <h4 className="font-semibold text-yellow-800 mb-2">🥗 Feedback Nutricional</h4>
-                                  {photo.analysis.feedbackNutricional.hidratacao && (
-                                    <p className="text-sm text-gray-700 mb-2">
-                                      <strong>Hidratação:</strong> {photo.analysis.feedbackNutricional.hidratacao}
-                                    </p>
-                                  )}
-                                  {photo.analysis.feedbackNutricional.ajustesCaloricos && (
-                                    <p className="text-sm text-gray-700 mb-2">
-                                      <strong>Ajustes Calóricos:</strong>{" "}
-                                      {photo.analysis.feedbackNutricional.ajustesCaloricos}
-                                    </p>
-                                  )}
-                                  {photo.analysis.feedbackNutricional.recomendacoesMacros && (
-                                    <p className="text-sm text-gray-700">
-                                      <strong>Macros:</strong> {photo.analysis.feedbackNutricional.recomendacoesMacros}
-                                    </p>
-                                  )}
-                                </div>
-                              )}
+                              {!photo.analysis.desenvolvimentoMuscular &&
+                                (photo.analysis.pontosForts || photo.analysis.areasParaMelhorar) && (
+                                  <div className="space-y-4">
+                                    {photo.analysis.resumoExecutivo && (
+                                      <div className="p-4 bg-green-50 rounded-lg">
+                                        <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
+                                          <Sparkles className="h-4 w-4" />
+                                          Resumo Executivo
+                                        </h4>
+                                        <p className="text-gray-700">{photo.analysis.resumoExecutivo}</p>
+                                      </div>
+                                    )}
 
-                              {photo.analysis.progressoObservacoes && (
-                                <div className="p-4 bg-white rounded-lg border">
-                                  <h4 className="font-semibold text-indigo-800 mb-2">📈 Progresso & Observações</h4>
-                                  {photo.analysis.progressoObservacoes.melhorias && (
-                                    <div className="mb-3">
-                                      <p className="text-sm font-medium text-gray-700 mb-1">Melhorias:</p>
-                                      <ul className="ml-4 space-y-1">
-                                        {photo.analysis.progressoObservacoes.melhorias.map(
-                                          (melhoria: string, idx: number) => (
-                                            <li key={idx} className="text-gray-600 text-sm">
-                                              ✓ {melhoria}
+                                    {photo.analysis.composicaoCorporal && (
+                                      <div className="p-4 bg-white rounded-lg border">
+                                        <h4 className="font-semibold text-blue-800 mb-2">📊 Composição Corporal</h4>
+                                        <p className="text-gray-700">
+                                          {photo.analysis.composicaoCorporal.percentualGorduraEstimado}
+                                        </p>
+                                        <p className="text-sm text-gray-600 mt-2">
+                                          {photo.analysis.composicaoCorporal.observacoes}
+                                        </p>
+                                      </div>
+                                    )}
+
+                                    {photo.analysis.pontosForts && photo.analysis.pontosForts.length > 0 && (
+                                      <div className="p-4 bg-white rounded-lg border">
+                                        <h4 className="font-semibold text-green-800 mb-2">✅ Pontos Fortes</h4>
+                                        <ul className="space-y-1">
+                                          {photo.analysis.pontosForts.map((ponto: string, idx: number) => (
+                                            <li key={idx} className="text-gray-700 text-sm">
+                                              • {ponto}
                                             </li>
-                                          ),
-                                        )}
-                                      </ul>
-                                    </div>
-                                  )}
-                                  {photo.analysis.progressoObservacoes.mensagemMotivacional && (
-                                    <p className="text-sm text-gray-700 italic border-l-2 border-green-500 pl-3">
-                                      {photo.analysis.progressoObservacoes.mensagemMotivacional}
-                                    </p>
-                                  )}
-                                </div>
-                              )}
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+
+                                    {photo.analysis.areasParaMelhorar &&
+                                      photo.analysis.areasParaMelhorar.length > 0 && (
+                                        <div className="p-4 bg-white rounded-lg border">
+                                          <h4 className="font-semibold text-orange-800 mb-2">⚠️ Áreas para Melhorar</h4>
+                                          <ul className="space-y-1">
+                                            {photo.analysis.areasParaMelhorar.map((area: string, idx: number) => (
+                                              <li key={idx} className="text-gray-700 text-sm">
+                                                • {area}
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+                                  </div>
+                                )}
                             </div>
                           ) : (
                             <div className="p-8 text-center text-gray-500">
