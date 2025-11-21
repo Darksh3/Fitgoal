@@ -231,15 +231,17 @@ const testimonials = [
   },
 ]
 
-export default function HomePage() {
+// Modified HomePage to Home as per updates
+export default function Home() {
   const router = useRouter()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [activePlan, setActivePlan] = useState<"mensal" | "trimestral" | "semestral">("trimestral")
   const [loading, setLoading] = useState(false)
+  const [showAllTestimonials, setShowAllTestimonials] = useState(false)
 
   const goToAuth = (mode: "login" | "register") => {
     router.push(`/auth?mode=${mode}`)
   }
-
-  const [showAllTestimonials, setShowAllTestimonials] = useState(false)
 
   const startQuiz = () => {
     setLoading(true)
@@ -411,7 +413,7 @@ export default function HomePage() {
               {/* Botão Principal - Quiz */}
               <button onClick={startQuiz} disabled={loading} className="group relative">
                 {/* Glow de fundo */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-lime-400 to-green-400 rounded-full blur-lg group-hover:blur-xl transition-all duration-300 opacity-50 group-hover:opacity-70" />
+                <div className="absolute -inset-1 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full blur-lg group-hover:blur-xl transition-all duration-300 opacity-50 group-hover:opacity-70" />
 
                 {/* Botão principal */}
                 <div className="relative px-6 py-3 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg flex items-center gap-3 shadow-xl hover:shadow-lime-500/40 transform hover:scale-105 transition-all duration-300">
@@ -548,18 +550,27 @@ export default function HomePage() {
       </section>
 
       {/* Planos e Preços */}
-      <section className="px-6 py-20 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+      <section className="px-6 py-20">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-5xl font-bold mb-6 text-white">ESCOLHA SEU PLANO IDEAL</h2>
+
             <p className="text-xl text-gray-400">
               Transforme seu corpo com nossos planos personalizados. Quanto mais tempo, maior o desconto!
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto items-center">
             {/* Plano Mensal */}
-            <Card className="bg-slate-800/50 border-slate-700 border-2 p-8 text-center relative hover:border-lime-500/50 transition-all duration-300">
+            <Card
+              className={`bg-slate-800/50 border-2 p-8 text-center relative cursor-pointer transition-all duration-500 ease-in-out ${
+                activePlan === "mensal"
+                  ? "border-lime-400 md:scale-105 shadow-2xl shadow-lime-500/30"
+                  : "border-slate-700 md:scale-95 hover:border-lime-500/50"
+              }`}
+              onMouseEnter={() => setActivePlan("mensal")}
+              onClick={() => setActivePlan("mensal")}
+            >
               <CardContent className="p-0">
                 <h3 className="text-3xl font-bold text-white mb-3">Mensal</h3>
                 <p className="text-gray-400 text-sm mb-6 min-h-[60px]">{plans.mensal.description}</p>
@@ -569,7 +580,7 @@ export default function HomePage() {
                   <div className="text-gray-400 text-sm">por mês</div>
                 </div>
                 <div className="bg-lime-500/20 text-lime-400 px-4 py-2 rounded-full text-xs font-bold inline-block mb-8">
-                  ECONOM/ZE 46%
+                  ECONOMIZE 46%
                 </div>
                 <ul className="space-y-4 mb-8 text-left">
                   {plans.mensal.features.map((feature, index) => (
@@ -581,7 +592,7 @@ export default function HomePage() {
                 </ul>
                 <Button
                   onClick={() => goToCheckout("mensal")}
-                  className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-colors"
+                  className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-all border-3 border-lime-400 hover:border-lime-300 hover:shadow-lg hover:shadow-lime-400/30 ring-2 ring-lime-400/50"
                 >
                   Escolher Plano
                 </Button>
@@ -589,7 +600,15 @@ export default function HomePage() {
             </Card>
 
             {/* Plano Trimestral - RECOMENDADO */}
-            <Card className="bg-gradient-to-b from-orange-500 to-orange-600 border-orange-400 border-2 p-8 text-center relative transform md:scale-105 shadow-2xl shadow-orange-500/30">
+            <Card
+              className={`bg-gradient-to-b from-orange-500 to-orange-600 border-2 p-8 text-center relative cursor-pointer transition-all duration-500 ease-in-out ${
+                activePlan === "trimestral"
+                  ? "border-orange-400 md:scale-105 shadow-2xl shadow-orange-500/30"
+                  : "border-orange-400 md:scale-95"
+              }`}
+              onMouseEnter={() => setActivePlan("trimestral")}
+              onClick={() => setActivePlan("trimestral")}
+            >
               <CardContent className="p-0">
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-white text-orange-600 px-6 py-2 rounded-full text-sm font-bold shadow-lg">
                   RECOMENDADO
@@ -614,7 +633,7 @@ export default function HomePage() {
                 </ul>
                 <Button
                   onClick={() => goToCheckout("trimestral")}
-                  className="w-full bg-white text-orange-600 hover:bg-orange-50 font-bold py-3 rounded-lg shadow-lg transition-colors"
+                  className="w-full bg-white text-orange-600 hover:bg-orange-50 font-bold py-3 rounded-lg shadow-lg transition-all border-3 border-orange-600 hover:border-orange-500 hover:shadow-xl ring-2 ring-orange-400/50"
                 >
                   Escolher Recomendado
                 </Button>
@@ -622,7 +641,15 @@ export default function HomePage() {
             </Card>
 
             {/* Plano Semestral */}
-            <Card className="bg-slate-800/50 border-purple-700 border-2 p-8 text-center relative hover:border-purple-500/50 transition-all duration-300">
+            <Card
+              className={`bg-slate-800/50 border-2 p-8 text-center relative cursor-pointer transition-all duration-500 ease-in-out ${
+                activePlan === "semestral"
+                  ? "border-purple-400 md:scale-105 shadow-2xl shadow-purple-500/30"
+                  : "border-purple-700 md:scale-95 hover:border-purple-500/50"
+              }`}
+              onMouseEnter={() => setActivePlan("semestral")}
+              onClick={() => setActivePlan("semestral")}
+            >
               <CardContent className="p-0">
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-purple-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
                   MELHOR VALOR
@@ -647,7 +674,7 @@ export default function HomePage() {
                 </ul>
                 <Button
                   onClick={() => goToCheckout("semestral")}
-                  className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-colors"
+                  className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-all border-3 border-purple-400 hover:border-purple-300 hover:shadow-lg hover:shadow-purple-400/30 ring-2 ring-purple-400/50"
                 >
                   Escolher Plano
                 </Button>
