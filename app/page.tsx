@@ -309,7 +309,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white font-['Inter',sans-serif]">
+    <div className="min-h-screen bg-gradient-to-b from-[#1a1a2e] via-[#16213e] to-[#0f1419] text-white font-['Inter',sans-serif]">
       {/* Header */}
       <header className="p-2 flex justify-between items-center">
         <div className="flex items-center">
@@ -470,7 +470,7 @@ export default function HomePage() {
       </section>
 
       {/* Estatísticas */}
-      <section className="px-6 py-16 bg-gray-800/50">
+      <section className="px-6 py-16">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
@@ -507,77 +507,81 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="bg-gray-800 border-gray-700 p-8 text-center">
-              <div className="bg-lime-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-                <User className="h-8 w-8" />
-              </div>
-              <h3 className="text-2xl font-bold mb-4 text-white">1. Quiz Personalizado</h3>
-              <p className="text-gray-300 leading-relaxed">
-                Analisamos seu biotipo, objetivos, preferências alimentares, equipamentos disponíveis, experiência e
-                muito mais
-              </p>
+              <CardContent className="p-0">
+                <div className="bg-lime-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <User className="h-8 w-8" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-white">1. Quiz Personalizado</h3>
+                <p className="text-gray-300 leading-relaxed">
+                  Analisamos seu biotipo, objetivos, preferências alimentares, equipamentos disponíveis, experiência e
+                  muito mais
+                </p>
+              </CardContent>
             </Card>
 
             <Card className="bg-gray-800 border-gray-700 p-8 text-center">
-              <div className="bg-lime-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Zap className="h-8 w-8" />
-              </div>
-              <h3 className="text-2xl font-bold mb-4 text-white">2. IA Personalizada</h3>
-              <p className="text-gray-300 leading-relaxed">
-                Nossa inteligência artificial cria treinos e dietas únicos, considerando sua rotina e limitações
-                específicas
-              </p>
+              <CardContent className="p-0">
+                <div className="bg-lime-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Zap className="h-8 w-8" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-white">2. IA Personalizada</h3>
+                <p className="text-gray-300 leading-relaxed">
+                  Nossa inteligência artificial cria treinos e dietas únicos, considerando sua rotina e limitações
+                  específicas
+                </p>
+              </CardContent>
             </Card>
 
             <Card className="bg-gray-800 border-gray-700 p-8 text-center">
-              <div className="bg-lime-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Target className="h-8 w-8" />
-              </div>
-              <h3 className="text-2xl font-bold mb-4 text-white">3. Resultados Garantidos</h3>
-              <p className="text-gray-300 leading-relaxed">
-                Receba seu plano otimizado e acompanhe sua evolução com métricas precisas e ajustes automáticos
-              </p>
+              <CardContent className="p-0">
+                <div className="bg-lime-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Target className="h-8 w-8" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-white">3. Resultados Garantidos</h3>
+                <p className="text-gray-300 leading-relaxed">
+                  Receba seu plano otimizado e acompanhe sua evolução com métricas precisas e ajustes automáticos
+                </p>
+              </CardContent>
             </Card>
           </div>
         </div>
       </section>
 
       {/* Planos e Preços */}
-      <section className="px-6 py-20 bg-gray-800">
+      <section className="px-6 py-20 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6">
-              Escolha Seu <span className="text-lime-400">Plano Ideal</span>
-            </h2>
-            <p className="text-xl text-gray-300">
+            <h2 className="text-5xl font-bold mb-6 text-white">ESCOLHA SEU PLANO IDEAL</h2>
+            <p className="text-xl text-gray-400">
               Transforme seu corpo com nossos planos personalizados. Quanto mais tempo, maior o desconto!
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {/* Plano Mensal */}
-            <Card className="bg-gray-700 border-gray-600 p-6 text-center relative hover:scale-105 transition-transform duration-300">
+            <Card className="bg-slate-800/50 border-slate-700 border-2 p-8 text-center relative hover:border-lime-500/50 transition-all duration-300">
               <CardContent className="p-0">
-                <h3 className="text-2xl font-bold text-white mb-2">Mensal</h3>
-                <p className="text-gray-400 text-sm mb-4 min-h-[40px]">{plans.mensal.description}</p>
+                <h3 className="text-3xl font-bold text-white mb-3">Mensal</h3>
+                <p className="text-gray-400 text-sm mb-6 min-h-[60px]">{plans.mensal.description}</p>
                 <div className="mb-6">
-                  <div className="text-gray-400 line-through text-lg">R$ 147,90</div>
-                  <div className="text-5xl font-bold text-lime-400 mb-1">R$ 79,90</div>
-                  <div className="text-gray-300 text-sm">por mês</div>
+                  <div className="text-gray-500 line-through text-lg mb-1">R$ 147,00</div>
+                  <div className="text-6xl font-bold text-lime-400 mb-2">R$ 79,90</div>
+                  <div className="text-gray-400 text-sm">por mês</div>
                 </div>
-                <div className="bg-lime-500/20 text-lime-400 px-3 py-1 rounded-full text-xs font-bold inline-block mb-6">
-                  ECONOMIZE 46%
+                <div className="bg-lime-500/20 text-lime-400 px-4 py-2 rounded-full text-xs font-bold inline-block mb-8">
+                  ECONOM/ZE 46%
                 </div>
-                <ul className="space-y-3 mb-8 text-left">
+                <ul className="space-y-4 mb-8 text-left">
                   {plans.mensal.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-lime-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="h-6 w-6 text-lime-400 mr-3 flex-shrink-0 mt-0.5" />
                       <span className="text-sm text-gray-300">{feature}</span>
                     </li>
                   ))}
                 </ul>
                 <Button
                   onClick={() => goToCheckout("mensal")}
-                  className="w-full bg-lime-500 hover:bg-lime-600 text-white font-bold py-3"
+                  className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-colors"
                 >
                   Escolher Plano
                 </Button>
@@ -585,32 +589,32 @@ export default function HomePage() {
             </Card>
 
             {/* Plano Trimestral - RECOMENDADO */}
-            <Card className="bg-gradient-to-b from-orange-500/20 to-orange-600/20 border-orange-500 border-2 p-6 text-center relative transform scale-105 shadow-2xl shadow-orange-500/30">
+            <Card className="bg-gradient-to-b from-orange-500 to-orange-600 border-orange-400 border-2 p-8 text-center relative transform md:scale-105 shadow-2xl shadow-orange-500/30">
               <CardContent className="p-0">
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                  ⭐ RECOMENDADO
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-white text-orange-600 px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                  RECOMENDADO
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2 mt-2">Trimestral</h3>
-                <p className="text-gray-300 text-sm mb-4 min-h-[40px]">{plans.trimestral.description}</p>
+                <h3 className="text-3xl font-bold text-white mb-3 mt-2">Trimestral</h3>
+                <p className="text-orange-100 text-sm mb-6 min-h-[60px]">{plans.trimestral.description}</p>
                 <div className="mb-6">
-                  <div className="text-gray-400 line-through text-lg">R$ 239,70</div>
-                  <div className="text-5xl font-bold text-orange-400 mb-1">R$ 194,70</div>
-                  <div className="text-gray-300 text-sm">R$ 64,90/mês</div>
+                  <div className="text-orange-200 line-through text-lg mb-1">R$ 194,0</div>
+                  <div className="text-6xl font-bold text-white mb-2">R94,70</div>
+                  <div className="text-orange-100 text-sm">R$ 64,90/mês</div>
                 </div>
-                <div className="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full text-xs font-bold inline-block mb-6">
+                <div className="bg-white/90 text-orange-600 px-4 py-2 rounded-full text-xs font-bold inline-block mb-8">
                   ECONOMIZE 19%
                 </div>
-                <ul className="space-y-3 mb-8 text-left">
+                <ul className="space-y-4 mb-8 text-left">
                   {plans.trimestral.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-orange-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-gray-300">{feature}</span>
+                      <CheckCircle className="h-6 w-6 text-orange-200 mr-3 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-white">{feature}</span>
                     </li>
                   ))}
                 </ul>
                 <Button
                   onClick={() => goToCheckout("trimestral")}
-                  className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-3 shadow-lg"
+                  className="w-full bg-white text-orange-600 hover:bg-orange-50 font-bold py-3 rounded-lg shadow-lg transition-colors"
                 >
                   Escolher Recomendado
                 </Button>
@@ -618,32 +622,32 @@ export default function HomePage() {
             </Card>
 
             {/* Plano Semestral */}
-            <Card className="bg-gray-700 border-gray-600 p-6 text-center relative hover:scale-105 transition-transform duration-300">
+            <Card className="bg-slate-800/50 border-purple-700 border-2 p-8 text-center relative hover:border-purple-500/50 transition-all duration-300">
               <CardContent className="p-0">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-purple-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
                   MELHOR VALOR
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">Semestral</h3>
-                <p className="text-gray-400 text-sm mb-4 min-h-[40px]">{plans.semestral.description}</p>
+                <h3 className="text-3xl font-bold text-white mb-3">Semestral</h3>
+                <p className="text-gray-400 text-sm mb-6 min-h-[60px]">{plans.semestral.description}</p>
                 <div className="mb-6">
-                  <div className="text-gray-400 line-through text-lg">R$ 479,40</div>
-                  <div className="text-5xl font-bold text-purple-400 mb-1">R$ 299,40</div>
-                  <div className="text-gray-300 text-sm">R$ 49,90/mês</div>
+                  <div className="text-gray-500 line-through text-lg mb-1">R$ 479,40</div>
+                  <div className="text-6xl font-bold text-purple-400 mb-2">R$ 299,40</div>
+                  <div className="text-gray-400 text-sm">R$ 49,90/mês</div>
                 </div>
-                <div className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full text-xs font-bold inline-block mb-6">
+                <div className="bg-purple-500/20 text-purple-400 px-4 py-2 rounded-full text-xs font-bold inline-block mb-8">
                   ECONOMIZE 38%
                 </div>
-                <ul className="space-y-3 mb-8 text-left">
+                <ul className="space-y-4 mb-8 text-left">
                   {plans.semestral.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-purple-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="h-6 w-6 text-purple-400 mr-3 flex-shrink-0 mt-0.5" />
                       <span className="text-sm text-gray-300">{feature}</span>
                     </li>
                   ))}
                 </ul>
                 <Button
                   onClick={() => goToCheckout("semestral")}
-                  className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3"
+                  className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-colors"
                 >
                   Escolher Plano
                 </Button>
@@ -653,7 +657,7 @@ export default function HomePage() {
 
           <div className="text-center mt-12">
             <p className="text-gray-400 text-sm">
-              ✅ Garantia de 30 dias • 🔒 Pagamento 100% seguro • 🎯 Resultados comprovados
+              Garantia de 30 dias • Pagamento 100% seguro • Resultados comprovados
             </p>
           </div>
         </div>
@@ -736,7 +740,7 @@ export default function HomePage() {
       </section>
 
       {/* Depoimentos */}
-      <section className="px-6 py-20 bg-gray-800 overflow-hidden">
+      <section className="px-6 py-20 overflow-hidden">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-16">
             O Que Nossos <span className="text-lime-400">Usuários Dizem</span>
@@ -818,51 +822,51 @@ export default function HomePage() {
       </section>
 
       {/* Garantia e Urgência */}
-      <section className="px-6 py-16 bg-gradient-to-r from-lime-500 to-lime-600">
+      <section className="px-6 py-16 border-t border-lime-500/30">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8">
-            <Award className="h-16 w-16 mx-auto mb-6" />
+          <div className="bg-lime-500/10 backdrop-blur-sm rounded-2xl p-8 border border-lime-500/30">
+            <Award className="h-16 w-16 mx-auto mb-6 text-lime-400" />
             <h2 className="text-4xl font-bold mb-6">Garantia de Resultados em 30 Dias</h2>
-            <p className="text-xl mb-8 text-white/90">
+            <p className="text-xl mb-8 text-gray-300">
               Se você não ver resultados em 30 dias seguindo nosso plano personalizado, devolvemos 100% do seu
               investimento. Sem perguntas, sem complicações.
             </p>
             <div className="grid md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white/10 rounded-lg p-4">
-                <Users className="h-8 w-8 mx-auto mb-2" />
+              <div className="bg-lime-500/10 rounded-lg p-4 border border-lime-500/30">
+                <Users className="h-8 w-8 mx-auto mb-2 text-lime-400" />
                 <p className="font-bold">18.948 Pessoas</p>
-                <p className="text-sm text-white/80">Já transformaram seus corpos</p>
+                <p className="text-sm text-gray-300">Já transformaram seus corpos</p>
               </div>
-              <div className="bg-white/10 rounded-lg p-4">
-                <CheckCircle className="h-8 w-8 mx-auto mb-2" />
+              <div className="bg-lime-500/10 rounded-lg p-4 border border-lime-500/30">
+                <CheckCircle className="h-8 w-8 mx-auto mb-2 text-lime-400" />
                 <p className="font-bold">94% de Sucesso</p>
-                <p className="text-sm text-white/80">Taxa de satisfação comprovada</p>
+                <p className="text-sm text-gray-300">Taxa de satisfação comprovada</p>
               </div>
-              <div className="bg-white/10 rounded-lg p-4">
-                <Clock className="h-8 w-8 mx-auto mb-2" />
+              <div className="bg-lime-500/10 rounded-lg p-4 border border-lime-500/30">
+                <Clock className="h-8 w-8 mx-auto mb-2 text-lime-400" />
                 <p className="font-bold">Resultados em 4 Semanas</p>
-                <p className="text-sm text-white/80">Tempo médio para ver mudanças</p>
+                <p className="text-sm text-gray-300">Tempo médio para ver mudanças</p>
               </div>
             </div>
-            <button onClick={startQuiz} disabled={loading} className="group relative">
+            <button onClick={startQuiz} className="group relative">
               {/* Glow de fundo */}
               <div className="absolute -inset-1 bg-gradient-to-r from-white/20 to-lime-200/20 rounded-full blur-lg group-hover:blur-xl transition-all duration-300 opacity-50 group-hover:opacity-70" />
 
               {/* Botão principal */}
-              <div className="relative px-12 py-6 bg-gradient-to-r from-white to-lime-100 rounded-full font-bold text-gray-900 text-2xl shadow-xl transform hover:scale-105 transition-all duration-300">
+              <div className="relative px-12 py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-2xl shadow-xl transform hover:scale-105 transition-all duration-300">
                 <span className="flex items-center gap-3">
-                  Fazer Quiz e Ver Planos
-                  <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
+                  Começar Agora - É Grátis!
+                  <ArrowRight className="inline-block ml-2 h-6 w-6" />
                 </span>
               </div>
             </button>
-            <p className="text-sm text-white/80 mt-4">⚡ Mais de 200 pessoas criaram seu plano hoje</p>
+            <p className="text-sm text-gray-300 mt-4">⚡ Mais de 200 pessoas criaram seu plano hoje</p>
           </div>
         </div>
       </section>
 
       {/* FAQ Rápido */}
-      <section className="px-6 py-16 bg-gray-800">
+      <section className="px-6 py-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">Perguntas Frequentes</h2>
           <div className="grid md:grid-cols-2 gap-8">
@@ -895,7 +899,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="px-6 py-8 bg-gray-900">
+      <footer className="px-6 py-8 border-t border-gray-700">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
             <img
