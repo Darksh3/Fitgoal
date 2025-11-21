@@ -597,8 +597,8 @@ export default function HomePage() {
                 <h3 className="text-3xl font-bold text-white mb-3 mt-2">Trimestral</h3>
                 <p className="text-orange-100 text-sm mb-6 min-h-[60px]">{plans.trimestral.description}</p>
                 <div className="mb-6">
-                  <div className="text-orange-200 line-through text-lg mb-1">R$ 194,0</div>
-                  <div className="text-6xl font-bold text-white mb-2">R94,70</div>
+                  <div className="text-orange-200 line-through text-lg mb-1">R$ 249,90</div>
+                  <div className="text-6xl font-bold text-white mb-2">R$194,70</div>
                   <div className="text-orange-100 text-sm">R$ 64,90/mês</div>
                 </div>
                 <div className="bg-white/90 text-orange-600 px-4 py-2 rounded-full text-xs font-bold inline-block mb-8">
