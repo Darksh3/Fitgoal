@@ -663,8 +663,8 @@ export default function AnaliseCorporalPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-xl font-bold text-white mb-6 text-center">Selecione o tipo de foto:</p>
-                  <div className="flex gap-4 justify-center mb-6">
+                  <p className="text-lg font-bold text-white mb-4 text-center">Selecione o tipo de foto:</p>
+                  <div className="flex gap-3 justify-center mb-4">
                     {[
                       { key: "front", label: "Frente" },
                       { key: "back", label: "Costas" },
@@ -674,7 +674,7 @@ export default function AnaliseCorporalPage() {
                         key={type.key}
                         onClick={() => setSelectedPhotoType(type.key as "front" | "back" | "side")}
                         className={`
-                          px-6 py-2 text-base font-semibold rounded-[2rem] border-[3px] transition-all
+                          px-5 py-1.5 text-sm font-semibold rounded-[2rem] border-2 transition-all
                           ${
                             selectedPhotoType === type.key
                               ? "bg-[#3B82F6] text-white border-[#60A5FA] shadow-lg shadow-blue-500/40"
@@ -691,9 +691,9 @@ export default function AnaliseCorporalPage() {
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isAnalyzing}
-                  className="w-full px-6 py-4 text-lg font-bold rounded-[2rem] bg-[#3B82F6] hover:bg-[#2563EB] text-white border-[3px] border-[#60A5FA] shadow-lg shadow-blue-600/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  className="w-full px-4 py-2.5 text-base font-bold rounded-[2rem] bg-[#3B82F6] hover:bg-[#2563EB] text-white border-2 border-[#60A5FA] shadow-lg shadow-blue-600/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
-                  <Upload className="h-5 w-5 mr-3" />
+                  <Upload className="h-4 w-4 mr-2" />
                   Adicionar Foto {getPhotoTypeLabel(selectedPhotoType)}
                 </button>
 

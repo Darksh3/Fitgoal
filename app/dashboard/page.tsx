@@ -749,7 +749,7 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-2 gap-6 mt-8">
               <Card className="bg-gray-800/50 border-gray-700">
-                <CardContent className="p-6">
+                <CardContent className="py-8 px-6">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-lime-500/20 rounded-lg flex items-center justify-center">
                       <Calendar className="h-6 w-6 text-lime-400" />
@@ -763,7 +763,7 @@ export default function DashboardPage() {
               </Card>
 
               <Card className="bg-gray-800/50 border-gray-700">
-                <CardContent className="p-6">
+                <CardContent className="py-8 px-6">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
                       <Target className="h-6 w-6 text-blue-400" />

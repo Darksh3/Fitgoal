@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { StyledButton } from "@/components/ui/styled-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -102,8 +100,6 @@ export default function ProgressoPage() {
           if (savedQuizData) {
             const parsedData = JSON.parse(savedQuizData)
             setQuizData(parsedData)
-
-            // Pre-fill weight and height from localStorage quiz data
             setMeasurements((prev) => ({
               ...prev,
               weight: parsedData.currentWeight || prev.weight,
@@ -261,16 +257,19 @@ export default function ProgressoPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center mb-6">
-          <Button variant="ghost" onClick={() => router.back()} className="mr-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+        <div className="mb-6">
+          <button
+            onClick={() => router.back()}
+            className="px-5 py-1.5 text-sm font-semibold rounded-full transition-all border-2 bg-gray-900/80 hover:bg-gray-800 text-gray-100 border-gray-600/50 flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
             Voltar
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Análise Corporal Completa</h1>
-            <p className="text-gray-600 dark:text-gray-400">Entenda seu biotipo e acompanhe suas medidas</p>
-          </div>
+          </button>
+        </div>
+
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Análise Corporal Completa</h1>
+          <p className="text-gray-600 dark:text-gray-400">Entenda seu biotipo e acompanhe suas medidas</p>
         </div>
 
         {/* Body Measurements Section */}
@@ -413,11 +412,16 @@ export default function ProgressoPage() {
               </div>
             </div>
 
-            {/* Replacing Button with StyledButton for save measurements */}
-            <StyledButton onClick={saveMeasurements} disabled={isSaving} className="w-full">
-              <Save className="h-4 w-4 mr-2" />
-              {isSaving ? "Salvando..." : "Salvar Medidas"}
-            </StyledButton>
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={saveMeasurements}
+                disabled={isSaving}
+                className="px-8 py-2.5 text-base font-semibold rounded-full transition-all border-2 bg-blue-600 hover:bg-blue-700 text-white border-blue-500 shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <Save className="h-4 w-4" />
+                {isSaving ? "Salvando..." : "Salvar Medidas"}
+              </button>
+            </div>
           </CardContent>
         </Card>
 
