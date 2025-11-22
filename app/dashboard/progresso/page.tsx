@@ -171,23 +171,36 @@ export default function ProgressoPage() {
   }
 
   const saveMeasurements = async () => {
-    if (!user) return
+    if (!user) {
+      console.log("[v0] No user logged in")
+      alert("Você precisa estar logado para salvar medidas.")
+      return
+    }
+
+    console.log("[v0] Starting save measurements for user:", user.uid)
+    console.log("[v0] Measurements to save:", measurements)
 
     setIsSaving(true)
     try {
       const measurementsRef = collection(db, "users", user.uid, "measurements")
+      console.log("[v0] Collection reference created:", `users/${user.uid}/measurements`)
+
       await addDoc(measurementsRef, {
         ...measurements,
         timestamp: new Date(),
       })
 
+      console.log("[v0] Measurements saved successfully!")
+
       // Reload history
       await loadMeasurementHistory()
 
       alert("Medidas salvas com sucesso!")
-    } catch (error) {
-      console.error("Error saving measurements:", error)
-      alert("Erro ao salvar medidas. Tente novamente.")
+    } catch (error: any) {
+      console.error("[v0] Error saving measurements:", error)
+      console.error("[v0] Error code:", error.code)
+      console.error("[v0] Error message:", error.message)
+      alert(`Erro ao salvar medidas: ${error.message}`)
     } finally {
       setIsSaving(false)
     }
