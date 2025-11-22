@@ -622,16 +622,16 @@ export default function DashboardPage() {
 
               {/* Stats overlay */}
               {quizData && (
-                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Peso Atual</div>
-                  <div className="text-xl font-bold text-gray-800 dark:text-white">{quizData.currentWeight} kg</div>
+                <div className="absolute top-4 left-4 bg-gray-800/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-gray-700">
+                  <div className="text-sm text-gray-400">Peso Atual</div>
+                  <div className="text-xl font-bold text-white">{quizData.currentWeight} kg</div>
                 </div>
               )}
 
               {quizData && (
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Meta</div>
-                  <div className="text-xl font-bold text-gray-800 dark:text-white">{quizData.targetWeight} kg</div>
+                <div className="absolute top-4 right-4 bg-gray-800/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-gray-700">
+                  <div className="text-sm text-gray-400">Meta</div>
+                  <div className="text-xl font-bold text-white">{quizData.targetWeight} kg</div>
                 </div>
               )}
             </div>
