@@ -465,9 +465,6 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       {sidebarOpen && (
         <>
-          {/* Overlay */}
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setSidebarOpen(false)} />
-
           {/* Sidebar */}
           <div className="fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg flex-col z-50 flex">
             <div className="p-6">
