@@ -646,8 +646,8 @@ export default function AnaliseCorporalPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-2xl font-semibold text-white mb-6 text-center">Selecione o tipo de foto:</p>
-                  <div className="flex gap-3 justify-center mb-8">
+                  <p className="text-3xl font-bold text-white mb-8 text-center">Selecione o tipo de foto:</p>
+                  <div className="flex gap-4 justify-center mb-8">
                     {[
                       { key: "front", label: "Frente" },
                       { key: "back", label: "Costas" },
@@ -655,12 +655,12 @@ export default function AnaliseCorporalPage() {
                     ].map((type) => (
                       <Button
                         key={type.key}
-                        variant={selectedPhotoType === type.key ? "default" : "outline"}
+                        variant="ghost"
                         onClick={() => setSelectedPhotoType(type.key as "front" | "back" | "side")}
-                        className={`px-8 py-6 text-lg font-medium rounded-full transition-all ${
+                        className={`px-12 py-7 text-xl font-semibold rounded-full transition-all border-2 ${
                           selectedPhotoType === type.key
-                            ? "bg-blue-600 hover:bg-blue-700 text-white border-2 border-blue-500"
-                            : "bg-gray-900/50 hover:bg-gray-800/70 text-gray-300 border-2 border-gray-700"
+                            ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-500 shadow-lg shadow-blue-500/50"
+                            : "bg-gray-900/80 hover:bg-gray-800 text-gray-100 border-gray-600/50"
                         }`}
                       >
                         {type.label}
@@ -671,10 +671,10 @@ export default function AnaliseCorporalPage() {
 
                 <Button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full py-8 text-xl font-semibold rounded-full bg-blue-600 hover:bg-blue-700 text-white border-none"
+                  className="w-full py-10 text-2xl font-bold rounded-[2rem] bg-blue-600 hover:bg-blue-700 text-white border-none shadow-lg shadow-blue-600/30"
                   disabled={isAnalyzing}
                 >
-                  <Upload className="h-6 w-6 mr-3" />
+                  <Upload className="h-7 w-7 mr-4" />
                   Adicionar Foto {getPhotoTypeLabel(selectedPhotoType)}
                 </Button>
 
@@ -753,7 +753,7 @@ export default function AnaliseCorporalPage() {
                   <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-2">
                     <Camera className="h-4 w-4" />📸 Dicas para melhores fotos:
                   </h4>
-                  <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                  <ul className="text-sm text-blue-700 dark:text-gray-300 space-y-1">
                     <li>• Use boa iluminação natural</li>
                     <li>• Mantenha a mesma distância da câmera</li>
                     <li>• Use roupas justas ou mínimas</li>
@@ -770,7 +770,7 @@ export default function AnaliseCorporalPage() {
               <Card className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-800 dark:to-gray-700 border-purple-200 dark:border-gray-600">
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-6 h-6 border-2 border-purple-500 dark:border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-6 h-6 border-2 border-purple-500 dark:border-purple-400 rounded-full animate-spin border-t-transparent"></div>
                     <div>
                       <p className="font-medium text-purple-800 dark:text-purple-200">
                         {isAnalyzing && "IA analisando sua foto..."}
