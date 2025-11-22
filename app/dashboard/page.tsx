@@ -7,8 +7,8 @@ import { auth, db } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { X } from "lucide-react"
 import {
   User,
   TrendingUp,
@@ -463,187 +463,134 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
-      {/* Sidebar */}
-      <div className="hidden lg:flex w-64 bg-white dark:bg-gray-800 shadow-lg flex-col">
-        <div className="p-6">
-          <div className="flex items-center space-x-3 mb-8">
-            <div className="w-10 h-10 bg-lime-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">A</span>
-            </div>
-            <span className="text-xl font-bold text-gray-800 dark:text-white">ATHLIX</span>
-            {isDemoMode && <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">DEMO</span>}
-          </div>
+      {sidebarOpen && (
+        <>
+          {/* Overlay */}
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setSidebarOpen(false)} />
 
-          <nav className="space-y-2">
-            <button
-              onClick={() => router.push("/dashboard/analise-corporal")}
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-            >
-              <User className="h-5 w-5" />
-              <span>Análise Corporal</span>
-            </button>
-            <button
-              onClick={() => router.push("/dashboard/progresso")}
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-            >
-              <TrendingUp className="h-5 w-5" />
-              <span>Progresso</span>
-            </button>
-            <button
-              onClick={() => router.push("/dashboard/dados")}
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-            >
-              <Database className="h-5 w-5" />
-              <span>Dados</span>
-            </button>
-            <button
-              onClick={handleOpenChat}
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-            >
-              <MessageCircle className="h-5 w-5" />
-              <span>Chat com IA</span>
-            </button>
-            <button
-              onClick={() =>
-                window.open("https://wa.me/5511999999999?text=Olá! Preciso de ajuda com meu plano fitness.", "_blank")
-              }
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-            >
-              <Phone className="h-5 w-5" />
-              <span>Entre em contato</span>
-            </button>
-            <button
-              onClick={() => router.push("/dashboard/assinatura")}
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-            >
-              <CreditCard className="h-5 w-5" />
-              <span>Assinaturas</span>
-            </button>
-          </nav>
-
-          {/* Theme toggle before logout button */}
-          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 space-y-2">
-            <div className="flex items-center justify-between px-4 py-3">
-              <span className="text-sm text-gray-700 dark:text-gray-300">Tema</span>
-              <ThemeToggle />
-            </div>
-            <Button
-              onClick={handleSignOut}
-              variant="ghost"
-              className="w-full justify-start text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <LogOut className="h-5 w-5 mr-3" />
-              {isDemoMode ? "Sair do Demo" : "Sair"}
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Sidebar */}
-      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="sm" className="lg:hidden fixed top-4 left-4 z-50">
-            <Menu className="h-5 w-5" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-64">
-          <SheetHeader>
-            <SheetTitle className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-lime-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">A</span>
+          {/* Sidebar */}
+          <div className="fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg flex-col z-50 flex">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-lime-500 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">A</span>
+                  </div>
+                  <span className="text-xl font-bold text-gray-800 dark:text-white">ATHLIX</span>
+                  {isDemoMode && (
+                    <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">DEMO</span>
+                  )}
+                </div>
+                <button
+                  onClick={() => setSidebarOpen(false)}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                >
+                  <X className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                </button>
               </div>
-              <span className="text-xl font-bold text-gray-800 dark:text-white">ATHLIX</span>
-              {isDemoMode && <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">DEMO</span>}
-            </SheetTitle>
-          </SheetHeader>
 
-          <div className="mt-6">
-            <nav className="space-y-2">
-              <button
-                onClick={() => {
-                  setSidebarOpen(false)
-                  router.push("/dashboard/analise-corporal")
-                }}
-                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-              >
-                <User className="h-5 w-5" />
-                <span>Análise Corporal</span>
-              </button>
-              <button
-                onClick={() => {
-                  setSidebarOpen(false)
-                  router.push("/dashboard/progresso")
-                }}
-                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-              >
-                <TrendingUp className="h-5 w-5" />
-                <span>Progresso</span>
-              </button>
-              <button
-                onClick={() => {
-                  setSidebarOpen(false)
-                  router.push("/dashboard/dados")
-                }}
-                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-              >
-                <Database className="h-5 w-5" />
-                <span>Dados</span>
-              </button>
-              <button
-                onClick={handleOpenChat}
-                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-              >
-                <MessageCircle className="h-5 w-5" />
-                <span>Chat com IA</span>
-              </button>
-              <button
-                onClick={() => {
-                  setSidebarOpen(false)
-                  window.open("https://wa.me/5511999999999?text=Olá! Preciso de ajuda com meu plano fitness.", "_blank")
-                }}
-                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-              >
-                <Phone className="h-5 w-5" />
-                <span>Entre em contato</span>
-              </button>
-              <button
-                onClick={() => {
-                  setSidebarOpen(false)
-                  router.push("/dashboard/assinatura")
-                }}
-                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-              >
-                <CreditCard className="h-5 w-5" />
-                <span>Assinaturas</span>
-              </button>
-            </nav>
+              <nav className="space-y-2">
+                <button
+                  onClick={() => {
+                    setSidebarOpen(false)
+                    router.push("/dashboard/analise-corporal")
+                  }}
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
+                >
+                  <User className="h-5 w-5" />
+                  <span>Análise Corporal</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setSidebarOpen(false)
+                    router.push("/dashboard/progresso")
+                  }}
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
+                >
+                  <TrendingUp className="h-5 w-5" />
+                  <span>Progresso</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setSidebarOpen(false)
+                    router.push("/dashboard/dados")
+                  }}
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
+                >
+                  <Database className="h-5 w-5" />
+                  <span>Dados</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setSidebarOpen(false)
+                    handleOpenChat()
+                  }}
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  <span>Chat com IA</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setSidebarOpen(false)
+                    window.open(
+                      "https://wa.me/5511999999999?text=Olá! Preciso de ajuda com meu plano fitness.",
+                      "_blank",
+                    )
+                  }}
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
+                >
+                  <Phone className="h-5 w-5" />
+                  <span>Entre em contato</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setSidebarOpen(false)
+                    router.push("/dashboard/assinatura")
+                  }}
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
+                >
+                  <CreditCard className="h-5 w-5" />
+                  <span>Assinaturas</span>
+                </button>
+              </nav>
 
-            {/* Theme toggle in mobile sidebar */}
-            <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 space-y-2">
-              <div className="flex items-center justify-between px-4 py-3">
-                <span className="text-sm text-gray-700 dark:text-gray-300">Tema</span>
-                <ThemeToggle />
+              <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                <div className="flex items-center justify-between px-4 py-3">
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Tema</span>
+                  <ThemeToggle />
+                </div>
+                <Button
+                  onClick={() => {
+                    setSidebarOpen(false)
+                    handleSignOut()
+                  }}
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <LogOut className="h-5 w-5 mr-3" />
+                  {isDemoMode ? "Sair do Demo" : "Sair"}
+                </Button>
               </div>
-              <Button
-                onClick={() => {
-                  setSidebarOpen(false)
-                  handleSignOut()
-                }}
-                variant="ghost"
-                className="w-full justify-start text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                <LogOut className="h-5 w-5 mr-3" />
-                {isDemoMode ? "Sair do Demo" : "Sair"}
-              </Button>
             </div>
           </div>
-        </SheetContent>
-      </Sheet>
+        </>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 p-6 lg:p-8 bg-white dark:bg-gray-800">
-        {/* Header */}
-        <div className="mb-8 mt-12 lg:mt-0">
+        <div className="flex items-center justify-between mb-8">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            <Menu className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+          </Button>
+        </div>
+
+        <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
             {currentTime}, {getUserName()}!
           </h1>
