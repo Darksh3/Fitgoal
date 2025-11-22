@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Aplicar a fonte Inter globalmente */
 body {
   font-family: "Inter", sans-serif;
 }
@@ -14,7 +13,6 @@ body {
   }
 }
 
-/* Moving design tokens to @theme for Tailwind v4 compatibility */
 @theme {
   --color-background: hsl(0 0% 100%);
   --color-foreground: hsl(0 0% 3.9%);
@@ -115,7 +113,6 @@ body {
 }
 
 @theme inline {
-  /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -156,16 +153,13 @@ body {
 
 @layer base {
   * {
-    /* Removed @apply border-border which is not valid in Tailwind v4 */
     border-color: hsl(var(--border));
   }
   body {
-    /* Using direct CSS instead of @apply for compatibility */
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
 
-  /* Force dark background on html, body and root to eliminate white strip */
   html {
     background-color: #111827 !important;
     min-height: 100vh;
@@ -186,7 +180,6 @@ body {
   }
 }
 
-/* Adding shine animation keyframes for professional button effects */
 @keyframes shine {
   0% {
     transform: translateX(-100%) skewX(-12deg);
@@ -198,4 +191,56 @@ body {
 
 .animate-shine {
   animation: shine 1.5s ease-out;
+}
+
+/* Custom slider styles for weight tracker */
+input[type="range"].slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="range"].slider-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: rgb(59 130 246);
+  border: 3px solid white;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+  transition: all 0.2s ease;
+}
+
+input[type="range"].slider-thumb::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
+}
+
+input[type="range"].slider-thumb::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: rgb(59 130 246);
+  border: 3px solid white;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+  transition: all 0.2s ease;
+}
+
+input[type="range"].slider-thumb::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
+}
+
+input[type="range"].slider-thumb:focus {
+  outline: none;
+}
+
+input[type="range"].slider-thumb:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+input[type="range"].slider-thumb:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
 }

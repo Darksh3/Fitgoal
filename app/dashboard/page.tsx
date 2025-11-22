@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { onAuthStateChanged, signOut } from "firebase/auth"
 import { auth, db } from "@/lib/firebaseClient"
-import { doc, getDoc } from "firebase/firestore"
+import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -73,6 +73,8 @@ export default function DashboardPage() {
   const [currentTime, setCurrentTime] = useState("")
   const [isDemoMode, setIsDemoMode] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [currentWeightSlider, setCurrentWeightSlider] = useState<number>(0)
+  const [isSaving, setIsSaving] = useState(false)
   const [progressData, setProgressData] = useState({
     consecutiveDays: 0,
     completedWorkouts: 0,
@@ -87,12 +89,10 @@ export default function DashboardPage() {
   })
 
   useEffect(() => {
-    // Verificar se está em modo demo
     const demoMode = localStorage.getItem("demoMode")
     if (demoMode === "true") {
       setIsDemoMode(true)
       setLoading(false)
-      // Carregar dados do quiz do localStorage (for demo mode only)
       const savedQuizData = localStorage.getItem("quizData")
       if (savedQuizData) {
         setQuizData(JSON.parse(savedQuizData))
@@ -100,7 +100,6 @@ export default function DashboardPage() {
       return
     }
 
-    // Verificação normal de autenticação
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       console.log("[v0] Usuário autenticado:", user ? user.uid : "anonymous")
       if (user) {
@@ -115,7 +114,6 @@ export default function DashboardPage() {
       setLoading(false)
     })
 
-    // Atualizar horário
     const updateTime = () => {
       const now = new Date()
       const hour = now.getHours()
@@ -126,7 +124,7 @@ export default function DashboardPage() {
     }
 
     updateTime()
-    const interval = setInterval(updateTime, 60000) // Atualiza a cada minuto
+    const interval = setInterval(updateTime, 60000)
 
     return () => {
       unsubscribe()
@@ -134,10 +132,15 @@ export default function DashboardPage() {
     }
   }, [router])
 
+  useEffect(() => {
+    if (quizData?.currentWeight) {
+      setCurrentWeightSlider(Number.parseFloat(quizData.currentWeight))
+    }
+  }, [quizData])
+
   const loadQuizDataAndGeneratePlans = async (user: any) => {
     let foundQuizData = null
 
-    // Try to load from Firestore first
     if (db) {
       try {
         const userDocRef = doc(db, "users", user.uid)
@@ -155,7 +158,6 @@ export default function DashboardPage() {
             console.log("[v0] Diet plan loaded:", data.dietPlan)
           }
 
-          // Check if plans exist, if not generate them
           if (foundQuizData && (!data.dietPlan || !data.workoutPlan)) {
             console.log("[v0] Planos não encontrados, gerando automaticamente...")
             await generatePlans(user.uid)
@@ -168,7 +170,6 @@ export default function DashboardPage() {
       }
     }
 
-    // Fallback to localStorage if no data found in Firestore
     if (!foundQuizData) {
       const savedQuizData = localStorage.getItem("quizData")
       if (savedQuizData) {
@@ -214,7 +215,6 @@ export default function DashboardPage() {
       }
       setProgressData(progress)
     } else {
-      // Para novos usuários, inicializar com valores zerados
       const initialProgress = {
         consecutiveDays: 0,
         completedWorkouts: 0,
@@ -235,7 +235,6 @@ export default function DashboardPage() {
   const handleSignOut = async () => {
     try {
       if (isDemoMode) {
-        // Limpar modo demo
         localStorage.removeItem("demoMode")
         localStorage.removeItem("quizData")
         router.push("/")
@@ -250,7 +249,6 @@ export default function DashboardPage() {
 
   const handleOpenChat = () => {
     setSidebarOpen(false)
-    // Disparar evento para abrir o chat flutuante
     window.dispatchEvent(new Event("openFloatingChat"))
   }
 
@@ -386,6 +384,38 @@ export default function DashboardPage() {
     return goalMap[quizData.goal[0]] || quizData.goal[0]
   }
 
+  const handleWeightChange = async (newWeight: number) => {
+    setCurrentWeightSlider(newWeight)
+
+    if (isSaving) return
+
+    setIsSaving(true)
+
+    try {
+      if (user && db) {
+        const userDocRef = doc(db, "users", user.uid)
+        await updateDoc(userDocRef, {
+          "quizData.currentWeight": newWeight.toString(),
+        })
+        console.log("[v0] Peso atualizado com sucesso:", newWeight)
+
+        setQuizData((prev) => (prev ? { ...prev, currentWeight: newWeight.toString() } : null))
+      } else if (isDemoMode) {
+        const savedQuizData = localStorage.getItem("quizData")
+        if (savedQuizData) {
+          const parsed = JSON.parse(savedQuizData)
+          parsed.currentWeight = newWeight.toString()
+          localStorage.setItem("quizData", JSON.stringify(parsed))
+          setQuizData((prev) => (prev ? { ...prev, currentWeight: newWeight.toString() } : null))
+        }
+      }
+    } catch (error) {
+      console.error("[v0] Erro ao salvar peso:", error)
+    } finally {
+      setTimeout(() => setIsSaving(false), 500)
+    }
+  }
+
   useEffect(() => {
     if (dietPlan) {
       const calories = (() => {
@@ -464,117 +494,110 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-900 text-white flex">
       {sidebarOpen && (
-        <>
-          {/* Sidebar */}
-          <div className="fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg flex-col z-50 flex">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-lime-500 rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">A</span>
-                  </div>
-                  <span className="text-xl font-bold text-gray-800 dark:text-white">ATHLIX</span>
-                  {isDemoMode && (
-                    <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">DEMO</span>
-                  )}
+        <div className="fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg flex-col z-50 flex">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-lime-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">A</span>
                 </div>
-                <button
-                  onClick={() => setSidebarOpen(false)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-                >
-                  <X className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                </button>
+                <span className="text-xl font-bold text-gray-800 dark:text-white">ATHLIX</span>
+                {isDemoMode && (
+                  <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">DEMO</span>
+                )}
               </div>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+              >
+                <X className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              </button>
+            </div>
 
-              <nav className="space-y-2">
-                <button
-                  onClick={() => {
-                    setSidebarOpen(false)
-                    router.push("/dashboard/analise-corporal")
-                  }}
-                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-                >
-                  <User className="h-5 w-5" />
-                  <span>Análise Corporal</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setSidebarOpen(false)
-                    router.push("/dashboard/progresso")
-                  }}
-                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-                >
-                  <TrendingUp className="h-5 w-5" />
-                  <span>Progresso</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setSidebarOpen(false)
-                    router.push("/dashboard/dados")
-                  }}
-                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-                >
-                  <Database className="h-5 w-5" />
-                  <span>Dados</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setSidebarOpen(false)
-                    handleOpenChat()
-                  }}
-                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-                >
-                  <MessageCircle className="h-5 w-5" />
-                  <span>Chat com IA</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setSidebarOpen(false)
-                    window.open(
-                      "https://wa.me/5511999999999?text=Olá! Preciso de ajuda com meu plano fitness.",
-                      "_blank",
-                    )
-                  }}
-                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-                >
-                  <Phone className="h-5 w-5" />
-                  <span>Entre em contato</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setSidebarOpen(false)
-                    router.push("/dashboard/assinatura")
-                  }}
-                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
-                >
-                  <CreditCard className="h-5 w-5" />
-                  <span>Assinaturas</span>
-                </button>
-              </nav>
+            <nav className="space-y-2">
+              <button
+                onClick={() => {
+                  setSidebarOpen(false)
+                  router.push("/dashboard/analise-corporal")
+                }}
+                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
+              >
+                <User className="h-5 w-5" />
+                <span>Análise Corporal</span>
+              </button>
+              <button
+                onClick={() => {
+                  setSidebarOpen(false)
+                  router.push("/dashboard/progresso")
+                }}
+                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
+              >
+                <TrendingUp className="h-5 w-5" />
+                <span>Progresso</span>
+              </button>
+              <button
+                onClick={() => {
+                  setSidebarOpen(false)
+                  router.push("/dashboard/dados")
+                }}
+                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
+              >
+                <Database className="h-5 w-5" />
+                <span>Dados</span>
+              </button>
+              <button
+                onClick={() => {
+                  setSidebarOpen(false)
+                  handleOpenChat()
+                }}
+                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
+              >
+                <MessageCircle className="h-5 w-5" />
+                <span>Chat com IA</span>
+              </button>
+              <button
+                onClick={() => {
+                  setSidebarOpen(false)
+                  window.open("https://wa.me/5511999999999?text=Olá! Preciso de ajuda com meu plano fitness.", "_blank")
+                }}
+                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
+              >
+                <Phone className="h-5 w-5" />
+                <span>Entre em contato</span>
+              </button>
+              <button
+                onClick={() => {
+                  setSidebarOpen(false)
+                  router.push("/dashboard/assinatura")
+                }}
+                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
+              >
+                <CreditCard className="h-5 w-5" />
+                <span>Assinaturas</span>
+              </button>
+            </nav>
 
-              <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 space-y-2">
-                <div className="flex items-center justify-between px-4 py-3">
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Tema</span>
-                  <ThemeToggle />
-                </div>
-                <Button
-                  onClick={() => {
-                    setSidebarOpen(false)
-                    handleSignOut()
-                  }}
-                  variant="ghost"
-                  className="w-full justify-start text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  <LogOut className="h-5 w-5 mr-3" />
-                  {isDemoMode ? "Sair do Demo" : "Sair"}
-                </Button>
+            <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 space-y-2">
+              <div className="flex items-center justify-between px-4 py-3">
+                <span className="text-sm text-gray-700 dark:text-gray-300">Tema</span>
+                <ThemeToggle />
               </div>
+              <Button
+                onClick={() => {
+                  setSidebarOpen(false)
+                  handleSignOut()
+                }}
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <LogOut className="h-5 w-5 mr-3" />
+                {isDemoMode ? "Sair do Demo" : "Sair"}
+              </Button>
             </div>
           </div>
-        </>
+        </div>
       )}
 
-      {/* Main Content */}
       <div className="flex-1 p-6 lg:p-8 bg-gray-900 dark:bg-gray-900 min-h-screen">
         <div className="mb-8">
           <Button
@@ -599,35 +622,84 @@ export default function DashboardPage() {
 
           {quizData && (
             <div className="mb-12 bg-gray-800/50 border border-gray-700 rounded-lg p-8">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4">
                 <div className="text-center">
                   <p className="text-sm text-gray-400 mb-1">Peso Inicial</p>
-                  <p className="text-2xl font-bold text-white">{quizData.currentWeight} kg</p>
+                  <p className="text-2xl font-bold text-gray-500">{quizData.currentWeight} kg</p>
                 </div>
-                <div className="flex-1 mx-8">
-                  <div className="relative h-2 bg-gray-700 rounded-full">
-                    <div
-                      className="absolute h-2 bg-gradient-to-r from-blue-500 to-green-500 rounded-full"
-                      style={{
-                        width: `${
-                          ((quizData.currentWeight - quizData.currentWeight) /
-                            (quizData.targetWeight - quizData.currentWeight)) *
-                          100
-                        }%`,
-                      }}
-                    ></div>
-                  </div>
+                <div className="text-center">
+                  <p className="text-sm text-gray-400 mb-1">Peso Atual</p>
+                  <p className="text-3xl font-bold text-white">{currentWeightSlider.toFixed(1)} kg</p>
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-gray-400 mb-1">Meta</p>
-                  <p className="text-2xl font-bold text-white">{quizData.targetWeight} kg</p>
+                  <p className="text-2xl font-bold text-green-400">{quizData.targetWeight} kg</p>
                 </div>
+              </div>
+
+              <div className="relative">
+                <input
+                  type="range"
+                  min={
+                    Math.min(Number.parseFloat(quizData.currentWeight), Number.parseFloat(quizData.targetWeight)) - 10
+                  }
+                  max={
+                    Math.max(Number.parseFloat(quizData.currentWeight), Number.parseFloat(quizData.targetWeight)) + 10
+                  }
+                  step="0.1"
+                  value={currentWeightSlider}
+                  onChange={(e) => handleWeightChange(Number.parseFloat(e.target.value))}
+                  className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb"
+                  style={{
+                    background: `linear-gradient(to right, 
+                      rgb(59 130 246) 0%, 
+                      rgb(59 130 246) ${
+                        ((currentWeightSlider -
+                          (Math.min(
+                            Number.parseFloat(quizData.currentWeight),
+                            Number.parseFloat(quizData.targetWeight),
+                          ) -
+                            10)) /
+                          (Math.max(
+                            Number.parseFloat(quizData.currentWeight),
+                            Number.parseFloat(quizData.targetWeight),
+                          ) +
+                            10 -
+                            (Math.min(
+                              Number.parseFloat(quizData.currentWeight),
+                              Number.parseFloat(quizData.targetWeight),
+                            ) -
+                              10))) *
+                        100
+                      }%, 
+                      rgb(55 65 81) ${
+                        ((currentWeightSlider -
+                          (Math.min(
+                            Number.parseFloat(quizData.currentWeight),
+                            Number.parseFloat(quizData.targetWeight),
+                          ) -
+                            10)) /
+                          (Math.max(
+                            Number.parseFloat(quizData.currentWeight),
+                            Number.parseFloat(quizData.targetWeight),
+                          ) +
+                            10 -
+                            (Math.min(
+                              Number.parseFloat(quizData.currentWeight),
+                              Number.parseFloat(quizData.targetWeight),
+                            ) -
+                              10))) *
+                        100
+                      }%, 
+                      rgb(55 65 81) 100%)`,
+                  }}
+                />
+                {isSaving && <p className="text-xs text-blue-400 text-center mt-2">Salvando...</p>}
               </div>
             </div>
           )}
 
           <div className="space-y-6">
-            {/* Dieta Card */}
             <Card
               className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-all"
               onClick={() => router.push("/dashboard/dieta")}
@@ -652,7 +724,6 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Treino Card */}
             <Card
               className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-all"
               onClick={() => router.push("/dashboard/treino")}
@@ -679,7 +750,6 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Resumo Card */}
             <Card
               className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-all"
               onClick={() => router.push("/dashboard/resumo")}
@@ -701,7 +771,6 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Quick Stats */}
             <div className="grid grid-cols-2 gap-6 mt-8">
               <Card className="bg-gray-800/50 border-gray-700">
                 <CardContent className="p-6">
