@@ -646,8 +646,8 @@ export default function AnaliseCorporalPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-3xl font-bold text-white mb-8 text-center">Selecione o tipo de foto:</p>
-                  <div className="flex gap-4 justify-center mb-8">
+                  <p className="text-2xl font-bold text-white mb-6 text-center">Selecione o tipo de foto:</p>
+                  <div className="flex gap-4 justify-center mb-6">
                     {[
                       { key: "front", label: "Frente" },
                       { key: "back", label: "Costas" },
@@ -657,7 +657,7 @@ export default function AnaliseCorporalPage() {
                         key={type.key}
                         onClick={() => setSelectedPhotoType(type.key as "front" | "back" | "side")}
                         className={`
-                          px-12 py-4 text-2xl font-semibold rounded-[2rem] border-[3px] transition-all
+                          px-8 py-3 text-lg font-semibold rounded-[2rem] border-[3px] transition-all
                           ${
                             selectedPhotoType === type.key
                               ? "bg-[#3B82F6] text-white border-[#60A5FA] shadow-lg shadow-blue-500/40"
@@ -673,10 +673,10 @@ export default function AnaliseCorporalPage() {
 
                 <Button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full py-10 text-2xl font-bold rounded-[2rem] bg-blue-600 hover:bg-blue-700 text-white border-none shadow-lg shadow-blue-600/30"
+                  className="w-full py-7 text-xl font-bold rounded-[2rem] bg-blue-600 hover:bg-blue-700 text-white border-none shadow-lg shadow-blue-600/30"
                   disabled={isAnalyzing}
                 >
-                  <Upload className="h-7 w-7 mr-4" />
+                  <Upload className="h-6 w-6 mr-3" />
                   Adicionar Foto {getPhotoTypeLabel(selectedPhotoType)}
                 </Button>
 
