@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import { StyledButton } from "@/components/ui/styled-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -343,23 +342,33 @@ export default function DadosPage() {
         )}
 
         <div className="flex items-center mb-6">
-          <Button variant="ghost" onClick={() => router.back()} className="mr-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+          <button
+            onClick={() => router.back()}
+            className="mr-4 px-5 py-1.5 text-sm font-semibold rounded-full transition-all border-2 bg-gray-900/80 hover:bg-gray-800 text-gray-100 border-gray-600/50"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2 inline" />
             Voltar
-          </Button>
+          </button>
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Meus Dados</h1>
             <p className="text-gray-600 dark:text-gray-400">Gerencie suas informações pessoais</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleSync} disabled={isSyncing}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${isSyncing ? "animate-spin" : ""}`} />
+            <button
+              onClick={handleSync}
+              disabled={isSyncing}
+              className="px-5 py-1.5 text-sm font-semibold rounded-full transition-all border-2 bg-blue-600 hover:bg-blue-700 text-white border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 inline ${isSyncing ? "animate-spin" : ""}`} />
               Sincronizar
-            </Button>
-            <Button variant="outline" onClick={() => setIsEditing(!isEditing)}>
-              <Edit className="h-4 w-4 mr-2" />
+            </button>
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="px-5 py-1.5 text-sm font-semibold rounded-full transition-all border-2 bg-gray-900/80 hover:bg-gray-800 text-gray-100 border-gray-600/50"
+            >
+              <Edit className="h-4 w-4 mr-2 inline" />
               {isEditing ? "Cancelar" : "Editar"}
-            </Button>
+            </button>
           </div>
         </div>
 

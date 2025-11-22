@@ -2,19 +2,19 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, Crown } from "lucide-react"
+import { CheckCircle, Crown, ChevronDown, ChevronUp } from "lucide-react"
 
 interface PaymentOptionsProps {
   initialName?: string
   initialEmail?: string
-  quizAnswers?: any // Adicionando prop para quizAnswers
+  quizAnswers?: any
 }
 
 export default function PaymentOptions({ initialName = "", initialEmail = "", quizAnswers }: PaymentOptionsProps) {
   const router = useRouter()
-  const [selectedPlan, setSelectedPlan] = useState("trimestral") // Default to trimestral
+  const [selectedPlan, setSelectedPlan] = useState("trimestral")
+  const [expandedCard, setExpandedCard] = useState<string | null>(null)
   const [name, setName] = useState(initialName)
   const [email, setEmail] = useState(initialEmail)
 
@@ -34,10 +34,11 @@ export default function PaymentOptions({ initialName = "", initialEmail = "", qu
       savings: 50.0,
       color: "lime",
       features: ["Treino personalizado", "Dieta personalizada", "Suporte via chat"],
+      extraDetails: ["Acesso completo ao app", "Atualizações semanais", "Chat com suporte técnico"],
     },
     trimestral: {
       name: "Plano Trimestral",
-      priceId: "price_1SPs2cPRgKqdJdqNbiXZYLhI", // Updated to new Stripe Price ID for trimestral plan
+      priceId: "price_1SPs2cPRgKqdJdqNbiXZYLhI",
       originalPrice: 97.9,
       price: 67.9,
       period: "mês",
@@ -46,10 +47,15 @@ export default function PaymentOptions({ initialName = "", initialEmail = "", qu
       color: "orange",
       popular: true,
       features: ["Tudo do plano mensal", "Ajustes mensais do plano", "Relatórios de progresso"],
+      extraDetails: [
+        "Revisão mensal com especialista",
+        "Gráficos de evolução detalhados",
+        "Ajustes de treino ilimitados",
+      ],
     },
     semestral: {
       name: "Plano Semestral",
-      priceId: "price_1SPrzGPRgKqdJdqNNLfhAYNo", // Updated to new Stripe Price ID for semestral plan
+      priceId: "price_1SPrzGPRgKqdJdqNNLfhAYNo",
       originalPrice: 77.9,
       price: 47.9,
       period: "mês",
@@ -58,6 +64,7 @@ export default function PaymentOptions({ initialName = "", initialEmail = "", qu
       color: "purple",
       bestValue: true,
       features: ["Tudo dos planos anteriores", "Consultoria nutricional", "Suporte prioritário"],
+      extraDetails: ["Consultoria 2x por mês", "Plano alimentar personalizado", "Resposta prioritária em até 2h"],
     },
     anual: {
       name: "Plano Anual",
@@ -70,6 +77,12 @@ export default function PaymentOptions({ initialName = "", initialEmail = "", qu
       color: "yellow",
       premium: true,
       features: ["Tudo dos planos anteriores", "Acompanhamento pessoal", "Acesso vitalício"],
+      extraDetails: [
+        "Personal trainer dedicado",
+        "Videoconferências mensais",
+        "Acesso a conteúdo exclusivo",
+        "Garantia de satisfação",
+      ],
     },
     "anual-teste": {
       name: "Anual Teste",
@@ -79,8 +92,9 @@ export default function PaymentOptions({ initialName = "", initialEmail = "", qu
       period: "ano",
       total: 1.0,
       savings: 0.0,
-      color: "blue", // Cor para o plano de teste
+      color: "blue",
       features: ["Acesso completo por 1 ano", "Ideal para testes e demonstrações"],
+      extraDetails: ["Todas as funcionalidades premium", "Suporte completo"],
     },
   }
 
@@ -99,14 +113,18 @@ export default function PaymentOptions({ initialName = "", initialEmail = "", qu
       const queryParams = new URLSearchParams({
         plan: planKey,
         email: email,
-        quizAnswers: encodeURIComponent(JSON.stringify(quizAnswers)), // Passa quizAnswers
+        quizAnswers: encodeURIComponent(JSON.stringify(quizAnswers)),
       }).toString()
       router.push(`/checkout?${queryParams}`)
     }
   }
 
+  const toggleExpand = (planKey: string) => {
+    setExpandedCard(expandedCard === planKey ? null : planKey)
+  }
+
   return (
-    <div className="w-full max-w-6xl mx-auto p-4 md:p-8">
+    <div className="w-full max-w-7xl mx-auto p-4 md:p-8">
       <h1 className="text-4xl font-bold text-center text-white mb-10">Escolha seu Plano FitGoal</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         {Object.entries(plans).map(([key, plan]) => (
@@ -114,7 +132,7 @@ export default function PaymentOptions({ initialName = "", initialEmail = "", qu
             key={key}
             className={`bg-gray-800 border-2 ${
               selectedPlan === key ? `border-${plan.color}-500` : "border-gray-700 hover:border-gray-600"
-            } transition-all duration-200 flex flex-col`}
+            } transition-all duration-300 flex flex-col ${expandedCard === key ? "row-span-2" : ""}`}
           >
             <CardHeader className="relative pb-4">
               {plan.popular && (
@@ -133,49 +151,85 @@ export default function PaymentOptions({ initialName = "", initialEmail = "", qu
                   PREMIUM
                 </span>
               )}
-              <CardTitle className="text-white text-center text-2xl font-bold mb-2">{plan.name}</CardTitle>
+              <CardTitle className="text-white text-center text-xl font-bold mb-2">{plan.name}</CardTitle>
               {plan.savings > 0 && (
                 <p
-                  className={`text-center text-sm font-semibold ${plan.color === "yellow" ? "text-yellow-400" : `text-${plan.color}-400`}`}
+                  className={`text-center text-xs font-semibold ${plan.color === "yellow" ? "text-yellow-400" : `text-${plan.color}-400`}`}
                 >
                   ECONOMIZE {Math.round((plan.savings / plan.originalPrice) * 100)}%
                 </p>
               )}
               <div className="text-center mt-2">
                 {plan.originalPrice > plan.price && (
-                  <span className="text-gray-400 line-through text-lg mr-2">
+                  <span className="text-gray-400 line-through text-sm mr-2">
                     {formatCurrency(plan.originalPrice)}/{plan.period}
                   </span>
                 )}
-                <span
-                  className={`text-4xl font-bold ${plan.color === "yellow" ? "text-yellow-400" : `text-${plan.color}-400`}`}
-                >
-                  {formatCurrency(plan.price)}
-                </span>
-                <span className="text-gray-300">/{plan.period}</span>
+                <div>
+                  <span
+                    className={`text-3xl font-bold ${plan.color === "yellow" ? "text-yellow-400" : `text-${plan.color}-400`}`}
+                  >
+                    {formatCurrency(plan.price)}
+                  </span>
+                  <span className="text-gray-300 text-sm">/{plan.period}</span>
+                </div>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col justify-between pt-4">
-              <ul className="space-y-2 mb-6">
-                {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-center text-gray-300 text-sm">
-                    <CheckCircle
-                      className={`h-4 w-4 mr-2 flex-shrink-0 ${plan.color === "yellow" ? "text-yellow-500" : `text-${plan.color}-500`}`}
-                    />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <Button
+            <CardContent className="flex-1 flex flex-col justify-between pt-2">
+              <div className="space-y-4 mb-4">
+                <ul className="space-y-2">
+                  {plan.features.map((feature, index) => (
+                    <li key={index} className="flex items-start text-gray-300 text-sm">
+                      <CheckCircle
+                        className={`h-4 w-4 mr-2 flex-shrink-0 mt-0.5 ${plan.color === "yellow" ? "text-yellow-500" : `text-${plan.color}-500`}`}
+                      />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                {expandedCard === key && plan.extraDetails && (
+                  <div className="pt-3 border-t border-gray-700">
+                    <p className="text-gray-400 text-xs font-semibold mb-2">Detalhes adicionais:</p>
+                    <ul className="space-y-2">
+                      {plan.extraDetails.map((detail, index) => (
+                        <li key={index} className="flex items-start text-gray-400 text-xs">
+                          <CheckCircle
+                            className={`h-3 w-3 mr-2 flex-shrink-0 mt-0.5 ${plan.color === "yellow" ? "text-yellow-500/50" : `text-${plan.color}-500/50`}`}
+                          />
+                          {detail}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <button
+                  onClick={() => toggleExpand(key)}
+                  className="w-full flex items-center justify-center text-gray-400 hover:text-gray-300 text-xs py-2 transition-colors"
+                >
+                  {expandedCard === key ? (
+                    <>
+                      Ver menos <ChevronUp className="h-3 w-3 ml-1" />
+                    </>
+                  ) : (
+                    <>
+                      Ver mais detalhes <ChevronDown className="h-3 w-3 ml-1" />
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <button
                 onClick={() => handleSelectPlan(key)}
-                className={`w-full py-3 text-lg font-bold rounded-full ${
+                className={`w-full py-2.5 text-base font-bold rounded-full transition-all border-2 ${
                   selectedPlan === key
-                    ? `bg-${plan.color}-500 hover:bg-${plan.color}-600 text-white`
-                    : "bg-gray-700 hover:bg-gray-600 text-white"
-                } ${plan.color === "yellow" ? "text-black" : ""}`}
+                    ? `${plan.color === "yellow" ? "bg-yellow-500 border-yellow-400 text-black" : `bg-${plan.color}-500 border-${plan.color}-400 text-white`}`
+                    : "bg-gray-900/80 border-gray-600 text-gray-100 hover:bg-gray-800"
+                }`}
               >
                 {selectedPlan === key ? "Plano Selecionado" : "Selecionar Plano"}
-              </Button>
+              </button>
             </CardContent>
           </Card>
         ))}
