@@ -646,8 +646,8 @@ export default function AnaliseCorporalPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Selecione o tipo de foto:</p>
-                  <div className="flex space-x-3">
+                  <p className="text-2xl font-semibold text-white mb-6 text-center">Selecione o tipo de foto:</p>
+                  <div className="flex gap-3 justify-center mb-8">
                     {[
                       { key: "front", label: "Frente" },
                       { key: "back", label: "Costas" },
@@ -657,7 +657,11 @@ export default function AnaliseCorporalPage() {
                         key={type.key}
                         variant={selectedPhotoType === type.key ? "default" : "outline"}
                         onClick={() => setSelectedPhotoType(type.key as "front" | "back" | "side")}
-                        className="flex-1"
+                        className={`px-8 py-6 text-lg font-medium rounded-full transition-all ${
+                          selectedPhotoType === type.key
+                            ? "bg-blue-600 hover:bg-blue-700 text-white border-2 border-blue-500"
+                            : "bg-gray-900/50 hover:bg-gray-800/70 text-gray-300 border-2 border-gray-700"
+                        }`}
                       >
                         {type.label}
                       </Button>
@@ -667,11 +671,10 @@ export default function AnaliseCorporalPage() {
 
                 <Button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full"
+                  className="w-full py-8 text-xl font-semibold rounded-full bg-blue-600 hover:bg-blue-700 text-white border-none"
                   disabled={isAnalyzing}
-                  variant="outline"
                 >
-                  <Upload className="h-4 w-4 mr-2" />
+                  <Upload className="h-6 w-6 mr-3" />
                   Adicionar Foto {getPhotoTypeLabel(selectedPhotoType)}
                 </Button>
 
