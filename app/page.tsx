@@ -592,7 +592,7 @@ export default function Home() {
                 </ul>
                 <Button
                   onClick={() => goToCheckout("mensal")}
-                  className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-all border-3 border-lime-400 hover:border-lime-300 hover:shadow-lg hover:shadow-lime-400/30 ring-2 ring-lime-400/50"
+                  className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-all border-2 border-lime-400 hover:border-lime-300 hover:shadow-lg hover:shadow-lime-400/30"
                 >
                   Escolher Plano
                 </Button>
@@ -633,9 +633,9 @@ export default function Home() {
                 </ul>
                 <Button
                   onClick={() => goToCheckout("trimestral")}
-                  className="w-full bg-white text-orange-600 hover:bg-orange-50 font-bold py-3 rounded-lg shadow-lg transition-all border-3 border-orange-600 hover:border-orange-500 hover:shadow-xl ring-2 ring-orange-400/50"
+                  className="w-full bg-white text-orange-600 hover:bg-orange-50 font-bold py-3 rounded-lg shadow-lg transition-all border-2 border-orange-600 hover:border-orange-500 hover:shadow-xl"
                 >
-                  Escolher Recomendado
+                  Escolher Plano
                 </Button>
               </CardContent>
             </Card>
@@ -674,7 +674,7 @@ export default function Home() {
                 </ul>
                 <Button
                   onClick={() => goToCheckout("semestral")}
-                  className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-all border-3 border-purple-400 hover:border-purple-300 hover:shadow-lg hover:shadow-purple-400/30 ring-2 ring-purple-400/50"
+                  className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-all border-2 border-purple-400 hover:border-purple-300 hover:shadow-lg hover:shadow-purple-400/30"
                 >
                   Escolher Plano
                 </Button>

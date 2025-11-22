@@ -3,11 +3,12 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { onAuthStateChanged, signOut } from "firebase/auth"
-import { auth, db } from "@/lib/firebaseClient" // Import db
-import { doc, getDoc } from "firebase/firestore" // Import doc and getDoc
+import { auth, db } from "@/lib/firebaseClient"
+import { doc, getDoc } from "firebase/firestore"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { ThemeToggle } from "@/components/theme-toggle"
 import {
   User,
   TrendingUp,
@@ -461,43 +462,43 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       {/* Sidebar */}
-      <div className="hidden lg:flex w-64 bg-white shadow-lg flex-col">
+      <div className="hidden lg:flex w-64 bg-white dark:bg-gray-800 shadow-lg flex-col">
         <div className="p-6">
           <div className="flex items-center space-x-3 mb-8">
             <div className="w-10 h-10 bg-lime-500 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">A</span>
             </div>
-            <span className="text-xl font-bold text-gray-800">ATHLIX</span>
+            <span className="text-xl font-bold text-gray-800 dark:text-white">ATHLIX</span>
             {isDemoMode && <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">DEMO</span>}
           </div>
 
           <nav className="space-y-2">
             <button
               onClick={() => router.push("/dashboard/analise-corporal")}
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors w-full text-left"
+              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
             >
               <User className="h-5 w-5" />
               <span>Análise Corporal</span>
             </button>
             <button
               onClick={() => router.push("/dashboard/progresso")}
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors w-full text-left"
+              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
             >
               <TrendingUp className="h-5 w-5" />
               <span>Progresso</span>
             </button>
             <button
               onClick={() => router.push("/dashboard/dados")}
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors w-full text-left"
+              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
             >
               <Database className="h-5 w-5" />
               <span>Dados</span>
             </button>
             <button
               onClick={handleOpenChat}
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors w-full text-left"
+              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
             >
               <MessageCircle className="h-5 w-5" />
               <span>Chat com IA</span>
@@ -506,25 +507,30 @@ export default function DashboardPage() {
               onClick={() =>
                 window.open("https://wa.me/5511999999999?text=Olá! Preciso de ajuda com meu plano fitness.", "_blank")
               }
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors w-full text-left"
+              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
             >
               <Phone className="h-5 w-5" />
               <span>Entre em contato</span>
             </button>
             <button
               onClick={() => router.push("/dashboard/assinatura")}
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors w-full text-left"
+              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
             >
               <CreditCard className="h-5 w-5" />
               <span>Assinaturas</span>
             </button>
           </nav>
 
-          <div className="mt-8 pt-8 border-t border-gray-200">
+          {/* Theme toggle before logout button */}
+          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 space-y-2">
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-sm text-gray-700 dark:text-gray-300">Tema</span>
+              <ThemeToggle />
+            </div>
             <Button
               onClick={handleSignOut}
               variant="ghost"
-              className="w-full justify-start text-gray-700 hover:bg-gray-100"
+              className="w-full justify-start text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <LogOut className="h-5 w-5 mr-3" />
               {isDemoMode ? "Sair do Demo" : "Sair"}
@@ -546,7 +552,7 @@ export default function DashboardPage() {
               <div className="w-10 h-10 bg-lime-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">A</span>
               </div>
-              <span className="text-xl font-bold text-gray-800">ATHLIX</span>
+              <span className="text-xl font-bold text-gray-800 dark:text-white">ATHLIX</span>
               {isDemoMode && <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">DEMO</span>}
             </SheetTitle>
           </SheetHeader>
@@ -558,7 +564,7 @@ export default function DashboardPage() {
                   setSidebarOpen(false)
                   router.push("/dashboard/analise-corporal")
                 }}
-                className="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors w-full text-left"
+                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
               >
                 <User className="h-5 w-5" />
                 <span>Análise Corporal</span>
@@ -568,7 +574,7 @@ export default function DashboardPage() {
                   setSidebarOpen(false)
                   router.push("/dashboard/progresso")
                 }}
-                className="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors w-full text-left"
+                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
               >
                 <TrendingUp className="h-5 w-5" />
                 <span>Progresso</span>
@@ -578,14 +584,14 @@ export default function DashboardPage() {
                   setSidebarOpen(false)
                   router.push("/dashboard/dados")
                 }}
-                className="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors w-full text-left"
+                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
               >
                 <Database className="h-5 w-5" />
                 <span>Dados</span>
               </button>
               <button
                 onClick={handleOpenChat}
-                className="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors w-full text-left"
+                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
               >
                 <MessageCircle className="h-5 w-5" />
                 <span>Chat com IA</span>
@@ -595,7 +601,7 @@ export default function DashboardPage() {
                   setSidebarOpen(false)
                   window.open("https://wa.me/5511999999999?text=Olá! Preciso de ajuda com meu plano fitness.", "_blank")
                 }}
-                className="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors w-full text-left"
+                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
               >
                 <Phone className="h-5 w-5" />
                 <span>Entre em contato</span>
@@ -605,21 +611,26 @@ export default function DashboardPage() {
                   setSidebarOpen(false)
                   router.push("/dashboard/assinatura")
                 }}
-                className="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors w-full text-left"
+                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
               >
                 <CreditCard className="h-5 w-5" />
                 <span>Assinaturas</span>
               </button>
             </nav>
 
-            <div className="mt-8 pt-8 border-t border-gray-200">
+            {/* Theme toggle in mobile sidebar */}
+            <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 space-y-2">
+              <div className="flex items-center justify-between px-4 py-3">
+                <span className="text-sm text-gray-700 dark:text-gray-300">Tema</span>
+                <ThemeToggle />
+              </div>
               <Button
                 onClick={() => {
                   setSidebarOpen(false)
                   handleSignOut()
                 }}
                 variant="ghost"
-                className="w-full justify-start text-gray-700 hover:bg-gray-100"
+                className="w-full justify-start text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <LogOut className="h-5 w-5 mr-3" />
                 {isDemoMode ? "Sair do Demo" : "Sair"}
@@ -630,13 +641,13 @@ export default function DashboardPage() {
       </Sheet>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 lg:p-8 bg-white">
+      <div className="flex-1 p-6 lg:p-8 bg-white dark:bg-gray-800">
         {/* Header */}
         <div className="mb-8 mt-12 lg:mt-0">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
             {currentTime}, {getUserName()}!
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             {isDemoMode ? "Bem-vindo ao modo demonstração" : "Vamos continuar sua jornada fitness hoje"}
           </p>
         </div>
@@ -665,15 +676,15 @@ export default function DashboardPage() {
               {/* Stats overlay */}
               {quizData && (
                 <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-                  <div className="text-sm text-gray-600">Peso Atual</div>
-                  <div className="text-xl font-bold text-gray-800">{quizData.currentWeight} kg</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Peso Atual</div>
+                  <div className="text-xl font-bold text-gray-800 dark:text-white">{quizData.currentWeight} kg</div>
                 </div>
               )}
 
               {quizData && (
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-                  <div className="text-sm text-gray-600">Meta</div>
-                  <div className="text-xl font-bold text-gray-800">{quizData.targetWeight} kg</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Meta</div>
+                  <div className="text-xl font-bold text-gray-800 dark:text-white">{quizData.targetWeight} kg</div>
                 </div>
               )}
             </div>
@@ -687,7 +698,7 @@ export default function DashboardPage() {
               onClick={() => router.push("/dashboard/dieta")}
             >
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2 text-gray-800">
+                <CardTitle className="flex items-center space-x-2 text-gray-800 dark:text-white">
                   <Utensils className="h-5 w-5 text-orange-500" />
                   <span>Dieta</span>
                 </CardTitle>
@@ -702,14 +713,16 @@ export default function DashboardPage() {
                       }}
                     ></div>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Calorias consumidas hoje: {progressData.caloriesConsumed} / {getDisplayTotals().calories}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">
                     Proteínas: {getDisplayTotals().protein} | Carboidratos: {getDisplayTotals().carbs} | Gorduras:{" "}
                     {getDisplayTotals().fats}
                   </p>
-                  <p className="text-xs text-blue-600 font-medium">Clique para ver sua dieta completa →</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-500 font-medium">
+                    Clique para ver sua dieta completa →
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -720,7 +733,7 @@ export default function DashboardPage() {
               onClick={() => router.push("/dashboard/treino")}
             >
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2 text-gray-800">
+                <CardTitle className="flex items-center space-x-2 text-gray-800 dark:text-white">
                   <Dumbbell className="h-5 w-5 text-blue-500" />
                   <span>Treino</span>
                 </CardTitle>
@@ -730,13 +743,15 @@ export default function DashboardPage() {
                   <div className="h-2 bg-gray-200 rounded-full">
                     <div className="h-2 bg-blue-500 rounded-full w-1/2"></div>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Próximo: Treino de {quizData?.experience === "iniciante" ? "Iniciante" : "Intermediário"}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">
                     Duração: {quizData?.workoutTime || "30-45 minutos"} | Foco: {getMainGoal()}
                   </p>
-                  <p className="text-xs text-blue-600 font-medium">Clique para ver seu treino completo →</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-500 font-medium">
+                    Clique para ver seu treino completo →
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -747,7 +762,7 @@ export default function DashboardPage() {
               onClick={() => router.push("/dashboard/resumo")}
             >
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2 text-gray-800">
+                <CardTitle className="flex items-center space-x-2 text-gray-800 dark:text-white">
                   <BarChart3 className="h-5 w-5 text-green-500" />
                   <span>Resumo</span>
                 </CardTitle>
@@ -760,11 +775,15 @@ export default function DashboardPage() {
                       style={{ width: `${progressData.overallProgress}%` }}
                     ></div>
                   </div>
-                  <p className="text-sm text-gray-600">Progresso geral: {progressData.overallProgress}%</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Progresso geral: {progressData.overallProgress}%
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-300">
                     {quizData?.timeToGoal ? `Meta até: ${quizData.timeToGoal}` : "Continue seguindo seu plano!"}
                   </p>
-                  <p className="text-xs text-blue-600 font-medium">Clique para ver informações completas →</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-500 font-medium">
+                    Clique para ver informações completas →
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -774,12 +793,12 @@ export default function DashboardPage() {
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-lime-100 rounded-lg flex items-center justify-center">
-                      <Calendar className="h-5 w-5 text-lime-600" />
+                    <div className="w-10 h-10 bg-lime-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                      <Calendar className="h-5 w-5 text-lime-600 dark:text-white" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">Dias consecutivos</p>
-                      <p className="text-xl font-bold text-gray-800">{progressData.consecutiveDays}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Dias consecutivos</p>
+                      <p className="text-xl font-bold text-gray-800 dark:text-white">{progressData.consecutiveDays}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -788,12 +807,12 @@ export default function DashboardPage() {
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Target className="h-5 w-5 text-blue-600" />
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                      <Target className="h-5 w-5 text-blue-600 dark:text-white" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">Metas atingidas</p>
-                      <p className="text-xl font-bold text-gray-800">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Metas atingidas</p>
+                      <p className="text-xl font-bold text-gray-800 dark:text-white">
                         {progressData.goalsAchieved}/{progressData.totalGoals}
                       </p>
                     </div>

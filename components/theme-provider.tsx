@@ -14,14 +14,32 @@ const ThemeContext = React.createContext<{
   theme: string
   setTheme: (theme: string) => void
 }>({
-  theme: "light",
+  theme: "dark",
   setTheme: () => {},
 })
 
-export function ThemeProvider({ children, defaultTheme = "light", ...props }: ThemeProviderProps) {
+export function ThemeProvider({ children, defaultTheme = "dark", attribute = "class", ...props }: ThemeProviderProps) {
   const [theme, setTheme] = React.useState(defaultTheme)
+  const [mounted, setMounted] = React.useState(false)
 
-  return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>
+  React.useEffect(() => {
+    setMounted(true)
+    const savedTheme = localStorage.getItem("theme") || defaultTheme
+    setTheme(savedTheme)
+    document.documentElement.classList.toggle("dark", savedTheme === "dark")
+  }, [defaultTheme])
+
+  const handleSetTheme = React.useCallback((newTheme: string) => {
+    setTheme(newTheme)
+    localStorage.setItem("theme", newTheme)
+    document.documentElement.classList.toggle("dark", newTheme === "dark")
+  }, [])
+
+  if (!mounted) {
+    return <>{children}</>
+  }
+
+  return <ThemeContext.Provider value={{ theme, setTheme: handleSetTheme }}>{children}</ThemeContext.Provider>
 }
 
 export const useTheme = () => React.useContext(ThemeContext)
