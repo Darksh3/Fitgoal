@@ -73,6 +73,7 @@ export default function DashboardPage() {
   const [currentTime, setCurrentTime] = useState("")
   const [isDemoMode, setIsDemoMode] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [initialWeight, setInitialWeight] = useState<number>(0)
   const [currentWeightSlider, setCurrentWeightSlider] = useState<number>(0)
   const [isSaving, setIsSaving] = useState(false)
   const [progressData, setProgressData] = useState({
@@ -134,7 +135,13 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (quizData?.currentWeight) {
-      setCurrentWeightSlider(Number.parseFloat(quizData.currentWeight))
+      const currentW = Number.parseFloat(quizData.currentWeight)
+      setCurrentWeightSlider(currentW)
+
+      // Se não temos peso inicial salvo, usar o currentWeight como inicial
+      if (initialWeight === 0) {
+        setInitialWeight(currentW)
+      }
     }
   }, [quizData])
 
@@ -625,7 +632,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between mb-4">
                 <div className="text-center">
                   <p className="text-sm text-gray-400 mb-1">Peso Inicial</p>
-                  <p className="text-2xl font-bold text-gray-500">{quizData.currentWeight} kg</p>
+                  <p className="text-2xl font-bold text-gray-500">{initialWeight.toFixed(1)} kg</p>
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-gray-400 mb-1">Peso Atual</p>
@@ -640,12 +647,8 @@ export default function DashboardPage() {
               <div className="relative">
                 <input
                   type="range"
-                  min={
-                    Math.min(Number.parseFloat(quizData.currentWeight), Number.parseFloat(quizData.targetWeight)) - 10
-                  }
-                  max={
-                    Math.max(Number.parseFloat(quizData.currentWeight), Number.parseFloat(quizData.targetWeight)) + 10
-                  }
+                  min={Math.min(initialWeight, Number.parseFloat(quizData.targetWeight)) - 10}
+                  max={Math.max(initialWeight, Number.parseFloat(quizData.targetWeight)) + 10}
                   step="0.1"
                   value={currentWeightSlider}
                   onChange={(e) => handleWeightChange(Number.parseFloat(e.target.value))}
@@ -655,40 +658,18 @@ export default function DashboardPage() {
                       rgb(59 130 246) 0%, 
                       rgb(59 130 246) ${
                         ((currentWeightSlider -
-                          (Math.min(
-                            Number.parseFloat(quizData.currentWeight),
-                            Number.parseFloat(quizData.targetWeight),
-                          ) -
-                            10)) /
-                          (Math.max(
-                            Number.parseFloat(quizData.currentWeight),
-                            Number.parseFloat(quizData.targetWeight),
-                          ) +
+                          (Math.min(initialWeight, Number.parseFloat(quizData.targetWeight)) - 10)) /
+                          (Math.max(initialWeight, Number.parseFloat(quizData.targetWeight)) +
                             10 -
-                            (Math.min(
-                              Number.parseFloat(quizData.currentWeight),
-                              Number.parseFloat(quizData.targetWeight),
-                            ) -
-                              10))) *
+                            (Math.min(initialWeight, Number.parseFloat(quizData.targetWeight)) - 10))) *
                         100
                       }%, 
                       rgb(55 65 81) ${
                         ((currentWeightSlider -
-                          (Math.min(
-                            Number.parseFloat(quizData.currentWeight),
-                            Number.parseFloat(quizData.targetWeight),
-                          ) -
-                            10)) /
-                          (Math.max(
-                            Number.parseFloat(quizData.currentWeight),
-                            Number.parseFloat(quizData.targetWeight),
-                          ) +
+                          (Math.min(initialWeight, Number.parseFloat(quizData.targetWeight)) - 10)) /
+                          (Math.max(initialWeight, Number.parseFloat(quizData.targetWeight)) +
                             10 -
-                            (Math.min(
-                              Number.parseFloat(quizData.currentWeight),
-                              Number.parseFloat(quizData.targetWeight),
-                            ) -
-                              10))) *
+                            (Math.min(initialWeight, Number.parseFloat(quizData.targetWeight)) - 10))) *
                         100
                       }%, 
                       rgb(55 65 81) 100%)`,
