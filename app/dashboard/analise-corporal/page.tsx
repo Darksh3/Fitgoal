@@ -10,7 +10,7 @@ import { collection, query, where, orderBy, onSnapshot, doc, getDoc, deleteDoc }
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
 import {
   ArrowLeft,
   Upload,
@@ -606,10 +606,13 @@ export default function AnaliseCorporalPage() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center mb-6">
-          <Button variant="ghost" onClick={() => router.back()} className="mr-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+          <button
+            onClick={() => router.back()}
+            className="mr-4 px-6 py-2.5 rounded-full bg-gray-800/80 hover:bg-gray-700 text-white border-2 border-gray-600/50 transition-all flex items-center gap-2 font-medium"
+          >
+            <ArrowLeft className="h-4 w-4" />
             Voltar
-          </Button>
+          </button>
           <div>
             <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Análise Corporal Profissional</h1>
             <p className="text-gray-600 dark:text-gray-400">
@@ -620,16 +623,30 @@ export default function AnaliseCorporalPage() {
 
         {/* Tabs for Upload and History */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
-            <TabsTrigger value="upload" className="flex items-center gap-2">
+          <div className="flex gap-4 max-w-md">
+            <button
+              onClick={() => setActiveTab("upload")}
+              className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all border-2 flex items-center justify-center gap-2 ${
+                activeTab === "upload"
+                  ? "bg-[#3B82F6] hover:bg-blue-600 text-white border-[#3B82F6] shadow-lg shadow-blue-500/30"
+                  : "bg-[#0f121a] hover:bg-gray-800 text-white border-gray-600/50"
+              }`}
+            >
               <Camera className="h-4 w-4" />
               Nova Foto
-            </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
+            </button>
+            <button
+              onClick={() => setActiveTab("history")}
+              className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all border-2 flex items-center justify-center gap-2 ${
+                activeTab === "history"
+                  ? "bg-[#3B82F6] hover:bg-blue-600 text-white border-[#3B82F6] shadow-lg shadow-blue-500/30"
+                  : "bg-[#0f121a] hover:bg-gray-800 text-white border-gray-600/50"
+              }`}
+            >
               <History className="h-4 w-4" />
               Histórico ({photos.length})
-            </TabsTrigger>
-          </TabsList>
+            </button>
+          </div>
 
           {/* Upload Tab */}
           <TabsContent value="upload" className="space-y-6">
@@ -1049,13 +1066,12 @@ export default function AnaliseCorporalPage() {
                     </Card>
                   ))}
                 </div>
-                <Button
-                  variant="outline"
-                  className="w-full mt-4 bg-transparent"
+                <button
                   onClick={() => setActiveTab("history")}
+                  className="w-full mt-4 px-6 py-3 rounded-full bg-[#3B82F6] hover:bg-blue-600 text-white border-2 border-[#3B82F6] shadow-lg shadow-blue-500/30 font-semibold transition-all"
                 >
                   Ver Histórico Completo
-                </Button>
+                </button>
               </div>
             )}
           </TabsContent>
