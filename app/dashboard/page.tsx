@@ -135,12 +135,13 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (quizData?.currentWeight) {
-      const currentW = Number.parseFloat(quizData.currentWeight)
-      setCurrentWeightSlider(currentW)
+      const initialW = Number.parseFloat(quizData.currentWeight)
+      setInitialWeight(initialW)
 
-      // Se não temos peso inicial salvo, usar o currentWeight como inicial
-      if (initialWeight === 0) {
-        setInitialWeight(currentW)
+      // Peso atual do slider deve começar no peso inicial
+      // Só atualiza se ainda não foi modificado pelo usuário
+      if (currentWeightSlider === 0) {
+        setCurrentWeightSlider(initialW)
       }
     }
   }, [quizData])
@@ -393,31 +394,25 @@ export default function DashboardPage() {
 
   const handleWeightChange = async (newWeight: number) => {
     setCurrentWeightSlider(newWeight)
-
-    if (isSaving) return
-
     setIsSaving(true)
 
     try {
-      if (user && db) {
+      if (!isDemoMode && user && db) {
         const userDocRef = doc(db, "users", user.uid)
         await updateDoc(userDocRef, {
-          "quizData.currentWeight": newWeight.toString(),
+          "quizData.updatedWeight": newWeight,
+          lastWeightUpdate: new Date().toISOString(),
         })
-        console.log("[v0] Peso atualizado com sucesso:", newWeight)
-
-        setQuizData((prev) => (prev ? { ...prev, currentWeight: newWeight.toString() } : null))
-      } else if (isDemoMode) {
+      } else {
         const savedQuizData = localStorage.getItem("quizData")
         if (savedQuizData) {
-          const parsed = JSON.parse(savedQuizData)
-          parsed.currentWeight = newWeight.toString()
-          localStorage.setItem("quizData", JSON.stringify(parsed))
-          setQuizData((prev) => (prev ? { ...prev, currentWeight: newWeight.toString() } : null))
+          const data = JSON.parse(savedQuizData)
+          data.updatedWeight = newWeight
+          localStorage.setItem("quizData", JSON.stringify(data))
         }
       }
     } catch (error) {
-      console.error("[v0] Erro ao salvar peso:", error)
+      console.error("Erro ao salvar peso:", error)
     } finally {
       setTimeout(() => setIsSaving(false), 500)
     }
