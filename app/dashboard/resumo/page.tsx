@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { StyledButton } from "@/components/ui/styled-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -404,10 +405,10 @@ export default function ResumoPage() {
                 </div>
 
                 {isEditing && (
-                  <Button onClick={handleSaveMeasurements} className="w-full">
+                  <StyledButton onClick={handleSaveMeasurements} className="w-full">
                     <Save className="h-4 w-4 mr-2" />
                     Salvar Medidas
-                  </Button>
+                  </StyledButton>
                 )}
 
                 <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { StyledButton } from "@/components/ui/styled-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -327,7 +328,7 @@ export default function DadosPage() {
                   continuar.
                 </p>
               </div>
-              <Button
+              <StyledButton
                 variant="outline"
                 size="sm"
                 onClick={handleCleanup}
@@ -336,7 +337,7 @@ export default function DadosPage() {
               >
                 <Trash2 className={`h-4 w-4 mr-2 ${isCleaningUp ? "animate-spin" : ""}`} />
                 {isCleaningUp ? "Limpando..." : "Limpar Dados"}
-              </Button>
+              </StyledButton>
             </div>
           </div>
         )}
@@ -505,10 +506,10 @@ export default function DadosPage() {
                 </div>
 
                 {isEditing && (
-                  <Button onClick={handleSave} className="w-full" disabled={isSyncing}>
+                  <StyledButton onClick={handleSave} className="w-full" disabled={isSyncing}>
                     <Save className="h-4 w-4 mr-2" />
                     {isSyncing ? "Salvando..." : "Salvar Dados"}
-                  </Button>
+                  </StyledButton>
                 )}
               </CardContent>
             </Card>

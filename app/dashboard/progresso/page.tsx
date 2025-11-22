@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { StyledButton } from "@/components/ui/styled-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -412,10 +413,11 @@ export default function ProgressoPage() {
               </div>
             </div>
 
-            <Button onClick={saveMeasurements} disabled={isSaving} className="w-full">
+            {/* Replacing Button with StyledButton for save measurements */}
+            <StyledButton onClick={saveMeasurements} disabled={isSaving} className="w-full">
               <Save className="h-4 w-4 mr-2" />
               {isSaving ? "Salvando..." : "Salvar Medidas"}
-            </Button>
+            </StyledButton>
           </CardContent>
         </Card>
 

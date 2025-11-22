@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Clock, RefreshCw, Replace, Download, Plus, RotateCcw, Trash2 } from "lucide-react"
 import ProtectedRoute from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
+import { StyledButton } from "@/components/ui/styled-button"
 import { useRouter } from "next/navigation"
 import type { Meal, DietPlan } from "@/types"
 
@@ -1609,16 +1610,22 @@ export default function DietPage() {
 
           {dietPlan && (
             <div className="mb-6 flex gap-4">
-              <Button onClick={() => setShowAddFoodModal(true)} className="bg-lime-500 hover:bg-lime-600 text-white">
+              <StyledButton
+                onClick={() => setShowAddFoodModal(true)}
+                className="bg-lime-500 hover:bg-lime-600 text-white border-lime-500"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Adicionar Alimento
-              </Button>
+              </StyledButton>
 
               {(manualAdjustments.addedFoods.length > 0 || manualAdjustments.removedFoods.length > 0) && (
-                <Button onClick={() => setManualAdjustments({ addedFoods: [], removedFoods: [] })} variant="outline">
+                <StyledButton
+                  onClick={() => setManualAdjustments({ addedFoods: [], removedFoods: [] })}
+                  variant="outline"
+                >
                   <RotateCcw className="h-4 w-4 mr-2" />
                   Resetar Alterações
-                </Button>
+                </StyledButton>
               )}
             </div>
           )}
@@ -1713,12 +1720,12 @@ export default function DietPage() {
                 </div>
 
                 <div className="flex gap-2 mt-6">
-                  <Button onClick={handleAddFood} className="flex-1">
+                  <StyledButton onClick={handleAddFood} className="flex-1">
                     Adicionar
-                  </Button>
-                  <Button onClick={() => setShowAddFoodModal(false)} variant="outline" className="flex-1">
+                  </StyledButton>
+                  <StyledButton onClick={() => setShowAddFoodModal(false)} variant="outline" className="flex-1">
                     Cancelar
-                  </Button>
+                  </StyledButton>
                 </div>
               </div>
             </div>
@@ -1840,12 +1847,12 @@ export default function DietPage() {
                 </div>
 
                 <div className="flex gap-2 mt-6">
-                  <Button onClick={handleEditFood} className="flex-1">
+                  <StyledButton onClick={handleEditFood} className="flex-1">
                     Salvar Alterações
-                  </Button>
-                  <Button onClick={() => setEditingFood(null)} variant="outline" className="flex-1">
+                  </StyledButton>
+                  <StyledButton onClick={() => setEditingFood(null)} variant="outline" className="flex-1">
                     Cancelar
-                  </Button>
+                  </StyledButton>
                 </div>
               </div>
             </div>

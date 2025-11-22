@@ -1,15 +1,17 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { auth, db } from "@/lib/firebaseClient"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download } from "lucide-react"
-import ProtectedRoute from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
+import { StyledButton } from "@/components/ui/styled-button"
+import ProtectedRoute from "@/components/protected-route"
 import dynamic from "next/dynamic"
+import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download } from "lucide-react"
 
 const html2pdf = dynamic(() => import("html2pdf.js"), { ssr: false })
 
@@ -137,6 +139,7 @@ export default function TreinoPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [actualTrainingFrequency, setActualTrainingFrequency] = useState<string>("Carregando...")
   const [isRegenerating, setIsRegenerating] = useState(false)
+  const router = useRouter()
 
   const detectAndCleanInconsistentData = async (data: any, currentUserEmail: string) => {
     const hasInconsistentData =
@@ -555,9 +558,11 @@ export default function TreinoPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
             <Dumbbell className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Plano de Treino Não Encontrado</h2>
-            <p className="text-gray-600 mb-6">Parece que você ainda não tem um plano de treino personalizado.</p>
-            <Button onClick={() => (window.location.href = "/quiz")} className="mt-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Plano de Treino Não Encontrado</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Parece que você ainda não tem um plano de treino personalizado.
+            </p>
+            <Button onClick={() => router.push("/quiz")} className="mt-4">
               Fazer Quiz Gratuito
             </Button>
           </div>
@@ -635,14 +640,14 @@ export default function TreinoPage() {
                       {(userData as any)?.quizData?.trainingDaysPerWeek || 0} dias no quiz.
                     </p>
                   </div>
-                  <Button
+                  <StyledButton
                     onClick={generatePlans}
                     disabled={isRegenerating}
-                    variant="outline"
-                    className="border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900/30 bg-transparent"
+                    variant="secondary"
+                    className="border-orange-300"
                   >
                     {isRegenerating ? "Regenerando..." : "Regenerar Plano"}
-                  </Button>
+                  </StyledButton>
                 </div>
               </CardContent>
             </Card>
@@ -656,7 +661,7 @@ export default function TreinoPage() {
                     <Dumbbell className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
                     {day.title || day.day} - {day.focus}
                   </CardTitle>
-                  <CardDescription>Duração: {day.duration}</CardDescription>
+                  {/* Removed CardDescription import and usage */}
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
