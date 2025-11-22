@@ -302,25 +302,27 @@ export default function DadosPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando seus dados...</p>
+          <p className="text-gray-600 dark:text-gray-300">Carregando seus dados...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-4xl mx-auto">
         {hasOldData && (
-          <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <div className="mb-6 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
             <div className="flex items-center space-x-2">
-              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              <AlertTriangle className="h-5 w-5 text-orange-500 dark:text-orange-400" />
               <div className="flex-1">
-                <h3 className="font-medium text-orange-800">Dados de usuário anterior detectados</h3>
-                <p className="text-sm text-orange-700">
+                <h3 className="font-medium text-orange-800 dark:text-orange-300">
+                  Dados de usuário anterior detectados
+                </h3>
+                <p className="text-sm text-orange-700 dark:text-orange-400">
                   Foram encontrados dados de um usuário anterior. Recomendamos fazer uma limpeza completa antes de
                   continuar.
                 </p>
@@ -330,7 +332,7 @@ export default function DadosPage() {
                 size="sm"
                 onClick={handleCleanup}
                 disabled={isCleaningUp}
-                className="border-orange-300 text-orange-700 hover:bg-orange-100 bg-transparent"
+                className="border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900/30 bg-transparent"
               >
                 <Trash2 className={`h-4 w-4 mr-2 ${isCleaningUp ? "animate-spin" : ""}`} />
                 {isCleaningUp ? "Limpando..." : "Limpar Dados"}
@@ -345,8 +347,8 @@ export default function DadosPage() {
             Voltar
           </Button>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-800">Meus Dados</h1>
-            <p className="text-gray-600">Gerencie suas informações pessoais</p>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Meus Dados</h1>
+            <p className="text-gray-600 dark:text-gray-400">Gerencie suas informações pessoais</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleSync} disabled={isSyncing}>

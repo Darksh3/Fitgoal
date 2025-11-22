@@ -602,7 +602,7 @@ export default function AnaliseCorporalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center mb-6">
@@ -611,8 +611,10 @@ export default function AnaliseCorporalPage() {
             Voltar
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Análise Corporal Profissional</h1>
-            <p className="text-gray-600">Receba feedback técnico de personal trainer e nutricionista especializado</p>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Análise Corporal Profissional</h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Receba feedback técnico de personal trainer e nutricionista especializado
+            </p>
           </div>
         </div>
 
@@ -632,19 +634,19 @@ export default function AnaliseCorporalPage() {
           {/* Upload Tab */}
           <TabsContent value="upload" className="space-y-6">
             {/* Upload Section */}
-            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 border-blue-200 dark:border-gray-600">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Camera className="h-5 w-5 text-blue-600" />
+                <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                  <Camera className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   <span>Adicionar Fotos para Análise</span>
                 </CardTitle>
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                   Adicione 2 ou 3 fotos (frente, costas e/ou lateral) e envie todas juntas para análise completa
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-600 mb-3">Selecione o tipo de foto:</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Selecione o tipo de foto:</p>
                   <div className="flex space-x-3">
                     {[
                       { key: "front", label: "Frente" },
@@ -677,11 +679,13 @@ export default function AnaliseCorporalPage() {
 
                 {pendingPhotos.length > 0 && (
                   <div className="space-y-3">
-                    <p className="text-sm font-medium text-gray-700">Fotos adicionadas ({pendingPhotos.length}):</p>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Fotos adicionadas ({pendingPhotos.length}):
+                    </p>
                     <div className="grid grid-cols-3 gap-3">
                       {pendingPhotos.map((photo) => (
                         <div key={photo.type} className="relative">
-                          <div className="aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden">
+                          <div className="aspect-[3/4] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
                             <img
                               src={photo.preview || "/placeholder.svg"}
                               alt={getPhotoTypeLabel(photo.type)}
@@ -703,7 +707,7 @@ export default function AnaliseCorporalPage() {
                       ))}
                     </div>
 
-                    <div className="flex items-start space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start space-x-3 p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                       <input
                         type="checkbox"
                         id="consent-checkbox"
@@ -711,7 +715,10 @@ export default function AnaliseCorporalPage() {
                         onChange={(e) => setHasConsent(e.target.checked)}
                         className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       />
-                      <label htmlFor="consent-checkbox" className="text-sm text-gray-700 cursor-pointer">
+                      <label
+                        htmlFor="consent-checkbox"
+                        className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+                      >
                         Autorizo o envio das minhas fotos para análise profissional por inteligência artificial.
                         Compreendo que as imagens serão processadas de forma segura e confidencial para gerar feedback
                         personalizado sobre minha composição corporal e progresso fitness.
@@ -739,9 +746,11 @@ export default function AnaliseCorporalPage() {
                   </div>
                 )}
 
-                <div className="p-4 bg-blue-100 rounded-lg">
-                  <h4 className="font-medium text-blue-800 mb-2">📸 Dicas para melhores fotos:</h4>
-                  <ul className="text-sm text-blue-700 space-y-1">
+                <div className="p-4 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                  <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-2">
+                    <Camera className="h-4 w-4" />📸 Dicas para melhores fotos:
+                  </h4>
+                  <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
                     <li>• Use boa iluminação natural</li>
                     <li>• Mantenha a mesma distância da câmera</li>
                     <li>• Use roupas justas ou mínimas</li>
@@ -755,16 +764,16 @@ export default function AnaliseCorporalPage() {
 
             {/* Analysis Status */}
             {(isAnalyzing || isComparing) && (
-              <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+              <Card className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-800 dark:to-gray-700 border-purple-200 dark:border-gray-600">
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-6 h-6 border-2 border-purple-500 dark:border-purple-400 border-t-transparent rounded-full animate-spin"></div>
                     <div>
-                      <p className="font-medium text-purple-800">
+                      <p className="font-medium text-purple-800 dark:text-purple-200">
                         {isAnalyzing && "IA analisando sua foto..."}
                         {isComparing && "Comparando com fotos anteriores..."}
                       </p>
-                      <p className="text-sm text-purple-600">Isso pode levar alguns segundos</p>
+                      <p className="text-sm text-purple-600 dark:text-purple-300">Isso pode levar alguns segundos</p>
                     </div>
                   </div>
                 </CardContent>
@@ -772,23 +781,23 @@ export default function AnaliseCorporalPage() {
             )}
 
             {currentAnalysis && !isAnalyzing && !isComparing && (
-              <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+              <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-800 dark:to-gray-700 border-green-200 dark:border-gray-600">
                 <CardHeader
-                  className="cursor-pointer hover:bg-green-100/50 transition-colors"
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
                   onClick={() => setExpandedAnalysis(expandedAnalysis === "current" ? null : "current")}
                 >
                   <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center space-x-2">
-                      <Sparkles className="h-5 w-5 text-green-600" />
+                    <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                      <Sparkles className="h-5 w-5 text-green-600 dark:text-green-400" />
                       <span>Resultado da sua Análise</span>
                     </CardTitle>
                     {expandedAnalysis === "current" ? (
-                      <ChevronUp className="h-5 w-5 text-green-600" />
+                      <ChevronUp className="h-5 w-5 text-green-600 dark:text-green-400" />
                     ) : (
-                      <ChevronDown className="h-5 w-5 text-green-600" />
+                      <ChevronDown className="h-5 w-5 text-green-600 dark:text-green-400" />
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     Clique para {expandedAnalysis === "current" ? "ocultar" : "ver"} a análise completa
                   </p>
                 </CardHeader>
@@ -797,7 +806,7 @@ export default function AnaliseCorporalPage() {
                   <CardContent className="space-y-6 pt-4">
                     {/* Photo Preview */}
                     <div className="flex items-center gap-4">
-                      <div className="w-32 h-40 bg-gray-100 rounded-lg overflow-hidden">
+                      <div className="w-32 h-40 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
                         <img
                           src={currentAnalysis.photoUrl || "/placeholder.svg"}
                           alt="Foto analisada"
@@ -808,7 +817,7 @@ export default function AnaliseCorporalPage() {
                         <Badge className={getPhotoTypeColor(currentAnalysis.photoType)}>
                           {getPhotoTypeLabel(currentAnalysis.photoType)}
                         </Badge>
-                        <p className="text-sm text-gray-600 mt-2">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                           {new Date(currentAnalysis.createdAt).toLocaleDateString("pt-BR", {
                             day: "2-digit",
                             month: "long",
@@ -822,21 +831,21 @@ export default function AnaliseCorporalPage() {
 
                     {/* Analysis Content */}
                     {currentAnalysis.motivacao && (
-                      <div className="p-4 bg-white rounded-lg border border-green-200">
-                        <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-green-200 dark:border-green-700">
+                        <h4 className="font-semibold text-green-800 dark:text-green-200 mb-2 flex items-center gap-2">
                           <Sparkles className="h-4 w-4" />
                           Motivação
                         </h4>
-                        <p className="text-gray-700">{currentAnalysis.motivacao}</p>
+                        <p className="text-gray-700 dark:text-gray-300">{currentAnalysis.motivacao}</p>
                       </div>
                     )}
 
                     {currentAnalysis.pontosForts && currentAnalysis.pontosForts.length > 0 && (
-                      <div className="p-4 bg-white rounded-lg border border-green-200">
-                        <h4 className="font-semibold text-green-800 mb-2">✅ Pontos Fortes</h4>
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-green-200 dark:border-green-700">
+                        <h4 className="font-semibold text-green-800 dark:text-green-200 mb-2">✅ Pontos Fortes</h4>
                         <ul className="space-y-1">
                           {currentAnalysis.pontosForts.map((ponto: string, idx: number) => (
-                            <li key={idx} className="text-gray-700">
+                            <li key={idx} className="text-gray-700 dark:text-gray-300">
                               • {ponto}
                             </li>
                           ))}
@@ -845,11 +854,13 @@ export default function AnaliseCorporalPage() {
                     )}
 
                     {currentAnalysis.areasParaMelhorar && currentAnalysis.areasParaMelhorar.length > 0 && (
-                      <div className="p-4 bg-white rounded-lg border border-orange-200">
-                        <h4 className="font-semibold text-orange-800 mb-2">⚠️ Áreas para Melhorar</h4>
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-orange-200 dark:border-orange-700">
+                        <h4 className="font-semibold text-orange-800 dark:text-orange-200 mb-2">
+                          ⚠️ Áreas para Melhorar
+                        </h4>
                         <ul className="space-y-1">
                           {currentAnalysis.areasParaMelhorar.map((area: string, idx: number) => (
-                            <li key={idx} className="text-gray-700">
+                            <li key={idx} className="text-gray-700 dark:text-gray-300">
                               • {area}
                             </li>
                           ))}
@@ -858,11 +869,11 @@ export default function AnaliseCorporalPage() {
                     )}
 
                     {currentAnalysis.dicasEspecificas && currentAnalysis.dicasEspecificas.length > 0 && (
-                      <div className="p-4 bg-white rounded-lg border border-blue-200">
-                        <h4 className="font-semibold text-blue-800 mb-2">💡 Dicas Específicas</h4>
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-700">
+                        <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">💡 Dicas Específicas</h4>
                         <ul className="space-y-1">
                           {currentAnalysis.dicasEspecificas.map((dica: string, idx: number) => (
-                            <li key={idx} className="text-gray-700">
+                            <li key={idx} className="text-gray-700 dark:text-gray-300">
                               • {dica}
                             </li>
                           ))}
@@ -871,25 +882,25 @@ export default function AnaliseCorporalPage() {
                     )}
 
                     {currentAnalysis.focoPrincipal && (
-                      <div className="p-4 bg-white rounded-lg border border-purple-200">
-                        <h4 className="font-semibold text-purple-800 mb-2">🎯 Foco Principal</h4>
-                        <p className="text-gray-700">{currentAnalysis.focoPrincipal}</p>
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700">
+                        <h4 className="font-semibold text-purple-800 dark:text-purple-200 mb-2">🎯 Foco Principal</h4>
+                        <p className="text-gray-700 dark:text-gray-300">{currentAnalysis.focoPrincipal}</p>
                       </div>
                     )}
 
                     {currentAnalysis.progressoGeral && (
-                      <div className="p-4 bg-white rounded-lg border border-indigo-200">
-                        <h4 className="font-semibold text-indigo-800 mb-2">📊 Progresso Geral</h4>
-                        <p className="text-gray-700">{currentAnalysis.progressoGeral}</p>
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-indigo-200 dark:border-indigo-700">
+                        <h4 className="font-semibold text-indigo-800 dark:text-indigo-200 mb-2">📊 Progresso Geral</h4>
+                        <p className="text-gray-700 dark:text-gray-300">{currentAnalysis.progressoGeral}</p>
                       </div>
                     )}
 
                     {currentAnalysis.recomendacoesTreino && currentAnalysis.recomendacoesTreino.length > 0 && (
-                      <div className="p-4 bg-white rounded-lg border border-red-200">
-                        <h4 className="font-semibold text-red-800 mb-2">🏋️ Recomendações de Treino</h4>
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-red-200 dark:border-red-700">
+                        <h4 className="font-semibold text-red-800 dark:text-red-200 mb-2">🏋️ Recomendações de Treino</h4>
                         <ul className="space-y-1">
                           {currentAnalysis.recomendacoesTreino.map((rec: string, idx: number) => (
-                            <li key={idx} className="text-gray-700">
+                            <li key={idx} className="text-gray-700 dark:text-gray-300">
                               • {rec}
                             </li>
                           ))}
@@ -898,11 +909,13 @@ export default function AnaliseCorporalPage() {
                     )}
 
                     {currentAnalysis.recomendacoesDieta && currentAnalysis.recomendacoesDieta.length > 0 && (
-                      <div className="p-4 bg-white rounded-lg border border-yellow-200">
-                        <h4 className="font-semibold text-yellow-800 mb-2">🥗 Recomendações de Dieta</h4>
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-yellow-200 dark:border-yellow-700">
+                        <h4 className="font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+                          🥗 Recomendações de Dieta
+                        </h4>
                         <ul className="space-y-1">
                           {currentAnalysis.recomendacoesDieta.map((rec: string, idx: number) => (
-                            <li key={idx} className="text-gray-700">
+                            <li key={idx} className="text-gray-700 dark:text-gray-300">
                               • {rec}
                             </li>
                           ))}
@@ -912,19 +925,21 @@ export default function AnaliseCorporalPage() {
 
                     {/* Optimization Buttons */}
                     {currentAnalysis.otimizacoesSugeridas && (
-                      <div className="space-y-4 pt-4 border-t border-green-200">
-                        <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                      <div className="space-y-4 pt-4 border-t border-green-200 dark:border-green-700">
+                        <h4 className="font-semibold text-gray-800 dark:text-white flex items-center gap-2">
                           <Settings className="h-4 w-4" />
                           Otimizações Sugeridas
                         </h4>
 
                         {currentAnalysis.otimizacoesSugeridas.dieta?.necessaria && (
-                          <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                            <h5 className="font-medium text-yellow-900 mb-2">🥗 Ajustes na Dieta</h5>
-                            <p className="text-sm text-yellow-800 mb-2">
+                          <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-700">
+                            <h5 className="font-medium text-yellow-900 dark:text-yellow-100 mb-2">
+                              🥗 Ajustes na Dieta
+                            </h5>
+                            <p className="text-sm text-yellow-800 dark:text-yellow-200 mb-2">
                               {currentAnalysis.otimizacoesSugeridas.dieta.justificativa}
                             </p>
-                            <ul className="text-sm text-yellow-700 space-y-1 mb-3">
+                            <ul className="text-sm text-yellow-700 dark:text-yellow-200 space-y-1 mb-3">
                               {currentAnalysis.otimizacoesSugeridas.dieta.mudancas.map(
                                 (mudanca: string, idx: number) => (
                                   <li key={idx}>• {mudanca}</li>
@@ -956,12 +971,12 @@ export default function AnaliseCorporalPage() {
                         )}
 
                         {currentAnalysis.otimizacoesSugeridas.treino?.necessaria && (
-                          <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                            <h5 className="font-medium text-red-900 mb-2">🏋️ Ajustes no Treino</h5>
-                            <p className="text-sm text-red-800 mb-2">
+                          <div className="p-4 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-700">
+                            <h5 className="font-medium text-red-900 dark:text-red-100 mb-2">🏋️ Ajustes no Treino</h5>
+                            <p className="text-sm text-red-800 dark:text-red-200 mb-2">
                               {currentAnalysis.otimizacoesSugeridas.treino.justificativa}
                             </p>
-                            <ul className="text-sm text-red-700 space-y-1 mb-3">
+                            <ul className="text-sm text-red-700 dark:text-red-200 space-y-1 mb-3">
                               {currentAnalysis.otimizacoesSugeridas.treino.mudancas.map(
                                 (mudanca: string, idx: number) => (
                                   <li key={idx}>• {mudanca}</li>
@@ -1000,12 +1015,12 @@ export default function AnaliseCorporalPage() {
 
             {photos.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Últimas Análises</h3>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Últimas Análises</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {photos.slice(0, 3).map((photo) => (
                     <Card key={photo.id} className="hover:shadow-lg transition-shadow">
                       <CardContent className="p-4 space-y-3">
-                        <div className="aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden">
+                        <div className="aspect-[3/4] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
                           <img
                             src={photo.photoUrl || "/placeholder.svg"}
                             alt={`Foto ${getPhotoTypeLabel(photo.photoType)}`}
@@ -1016,12 +1031,14 @@ export default function AnaliseCorporalPage() {
                           <Badge className={getPhotoTypeColor(photo.photoType)}>
                             {getPhotoTypeLabel(photo.photoType)}
                           </Badge>
-                          <p className="text-xs text-gray-600">
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
                             {new Date(photo.createdAt).toLocaleDateString("pt-BR")}
                           </p>
                         </div>
                         {photo.analysis && (
-                          <p className="text-xs text-gray-700 line-clamp-2">{photo.analysis.motivacao}</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2">
+                            {photo.analysis.motivacao}
+                          </p>
                         )}
                       </CardContent>
                     </Card>
@@ -1044,8 +1061,10 @@ export default function AnaliseCorporalPage() {
               <Card>
                 <CardContent className="p-12 text-center">
                   <Camera className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Nenhuma foto ainda</h3>
-                  <p className="text-gray-600 mb-4">Comece enviando sua primeira foto para análise</p>
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Nenhuma foto ainda</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    Comece enviando sua primeira foto para análise
+                  </p>
                   <Button onClick={() => setActiveTab("upload")}>
                     <Upload className="h-4 w-4 mr-2" />
                     Enviar Primeira Foto
@@ -1094,7 +1113,9 @@ export default function AnaliseCorporalPage() {
                         onClick={() => setExpandedAnalysis(isExpanded ? null : photo.id)}
                       >
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg font-medium">Avaliação dia {displayDate}</CardTitle>
+                          <CardTitle className="text-lg font-medium text-gray-900 dark:text-white">
+                            Avaliação dia {displayDate}
+                          </CardTitle>
                           <div className="flex items-center gap-2">
                             <Button
                               variant="ghost"
@@ -1121,7 +1142,10 @@ export default function AnaliseCorporalPage() {
                           {photosList.length > 0 && (
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                               {photosList.map((p: any, idx: number) => (
-                                <div key={idx} className="relative aspect-[3/4] rounded-lg overflow-hidden bg-gray-100">
+                                <div
+                                  key={idx}
+                                  className="relative aspect-[3/4] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700"
+                                >
                                   <img
                                     src={p.photoUrl || "/placeholder.svg"}
                                     alt={`Foto ${p.photoType}`}
@@ -1177,7 +1201,7 @@ export default function AnaliseCorporalPage() {
                               {photo.analysis.composicaoCorporal && (
                                 <div className="space-y-2">
                                   <h3 className="text-base font-semibold">Composição Corporal</h3>
-                                  <div className="bg-muted/50 rounded-lg p-4 space-y-2 text-sm">
+                                  <div className="bg-muted/50 dark:bg-gray-800 rounded-lg p-4 space-y-2 text-sm">
                                     <div className="flex justify-between items-center">
                                       <span className="font-medium">Gordura Corporal Estimada:</span>
                                       <span className="font-bold">
@@ -1193,7 +1217,7 @@ export default function AnaliseCorporalPage() {
                                       </div>
                                     )}
                                     {photo.analysis.composicaoCorporal.observacoes && (
-                                      <p className="text-muted-foreground pt-2 border-t">
+                                      <p className="text-muted-foreground dark:text-gray-400 pt-2 border-t dark:border-gray-700">
                                         {photo.analysis.composicaoCorporal.observacoes}
                                       </p>
                                     )}
@@ -1205,7 +1229,9 @@ export default function AnaliseCorporalPage() {
                               {photo.analysis.sobreTreino && (
                                 <div className="space-y-2">
                                   <h3 className="text-base font-semibold">Sobre o Treino</h3>
-                                  <p className="text-sm text-muted-foreground">{photo.analysis.sobreTreino}</p>
+                                  <p className="text-sm text-muted-foreground dark:text-gray-400">
+                                    {photo.analysis.sobreTreino}
+                                  </p>
                                 </div>
                               )}
 
@@ -1213,7 +1239,9 @@ export default function AnaliseCorporalPage() {
                               {photo.analysis.sobreDieta && (
                                 <div className="space-y-2">
                                   <h3 className="text-base font-semibold">Sobre a Dieta</h3>
-                                  <p className="text-sm text-muted-foreground">{photo.analysis.sobreDieta}</p>
+                                  <p className="text-sm text-muted-foreground dark:text-gray-400">
+                                    {photo.analysis.sobreDieta}
+                                  </p>
                                 </div>
                               )}
 
@@ -1341,9 +1369,11 @@ export default function AnaliseCorporalPage() {
 
                               {/* Conclusão Geral */}
                               {photo.analysis.conclusaoGeral && (
-                                <div className="space-y-2 bg-primary/5 rounded-lg p-4 border-l-4 border-primary">
+                                <div className="space-y-2 bg-primary/5 dark:bg-primary/10 rounded-lg p-4 border-l-4 border-primary pl-4">
                                   <h3 className="text-base font-semibold">Conclusão Geral</h3>
-                                  <p className="text-sm text-muted-foreground">{photo.analysis.conclusaoGeral}</p>
+                                  <p className="text-sm text-muted-foreground dark:text-gray-400">
+                                    {photo.analysis.conclusaoGeral}
+                                  </p>
                                 </div>
                               )}
 
@@ -1352,14 +1382,14 @@ export default function AnaliseCorporalPage() {
                                 (photo.analysis.desenvolvimentoMuscular ||
                                   photo.analysis.resumoExecutivo ||
                                   photo.analysis.composicaoCorporal) && (
-                                  <div className="p-4 bg-muted/30 rounded-lg text-sm text-center text-muted-foreground">
+                                  <div className="p-4 bg-muted/30 dark:bg-gray-800 rounded-lg text-sm text-center text-muted-foreground">
                                     Esta análise usa um formato anterior. As novas análises terão um formato mais
                                     organizado com seções claras.
                                   </div>
                                 )}
                             </div>
                           ) : (
-                            <div className="p-8 text-center text-gray-500">
+                            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                               <p>Nenhuma análise disponível para esta avaliação.</p>
                             </div>
                           )}

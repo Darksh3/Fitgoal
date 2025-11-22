@@ -1503,10 +1503,10 @@ export default function DietPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white dark:bg-gray-900">
         <div className="container mx-auto px-4 py-8">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Plano de Dieta</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Plano de Dieta</h1>
             <div className="flex items-center gap-4">
               {dietPlan && (
                 <Button
@@ -1519,19 +1519,21 @@ export default function DietPage() {
                   Baixar PDF
                 </Button>
               )}
-              {error && <p className="text-red-500">{error}</p>}
+              {error && <p className="text-red-500 dark:text-red-400">{error}</p>}
             </div>
           </div>
 
-          {loading && <p className="text-gray-500">Carregando plano de dieta...</p>}
+          {loading && <p className="text-gray-500 dark:text-gray-400">Carregando plano de dieta...</p>}
 
           {(displayTotals.calories === "Dados não disponíveis" ||
             displayTotals.protein === "Dados não disponíveis" ||
             displayTotals.carbs === "Dados não disponíveis" ||
             displayTotals.fats === "Dados não disponíveis") && (
-            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-yellow-800 font-medium">⚠️ Alguns dados nutricionais não estão disponíveis</p>
-              <p className="text-yellow-700 text-sm mt-1">
+            <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+              <p className="text-yellow-800 dark:text-yellow-300 font-medium">
+                ⚠️ Alguns dados nutricionais não estão disponíveis
+              </p>
+              <p className="text-yellow-700 dark:text-yellow-400 text-sm mt-1">
                 Os cálculos podem estar incorretos. Tente regenerar os planos para obter cálculos precisos baseados nas
                 fórmulas científicas.
               </p>
@@ -1539,7 +1541,7 @@ export default function DietPage() {
                 onClick={generatePlans}
                 variant="outline"
                 size="sm"
-                className="mt-2 border-yellow-300 text-yellow-700 hover:bg-yellow-100 bg-transparent"
+                className="mt-2 border-yellow-300 dark:border-yellow-700 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 bg-transparent"
               >
                 Regenerar Planos com Cálculos Científicos
               </Button>
@@ -1547,9 +1549,9 @@ export default function DietPage() {
           )}
 
           {quizData && dietPlan && (
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-blue-800 font-medium">🔄 Sincronizar Valores</p>
-              <p className="text-blue-700 text-sm mt-1">
+            <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p className="text-blue-800 dark:text-blue-300 font-medium">🔄 Sincronizar Valores</p>
+              <p className="text-blue-700 dark:text-blue-400 text-sm mt-1">
                 Atualizar os valores salvos no plano de dieta com o cálculo científico atual (
                 {calculateScientificCalories(quizData)} kcal). Valor atual salvo:{" "}
                 {dietPlan?.totalDailyCalories || "não encontrado"}.
@@ -1558,7 +1560,7 @@ export default function DietPage() {
                 onClick={updateSavedValuesWithScientificCalculation}
                 variant="outline"
                 size="sm"
-                className="mt-2 border-blue-300 text-blue-700 hover:bg-blue-100 bg-transparent"
+                className="mt-2 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 bg-transparent"
               >
                 Atualizar Valores Salvos
               </Button>
@@ -1623,71 +1625,83 @@ export default function DietPage() {
 
           {showAddFoodModal && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-                <h3 className="text-lg font-semibold mb-4">Adicionar Alimento</h3>
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Adicionar Alimento</h3>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Nome do Alimento *</label>
+                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                      Nome do Alimento *
+                    </label>
                     <input
                       type="text"
                       value={newFood.name}
                       onChange={(e) => setNewFood({ ...newFood, name: e.target.value })}
-                      className="w-full p-2 border rounded-md"
+                      className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="Ex: Banana"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Calorias *</label>
+                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                      Calorias *
+                    </label>
                     <input
                       type="number"
                       value={newFood.calories}
                       onChange={(e) => setNewFood({ ...newFood, calories: e.target.value })}
-                      className="w-full p-2 border rounded-md"
+                      className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="Ex: 105"
                     />
                   </div>
 
                   <div className="grid grid-cols-3 gap-2">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Proteína (g)</label>
+                      <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                        Proteína (g)
+                      </label>
                       <input
                         type="number"
                         value={newFood.protein}
                         onChange={(e) => setNewFood({ ...newFood, protein: e.target.value })}
-                        className="w-full p-2 border rounded-md"
+                        className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="0"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Carboidratos (g)</label>
+                      <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                        Carboidratos (g)
+                      </label>
                       <input
                         type="number"
                         value={newFood.carbs}
                         onChange={(e) => setNewFood({ ...newFood, carbs: e.target.value })}
-                        className="w-full p-2 border rounded-md"
+                        className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="0"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Gorduras (g)</label>
+                      <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                        Gorduras (g)
+                      </label>
                       <input
                         type="number"
                         value={newFood.fats}
                         onChange={(e) => setNewFood({ ...newFood, fats: e.target.value })}
-                        className="w-full p-2 border rounded-md"
+                        className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="0"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Adicionar à Refeição</label>
+                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                      Adicionar à Refeição
+                    </label>
                     <select
                       value={newFood.mealIndex}
                       onChange={(e) => setNewFood({ ...newFood, mealIndex: Number(e.target.value) })}
-                      className="w-full p-2 border rounded-md"
+                      className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     >
                       {dietPlan?.meals.map((meal, index) => (
                         <option key={index} value={index}>
@@ -1712,14 +1726,14 @@ export default function DietPage() {
 
           {editingFood && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-                <h3 className="text-lg font-semibold mb-4">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                   {editingFood.isSupplement ? "Editar Suplemento" : "Editar Alimento"}
                 </h3>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Nome *</label>
+                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Nome *</label>
                     <input
                       type="text"
                       value={editingFood.food.name}
@@ -1729,13 +1743,15 @@ export default function DietPage() {
                           food: { ...editingFood.food, name: e.target.value },
                         })
                       }
-                      className="w-full p-2 border rounded-md"
+                      className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="Ex: Banana"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Quantidade</label>
+                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                      Quantidade
+                    </label>
                     <input
                       type="text"
                       value={editingFood.food.quantity || editingFood.food.portion || ""}
@@ -1745,13 +1761,15 @@ export default function DietPage() {
                           food: { ...editingFood.food, quantity: e.target.value },
                         })
                       }
-                      className="w-full p-2 border rounded-md"
+                      className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="Ex: 100g ou 1 unidade"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Calorias *</label>
+                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                      Calorias *
+                    </label>
                     <input
                       type="number"
                       value={editingFood.food.calories}
@@ -1761,14 +1779,16 @@ export default function DietPage() {
                           food: { ...editingFood.food, calories: e.target.value },
                         })
                       }
-                      className="w-full p-2 border rounded-md"
+                      className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="Ex: 105"
                     />
                   </div>
 
                   <div className="grid grid-cols-3 gap-2">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Proteína (g)</label>
+                      <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                        Proteína (g)
+                      </label>
                       <input
                         type="number"
                         value={editingFood.food.protein}
@@ -1778,12 +1798,14 @@ export default function DietPage() {
                             food: { ...editingFood.food, protein: e.target.value },
                           })
                         }
-                        className="w-full p-2 border rounded-md"
+                        className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="0"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Carboidratos (g)</label>
+                      <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                        Carboidratos (g)
+                      </label>
                       <input
                         type="number"
                         value={editingFood.food.carbs}
@@ -1793,12 +1815,14 @@ export default function DietPage() {
                             food: { ...editingFood.food, carbs: e.target.value },
                           })
                         }
-                        className="w-full p-2 border rounded-md"
+                        className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="0"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Gorduras (g)</label>
+                      <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                        Gorduras (g)
+                      </label>
                       <input
                         type="number"
                         value={editingFood.food.fats || editingFood.food.fat || ""}
@@ -1808,7 +1832,7 @@ export default function DietPage() {
                             food: { ...editingFood.food, fats: e.target.value },
                           })
                         }
-                        className="w-full p-2 border rounded-md"
+                        className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="0"
                       />
                     </div>
@@ -1830,10 +1854,10 @@ export default function DietPage() {
           {dietPlan && (
             <div className="space-y-4">
               {dietPlan.supplements && Array.isArray(dietPlan.supplements) && dietPlan.supplements.length > 0 && (
-                <Card className="border-lime-500 border-2 bg-lime-50">
+                <Card className="border-lime-500 border-2 bg-lime-50 dark:bg-lime-900/30 dark:border-lime-700">
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center text-lime-700">
+                      <CardTitle className="flex items-center text-lime-700 dark:text-lime-300">
                         <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path
                             strokeLinecap="round"
@@ -1844,26 +1868,31 @@ export default function DietPage() {
                         </svg>
                         Suplementação Recomendada
                       </CardTitle>
-                      <Badge variant="secondary" className="bg-lime-600 text-white">
+                      <Badge variant="secondary" className="bg-lime-600 text-white dark:bg-lime-500">
                         Incluído nos macros
                       </Badge>
                     </div>
-                    <CardDescription className="text-lime-700">
+                    <CardDescription className="text-lime-700 dark:text-lime-400">
                       Suplementos personalizados para seu objetivo
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       {dietPlan.supplements.map((supplement: any, index: number) => (
-                        <div key={index} className="p-4 bg-white rounded-lg border border-lime-200 shadow-sm">
+                        <div
+                          key={index}
+                          className="p-4 bg-white dark:bg-gray-700 rounded-lg border border-lime-200 dark:border-lime-700 shadow-sm"
+                        >
                           <div className="flex justify-between items-start mb-3">
                             <div className="flex-1">
-                              <h3 className="font-bold text-lg text-gray-900">{supplement.name}</h3>
-                              <p className="text-sm text-gray-600">{supplement.portion}</p>
+                              <h3 className="font-bold text-lg text-gray-900 dark:text-white">{supplement.name}</h3>
+                              <p className="text-sm text-gray-600 dark:text-gray-300">{supplement.portion}</p>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="text-right">
-                                <p className="text-lg font-bold text-lime-600">{supplement.calories} kcal</p>
+                                <p className="text-lg font-bold text-lime-600 dark:text-lime-300">
+                                  {supplement.calories} kcal
+                                </p>
                               </div>
                               <Button
                                 onClick={() =>
@@ -1883,7 +1912,7 @@ export default function DietPage() {
                                 }
                                 variant="outline"
                                 size="sm"
-                                className="h-8 px-2"
+                                className="h-8 px-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
                               >
                                 <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path
@@ -1898,31 +1927,33 @@ export default function DietPage() {
                           </div>
 
                           <div className="grid grid-cols-3 gap-3 mb-3">
-                            <div className="text-center p-2 bg-red-50 rounded">
-                              <p className="text-xs text-gray-600">Proteína</p>
-                              <p className="text-sm font-bold text-red-600">{supplement.protein}g</p>
+                            <div className="text-center p-2 bg-red-50 dark:bg-red-900/20 rounded">
+                              <p className="text-xs text-gray-600 dark:text-gray-300">Proteína</p>
+                              <p className="text-sm font-bold text-red-600 dark:text-red-400">{supplement.protein}g</p>
                             </div>
-                            <div className="text-center p-2 bg-yellow-50 rounded">
-                              <p className="text-xs text-gray-600">Carboidratos</p>
-                              <p className="text-sm font-bold text-yellow-600">{supplement.carbs}g</p>
+                            <div className="text-center p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded">
+                              <p className="text-xs text-gray-600 dark:text-gray-300">Carboidratos</p>
+                              <p className="text-sm font-bold text-yellow-600 dark:text-yellow-400">
+                                {supplement.carbs}g
+                              </p>
                             </div>
-                            <div className="text-center p-2 bg-green-50 rounded">
-                              <p className="text-xs text-gray-600">Gorduras</p>
-                              <p className="text-sm font-bold text-green-600">{supplement.fat}g</p>
+                            <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
+                              <p className="text-xs text-gray-600 dark:text-gray-300">Gorduras</p>
+                              <p className="text-sm font-bold text-green-600 dark:text-green-400">{supplement.fat}g</p>
                             </div>
                           </div>
 
                           {supplement.timing && (
-                            <div className="mb-2 p-2 bg-blue-50 rounded">
-                              <p className="text-xs font-medium text-blue-700">⏰ Horário ideal:</p>
-                              <p className="text-sm text-blue-900">{supplement.timing}</p>
+                            <div className="mb-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+                              <p className="text-xs font-medium text-blue-700 dark:text-blue-300">⏰ Horário ideal:</p>
+                              <p className="text-sm text-blue-900 dark:text-blue-100">{supplement.timing}</p>
                             </div>
                           )}
 
                           {supplement.benefits && (
-                            <div className="p-2 bg-purple-50 rounded">
-                              <p className="text-xs font-medium text-purple-700">✨ Benefícios:</p>
-                              <p className="text-sm text-purple-900">{supplement.benefits}</p>
+                            <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded">
+                              <p className="text-xs font-medium text-purple-700 dark:text-purple-300">✨ Benefícios:</p>
+                              <p className="text-sm text-purple-900 dark:text-purple-100">{supplement.benefits}</p>
                             </div>
                           )}
                         </div>
@@ -1952,11 +1983,16 @@ export default function DietPage() {
                   <Card key={index}>
                     <CardHeader>
                       <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center">
-                          <Clock className="h-5 w-5 mr-2 text-blue-600" />
+                        <CardTitle className="flex items-center text-gray-900 dark:text-white">
+                          <Clock className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
                           {meal.name || `Refeição ${index + 1}`}
                         </CardTitle>
-                        <Badge variant="secondary">{meal.time || "Horário não definido"}</Badge>
+                        <Badge
+                          variant="secondary"
+                          className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+                        >
+                          {meal.time || "Horário não definido"}
+                        </Badge>
                       </div>
                       <CardDescription>{meal.calories || "0 kcal"}</CardDescription>
                     </CardHeader>
@@ -2025,16 +2061,26 @@ export default function DietPage() {
                             return (
                               <div
                                 key={foodIndex}
-                                className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0"
+                                className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                               >
                                 <div className="flex-1">
-                                  <p className="font-medium text-gray-900">{foodName}</p>
-                                  {foodQuantity && <p className="text-sm text-blue-600 font-medium">{foodQuantity}</p>}
+                                  <p className="font-medium text-gray-900 dark:text-white">{foodName}</p>
+                                  {foodQuantity && (
+                                    <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                                      {foodQuantity}
+                                    </p>
+                                  )}
                                   {typeof food === "object" && food && (food.protein || food.carbs || food.fats) && (
-                                    <div className="flex gap-3 mt-1 text-xs text-gray-500">
-                                      {food.protein && <span className="text-red-500">P: {food.protein}g</span>}
-                                      {food.carbs && <span className="text-yellow-500">C: {food.carbs}g</span>}
-                                      {food.fats && <span className="text-green-500">G: {food.fats}g</span>}
+                                    <div className="flex gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                      {food.protein && (
+                                        <span className="text-red-500 dark:text-red-400">P: {food.protein}g</span>
+                                      )}
+                                      {food.carbs && (
+                                        <span className="text-yellow-500 dark:text-yellow-400">C: {food.carbs}g</span>
+                                      )}
+                                      {food.fats && (
+                                        <span className="text-green-500 dark:text-green-400">G: {food.fats}g</span>
+                                      )}
                                     </div>
                                   )}
                                 </div>
@@ -2042,7 +2088,7 @@ export default function DietPage() {
                                 <div className="flex items-center gap-2">
                                   {foodCalories && (
                                     <div className="text-right">
-                                      <p className="text-sm text-gray-600">{foodCalories}</p>
+                                      <p className="text-sm text-gray-600 dark:text-gray-300">{foodCalories}</p>
                                     </div>
                                   )}
                                   <Button
@@ -2070,7 +2116,7 @@ export default function DietPage() {
                                     }}
                                     variant="outline"
                                     size="sm"
-                                    className="h-8 px-2"
+                                    className="h-8 px-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
                                   >
                                     <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path
@@ -2085,7 +2131,7 @@ export default function DietPage() {
                                     onClick={() => handleRemoveFood(index, originalIndex)}
                                     variant="outline"
                                     size="sm"
-                                    className="h-8 px-2 text-red-600 hover:text-red-700"
+                                    className="h-8 px-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 border-red-300 hover:border-red-400"
                                   >
                                     <Trash2 className="h-3 w-3" />
                                   </Button>
@@ -2096,7 +2142,7 @@ export default function DietPage() {
                                     }
                                     variant="outline"
                                     size="sm"
-                                    className="h-8 px-2"
+                                    className="h-8 px-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
                                   >
                                     {replacingFood?.mealIndex === index &&
                                     replacingFood?.foodIndex === originalIndex ? (
@@ -2116,26 +2162,28 @@ export default function DietPage() {
                             )
                           })
                         ) : (
-                          <p className="text-gray-500 text-sm">Nenhum alimento especificado</p>
+                          <p className="text-gray-500 dark:text-gray-400 text-sm">Nenhum alimento especificado</p>
                         )}
 
                         {manualFoodsForMeal.map((food, foodIndex) => (
                           <div
                             key={`manual-${foodIndex}`}
-                            className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0 bg-lime-50"
+                            className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700 last:border-b-0 bg-lime-50 dark:bg-lime-900/30"
                           >
                             <div className="flex-1">
-                              <p className="font-medium text-gray-900">{food.name}</p>
-                              <p className="text-xs text-lime-600 font-medium">Adicionado manualmente</p>
-                              <div className="flex gap-3 mt-1 text-xs text-gray-500">
-                                <span className="text-red-500">P: {food.protein}g</span>
-                                <span className="text-yellow-500">C: {food.carbs}g</span>
-                                <span className="text-green-500">G: {food.fats}g</span>
+                              <p className="font-medium text-gray-900 dark:text-white">{food.name}</p>
+                              <p className="text-xs text-lime-600 dark:text-lime-400 font-medium">
+                                Adicionado manualmente
+                              </p>
+                              <div className="flex gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                <span className="text-red-500 dark:text-red-400">P: {food.protein}g</span>
+                                <span className="text-yellow-500 dark:text-yellow-400">C: {food.carbs}g</span>
+                                <span className="text-green-500 dark:text-green-400">G: {food.fats}g</span>
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
                               <div className="text-right">
-                                <p className="text-sm text-gray-600">{food.calories} kcal</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-300">{food.calories} kcal</p>
                               </div>
                               <Button
                                 onClick={() => {
@@ -2149,7 +2197,7 @@ export default function DietPage() {
                                 }}
                                 variant="outline"
                                 size="sm"
-                                className="h-8 px-2 text-red-600 hover:text-red-700"
+                                className="h-8 px-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 border-red-300 hover:border-red-400"
                               >
                                 <Trash2 className="h-3 w-3" />
                               </Button>
@@ -2158,13 +2206,13 @@ export default function DietPage() {
                         ))}
 
                         {Array.isArray(meal.foods) && meal.foods.length > 0 && (
-                          <div className="pt-3 border-t border-gray-200">
+                          <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                             <Button
                               onClick={() => handleReplaceMeal(index)}
                               disabled={replacingMeal === index}
                               variant="outline"
                               size="sm"
-                              className="w-full"
+                              className="w-full border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
                             >
                               {replacingMeal === index ? (
                                 <>
@@ -2181,13 +2229,19 @@ export default function DietPage() {
                           </div>
                         )}
                         {meal.macros && typeof meal.macros === "object" && (
-                          <div className="mt-4 pt-3 border-t border-gray-200">
+                          <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
                             <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-gray-700">Macros da refeição:</span>
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Macros da refeição:
+                              </span>
                               <div className="flex gap-4 text-sm font-medium">
-                                <span className="text-red-600">P: {meal.macros.protein || "0g"}</span>
-                                <span className="text-yellow-600">C: {meal.macros.carbs || "0g"}</span>
-                                <span className="text-green-600">G: {meal.macros.fats || "0g"}</span>
+                                <span className="text-red-600 dark:text-red-400">P: {meal.macros.protein || "0g"}</span>
+                                <span className="text-yellow-600 dark:text-yellow-400">
+                                  C: {meal.macros.carbs || "0g"}
+                                </span>
+                                <span className="text-green-600 dark:text-green-400">
+                                  G: {meal.macros.fats || "0g"}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -2201,27 +2255,31 @@ export default function DietPage() {
           )}
 
           <div className="mt-8">
-            <h2 className="text-xl font-bold mb-4">Dicas Nutricionais</h2>
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Dicas Nutricionais</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-blue-800 font-medium">Dica 1</p>
-                <p className="text-blue-700 text-sm mt-1">
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <p className="text-blue-800 dark:text-blue-300 font-medium">Dica 1</p>
+                <p className="text-blue-700 dark:text-blue-400 text-sm mt-1">
                   Coma alimentos ricos em proteínas para manter seu corpo saudável.
                 </p>
               </div>
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-green-800 font-medium">Dica 2</p>
-                <p className="text-green-700 text-sm mt-1">
+              <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                <p className="text-green-800 dark:text-green-300 font-medium">Dica 2</p>
+                <p className="text-green-700 dark:text-green-400 text-sm mt-1">
                   Inclua frutas e vegetais em suas refeições para obter vitaminas e minerais.
                 </p>
               </div>
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-yellow-800 font-medium">Dica 3</p>
-                <p className="text-yellow-700 text-sm mt-1">Controle suas porções para evitar excesso de calorias.</p>
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                <p className="text-yellow-800 dark:text-yellow-300 font-medium">Dica 3</p>
+                <p className="text-yellow-700 dark:text-yellow-400 text-sm mt-1">
+                  Controle suas porções para evitar excesso de calorias.
+                </p>
               </div>
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-800 font-medium">Dica 4</p>
-                <p className="text-red-700 text-sm mt-1">Evite alimentos processados e ricos em açúcares.</p>
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <p className="text-red-800 dark:text-red-300 font-medium">Dica 4</p>
+                <p className="text-red-700 dark:text-red-400 text-sm mt-1">
+                  Evite alimentos processados e ricos em açúcares.
+                </p>
               </div>
             </div>
           </div>

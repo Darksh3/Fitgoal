@@ -568,11 +568,11 @@ export default function TreinoPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white dark:bg-gray-900">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
             <div className="flex items-center justify-between mb-2">
-              <h1 className="text-3xl font-bold text-gray-900">Seu Plano de Treino</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Seu Plano de Treino</h1>
               <Button
                 onClick={downloadWorkoutPDF}
                 variant="outline"
@@ -583,25 +583,25 @@ export default function TreinoPage() {
                 Baixar PDF
               </Button>
             </div>
-            <p className="text-gray-600">Plano personalizado para atingir seus objetivos</p>
+            <p className="text-gray-600 dark:text-gray-400">Plano personalizado para atingir seus objetivos</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center">
-                  <Calendar className="h-8 w-8 text-blue-600 mr-3" />
+                  <Calendar className="h-8 w-8 text-blue-600 dark:text-blue-400 mr-3" />
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Programação Semanal</p>
-                    <p className="text-lg font-bold text-gray-900">{actualTrainingFrequency}</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Programação Semanal</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">{actualTrainingFrequency}</p>
                     {process.env.NODE_ENV === "development" && (
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Quiz: {(userData as any)?.quizData?.trainingDaysPerWeek || "N/A"} | Plan:{" "}
                         {workoutPlan?.days?.length || "N/A"} dias
                         <br />
                         User: {(userData as any)?.quizData?.name || "N/A"}
                         {workoutPlan?.days?.length !== (userData as any)?.quizData?.trainingDaysPerWeek && (
-                          <span className="text-orange-500"> (Discrepância detectada)</span>
+                          <span className="text-orange-500 dark:text-orange-400"> (Discrepância detectada)</span>
                         )}
                       </p>
                     )}
@@ -612,10 +612,10 @@ export default function TreinoPage() {
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center">
-                  <Target className="h-8 w-8 text-green-600 mr-3" />
+                  <Target className="h-8 w-8 text-green-600 dark:text-green-400 mr-3" />
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Duração Média por Treino</p>
-                    <p className="text-lg font-bold text-gray-900">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Duração Média por Treino</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">
                       {workoutPlan.days[0]?.duration || "Não especificado"}
                     </p>
                   </div>
@@ -625,12 +625,12 @@ export default function TreinoPage() {
           </div>
 
           {workoutPlan?.days?.length !== (userData as any)?.quizData?.trainingDaysPerWeek && (
-            <Card className="mb-6 border-orange-200 bg-orange-50">
+            <Card className="mb-6 border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold text-orange-800">Discrepância Detectada</h3>
-                    <p className="text-sm text-orange-700">
+                    <h3 className="font-semibold text-orange-800 dark:text-orange-300">Discrepância Detectada</h3>
+                    <p className="text-sm text-orange-700 dark:text-orange-400">
                       Seu plano tem {workoutPlan?.days?.length || 0} dias, mas você selecionou{" "}
                       {(userData as any)?.quizData?.trainingDaysPerWeek || 0} dias no quiz.
                     </p>
@@ -639,7 +639,7 @@ export default function TreinoPage() {
                     onClick={generatePlans}
                     disabled={isRegenerating}
                     variant="outline"
-                    className="border-orange-300 text-orange-700 hover:bg-orange-100 bg-transparent"
+                    className="border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900/30 bg-transparent"
                   >
                     {isRegenerating ? "Regenerando..." : "Regenerar Plano"}
                   </Button>
@@ -653,7 +653,7 @@ export default function TreinoPage() {
               <Card key={dayIndex}>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Dumbbell className="h-5 w-5 mr-2 text-blue-600" />
+                    <Dumbbell className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
                     {day.title || day.day} - {day.focus}
                   </CardTitle>
                   <CardDescription>Duração: {day.duration}</CardDescription>
@@ -695,7 +695,7 @@ export default function TreinoPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Lightbulb className="h-5 w-5 mr-2 text-yellow-600" />
+                  <Lightbulb className="h-5 w-5 mr-2 text-yellow-600 dark:text-yellow-400" />
                   Dicas de Treino
                 </CardTitle>
               </CardHeader>
@@ -703,8 +703,8 @@ export default function TreinoPage() {
                 <ul className="space-y-2">
                   {workoutPlan.tips.map((tip, index) => (
                     <li key={index} className="flex items-start">
-                      <span className="text-blue-600 mr-2">•</span>
-                      <span className="text-gray-700">{tip}</span>
+                      <span className="text-blue-600 dark:text-blue-400 mr-2">•</span>
+                      <span className="text-gray-700 dark:text-gray-400">{tip}</span>
                     </li>
                   ))}
                 </ul>

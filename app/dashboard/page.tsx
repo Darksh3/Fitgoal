@@ -694,33 +694,33 @@ export default function DashboardPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* Dieta Card */}
             <Card
-              className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200 cursor-pointer hover:shadow-lg transition-shadow"
+              className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-gray-800 dark:to-gray-700 border-yellow-200 dark:border-gray-600 cursor-pointer hover:shadow-lg transition-shadow"
               onClick={() => router.push("/dashboard/dieta")}
             >
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2 text-gray-800 dark:text-white">
-                  <Utensils className="h-5 w-5 text-orange-500" />
+                <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                  <Utensils className="h-5 w-5 text-orange-500 dark:text-orange-400" />
                   <span>Dieta</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div className="h-2 bg-gray-200 rounded-full">
+                  <div className="h-2 bg-gray-200 dark:bg-gray-600 rounded-full">
                     <div
-                      className="h-2 bg-orange-500 rounded-full"
+                      className="h-2 bg-orange-500 dark:bg-orange-400 rounded-full"
                       style={{
                         width: `${(progressData.caloriesConsumed / Number.parseInt(getDisplayTotals().calories)) * 100}%`,
                       }}
                     ></div>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-700 dark:text-gray-200">
                     Calorias consumidas hoje: {progressData.caloriesConsumed} / {getDisplayTotals().calories}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-300">
+                  <p className="text-xs text-gray-600 dark:text-gray-300">
                     Proteínas: {getDisplayTotals().protein} | Carboidratos: {getDisplayTotals().carbs} | Gorduras:{" "}
                     {getDisplayTotals().fats}
                   </p>
-                  <p className="text-xs text-blue-600 dark:text-blue-500 font-medium">
+                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                     Clique para ver sua dieta completa →
                   </p>
                 </div>
@@ -729,27 +729,27 @@ export default function DashboardPage() {
 
             {/* Treino Card */}
             <Card
-              className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 cursor-pointer hover:shadow-lg transition-shadow"
+              className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 border-blue-200 dark:border-gray-600 cursor-pointer hover:shadow-lg transition-shadow"
               onClick={() => router.push("/dashboard/treino")}
             >
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2 text-gray-800 dark:text-white">
-                  <Dumbbell className="h-5 w-5 text-blue-500" />
+                <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                  <Dumbbell className="h-5 w-5 text-blue-500 dark:text-blue-400" />
                   <span>Treino</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div className="h-2 bg-gray-200 rounded-full">
-                    <div className="h-2 bg-blue-500 rounded-full w-1/2"></div>
+                  <div className="h-2 bg-gray-200 dark:bg-gray-600 rounded-full">
+                    <div className="h-2 bg-blue-500 dark:bg-blue-400 rounded-full w-1/2"></div>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-700 dark:text-gray-200">
                     Próximo: Treino de {quizData?.experience === "iniciante" ? "Iniciante" : "Intermediário"}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-300">
+                  <p className="text-xs text-gray-600 dark:text-gray-300">
                     Duração: {quizData?.workoutTime || "30-45 minutos"} | Foco: {getMainGoal()}
                   </p>
-                  <p className="text-xs text-blue-600 dark:text-blue-500 font-medium">
+                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                     Clique para ver seu treino completo →
                   </p>
                 </div>
@@ -758,30 +758,30 @@ export default function DashboardPage() {
 
             {/* Resumo Card */}
             <Card
-              className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 cursor-pointer hover:shadow-lg transition-shadow"
+              className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-800 dark:to-gray-700 border-green-200 dark:border-gray-600 cursor-pointer hover:shadow-lg transition-shadow"
               onClick={() => router.push("/dashboard/resumo")}
             >
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2 text-gray-800 dark:text-white">
-                  <BarChart3 className="h-5 w-5 text-green-500" />
+                <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                  <BarChart3 className="h-5 w-5 text-green-500 dark:text-green-400" />
                   <span>Resumo</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div className="h-2 bg-gray-200 rounded-full">
+                  <div className="h-2 bg-gray-200 dark:bg-gray-600 rounded-full">
                     <div
-                      className="h-2 bg-green-500 rounded-full"
+                      className="h-2 bg-green-500 dark:bg-green-400 rounded-full"
                       style={{ width: `${progressData.overallProgress}%` }}
                     ></div>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-700 dark:text-gray-200">
                     Progresso geral: {progressData.overallProgress}%
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-300">
+                  <p className="text-xs text-gray-600 dark:text-gray-300">
                     {quizData?.timeToGoal ? `Meta até: ${quizData.timeToGoal}` : "Continue seguindo seu plano!"}
                   </p>
-                  <p className="text-xs text-blue-600 dark:text-blue-500 font-medium">
+                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                     Clique para ver informações completas →
                   </p>
                 </div>
@@ -790,29 +790,29 @@ export default function DashboardPage() {
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 gap-4">
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-lime-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                      <Calendar className="h-5 w-5 text-lime-600 dark:text-white" />
+                    <div className="w-10 h-10 bg-lime-100 dark:bg-lime-900 rounded-lg flex items-center justify-center">
+                      <Calendar className="h-5 w-5 text-lime-600 dark:text-lime-400" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Dias consecutivos</p>
-                      <p className="text-xl font-bold text-gray-800 dark:text-white">{progressData.consecutiveDays}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">Dias consecutivos</p>
+                      <p className="text-xl font-bold text-gray-900 dark:text-white">{progressData.consecutiveDays}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                      <Target className="h-5 w-5 text-blue-600 dark:text-white" />
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                      <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Metas atingidas</p>
-                      <p className="text-xl font-bold text-gray-800 dark:text-white">
+                      <p className="text-sm text-gray-600 dark:text-gray-300">Metas atingidas</p>
+                      <p className="text-xl font-bold text-gray-900 dark:text-white">
                         {progressData.goalsAchieved}/{progressData.totalGoals}
                       </p>
                     </div>

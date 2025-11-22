@@ -39,6 +39,11 @@ interface BodyMeasurements {
   date: string
 }
 
+interface ProgressData {
+  currentWeight: string
+  targetWeight: string
+}
+
 export default function ProgressoPage() {
   const router = useRouter()
   const [user] = useAuthState(auth)
@@ -58,6 +63,10 @@ export default function ProgressoPage() {
   })
   const [measurementHistory, setMeasurementHistory] = useState<BodyMeasurements[]>([])
   const [isSaving, setIsSaving] = useState(false)
+  const [progress, setProgress] = useState<ProgressData>({
+    currentWeight: "",
+    targetWeight: "",
+  })
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -79,6 +88,12 @@ export default function ProgressoPage() {
               weight: userData.quizData.currentWeight || prev.weight,
               height: userData.quizData.height || prev.height,
             }))
+
+            // Set progress data
+            setProgress({
+              currentWeight: userData.quizData.currentWeight || "",
+              targetWeight: userData.quizData.targetWeight || "",
+            })
           }
         } else {
           // Fallback to localStorage
@@ -93,6 +108,12 @@ export default function ProgressoPage() {
               weight: parsedData.currentWeight || prev.weight,
               height: parsedData.height || prev.height,
             }))
+
+            // Set progress data
+            setProgress({
+              currentWeight: parsedData.currentWeight || "",
+              targetWeight: parsedData.targetWeight || "",
+            })
           }
         }
       } catch (error) {
@@ -107,6 +128,12 @@ export default function ProgressoPage() {
             weight: parsedData.currentWeight || prev.weight,
             height: parsedData.height || prev.height,
           }))
+
+          // Set progress data
+          setProgress({
+            currentWeight: parsedData.currentWeight || "",
+            targetWeight: parsedData.targetWeight || "",
+          })
         }
       }
     }
@@ -231,7 +258,7 @@ export default function ProgressoPage() {
   const analysis = getBodyAnalysis()
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center mb-6">
@@ -240,8 +267,8 @@ export default function ProgressoPage() {
             Voltar
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Análise Corporal Completa</h1>
-            <p className="text-gray-600">Entenda seu biotipo e acompanhe suas medidas</p>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Análise Corporal Completa</h1>
+            <p className="text-gray-600 dark:text-gray-400">Entenda seu biotipo e acompanhe suas medidas</p>
           </div>
         </div>
 
@@ -443,7 +470,7 @@ export default function ProgressoPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-gray-700">{analysis.bodyType.description}</p>
+                <p className="text-gray-700 dark:text-gray-400">{analysis.bodyType.description}</p>
 
                 <div>
                   <h4 className="font-medium mb-2">Características Principais:</h4>
@@ -471,7 +498,9 @@ export default function ProgressoPage() {
                   <div>
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium">Taxa Metabólica</span>
-                      <span className="text-sm text-gray-600">{analysis.metrics.metabolismRate}%</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {analysis.metrics.metabolismRate}%
+                      </span>
                     </div>
                     <Progress value={analysis.metrics.metabolismRate} className="h-2" />
                   </div>
@@ -479,7 +508,9 @@ export default function ProgressoPage() {
                   <div>
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium">Potencial de Ganho Muscular</span>
-                      <span className="text-sm text-gray-600">{analysis.metrics.muscleGainPotential}%</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {analysis.metrics.muscleGainPotential}%
+                      </span>
                     </div>
                     <Progress value={analysis.metrics.muscleGainPotential} className="h-2" />
                   </div>
@@ -487,7 +518,9 @@ export default function ProgressoPage() {
                   <div>
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium">Potencial de Perda de Gordura</span>
-                      <span className="text-sm text-gray-600">{analysis.metrics.fatLossPotential}%</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {analysis.metrics.fatLossPotential}%
+                      </span>
                     </div>
                     <Progress value={analysis.metrics.fatLossPotential} className="h-2" />
                   </div>
@@ -495,7 +528,7 @@ export default function ProgressoPage() {
                   <div>
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium">Taxa de Recuperação</span>
-                      <span className="text-sm text-gray-600">{analysis.metrics.recoveryRate}%</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{analysis.metrics.recoveryRate}%</span>
                     </div>
                     <Progress value={analysis.metrics.recoveryRate} className="h-2" />
                   </div>
@@ -510,7 +543,7 @@ export default function ProgressoPage() {
                   <CardTitle className="text-lg">🍽️ Dieta Recomendada</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-700">{analysis.recommendations.diet}</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-400">{analysis.recommendations.diet}</p>
                 </CardContent>
               </Card>
 
@@ -519,7 +552,7 @@ export default function ProgressoPage() {
                   <CardTitle className="text-lg">💪 Treino Ideal</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-700">{analysis.recommendations.training}</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-400">{analysis.recommendations.training}</p>
                 </CardContent>
               </Card>
 
@@ -540,32 +573,24 @@ export default function ProgressoPage() {
             </div>
 
             {/* Action Plan */}
-            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 border-blue-200 dark:border-gray-600">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
+                <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
                   <Target className="h-5 w-5 text-blue-600" />
                   <span>Plano de Ação Personalizado</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 bg-white rounded-lg">
-                      <h4 className="font-medium text-blue-800 mb-2">Primeiras 4 Semanas</h4>
-                      <ul className="text-sm text-blue-700 space-y-1">
-                        <li>• Estabelecer rotina de treinos</li>
-                        <li>• Ajustar dieta ao biotipo</li>
-                        <li>• Monitorar progresso</li>
-                      </ul>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Peso Atual</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{progress.currentWeight} kg</p>
                     </div>
 
-                    <div className="p-4 bg-white rounded-lg">
-                      <h4 className="font-medium text-blue-800 mb-2">Próximos 2 Meses</h4>
-                      <ul className="text-sm text-blue-700 space-y-1">
-                        <li>• Intensificar treinos</li>
-                        <li>• Ajustar macronutrientes</li>
-                        <li>• Incluir suplementação</li>
-                      </ul>
+                    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Meta</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{progress.targetWeight} kg</p>
                     </div>
                   </div>
                 </div>
