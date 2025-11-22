@@ -653,18 +653,20 @@ export default function AnaliseCorporalPage() {
                       { key: "back", label: "Costas" },
                       { key: "side", label: "Lateral" },
                     ].map((type) => (
-                      <Button
+                      <button
                         key={type.key}
-                        variant="ghost"
                         onClick={() => setSelectedPhotoType(type.key as "front" | "back" | "side")}
-                        className={`px-12 py-7 text-xl font-semibold rounded-full transition-all border-2 ${
-                          selectedPhotoType === type.key
-                            ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-500 shadow-lg shadow-blue-500/50"
-                            : "bg-gray-900/80 hover:bg-gray-800 text-gray-100 border-gray-600/50"
-                        }`}
+                        className={`
+                          px-12 py-4 text-2xl font-semibold rounded-[2rem] border-[3px] transition-all
+                          ${
+                            selectedPhotoType === type.key
+                              ? "bg-[#3B82F6] text-white border-[#60A5FA] shadow-lg shadow-blue-500/40"
+                              : "bg-[#0f121a] text-gray-300 border-gray-600/50 hover:bg-[#1a1f2e]"
+                          }
+                        `}
                       >
                         {type.label}
-                      </Button>
+                      </button>
                     ))}
                   </div>
                 </div>
