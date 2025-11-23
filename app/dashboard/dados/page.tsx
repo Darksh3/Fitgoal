@@ -278,30 +278,30 @@ export default function DadosPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-blue-900 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-300">Carregando seus dados...</p>
+          <p className="text-gray-700 dark:text-gray-300">Carregando seus dados...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-blue-900 dark:to-gray-900 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.back()}
-              className="px-5 py-2 text-sm font-semibold rounded-full transition-all border-2 bg-white/5 backdrop-blur-md hover:bg-white/10 text-gray-100 border-white/10"
+              className="px-5 py-2 text-sm font-semibold rounded-full transition-all border-2 bg-white/5 backdrop-blur-md hover:bg-white/10 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-white/10"
             >
               <ArrowLeft className="h-4 w-4 mr-2 inline" />
               Voltar
             </button>
             <div>
-              <h1 className="text-3xl font-bold text-white">Meus Dados</h1>
-              <p className="text-gray-400">Gerencie suas informações pessoais</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Meus Dados</h1>
+              <p className="text-gray-600 dark:text-gray-400">Gerencie suas informações pessoais</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -325,7 +325,7 @@ export default function DadosPage() {
             </button>
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="px-5 py-2 text-sm font-semibold rounded-full transition-all border-2 bg-white/5 backdrop-blur-md hover:bg-white/10 text-gray-100 border-white/10"
+              className="px-5 py-2 text-sm font-semibold rounded-full transition-all border-2 bg-white/5 backdrop-blur-md hover:bg-white/10 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-white/10"
             >
               <Edit className="h-4 w-4 mr-2 inline" />
               {isEditing ? "Cancelar" : "Editar"}
@@ -334,9 +334,9 @@ export default function DadosPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-white/5 backdrop-blur-md border-white/10">
+          <Card className="bg-white dark:bg-white/5 backdrop-blur-md border-gray-200 dark:border-white/10">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
                 <Target className="h-5 w-5 text-blue-400" />
                 Dados do Quiz
               </CardTitle>
@@ -344,42 +344,46 @@ export default function DadosPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-gray-400 text-sm">Nome</Label>
-                  <p className="font-semibold text-white text-lg">{quizData?.name || "Não informado"}</p>
+                  <Label className="text-gray-600 dark:text-gray-400 text-sm">Nome</Label>
+                  <p className="font-semibold text-gray-900 dark:text-white text-lg">
+                    {quizData?.name || "Não informado"}
+                  </p>
                 </div>
                 <div>
-                  <Label className="text-gray-400 text-sm">Gênero</Label>
-                  <p className="font-semibold text-white text-lg capitalize">{quizData?.gender || "Não informado"}</p>
+                  <Label className="text-gray-600 dark:text-gray-400 text-sm">Gênero</Label>
+                  <p className="font-semibold text-gray-900 dark:text-white text-lg capitalize">
+                    {quizData?.gender || "Não informado"}
+                  </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-gray-400 text-sm">Peso Atual</Label>
-                  <p className="font-semibold text-white text-lg">
+                  <Label className="text-gray-600 dark:text-gray-400 text-sm">Peso Atual</Label>
+                  <p className="font-semibold text-gray-900 dark:text-white text-lg">
                     {quizData?.currentWeight ? `${quizData.currentWeight} kg` : "Não informado"}
                   </p>
                 </div>
                 <div>
-                  <Label className="text-gray-400 text-sm">Peso Meta</Label>
-                  <p className="font-semibold text-white text-lg">
+                  <Label className="text-gray-600 dark:text-gray-400 text-sm">Peso Meta</Label>
+                  <p className="font-semibold text-gray-900 dark:text-white text-lg">
                     {quizData?.targetWeight ? `${quizData.targetWeight} kg` : "Não informado"}
                   </p>
                 </div>
               </div>
 
               <div>
-                <Label className="text-gray-400 text-sm">Tipo Corporal</Label>
+                <Label className="text-gray-600 dark:text-gray-400 text-sm">Tipo Corporal</Label>
                 <div className="mt-1">
-                  <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 capitalize">
+                  <Badge className="bg-blue-500/20 text-blue-600 dark:text-blue-300 border-blue-500/30 capitalize">
                     {quizData?.bodyType || "Não informado"}
                   </Badge>
                 </div>
               </div>
 
               <div>
-                <Label className="text-gray-400 text-sm">Objetivos</Label>
-                <p className="font-medium text-white">
+                <Label className="text-gray-600 dark:text-gray-400 text-sm">Objetivos</Label>
+                <p className="font-medium text-gray-900 dark:text-white">
                   {(() => {
                     if (!quizData?.goal) return "Não definido"
                     if (Array.isArray(quizData.goal) && quizData.goal.length > 0) {
@@ -395,30 +399,34 @@ export default function DadosPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-gray-400 text-sm">Experiência</Label>
+                  <Label className="text-gray-600 dark:text-gray-400 text-sm">Experiência</Label>
                   <div className="mt-1">
-                    <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 capitalize">
+                    <Badge className="bg-blue-500/20 text-blue-600 dark:text-blue-300 border-blue-500/30 capitalize">
                       {quizData?.experience || "Não informado"}
                     </Badge>
                   </div>
                 </div>
                 <div>
-                  <Label className="text-gray-400 text-sm">Tempo de Treino</Label>
-                  <p className="font-semibold text-white text-lg">{quizData?.workoutTime || "Não definido"}</p>
+                  <Label className="text-gray-600 dark:text-gray-400 text-sm">Tempo de Treino</Label>
+                  <p className="font-semibold text-gray-900 dark:text-white text-lg">
+                    {quizData?.workoutTime || "Não definido"}
+                  </p>
                 </div>
               </div>
 
               <div>
-                <Label className="text-gray-400 text-sm">Dias de Treino por Semana</Label>
-                <p className="font-semibold text-white text-lg">{quizData?.trainingDaysPerWeek || "Não definido"}</p>
+                <Label className="text-gray-600 dark:text-gray-400 text-sm">Dias de Treino por Semana</Label>
+                <p className="font-semibold text-gray-900 dark:text-white text-lg">
+                  {quizData?.trainingDaysPerWeek || "Não definido"}
+                </p>
               </div>
             </CardContent>
           </Card>
 
           <div className="space-y-6">
-            <Card className="bg-white/5 backdrop-blur-md border-white/10">
+            <Card className="bg-white dark:bg-white/5 backdrop-blur-md border-gray-200 dark:border-white/10">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-white">
+                <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
                   <User className="h-5 w-5 text-green-400" />
                   Dados Pessoais
                 </CardTitle>
@@ -426,7 +434,7 @@ export default function DadosPage() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="age" className="text-gray-400 text-sm">
+                    <Label htmlFor="age" className="text-gray-600 dark:text-gray-400 text-sm">
                       Idade
                     </Label>
                     <Input
@@ -435,11 +443,11 @@ export default function DadosPage() {
                       onChange={(e) => setPersonalData((prev) => ({ ...prev, age: e.target.value }))}
                       placeholder="25"
                       disabled={!isEditing}
-                      className="bg-white/5 backdrop-blur-md border-white/10 text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                      className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="height" className="text-gray-400 text-sm">
+                    <Label htmlFor="height" className="text-gray-600 dark:text-gray-400 text-sm">
                       Altura (cm)
                     </Label>
                     <Input
@@ -448,13 +456,13 @@ export default function DadosPage() {
                       onChange={(e) => setPersonalData((prev) => ({ ...prev, height: e.target.value }))}
                       placeholder="178"
                       disabled={!isEditing}
-                      className="bg-white/5 backdrop-blur-md border-white/10 text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                      className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="phone" className="text-gray-400 text-sm">
+                  <Label htmlFor="phone" className="text-gray-600 dark:text-gray-400 text-sm">
                     Telefone
                   </Label>
                   <Input
@@ -463,12 +471,12 @@ export default function DadosPage() {
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, phone: e.target.value }))}
                     placeholder="(11) 99999-9999"
                     disabled={!isEditing}
-                    className="bg-white/5 backdrop-blur-md border-white/10 text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="email" className="text-gray-400 text-sm">
+                  <Label htmlFor="email" className="text-gray-600 dark:text-gray-400 text-sm">
                     E-mail
                   </Label>
                   <Input
@@ -478,12 +486,12 @@ export default function DadosPage() {
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, email: e.target.value }))}
                     placeholder="cleber.neves013@gmail.com"
                     disabled={!isEditing}
-                    className="bg-white/5 backdrop-blur-md border-white/10 text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="address" className="text-gray-400 text-sm">
+                  <Label htmlFor="address" className="text-gray-600 dark:text-gray-400 text-sm">
                     Endereço
                   </Label>
                   <Input
@@ -492,12 +500,12 @@ export default function DadosPage() {
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, address: e.target.value }))}
                     placeholder="Rua, número, bairro, cidade"
                     disabled={!isEditing}
-                    className="bg-white/5 backdrop-blur-md border-white/10 text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="emergencyContact" className="text-gray-400 text-sm">
+                  <Label htmlFor="emergencyContact" className="text-gray-600 dark:text-gray-400 text-sm">
                     Contato de Emergência
                   </Label>
                   <Input
@@ -506,22 +514,22 @@ export default function DadosPage() {
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, emergencyContact: e.target.value }))}
                     placeholder="Nome e telefone"
                     disabled={!isEditing}
-                    className="bg-white/5 backdrop-blur-md border-white/10 text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-white/5 backdrop-blur-md border-white/10">
+            <Card className="bg-white dark:bg-white/5 backdrop-blur-md border-gray-200 dark:border-white/10">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-white">
+                <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
                   <Calendar className="h-5 w-5 text-red-400" />
                   Informações Médicas
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="medicalConditions" className="text-gray-400 text-sm">
+                  <Label htmlFor="medicalConditions" className="text-gray-600 dark:text-gray-400 text-sm">
                     Condições Médicas
                   </Label>
                   <Input
@@ -530,12 +538,12 @@ export default function DadosPage() {
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, medicalConditions: e.target.value }))}
                     placeholder="Diabetes, hipertensão, etc."
                     disabled={!isEditing}
-                    className="bg-white/5 backdrop-blur-md border-white/10 text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="allergies" className="text-gray-400 text-sm">
+                  <Label htmlFor="allergies" className="text-gray-600 dark:text-gray-400 text-sm">
                     Alergias
                   </Label>
                   <Input
@@ -544,7 +552,7 @@ export default function DadosPage() {
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, allergies: e.target.value }))}
                     placeholder="Alimentos, medicamentos, etc."
                     disabled={!isEditing}
-                    className="bg-white/5 backdrop-blur-md border-white/10 text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
 

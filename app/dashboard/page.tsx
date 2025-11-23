@@ -484,7 +484,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-lime-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p>Carregando seu dashboard...</p>
@@ -494,7 +494,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white flex">
       {sidebarOpen && (
         <div className="fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg flex-col z-50 flex">
           <div className="p-6">
@@ -604,7 +604,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="flex-1 p-6 lg:p-8 bg-gray-900 dark:bg-gray-900 min-h-screen">
+      <div className="flex-1 p-6 lg:p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
         <div className="mb-8">
           <Button
             variant="ghost"
@@ -618,7 +618,7 @@ export default function DashboardPage() {
 
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-white mb-3">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">
               {currentTime}, {getUserName()}!
             </h1>
             <p className="text-gray-400 text-lg">
@@ -635,7 +635,9 @@ export default function DashboardPage() {
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-gray-400 mb-1">Peso Atual</p>
-                  <p className="text-3xl font-bold text-white">{currentWeightSlider.toFixed(1)} kg</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                    {currentWeightSlider.toFixed(1)} kg
+                  </p>
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-gray-400 mb-1">Meta</p>
@@ -685,7 +687,7 @@ export default function DashboardPage() {
               onClick={() => router.push("/dashboard/dieta")}
             >
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2 text-white text-xl">
+                <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white text-xl">
                   <Utensils className="h-6 w-6 text-orange-400" />
                   <span>Dieta</span>
                 </CardTitle>
@@ -709,7 +711,7 @@ export default function DashboardPage() {
               onClick={() => router.push("/dashboard/treino")}
             >
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2 text-white text-xl">
+                <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white text-xl">
                   <Dumbbell className="h-6 w-6 text-blue-400" />
                   <span>Treino</span>
                 </CardTitle>
@@ -735,7 +737,7 @@ export default function DashboardPage() {
               onClick={() => router.push("/dashboard/resumo")}
             >
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2 text-white text-xl">
+                <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white text-xl">
                   <BarChart3 className="h-6 w-6 text-green-400" />
                   <span>Resumo</span>
                 </CardTitle>
@@ -760,7 +762,7 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-400">Dias consecutivos</p>
-                      <p className="text-2xl font-bold text-white">{progressData.consecutiveDays}</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{progressData.consecutiveDays}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -774,7 +776,7 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-400">Metas atingidas</p>
-                      <p className="text-2xl font-bold text-white">
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
                         {progressData.goalsAchieved}/{progressData.totalGoals}
                       </p>
                     </div>
