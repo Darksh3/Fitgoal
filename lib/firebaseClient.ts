@@ -5,27 +5,28 @@ import { getAuth, onAuthStateChanged, type User, type Auth } from "firebase/auth
 import { getFirestore, type Firestore } from "firebase/firestore"
 import { useEffect, useState } from "react"
 
-function getFirebaseConfig() {
-  return {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-  }
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 }
 
 let app: FirebaseApp | null = null
 let authInstance: Auth | null = null
 let dbInstance: Firestore | null = null
+let initializationAttempted = false
 
 function getFirebaseApp(): FirebaseApp | null {
-  if (typeof window === "undefined") return null
   if (app) return app
 
-  const firebaseConfig = getFirebaseConfig()
+  if (initializationAttempted) return null
+
+  initializationAttempted = true
+
   const hasRequiredConfig = Boolean(firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId)
 
   if (!hasRequiredConfig) {
@@ -44,7 +45,6 @@ function getFirebaseApp(): FirebaseApp | null {
 }
 
 function getFirebaseAuth(): Auth | null {
-  if (typeof window === "undefined") return null
   if (authInstance) return authInstance
 
   const firebaseApp = getFirebaseApp()
@@ -61,7 +61,6 @@ function getFirebaseAuth(): Auth | null {
 }
 
 function getFirebaseDb(): Firestore | null {
-  if (typeof window === "undefined") return null
   if (dbInstance) return dbInstance
 
   const firebaseApp = getFirebaseApp()
@@ -77,17 +76,8 @@ function getFirebaseDb(): Firestore | null {
   }
 }
 
-export function getAuth_() {
-  return getFirebaseAuth()
-}
-
-export function getDb() {
-  return getFirebaseDb()
-}
-
-// Keep legacy exports for compatibility
-export const auth = typeof window !== "undefined" ? getFirebaseAuth() : null
-export const db = typeof window !== "undefined" ? getFirebaseDb() : null
+export const auth = getFirebaseAuth()
+export const db = getFirebaseDb()
 export { app, onAuthStateChanged }
 
 export function useAuth() {

@@ -9,8 +9,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, User, Target, Calendar, Ruler, Save, Edit } from "lucide-react"
-import { auth, db } from "@/lib/firebaseClient"
-import { doc, getDoc } from "firebase/firestore"
+import { getAuth } from "firebase/auth" // Importar getAuth
+import { doc, getDoc } from "firebase/firestore" // Importar doc e getDoc
+import { db, app } from "@/lib/firebase" // Importar db e app do firebase
 
 interface QuizData {
   gender: string
@@ -42,9 +43,7 @@ interface ProgressData {
   lastUpdated?: string
 }
 
-export const dynamic = "force-dynamic"
-
-export default function ResumoDashboard() {
+export default function ResumoPage() {
   const router = useRouter()
   const [quizData, setQuizData] = useState<QuizData | null>(null)
   const [measurements, setMeasurements] = useState<Measurements>({
@@ -99,6 +98,7 @@ export default function ResumoDashboard() {
   }
 
   useEffect(() => {
+    const auth = getAuth(app)
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         const savedQuizData = localStorage.getItem("quizData")

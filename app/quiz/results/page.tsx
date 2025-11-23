@@ -6,17 +6,7 @@ import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  CheckCircle,
-  Target,
-  Calendar,
-  Dumbbell,
-  Heart,
-  TrendingUp,
-  Download,
-  LayoutDashboard,
-  RefreshCw,
-} from "lucide-react"
+import { CheckCircle, Target, Calendar, Dumbbell, Heart, TrendingUp } from "lucide-react"
 
 export default function ResultsPage() {
   const router = useRouter()
@@ -243,23 +233,60 @@ export default function ResultsPage() {
         </Card>
 
         <div className="flex flex-col md:flex-row gap-4 justify-center pt-6">
-          <button className="btn-neon group" onClick={handleGoToCheckout}>
-            <span className="btn-neon-content">
-              <Download className="h-5 w-5" />
-              <span className="text-base md:text-lg whitespace-nowrap">Escolher Plano e Finalizar</span>
-            </span>
+          <button className="btn-neon-outline" onClick={handleGoToCheckout}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <div className="flex flex-col items-start">
+              <span className="font-semibold text-xl">Escolher</span>
+              <span className="text-base">Plano e Finalizar</span>
+            </div>
           </button>
-          <button className="btn-neon group" onClick={() => router.push("/dashboard/assinatura")}>
-            <span className="btn-neon-content">
-              <LayoutDashboard className="h-5 w-5" />
-              <span className="text-base md:text-lg whitespace-nowrap">Acessar Dashboard</span>
-            </span>
+          <button className="btn-neon-outline" onClick={() => router.push("/dashboard/assinatura")}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <line x1="9" y1="3" x2="9" y2="21" />
+            </svg>
+            <div className="flex flex-col items-start">
+              <span className="font-semibold text-xl">Acessar</span>
+              <span className="text-base">Dashboard</span>
+            </div>
           </button>
-          <button className="btn-neon group" onClick={() => router.push("/quiz")}>
-            <span className="btn-neon-content">
-              <RefreshCw className="h-5 w-5" />
-              <span className="text-base md:text-lg whitespace-nowrap">Refazer Quiz</span>
-            </span>
+          <button className="btn-neon-outline" onClick={() => router.push("/quiz")}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="23 4 23 10 17 10" />
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+            </svg>
+            <div className="flex flex-col items-start">
+              <span className="font-semibold text-xl">Refazer</span>
+              <span className="text-base">Quiz</span>
+            </div>
           </button>
         </div>
       </div>

@@ -1,14 +1,11 @@
 "use client"
 
-export const dynamic = "force-dynamic"
-export const runtime = "edge"
-
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuthState } from "react-firebase-hooks/auth"
-import { auth, db } from "@/lib/firebaseClient"
+import { auth, db } from "@/lib/firebase"
 import { collection, query, where, orderBy, onSnapshot, doc, getDoc, deleteDoc } from "firebase/firestore"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"

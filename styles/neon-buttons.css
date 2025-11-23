@@ -1,0 +1,27 @@
+.btn-neon-outline {
+  position: relative;
+  background: transparent;
+  border: 2px solid #3b82f6;
+  border-radius: 9999px;
+  padding: 1.5rem 2rem;
+  color: #60a5fa;
+  font-size: 1.125rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3), inset 0 0 20px rgba(59, 130, 246, 0.1);
+}
+
+.btn-neon-outline:hover {
+  background: rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.7), 0 0 60px rgba(59, 130, 246, 0.5), inset 0 0 30px rgba(59, 130, 246, 0.2);
+  transform: translateY(-2px);
+}
+
+.btn-neon-outline svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #60a5fa;
+}
