@@ -331,19 +331,23 @@ export default function Home() {
           {/* Botão Login */}
           <Button
             onClick={() => goToAuth("login")}
-            className="relative px-6 py-3 bg-transparent border-2 border-blue-500 text-white rounded-full font-semibold hover:bg-blue-500/10 transition-all duration-300 flex items-center gap-2 shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] text-base whitespace-nowrap"
+            className="btn-neon bg-[#0A1C3A] border-2 border-[#3CA3FF] text-white px-8 py-4 rounded-full flex items-center gap-3 text-xl font-semibold"
           >
-            <ArrowRight className="h-4 w-4" />
-            <span>Entrar</span>
+            <div className="btn-neon-content flex items-center gap-3">
+              <ArrowRight className="h-6 w-6 text-blue-300" />
+              Entrar
+            </div>
           </Button>
 
           {/* Botão Registrar */}
           <Button
             onClick={() => goToAuth("register")}
-            className="relative px-6 py-3 bg-blue-600 text-white rounded-full font-bold shadow-[0_0_25px_rgba(37,99,235,0.6)] hover:shadow-[0_0_35px_rgba(37,99,235,0.8)] hover:bg-blue-500 transition-all duration-300 flex items-center gap-2 text-base whitespace-nowrap"
+            className="btn-neon bg-[#0F5CFF] border-2 border-[#5FA8FF] text-white px-10 py-5 rounded-full flex items-center gap-3 text-xl font-bold"
           >
-            <User className="h-4 w-4" />
-            <span>Começar Agora</span>
+            <div className="btn-neon-content flex items-center gap-3">
+              <User className="h-7 w-7 text-white" />
+              Começar Agora
+            </div>
           </Button>
         </div>
       </header>
