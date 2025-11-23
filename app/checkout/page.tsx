@@ -160,7 +160,7 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
         </CardContent>
       </Card>
 
-      <Button
+      <button
         type="submit"
         disabled={processing || !stripe || !elements || !currentPlan}
         className={`btn-neon-outline w-full py-4 text-lg font-bold ${
@@ -181,7 +181,7 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
             <div className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">SEGURO</div>
           </div>
         )}
-      </Button>
+      </button>
     </form>
   )
 }
