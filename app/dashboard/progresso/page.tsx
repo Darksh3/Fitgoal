@@ -306,7 +306,7 @@ export default function ProgressoPage() {
                   value={measurements.weight}
                   onChange={(e) => handleMeasurementChange("weight", e.target.value)}
                   placeholder="Ex: 70.5"
-                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
+                  className="bg-gradient-to-br from-gray-800/40 to-gray-900/60 backdrop-blur-md border border-gray-700/50 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] focus:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05),0_0_0_2px_rgba(59,130,246,0.5)] transition-all duration-200"
                 />
               </div>
 
@@ -318,7 +318,7 @@ export default function ProgressoPage() {
                   value={measurements.height}
                   onChange={(e) => handleMeasurementChange("height", e.target.value)}
                   placeholder="Ex: 175"
-                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
+                  className="bg-gradient-to-br from-gray-800/40 to-gray-900/60 backdrop-blur-md border border-gray-700/50 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] focus:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05),0_0_0_2px_rgba(59,130,246,0.5)] transition-all duration-200"
                 />
               </div>
 
@@ -331,7 +331,7 @@ export default function ProgressoPage() {
                   value={measurements.chest}
                   onChange={(e) => handleMeasurementChange("chest", e.target.value)}
                   placeholder="Ex: 95.5"
-                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
+                  className="bg-gradient-to-br from-gray-800/40 to-gray-900/60 backdrop-blur-md border border-gray-700/50 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] focus:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05),0_0_0_2px_rgba(59,130,246,0.5)] transition-all duration-200"
                 />
               </div>
 
@@ -344,7 +344,7 @@ export default function ProgressoPage() {
                   value={measurements.waist}
                   onChange={(e) => handleMeasurementChange("waist", e.target.value)}
                   placeholder="Ex: 80.0"
-                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
+                  className="bg-gradient-to-br from-gray-800/40 to-gray-900/60 backdrop-blur-md border border-gray-700/50 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] focus:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05),0_0_0_2px_rgba(59,130,246,0.5)] transition-all duration-200"
                 />
               </div>
 
@@ -357,7 +357,7 @@ export default function ProgressoPage() {
                   value={measurements.hips}
                   onChange={(e) => handleMeasurementChange("hips", e.target.value)}
                   placeholder="Ex: 95.0"
-                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
+                  className="bg-gradient-to-br from-gray-800/40 to-gray-900/60 backdrop-blur-md border border-gray-700/50 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] focus:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05),0_0_0_2px_rgba(59,130,246,0.5)] transition-all duration-200"
                 />
               </div>
 
@@ -370,7 +370,7 @@ export default function ProgressoPage() {
                   value={measurements.leftArm}
                   onChange={(e) => handleMeasurementChange("leftArm", e.target.value)}
                   placeholder="Ex: 35.5"
-                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
+                  className="bg-gradient-to-br from-gray-800/40 to-gray-900/60 backdrop-blur-md border border-gray-700/50 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] focus:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05),0_0_0_2px_rgba(59,130,246,0.5)] transition-all duration-200"
                 />
               </div>
 
@@ -383,7 +383,7 @@ export default function ProgressoPage() {
                   value={measurements.rightArm}
                   onChange={(e) => handleMeasurementChange("rightArm", e.target.value)}
                   placeholder="Ex: 35.5"
-                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
+                  className="bg-gradient-to-br from-gray-800/40 to-gray-900/60 backdrop-blur-md border border-gray-700/50 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] focus:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05),0_0_0_2px_rgba(59,130,246,0.5)] transition-all duration-200"
                 />
               </div>
 
@@ -396,7 +396,7 @@ export default function ProgressoPage() {
                   value={measurements.leftThigh}
                   onChange={(e) => handleMeasurementChange("leftThigh", e.target.value)}
                   placeholder="Ex: 55.0"
-                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
+                  className="bg-gradient-to-br from-gray-800/40 to-gray-900/60 backdrop-blur-md border border-gray-700/50 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] focus:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05),0_0_0_2px_rgba(59,130,246,0.5)] transition-all duration-200"
                 />
               </div>
 
@@ -409,7 +409,7 @@ export default function ProgressoPage() {
                   value={measurements.rightThigh}
                   onChange={(e) => handleMeasurementChange("rightThigh", e.target.value)}
                   placeholder="Ex: 55.0"
-                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
+                  className="bg-gradient-to-br from-gray-800/40 to-gray-900/60 backdrop-blur-md border border-gray-700/50 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] focus:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05),0_0_0_2px_rgba(59,130,246,0.5)] transition-all duration-200"
                 />
               </div>
 
@@ -418,11 +418,10 @@ export default function ProgressoPage() {
                 <Input
                   id="neck"
                   type="number"
-                  step="0.1"
                   value={measurements.neck}
                   onChange={(e) => handleMeasurementChange("neck", e.target.value)}
                   placeholder="Ex: 38.0"
-                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
+                  className="bg-gradient-to-br from-gray-800/40 to-gray-900/60 backdrop-blur-md border border-gray-700/50 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] focus:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05),0_0_0_2px_rgba(59,130,246,0.5)] transition-all duration-200"
                 />
               </div>
 
@@ -435,7 +434,7 @@ export default function ProgressoPage() {
                   value={measurements.calf}
                   onChange={(e) => handleMeasurementChange("calf", e.target.value)}
                   placeholder="Ex: 38.0"
-                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
+                  className="bg-gradient-to-br from-gray-800/40 to-gray-900/60 backdrop-blur-md border border-gray-700/50 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] focus:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05),0_0_0_2px_rgba(59,130,246,0.5)] transition-all duration-200"
                 />
               </div>
 
@@ -446,7 +445,7 @@ export default function ProgressoPage() {
                   type="date"
                   value={measurements.date}
                   onChange={(e) => handleMeasurementChange("date", e.target.value)}
-                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
+                  className="bg-gradient-to-br from-gray-800/40 to-gray-900/60 backdrop-blur-md border border-gray-700/50 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] focus:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.05),0_0_0_2px_rgba(59,130,246,0.5)] transition-all duration-200"
                 />
               </div>
             </div>
