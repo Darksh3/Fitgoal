@@ -751,7 +751,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <div className="grid grid-cols-2 gap-6 mt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
               <Card className="bg-gray-800/50 border-gray-700">
                 <CardContent className="py-8 px-6">
                   <div className="flex items-center space-x-4">

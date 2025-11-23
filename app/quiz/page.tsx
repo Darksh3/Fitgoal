@@ -444,9 +444,9 @@ export default function QuizPage() {
 
   const getBodyImage = (gender: string) => {
     if (gender === "mulher") {
-      return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/5069027231916993985__1_-removebg-preview-meirS7AMEWh0XiARXP09Dhmcm3HBpL.png"
+      return "/images/5069027231916993985-1-removebg-preview.png"
     }
-    return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/5073348832305196416-removebg-preview-c2B0IQxyCy9PETajQazkUsY1uKc79s.png"
+    return "/images/5073348832305196416-removebg-preview.png"
   }
 
   const getBodyTypeImageForFocus = () => {
@@ -949,7 +949,8 @@ export default function QuizPage() {
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold text-white">Qual o seu gênero?</h2>
             </div>
-            <div className="grid grid-cols-2 gap-8 max-w-lg mx-auto">
+            {/* Adicionado grid-cols-1 para mobile antes do grid-cols-2 para melhor visualização em telas pequenas */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-lg mx-auto">
               {[
                 { value: "homem", label: "Homem", icon: "/images/male-gender-icon.png" },
                 { value: "mulher", label: "Mulher", icon: "/images/female-gender-icon.png" },

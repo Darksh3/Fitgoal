@@ -239,7 +239,7 @@ export default function ResumoPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm text-gray-600 dark:text-gray-400">Nome</Label>
                     <p className="font-medium text-gray-900 dark:text-white">{quizData?.name || "Não informado"}</p>
@@ -289,7 +289,7 @@ export default function ResumoPage() {
                   <p className="font-medium text-gray-900 dark:text-white">{getGoalText(quizData?.goal || [])}</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm text-gray-600 dark:text-gray-400">Prazo</Label>
                     <p className="font-medium text-gray-900 dark:text-white">
@@ -341,7 +341,7 @@ export default function ResumoPage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="height">Altura (cm)</Label>
                     <Input

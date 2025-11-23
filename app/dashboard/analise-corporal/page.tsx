@@ -704,7 +704,7 @@ export default function AnaliseCorporalPage() {
                     <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Fotos adicionadas ({pendingPhotos.length}):
                     </p>
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       {pendingPhotos.map((photo) => (
                         <div key={photo.type} className="relative">
                           <div className="aspect-[3/4] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
