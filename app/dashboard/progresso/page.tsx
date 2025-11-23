@@ -515,7 +515,7 @@ export default function ProgressoPage() {
 
         {analysis && (
           <div className="space-y-8">
-            <Card className="bg-gray-900/40 backdrop-blur-xl border border-gray-700/40 rounded-2xl">
+            <Card className="bg-white dark:bg-gray-900/40 backdrop-blur-xl border border-gray-200 dark:border-gray-700/40 rounded-2xl">
               <CardContent className="p-8 space-y-8">
                 {/* Biotipo Section */}
                 <div className="flex items-center gap-8">
@@ -529,27 +529,27 @@ export default function ProgressoPage() {
                     <div>
                       <div className="flex items-center gap-2 mb-2">
                         <User className="h-5 w-5 text-blue-500" />
-                        <h2 className="text-2xl font-bold">
-                          Seu <span className="text-blue-400">Biotipo:</span>{" "}
-                          <span className="text-blue-400">{analysis.bodyType.name}</span>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                          Seu <span className="text-blue-600 dark:text-blue-400">Biotipo:</span>{" "}
+                          <span className="text-blue-600 dark:text-blue-400">{analysis.bodyType.name}</span>
                         </h2>
                       </div>
-                      <p className="text-gray-400">{analysis.bodyType.description}</p>
+                      <p className="text-gray-600 dark:text-gray-400">{analysis.bodyType.description}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Divider */}
-                <hr className="border-gray-700/50" />
+                <hr className="border-gray-300 dark:border-gray-700/50" />
 
                 {/* Características Principais */}
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-4">Características Principais</h3>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Características Principais</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {analysis.bodyType.characteristics.map((char, index) => (
                       <div
                         key={index}
-                        className="px-4 py-3 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-full text-gray-200 text-sm flex items-center gap-3"
+                        className="px-4 py-3 bg-gray-100 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-300 dark:border-gray-700 rounded-full text-gray-700 dark:text-gray-200 text-sm flex items-center gap-3"
                       >
                         <div className="w-2 h-2 bg-blue-500 rounded-full" />
                         {char}
@@ -559,43 +559,55 @@ export default function ProgressoPage() {
                 </div>
 
                 {/* Divider */}
-                <hr className="border-gray-700/50" />
+                <hr className="border-gray-300 dark:border-gray-700/50" />
 
                 {/* Métricas Corporais */}
                 <div>
                   <div className="flex items-center gap-2 mb-6">
                     <Activity className="h-5 w-5 text-green-500" />
-                    <h3 className="text-xl font-bold text-white">Métricas Corporais</h3>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Métricas Corporais</h3>
                   </div>
                   <div className="space-y-6">
                     <div>
                       <div className="flex justify-between mb-2">
-                        <span className="text-base font-medium text-white">Taxa Metabólica</span>
-                        <span className="text-base text-gray-400">{analysis.metrics.metabolismRate}%</span>
+                        <span className="text-base font-medium text-gray-900 dark:text-white">Taxa Metabólica</span>
+                        <span className="text-base text-gray-600 dark:text-gray-400">
+                          {analysis.metrics.metabolismRate}%
+                        </span>
                       </div>
                       <Progress value={analysis.metrics.metabolismRate} className="h-3" />
                     </div>
 
                     <div>
                       <div className="flex justify-between mb-2">
-                        <span className="text-base font-medium text-white">Potencial de Ganho Muscular</span>
-                        <span className="text-base text-gray-400">{analysis.metrics.muscleGainPotential}%</span>
+                        <span className="text-base font-medium text-gray-900 dark:text-white">
+                          Potencial de Ganho Muscular
+                        </span>
+                        <span className="text-base text-gray-600 dark:text-gray-400">
+                          {analysis.metrics.muscleGainPotential}%
+                        </span>
                       </div>
                       <Progress value={analysis.metrics.muscleGainPotential} className="h-3" />
                     </div>
 
                     <div>
                       <div className="flex justify-between mb-2">
-                        <span className="text-base font-medium text-white">Potencial de Perda de Gordura</span>
-                        <span className="text-base text-gray-400">{analysis.metrics.fatLossPotential}%</span>
+                        <span className="text-base font-medium text-gray-900 dark:text-white">
+                          Potencial de Perda de Gordura
+                        </span>
+                        <span className="text-base text-gray-600 dark:text-gray-400">
+                          {analysis.metrics.fatLossPotential}%
+                        </span>
                       </div>
                       <Progress value={analysis.metrics.fatLossPotential} className="h-3" />
                     </div>
 
                     <div>
                       <div className="flex justify-between mb-2">
-                        <span className="text-base font-medium text-white">Taxa de Recuperação</span>
-                        <span className="text-base text-gray-400">{analysis.metrics.recoveryRate}%</span>
+                        <span className="text-base font-medium text-gray-900 dark:text-white">Taxa de Recuperação</span>
+                        <span className="text-base text-gray-600 dark:text-gray-400">
+                          {analysis.metrics.recoveryRate}%
+                        </span>
                       </div>
                       <Progress value={analysis.metrics.recoveryRate} className="h-3" />
                     </div>
