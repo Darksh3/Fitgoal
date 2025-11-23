@@ -163,7 +163,7 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
       <Button
         type="submit"
         disabled={processing || !stripe || !elements || !currentPlan}
-        className={`btn-neon-outline w-full py-6 text-xl font-bold flex items-center justify-center gap-3 ${
+        className={`btn-neon-outline w-full py-4 text-lg font-bold ${
           processing ? "opacity-75 cursor-not-allowed" : ""
         }`}
       >
@@ -173,13 +173,13 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
             Processando...
           </div>
         ) : (
-          <>
-            <Lock className="h-6 w-6" />
-            <span className="font-bold text-xl">
+          <div className="flex items-center justify-center gap-3 w-full">
+            <Lock className="h-5 w-5" />
+            <span className="font-bold">
               Pagar {installments}x de {formatCurrency(installmentValue)}
             </span>
             <div className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">SEGURO</div>
-          </>
+          </div>
         )}
       </Button>
     </form>
