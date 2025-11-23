@@ -13,6 +13,8 @@ import { StyledButton } from "@/components/ui/styled-button"
 import { useRouter } from "next/navigation"
 import type { Meal, DietPlan } from "@/types"
 
+export const dynamic = "force-dynamic"
+
 export default function DietPage() {
   const [isHydrated, setIsHydrated] = useState(false)
 
@@ -840,7 +842,7 @@ export default function DietPage() {
       calories: totalCalories > 0 ? `${Math.round(totalCalories)}` : "0",
       protein: totalProtein > 0 ? `${Math.round(totalProtein)}g` : "0g",
       carbs: totalCarbs > 0 ? `${Math.round(totalCarbs)}g` : "0g",
-      fats: totalCarbs > 0 ? `${Math.round(totalCarbs)}g` : "0g",
+      fats: totalFats > 0 ? `${Math.round(totalFats)}g` : "0g",
     }
   }
 

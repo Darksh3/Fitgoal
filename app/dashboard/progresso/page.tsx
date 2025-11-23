@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, User, Target, Activity, Ruler, Save, TrendingUp } from "lucide-react"
-import { auth, db } from "@/lib/firebase"
+import { auth, db } from "@/lib/firebaseClient"
 import { collection, addDoc, query, orderBy, limit, getDocs, doc, getDoc } from "firebase/firestore"
 import { useAuthState } from "react-firebase-hooks/auth"
 
@@ -44,7 +44,9 @@ interface ProgressData {
   targetWeight: string
 }
 
-export default function ProgressoPage() {
+export const dynamic = "force-dynamic"
+
+export default function ProgressPage() {
   const router = useRouter()
   const [user] = useAuthState(auth)
   const [quizData, setQuizData] = useState<QuizData | null>(null)
