@@ -70,6 +70,9 @@ export default function DadosPage() {
       if (savedQuizData) {
         localQuizData = JSON.parse(savedQuizData)
         console.log("[v0] Local quiz data found:", localQuizData?.name)
+        console.log("[v0] Local currentWeight:", localQuizData?.currentWeight)
+        console.log("[v0] Local targetWeight:", localQuizData?.targetWeight)
+        console.log("[v0] Local goal:", localQuizData?.goal)
       }
 
       if (savedPersonalData) {
@@ -93,6 +96,9 @@ export default function DadosPage() {
 
             console.log("[v0] Firestore quiz data name:", firestoreData?.name)
             console.log("[v0] Firestore training frequency:", firestoreData?.trainingDaysPerWeek)
+            console.log("[v0] Firestore currentWeight:", firestoreData?.currentWeight)
+            console.log("[v0] Firestore targetWeight:", firestoreData?.targetWeight)
+            console.log("[v0] Firestore goal:", firestoreData?.goal)
 
             if (firestoreData?.name && firestoreData.name !== localQuizData?.name) {
               console.log("[v0] Syncing name from Firestore:", firestoreData.name)
@@ -381,13 +387,13 @@ export default function DadosPage() {
                 <div>
                   <Label className="text-gray-400 text-sm">Peso Atual</Label>
                   <p className="font-semibold text-white text-lg">
-                    {quizData?.currentWeight ? `${quizData.currentWeight} kg` : "kg"}
+                    {quizData?.currentWeight ? `${quizData.currentWeight} kg` : "Não informado"}
                   </p>
                 </div>
                 <div>
                   <Label className="text-gray-400 text-sm">Peso Meta</Label>
                   <p className="font-semibold text-white text-lg">
-                    {quizData?.targetWeight ? `${quizData.targetWeight} kg` : "kg"}
+                    {quizData?.targetWeight ? `${quizData.targetWeight} kg` : "Não informado"}
                   </p>
                 </div>
               </div>
@@ -404,7 +410,17 @@ export default function DadosPage() {
               <div>
                 <Label className="text-gray-400 text-sm">Objetivos</Label>
                 <p className="font-medium text-white">
-                  {quizData?.goal && quizData.goal.length > 0 ? getGoalText(quizData.goal) : "Não definido"}
+                  {(() => {
+                    console.log("[v0] Rendering goal, current value:", quizData?.goal)
+                    if (!quizData?.goal) return "Não definido"
+                    if (Array.isArray(quizData.goal) && quizData.goal.length > 0) {
+                      return getGoalText(quizData.goal)
+                    }
+                    if (typeof quizData.goal === "string" && quizData.goal.length > 0) {
+                      return quizData.goal
+                    }
+                    return "Não definido"
+                  })()}
                 </p>
               </div>
 
@@ -577,18 +593,16 @@ export default function DadosPage() {
           </div>
         </div>
 
-        {isEditing && (
-          <div className="mt-6 flex justify-end">
-            <StyledButton
-              onClick={handleSave}
-              disabled={isSyncing}
-              className="px-8 py-3 text-base font-semibold rounded-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/50"
-            >
-              <Save className="h-5 w-5 mr-2" />
-              {isSyncing ? "Salvando..." : "Salvar Dados"}
-            </StyledButton>
-          </div>
-        )}
+        <div className="fixed bottom-8 right-8 z-10">
+          <StyledButton
+            onClick={handleSave}
+            disabled={isSyncing}
+            className="px-8 py-3 text-base font-semibold rounded-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/50"
+          >
+            <Save className="h-5 w-5 mr-2" />
+            {isSyncing ? "Salvando..." : "Salvar Dados"}
+          </StyledButton>
+        </div>
       </div>
     </div>
   )
