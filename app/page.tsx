@@ -331,18 +331,18 @@ export default function Home() {
           {/* Botão Login */}
           <Button
             onClick={() => goToAuth("login")}
-            className="relative px-8 py-6 bg-transparent border-2 border-blue-500 text-white rounded-full font-semibold hover:bg-blue-500/10 transition-all duration-300 flex items-center gap-3 shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] text-lg"
+            className="relative px-6 py-3 bg-transparent border-2 border-blue-500 text-white rounded-full font-semibold hover:bg-blue-500/10 transition-all duration-300 flex items-center gap-2 shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] text-base whitespace-nowrap"
           >
-            <ArrowRight className="h-5 w-5" />
+            <ArrowRight className="h-4 w-4" />
             <span>Entrar</span>
           </Button>
 
           {/* Botão Registrar */}
           <Button
             onClick={() => goToAuth("register")}
-            className="relative px-8 py-6 bg-blue-600 text-white rounded-full font-bold shadow-[0_0_25px_rgba(37,99,235,0.6)] hover:shadow-[0_0_35px_rgba(37,99,235,0.8)] hover:bg-blue-500 transition-all duration-300 flex items-center gap-3 text-lg"
+            className="relative px-6 py-3 bg-blue-600 text-white rounded-full font-bold shadow-[0_0_25px_rgba(37,99,235,0.6)] hover:shadow-[0_0_35px_rgba(37,99,235,0.8)] hover:bg-blue-500 transition-all duration-300 flex items-center gap-2 text-base whitespace-nowrap"
           >
-            <User className="h-5 w-5" />
+            <User className="h-4 w-4" />
             <span>Começar Agora</span>
           </Button>
         </div>
