@@ -269,6 +269,12 @@ export default function ProgressoPage() {
 
   const analysis = getBodyAnalysis()
 
+  const biotypeImage: Record<string, string> = {
+    ectomorfo: "/biotypes/ectomorfo1.png",
+    mesomorfo: "/biotypes/mesomorfo1.png",
+    endomorfo: "/biotypes/endomorfo1.png",
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-4xl mx-auto">
@@ -510,24 +516,38 @@ export default function ProgressoPage() {
         {analysis && (
           <div className="space-y-8">
             {/* Body Type Analysis */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <User className="h-5 w-5 text-blue-500" />
-                  <span>Seu Biotipo: {analysis.bodyType.name}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-gray-700 dark:text-gray-400">{analysis.bodyType.description}</p>
+            <Card className="bg-gray-900/40 backdrop-blur-xl border border-gray-700/40 rounded-2xl">
+              <CardContent className="p-8">
+                <div className="flex items-center gap-8">
+                  <img
+                    src={biotypeImage[quizData?.bodyType?.toLowerCase() || "ectomorfo"]}
+                    alt={`Biotipo ${analysis.bodyType.name}`}
+                    className="w-32 h-32 md:w-40 md:h-40 object-contain drop-shadow-2xl flex-shrink-0"
+                  />
 
-                <div>
-                  <h4 className="font-medium mb-2">Características Principais:</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    {analysis.bodyType.characteristics.map((char, index) => (
-                      <Badge key={index} variant="outline" className="justify-start">
-                        {char}
-                      </Badge>
-                    ))}
+                  {/* Nome + descrição */}
+                  <div className="flex-1 space-y-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <User className="h-5 w-5 text-blue-500" />
+                        <h2 className="text-2xl font-bold text-white">Seu Biotipo: {analysis.bodyType.name}</h2>
+                      </div>
+                      <p className="text-gray-400">{analysis.bodyType.description}</p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium text-white mb-3">Características Principais:</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {analysis.bodyType.characteristics.map((char, index) => (
+                          <div
+                            key={index}
+                            className="px-4 py-2 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl text-gray-200 text-sm"
+                          >
+                            {char}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
