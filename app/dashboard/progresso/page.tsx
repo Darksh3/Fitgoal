@@ -515,9 +515,9 @@ export default function ProgressoPage() {
 
         {analysis && (
           <div className="space-y-8">
-            {/* Body Type Analysis */}
             <Card className="bg-gray-900/40 backdrop-blur-xl border border-gray-700/40 rounded-2xl">
-              <CardContent className="p-8">
+              <CardContent className="p-8 space-y-8">
+                {/* Biotipo Section */}
                 <div className="flex items-center gap-8">
                   <img
                     src={biotypeImage[quizData?.bodyType?.toLowerCase() || "ectomorfo"]}
@@ -525,86 +525,85 @@ export default function ProgressoPage() {
                     className="w-32 h-32 md:w-40 md:h-40 object-contain drop-shadow-2xl flex-shrink-0"
                   />
 
-                  {/* Nome + descrição */}
                   <div className="flex-1 space-y-4">
                     <div>
                       <div className="flex items-center gap-2 mb-2">
                         <User className="h-5 w-5 text-blue-500" />
-                        <h2 className="text-2xl font-bold text-white">Seu Biotipo: {analysis.bodyType.name}</h2>
+                        <h2 className="text-2xl font-bold">
+                          Seu <span className="text-blue-400">Biotipo:</span>{" "}
+                          <span className="text-blue-400">{analysis.bodyType.name}</span>
+                        </h2>
                       </div>
                       <p className="text-gray-400">{analysis.bodyType.description}</p>
                     </div>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <hr className="border-gray-700/50" />
+
+                {/* Características Principais */}
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-4">Características Principais</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {analysis.bodyType.characteristics.map((char, index) => (
+                      <div
+                        key={index}
+                        className="px-4 py-3 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-full text-gray-200 text-sm flex items-center gap-3"
+                      >
+                        <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                        {char}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <hr className="border-gray-700/50" />
+
+                {/* Métricas Corporais */}
+                <div>
+                  <div className="flex items-center gap-2 mb-6">
+                    <Activity className="h-5 w-5 text-green-500" />
+                    <h3 className="text-xl font-bold text-white">Métricas Corporais</h3>
+                  </div>
+                  <div className="space-y-6">
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-base font-medium text-white">Taxa Metabólica</span>
+                        <span className="text-base text-gray-400">{analysis.metrics.metabolismRate}%</span>
+                      </div>
+                      <Progress value={analysis.metrics.metabolismRate} className="h-3" />
+                    </div>
 
                     <div>
-                      <h4 className="font-medium text-white mb-3">Características Principais:</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {analysis.bodyType.characteristics.map((char, index) => (
-                          <div
-                            key={index}
-                            className="px-4 py-2 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl text-gray-200 text-sm"
-                          >
-                            {char}
-                          </div>
-                        ))}
+                      <div className="flex justify-between mb-2">
+                        <span className="text-base font-medium text-white">Potencial de Ganho Muscular</span>
+                        <span className="text-base text-gray-400">{analysis.metrics.muscleGainPotential}%</span>
                       </div>
+                      <Progress value={analysis.metrics.muscleGainPotential} className="h-3" />
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-base font-medium text-white">Potencial de Perda de Gordura</span>
+                        <span className="text-base text-gray-400">{analysis.metrics.fatLossPotential}%</span>
+                      </div>
+                      <Progress value={analysis.metrics.fatLossPotential} className="h-3" />
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-base font-medium text-white">Taxa de Recuperação</span>
+                        <span className="text-base text-gray-400">{analysis.metrics.recoveryRate}%</span>
+                      </div>
+                      <Progress value={analysis.metrics.recoveryRate} className="h-3" />
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Metrics */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Activity className="h-5 w-5 text-green-500" />
-                  <span>Métricas Corporais</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Taxa Metabólica</span>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {analysis.metrics.metabolismRate}%
-                      </span>
-                    </div>
-                    <Progress value={analysis.metrics.metabolismRate} className="h-2" />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Potencial de Ganho Muscular</span>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {analysis.metrics.muscleGainPotential}%
-                      </span>
-                    </div>
-                    <Progress value={analysis.metrics.muscleGainPotential} className="h-2" />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Potencial de Perda de Gordura</span>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {analysis.metrics.fatLossPotential}%
-                      </span>
-                    </div>
-                    <Progress value={analysis.metrics.fatLossPotential} className="h-2" />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Taxa de Recuperação</span>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">{analysis.metrics.recoveryRate}%</span>
-                    </div>
-                    <Progress value={analysis.metrics.recoveryRate} className="h-2" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Recommendations */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <Card>
                 <CardHeader>
