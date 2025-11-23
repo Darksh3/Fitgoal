@@ -163,31 +163,22 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
       <Button
         type="submit"
         disabled={processing || !stripe || !elements || !currentPlan}
-        className={`relative w-full py-6 text-xl font-bold rounded-full transition-all duration-300 shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 bg-gradient-to-r from-lime-400 to-lime-500 hover:from-lime-500 hover:to-lime-600 text-gray-900 border-4 border-lime-300 hover:border-lime-200 overflow-hidden ${
+        className={`btn-neon-outline w-full py-6 text-xl font-bold flex items-center justify-center gap-3 ${
           processing ? "opacity-75 cursor-not-allowed" : ""
         }`}
-        style={{
-          background: processing
-            ? "linear-gradient(45deg, #84cc16, #65a30d)"
-            : "linear-gradient(45deg, #a3e635, #84cc16)",
-          boxShadow: "0 8px 32px rgba(163, 230, 53, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)",
-          textShadow: "0 1px 2px rgba(0, 0, 0, 0.3)",
-        }}
       >
         {processing ? (
-          <div className="flex items-center justify-center relative z-10">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900 mr-2"></div>
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-lime-400 mr-2"></div>
             Processando...
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-center relative z-10">
-              <Lock className="h-6 w-6 mr-3" />
-              <span className="font-black text-xl">
-                Pagar {installments}x de {formatCurrency(installmentValue)}
-              </span>
-              <div className="ml-3 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">SEGURO</div>
-            </div>
+            <Lock className="h-6 w-6" />
+            <span className="font-bold text-xl">
+              Pagar {installments}x de {formatCurrency(installmentValue)}
+            </span>
+            <div className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">SEGURO</div>
           </>
         )}
       </Button>
