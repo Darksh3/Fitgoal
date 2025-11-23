@@ -127,7 +127,7 @@ export default function DadosPage() {
                   ...localPersonalData,
                   age: localQuizData?.age || localPersonalData?.age || "",
                   height: localQuizData?.height || localPersonalData?.height || "",
-                  email: auth.currentUser.email || localPersonalData?.email || "",
+                  email: auth.currentUser?.email || localPersonalData?.email || "",
                 }
                 setPersonalData(preFilledData)
               }
@@ -380,11 +380,11 @@ export default function DadosPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-gray-400 text-sm">Peso Atual</Label>
-                  <p className="font-semibold text-white text-lg">{quizData?.currentWeight} kg</p>
+                  <p className="font-semibold text-white text-lg">{quizData?.currentWeight || "kg"} kg</p>
                 </div>
                 <div>
                   <Label className="text-gray-400 text-sm">Peso Meta</Label>
-                  <p className="font-semibold text-white text-lg">{quizData?.targetWeight} kg</p>
+                  <p className="font-semibold text-white text-lg">{quizData?.targetWeight || "kg"} kg</p>
                 </div>
               </div>
 
@@ -399,7 +399,9 @@ export default function DadosPage() {
 
               <div>
                 <Label className="text-gray-400 text-sm">Objetivos</Label>
-                <p className="font-medium text-white">{getGoalText(quizData?.goal || [])}</p>
+                <p className="font-medium text-white">
+                  {quizData?.goal && quizData.goal.length > 0 ? getGoalText(quizData.goal) : "Não informado"}
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -576,9 +578,9 @@ export default function DadosPage() {
             <StyledButton
               onClick={handleSave}
               disabled={isSyncing}
-              className="px-8 py-3 text-base font-semibold rounded-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/50"
+              className="px-8 py-3 text-base font-semibold rounded-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/50 flex items-center gap-2"
             >
-              <Save className="h-5 w-5 mr-2" />
+              <Save className="h-5 w-5" />
               {isSyncing ? "Salvando..." : "Salvar Dados"}
             </StyledButton>
           </div>
