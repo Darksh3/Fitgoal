@@ -17,8 +17,6 @@ import {
   CreditCard,
   LogOut,
   MessageCircle,
-  Calendar,
-  Target,
   Utensils,
   Dumbbell,
   BarChart3,
@@ -627,21 +625,21 @@ export default function DashboardPage() {
           </div>
 
           {quizData && (
-            <div className="mb-12 bg-gray-800/50 border border-gray-700 rounded-lg p-8">
+            <div className="mb-12 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-8 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="text-center">
-                  <p className="text-sm text-gray-400 mb-1">Peso Inicial</p>
-                  <p className="text-2xl font-bold text-gray-500">{initialWeight.toFixed(1)} kg</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Peso Inicial</p>
+                  <p className="text-2xl font-bold text-gray-400 dark:text-gray-500">{initialWeight.toFixed(1)} kg</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm text-gray-400 mb-1">Peso Atual</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Peso Atual</p>
                   <p className="text-3xl font-bold text-gray-900 dark:text-white">
                     {currentWeightSlider.toFixed(1)} kg
                   </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm text-gray-400 mb-1">Meta</p>
-                  <p className="text-2xl font-bold text-green-400">{quizData.targetWeight} kg</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Meta</p>
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">{quizData.targetWeight} kg</p>
                 </div>
               </div>
 
@@ -653,7 +651,7 @@ export default function DashboardPage() {
                   step="0.1"
                   value={currentWeightSlider}
                   onChange={(e) => handleWeightChange(Number.parseFloat(e.target.value))}
-                  className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb"
+                  className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb"
                   style={{
                     background: `linear-gradient(to right, 
                       rgb(59 130 246) 0%, 
@@ -665,7 +663,7 @@ export default function DashboardPage() {
                             (Math.min(initialWeight, Number.parseFloat(quizData.targetWeight)) - 10))) *
                         100
                       }%, 
-                      rgb(55 65 81) ${
+                      rgb(229 231 235) ${
                         ((currentWeightSlider -
                           (Math.min(initialWeight, Number.parseFloat(quizData.targetWeight)) - 10)) /
                           (Math.max(initialWeight, Number.parseFloat(quizData.targetWeight)) +
@@ -673,117 +671,91 @@ export default function DashboardPage() {
                             (Math.min(initialWeight, Number.parseFloat(quizData.targetWeight)) - 10))) *
                         100
                       }%, 
-                      rgb(55 65 81) 100%)`,
+                      rgb(229 231 235) 100%)`,
                   }}
                 />
-                {isSaving && <p className="text-xs text-blue-400 text-center mt-2">Salvando...</p>}
+                {isSaving && <p className="text-xs text-blue-600 dark:text-blue-400 text-center mt-2">Salvando...</p>}
               </div>
             </div>
           )}
 
           <div className="space-y-6">
             <Card
-              className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-all"
+              className="bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-all shadow-sm"
               onClick={() => router.push("/dashboard/dieta")}
             >
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white text-xl">
-                  <Utensils className="h-6 w-6 text-orange-400" />
+                  <Utensils className="h-6 w-6 text-orange-500 dark:text-orange-400" />
                   <span>Dieta</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <p className="text-gray-300">
-                    Calorias consumidas hoje: {progressData.caloriesConsumed} / {getDisplayTotals().calories} kcal kcal
+                  <p className="text-gray-700 dark:text-gray-300">
+                    Calorias consumidas hoje: {progressData.caloriesConsumed} / {getDisplayTotals().calories} kcal
                   </p>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Proteínas: {getDisplayTotals().protein} | Carboidratos: {getDisplayTotals().carbs} | Gorduras:{" "}
                     {getDisplayTotals().fats}
                   </p>
-                  <p className="text-blue-400 font-medium flex items-center">Clique para ver sua dieta completa →</p>
+                  <p className="text-blue-600 dark:text-blue-400 font-medium flex items-center">
+                    Clique para ver sua dieta completa →
+                  </p>
                 </div>
               </CardContent>
             </Card>
 
             <Card
-              className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-all"
+              className="bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-all shadow-sm"
               onClick={() => router.push("/dashboard/treino")}
             >
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white text-xl">
-                  <Dumbbell className="h-6 w-6 text-blue-400" />
+                  <Dumbbell className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                   <span>Treino</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="h-2 bg-gray-700 rounded-full mb-3">
-                    <div className="h-2 bg-blue-500 rounded-full w-1/2"></div>
+                  <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full mb-3">
+                    <div className="h-2 bg-blue-600 dark:bg-blue-500 rounded-full w-1/2"></div>
                   </div>
-                  <p className="text-gray-300">
+                  <p className="text-gray-700 dark:text-gray-300">
                     Próximo: Treino de {quizData?.experience === "iniciante" ? "Iniciante" : "Intermediário"}
                   </p>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Duração: {quizData?.workoutTime || "1hora"} | Foco: {getMainGoal()}
                   </p>
-                  <p className="text-blue-400 font-medium flex items-center">Clique para ver seu treino completo →</p>
+                  <p className="text-blue-600 dark:text-blue-400 font-medium flex items-center">
+                    Clique para ver seu treino completo →
+                  </p>
                 </div>
               </CardContent>
             </Card>
 
             <Card
-              className="bg-gray-800/50 border-gray-700 cursor-pointer hover:bg-gray-800/70 transition-all"
+              className="bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-all shadow-sm"
               onClick={() => router.push("/dashboard/resumo")}
             >
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white text-xl">
-                  <BarChart3 className="h-6 w-6 text-green-400" />
+                  <BarChart3 className="h-6 w-6 text-green-600 dark:text-green-400" />
                   <span>Resumo</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <p className="text-gray-300">Progresso geral: {progressData.overallProgress}%</p>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-gray-700 dark:text-gray-300">Progresso geral: {progressData.overallProgress}%</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     {quizData?.timeToGoal ? `Meta até: ${quizData.timeToGoal}` : "Continue seguindo seu plano!"}
                   </p>
-                  <p className="text-blue-400 font-medium flex items-center">Clique para ver informações completas →</p>
+                  <p className="text-blue-600 dark:text-blue-400 font-medium flex items-center">
+                    Clique para ver informações completas →
+                  </p>
                 </div>
               </CardContent>
             </Card>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
-              <Card className="bg-gray-800/50 border-gray-700">
-                <CardContent className="py-8 px-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-lime-500/20 rounded-lg flex items-center justify-center">
-                      <Calendar className="h-6 w-6 text-lime-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-400">Dias consecutivos</p>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{progressData.consecutiveDays}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gray-800/50 border-gray-700">
-                <CardContent className="py-8 px-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                      <Target className="h-6 w-6 text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-400">Metas atingidas</p>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {progressData.goalsAchieved}/{progressData.totalGoals}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
           </div>
         </div>
       </div>
