@@ -306,7 +306,7 @@ export default function ProgressoPage() {
                   value={measurements.weight}
                   onChange={(e) => handleMeasurementChange("weight", e.target.value)}
                   placeholder="Ex: 70.5"
-                  className="bg-gray-900/50 border border-gray-700/60 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all duration-200"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -318,7 +318,7 @@ export default function ProgressoPage() {
                   value={measurements.height}
                   onChange={(e) => handleMeasurementChange("height", e.target.value)}
                   placeholder="Ex: 175"
-                  className="bg-gray-900/50 border border-gray-700/60 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all duration-200"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -331,7 +331,7 @@ export default function ProgressoPage() {
                   value={measurements.chest}
                   onChange={(e) => handleMeasurementChange("chest", e.target.value)}
                   placeholder="Ex: 95.5"
-                  className="bg-gray-900/50 border border-gray-700/60 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all duration-200"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -344,7 +344,7 @@ export default function ProgressoPage() {
                   value={measurements.waist}
                   onChange={(e) => handleMeasurementChange("waist", e.target.value)}
                   placeholder="Ex: 80.0"
-                  className="bg-gray-900/50 border border-gray-700/60 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all duration-200"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -357,7 +357,7 @@ export default function ProgressoPage() {
                   value={measurements.hips}
                   onChange={(e) => handleMeasurementChange("hips", e.target.value)}
                   placeholder="Ex: 95.0"
-                  className="bg-gray-900/50 border border-gray-700/60 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all duration-200"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -370,7 +370,7 @@ export default function ProgressoPage() {
                   value={measurements.leftArm}
                   onChange={(e) => handleMeasurementChange("leftArm", e.target.value)}
                   placeholder="Ex: 35.5"
-                  className="bg-gray-900/50 border border-gray-700/60 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all duration-200"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -383,7 +383,7 @@ export default function ProgressoPage() {
                   value={measurements.rightArm}
                   onChange={(e) => handleMeasurementChange("rightArm", e.target.value)}
                   placeholder="Ex: 35.5"
-                  className="bg-gray-900/50 border border-gray-700/60 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all duration-200"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -396,7 +396,7 @@ export default function ProgressoPage() {
                   value={measurements.leftThigh}
                   onChange={(e) => handleMeasurementChange("leftThigh", e.target.value)}
                   placeholder="Ex: 55.0"
-                  className="bg-gray-900/50 border border-gray-700/60 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all duration-200"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -409,7 +409,7 @@ export default function ProgressoPage() {
                   value={measurements.rightThigh}
                   onChange={(e) => handleMeasurementChange("rightThigh", e.target.value)}
                   placeholder="Ex: 55.0"
-                  className="bg-gray-900/50 border border-gray-700/60 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all duration-200"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -421,7 +421,7 @@ export default function ProgressoPage() {
                   value={measurements.neck}
                   onChange={(e) => handleMeasurementChange("neck", e.target.value)}
                   placeholder="Ex: 38.0"
-                  className="bg-gray-900/50 border border-gray-700/60 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all duration-200"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -434,7 +434,7 @@ export default function ProgressoPage() {
                   value={measurements.calf}
                   onChange={(e) => handleMeasurementChange("calf", e.target.value)}
                   placeholder="Ex: 38.0"
-                  className="bg-gray-900/50 border border-gray-700/60 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all duration-200"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -445,7 +445,7 @@ export default function ProgressoPage() {
                   type="date"
                   value={measurements.date}
                   onChange={(e) => handleMeasurementChange("date", e.target.value)}
-                  className="bg-gray-900/50 border border-gray-700/60 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all duration-200"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
             </div>
