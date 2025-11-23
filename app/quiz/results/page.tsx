@@ -247,10 +247,7 @@ export default function ResultsPage() {
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
-            <div className="flex flex-col items-start">
-              <span className="font-semibold text-xl">Escolher</span>
-              <span className="text-base">Plano e Finalizar</span>
-            </div>
+            <span className="font-semibold text-lg">Escolher Plano e Finalizar</span>
           </button>
           <button className="btn-neon-outline" onClick={() => router.push("/dashboard/assinatura")}>
             <svg
@@ -265,10 +262,7 @@ export default function ResultsPage() {
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
               <line x1="9" y1="3" x2="9" y2="21" />
             </svg>
-            <div className="flex flex-col items-start">
-              <span className="font-semibold text-xl">Acessar</span>
-              <span className="text-base">Dashboard</span>
-            </div>
+            <span className="font-semibold text-lg">Acessar Dashboard</span>
           </button>
           <button className="btn-neon-outline" onClick={() => router.push("/quiz")}>
             <svg
@@ -280,13 +274,10 @@ export default function ResultsPage() {
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <polyline points="23 4 23 10 17 10" />
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+              <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+              <polyline points="12 6 12 12 16 14" />
             </svg>
-            <div className="flex flex-col items-start">
-              <span className="font-semibold text-xl">Refazer</span>
-              <span className="text-base">Quiz</span>
-            </div>
+            <span className="font-semibold text-lg">Refazer Quiz</span>
           </button>
         </div>
       </div>
