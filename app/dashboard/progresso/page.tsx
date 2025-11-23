@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, Target, Ruler, Save, TrendingUp } from "lucide-react"
+import { ArrowLeft, User, Target, Activity, Ruler, Save, TrendingUp } from "lucide-react"
 import { auth, db } from "@/lib/firebase"
 import { collection, addDoc, query, orderBy, limit, getDocs, doc, getDoc } from "firebase/firestore"
 import { useAuthState } from "react-firebase-hooks/auth"
@@ -513,25 +514,131 @@ export default function ProgressoPage() {
         )}
 
         {analysis && (
-          <div className="space-y-12">
-            {/* TOPO – Biotipo */}
-            <Card className="bg-gray-900/40 backdrop-blur-xl border border-gray-700/40 rounded-3xl p-10">
-              <div className="flex flex-col md:flex-row items-center md:items-start gap-10">
-                <img
-                  src={biotypeImage[quizData?.bodyType?.toLowerCase() || "ectomorfo"]}
-                  alt={`Biotipo ${analysis.bodyType.name}`}
-                  className="w-28 md:w-36 drop-shadow-[0_0_25px_rgba(0,112,255,0.8)]"
-                />
+          <div className="space-y-8">
+            {/* Body Type Analysis */}
+            <Card className="bg-gray-900/40 backdrop-blur-xl border border-gray-700/40 rounded-2xl">
+              <CardContent className="p-8">
+                <div className="flex items-center gap-8">
+                  <img
+                    src={biotypeImage[quizData?.bodyType?.toLowerCase() || "ectomorfo"]}
+                    alt={`Biotipo ${analysis.bodyType.name}`}
+                    className="w-32 h-32 md:w-40 md:h-40 object-contain drop-shadow-2xl flex-shrink-0"
+                  />
 
-                <div className="flex-1 space-y-6">
-                  <h2 className="text-4xl font-bold text-white leading-tight">
-                    Seu <span className="text-blue-400">Biotipo:</span> {analysis.bodyType.name}
-                  </h2>
+                  {/* Nome + descrição */}
+                  <div className="flex-1 space-y-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <User className="h-5 w-5 text-blue-500" />
+                        <h2 className="text-2xl font-bold text-white">Seu Biotipo: {analysis.bodyType.name}</h2>
+                      </div>
+                      <p className="text-gray-400">{analysis.bodyType.description}</p>
+                    </div>
 
-                  <p className="text-gray-400 text-lg leading-relaxed">{analysis.bodyType.description}</p>
+                    <div>
+                      <h4 className="font-medium text-white mb-3">Características Principais:</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {analysis.bodyType.characteristics.map((char, index) => (
+                          <div
+                            key={index}
+                            className="px-4 py-2 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl text-gray-200 text-sm"
+                          >
+                            {char}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </CardContent>
             </Card>
+
+            {/* Metrics */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Activity className="h-5 w-5 text-green-500" />
+                  <span>Métricas Corporais</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm font-medium">Taxa Metabólica</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {analysis.metrics.metabolismRate}%
+                      </span>
+                    </div>
+                    <Progress value={analysis.metrics.metabolismRate} className="h-2" />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm font-medium">Potencial de Ganho Muscular</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {analysis.metrics.muscleGainPotential}%
+                      </span>
+                    </div>
+                    <Progress value={analysis.metrics.muscleGainPotential} className="h-2" />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm font-medium">Potencial de Perda de Gordura</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {analysis.metrics.fatLossPotential}%
+                      </span>
+                    </div>
+                    <Progress value={analysis.metrics.fatLossPotential} className="h-2" />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm font-medium">Taxa de Recuperação</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{analysis.metrics.recoveryRate}%</span>
+                    </div>
+                    <Progress value={analysis.metrics.recoveryRate} className="h-2" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recommendations */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">🍽️ Dieta Recomendada</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-700 dark:text-gray-400">{analysis.recommendations.diet}</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">💪 Treino Ideal</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-700 dark:text-gray-400">{analysis.recommendations.training}</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">💊 Suplementos</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {analysis.recommendations.supplements.map((supplement, index) => (
+                      <Badge key={index} variant="secondary" className="block text-center">
+                        {supplement}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Action Plan */}
             <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 border-blue-200 dark:border-gray-600">
@@ -541,114 +648,21 @@ export default function ProgressoPage() {
                   <span>Plano de Ação Personalizado</span>
                 </CardTitle>
               </CardHeader>
-            </Card>
-
-            <hr className="border-gray-700/40" />
-
-            {/* CARACTERÍSTICAS PRINCIPAIS */}
-            <Card className="bg-gray-900/40 backdrop-blur-xl border border-gray-700/40 rounded-3xl p-10">
-              <div>
-                <h3 className="text-2xl font-semibold text-white mb-6">Características Principais</h3>
-
-                <div className="flex flex-wrap gap-4">
-                  {analysis.bodyType.characteristics.map((char, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-gray-800/50 border border-gray-700/50 
-                      rounded-full text-gray-200 text-sm shadow hover:bg-gray-800/70 
-                      transition-all"
-                    >
-                      <span className="text-blue-400 text-lg">⚡</span>
-                      {char}
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Peso Atual</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{progress.currentWeight} kg</p>
                     </div>
-                  ))}
-                </div>
-              </div>
-            </Card>
 
-            <hr className="border-gray-700/40" />
-
-            {/* MÉTRICAS CORPORAIS */}
-            <Card className="bg-gray-900/40 backdrop-blur-xl border border-gray-700/40 rounded-3xl p-10">
-              <div>
-                <h3 className="text-2xl font-semibold text-white mb-6">Métricas Corporais</h3>
-
-                <div className="space-y-6">
-                  {/* Taxa Metabólica */}
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-300">Taxa Metabólica</span>
-                      <span className="text-gray-400">{analysis.metrics.metabolismRate}%</span>
-                    </div>
-                    <Progress value={analysis.metrics.metabolismRate} className="h-2" />
-                  </div>
-
-                  {/* Potencial de Ganho Muscular */}
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-300">Potencial de Ganho Muscular</span>
-                      <span className="text-gray-400">{analysis.metrics.muscleGainPotential}%</span>
-                    </div>
-                    <Progress value={analysis.metrics.muscleGainPotential} className="h-2" />
-                  </div>
-
-                  {/* Potencial de Perda de Gordura */}
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-300">Potencial de Perda de Gordura</span>
-                      <span className="text-gray-400">{analysis.metrics.fatLossPotential}%</span>
-                    </div>
-                    <Progress value={analysis.metrics.fatLossPotential} className="h-2" />
-                  </div>
-
-                  {/* Taxa de Recuperação */}
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-300">Taxa de Recuperação</span>
-                      <span className="text-gray-400">{analysis.metrics.recoveryRate}%</span>
-                    </div>
-                    <Progress value={analysis.metrics.recoveryRate} className="h-2" />
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            <hr className="border-gray-700/40" />
-
-            {/* DIETA + TREINO + SUPLEMENTOS */}
-            <Card className="bg-gray-900/40 backdrop-blur-xl border border-gray-700/40 rounded-3xl p-10">
-              <div>
-                <h3 className="text-2xl font-semibold text-white mb-6">Recomendações</h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Dieta */}
-                  <div className="bg-gray-800/40 border border-gray-700/40 rounded-2xl p-6">
-                    <h4 className="text-lg font-semibold text-white mb-3">🍽️ Dieta Recomendada</h4>
-                    <p className="text-gray-400 text-sm">{analysis.recommendations.diet}</p>
-                  </div>
-
-                  {/* Treino */}
-                  <div className="bg-gray-800/40 border border-gray-700/40 rounded-2xl p-6">
-                    <h4 className="text-lg font-semibold text-white mb-3">💪 Treino Ideal</h4>
-                    <p className="text-gray-400 text-sm">{analysis.recommendations.training}</p>
-                  </div>
-
-                  {/* Suplementos */}
-                  <div className="bg-gray-800/40 border border-gray-700/40 rounded-2xl p-6">
-                    <h4 className="text-lg font-semibold text-white mb-3">💊 Suplementos</h4>
-                    <div className="space-y-2">
-                      {analysis.recommendations.supplements.map((supplement, idx) => (
-                        <div
-                          key={idx}
-                          className="text-center bg-gray-900/40 border border-gray-700/40 rounded-xl px-4 py-2 text-gray-300"
-                        >
-                          {supplement}
-                        </div>
-                      ))}
+                    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Meta</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{progress.targetWeight} kg</p>
                     </div>
                   </div>
                 </div>
-              </div>
+              </CardContent>
             </Card>
           </div>
         )}
