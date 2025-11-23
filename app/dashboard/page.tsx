@@ -86,6 +86,7 @@ export default function DashboardPage() {
     carbs: 0,
     fats: 0,
   })
+  const [photoProgressBonus, setPhotoProgressBonus] = useState(0)
 
   useEffect(() => {
     const demoMode = localStorage.getItem("demoMode")
@@ -104,7 +105,7 @@ export default function DashboardPage() {
       if (user) {
         setUser(user)
         loadProgressData()
-
+        await loadPhotoProgressBonus(user.uid)
         await loadQuizDataAndGeneratePlans(user)
       } else {
         console.log("[v0] Usuário não autenticado, redirecionando para /auth")
@@ -392,29 +393,113 @@ export default function DashboardPage() {
 
   const handleWeightChange = async (newWeight: number) => {
     setCurrentWeightSlider(newWeight)
+
+    if (isDemoMode) {
+      return
+    }
+
+    if (!user || !db) return
+
     setIsSaving(true)
 
     try {
-      if (!isDemoMode && user && db) {
-        const userDocRef = doc(db, "users", user.uid)
-        await updateDoc(userDocRef, {
-          "quizData.updatedWeight": newWeight,
-          lastWeightUpdate: new Date().toISOString(),
+      const userRef = doc(db, "users", user.uid)
+      await updateDoc(userRef, {
+        currentWeight: newWeight.toString(),
+      })
+
+      if (quizData) {
+        setQuizData({
+          ...quizData,
+          currentWeight: newWeight.toString(),
         })
-      } else {
-        const savedQuizData = localStorage.getItem("quizData")
-        if (savedQuizData) {
-          const data = JSON.parse(savedQuizData)
-          data.updatedWeight = newWeight
-          localStorage.setItem("quizData", JSON.stringify(data))
-        }
       }
+
+      console.log("[v0] Peso atualizado no Firestore:", newWeight)
     } catch (error) {
-      console.error("Erro ao salvar peso:", error)
+      console.error("[v0] Erro ao salvar peso:", error)
     } finally {
-      setTimeout(() => setIsSaving(false), 500)
+      setIsSaving(false)
     }
   }
+
+  const loadPhotoProgressBonus = async (userId: string) => {
+    if (!db) return
+
+    try {
+      const userDoc = await getDoc(doc(db, "users", userId))
+      if (userDoc.exists()) {
+        const data = userDoc.data()
+        const photoCount = data.photoProgressCount || 0
+        setPhotoProgressBonus(photoCount * 5) // 5% por foto
+      }
+    } catch (error) {
+      console.error("[v0] Erro ao carregar bônus de fotos:", error)
+    }
+  }
+
+  const calculateOverallProgress = () => {
+    if (!quizData?.currentWeight || !quizData?.targetWeight) {
+      return photoProgressBonus // Se não tem dados de peso, retorna apenas o bônus de fotos
+    }
+
+    const currentWeight = currentWeightSlider || Number.parseFloat(quizData.currentWeight)
+    const initialWeight = Number.parseFloat(quizData.currentWeight)
+    const targetWeight = Number.parseFloat(quizData.targetWeight)
+
+    if (
+      (initialWeight > targetWeight && currentWeight <= targetWeight) ||
+      (initialWeight < targetWeight && currentWeight >= targetWeight)
+    ) {
+      return 100
+    }
+
+    const totalWeightToChange = Math.abs(targetWeight - initialWeight)
+    const weightChanged = Math.abs(currentWeight - initialWeight)
+    const weightProgress = (weightChanged / totalWeightToChange) * 100
+
+    const totalProgress = Math.min(100, weightProgress + photoProgressBonus)
+
+    return Math.round(totalProgress)
+  }
+
+  useEffect(() => {
+    const newProgress = calculateOverallProgress()
+    setProgressData((prev) => ({
+      ...prev,
+      overallProgress: newProgress,
+    }))
+  }, [currentWeightSlider, photoProgressBonus, quizData])
+
+  useEffect(() => {
+    const handlePhotoAnalysisComplete = async (event: CustomEvent) => {
+      if (!user || !db) return
+
+      try {
+        const userRef = doc(db, "users", user.uid)
+        const userDoc = await getDoc(userRef)
+
+        const currentCount = userDoc.exists() ? userDoc.data().photoProgressCount || 0 : 0
+        const newCount = currentCount + 1
+
+        await updateDoc(userRef, {
+          photoProgressCount: newCount,
+        })
+
+        setPhotoProgressBonus(newCount * 5)
+
+        console.log("[v0] Progresso incrementado! Fotos enviadas:", newCount)
+      } catch (error) {
+        console.error("[v0] Erro ao incrementar progresso:", error)
+      }
+    }
+
+    window.addEventListener("photoAnalysisComplete", handlePhotoAnalysisComplete as EventListener)
+
+    return () => {
+      window.removeEventListener("photoAnalysisComplete", handlePhotoAnalysisComplete as EventListener)
+    }
+  }, [user, db])
 
   useEffect(() => {
     if (dietPlan) {
