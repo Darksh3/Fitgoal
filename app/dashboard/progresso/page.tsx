@@ -35,6 +35,7 @@ interface BodyMeasurements {
   leftThigh: string
   rightThigh: string
   neck: string
+  calf: string
   date: string
 }
 
@@ -58,6 +59,7 @@ export default function ProgressoPage() {
     leftThigh: "",
     rightThigh: "",
     neck: "",
+    calf: "",
     date: new Date().toISOString().split("T")[0],
   })
   const [measurementHistory, setMeasurementHistory] = useState<BodyMeasurements[]>([])
@@ -304,6 +306,7 @@ export default function ProgressoPage() {
                   value={measurements.weight}
                   onChange={(e) => handleMeasurementChange("weight", e.target.value)}
                   placeholder="Ex: 70.5"
+                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
                 />
               </div>
 
@@ -315,6 +318,7 @@ export default function ProgressoPage() {
                   value={measurements.height}
                   onChange={(e) => handleMeasurementChange("height", e.target.value)}
                   placeholder="Ex: 175"
+                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
                 />
               </div>
 
@@ -327,6 +331,7 @@ export default function ProgressoPage() {
                   value={measurements.chest}
                   onChange={(e) => handleMeasurementChange("chest", e.target.value)}
                   placeholder="Ex: 95.5"
+                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
                 />
               </div>
 
@@ -339,6 +344,7 @@ export default function ProgressoPage() {
                   value={measurements.waist}
                   onChange={(e) => handleMeasurementChange("waist", e.target.value)}
                   placeholder="Ex: 80.0"
+                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
                 />
               </div>
 
@@ -351,6 +357,7 @@ export default function ProgressoPage() {
                   value={measurements.hips}
                   onChange={(e) => handleMeasurementChange("hips", e.target.value)}
                   placeholder="Ex: 95.0"
+                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
                 />
               </div>
 
@@ -363,6 +370,7 @@ export default function ProgressoPage() {
                   value={measurements.leftArm}
                   onChange={(e) => handleMeasurementChange("leftArm", e.target.value)}
                   placeholder="Ex: 35.5"
+                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
                 />
               </div>
 
@@ -375,6 +383,7 @@ export default function ProgressoPage() {
                   value={measurements.rightArm}
                   onChange={(e) => handleMeasurementChange("rightArm", e.target.value)}
                   placeholder="Ex: 35.5"
+                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
                 />
               </div>
 
@@ -387,6 +396,7 @@ export default function ProgressoPage() {
                   value={measurements.leftThigh}
                   onChange={(e) => handleMeasurementChange("leftThigh", e.target.value)}
                   placeholder="Ex: 55.0"
+                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
                 />
               </div>
 
@@ -399,6 +409,7 @@ export default function ProgressoPage() {
                   value={measurements.rightThigh}
                   onChange={(e) => handleMeasurementChange("rightThigh", e.target.value)}
                   placeholder="Ex: 55.0"
+                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
                 />
               </div>
 
@@ -411,6 +422,20 @@ export default function ProgressoPage() {
                   value={measurements.neck}
                   onChange={(e) => handleMeasurementChange("neck", e.target.value)}
                   placeholder="Ex: 38.0"
+                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="calf">Panturrilha (cm)</Label>
+                <Input
+                  id="calf"
+                  type="number"
+                  step="0.1"
+                  value={measurements.calf}
+                  onChange={(e) => handleMeasurementChange("calf", e.target.value)}
+                  placeholder="Ex: 38.0"
+                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
                 />
               </div>
 
@@ -421,6 +446,7 @@ export default function ProgressoPage() {
                   type="date"
                   value={measurements.date}
                   onChange={(e) => handleMeasurementChange("date", e.target.value)}
+                  className="border-2 border-gray-600/50 bg-gray-900/50 focus:border-blue-500"
                 />
               </div>
             </div>
@@ -458,6 +484,8 @@ export default function ProgressoPage() {
                       <th className="text-left p-2">Peitoral</th>
                       <th className="text-left p-2">Braço E</th>
                       <th className="text-left p-2">Coxa E</th>
+                      <th className="text-left p-2">Pescoço</th>
+                      <th className="text-left p-2">Panturrilha</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -469,6 +497,8 @@ export default function ProgressoPage() {
                         <td className="p-2">{measurement.chest || "-"} cm</td>
                         <td className="p-2">{measurement.leftArm || "-"} cm</td>
                         <td className="p-2">{measurement.leftThigh || "-"} cm</td>
+                        <td className="p-2">{measurement.neck || "-"} cm</td>
+                        <td className="p-2">{measurement.calf || "-"} cm</td>
                       </tr>
                     ))}
                   </tbody>
