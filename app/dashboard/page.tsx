@@ -500,10 +500,14 @@ export default function DashboardPage() {
           <div className="p-6">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-lime-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">A</span>
-                </div>
-                <span className="text-xl font-bold text-gray-800 dark:text-white">ATHLIX</span>
+                <img
+                  src="/images/fitgoal-logo.png"
+                  alt="FitGoal Logo"
+                  className="h-12 w-auto"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none"
+                  }}
+                />
                 {isDemoMode && (
                   <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">DEMO</span>
                 )}
