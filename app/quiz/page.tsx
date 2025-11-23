@@ -444,9 +444,9 @@ export default function QuizPage() {
 
   const getBodyImage = (gender: string) => {
     if (gender === "mulher") {
-      return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/5069027231916993985__1_-removebg-preview-meirS7AMEWh0XiARXP09Dhmcm3HBpL.png"
+      return "/images/5069027231916993985-1-removebg-preview.png"
     }
-    return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/5073348832305196416-removebg-preview-c2B0IQxyCy9PETajQazkUsY1uKc79s.png"
+    return "/images/5073348832305196416-removebg-preview.png"
   }
 
   const getBodyTypeImageForFocus = () => {
@@ -1889,9 +1889,9 @@ export default function QuizPage() {
             <Button
               onClick={handleSubmit}
               disabled={!canProceed() || !currentUser}
-              className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white px-12 py-6 text-xl font-bold rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
+              className="btn-neon rounded-full px-12 py-6 text-xl font-bold disabled:opacity-50 transition-all duration-300"
             >
-              Finalizar Quiz
+              <span className="btn-neon-content flex items-center gap-2">Finalizar Quiz</span>
             </Button>
           ) : (
             <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">

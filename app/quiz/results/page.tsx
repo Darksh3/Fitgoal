@@ -6,7 +6,17 @@ import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, Target, Calendar, Dumbbell, Heart, TrendingUp, CreditCard } from "lucide-react"
+import {
+  CheckCircle,
+  Target,
+  Calendar,
+  Dumbbell,
+  Heart,
+  TrendingUp,
+  Download,
+  LayoutDashboard,
+  RefreshCw,
+} from "lucide-react"
 
 export default function ResultsPage() {
   const router = useRouter()
@@ -233,27 +243,24 @@ export default function ResultsPage() {
         </Card>
 
         <div className="flex flex-col md:flex-row gap-4 justify-center pt-6">
-          <Button
-            className="bg-lime-500 hover:bg-lime-600 text-white py-6 px-8 text-lg rounded-full"
-            onClick={handleGoToCheckout}
-          >
-            <CreditCard className="h-5 w-5 mr-2" />
-            Escolher Plano e Finalizar
-          </Button>
-          <Button
-            className="bg-gray-700 hover:bg-gray-600 text-white py-6 px-8 text-lg rounded-full"
-            onClick={() => router.push("/dashboard/assinatura")}
-          >
-            <Calendar className="h-5 w-5 mr-2" />
-            Acessar Dashboard
-          </Button>
-          <Button
-            variant="outline"
-            className="border-2 border-lime-500 text-lime-500 hover:bg-lime-500 hover:text-white py-6 px-8 text-lg rounded-full bg-gray-800"
-            onClick={() => router.push("/quiz")}
-          >
-            Refazer Quiz
-          </Button>
+          <button className="btn-neon group" onClick={handleGoToCheckout}>
+            <span className="btn-neon-content">
+              <Download className="h-5 w-5" />
+              <span className="text-base md:text-lg whitespace-nowrap">Escolher Plano e Finalizar</span>
+            </span>
+          </button>
+          <button className="btn-neon group" onClick={() => router.push("/dashboard/assinatura")}>
+            <span className="btn-neon-content">
+              <LayoutDashboard className="h-5 w-5" />
+              <span className="text-base md:text-lg whitespace-nowrap">Acessar Dashboard</span>
+            </span>
+          </button>
+          <button className="btn-neon group" onClick={() => router.push("/quiz")}>
+            <span className="btn-neon-content">
+              <RefreshCw className="h-5 w-5" />
+              <span className="text-base md:text-lg whitespace-nowrap">Refazer Quiz</span>
+            </span>
+          </button>
         </div>
       </div>
     </div>
