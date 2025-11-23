@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { StyledButton } from "@/components/ui/styled-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -217,21 +215,24 @@ export default function ResumoPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center mb-6">
-          <Button variant="ghost" onClick={() => router.back()} className="mr-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+        <div className="flex items-center mb-8">
+          <button
+            onClick={() => router.back()}
+            className="px-5 py-2 text-sm font-medium rounded-full border-2 border-gray-600 bg-[#0f121a] text-white hover:bg-gray-800 transition-colors mr-4"
+          >
+            <ArrowLeft className="h-4 w-4 inline mr-2" />
             Voltar
-          </Button>
+          </button>
           <div>
             <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Resumo Completo</h1>
             <p className="text-gray-600 dark:text-gray-400">Suas informações e progresso detalhado</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* Personal Info */}
-          <div className="space-y-6">
-            <Card>
+          <div className="space-y-8">
+            <Card className="border-2 border-gray-300/50 dark:border-gray-600/50">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <User className="h-5 w-5 text-blue-500" />
@@ -276,7 +277,7 @@ export default function ResumoPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-2 border-gray-300/50 dark:border-gray-600/50">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Target className="h-5 w-5 text-green-500" />
@@ -308,17 +309,21 @@ export default function ResumoPage() {
 
             {/* BMI Card */}
             {bmi && (
-              <Card>
+              <Card className="border-2 border-gray-300/50 dark:border-gray-600/50 shadow-lg">
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Calendar className="h-5 w-5 text-purple-500" />
                     <span>Índice de Massa Corporal</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-center">
-                    <div className="text-4xl font-bold text-purple-600 mb-2">{bmi}</div>
-                    <div className={`text-lg font-medium ${bmiCategory?.color}`}>{bmiCategory?.text}</div>
+                <CardContent className="py-8">
+                  <div className="relative backdrop-blur-md bg-white/80 dark:bg-gray-800/80 rounded-2xl p-8 border-2 border-gray-200/60 dark:border-gray-600/60 shadow-xl">
+                    <div className="text-center space-y-4">
+                      <div className="inline-block bg-white dark:bg-gray-900 px-8 py-4 rounded-2xl shadow-md">
+                        <div className="text-5xl font-bold text-purple-600 dark:text-purple-400">{bmi}</div>
+                      </div>
+                      <div className={`text-xl font-semibold ${bmiCategory?.color}`}>{bmiCategory?.text}</div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -327,21 +332,24 @@ export default function ResumoPage() {
 
           {/* Measurements */}
           <div>
-            <Card>
+            <Card className="border-2 border-gray-300/50 dark:border-gray-600/50">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center space-x-2">
                     <Ruler className="h-5 w-5 text-orange-500" />
                     <span>Medidas Corporais</span>
                   </CardTitle>
-                  <Button variant="outline" size="sm" onClick={() => setIsEditing(!isEditing)}>
-                    <Edit className="h-4 w-4 mr-2" />
+                  <button
+                    onClick={() => setIsEditing(!isEditing)}
+                    className="px-5 py-1.5 text-sm font-medium rounded-full border-2 border-gray-600 bg-[#0f121a] text-white hover:bg-gray-800 transition-colors"
+                  >
+                    <Edit className="h-4 w-4 inline mr-2" />
                     {isEditing ? "Cancelar" : "Editar"}
-                  </Button>
+                  </button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <Label htmlFor="height">Altura (cm)</Label>
                     <Input
@@ -405,13 +413,16 @@ export default function ResumoPage() {
                 </div>
 
                 {isEditing && (
-                  <StyledButton onClick={handleSaveMeasurements} className="w-full">
-                    <Save className="h-4 w-4 mr-2" />
+                  <button
+                    onClick={handleSaveMeasurements}
+                    className="w-full px-8 py-3.5 text-base font-semibold rounded-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-2 border-blue-400/50"
+                  >
+                    <Save className="h-4 w-4 inline mr-2" />
                     Salvar Medidas
-                  </StyledButton>
+                  </button>
                 )}
 
-                <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border-2 border-blue-200/50 dark:border-blue-700/50">
                   <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-2">💡 Por que adicionar medidas?</h4>
                   <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-1">
                     <li>• Acompanhar progresso além do peso</li>
@@ -425,7 +436,7 @@ export default function ResumoPage() {
         </div>
 
         {/* Progress Summary */}
-        <Card className="mt-8">
+        <Card className="mt-8 border-2 border-gray-300/50 dark:border-gray-600/50">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Calendar className="h-5 w-5 text-green-500" />
