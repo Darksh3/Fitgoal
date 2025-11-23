@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { StyledButton } from "@/components/ui/styled-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -58,7 +57,6 @@ export default function DadosPage() {
 
   useEffect(() => {
     const loadAndSyncData = async () => {
-      console.log("[v0] Loading user data...")
       setIsLoading(true)
 
       let localQuizData = null
@@ -69,10 +67,6 @@ export default function DadosPage() {
 
       if (savedQuizData) {
         localQuizData = JSON.parse(savedQuizData)
-        console.log("[v0] Local quiz data found:", localQuizData?.name)
-        console.log("[v0] Local currentWeight:", localQuizData?.currentWeight)
-        console.log("[v0] Local targetWeight:", localQuizData?.targetWeight)
-        console.log("[v0] Local goal:", localQuizData?.goal)
       }
 
       if (savedPersonalData) {
@@ -81,27 +75,17 @@ export default function DadosPage() {
 
       if (auth.currentUser) {
         try {
-          console.log("[v0] Fetching data from Firestore leads collection for user:", auth.currentUser.uid)
           const leadsDoc = await getDoc(doc(db, "leads", auth.currentUser.uid))
 
           if (leadsDoc.exists()) {
             const firestoreData = leadsDoc.data()
-            console.log("[v0] Firestore leads data found:", firestoreData)
 
             const currentUserEmail = auth.currentUser.email
             if (firestoreData?.email && currentUserEmail && firestoreData.email !== currentUserEmail) {
-              console.log("[v0] Detected old user data:", firestoreData.email, "vs current:", currentUserEmail)
               setHasOldData(true)
             }
 
-            console.log("[v0] Firestore quiz data name:", firestoreData?.name)
-            console.log("[v0] Firestore training frequency:", firestoreData?.trainingDaysPerWeek)
-            console.log("[v0] Firestore currentWeight:", firestoreData?.currentWeight)
-            console.log("[v0] Firestore targetWeight:", firestoreData?.targetWeight)
-            console.log("[v0] Firestore goal:", firestoreData?.goal)
-
             if (firestoreData?.name && firestoreData.name !== localQuizData?.name) {
-              console.log("[v0] Syncing name from Firestore:", firestoreData.name)
               const updatedQuizData = { ...localQuizData, ...firestoreData }
               setQuizData(updatedQuizData)
               localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
@@ -119,7 +103,6 @@ export default function DadosPage() {
                   setPersonalData(mergedPersonalData)
                   localStorage.setItem("personalData", JSON.stringify(mergedPersonalData))
                 } else {
-                  // Pre-fill from quiz data if available
                   const preFilledData = {
                     ...localPersonalData,
                     age: userData.quizData?.age || localQuizData?.age || localPersonalData?.age || "",
@@ -138,7 +121,6 @@ export default function DadosPage() {
                 setPersonalData(preFilledData)
               }
             } catch (error) {
-              console.log("[v0] No personal data in users collection, using localStorage")
               const preFilledData = {
                 ...localPersonalData,
                 age: localQuizData?.age || localPersonalData?.age || "",
@@ -148,7 +130,6 @@ export default function DadosPage() {
               setPersonalData(preFilledData)
             }
           } else {
-            console.log("[v0] No Firestore leads data found, using localStorage")
             setQuizData(localQuizData)
             const preFilledData = {
               ...localPersonalData,
@@ -170,7 +151,6 @@ export default function DadosPage() {
           setPersonalData(preFilledData)
         }
       } else {
-        console.log("[v0] No authenticated user, using localStorage only")
         setQuizData(localQuizData)
         const preFilledData = {
           ...localPersonalData,
@@ -193,7 +173,6 @@ export default function DadosPage() {
 
     if (auth.currentUser) {
       try {
-        console.log("[v0] Saving personal data to Firestore")
         await setDoc(
           doc(db, "users", auth.currentUser.uid),
           {
@@ -202,7 +181,6 @@ export default function DadosPage() {
           },
           { merge: true },
         )
-        console.log("[v0] Personal data saved to Firestore successfully")
       } catch (error) {
         console.error("[v0] Error saving to Firestore:", error)
       }
@@ -217,12 +195,10 @@ export default function DadosPage() {
 
     setIsSyncing(true)
     try {
-      console.log("[v0] Manual sync requested")
       const leadsDoc = await getDoc(doc(db, "leads", auth.currentUser.uid))
 
       if (leadsDoc.exists()) {
         const firestoreData = leadsDoc.data()
-        console.log("[v0] Syncing with latest Firestore leads data:", firestoreData?.name)
 
         if (firestoreData?.name) {
           const updatedQuizData = { ...quizData, ...firestoreData }
@@ -236,9 +212,7 @@ export default function DadosPage() {
             setPersonalData(userDoc.data().personalData)
             localStorage.setItem("personalData", JSON.stringify(userDoc.data().personalData))
           }
-        } catch (error) {
-          console.log("[v0] No personal data in users collection")
-        }
+        } catch (error) {}
       }
     } catch (error) {
       console.error("[v0] Error during manual sync:", error)
@@ -251,8 +225,6 @@ export default function DadosPage() {
 
     setIsCleaningUp(true)
     try {
-      console.log("[v0] Starting cleanup for email:", auth.currentUser.email)
-
       const response = await fetch("/api/cleanup-user", {
         method: "POST",
         headers: {
@@ -266,8 +238,6 @@ export default function DadosPage() {
       const result = await response.json()
 
       if (result.success) {
-        console.log("[v0] Cleanup successful:", result)
-
         localStorage.removeItem("quizData")
         localStorage.removeItem("personalData")
 
@@ -411,7 +381,6 @@ export default function DadosPage() {
                 <Label className="text-gray-400 text-sm">Objetivos</Label>
                 <p className="font-medium text-white">
                   {(() => {
-                    console.log("[v0] Rendering goal, current value:", quizData?.goal)
                     if (!quizData?.goal) return "Não definido"
                     if (Array.isArray(quizData.goal) && quizData.goal.length > 0) {
                       return getGoalText(quizData.goal)
@@ -593,16 +562,14 @@ export default function DadosPage() {
           </div>
         </div>
 
-        <div className="fixed bottom-8 right-8 z-10">
-          <StyledButton
-            onClick={handleSave}
-            disabled={isSyncing}
-            className="px-8 py-3 text-base font-semibold rounded-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/50"
-          >
-            <Save className="h-5 w-5 mr-2" />
-            {isSyncing ? "Salvando..." : "Salvar Dados"}
-          </StyledButton>
-        </div>
+        <button
+          onClick={handleSave}
+          disabled={isSyncing}
+          className="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(37,99,235,0.5)] hover:shadow-[0_0_30px_rgba(37,99,235,0.7)] transition-all duration-300 flex items-center gap-3 font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed z-50"
+        >
+          <Save className="h-6 w-6" />
+          {isSyncing ? "Salvando..." : "Salvar Dados"}
+        </button>
       </div>
     </div>
   )
