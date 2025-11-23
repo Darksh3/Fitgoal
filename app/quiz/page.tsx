@@ -14,7 +14,7 @@ import { Slider } from "@/components/ui/slider"
 
 import { Textarea } from "@/components/ui/textarea"
 
-import { ArrowLeft, CheckCircle, Droplets, X, ThumbsUp, ThumbsDown, Meh } from "lucide-react"
+import { ArrowLeft, CheckCircle, Droplets, X, ThumbsUp, ThumbsDown, Meh, Loader2, Dumbbell } from "lucide-react"
 
 import { useRouter } from "next/navigation"
 
@@ -154,6 +154,7 @@ export default function QuizPage() {
   const [totalSteps, setTotalSteps] = useState(24)
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false) // Add isSubmitting state
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -501,11 +502,11 @@ export default function QuizPage() {
 
   const handleSubmit = async () => {
     console.log("handleSubmit: Iniciando...")
-    setShowLoading(true)
+    setIsSubmitting(true) // Set isSubmitting to true
     if (!currentUser || !currentUser.uid) {
       console.error("handleSubmit: No user ID available. Cannot save quiz data or generate plans.")
       alert("Erro: Não foi possível identificar o usuário. Tente novamente.")
-      setShowLoading(false)
+      setIsSubmitting(false) // Reset isSubmitting
       return
     }
 
@@ -569,8 +570,8 @@ export default function QuizPage() {
       console.error("handleSubmit: Erro no handleSubmit:", error)
       alert("Erro inesperado. Tente novamente.")
     } finally {
-      console.log("handleSubmit: Finalizando, definindo showLoading para false.")
-      setShowLoading(false)
+      console.log("handleSubmit: Finalizando, definindo isSubmitting para false.")
+      setIsSubmitting(false) // Reset isSubmitting
     }
   }
 
@@ -1888,20 +1889,34 @@ export default function QuizPage() {
         <div className="flex justify-center">
           {currentStep === totalSteps ? (
             <Button
+              type="button"
               onClick={handleSubmit}
-              disabled={!canProceed() || !currentUser}
-              className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white px-12 py-6 text-xl font-bold rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl font-bold rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
             >
-              Finalizar Quiz
+              <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 disabled:hover:scale-100 disabled:shadow-none">
+                <span className="relative z-10 flex items-center gap-3">
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                      Processando...
+                    </>
+                  ) : (
+                    <>
+                      Finalizar Avaliação
+                      <Dumbbell className="h-6 w-6" />
+                    </>
+                  )}
+                </span>
+              </div>
             </Button>
           ) : (
             <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
-              {/* Botão principal */}
-              <div className="relative px-20 py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 disabled:hover:scale-100 disabled:shadow-none">
+              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                 <span className="relative z-10">Continuar</span>
 
                 {/* Efeito de brilho animado */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity group-disabled:opacity-0" />
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             </Button>
           )}

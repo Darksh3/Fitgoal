@@ -140,7 +140,7 @@ export default function ResultsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-4">
-            <div className="text-6xl font-bold">
+            <div className="text-5xl md:text-6xl font-bold">
               <span className={getIMCColor(Number(data.imc))}>{data.imc}</span>
             </div>
             <p className="text-lg text-gray-300">
