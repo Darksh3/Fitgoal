@@ -37,20 +37,51 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { sessionId, subscription_id, customer_id, client_uid } = body
+    const { sessionId, subscription_id, customer_id, client_uid, payment_intent_id, plan_duration, price_id } = body
 
-    if (!sessionId && !subscription_id) {
-      return NextResponse.json({ error: "sessionId ou subscription_id ausente." }, { status: 400 })
+    if (!sessionId && !subscription_id && !payment_intent_id) {
+      return NextResponse.json({ error: "sessionId, subscription_id ou payment_intent_id ausente." }, { status: 400 })
     }
 
     let userEmail: string | null = null
     let userName: string | null = null
     let quizAnswersFromMetadata: any = {}
-    let planType: string | null = null
+    let planType: string | null = price_id || null
     let clientUidFromSource: string | null = client_uid || null
     let stripeCustomerId: string | null = customer_id || null
+    let subscriptionDuration: number = plan_duration || 30 // padrão 30 dias
 
-    if (sessionId) {
+    if (payment_intent_id) {
+      const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id, {
+        expand: ["customer"],
+      })
+
+      if (!paymentIntent) {
+        return NextResponse.json({ error: "Payment Intent do Stripe não encontrado." }, { status: 404 })
+      }
+
+      const customer = paymentIntent.customer as Stripe.Customer
+      userEmail = customer.email
+      userName = customer.name
+      planType = paymentIntent.metadata?.priceId || price_id
+      clientUidFromSource = paymentIntent.metadata?.clientUid || client_uid
+      stripeCustomerId = customer.id
+      subscriptionDuration = Number.parseInt(paymentIntent.metadata?.planDuration || "30")
+
+      // Buscar dados do quiz no Firestore
+      if (clientUidFromSource) {
+        try {
+          const clientDocRef = adminDb.collection("users").doc(clientUidFromSource)
+          const clientDocSnap = await clientDocRef.get()
+          if (clientDocSnap.exists()) {
+            const clientData = clientDocSnap.data()
+            quizAnswersFromMetadata = clientData?.quizData || clientData?.quizAnswers || {}
+          }
+        } catch (error) {
+          console.warn("Não foi possível recuperar dados do quiz do Firestore:", error)
+        }
+      }
+    } else if (sessionId) {
       const session = await stripe.checkout.sessions.retrieve(sessionId, {
         expand: ["customer"],
       })
@@ -654,39 +685,23 @@ export async function POST(req: Request) {
       ...existingUserData,
       name: userName,
       email: userEmail,
-      quizData: {
-        age: quizAnswersFromMetadata.age,
-        bodyType: quizAnswersFromMetadata.bodyType,
-        createdAt: quizAnswersFromMetadata.createdAt,
-        completedAt: quizAnswersFromMetadata.completedAt,
-        dietPreferences: quizAnswersFromMetadata.dietPreferences,
-        trainingDaysPerWeek: quizAnswersFromMetadata.trainingDaysPerWeek, // 🔥 Critical field for workout frequency
-        gender: quizAnswersFromMetadata.gender,
-        currentWeight: quizAnswersFromMetadata.currentWeight,
-        height: quizAnswersFromMetadata.height,
-        goal: quizAnswersFromMetadata.goal,
-        allergyDetails: quizAnswersFromMetadata.allergyDetails,
-        diet: quizAnswersFromMetadata.diet,
-        experience: quizAnswersFromMetadata.experience,
-        workoutTime: quizAnswersFromMetadata.workoutTime,
-        waterIntake: quizAnswersFromMetadata.waterIntake,
-        targetWeight: quizAnswersFromMetadata.targetWeight,
-        timeToGoal: quizAnswersFromMetadata.timeToGoal,
-        wantsSupplement: quizAnswersFromMetadata.wantsSupplement,
-        supplements: quizAnswersFromMetadata.supplements,
-        supplementType: quizAnswersFromMetadata.supplementType,
-        // Include any other fields that might exist
-        ...quizAnswersFromMetadata,
-      },
-      dietPlan: dietPlan,
-      workoutPlan: workoutPlan,
-      planType: planType,
-      stripeCustomerId: stripeCustomerId,
+      quizAnswers: { ...existingUserData.quizAnswers, ...quizAnswersFromMetadata },
+      quizData: { ...existingUserData.quizData, ...quizAnswersFromMetadata },
+      personalData: existingUserData.personalData || {},
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       createdAt: existingUserData.createdAt || admin.firestore.FieldValue.serverTimestamp(),
       isSetupComplete: true,
       hasGeneratedPlans: !!(dietPlan && workoutPlan),
       subscriptionStatus: "active",
+      // Calculando data de expiração baseada na duração do plano
+      subscriptionExpiresAt: admin.firestore.Timestamp.fromDate(
+        new Date(Date.now() + subscriptionDuration * 24 * 60 * 60 * 1000),
+      ),
+      planName: planNames[planType] || "Plano Premium",
+      stripeCustomerId: stripeCustomerId,
+      planType: planType,
+      isPremium: true,
+      role: "client",
     }
 
     try {

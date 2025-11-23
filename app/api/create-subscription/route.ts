@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     const { customerId, paymentMethodId, priceId, clientUid, installments = 1 } = await req.json()
 
     if (!customerId || !paymentMethodId || !priceId || !clientUid) {
-      console.error("Missing required fields for subscription creation:", {
+      console.error("Missing required fields for payment creation:", {
         customerId: !!customerId,
         paymentMethodId: !!paymentMethodId,
         priceId: !!priceId,
@@ -21,12 +21,28 @@ export async function POST(req: Request) {
 
     const validInstallments = Math.min(Math.max(1, installments), 6)
 
-    console.log("DEBUG: Creating subscription:", {
+    // Mapeamento de priceId para valores e durações
+    const planDetails: { [key: string]: { amount: number; duration: number; name: string } } = {
+      price_1RajatPRgKqdJdqNnb9HQe17: { amount: 9790, duration: 30, name: "Plano Premium Mensal" }, // R$ 97,90
+      price_1SPs2cPRgKqdJdqNbiXZYLhI: { amount: 14790, duration: 90, name: "Plano Trimestral" }, // R$ 147,90
+      price_1SPrzGPRgKqdJdqNNLfhAYNo: { amount: 29490, duration: 180, name: "Plano Semestral" }, // R$ 294,90
+      price_1RajgKPRgKqdJdqNnhxim8dd: { amount: 29990, duration: 365, name: "Plano Premium Anual" }, // R$ 299,90
+      price_1RdpDTPRgKqdJdqNrvZccKxj: { amount: 100, duration: 365, name: "Plano Anual Teste" }, // R$ 1,00 (teste)
+    }
+
+    const plan = planDetails[priceId]
+    if (!plan) {
+      return NextResponse.json({ error: "Invalid price ID." }, { status: 400 })
+    }
+
+    console.log("DEBUG: Creating one-time payment with installments:", {
       customerId,
       paymentMethodId,
       priceId,
       clientUid,
+      amount: plan.amount,
       installments: validInstallments,
+      duration: plan.duration,
     })
 
     // Attach payment method to customer
@@ -41,48 +57,43 @@ export async function POST(req: Request) {
       },
     })
 
-    // Create subscription
-    const subscription = await stripe.subscriptions.create({
+    // Criar Payment Intent com parcelamento (suportado para pagamentos únicos)
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: plan.amount,
+      currency: "brl",
       customer: customerId,
-      items: [
-        {
-          price: priceId,
-        },
-      ],
-      payment_settings: {
-        payment_method_types: ["card"],
-        save_default_payment_method: "on_subscription",
-        payment_method_options: {
-          card: {
-            installments: {
-              enabled: validInstallments > 1,
-              plan:
-                validInstallments > 1
-                  ? {
-                      count: validInstallments,
-                      type: "fixed_count" as const,
-                    }
-                  : undefined,
+      payment_method: paymentMethodId,
+      confirm: true,
+      payment_method_types: ["card"],
+      // Parcelamento suportado em pagamentos únicos
+      payment_method_options: {
+        card: {
+          installments: {
+            enabled: true,
+            plan: {
+              count: validInstallments,
+              interval: "month",
+              type: "fixed_count",
             },
           },
         },
       },
-      expand: ["latest_invoice.payment_intent"],
       metadata: {
         clientUid: clientUid,
         priceId: priceId,
+        planName: plan.name,
+        planDuration: plan.duration.toString(),
         installments: validInstallments.toString(),
       },
     })
 
-    console.log(`DEBUG: Subscription created: ${subscription.id}`)
+    console.log(`DEBUG: Payment Intent created: ${paymentIntent.id}, status: ${paymentIntent.status}`)
 
-    // Handle different subscription statuses
-    if (subscription.status === "active") {
-      // Subscription is active, process success
-      console.log("DEBUG: Subscription is active, processing success")
+    // Verificar status do pagamento
+    if (paymentIntent.status === "succeeded") {
+      console.log("DEBUG: Payment succeeded, processing success")
 
-      // Call post-checkout handler to create user and save data
+      // Chamar o webhook para processar pós-pagamento
       try {
         const postCheckoutResponse = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/handle-post-checkout`, {
           method: "POST",
@@ -90,10 +101,11 @@ export async function POST(req: Request) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            session_id: subscription.id,
-            subscription_id: subscription.id,
+            payment_intent_id: paymentIntent.id,
             customer_id: customerId,
             client_uid: clientUid,
+            plan_duration: plan.duration,
+            price_id: priceId,
           }),
         })
 
@@ -105,28 +117,24 @@ export async function POST(req: Request) {
       }
 
       return NextResponse.json({
-        subscriptionId: subscription.id,
-        status: subscription.status,
+        paymentIntentId: paymentIntent.id,
+        status: paymentIntent.status,
         clientSecret: null,
       })
-    } else if (subscription.status === "incomplete") {
-      // Payment requires action
-      const latestInvoice = subscription.latest_invoice as Stripe.Invoice
-      const paymentIntent = latestInvoice.payment_intent as Stripe.PaymentIntent
-
+    } else if (paymentIntent.status === "requires_action") {
+      // Pagamento requer ação (3D Secure)
       return NextResponse.json({
-        subscriptionId: subscription.id,
-        status: subscription.status,
+        paymentIntentId: paymentIntent.id,
+        status: paymentIntent.status,
         clientSecret: paymentIntent.client_secret,
         requiresAction: true,
       })
     } else {
-      // Subscription failed
-      console.error("Subscription creation failed:", subscription.status)
-      return NextResponse.json({ error: "Subscription creation failed." }, { status: 400 })
+      console.error("Payment creation failed:", paymentIntent.status)
+      return NextResponse.json({ error: "Payment creation failed." }, { status: 400 })
     }
   } catch (error: any) {
-    console.error("FATAL ERROR: Failed to create subscription:", {
+    console.error("FATAL ERROR: Failed to create payment:", {
       message: error.message,
       type: error.type,
       code: error.code,

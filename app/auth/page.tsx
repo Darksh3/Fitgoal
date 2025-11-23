@@ -3,7 +3,6 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -81,7 +80,12 @@ export default function AuthPage() {
     }
     setLoading(true)
     try {
-      await sendPasswordResetEmail(auth, email)
+      const actionCodeSettings = {
+        url: `${window.location.origin}/auth?email=${encodeURIComponent(email)}`,
+        handleCodeInApp: true,
+      }
+
+      await sendPasswordResetEmail(auth, email, actionCodeSettings)
       toast({
         title: "E-mail enviado",
         description: "Verifique sua caixa de entrada para redefinir sua senha.",
@@ -111,94 +115,133 @@ export default function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-900 p-4">
       <Card className="w-full max-w-md bg-gray-800 text-white border-gray-700">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl">Bem-vindo de volta!</CardTitle>
-          <CardDescription className="text-gray-400">Entre ou crie sua conta para acessar seu plano.</CardDescription>
+        <CardHeader>
+          <CardTitle className="text-2xl text-gray-900 dark:text-white">Bem-vindo de volta!</CardTitle>
+          <CardDescription className="text-gray-600 dark:text-gray-400">
+            Entre ou crie sua conta para acessar seu plano.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-gray-700">
-              <TabsTrigger value="login" className="data-[state=active]:bg-lime-500 data-[state=active]:text-white">
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <button
+                type="button"
+                onClick={() => {
+                  const loginTab = document.querySelector('[value="login"]') as HTMLButtonElement
+                  loginTab?.click()
+                }}
+                className="px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 bg-lime-500 hover:bg-lime-600 text-white shadow-lg"
+              >
                 Login
-              </TabsTrigger>
-              <TabsTrigger value="signup" className="data-[state=active]:bg-lime-500 data-[state=active]:text-white">
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const signupTab = document.querySelector('[value="signup"]') as HTMLButtonElement
+                  signupTab?.click()
+                }}
+                className="px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 bg-white/10 hover:bg-white/20 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
+              >
                 Cadastrar
-              </TabsTrigger>
+              </button>
+            </div>
+            <TabsList className="hidden">
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="signup">Cadastrar</TabsTrigger>
             </TabsList>
             <TabsContent value="login" className="mt-4">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email-login" className="text-gray-300">
+                  <Label htmlFor="email-login" className="text-gray-700 dark:text-gray-300">
                     Email
                   </Label>
                   <Input
                     id="email-login"
                     type="email"
-                    placeholder="m@example.com"
+                    placeholder="mig@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-lime-500"
+                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password-login" className="text-gray-300">
+                  <Label htmlFor="password-login" className="text-gray-700 dark:text-gray-300">
                     Senha
                   </Label>
                   <Input
                     id="password-login"
                     type="password"
+                    placeholder="Senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-lime-500"
+                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full bg-lime-500 hover:bg-lime-600 text-white" disabled={loading}>
-                  {loading ? "Entrando..." : "Entrar"}
-                </Button>
-                <Button
+                <button
                   type="button"
-                  variant="link"
                   onClick={handlePasswordResetRequest}
-                  className="w-full text-lime-400 hover:text-lime-300"
+                  className="text-blue-500 hover:text-blue-400 text-sm transition-colors"
                   disabled={loading}
                 >
                   Esqueceu a senha?
-                </Button>
+                </button>
+                <button
+                  type="submit"
+                  className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xl flex items-center justify-center gap-2 shadow-lg transition-all duration-200 disabled:opacity-50"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    "Entrando..."
+                  ) : (
+                    <>
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                      </svg>
+                      Entrar
+                    </>
+                  )}
+                </button>
               </form>
             </TabsContent>
             <TabsContent value="signup" className="mt-4">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email-signup" className="text-gray-300">
+                  <Label htmlFor="email-signup" className="text-gray-700 dark:text-gray-300">
                     Email
                   </Label>
                   <Input
                     id="email-signup"
                     type="email"
-                    placeholder="m@example.com"
+                    placeholder="mig@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-lime-500"
+                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password-signup" className="text-gray-300">
+                  <Label htmlFor="password-signup" className="text-gray-700 dark:text-gray-300">
                     Senha
                   </Label>
                   <Input
                     id="password-signup"
                     type="password"
+                    placeholder="Senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-lime-500"
+                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirm-password-signup" className="text-gray-300">
+                  <Label htmlFor="confirm-password-signup" className="text-gray-700 dark:text-gray-300">
                     Confirmar Senha
                   </Label>
                   <Input
@@ -206,13 +249,17 @@ export default function AuthPage() {
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-lime-500"
+                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full bg-lime-500 hover:bg-lime-600 text-white" disabled={loading}>
+                <button
+                  type="submit"
+                  className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xl flex items-center justify-center gap-2 shadow-lg transition-all duration-200 disabled:opacity-50"
+                  disabled={loading}
+                >
                   {loading ? "Cadastrando..." : "Cadastrar"}
-                </Button>
+                </button>
               </form>
             </TabsContent>
           </Tabs>
