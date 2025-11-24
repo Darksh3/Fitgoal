@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import ProtectedRoute from "@/components/protected-route"
 import dynamic from "next/dynamic"
-import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download, AlertCircle } from "lucide-react"
+import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download, AlertCircle, ArrowLeft } from "lucide-react"
 import React from "react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
@@ -536,6 +536,13 @@ export default function TreinoPage() {
       <div className="min-h-screen bg-white dark:bg-gray-900">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
+            <button
+              onClick={() => window.history.back()}
+              className="mb-4 px-4 py-2 text-sm font-medium rounded-md border-2 border-blue-400 dark:border-blue-500 bg-transparent text-blue-600 dark:text-blue-400 hover:bg-blue-400/10 dark:hover:bg-blue-500/10 transition-all duration-200 shadow-[0_0_10px_rgba(59,130,246,0.3)] hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Voltar
+            </button>
             <div className="flex items-center justify-between mb-2">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Seu Plano de Treino</h1>
               <button
