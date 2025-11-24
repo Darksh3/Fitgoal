@@ -6,12 +6,11 @@ import { useAuthState } from "react-firebase-hooks/auth"
 import { auth, db } from "@/lib/firebaseClient"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { StyledButton } from "@/components/ui/styled-button"
 import ProtectedRoute from "@/components/protected-route"
 import dynamic from "next/dynamic"
-import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download } from "lucide-react"
+import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download, AlertCircle } from "lucide-react"
+import React from "react"
 
 const html2pdf = dynamic(() => import("html2pdf.js"), { ssr: false })
 
@@ -42,74 +41,34 @@ interface UserData {
   quizData?: any
 }
 
-const ExerciseSubstituteButton = ({
+function ExerciseSubstituteButton({
   exercise,
   dayIndex,
   exerciseIndex,
   onSubstitute,
 }: {
-  exercise: Exercise
+  exercise: any
   dayIndex: number
   exerciseIndex: number
-  onSubstitute: (dayIndex: number, exerciseIndex: number, newExercise: Exercise) => void
-}) => {
-  const [user] = useAuthState(auth)
-  const [isSubstituting, setIsSubstituting] = useState(false)
+  onSubstitute: (dayIndex: number, exerciseIndex: number, exercise: any) => void
+}) {
+  const [isSubstituting, setIsSubstituting] = React.useState(false)
 
   const handleSubstitute = async () => {
-    if (!user) return
-
     setIsSubstituting(true)
-    try {
-      console.log("[SUBSTITUTE] Starting exercise substitution...")
-
-      const response = await fetch("/api/substitute-exercise", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: user.uid,
-          dayIndex,
-          exerciseIndex,
-          currentExercise: exercise,
-          userPreferences: {
-            experience: "intermediário", // Could be fetched from quiz data
-            equipment: "academia completa",
-            limitations: null,
-          },
-        }),
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        if (result.success && result.substitution) {
-          console.log("[SUBSTITUTE] Exercise substituted successfully:", result.substitution)
-          onSubstitute(dayIndex, exerciseIndex, result.substitution)
-        } else {
-          console.error("[SUBSTITUTE] API returned unsuccessful result")
-        }
-      } else {
-        console.error("[SUBSTITUTE] API request failed:", response.status)
-      }
-    } catch (error) {
-      console.error("[SUBSTITUTE] Error substituting exercise:", error)
-    } finally {
-      setIsSubstituting(false)
-    }
+    await onSubstitute(dayIndex, exerciseIndex, exercise)
+    setIsSubstituting(false)
   }
 
   return (
-    <Button
-      variant="outline"
-      size="sm"
+    <button
       onClick={handleSubstitute}
       disabled={isSubstituting}
-      className="ml-2 h-6 px-2 text-xs bg-transparent"
+      className="px-3 py-1.5 text-xs font-medium rounded-md border-2 border-lime-400 dark:border-lime-500 bg-transparent text-lime-600 dark:text-lime-400 hover:bg-lime-400/10 dark:hover:bg-lime-500/10 transition-all duration-200 shadow-[0_0_10px_rgba(163,230,53,0.3)] hover:shadow-[0_0_15px_rgba(163,230,53,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
     >
       {isSubstituting ? <RefreshCw className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
       {isSubstituting ? "Substituindo..." : "Substituir"}
-    </Button>
+    </button>
   )
 }
 
@@ -630,54 +589,56 @@ export default function TreinoPage() {
           </div>
 
           {workoutPlan?.days?.length !== (userData as any)?.quizData?.trainingDaysPerWeek && (
-            <Card className="mb-6 border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
+            <div className="mb-6 rounded-lg border border-orange-200 dark:border-orange-800/50 bg-orange-50/50 dark:bg-orange-900/10 p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <h3 className="font-semibold text-orange-800 dark:text-orange-300">Discrepância Detectada</h3>
-                    <p className="text-sm text-orange-700 dark:text-orange-400">
+                    <h3 className="font-semibold text-sm text-orange-800 dark:text-orange-300 mb-1">
+                      Discrepância Detectada
+                    </h3>
+                    <p className="text-xs text-orange-700 dark:text-orange-400">
                       Seu plano tem {workoutPlan?.days?.length || 0} dias, mas você selecionou{" "}
                       {(userData as any)?.quizData?.trainingDaysPerWeek || 0} dias no quiz.
                     </p>
                   </div>
-                  <StyledButton
-                    onClick={generatePlans}
-                    disabled={isRegenerating}
-                    variant="secondary"
-                    className="border-orange-300"
-                  >
-                    {isRegenerating ? "Regenerando..." : "Regenerar Plano"}
-                  </StyledButton>
                 </div>
-              </CardContent>
-            </Card>
+                <button
+                  onClick={generatePlans}
+                  disabled={isRegenerating}
+                  className="px-4 py-2 text-sm font-medium rounded-md border-2 border-orange-400 dark:border-orange-500 bg-transparent text-orange-600 dark:text-orange-400 hover:bg-orange-400/10 dark:hover:bg-orange-500/10 transition-all duration-200 shadow-[0_0_8px_rgba(251,146,60,0.3)] hover:shadow-[0_0_12px_rgba(251,146,60,0.5)] disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  {isRegenerating ? "Regenerando..." : "Regenerar Plano"}
+                </button>
+              </div>
+            </div>
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {workoutPlan.days.map((day, dayIndex) => (
-              <Card key={dayIndex}>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Dumbbell className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
-                    {day.title || day.day} - {day.focus}
+              <Card key={dayIndex} className="bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700">
+                <CardHeader className="border-b border-gray-200 dark:border-gray-700 pb-4">
+                  <CardTitle className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500">
+                      <Dumbbell className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                        {day.title || day.day} - {day.focus}
+                      </h3>
+                    </div>
                   </CardTitle>
-                  {/* Removed CardDescription import and usage */}
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
+                <CardContent className="pt-4">
+                  <div className="space-y-6">
                     {day.exercises && day.exercises.length > 0 ? (
                       day.exercises.map((exercise, exerciseIndex) => (
-                        <div key={exerciseIndex} className="border-b pb-3 last:border-b-0 last:pb-0">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h4 className="font-bold text-lg">{exercise.name}</h4>
-                              <div className="flex flex-wrap gap-2 text-sm text-gray-600 mb-1">
-                                <Badge variant="secondary">Séries: {exercise.sets}</Badge>
-                                <Badge variant="secondary">Repetições: {exercise.reps}</Badge>
-                                <Badge variant="secondary">Descanso: {exercise.rest}</Badge>
-                              </div>
-                              <p className="text-gray-700 text-sm">{exercise.description}</p>
-                            </div>
+                        <div
+                          key={exerciseIndex}
+                          className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 border border-gray-200 dark:border-gray-700/50 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
+                        >
+                          <div className="flex items-start justify-between gap-3 mb-3">
+                            <h4 className="font-bold text-lg text-gray-900 dark:text-white flex-1">{exercise.name}</h4>
                             <ExerciseSubstituteButton
                               exercise={exercise}
                               dayIndex={dayIndex}
@@ -685,10 +646,26 @@ export default function TreinoPage() {
                               onSubstitute={handleExerciseSubstitution}
                             />
                           </div>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                              Séries: {exercise.sets}
+                            </span>
+                            <span className="px-3 py-1 text-xs font-medium rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                              Repetições: {exercise.reps}
+                            </span>
+                            <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800">
+                              Descanso: {exercise.rest}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                            {exercise.description}
+                          </p>
                         </div>
                       ))
                     ) : (
-                      <p className="text-gray-500 text-sm">Nenhum exercício especificado para este dia.</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
+                        Nenhum exercício especificado para este dia.
+                      </p>
                     )}
                   </div>
                 </CardContent>
