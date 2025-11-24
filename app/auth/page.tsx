@@ -161,6 +161,7 @@ export default function AuthPage() {
                     placeholder="mig@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
                     className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
                     required
                   />
@@ -175,6 +176,7 @@ export default function AuthPage() {
                     placeholder="Senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
                     className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
                     required
                   />
@@ -222,6 +224,7 @@ export default function AuthPage() {
                     placeholder="mig@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
                     className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
                     required
                   />
@@ -236,6 +239,7 @@ export default function AuthPage() {
                     placeholder="Senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="new-password"
                     className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
                     required
                   />
@@ -249,6 +253,7 @@ export default function AuthPage() {
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    autoComplete="new-password"
                     className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
                     required
                   />
