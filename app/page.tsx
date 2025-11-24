@@ -800,10 +800,9 @@ export default function Home() {
 
           {/* Botão Ver Mais */}
           <div className="text-center mb-8">
-            <Button
+            <button
               onClick={() => setShowAllTestimonials(!showAllTestimonials)}
-              variant="outline"
-              className="border-lime-500 text-lime-500 hover:bg-lime-500 hover:text-white"
+              className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold text-base transition-all duration-200 border-2 border-lime-500 text-lime-500 hover:bg-lime-500 hover:text-white dark:border-lime-400 dark:text-lime-400 dark:hover:bg-lime-400 dark:hover:text-gray-900"
             >
               {showAllTestimonials ? (
                 <>
@@ -816,7 +815,7 @@ export default function Home() {
                   Ver mais depoimentos
                 </>
               )}
-            </Button>
+            </button>
           </div>
 
           {/* Depoimentos adicionais - visíveis apenas quando showAllTestimonials é true */}
