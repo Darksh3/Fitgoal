@@ -1510,15 +1510,14 @@ export default function DietPage() {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Plano de Dieta</h1>
             <div className="flex items-center gap-4">
               {dietPlan && (
-                <Button
+                // Converting Baixar PDF button to HTML with neon border
+                <button
                   onClick={downloadDietPDF}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-2 bg-transparent"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-blue-400 dark:border-blue-500 text-blue-600 dark:text-blue-400 bg-transparent hover:bg-blue-500/10 dark:hover:bg-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.3)] dark:shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-200"
                 >
                   <Download className="h-4 w-4" />
                   Baixar PDF
-                </Button>
+                </button>
               )}
               {error && <p className="text-red-500 dark:text-red-400">{error}</p>}
             </div>
@@ -1557,14 +1556,12 @@ export default function DietPage() {
                 {calculateScientificCalories(quizData)} kcal). Valor atual salvo:{" "}
                 {dietPlan?.totalDailyCalories || "não encontrado"}.
               </p>
-              <Button
+              <button
                 onClick={updateSavedValuesWithScientificCalculation}
-                variant="outline"
-                size="sm"
-                className="mt-2 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 bg-transparent"
+                className="mt-2 inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg border border-blue-400 dark:border-blue-500 text-blue-600 dark:text-blue-400 bg-transparent hover:bg-blue-500/10 dark:hover:bg-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.3)] dark:shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-200"
               >
                 Atualizar Valores Salvos
-              </Button>
+              </button>
             </div>
           )}
 
@@ -1610,13 +1607,13 @@ export default function DietPage() {
 
           {dietPlan && (
             <div className="mb-6 flex gap-4">
-              <StyledButton
+              <button
                 onClick={() => setShowAddFoodModal(true)}
-                className="bg-lime-500 hover:bg-lime-600 text-white border-lime-500"
+                className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border border-blue-400 dark:border-blue-500 text-blue-600 dark:text-blue-400 bg-transparent hover:bg-blue-500/10 dark:hover:bg-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.3)] dark:shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-200"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4" />
                 Adicionar Alimento
-              </StyledButton>
+              </button>
 
               {(manualAdjustments.addedFoods.length > 0 || manualAdjustments.removedFoods.length > 0) && (
                 <StyledButton
@@ -2217,25 +2214,23 @@ export default function DietPage() {
 
                         {Array.isArray(meal.foods) && meal.foods.length > 0 && (
                           <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-                            <Button
+                            <button
                               onClick={() => handleReplaceMeal(index)}
                               disabled={replacingMeal === index}
-                              variant="outline"
-                              size="sm"
-                              className="w-full border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-blue-400 dark:border-blue-500 text-blue-600 dark:text-blue-400 bg-transparent hover:bg-blue-500/10 dark:hover:bg-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.3)] dark:shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               {replacingMeal === index ? (
                                 <>
-                                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                                  <RefreshCw className="h-4 w-4 animate-spin" />
                                   Substituindo Refeição...
                                 </>
                               ) : (
                                 <>
-                                  <RefreshCw className="h-4 w-4 mr-2" />
+                                  <RefreshCw className="h-4 w-4" />
                                   Substituir Refeição
                                 </>
                               )}
-                            </Button>
+                            </button>
                           </div>
                         )}
                         {meal.macros && typeof meal.macros === "object" && (
