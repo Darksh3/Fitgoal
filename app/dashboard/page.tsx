@@ -668,7 +668,7 @@ export default function DashboardPage() {
 
             <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 space-y-2">
               <div className="flex items-center justify-between px-4 py-3">
-                <span className="text-sm text-gray-700 dark:text-gray-300">Tema</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">Tema</span>
                 <ThemeToggle />
               </div>
               <Button
@@ -700,6 +700,10 @@ export default function DashboardPage() {
         </div>
 
         <div className="max-w-4xl mx-auto">
+          <div className="flex justify-center mb-8">
+            <img src="/images/fitgoal-logo.png" alt="FitGoal Logo" className="h-16 w-auto" />
+          </div>
+
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">
               {currentTime}, {getUserName()}!
