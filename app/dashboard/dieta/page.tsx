@@ -1985,299 +1985,306 @@ export default function DietPage() {
                 </Card>
               )}
 
-              {dietPlan.meals.map((meal, index) => {
-                if (!meal || typeof meal !== "object") {
-                  return null
-                }
+              {dietPlan.meals &&
+                Array.isArray(dietPlan.meals) &&
+                dietPlan.meals.map((meal, index) => {
+                  if (!meal || typeof meal !== "object") {
+                    return null
+                  }
 
-                const filteredFoods = Array.isArray(meal.foods)
-                  ? meal.foods.filter(
-                      (_, foodIndex) =>
-                        !manualAdjustments.removedFoods.some(
-                          (removed) => removed.mealIndex === index && removed.foodIndex === foodIndex,
-                        ),
-                    )
-                  : []
+                  const filteredFoods = Array.isArray(meal.foods)
+                    ? meal.foods.filter(
+                        (_, foodIndex) =>
+                          !manualAdjustments.removedFoods.some(
+                            (removed) => removed.mealIndex === index && removed.foodIndex === foodIndex,
+                          ),
+                      )
+                    : []
 
-                const manualFoodsForMeal = manualAdjustments.addedFoods.filter((food) => food.mealIndex === index)
+                  const manualFoodsForMeal = manualAdjustments.addedFoods.filter((food) => food.mealIndex === index)
 
-                return (
-                  <Card key={index}>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center text-gray-900 dark:text-white">
-                          <Clock className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
-                          {meal.name || `Refeição ${index + 1}`}
-                        </CardTitle>
-                        <Badge
-                          variant="secondary"
-                          className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
-                        >
-                          {meal.time || "Horário não definido"}
-                        </Badge>
-                      </div>
-                      <CardDescription>{meal.calories || "0 kcal"}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {filteredFoods.length > 0 ? (
-                          filteredFoods.map((food, foodIndex) => {
-                            const originalIndex =
-                              meal.foods?.findIndex(
-                                (originalFood, idx) =>
-                                  originalFood === food &&
-                                  !manualAdjustments.removedFoods.some(
-                                    (removed) => removed.mealIndex === index && removed.foodIndex <= idx,
-                                  ),
-                              ) ?? foodIndex
+                  return (
+                    <Card key={index}>
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="flex items-center text-gray-900 dark:text-white">
+                            <Clock className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
+                            {meal.name || `Refeição ${index + 1}`}
+                          </CardTitle>
+                          <Badge
+                            variant="secondary"
+                            className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+                          >
+                            {meal.time || "Horário não definido"}
+                          </Badge>
+                        </div>
+                        <CardDescription>{meal.calories || "0 kcal"}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {filteredFoods.length > 0 ? (
+                            filteredFoods.map((food, foodIndex) => {
+                              const originalIndex =
+                                meal.foods?.findIndex(
+                                  (originalFood, idx) =>
+                                    originalFood === food &&
+                                    !manualAdjustments.removedFoods.some(
+                                      (removed) => removed.mealIndex === index && removed.foodIndex <= idx,
+                                    ),
+                                ) ?? foodIndex
 
-                            let foodName = ""
-                            let foodQuantity = ""
-                            let foodCalories = ""
+                              let foodName = ""
+                              let foodQuantity = ""
+                              let foodCalories = ""
 
-                            if (typeof food === "string") {
-                              const patterns = [
-                                /(\d+g?)\s*de?\s*(.+)/i,
-                                /(.+?)\s*-\s*(\d+g?)/i,
-                                /(.+?)\s*$$(\d+g?)$$/i,
-                                /(\d+)\s*unidades?\s*de?\s*(.+)/i,
-                                /(\d+)\s*(.+)/i,
-                              ]
+                              if (typeof food === "string") {
+                                const patterns = [
+                                  /(\d+g?)\s*de?\s*(.+)/i,
+                                  /(.+?)\s*-\s*(\d+g?)/i,
+                                  /(.+?)\s*$$(\d+g?)$$/i,
+                                  /(\d+)\s*unidades?\s*de?\s*(.+)/i,
+                                  /(\d+)\s*(.+)/i,
+                                ]
 
-                              let matched = false
-                              for (const pattern of patterns) {
-                                const match = food.match(pattern)
-                                if (match) {
-                                  if (/\d/.test(match[1])) {
-                                    foodQuantity = match[1]
-                                    foodName = match[2]?.trim()
-                                  } else {
-                                    foodName = match[1]?.trim()
-                                    foodQuantity = match[2]
+                                let matched = false
+                                for (const pattern of patterns) {
+                                  const match = food.match(pattern)
+                                  if (match) {
+                                    if (/\d/.test(match[1])) {
+                                      foodQuantity = match[1]
+                                      foodName = match[2]?.trim()
+                                    } else {
+                                      foodName = match[1]?.trim()
+                                      foodQuantity = match[2]
+                                    }
+                                    matched = true
+                                    break
                                   }
-                                  matched = true
-                                  break
                                 }
+
+                                if (!matched) {
+                                  foodName = food.trim()
+                                }
+
+                                foodName = foodName
+                                  .replace(/^(de\s+|da\s+|do\s+)/i, "")
+                                  .replace(/\s+/g, " ")
+                                  .trim()
+                              } else if (food && typeof food === "object") {
+                                foodName = food.name || `Alimento ${foodIndex + 1}`
+                                foodQuantity = food.quantity || ""
+                                foodCalories = food.calories ? `${food.calories} kcal` : ""
+                              } else {
+                                foodName = `Alimento ${foodIndex + 1}`
                               }
 
-                              if (!matched) {
-                                foodName = food.trim()
+                              if (!foodName || foodName.trim() === "") {
+                                foodName = `Alimento ${foodIndex + 1}`
                               }
 
-                              foodName = foodName
-                                .replace(/^(de\s+|da\s+|do\s+)/i, "")
-                                .replace(/\s+/g, " ")
-                                .trim()
-                            } else if (food && typeof food === "object") {
-                              foodName = food.name || `Alimento ${foodIndex + 1}`
-                              foodQuantity = food.quantity || ""
-                              foodCalories = food.calories ? `${food.calories} kcal` : ""
-                            } else {
-                              foodName = `Alimento ${foodIndex + 1}`
-                            }
-
-                            if (!foodName || foodName.trim() === "") {
-                              foodName = `Alimento ${foodIndex + 1}`
-                            }
-
-                            return (
-                              <div
-                                key={foodIndex}
-                                className="flex justify-between items-center py-4 border-b border-gray-100/50 dark:border-gray-700/50 last:border-b-0"
-                              >
-                                <div className="flex-1">
-                                  <p className="font-semibold text-gray-900 dark:text-white text-base mb-1">
-                                    {foodName}
-                                  </p>
-                                  {foodQuantity && (
-                                    <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mb-2">
-                                      {foodQuantity}
+                              return (
+                                <div
+                                  key={foodIndex}
+                                  className="flex justify-between items-center py-4 border-b border-gray-100/50 dark:border-gray-700/50 last:border-b-0"
+                                >
+                                  <div className="flex-1">
+                                    <p className="font-semibold text-gray-900 dark:text-white text-base mb-1">
+                                      {foodName}
                                     </p>
-                                  )}
-                                  {typeof food === "object" && food && (food.protein || food.carbs || food.fats) && (
-                                    <div className="flex gap-4 mt-2 text-xs font-medium">
-                                      {food.protein && (
-                                        <span className="text-[#ff6b6b] dark:text-[#ff6b6b]">P: {food.protein}g</span>
-                                      )}
-                                      {food.carbs && (
-                                        <span className="text-[#f1c40f] dark:text-[#f1c40f]">C: {food.carbs}g</span>
-                                      )}
-                                      {food.fats && (
-                                        <span className="text-[#2ecc71] dark:text-[#2ecc71]">G: {food.fats}g</span>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
+                                    {foodQuantity && (
+                                      <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mb-2">
+                                        {foodQuantity}
+                                      </p>
+                                    )}
+                                    {typeof food === "object" && food && (food.protein || food.carbs || food.fats) && (
+                                      <div className="flex gap-4 mt-2 text-xs font-medium">
+                                        {food.protein && (
+                                          <span className="text-[#ff6b6b] dark:text-[#ff6b6b]">P: {food.protein}g</span>
+                                        )}
+                                        {food.carbs && (
+                                          <span className="text-[#f1c40f] dark:text-[#f1c40f]">C: {food.carbs}g</span>
+                                        )}
+                                        {food.fats && (
+                                          <span className="text-[#2ecc71] dark:text-[#2ecc71]">G: {food.fats}g</span>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
 
-                                <div className="flex items-center gap-3">
-                                  {foodCalories && (
-                                    <div className="text-right mr-4">
-                                      <p className="text-lg font-bold text-white dark:text-white">{foodCalories}</p>
-                                    </div>
-                                  )}
-                                  <div className="flex items-center gap-1 bg-gray-800/50 dark:bg-gray-700/50 rounded-full p-1 backdrop-blur-sm border border-gray-700/30 dark:border-gray-600/30">
-                                    <button
-                                      onClick={() => {
-                                        const extractNumber = (value: any) => {
-                                          if (!value) return ""
-                                          const match = value.toString().match(/(\d+(?:\.\d+)?)/)
-                                          return match ? match[1] : ""
-                                        }
+                                  <div className="flex items-center gap-3">
+                                    {foodCalories && (
+                                      <div className="text-right mr-4">
+                                        <p className="text-lg font-bold text-white dark:text-white">{foodCalories}</p>
+                                      </div>
+                                    )}
+                                    <div className="flex items-center gap-1 bg-gray-800/50 dark:bg-gray-700/50 rounded-full p-1 backdrop-blur-sm border border-gray-700/30 dark:border-gray-600/30">
+                                      <button
+                                        onClick={() => {
+                                          const extractNumber = (value: any) => {
+                                            if (!value) return ""
+                                            const match = value.toString().match(/(\d+(?:\.\d+)?)/)
+                                            return match ? match[1] : ""
+                                          }
 
-                                        setEditingFood({
-                                          mealIndex: index,
-                                          foodIndex: originalIndex,
-                                          food: {
-                                            name: foodName,
-                                            quantity: foodQuantity,
-                                            calories: extractNumber(
-                                              typeof food === "object" ? food.calories : foodCalories,
-                                            ),
-                                            protein: extractNumber(typeof food === "object" ? food.protein : ""),
-                                            carbs: extractNumber(typeof food === "object" ? food.carbs : ""),
-                                            fats: extractNumber(typeof food === "object" ? food.fats : ""),
-                                          },
-                                        })
-                                      }}
-                                      className="h-8 w-8 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700/50 dark:hover:bg-gray-600/50 transition-all"
-                                    >
-                                      <svg
-                                        className="h-3.5 w-3.5"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
+                                          setEditingFood({
+                                            mealIndex: index,
+                                            foodIndex: originalIndex,
+                                            food: {
+                                              name: foodName,
+                                              quantity: foodQuantity,
+                                              calories: extractNumber(
+                                                typeof food === "object" ? food.calories : foodCalories,
+                                              ),
+                                              protein: extractNumber(typeof food === "object" ? food.protein : ""),
+                                              carbs: extractNumber(typeof food === "object" ? food.carbs : ""),
+                                              fats: extractNumber(typeof food === "object" ? food.fats : ""),
+                                            },
+                                          })
+                                        }}
+                                        className="h-8 w-8 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700/50 dark:hover:bg-gray-600/50 transition-all"
                                       >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                        />
-                                      </svg>
-                                    </button>
-                                    <button
-                                      onClick={() => handleRemoveFood(index, originalIndex)}
-                                      className="h-8 w-8 rounded-full flex items-center justify-center text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-all"
-                                    >
-                                      <Trash2 className="h-3.5 w-3.5" />
-                                    </button>
-                                    <button
-                                      onClick={() => handleReplaceFood(index, originalIndex)}
-                                      disabled={
-                                        replacingFood?.mealIndex === index && replacingFood?.foodIndex === originalIndex
-                                      }
-                                      className="h-8 px-3 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700/50 dark:hover:bg-gray-600/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium whitespace-nowrap"
-                                    >
-                                      {replacingFood?.mealIndex === index &&
-                                      replacingFood?.foodIndex === originalIndex ? (
-                                        <>
-                                          <RefreshCw className="h-3 w-3 mr-1.5 animate-spin" />
-                                          Substituindo...
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Replace className="h-3 w-3 mr-1.5" />
-                                          Substituir
-                                        </>
-                                      )}
-                                    </button>
+                                        <svg
+                                          className="h-3.5 w-3.5"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                          />
+                                        </svg>
+                                      </button>
+                                      <button
+                                        onClick={() => handleRemoveFood(index, originalIndex)}
+                                        className="h-8 w-8 rounded-full flex items-center justify-center text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-all"
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                      </button>
+                                      <button
+                                        onClick={() => handleReplaceFood(index, originalIndex)}
+                                        disabled={
+                                          replacingFood?.mealIndex === index &&
+                                          replacingFood?.foodIndex === originalIndex
+                                        }
+                                        className="h-8 px-3 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700/50 dark:hover:bg-gray-600/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium whitespace-nowrap"
+                                      >
+                                        {replacingFood?.mealIndex === index &&
+                                        replacingFood?.foodIndex === originalIndex ? (
+                                          <>
+                                            <RefreshCw className="h-3 w-3 mr-1.5 animate-spin" />
+                                            Substituindo...
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Replace className="h-3 w-3 mr-1.5" />
+                                            Substituir
+                                          </>
+                                        )}
+                                      </button>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            )
-                          })
-                        ) : (
-                          <p className="text-gray-500 dark:text-gray-400 text-sm">Nenhum alimento especificado</p>
-                        )}
+                              )
+                            })
+                          ) : (
+                            <p className="text-gray-500 dark:text-gray-400 text-sm">Nenhum alimento especificado</p>
+                          )}
 
-                        {manualFoodsForMeal.map((food, foodIndex) => (
-                          <div
-                            key={`manual-${foodIndex}`}
-                            className="flex justify-between items-center py-4 border-b border-gray-100/50 dark:border-gray-700/50 last:border-b-0 bg-lime-50/30 dark:bg-lime-900/20"
-                          >
-                            <div className="flex-1">
-                              <p className="font-semibold text-gray-900 dark:text-white text-base mb-1">{food.name}</p>
-                              <p className="text-xs text-lime-600 dark:text-lime-400 font-medium mb-2">
-                                Adicionado manualmente
-                              </p>
-                              <div className="flex gap-4 mt-2 text-xs font-medium">
-                                <span className="text-[#ff6b6b] dark:text-[#ff6b6b]">P: {food.protein}g</span>
-                                <span className="text-[#f1c40f] dark:text-[#f1c40f]">C: {food.carbs}g</span>
-                                <span className="text-[#2ecc71] dark:text-[#2ecc71]">G: {food.fats}g</span>
+                          {manualFoodsForMeal.map((food, foodIndex) => (
+                            <div
+                              key={`manual-${foodIndex}`}
+                              className="flex justify-between items-center py-4 border-b border-gray-100/50 dark:border-gray-700/50 last:border-b-0 bg-lime-50/30 dark:bg-lime-900/20"
+                            >
+                              <div className="flex-1">
+                                <p className="font-semibold text-gray-900 dark:text-white text-base mb-1">
+                                  {food.name}
+                                </p>
+                                <p className="text-xs text-lime-600 dark:text-lime-400 font-medium mb-2">
+                                  Adicionado manualmente
+                                </p>
+                                <div className="flex gap-4 mt-2 text-xs font-medium">
+                                  <span className="text-[#ff6b6b] dark:text-[#ff6b6b]">P: {food.protein}g</span>
+                                  <span className="text-[#f1c40f] dark:text-[#f1c40f]">C: {food.carbs}g</span>
+                                  <span className="text-[#2ecc71] dark:text-[#2ecc71]">G: {food.fats}g</span>
+                                </div>
                               </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div className="text-right mr-4">
-                                <p className="text-lg font-bold text-white dark:text-white">{food.calories} kcal</p>
-                              </div>
-                              <Button
-                                onClick={() => {
-                                  const updatedAdjustments = {
-                                    ...manualAdjustments,
-                                    addedFoods: manualAdjustments.addedFoods.filter(
-                                      (_, idx) => !(manualAdjustments.addedFoods.indexOf(food) === idx),
-                                    ),
-                                  }
-                                  setManualAdjustments(updatedAdjustments)
-                                }}
-                                variant="outline"
-                                size="sm"
-                                className="h-8 px-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 border-red-300 hover:border-red-400"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-
-                        {Array.isArray(meal.foods) && meal.foods.length > 0 && (
-                          <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-                            {!replacingMeal[index] && (
-                              <div>
-                                <button
-                                  onClick={() => handleReplaceMeal(index)}
-                                  disabled={replacingMeal[index]}
-                                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-500/50 bg-transparent text-blue-400 hover:bg-blue-500/10 hover:border-blue-400 transition-all shadow-[0_0_10px_rgba(59,130,246,0.3)] hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                              <div className="flex items-center gap-3">
+                                <div className="text-right mr-4">
+                                  <p className="text-lg font-bold text-white dark:text-white">{food.calories} kcal</p>
+                                </div>
+                                <Button
+                                  onClick={() => {
+                                    const updatedAdjustments = {
+                                      ...manualAdjustments,
+                                      addedFoods: manualAdjustments.addedFoods.filter(
+                                        (_, idx) => !(manualAdjustments.addedFoods.indexOf(food) === idx),
+                                      ),
+                                    }
+                                    setManualAdjustments(updatedAdjustments)
+                                  }}
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8 px-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 border-red-300 hover:border-red-400"
                                 >
-                                  {replacingMeal[index] ? (
-                                    <>
-                                      <Loader2 className="h-4 w-4 animate-spin" />
-                                      Substituindo Refeição...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <RefreshCw className="h-4 w-4" />
-                                      Substituir Refeição
-                                    </>
-                                  )}
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        {meal.macros && typeof meal.macros === "object" && (
-                          <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Macros da refeição:
-                              </span>
-                              <div className="flex gap-4 text-sm font-medium">
-                                <span className="text-red-600 dark:text-red-400">P: {meal.macros.protein || "0g"}</span>
-                                <span className="text-yellow-600 dark:text-yellow-400">
-                                  C: {meal.macros.carbs || "0g"}
-                                </span>
-                                <span className="text-green-600 dark:text-green-400">
-                                  G: {meal.macros.fats || "0g"}
-                                </span>
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
                               </div>
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )
-              })}
+                          ))}
+
+                          {Array.isArray(meal.foods) && meal.foods.length > 0 && (
+                            <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                              {!replacingMeal[index] && (
+                                <div>
+                                  <button
+                                    onClick={() => handleReplaceMeal(index)}
+                                    disabled={replacingMeal[index]}
+                                    className="flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-500/50 bg-transparent text-blue-400 hover:bg-blue-500/10 hover:border-blue-400 transition-all shadow-[0_0_10px_rgba(59,130,246,0.3)] hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                                  >
+                                    {replacingMeal[index] ? (
+                                      <>
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Substituindo Refeição...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <RefreshCw className="h-4 w-4" />
+                                        Substituir Refeição
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {meal.macros && typeof meal.macros === "object" && (
+                            <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                  Macros da refeição:
+                                </span>
+                                <div className="flex gap-4 text-sm font-medium">
+                                  <span className="text-red-600 dark:text-red-400">
+                                    P: {meal.macros.protein || "0g"}
+                                  </span>
+                                  <span className="text-yellow-600 dark:text-yellow-400">
+                                    C: {meal.macros.carbs || "0g"}
+                                  </span>
+                                  <span className="text-green-600 dark:text-green-400">
+                                    G: {meal.macros.fats || "0g"}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
             </div>
           )}
 
@@ -2286,7 +2293,7 @@ export default function DietPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                 <p className="text-blue-800 dark:text-blue-300 font-medium">Dica 1</p>
-                <p className="text-blue-700 dark:text-blue-400 text-sm mt-1">
+                <p className="text-blue-700 dark:text-green-400 text-sm mt-1">
                   Coma alimentos ricos em proteínas para manter seu corpo saudável.
                 </p>
               </div>
