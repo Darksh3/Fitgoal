@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { auth, db } from "@/lib/firebaseClient"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Clock, RefreshCw, Replace, Download, Plus, RotateCcw, Trash2 } from "lucide-react"
 import ProtectedRoute from "@/components/protected-route"
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { StyledButton } from "@/components/ui/styled-button"
 import { useRouter } from "next/navigation"
 import type { Meal, DietPlan } from "@/types"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 export default function DietPage() {
   const [isHydrated, setIsHydrated] = useState(false)
@@ -840,7 +841,7 @@ export default function DietPage() {
       calories: totalCalories > 0 ? `${Math.round(totalCalories)}` : "0",
       protein: totalProtein > 0 ? `${Math.round(totalProtein)}g` : "0g",
       carbs: totalCarbs > 0 ? `${Math.round(totalCarbs)}g` : "0g",
-      fats: totalCarbs > 0 ? `${Math.round(totalCarbs)}g` : "0g",
+      fats: totalFats > 0 ? `${Math.round(totalFats)}g` : "0g",
     }
   }
 
@@ -1506,6 +1507,18 @@ export default function DietPage() {
     <ProtectedRoute>
       <div className="min-h-screen bg-white dark:bg-gray-900">
         <div className="container mx-auto px-4 py-8">
+          <div className="mb-4">
+            <button
+              onClick={() => window.history.back()}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-blue-400 dark:border-blue-500 text-blue-600 dark:text-blue-400 bg-transparent hover:bg-blue-500/10 dark:hover:bg-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.3)] dark:shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-200"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Voltar
+            </button>
+          </div>
+
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Plano de Dieta</h1>
             <div className="flex items-center gap-4">
@@ -1856,31 +1869,26 @@ export default function DietPage() {
           )}
 
           {dietPlan && (
-            <div className="space-y-4">
+            <Accordion type="multiple" className="space-y-4">
               {dietPlan.supplements && Array.isArray(dietPlan.supplements) && dietPlan.supplements.length > 0 && (
-                <Card className="border-lime-500 border-2 bg-lime-50 dark:bg-lime-900/30 dark:border-lime-700">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center text-lime-700 dark:text-lime-300">
-                        <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
-                          />
-                        </svg>
-                        Suplementação Recomendada
-                      </CardTitle>
-                      <Badge variant="secondary" className="bg-lime-600 text-white dark:bg-lime-500">
-                        Incluído nos macros
-                      </Badge>
+                <AccordionItem
+                  value="item-supplements"
+                  className="border-lime-500 border-2 bg-lime-50 dark:bg-lime-900/30 dark:border-lime-700 rounded-lg px-4"
+                >
+                  <AccordionTrigger className="text-lime-700 dark:text-lime-300 font-bold py-4">
+                    <div className="flex items-center">
+                      <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                        />
+                      </svg>
+                      Suplementação Recomendada
                     </div>
-                    <CardDescription className="text-lime-700 dark:text-lime-400">
-                      Suplementos personalizados para seu objetivo
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-0">
                     <div className="space-y-4">
                       {dietPlan.supplements.map((supplement: any, index: number) => (
                         <div
@@ -1963,8 +1971,8 @@ export default function DietPage() {
                         </div>
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
+                  </AccordionContent>
+                </AccordionItem>
               )}
 
               {dietPlan.meals.map((meal, index) => {
@@ -1984,13 +1992,24 @@ export default function DietPage() {
                 const manualFoodsForMeal = manualAdjustments.addedFoods.filter((food) => food.mealIndex === index)
 
                 return (
-                  <Card key={index}>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center text-gray-900 dark:text-white">
-                          <Clock className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
-                          {meal.name || `Refeição ${index + 1}`}
-                        </CardTitle>
+                  <AccordionItem
+                    key={index}
+                    value={`meal-${index}`}
+                    className="border border-gray-200 dark:border-gray-800 rounded-lg bg-white dark:bg-gray-800/50 backdrop-blur-sm overflow-hidden"
+                  >
+                    <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-gray-50 dark:hover:bg-gray-800/70">
+                      <div className="flex items-center justify-between w-full pr-4">
+                        <div className="flex items-center gap-3">
+                          <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                          <div className="text-left">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                              {meal.name || `Refeição ${index + 1}`}
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {filteredFoods.length + manualFoodsForMeal.length} alimentos • {meal.calories || "0 kcal"}
+                            </p>
+                          </div>
+                        </div>
                         <Badge
                           variant="secondary"
                           className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
@@ -1998,9 +2017,8 @@ export default function DietPage() {
                           {meal.time || "Horário não definido"}
                         </Badge>
                       </div>
-                      <CardDescription>{meal.calories || "0 kcal"}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-6 pb-4">
                       <div className="space-y-3">
                         {filteredFoods.length > 0 ? (
                           filteredFoods.map((food, foodIndex) => {
@@ -2121,7 +2139,7 @@ export default function DietPage() {
                                           },
                                         })
                                       }}
-                                      className="h-8 w-8 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700/50 dark:hover:bg-gray-600/50 transition-all"
+                                      className="h-8 w-8 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700/50 transition-all"
                                     >
                                       <svg
                                         className="h-3.5 w-3.5"
@@ -2148,7 +2166,7 @@ export default function DietPage() {
                                       disabled={
                                         replacingFood?.mealIndex === index && replacingFood?.foodIndex === originalIndex
                                       }
-                                      className="h-8 px-3 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700/50 dark:hover:bg-gray-600/50 transition-all disabled:opacity-50 text-xs font-medium whitespace-nowrap"
+                                      className="h-8 px-3 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                       {replacingFood?.mealIndex === index &&
                                       replacingFood?.foodIndex === originalIndex ? (
@@ -2169,35 +2187,41 @@ export default function DietPage() {
                             )
                           })
                         ) : (
-                          <p className="text-gray-500 dark:text-gray-400 text-sm">Nenhum alimento especificado</p>
+                          <p className="text-gray-500 dark:text-gray-400 text-sm italic">
+                            Nenhum alimento nesta refeição
+                          </p>
                         )}
 
-                        {manualFoodsForMeal.map((food, foodIndex) => (
+                        {manualFoodsForMeal.map((manualFood, manualFoodIndex) => (
                           <div
-                            key={`manual-${foodIndex}`}
+                            key={`manual-${manualFoodIndex}`}
                             className="flex justify-between items-center py-4 border-b border-gray-100/50 dark:border-gray-700/50 last:border-b-0 bg-lime-50/30 dark:bg-lime-900/20"
                           >
                             <div className="flex-1">
-                              <p className="font-semibold text-gray-900 dark:text-white text-base mb-1">{food.name}</p>
+                              <p className="font-semibold text-gray-900 dark:text-white text-base mb-1">
+                                {manualFood.name}
+                              </p>
                               <p className="text-xs text-lime-600 dark:text-lime-400 font-medium mb-2">
                                 Adicionado manualmente
                               </p>
                               <div className="flex gap-4 mt-2 text-xs font-medium">
-                                <span className="text-[#ff6b6b] dark:text-[#ff6b6b]">P: {food.protein}g</span>
-                                <span className="text-[#f1c40f] dark:text-[#f1c40f]">C: {food.carbs}g</span>
-                                <span className="text-[#2ecc71] dark:text-[#2ecc71]">G: {food.fats}g</span>
+                                <span className="text-[#ff6b6b] dark:text-[#ff6b6b]">P: {manualFood.protein}g</span>
+                                <span className="text-[#f1c40f] dark:text-[#f1c40f]">C: {manualFood.carbs}g</span>
+                                <span className="text-[#2ecc71] dark:text-[#2ecc71]">G: {manualFood.fats}g</span>
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
                               <div className="text-right mr-4">
-                                <p className="text-lg font-bold text-white dark:text-white">{food.calories} kcal</p>
+                                <p className="text-lg font-bold text-white dark:text-white">
+                                  {manualFood.calories} kcal
+                                </p>
                               </div>
                               <Button
                                 onClick={() => {
                                   const updatedAdjustments = {
                                     ...manualAdjustments,
                                     addedFoods: manualAdjustments.addedFoods.filter(
-                                      (_, idx) => !(manualAdjustments.addedFoods.indexOf(food) === idx),
+                                      (_, idx) => !(manualAdjustments.addedFoods.indexOf(manualFood) === idx),
                                     ),
                                   }
                                   setManualAdjustments(updatedAdjustments)
@@ -2212,27 +2236,25 @@ export default function DietPage() {
                           </div>
                         ))}
 
-                        {Array.isArray(meal.foods) && meal.foods.length > 0 && (
-                          <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-                            <button
-                              onClick={() => handleReplaceMeal(index)}
-                              disabled={replacingMeal === index}
-                              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-blue-400 dark:border-blue-500 text-blue-600 dark:text-blue-400 bg-transparent hover:bg-blue-500/10 dark:hover:bg-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.3)] dark:shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              {replacingMeal === index ? (
-                                <>
-                                  <RefreshCw className="h-4 w-4 animate-spin" />
-                                  Substituindo Refeição...
-                                </>
-                              ) : (
-                                <>
-                                  <RefreshCw className="h-4 w-4" />
-                                  Substituir Refeição
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        )}
+                        <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                          <button
+                            onClick={() => handleReplaceMeal(index)}
+                            disabled={replacingMeal === index}
+                            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-blue-400 dark:border-blue-500 text-blue-600 dark:text-blue-400 bg-transparent hover:bg-blue-500/10 dark:hover:bg-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.3)] dark:shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {replacingMeal === index ? (
+                              <>
+                                <RefreshCw className="h-4 w-4 animate-spin" />
+                                Substituindo Refeição...
+                              </>
+                            ) : (
+                              <>
+                                <RefreshCw className="h-4 w-4" />
+                                Substituir Refeição
+                              </>
+                            )}
+                          </button>
+                        </div>
                         {meal.macros && typeof meal.macros === "object" && (
                           <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
                             <div className="flex justify-between items-center">
@@ -2252,11 +2274,11 @@ export default function DietPage() {
                           </div>
                         )}
                       </div>
-                    </CardContent>
-                  </Card>
+                    </AccordionContent>
+                  </AccordionItem>
                 )
               })}
-            </div>
+            </Accordion>
           )}
 
           <div className="mt-8">
