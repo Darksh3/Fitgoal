@@ -15,74 +15,69 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 }
 
-let app: FirebaseApp | undefined
-let authInstance: Auth | undefined
-let dbInstance: Firestore | undefined
+let app: FirebaseApp | null = null
+let authInstance: Auth | null = null
+let dbInstance: Firestore | null = null
+let initializationAttempted = false
 
-function initializeFirebase() {
-  // Se já inicializou, retornar instâncias existentes
-  if (app && authInstance && dbInstance) {
-    return { app, auth: authInstance, db: dbInstance }
-  }
+function getFirebaseApp(): FirebaseApp | null {
+  if (app) return app
 
-  // Verificar configuração
+  if (initializationAttempted) return null
+
+  initializationAttempted = true
+
   const hasRequiredConfig = Boolean(firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId)
 
   if (!hasRequiredConfig) {
     console.warn("⚠️ Firebase configuration incomplete")
-    return { app: undefined, auth: undefined, db: undefined }
+    return null
   }
 
   try {
-    // Inicializar app se ainda não existe
-    if (!app) {
-      app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
-      console.log("✅ Firebase app initialized")
-    }
-
-    // Inicializar Auth se ainda não existe
-    if (!authInstance && app) {
-      authInstance = getAuth(app)
-      console.log("✅ Firebase Auth initialized")
-    }
-
-    // Inicializar Firestore se ainda não existe
-    if (!dbInstance && app) {
-      dbInstance = getFirestore(app)
-      console.log("✅ Firestore initialized")
-    }
-
-    return { app, auth: authInstance, db: dbInstance }
+    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
+    console.log("✅ Firebase app initialized")
+    return app
   } catch (error) {
-    console.error("❌ Error initializing Firebase:", error)
-    return { app: undefined, auth: undefined, db: undefined }
+    console.error("❌ Error initializing Firebase app:", error)
+    return null
   }
 }
 
-// Criar um Proxy para inicialização lazy
-const createLazyProxy = <T extends object>(getter: () => T | undefined, name: string): T => {
-  return new Proxy({} as T, {
-    get(_target, prop) {
-      const instance = getter()
-      if (!instance) {
-        throw new Error(`${name} is not initialized. Make sure Firebase configuration is correct.`)
-      }
-      return (instance as any)[prop]
-    },
-  })
+function getFirebaseAuth(): Auth | null {
+  if (authInstance) return authInstance
+
+  const firebaseApp = getFirebaseApp()
+  if (!firebaseApp) return null
+
+  try {
+    authInstance = getAuth(firebaseApp)
+    console.log("✅ Firebase Auth initialized")
+    return authInstance
+  } catch (error) {
+    console.error("❌ Error initializing Firebase Auth:", error)
+    return null
+  }
 }
 
-// Exportar proxies que inicializam sob demanda
-export const auth = createLazyProxy(() => {
-  const { auth } = initializeFirebase()
-  return auth
-}, "Firebase Auth")
+function getFirebaseDb(): Firestore | null {
+  if (dbInstance) return dbInstance
 
-export const db = createLazyProxy(() => {
-  const { db } = initializeFirebase()
-  return db
-}, "Firestore")
+  const firebaseApp = getFirebaseApp()
+  if (!firebaseApp) return null
 
+  try {
+    dbInstance = getFirestore(firebaseApp)
+    console.log("✅ Firestore initialized")
+    return dbInstance
+  } catch (error) {
+    console.error("❌ Error initializing Firestore:", error)
+    return null
+  }
+}
+
+export const auth = getFirebaseAuth()
+export const db = getFirebaseDb()
 export { app, onAuthStateChanged }
 
 export function useAuth() {
@@ -90,16 +85,16 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const firebaseAuth = getFirebaseAuth()
+
+    if (!firebaseAuth) {
+      console.warn("⚠️ Firebase Auth not available")
+      setLoading(false)
+      return
+    }
+
     try {
-      const { auth: authInstance } = initializeFirebase()
-
-      if (!authInstance) {
-        console.warn("⚠️ Firebase Auth not available")
-        setLoading(false)
-        return
-      }
-
-      const unsubscribe = onAuthStateChanged(authInstance, (currentUser) => {
+      const unsubscribe = onAuthStateChanged(firebaseAuth, (currentUser) => {
         setUser(currentUser)
         setLoading(false)
       })

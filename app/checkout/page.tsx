@@ -57,6 +57,7 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
           email: userEmail,
           planType: currentPlan.priceId,
           clientUid: clientUid,
+          installments: installments,
         }),
       })
 
@@ -87,6 +88,7 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
             paymentMethodId: setupIntent.payment_method,
             priceId: currentPlan.priceId,
             clientUid,
+            installments: installments,
           }),
         })
 

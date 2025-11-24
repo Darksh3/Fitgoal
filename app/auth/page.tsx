@@ -6,20 +6,18 @@ import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
 import { useRouter } from "next/navigation"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "@/components/ui/use-toast"
 
 export default function AuthPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState("login")
   const router = useRouter()
-  const { toast } = useToast()
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -124,31 +122,33 @@ export default function AuthPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs defaultValue="login" className="w-full">
             <div className="grid grid-cols-2 gap-3 mb-6">
               <button
                 type="button"
-                onClick={() => setActiveTab("login")}
-                className={`px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 shadow-lg ${
-                  activeTab === "login"
-                    ? "bg-lime-500 hover:bg-lime-600 text-white"
-                    : "bg-white/10 hover:bg-white/20 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
-                }`}
+                onClick={() => {
+                  const loginTab = document.querySelector('[value="login"]') as HTMLButtonElement
+                  loginTab?.click()
+                }}
+                className="px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 bg-lime-500 hover:bg-lime-600 text-white shadow-lg"
               >
                 Login
               </button>
               <button
                 type="button"
-                onClick={() => setActiveTab("signup")}
-                className={`px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 shadow-lg ${
-                  activeTab === "signup"
-                    ? "bg-lime-500 hover:bg-lime-600 text-white"
-                    : "bg-white/10 hover:bg-white/20 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
-                }`}
+                onClick={() => {
+                  const signupTab = document.querySelector('[value="signup"]') as HTMLButtonElement
+                  signupTab?.click()
+                }}
+                className="px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 bg-white/10 hover:bg-white/20 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
               >
                 Cadastrar
               </button>
             </div>
+            <TabsList className="hidden">
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="signup">Cadastrar</TabsTrigger>
+            </TabsList>
             <TabsContent value="login" className="mt-4">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
@@ -161,7 +161,6 @@ export default function AuthPage() {
                     placeholder="mig@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    autoComplete="email"
                     className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
                     required
                   />
@@ -176,7 +175,6 @@ export default function AuthPage() {
                     placeholder="Senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
                     className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
                     required
                   />
@@ -224,7 +222,6 @@ export default function AuthPage() {
                     placeholder="mig@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    autoComplete="email"
                     className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
                     required
                   />
@@ -239,7 +236,6 @@ export default function AuthPage() {
                     placeholder="Senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="new-password"
                     className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
                     required
                   />
@@ -253,7 +249,6 @@ export default function AuthPage() {
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    autoComplete="new-password"
                     className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
                     required
                   />

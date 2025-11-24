@@ -57,7 +57,7 @@ export async function POST(req: Request) {
       },
     })
 
-    // Criar Payment Intent sem parcelamento (suportado universalmente)
+    // Criar Payment Intent com parcelamento (suportado para pagamentos únicos)
     const paymentIntent = await stripe.paymentIntents.create({
       amount: plan.amount,
       currency: "brl",
@@ -65,13 +65,25 @@ export async function POST(req: Request) {
       payment_method: paymentMethodId,
       confirm: true,
       payment_method_types: ["card"],
-      // Parcelamento removido - requer configuração especial no Stripe
+      // Parcelamento suportado em pagamentos únicos
+      payment_method_options: {
+        card: {
+          installments: {
+            enabled: true,
+            plan: {
+              count: validInstallments,
+              interval: "month",
+              type: "fixed_count",
+            },
+          },
+        },
+      },
       metadata: {
         clientUid: clientUid,
         priceId: priceId,
         planName: plan.name,
         planDuration: plan.duration.toString(),
-        requestedInstallments: validInstallments.toString(), // Salvar como referência apenas
+        installments: validInstallments.toString(),
       },
     })
 
