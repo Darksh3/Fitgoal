@@ -11,6 +11,7 @@ import ProtectedRoute from "@/components/protected-route"
 import dynamic from "next/dynamic"
 import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download, AlertCircle } from "lucide-react"
 import React from "react"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 const html2pdf = dynamic(() => import("html2pdf.js"), { ssr: false })
 
@@ -614,63 +615,74 @@ export default function TreinoPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {workoutPlan.days.map((day, dayIndex) => (
-              <Card key={dayIndex} className="bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700">
-                <CardHeader className="border-b border-gray-200 dark:border-gray-700 pb-4">
-                  <CardTitle className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500">
-                      <Dumbbell className="h-5 w-5 text-white" />
+          <div className="space-y-4 mb-8">
+            <Accordion type="multiple">
+              {workoutPlan.days.map((day, dayIndex) => (
+                <AccordionItem
+                  key={dayIndex}
+                  value={`day-${dayIndex}`}
+                  className="bg-white dark:bg-gray-800/50 border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors">
+                    <div className="flex items-center gap-3 text-left w-full">
+                      <div className="p-2.5 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 shadow-md">
+                        <Dumbbell className="h-6 w-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                          {day.title || day.day} - {day.focus}
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                          {day.exercises?.length || 0} exercícios
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                        {day.title || day.day} - {day.focus}
-                      </h3>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-6 pb-6 pt-2">
+                    <div className="space-y-6">
+                      {day.exercises && day.exercises.length > 0 ? (
+                        day.exercises.map((exercise, exerciseIndex) => (
+                          <div
+                            key={exerciseIndex}
+                            className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 border border-gray-200 dark:border-gray-700/50 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
+                          >
+                            <div className="flex items-start justify-between gap-3 mb-3">
+                              <h4 className="font-bold text-lg text-gray-900 dark:text-white flex-1">
+                                {exercise.name}
+                              </h4>
+                              <ExerciseSubstituteButton
+                                exercise={exercise}
+                                dayIndex={dayIndex}
+                                exerciseIndex={exerciseIndex}
+                                onSubstitute={handleExerciseSubstitution}
+                              />
+                            </div>
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                Séries: {exercise.sets}
+                              </span>
+                              <span className="px-3 py-1 text-xs font-medium rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                                Repetições: {exercise.reps}
+                              </span>
+                              <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800">
+                                Descanso: {exercise.rest}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                              {exercise.description}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
+                          Nenhum exercício especificado para este dia.
+                        </p>
+                      )}
                     </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <div className="space-y-6">
-                    {day.exercises && day.exercises.length > 0 ? (
-                      day.exercises.map((exercise, exerciseIndex) => (
-                        <div
-                          key={exerciseIndex}
-                          className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 border border-gray-200 dark:border-gray-700/50 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
-                        >
-                          <div className="flex items-start justify-between gap-3 mb-3">
-                            <h4 className="font-bold text-lg text-gray-900 dark:text-white flex-1">{exercise.name}</h4>
-                            <ExerciseSubstituteButton
-                              exercise={exercise}
-                              dayIndex={dayIndex}
-                              exerciseIndex={exerciseIndex}
-                              onSubstitute={handleExerciseSubstitution}
-                            />
-                          </div>
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                              Séries: {exercise.sets}
-                            </span>
-                            <span className="px-3 py-1 text-xs font-medium rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                              Repetições: {exercise.reps}
-                            </span>
-                            <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800">
-                              Descanso: {exercise.rest}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                            {exercise.description}
-                          </p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
-                        Nenhum exercício especificado para este dia.
-                      </p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
 
           {workoutPlan.tips && workoutPlan.tips.length > 0 && (
