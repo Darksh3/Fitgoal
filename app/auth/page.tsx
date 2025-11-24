@@ -6,18 +6,20 @@ import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
 import { useRouter } from "next/navigation"
-import { toast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 
 export default function AuthPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState("login")
   const router = useRouter()
+  const { toast } = useToast()
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -122,33 +124,31 @@ export default function AuthPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="grid grid-cols-2 gap-3 mb-6">
               <button
                 type="button"
-                onClick={() => {
-                  const loginTab = document.querySelector('[value="login"]') as HTMLButtonElement
-                  loginTab?.click()
-                }}
-                className="px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 bg-lime-500 hover:bg-lime-600 text-white shadow-lg"
+                onClick={() => setActiveTab("login")}
+                className={`px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 shadow-lg ${
+                  activeTab === "login"
+                    ? "bg-lime-500 hover:bg-lime-600 text-white"
+                    : "bg-white/10 hover:bg-white/20 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
+                }`}
               >
                 Login
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  const signupTab = document.querySelector('[value="signup"]') as HTMLButtonElement
-                  signupTab?.click()
-                }}
-                className="px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 bg-white/10 hover:bg-white/20 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
+                onClick={() => setActiveTab("signup")}
+                className={`px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 shadow-lg ${
+                  activeTab === "signup"
+                    ? "bg-lime-500 hover:bg-lime-600 text-white"
+                    : "bg-white/10 hover:bg-white/20 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
+                }`}
               >
                 Cadastrar
               </button>
             </div>
-            <TabsList className="hidden">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Cadastrar</TabsTrigger>
-            </TabsList>
             <TabsContent value="login" className="mt-4">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
