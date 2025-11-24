@@ -472,36 +472,6 @@ export default function DashboardPage() {
   }, [currentWeightSlider, photoProgressBonus, quizData])
 
   useEffect(() => {
-    const handlePhotoAnalysisComplete = async (event: CustomEvent) => {
-      if (!user || !db) return
-
-      try {
-        const userRef = doc(db, "users", user.uid)
-        const userDoc = await getDoc(userRef)
-
-        const currentCount = userDoc.exists() ? userDoc.data().photoProgressCount || 0 : 0
-        const newCount = currentCount + 1
-
-        await updateDoc(userRef, {
-          photoProgressCount: newCount,
-        })
-
-        setPhotoProgressBonus(newCount * 5)
-
-        console.log("[v0] Progresso incrementado! Fotos enviadas:", newCount)
-      } catch (error) {
-        console.error("[v0] Erro ao incrementar progresso:", error)
-      }
-    }
-
-    window.addEventListener("photoAnalysisComplete", handlePhotoAnalysisComplete as EventListener)
-
-    return () => {
-      window.removeEventListener("photoAnalysisComplete", handlePhotoAnalysisComplete as EventListener)
-    }
-  }, [user, db])
-
-  useEffect(() => {
     if (dietPlan) {
       const calories = (() => {
         if (dietPlan.totalDailyCalories && !isNaN(dietPlan.totalDailyCalories)) {
@@ -584,9 +554,17 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center space-x-3">
                 <img
+                  src="/images/fitgoal-logo-black.png"
+                  alt="FitGoal Logo"
+                  className="h-12 w-auto dark:hidden"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none"
+                  }}
+                />
+                <img
                   src="/images/fitgoal-logo.png"
                   alt="FitGoal Logo"
-                  className="h-12 w-auto"
+                  className="h-12 w-auto hidden dark:block"
                   onError={(e) => {
                     e.currentTarget.style.display = "none"
                   }}
@@ -701,7 +679,8 @@ export default function DashboardPage() {
 
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-center mb-8">
-            <img src="/images/fitgoal-logo.png" alt="FitGoal Logo" className="h-16 w-auto" />
+            <img src="/images/fitgoal-logo-black.png" alt="FitGoal Logo" className="h-16 w-auto dark:hidden" />
+            <img src="/images/fitgoal-logo.png" alt="FitGoal Logo" className="h-16 w-auto hidden dark:block" />
           </div>
 
           <div className="text-center mb-12">

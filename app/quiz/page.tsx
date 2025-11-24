@@ -24,6 +24,8 @@ import { doc, setDoc, getDoc } from "firebase/firestore"
 
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth"
 
+import Image from "next/image"
+
 interface QuizData {
   gender: string
   bodyType: string
@@ -603,43 +605,17 @@ export default function QuizPage() {
     }
     return (
       <div className={`${className} relative`}>
-        <img
+        <Image
           src={getBodyImage() || "/placeholder.svg"}
           alt={`${gender} ${type} body type`}
+          width={400}
+          height={400}
           className="w-full h-full object-contain"
+          priority={currentStep === 1}
           onError={(e) => {
-            e.currentTarget.style.display = "none"
-            e.currentTarget.nextElementSibling.style.display = "block"
+            e.currentTarget.src = "/placeholder.svg"
           }}
         />
-        <svg viewBox="0 0 100 150" className="w-full h-full" style={{ display: "none" }}>
-          <path
-            d="M50 10 C45 10 40 15 40 25 L40 35 C35 40 35 50 40 55 L40 90 C40 95 35 100 30 105 L30 140 C30 145 35 150 40 150 L60 150 C65 150 70 145 70 140 L70 105 C65 100 60 95 60 90 L60 55 C65 50 65 40 60 35 L60 25 C60 15 55 10 50 10 Z"
-            fill="#D4A574"
-            stroke="#B8956A"
-            strokeWidth="1"
-          />
-          <circle cx="50" cy="20" r="12" fill="#D4A574" stroke="#B8956A" strokeWidth="1" />
-          <ellipse cx="25" cy="45" rx="8" ry="20" fill="#D4A574" stroke="#B8956A" strokeWidth="1" />
-          <ellipse cx="75" cy="45" rx="8" ry="20" fill="#D4A574" stroke="#B8956A" strokeWidth="1" />
-          <rect x="35" y="85" width="30" height="20" rx="3" fill="#4A90A4" />
-        </svg>
-        {highlightAreas.length > 0 && (
-          <div className="absolute inset-0 pointer-events-none">
-            {highlightAreas.map((area) => (
-              <div
-                key={area}
-                className="absolute bg-lime-500 bg-opacity-30 rounded-full animate-pulse"
-                style={{
-                  ...(area === "Peito" && { top: "25%", left: "35%", width: "30%", height: "15%" }),
-                  ...(area === "Braços" && { top: "20%", left: "10%", width: "20%", height: "40%" }),
-                  ...(area === "Barriga" && { top: "45%", left: "30%", width: "40%", height: "20%" }),
-                  ...(area === "Pernas" && { top: "65%", left: "25%", width: "50%", height: "35%" }),
-                }}
-              />
-            ))}
-          </div>
-        )}
       </div>
     )
   }
@@ -962,9 +938,11 @@ export default function QuizPage() {
                   onClick={() => updateQuizData("gender", gender.value)}
                 >
                   <div className="flex justify-center items-center h-40">
-                    <img
+                    <Image
                       src={gender.icon || "/placeholder.svg"}
                       alt={gender.label}
+                      width={96}
+                      height={96}
                       className="w-24 h-24 object-contain mx-auto"
                       onError={(e) => {
                         e.currentTarget.src = "/placeholder.svg"
@@ -1022,11 +1000,12 @@ export default function QuizPage() {
               <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual o seu tipo de Corpo?</h2>
             </div>
             <div className="space-y-3 sm:space-y-6">
+              {/* Otimizando imagens de seleção de biotipo */}
               {[
                 { value: "ectomorfo", label: "Ectomorfo", desc: "Corpo magro, dificuldade para ganhar peso" },
                 { value: "mesomorfo", label: "Mesomorfo", desc: "Corpo atlético, facilidade para ganhar músculos" },
                 { value: "endomorfo", label: "Endomorfo", desc: "Corpo mais largo, tendência a acumular gordura" },
-              ].map((type) => (
+              ].map((type, index) => (
                 <div
                   key={type.value}
                   className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
@@ -1039,10 +1018,13 @@ export default function QuizPage() {
                     <p className="text-gray-400 text-lg">{type.desc}</p>
                   </div>
                   <div className="flex-shrink-0 ml-6">
-                    <img
+                    <Image
                       src={getBodyTypeImage(type.value) || "/placeholder.svg"}
                       alt={`${type.label} body type`}
+                      width={192}
+                      height={192}
                       className="w-auto h-32 sm:h-48 object-contain"
+                      priority={index === 0}
                       onError={(e) => {
                         e.currentTarget.src = "/placeholder.svg"
                       }}
@@ -1050,6 +1032,7 @@ export default function QuizPage() {
                   </div>
                 </div>
               ))}
+              {/* </CHANGE> */}
             </div>
           </div>
         )
@@ -1089,9 +1072,11 @@ export default function QuizPage() {
                   onClick={() => handleArrayUpdate("goal", goal.value, !quizData.goal.includes(goal.value))}
                 >
                   <h3 className="text-xl font-bold text-white">{goal.label}</h3>
-                  <img
+                  <Image
                     src={getGoalIcon(goal.value) || "/placeholder.svg"}
                     alt={goal.label}
+                    width={64}
+                    height={64}
                     className="w-12 h-12 sm:w-16 sm:h-16 object-contain flex-shrink-0"
                     onError={(e) => {
                       e.currentTarget.src = "/placeholder.svg"
@@ -1144,11 +1129,15 @@ export default function QuizPage() {
             </div>
             <div className="flex items-center justify-center space-x-8">
               <div className="relative">
-                <img
+                {/* Otimizando imagem da área de foco */}
+                <Image
                   src={getBodyTypeImageForFocus() || "/placeholder.svg"}
                   alt={`Corpo ${quizData.gender === "mulher" ? "feminino" : "masculino"} ${quizData.bodyType}`}
+                  width={256}
+                  height={384}
                   className="w-64 h-auto object-contain"
                 />
+                {/* </CHANGE> */}
                 {quizData.problemAreas.includes("Peito") && (
                   <div
                     className="absolute bg-orange-500/70 rounded-lg animate-pulse"
@@ -1305,7 +1294,7 @@ export default function QuizPage() {
           <div className="space-y-8">
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold text-white">
-                Com qual frequência você consome doces ou bebidas alcoólicas?
+                Com que frequência você consome doces ou bebidas alcoólicas?
               </h2>
               <p className="text-gray-300">Selecione todas que se aplicam</p>
             </div>
@@ -1389,7 +1378,7 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
+                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
                   quizData.allergies === "sim" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => updateQuizData("allergies", "sim")}
@@ -1400,7 +1389,7 @@ export default function QuizPage() {
                 />
               </div>
               <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
+                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
                   quizData.allergies === "nao" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => updateQuizData("allergies", "nao")}

@@ -99,6 +99,23 @@ export async function POST(req: Request) {
       fields: Object.keys(metadata),
     })
 
+    const isMensalSubscription = planType === "price_1RajatPRgKqdJdqNnb9HQe17"
+    const checkoutMode = isMensalSubscription ? "subscription" : "payment"
+
+    console.log(
+      `DEBUG: Modo de checkout: ${checkoutMode} (${isMensalSubscription ? "Mensal recorrente" : "Pagamento único"})`,
+    )
+
+    const paymentMethodOptions = isMensalSubscription
+      ? undefined // Não oferece parcelamento para subscription
+      : {
+          card: {
+            installments: {
+              enabled: true,
+            },
+          },
+        }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -107,15 +124,9 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
-      mode: "subscription",
+      mode: checkoutMode,
       customer_email: email,
-      payment_method_options: {
-        card: {
-          installments: {
-            enabled: true,
-          },
-        },
-      },
+      payment_method_options: paymentMethodOptions,
       success_url: `${process.env.NEXT_PUBLIC_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_URL}/checkout`,
       metadata: metadata,

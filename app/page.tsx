@@ -314,10 +314,20 @@ export default function Home() {
       {/* Header */}
       <header className="p-2 flex justify-between items-center">
         <div className="flex items-center">
+          {/* Theme-aware logo switching */}
+          <img
+            src="/images/fitgoal-logo-black.png"
+            alt="FitGoal Logo"
+            className="h-24 w-auto dark:hidden"
+            onError={(e) => {
+              e.currentTarget.style.display = "none"
+              e.currentTarget.nextElementSibling.style.display = "flex"
+            }}
+          />
           <img
             src="/images/fitgoal-logo.png"
             alt="FitGoal Logo"
-            className="h-24 w-auto"
+            className="h-24 w-auto hidden dark:block"
             onError={(e) => {
               e.currentTarget.style.display = "none"
               e.currentTarget.nextElementSibling.style.display = "flex"
@@ -929,9 +939,18 @@ export default function Home() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
             <img
+              src="/images/fitgoal-logo-black.png"
+              alt="FitGoal Logo"
+              className="h-16 w-auto dark:hidden"
+              onError={(e) => {
+                e.currentTarget.style.display = "none"
+                e.currentTarget.nextElementSibling.style.display = "flex"
+              }}
+            />
+            <img
               src="/images/fitgoal-logo.png"
               alt="FitGoal Logo"
-              className="h-16 w-auto"
+              className="h-16 w-auto hidden dark:block"
               onError={(e) => {
                 e.currentTarget.style.display = "none"
                 e.currentTarget.nextElementSibling.style.display = "flex"
