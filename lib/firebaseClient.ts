@@ -2,7 +2,17 @@
 
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app"
 import { getAuth, onAuthStateChanged, type User, type Auth } from "firebase/auth"
-import { getFirestore, type Firestore } from "firebase/firestore"
+import {
+  getFirestore,
+  type Firestore,
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  updateDoc,
+  arrayUnion,
+  deleteDoc,
+} from "firebase/firestore"
 import { useEffect, useState } from "react"
 
 const firebaseConfig = {
@@ -79,6 +89,8 @@ function getFirebaseDb(): Firestore | null {
 export const auth = getFirebaseAuth()
 export const db = getFirebaseDb()
 export { app, onAuthStateChanged }
+
+export { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, deleteDoc }
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)

@@ -413,7 +413,7 @@ export async function POST(req: Request) {
       const userDoc = await userDocRef.get()
 
       if (!userDoc.exists) {
-        return new Response(JSON.stringify({ error: "User not found" }), {
+        return new Response(JSON.JSON.stringify({ error: "User not found" }), {
           status: 404,
           headers: { "Content-Type": "application/json" },
         })
@@ -540,6 +540,24 @@ NÃO adicione o suplemento nas refeições! Ele será incluído automaticamente.
 
 CLIENTE: ${quizData.gender}, ${quizData.age} anos, ${quizData.currentWeight}kg, objetivo: ${quizData.goal?.join(", ")}, biotipo: ${quizData.bodyType}
 ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
+${
+  quizData.diet
+    ? `
+⚠️ PREFERÊNCIA ALIMENTAR CRÍTICA: ${quizData.diet.toUpperCase()}
+${
+  quizData.diet === "vegetariano"
+    ? "- NÃO INCLUA: Carne bovina, frango, porco, peixe, frutos do mar\n- PERMITIDO: Ovos, laticínios, leguminosas, tofu, proteína vegetal"
+    : quizData.diet === "vegano"
+      ? "- NÃO INCLUA: Qualquer produto de origem animal (carne, frango, peixe, ovos, laticínios, mel)\n- USE: Proteínas vegetais (leguminosas, tofu, tempeh, seitan), leites vegetais"
+      : quizData.diet === "keto"
+        ? "- FOCO: Baixo carboidrato (máx 50g/dia), alto teor de gorduras saudáveis\n- EVITE: Arroz, pão, massas, açúcar, frutas ricas em açúcar"
+        : quizData.diet === "mediterraneo"
+          ? "- FOCO: Azeite, peixes, vegetais, grãos integrais, frutas\n- LIMITE: Carne vermelha, alimentos processados"
+          : ""
+}
+`
+    : ""
+}
 
 REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
 
@@ -577,6 +595,11 @@ MACROS TOTAIS:
 4. Cada refeição deve contribuir para atingir os totais especificados
 5. Priorize alimentos brasileiros comuns e acessíveis (arroz, feijão, frango, ovos, batata, etc.)
 6. Evite alimentos caros ou incomuns no Brasil (salmão, quinoa, aspargos, etc.)
+${
+  quizData.diet
+    ? `7. ⚠️ RESPEITE RIGOROSAMENTE A PREFERÊNCIA ALIMENTAR: ${quizData.diet.toUpperCase()} - Não inclua alimentos proibidos!`
+    : ""
+}
 
 FONTES DE DADOS NUTRICIONAIS:
 1. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO

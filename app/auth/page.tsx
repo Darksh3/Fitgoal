@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,6 +10,7 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswor
 import { auth } from "@/lib/firebaseClient"
 import { useRouter } from "next/navigation"
 import { toast } from "@/components/ui/use-toast"
+import { db, doc, getDoc, setDoc } from "@/lib/firebaseClient" // Import Firebase Firestore
 
 export default function AuthPage() {
   const [email, setEmail] = useState("")
@@ -52,7 +52,66 @@ export default function AuthPage() {
     }
     setLoading(true)
     try {
-      await createUserWithEmailAndPassword(auth, email, password)
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+      const userId = userCredential.user.uid
+
+      try {
+        const leadsDocRef = doc(db, "leads", userId)
+        const leadsDoc = await getDoc(leadsDocRef)
+
+        if (leadsDoc.exists()) {
+          const leadData = leadsDoc.data()
+          console.log("[v0] Lead data found, copying to user:", userId)
+
+          // Copiar todos os dados do lead para o documento do usuário
+          const userDocRef = doc(db, "users", userId)
+          await setDoc(
+            userDocRef,
+            {
+              email: email,
+              createdAt: new Date().toISOString(),
+              lastLogin: new Date().toISOString(),
+              // Copiar dados do quiz
+              quizData: leadData.quizData || leadData,
+              quizAnswers: leadData.quizData || leadData,
+              // Copiar dados pessoais
+              currentWeight: leadData.currentWeight,
+              goalWeight: leadData.goalWeight,
+              height: leadData.height,
+              age: leadData.age,
+              gender: leadData.gender,
+              bodyType: leadData.bodyType,
+              goal: leadData.goal,
+              experience: leadData.experience,
+              trainingDaysPerWeek: leadData.trainingDaysPerWeek,
+              workoutTime: leadData.workoutTime,
+              equipment: leadData.equipment,
+              diet: leadData.diet || leadData.dietPreferences,
+              allergies: leadData.allergies,
+              allergyDetails: leadData.allergyDetails,
+              // Copiar planos se existirem
+              ...(leadData.dietPlan && { dietPlan: leadData.dietPlan }),
+              ...(leadData.workoutPlan && { workoutPlan: leadData.workoutPlan }),
+            },
+            { merge: true },
+          )
+
+          console.log("[v0] Lead data copied to user successfully")
+        } else {
+          console.log("[v0] No lead data found for user:", userId)
+          // Criar documento básico do usuário
+          const userDocRef = doc(db, "users", userId)
+          await setDoc(userDocRef, {
+            email: email,
+            createdAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString(),
+          })
+        }
+      } catch (error) {
+        console.error("[v0] Error copying lead data:", error)
+        // Não falhar o cadastro se houver erro na cópia dos dados
+      }
+
       toast({
         title: "Sucesso!",
         description: "Conta criada com sucesso.",
