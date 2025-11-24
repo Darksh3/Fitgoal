@@ -36,6 +36,18 @@ interface PersonalData {
   allergies: string
 }
 
+interface Measurements {
+  weight: string
+  height: string
+  chest: string
+  waist: string
+  thigh: string
+  leftArm: string
+  rightArm: string
+  leftLeg: string
+  rightLeg: string
+}
+
 export default function DadosPage() {
   const router = useRouter()
   const [quizData, setQuizData] = useState<QuizData | null>(null)
@@ -49,6 +61,17 @@ export default function DadosPage() {
     medicalConditions: "",
     allergies: "",
   })
+  const [measurements, setMeasurements] = useState<Measurements>({
+    weight: "",
+    height: "",
+    chest: "",
+    waist: "",
+    thigh: "",
+    leftArm: "",
+    rightArm: "",
+    leftLeg: "",
+    rightLeg: "",
+  })
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isSyncing, setIsSyncing] = useState(false)
@@ -61,9 +84,11 @@ export default function DadosPage() {
 
       let localQuizData = null
       let localPersonalData = null
+      let localMeasurements = null
 
       const savedQuizData = localStorage.getItem("quizData")
       const savedPersonalData = localStorage.getItem("personalData")
+      const savedMeasurements = localStorage.getItem("measurements")
 
       if (savedQuizData) {
         localQuizData = JSON.parse(savedQuizData)
@@ -71,6 +96,10 @@ export default function DadosPage() {
 
       if (savedPersonalData) {
         localPersonalData = JSON.parse(savedPersonalData)
+      }
+
+      if (savedMeasurements) {
+        localMeasurements = JSON.parse(savedMeasurements)
       }
 
       if (auth.currentUser) {
@@ -111,6 +140,19 @@ export default function DadosPage() {
                   }
                   setPersonalData(preFilledData)
                 }
+
+                if (userData.measurements) {
+                  const mergedMeasurements = { ...localMeasurements, ...userData.measurements }
+                  setMeasurements(mergedMeasurements)
+                  localStorage.setItem("measurements", JSON.stringify(mergedMeasurements))
+                } else {
+                  const preFilledMeasurements = {
+                    ...localMeasurements,
+                    weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
+                    height: localQuizData?.height || localMeasurements?.height || "",
+                  }
+                  setMeasurements(preFilledMeasurements)
+                }
               } else {
                 const preFilledData = {
                   ...localPersonalData,
@@ -119,6 +161,13 @@ export default function DadosPage() {
                   email: auth.currentUser?.email || localPersonalData?.email || "",
                 }
                 setPersonalData(preFilledData)
+
+                const preFilledMeasurements = {
+                  ...localMeasurements,
+                  weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
+                  height: localQuizData?.height || localMeasurements?.height || "",
+                }
+                setMeasurements(preFilledMeasurements)
               }
             } catch (error) {
               const preFilledData = {
@@ -128,6 +177,13 @@ export default function DadosPage() {
                 email: auth.currentUser.email || localPersonalData?.email || "",
               }
               setPersonalData(preFilledData)
+
+              const preFilledMeasurements = {
+                ...localMeasurements,
+                weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
+                height: localQuizData?.height || localMeasurements?.height || "",
+              }
+              setMeasurements(preFilledMeasurements)
             }
           } else {
             setQuizData(localQuizData)
@@ -138,6 +194,13 @@ export default function DadosPage() {
               email: auth.currentUser?.email || localPersonalData?.email || "",
             }
             setPersonalData(preFilledData)
+
+            const preFilledMeasurements = {
+              ...localMeasurements,
+              weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
+              height: localQuizData?.height || localMeasurements?.height || "",
+            }
+            setMeasurements(preFilledMeasurements)
           }
         } catch (error) {
           console.error("[v0] Error fetching from Firestore:", error)
@@ -146,9 +209,16 @@ export default function DadosPage() {
             ...localPersonalData,
             age: localQuizData?.age || localPersonalData?.age || "",
             height: localQuizData?.height || localPersonalData?.height || "",
-            email: auth.currentUser?.email || localPersonalData?.email || "",
+            email: auth.currentUser.email || localPersonalData?.email || "",
           }
           setPersonalData(preFilledData)
+
+          const preFilledMeasurements = {
+            ...localMeasurements,
+            weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
+            height: localQuizData?.height || localMeasurements?.height || "",
+          }
+          setMeasurements(preFilledMeasurements)
         }
       } else {
         setQuizData(localQuizData)
@@ -158,6 +228,13 @@ export default function DadosPage() {
           height: localQuizData?.height || localPersonalData?.height || "",
         }
         setPersonalData(preFilledData)
+
+        const preFilledMeasurements = {
+          ...localMeasurements,
+          weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
+          height: localQuizData?.height || localMeasurements?.height || "",
+        }
+        setMeasurements(preFilledMeasurements)
       }
 
       setIsLoading(false)
@@ -170,6 +247,7 @@ export default function DadosPage() {
     setIsSyncing(true)
 
     localStorage.setItem("personalData", JSON.stringify(personalData))
+    localStorage.setItem("measurements", JSON.stringify(measurements))
 
     if (auth.currentUser) {
       try {
@@ -177,6 +255,7 @@ export default function DadosPage() {
           doc(db, "users", auth.currentUser.uid),
           {
             personalData: personalData,
+            measurements: measurements,
             updatedAt: new Date().toISOString(),
           },
           { merge: true },
@@ -212,6 +291,11 @@ export default function DadosPage() {
             setPersonalData(userDoc.data().personalData)
             localStorage.setItem("personalData", JSON.stringify(userDoc.data().personalData))
           }
+
+          if (userDoc.exists() && userDoc.data().measurements) {
+            setMeasurements(userDoc.data().measurements)
+            localStorage.setItem("measurements", JSON.stringify(userDoc.data().measurements))
+          }
         } catch (error) {}
       }
     } catch (error) {
@@ -240,6 +324,7 @@ export default function DadosPage() {
       if (result.success) {
         localStorage.removeItem("quizData")
         localStorage.removeItem("personalData")
+        localStorage.removeItem("measurements")
 
         setQuizData(null)
         setPersonalData({
@@ -251,6 +336,17 @@ export default function DadosPage() {
           emergencyContact: "",
           medicalConditions: "",
           allergies: "",
+        })
+        setMeasurements({
+          weight: "",
+          height: "",
+          chest: "",
+          waist: "",
+          thigh: "",
+          leftArm: "",
+          rightArm: "",
+          leftLeg: "",
+          rightLeg: "",
         })
         setHasOldData(false)
 
@@ -443,7 +539,7 @@ export default function DadosPage() {
                       onChange={(e) => setPersonalData((prev) => ({ ...prev, age: e.target.value }))}
                       placeholder="25"
                       disabled={!isEditing}
-                      className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                      className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                     />
                   </div>
                   <div>
@@ -456,7 +552,7 @@ export default function DadosPage() {
                       onChange={(e) => setPersonalData((prev) => ({ ...prev, height: e.target.value }))}
                       placeholder="178"
                       disabled={!isEditing}
-                      className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                      className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                     />
                   </div>
                 </div>
@@ -471,7 +567,7 @@ export default function DadosPage() {
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, phone: e.target.value }))}
                     placeholder="(11) 99999-9999"
                     disabled={!isEditing}
-                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
 
@@ -486,7 +582,7 @@ export default function DadosPage() {
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, email: e.target.value }))}
                     placeholder="cleber.neves013@gmail.com"
                     disabled={!isEditing}
-                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
 
@@ -500,7 +596,7 @@ export default function DadosPage() {
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, address: e.target.value }))}
                     placeholder="Rua, número, bairro, cidade"
                     disabled={!isEditing}
-                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
 
@@ -514,7 +610,7 @@ export default function DadosPage() {
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, emergencyContact: e.target.value }))}
                     placeholder="Nome e telefone"
                     disabled={!isEditing}
-                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
               </CardContent>
@@ -538,7 +634,7 @@ export default function DadosPage() {
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, medicalConditions: e.target.value }))}
                     placeholder="Diabetes, hipertensão, etc."
                     disabled={!isEditing}
-                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
 
@@ -552,7 +648,7 @@ export default function DadosPage() {
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, allergies: e.target.value }))}
                     placeholder="Alimentos, medicamentos, etc."
                     disabled={!isEditing}
-                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
 
@@ -564,6 +660,142 @@ export default function DadosPage() {
                       exercícios ou dieta.
                     </span>
                   </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white dark:bg-white/5 backdrop-blur-md border-gray-200 dark:border-white/10">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                  <Calendar className="h-5 w-5 text-red-400" />
+                  Medidas Corporais
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="weight" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Peso (kg)
+                  </Label>
+                  <Input
+                    id="weight"
+                    value={measurements.weight}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, weight: e.target.value }))}
+                    placeholder="80"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="bodyHeight" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Altura (cm)
+                  </Label>
+                  <Input
+                    id="bodyHeight"
+                    value={measurements.height}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, height: e.target.value }))}
+                    placeholder="178"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="chest" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Peitoral (cm)
+                  </Label>
+                  <Input
+                    id="chest"
+                    value={measurements.chest}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, chest: e.target.value }))}
+                    placeholder="105"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="waist" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Cintura (cm)
+                  </Label>
+                  <Input
+                    id="waist"
+                    value={measurements.waist}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, waist: e.target.value }))}
+                    placeholder="85"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="thigh" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Quadril (cm)
+                  </Label>
+                  <Input
+                    id="thigh"
+                    value={measurements.thigh}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, thigh: e.target.value }))}
+                    placeholder="60"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="leftArm" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Braço Esquerdo (cm)
+                  </Label>
+                  <Input
+                    id="leftArm"
+                    value={measurements.leftArm}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, leftArm: e.target.value }))}
+                    placeholder="38"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="rightArm" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Braço Direito (cm)
+                  </Label>
+                  <Input
+                    id="rightArm"
+                    value={measurements.rightArm}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, rightArm: e.target.value }))}
+                    placeholder="38"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="leftLeg" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Coxa Esquerda (cm)
+                  </Label>
+                  <Input
+                    id="leftLeg"
+                    value={measurements.leftLeg}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, leftLeg: e.target.value }))}
+                    placeholder="60"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="rightLeg" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Coxa Direita (cm)
+                  </Label>
+                  <Input
+                    id="rightLeg"
+                    value={measurements.rightLeg}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, rightLeg: e.target.value }))}
+                    placeholder="60"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
                 </div>
               </CardContent>
             </Card>

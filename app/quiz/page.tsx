@@ -1019,9 +1019,9 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual o seu tipo de Corpo?</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual o seu tipo de Corpo?</h2>
             </div>
-            <div className="space-y-6">
+            <div className="space-y-3 sm:space-y-6">
               {[
                 { value: "ectomorfo", label: "Ectomorfo", desc: "Corpo magro, dificuldade para ganhar peso" },
                 { value: "mesomorfo", label: "Mesomorfo", desc: "Corpo atlético, facilidade para ganhar músculos" },
@@ -1042,7 +1042,7 @@ export default function QuizPage() {
                     <img
                       src={getBodyTypeImage(type.value) || "/placeholder.svg"}
                       alt={`${type.label} body type`}
-                      className="w-32 h-48 object-contain"
+                      className="w-auto h-32 sm:h-48 object-contain"
                       onError={(e) => {
                         e.currentTarget.src = "/placeholder.svg"
                       }}
@@ -1071,10 +1071,10 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Quais são os seus objetivos?</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">Quais são os seus objetivos?</h2>
               <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {[
                 { value: "perder-peso", label: "Perder peso e queimar gordura" },
                 { value: "ganhar-massa", label: "Ganhar massa muscular e definir o corpo" },
@@ -1092,7 +1092,7 @@ export default function QuizPage() {
                   <img
                     src={getGoalIcon(goal.value) || "/placeholder.svg"}
                     alt={goal.label}
-                    className="w-16 h-16 object-contain"
+                    className="w-12 h-12 sm:w-16 sm:h-16 object-contain flex-shrink-0"
                     onError={(e) => {
                       e.currentTarget.src = "/placeholder.svg"
                     }}

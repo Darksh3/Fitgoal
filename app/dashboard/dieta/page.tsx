@@ -2166,7 +2166,7 @@ export default function DietPage() {
                                       disabled={
                                         replacingFood?.mealIndex === index && replacingFood?.foodIndex === originalIndex
                                       }
-                                      className="h-8 px-3 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                      className="h-8 px-3 rounded-full flex items-center justify-center text-gray-800 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-blue-100 dark:hover:bg-gray-700/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                       {replacingFood?.mealIndex === index &&
                                       replacingFood?.foodIndex === originalIndex ? (
