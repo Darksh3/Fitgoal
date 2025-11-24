@@ -2115,7 +2115,7 @@ export default function DietPage() {
                                       <p className="text-lg font-bold text-white dark:text-white">{foodCalories}</p>
                                     </div>
                                   )}
-                                  <div className="flex items-center gap-1 bg-gray-800/50 dark:bg-gray-700/50 rounded-full p-1 backdrop-blur-sm border border-gray-700/30 dark:border-gray-600/30">
+                                  <div className="flex items-center gap-1 bg-blue-100/80 dark:bg-gray-700/50 rounded-full p-1 backdrop-blur-sm border border-blue-200/50 dark:border-gray-600/30">
                                     <button
                                       onClick={() => {
                                         const extractNumber = (value: any) => {
@@ -2139,7 +2139,7 @@ export default function DietPage() {
                                           },
                                         })
                                       }}
-                                      className="h-8 w-8 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700/50 transition-all"
+                                      className="h-8 w-8 rounded-full flex items-center justify-center text-blue-600 dark:text-gray-300 hover:text-blue-700 dark:hover:text-white hover:bg-blue-200/50 dark:hover:bg-gray-700/50 transition-all"
                                     >
                                       <svg
                                         className="h-3.5 w-3.5"
@@ -2166,7 +2166,7 @@ export default function DietPage() {
                                       disabled={
                                         replacingFood?.mealIndex === index && replacingFood?.foodIndex === originalIndex
                                       }
-                                      className="h-8 px-3 rounded-full flex items-center justify-center bg-blue-50 dark:bg-gray-700/30 text-blue-600 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-gray-700/50 border border-blue-200 dark:border-gray-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                      className="h-8 px-3 rounded-full flex items-center justify-center bg-blue-200/60 dark:bg-gray-700/30 text-blue-700 dark:text-gray-300 hover:bg-blue-300/60 dark:hover:bg-gray-700/50 border border-blue-300/50 dark:border-gray-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                       {replacingFood?.mealIndex === index &&
                                       replacingFood?.foodIndex === originalIndex ? (
