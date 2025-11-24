@@ -538,15 +538,13 @@ export default function TreinoPage() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-2">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Seu Plano de Treino</h1>
-              <Button
+              <button
                 onClick={downloadWorkoutPDF}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2 bg-transparent"
+                className="px-4 py-2 text-sm font-medium rounded-md border-2 border-blue-400 dark:border-blue-500 bg-transparent text-blue-600 dark:text-blue-400 hover:bg-blue-400/10 dark:hover:bg-blue-500/10 transition-all duration-200 shadow-[0_0_10px_rgba(59,130,246,0.3)] hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] flex items-center gap-2"
               >
                 <Download className="h-4 w-4" />
                 Baixar PDF
-              </Button>
+              </button>
             </div>
             <p className="text-gray-600 dark:text-gray-400">Plano personalizado para atingir seus objetivos</p>
           </div>
