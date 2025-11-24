@@ -2068,102 +2068,105 @@ export default function DietPage() {
                             return (
                               <div
                                 key={foodIndex}
-                                className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                                className="flex justify-between items-center py-4 border-b border-gray-100/50 dark:border-gray-700/50 last:border-b-0"
                               >
                                 <div className="flex-1">
-                                  <p className="font-medium text-gray-900 dark:text-white">{foodName}</p>
+                                  <p className="font-semibold text-gray-900 dark:text-white text-base mb-1">
+                                    {foodName}
+                                  </p>
                                   {foodQuantity && (
-                                    <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                                    <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mb-2">
                                       {foodQuantity}
                                     </p>
                                   )}
                                   {typeof food === "object" && food && (food.protein || food.carbs || food.fats) && (
-                                    <div className="flex gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                    <div className="flex gap-4 mt-2 text-xs font-medium">
                                       {food.protein && (
-                                        <span className="text-red-500 dark:text-red-400">P: {food.protein}g</span>
+                                        <span className="text-[#ff6b6b] dark:text-[#ff6b6b]">P: {food.protein}g</span>
                                       )}
                                       {food.carbs && (
-                                        <span className="text-yellow-500 dark:text-yellow-400">C: {food.carbs}g</span>
+                                        <span className="text-[#f1c40f] dark:text-[#f1c40f]">C: {food.carbs}g</span>
                                       )}
                                       {food.fats && (
-                                        <span className="text-green-500 dark:text-green-400">G: {food.fats}g</span>
+                                        <span className="text-[#2ecc71] dark:text-[#2ecc71]">G: {food.fats}g</span>
                                       )}
                                     </div>
                                   )}
                                 </div>
 
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-3">
                                   {foodCalories && (
-                                    <div className="text-right">
-                                      <p className="text-sm text-gray-600 dark:text-gray-300">{foodCalories}</p>
+                                    <div className="text-right mr-4">
+                                      <p className="text-lg font-bold text-white dark:text-white">{foodCalories}</p>
                                     </div>
                                   )}
-                                  <Button
-                                    onClick={() => {
-                                      const extractNumber = (value: any) => {
-                                        if (!value) return ""
-                                        const match = value.toString().match(/(\d+(?:\.\d+)?)/)
-                                        return match ? match[1] : ""
-                                      }
+                                  <div className="flex items-center gap-1 bg-gray-800/50 dark:bg-gray-700/50 rounded-full p-1 backdrop-blur-sm border border-gray-700/30 dark:border-gray-600/30">
+                                    <button
+                                      onClick={() => {
+                                        const extractNumber = (value: any) => {
+                                          if (!value) return ""
+                                          const match = value.toString().match(/(\d+(?:\.\d+)?)/)
+                                          return match ? match[1] : ""
+                                        }
 
-                                      setEditingFood({
-                                        mealIndex: index,
-                                        foodIndex: originalIndex,
-                                        food: {
-                                          name: foodName,
-                                          quantity: foodQuantity,
-                                          calories: extractNumber(
-                                            typeof food === "object" ? food.calories : foodCalories,
-                                          ),
-                                          protein: extractNumber(typeof food === "object" ? food.protein : ""),
-                                          carbs: extractNumber(typeof food === "object" ? food.carbs : ""),
-                                          fats: extractNumber(typeof food === "object" ? food.fats : ""),
-                                        },
-                                      })
-                                    }}
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-8 px-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
-                                  >
-                                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                      />
-                                    </svg>
-                                  </Button>
-                                  <Button
-                                    onClick={() => handleRemoveFood(index, originalIndex)}
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-8 px-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 border-red-300 hover:border-red-400"
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                  <Button
-                                    onClick={() => handleReplaceFood(index, originalIndex)}
-                                    disabled={
-                                      replacingFood?.mealIndex === index && replacingFood?.foodIndex === originalIndex
-                                    }
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-8 px-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
-                                  >
-                                    {replacingFood?.mealIndex === index &&
-                                    replacingFood?.foodIndex === originalIndex ? (
-                                      <>
-                                        <RefreshCw className="h-3 w-3 mr-2 animate-spin" />
-                                        Substituindo...
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Replace className="h-3 w-3 mr-2" />
-                                        Substituir
-                                      </>
-                                    )}
-                                  </Button>
+                                        setEditingFood({
+                                          mealIndex: index,
+                                          foodIndex: originalIndex,
+                                          food: {
+                                            name: foodName,
+                                            quantity: foodQuantity,
+                                            calories: extractNumber(
+                                              typeof food === "object" ? food.calories : foodCalories,
+                                            ),
+                                            protein: extractNumber(typeof food === "object" ? food.protein : ""),
+                                            carbs: extractNumber(typeof food === "object" ? food.carbs : ""),
+                                            fats: extractNumber(typeof food === "object" ? food.fats : ""),
+                                          },
+                                        })
+                                      }}
+                                      className="h-8 w-8 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700/50 dark:hover:bg-gray-600/50 transition-all"
+                                    >
+                                      <svg
+                                        className="h-3.5 w-3.5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                        />
+                                      </svg>
+                                    </button>
+                                    <button
+                                      onClick={() => handleRemoveFood(index, originalIndex)}
+                                      className="h-8 w-8 rounded-full flex items-center justify-center text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-all"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleReplaceFood(index, originalIndex)}
+                                      disabled={
+                                        replacingFood?.mealIndex === index && replacingFood?.foodIndex === originalIndex
+                                      }
+                                      className="h-8 px-3 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700/50 dark:hover:bg-gray-600/50 transition-all disabled:opacity-50 text-xs font-medium whitespace-nowrap"
+                                    >
+                                      {replacingFood?.mealIndex === index &&
+                                      replacingFood?.foodIndex === originalIndex ? (
+                                        <>
+                                          <RefreshCw className="h-3 w-3 mr-1.5 animate-spin" />
+                                          Substituindo...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Replace className="h-3 w-3 mr-1.5" />
+                                          Substituir
+                                        </>
+                                      )}
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                             )
@@ -2175,22 +2178,22 @@ export default function DietPage() {
                         {manualFoodsForMeal.map((food, foodIndex) => (
                           <div
                             key={`manual-${foodIndex}`}
-                            className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700 last:border-b-0 bg-lime-50 dark:bg-lime-900/30"
+                            className="flex justify-between items-center py-4 border-b border-gray-100/50 dark:border-gray-700/50 last:border-b-0 bg-lime-50/30 dark:bg-lime-900/20"
                           >
                             <div className="flex-1">
-                              <p className="font-medium text-gray-900 dark:text-white">{food.name}</p>
-                              <p className="text-xs text-lime-600 dark:text-lime-400 font-medium">
+                              <p className="font-semibold text-gray-900 dark:text-white text-base mb-1">{food.name}</p>
+                              <p className="text-xs text-lime-600 dark:text-lime-400 font-medium mb-2">
                                 Adicionado manualmente
                               </p>
-                              <div className="flex gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                <span className="text-red-500 dark:text-red-400">P: {food.protein}g</span>
-                                <span className="text-yellow-500 dark:text-yellow-400">C: {food.carbs}g</span>
-                                <span className="text-green-500 dark:text-green-400">G: {food.fats}g</span>
+                              <div className="flex gap-4 mt-2 text-xs font-medium">
+                                <span className="text-[#ff6b6b] dark:text-[#ff6b6b]">P: {food.protein}g</span>
+                                <span className="text-[#f1c40f] dark:text-[#f1c40f]">C: {food.carbs}g</span>
+                                <span className="text-[#2ecc71] dark:text-[#2ecc71]">G: {food.fats}g</span>
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
-                              <div className="text-right">
-                                <p className="text-sm text-gray-600 dark:text-gray-300">{food.calories} kcal</p>
+                              <div className="text-right mr-4">
+                                <p className="text-lg font-bold text-white dark:text-white">{food.calories} kcal</p>
                               </div>
                               <Button
                                 onClick={() => {
