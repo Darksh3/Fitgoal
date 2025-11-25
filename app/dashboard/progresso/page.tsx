@@ -271,7 +271,7 @@ export default function ProgressoPage() {
 
   const biotypeImage: Record<string, string> = {
     ectomorfo: "/images/male-ectomorph-real-new.webp",
-    mesomorfo: "/images/male-mesomorfo-real-new.webp",
+    mesomorfo: "/images/male-mesomorph-real-new.webp",
     endomorfo: "/images/male-endomorph-real-new.webp",
   }
 

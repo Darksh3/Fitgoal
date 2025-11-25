@@ -760,7 +760,7 @@ export default function QuizPage() {
         case "yoga":
           return isWoman ? "/images/female-stretching-real.webp" : "/images/male-stretching-real.webp"
         default:
-          return isWoman ? "/images/female-cardio-real.webp" : "/images/male-cardio-real.webp"
+          return "/placeholder.svg"
       }
     }
     const getSVGFallback = () => {
@@ -1058,8 +1058,8 @@ export default function QuizPage() {
             {/* Adicionado grid-cols-1 para mobile antes do grid-cols-2 para melhor visualização em telas pequenas */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-lg mx-auto">
               {[
-                { value: "homem", label: "Homem", icon: "/images/male-gender-icon.webp" },
-                { value: "mulher", label: "Mulher", icon: "/images/female-gender-icon.webp" },
+                { value: "homem", label: "Homem", icon: "/images/chatgpt-20image-2025-20de-20nov.png" },
+                { value: "mulher", label: "Mulher", icon: "/images/chatgpt-20image-2025-20de-20nov.png" },
               ].map((gender) => (
                 <div
                   key={gender.value}
