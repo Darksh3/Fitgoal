@@ -149,9 +149,6 @@ export default function ResultsPage() {
             <p className="text-xl">
               Você está <span className="text-lime-400 font-bold">{data.imcClassification || "em análise"}</span>
             </p>
-            <div className="bg-gray-700 rounded-lg p-4 mt-4">
-              <p className="text-gray-300">{data.status}</p>
-            </div>
           </CardContent>
         </Card>
 
