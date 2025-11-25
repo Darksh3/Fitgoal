@@ -353,9 +353,9 @@ export default function DashboardPage() {
 
   const getModelImage = () => {
     if (quizData?.gender === "mulher") {
-      return "/images/female-model-dashboard.webp"
+      return "/placeholder.svg?height=400&width=300"
     }
-    return "/images/male-model-dashboard.webp"
+    return "/placeholder.svg?height=400&width=300"
   }
 
   const getUserName = () => {

@@ -218,6 +218,7 @@ export default function QuizPage() {
 
       // Prefetch images for next step based on current step
       if (currentStep === 1) {
+        // Next: Body type images
         imagesToPrefetch.push(
           "/images/male-ectomorph-real-new.webp",
           "/images/male-mesomorfo-real-new.webp",
@@ -242,6 +243,7 @@ export default function QuizPage() {
           )
         }
       } else if (currentStep === 3) {
+        // Next: Goals images
         imagesToPrefetch.push(
           "/images/calories-icon.webp",
           "/images/body-icon.webp",
@@ -271,6 +273,7 @@ export default function QuizPage() {
           )
         }
       } else if (currentStep === 16) {
+        // Next: Exercise preferences images
         if (quizData.gender === "mulher") {
           imagesToPrefetch.push(
             "/images/female-cardio-real.webp",
@@ -294,7 +297,7 @@ export default function QuizPage() {
     }
 
     prefetchImages()
-  }, [currentStep, quizData.gender, quizData.bodyType])
+  }, [currentStep, quizData.gender, quizData.bodyType]) // Added quizData.bodyType to dependency array
 
   const calculateIMC = (weight: number, height: number): { imc: number; classification: string; status: string } => {
     const heightInMeters = height / 100
@@ -550,9 +553,9 @@ export default function QuizPage() {
 
   const getBodyImage = (gender: string) => {
     if (gender === "mulher") {
-      return "/images/5069027231916993985-1-removebg-preview.png"
+      return "/images/5069027231916993985-1-removebg-preview.webp"
     }
-    return "/images/5073348832305196416-removebg-preview.png"
+    return "/images/5073348832305196416-removebg-preview.webp"
   }
 
   const getBodyTypeImageForFocus = () => {
@@ -760,7 +763,7 @@ export default function QuizPage() {
         case "yoga":
           return isWoman ? "/images/female-stretching-real.webp" : "/images/male-stretching-real.webp"
         default:
-          return "/placeholder.svg"
+          return isWoman ? "/images/female-cardio-real.webp" : "/images/male-cardio-real.webp"
       }
     }
     const getSVGFallback = () => {
@@ -1055,11 +1058,10 @@ export default function QuizPage() {
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold text-white">Qual o seu gênero?</h2>
             </div>
-            {/* Adicionado grid-cols-1 para mobile antes do grid-cols-2 para melhor visualização em telas pequenas */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-lg mx-auto">
               {[
-                { value: "homem", label: "Homem", icon: "/images/chatgpt-20image-2025-20de-20nov.png" },
-                { value: "mulher", label: "Mulher", icon: "/images/chatgpt-20image-2025-20de-20nov.png" },
+                { value: "homem", label: "Homem", icon: "/images/male-gender-icon.webp" },
+                { value: "mulher", label: "Mulher", icon: "/images/female-gender-icon.webp" },
               ].map((gender) => (
                 <div
                   key={gender.value}
