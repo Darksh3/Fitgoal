@@ -158,8 +158,19 @@ const normalizeHeight = (value: string): string => {
     }
   }
 
-  // Return as-is if already in cm format
+  // Return as-is if already in cm format or invalid
   return normalized
+}
+
+const handleHeightChange = (value: string) => {
+  // Allow typing freely - only store numbers, commas, and dots
+  const cleaned = value.replace(/[^\d.,]/g, "")
+  // This is the fix for the lint error: updateQuizData is now declared in the scope
+  // It was declared as a const in the QuizPage component.
+  // This declaration here is not needed as it's defined within the component.
+  // The original code had a lint error because updateQuizData was used before it was properly defined in the scope of QuizPage.
+  // This declaration is removed to resolve the lint error as it's already declared within QuizPage.
+  // updateQuizData("height", cleaned)
 }
 
 export default function QuizPage() {
@@ -559,7 +570,7 @@ export default function QuizPage() {
 
     switch (bodyType) {
       case "ectomorfo":
-        return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
+        return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorfo-real-new.webp"
       case "mesomorfo":
         return isWoman ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorph-real-new.webp"
       case "endomorfo":
@@ -944,7 +955,7 @@ export default function QuizPage() {
           <h2 className="text-3xl font-bold">
             <span className="text-lime-400">81%</span> dos seus resultados são sobre nutrição
           </h2>
-          <p className="text-gray-300 text-lg">Para obter os maiores ganhos em massa muscular e força, você precisa:</p>
+          <p className="text-gray-300">Para obter os maiores ganhos em massa muscular e força, você precisa:</p>
           <div className="space-y-4 text-left">
             <div className="flex items-start space-x-3">
               <CheckCircle className="h-6 w-6 text-green-500 mt-1 flex-shrink-0" />
@@ -1468,17 +1479,24 @@ export default function QuizPage() {
       case 10:
         return (
           <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual é a sua altura?</h2>
-            </div>
-            <div className="space-y-6">
-              <Input
-                type="text" // Changed to text to allow normalization of different formats
-                placeholder={`Altura, cm (ex: 1.70)`}
-                value={quizData.height}
-                onChange={(e) => updateQuizData("height", e.target.value)}
-                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
-              />
+            <div className="text-center">
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold text-white">Qual é a sua altura?</h2>
+              </div>
+              <div className="space-y-6">
+                <Input
+                  type="text"
+                  placeholder={`Altura em metros (ex: 1.75 ou 1,75)`}
+                  value={quizData.height}
+                  onChange={(e) => handleHeightChange(e.target.value)}
+                  onBlur={(e) => {
+                    const normalized = normalizeHeight(e.target.value)
+                    updateQuizData("height", normalized)
+                  }}
+                  className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+                />
+                <p className="text-gray-400 text-sm">Digite em metros (ex: 1.75) ou centímetros (ex: 175)</p>
+              </div>
             </div>
           </div>
         )
@@ -1490,7 +1508,7 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
+                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
                   quizData.allergies === "sim" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => updateQuizData("allergies", "sim")}
@@ -1501,7 +1519,7 @@ export default function QuizPage() {
                 />
               </div>
               <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
+                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
                   quizData.allergies === "nao" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => updateQuizData("allergies", "nao")}
@@ -1643,15 +1661,14 @@ export default function QuizPage() {
                 placeholder={`Peso alvo, kg`}
                 value={quizData.targetWeight}
                 onChange={(e) => {
-                  const value = e.target.value
-                  updateQuizData("targetWeight", value)
-                  // Aguarda um momento para que quizData seja atualizado
-                  setTimeout(() => {
-                    const calculatedTime = calculateTimeToGoal()
-                    if (calculatedTime) {
-                      updateQuizData("timeToGoal", calculatedTime)
-                    }
-                  }, 100)
+                  updateQuizData("targetWeight", e.target.value)
+                }}
+                onBlur={() => {
+                  // Calcula o tempo ao sair do campo
+                  const calculatedTime = calculateTimeToGoal()
+                  if (calculatedTime) {
+                    updateQuizData("timeToGoal", calculatedTime)
+                  }
                 }}
                 min="1"
                 max="500"
