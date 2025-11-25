@@ -147,7 +147,7 @@ export default function ResultsPage() {
               Calculamos o seu IMC e ele é de <span className="text-lime-400 font-bold">{data.imc}</span>
             </p>
             <p className="text-xl">
-              Você está <span className="text-lime-400 font-bold">{data.imcClassification || "em análise"}</span>
+              Você está com <span className="text-lime-400 font-bold">{data.imcClassification || "em análise"}</span>
             </p>
           </CardContent>
         </Card>

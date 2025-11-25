@@ -1243,87 +1243,48 @@ export default function QuizPage() {
               <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="flex items-center justify-center space-x-8">
-              <div className="relative">
-                <img
-                  src={getBodyTypeImageForFocus() || "/placeholder.svg"}
-                  alt={`Corpo ${quizData.gender === "mulher" ? "feminino" : "masculino"} ${quizData.bodyType}`}
-                  className="w-64 h-auto object-contain"
-                />
+              <div className="relative w-64 h-auto">
+                {/* Base body image - always visible */}
+                <img src="/images/body.webp" alt="Corpo base" className="w-full h-auto object-contain" />
+
+                {/* Overlay images for each selected area */}
                 {quizData.problemAreas.includes("Peito") && (
-                  <div
-                    className="absolute bg-orange-500/70 rounded-lg animate-pulse"
-                    style={{
-                      top: "22%",
-                      left: "35%",
-                      width: "30%",
-                      height: "18%",
-                    }}
+                  <img
+                    src="/images/chest.webp"
+                    alt="Peito destacado"
+                    className="absolute inset-0 w-full h-auto object-contain"
                   />
                 )}
+
                 {quizData.problemAreas.includes("Braços") && (
-                  <>
-                    <div
-                      className="absolute bg-orange-500/70 rounded-lg animate-pulse"
-                      style={{
-                        top: "20%",
-                        left: "15%",
-                        width: "15%",
-                        height: "35%",
-                      }}
-                    />
-                    <div
-                      className="absolute bg-orange-500/70 rounded-lg animate-pulse"
-                      style={{
-                        top: "20%",
-                        right: "15%",
-                        width: "15%",
-                        height: "35%",
-                      }}
-                    />
-                  </>
-                )}
-                {quizData.problemAreas.includes("Barriga") && (
-                  <div
-                    className="absolute bg-orange-500/70 rounded-lg animate-pulse"
-                    style={{
-                      top: "40%",
-                      left: "32%",
-                      width: "36%",
-                      height: "25%",
-                    }}
+                  <img
+                    src="/images/arms.webp"
+                    alt="Braços destacados"
+                    className="absolute inset-0 w-full h-auto object-contain"
                   />
                 )}
-                {quizData.problemAreas.includes("Pernas") && (
-                  <>
-                    <div
-                      className="absolute bg-orange-500/70 rounded-lg animate-pulse"
-                      style={{
-                        top: "65%",
-                        left: "28%",
-                        width: "18%",
-                        height: "35%",
-                      }}
-                    />
-                    <div
-                      className="absolute bg-orange-500/70 rounded-lg animate-pulse"
-                      style={{
-                        top: "65%",
-                        right: "28%",
-                        width: "18%",
-                        height: "35%",
-                      }}
-                    />
-                  </>
+
+                {quizData.problemAreas.includes("Barriga") && (
+                  <img
+                    src="/images/abs.webp"
+                    alt="Abdômen destacado"
+                    className="absolute inset-0 w-full h-auto object-contain"
+                  />
                 )}
+
+                {quizData.problemAreas.includes("Pernas") && (
+                  <img
+                    src="/images/legs.webp"
+                    alt="Pernas destacadas"
+                    className="absolute inset-0 w-full h-auto object-contain"
+                  />
+                )}
+
                 {quizData.problemAreas.includes("Corpo inteiro") && (
-                  <div
-                    className="absolute bg-orange-500/50 rounded-lg animate-pulse"
-                    style={{
-                      top: "15%",
-                      left: "15%",
-                      width: "70%",
-                      height: "80%",
-                    }}
+                  <img
+                    src="/images/fullbody.webp"
+                    alt="Corpo inteiro destacado"
+                    className="absolute inset-0 w-full h-auto object-contain"
                   />
                 )}
               </div>
