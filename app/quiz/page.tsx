@@ -1005,22 +1005,22 @@ export default function QuizPage() {
                 { value: "ectomorfo", label: "Ectomorfo", desc: "Corpo magro, dificuldade para ganhar peso" },
                 { value: "mesomorfo", label: "Mesomorfo", desc: "Corpo atlético, facilidade para ganhar músculos" },
                 { value: "endomorfo", label: "Endomorfo", desc: "Corpo mais largo, tendência a acumular gordura" },
-              ].map((type, index) => (
+              ].map((bodyType, index) => (
                 <div
-                  key={type.value}
+                  key={bodyType.value}
                   className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
-                    quizData.bodyType === type.value ? "border-2 border-lime-500" : "border border-gray-700"
+                    quizData.bodyType === bodyType.value ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
-                  onClick={() => updateQuizData("bodyType", type.value)}
+                  onClick={() => updateQuizData("bodyType", bodyType.value)}
                 >
                   <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-white mb-2">{type.label}</h3>
-                    <p className="text-gray-400 text-lg">{type.desc}</p>
+                    <h3 className="text-2xl font-bold text-white mb-2">{bodyType.label}</h3>
+                    <p className="text-gray-400 text-lg">{bodyType.desc}</p>
                   </div>
                   <div className="flex-shrink-0 ml-6">
                     <Image
-                      src={getBodyTypeImage(type.value) || "/placeholder.svg"}
-                      alt={`${type.label} body type`}
+                      src={getBodyTypeImage(bodyType.value) || "/placeholder.svg"}
+                      alt={`${bodyType.label} body type`}
                       width={192}
                       height={192}
                       className="w-auto h-32 sm:h-48 object-contain"
