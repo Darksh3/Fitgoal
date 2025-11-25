@@ -142,6 +142,26 @@ const debugFrequencySelection = (frequency: number) => {
   }
 }
 
+const normalizeHeight = (value: string): string => {
+  // Remove all spaces
+  let normalized = value.replace(/\s/g, "")
+
+  // If contains comma or period, treat as meters and convert to cm
+  if (normalized.includes(",") || normalized.includes(".")) {
+    // Replace comma with period for parseFloat
+    normalized = normalized.replace(",", ".")
+    const meters = Number.parseFloat(normalized)
+
+    // If valid number and reasonable range (0.5m to 2.5m)
+    if (!Number.isNaN(meters) && meters > 0.5 && meters < 2.5) {
+      return Math.round(meters * 100).toString()
+    }
+  }
+
+  // Return as-is if already in cm format
+  return normalized
+}
+
 export default function QuizPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [quizData, setQuizData] = useState<QuizData>(initialQuizData)
@@ -192,6 +212,93 @@ export default function QuizPage() {
     return () => unsubscribe()
   }, [])
 
+  useEffect(() => {
+    const prefetchImages = () => {
+      const imagesToPrefetch: string[] = []
+
+      // Prefetch images for next step based on current step
+      if (currentStep === 1) {
+        // Next: Body type images
+        imagesToPrefetch.push(
+          "/images/male-ectomorph-real-new.png",
+          "/images/male-mesomorfo-real-new.png", // Corrected typo
+          "/images/male-endomorph-real-new.png",
+          "/images/female-ectomorph-real-new.png",
+          "/images/female-mesomorph-real-new.png",
+          "/images/female-endomorph-real-new.png",
+        )
+      } else if (currentStep === 2) {
+        // Based on gender, prefetch body type images
+        if (quizData.gender === "mulher") {
+          imagesToPrefetch.push(
+            "/images/female-ectomorph-real-new.png",
+            "/images/female-mesomorph-real-new.png",
+            "/images/female-endomorph-real-new.png",
+          )
+        } else {
+          imagesToPrefetch.push(
+            "/images/male-ectomorph-real-new.png",
+            "/images/male-mesomorph-real-new.png",
+            "/images/male-endomorph-real-new.png",
+          )
+        }
+      } else if (currentStep === 3) {
+        // Next: Goals images
+        imagesToPrefetch.push(
+          "/images/calories-icon.png",
+          "/images/body-icon.png",
+          "/images/slim-body-icon.png",
+          "/images/better-health-icon.png",
+          "/images/training-icon.png",
+        )
+      } else if (currentStep === 4) {
+        // Next: Sub-goal images based on gender
+        if (quizData.gender === "mulher") {
+          imagesToPrefetch.push(
+            "/images/female-ectomorph-real-new.png", // Re-added to ensure correct images for female body type selection
+            "/images/female-mesomorph-real-new.png",
+            "/images/female-endomorph-real-new.png",
+            "/images/female-ectomorfo-real-new.png", // Corrected typo
+            "/images/female-mesomorfo-real-new.png", // Corrected typo
+            "/images/female-endomorfo-real-new.png", // Corrected typo
+          )
+        } else {
+          imagesToPrefetch.push(
+            "/images/male-ectomorph-real-new.png", // Re-added to ensure correct images for male body type selection
+            "/images/male-mesomorfo-real-new.png", // Corrected typo
+            "/images/male-endomorph-real-new.png",
+            "/images/male-ectomorfo-real-new.png", // Corrected typo
+            "/images/male-mesomorfo-real-new.png", // Corrected typo
+            "/images/male-endomorfo-real-new.png", // Corrected typo
+          )
+        }
+      } else if (currentStep === 16) {
+        // Next: Exercise preferences images
+        if (quizData.gender === "mulher") {
+          imagesToPrefetch.push(
+            "/images/female-cardio-real.png",
+            "/images/female-pullup-real.png",
+            "/images/female-stretching-real.png",
+          )
+        } else {
+          imagesToPrefetch.push(
+            "/images/male-cardio-real.png",
+            "/images/male-pullup-real.png",
+            "/images/male-stretching-real.png",
+          )
+        }
+      }
+
+      // Prefetch all images
+      imagesToPrefetch.forEach((src) => {
+        const img = new Image()
+        img.src = src
+      })
+    }
+
+    prefetchImages()
+  }, [currentStep, quizData.gender, quizData.bodyType]) // Added quizData.bodyType to dependency array
+
   const calculateIMC = (weight: number, height: number): { imc: number; classification: string; status: string } => {
     const heightInMeters = height / 100
     const imc = weight / (heightInMeters * heightInMeters)
@@ -217,11 +324,12 @@ export default function QuizPage() {
   }
 
   const updateQuizData = (key: keyof QuizData, value: any) => {
-    const newData = { ...quizData, [key]: value }
+    const normalizedValue = key === "height" ? normalizeHeight(value) : value
+    const newData = { ...quizData, [key]: normalizedValue }
 
     if (key === "currentWeight" || key === "height") {
-      const weight = Number.parseFloat(key === "currentWeight" ? value : newData.currentWeight)
-      const height = Number.parseFloat(key === "height" ? value : newData.height)
+      const weight = Number.parseFloat(key === "currentWeight" ? normalizedValue : newData.currentWeight)
+      const height = Number.parseFloat(key === "height" ? normalizedValue : newData.height)
 
       if (weight > 0 && height > 0) {
         const imcData = calculateIMC(weight, height)
@@ -459,7 +567,7 @@ export default function QuizPage() {
       case "ectomorfo":
         return isWoman ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
       case "mesomorfo":
-        return isWoman ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorph-real-new.png"
+        return isWoman ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorfo-real-new.png"
       case "endomorfo":
         return isWoman ? "/images/female-endomorph-real-new.png" : "/images/male-endomorph-real-new.png"
       default:
@@ -785,7 +893,7 @@ export default function QuizPage() {
               Calculamos o seu IMC e ele é de <span className="text-lime-400 font-bold">{imc}</span>
             </p>
             <p className="text-white text-xl mb-4">
-              Você está <span className="text-lime-400 font-bold">{classification}</span>
+              Você está com <span className="text-lime-400 font-bold">{classification}</span>
             </p>
             <p className="text-gray-300 text-sm">{status}</p>
           </div>
@@ -1009,7 +1117,7 @@ export default function QuizPage() {
             case "ectomorfo":
               return isWoman ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
             case "mesomorfo":
-              return isWoman ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorph-real-new.png"
+              return isWoman ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorfo-real-new.png"
             case "endomorfo":
               return isWoman ? "/images/female-endomorph-real-new.png" : "/images/male-endomorph-real-new.png"
             default:
@@ -1231,7 +1339,7 @@ export default function QuizPage() {
                 {["Peito", "Braços", "Barriga", "Pernas", "Corpo inteiro"].map((area) => (
                   <div
                     key={area}
-                    className={`rounded-lg p-4 cursor-pointer transition-all border-2 ${
+                    className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
                       quizData.problemAreas.includes(area)
                         ? "bg-orange-500 border-orange-500 text-white"
                         : "bg-gray-800 border-gray-700 text-white hover:border-orange-500"
@@ -1372,8 +1480,8 @@ export default function QuizPage() {
             </div>
             <div className="space-y-6">
               <Input
-                type="number"
-                placeholder={`Altura, cm`}
+                type="text" // Changed to text to allow normalization of different formats
+                placeholder={`Altura, cm (ex: 1.70)`}
                 value={quizData.height}
                 onChange={(e) => updateQuizData("height", e.target.value)}
                 className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
@@ -1541,7 +1649,16 @@ export default function QuizPage() {
                 type="number"
                 placeholder={`Peso alvo, kg`}
                 value={quizData.targetWeight}
-                onChange={(e) => updateQuizData("targetWeight", e.target.value)}
+                onChange={(e) => {
+                  updateQuizData("targetWeight", e.target.value)
+                  // Aguarda um momento para que quizData seja atualizado
+                  setTimeout(() => {
+                    const calculatedTime = calculateTimeToGoal()
+                    if (calculatedTime) {
+                      updateQuizData("timeToGoal", calculatedTime)
+                    }
+                  }, 100)
+                }}
                 className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
               />
             </div>
