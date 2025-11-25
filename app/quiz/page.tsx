@@ -221,7 +221,7 @@ export default function QuizPage() {
         // Next: Body type images
         imagesToPrefetch.push(
           "/images/male-ectomorph-real-new.webp",
-          "/images/male-mesomorfo-real-new.webp",
+          "/images/male-mesomorph-real-new.webp",
           "/images/male-endomorph-real-new.webp",
           "/images/female-ectomorph-real-new.webp",
           "/images/female-mesomorph-real-new.webp",
@@ -258,18 +258,12 @@ export default function QuizPage() {
             "/images/female-ectomorph-real-new.webp",
             "/images/female-mesomorph-real-new.webp",
             "/images/female-endomorph-real-new.webp",
-            "/images/female-ectomorfo-real-new.webp",
-            "/images/female-mesomorfo-real-new.webp",
-            "/images/female-endomorfo-real-new.webp",
           )
         } else {
           imagesToPrefetch.push(
             "/images/male-ectomorph-real-new.webp",
-            "/images/male-mesomorfo-real-new.webp",
+            "/images/male-mesomorph-real-new.webp",
             "/images/male-endomorph-real-new.webp",
-            "/images/male-ectomorfo-real-new.webp",
-            "/images/male-mesomorfo-real-new.webp",
-            "/images/male-endomorfo-real-new.webp",
           )
         }
       } else if (currentStep === 16) {
@@ -567,7 +561,7 @@ export default function QuizPage() {
       case "ectomorfo":
         return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
       case "mesomorfo":
-        return isWoman ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorfo-real-new.webp"
+        return isWoman ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorph-real-new.webp"
       case "endomorfo":
         return isWoman ? "/images/female-endomorph-real-new.webp" : "/images/male-endomorph-real-new.webp"
       default:
@@ -699,15 +693,15 @@ export default function QuizPage() {
         return gender === "female" ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
       }
       if (type === "ectomorfo") {
-        return gender === "female" ? "/images/female-ectomorfo-real-new.webp" : "/images/male-ectomorfo-real-new.webp"
+        return gender === "female" ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
       }
       if (type === "mesomorfo") {
-        return gender === "female" ? "/images/female-mesomorfo-real-new.webp" : "/images/male-mesomorfo-real-new.webp"
+        return gender === "female" ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorph-real-new.webp"
       }
       if (type === "endomorfo") {
-        return gender === "female" ? "/images/female-endomorfo-real-new.webp" : "/images/male-endomorfo-real-new.webp"
+        return gender === "female" ? "/images/female-endomorph-real-new.webp" : "/images/male-endomorph-real-new.webp"
       }
-      return gender === "female" ? "/images/female-ectomorfo-real-new.webp" : "/images/male-ectomorfo-real-new.webp"
+      return gender === "female" ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
     }
     return (
       <div className={`${className} relative`}>
@@ -1116,7 +1110,7 @@ export default function QuizPage() {
             case "ectomorfo":
               return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
             case "mesomorfo":
-              return isWoman ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorfo-real-new.webp"
+              return isWoman ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorph-real-new.webp"
             case "endomorfo":
               return isWoman ? "/images/female-endomorph-real-new.webp" : "/images/male-endomorph-real-new.webp"
             default:
