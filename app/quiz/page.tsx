@@ -559,7 +559,7 @@ export default function QuizPage() {
 
     switch (bodyType) {
       case "ectomorfo":
-        return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorfo-real-new.webp"
+        return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
       case "mesomorfo":
         return isWoman ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorph-real-new.webp"
       case "endomorfo":
@@ -889,7 +889,6 @@ export default function QuizPage() {
             <p className="text-white text-xl mb-4">
               Você está com <span className="text-lime-400 font-bold">{classification}</span>
             </p>
-            <p className="text-gray-300 text-sm">{status}</p>
           </div>
           <Button
             onClick={() => {
