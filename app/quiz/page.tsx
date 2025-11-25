@@ -1406,7 +1406,7 @@ export default function QuizPage() {
           <div className="space-y-8">
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold text-white">
-                Com qual frequência você consome doces ou bebidas alcoólicas?
+                Com que frequência você consome doces ou bebidas alcoólicas?
               </h2>
               <p className="text-gray-300">Selecione todas que se aplicam</p>
             </div>
@@ -1643,7 +1643,8 @@ export default function QuizPage() {
                 placeholder={`Peso alvo, kg`}
                 value={quizData.targetWeight}
                 onChange={(e) => {
-                  updateQuizData("targetWeight", e.target.value)
+                  const value = e.target.value
+                  updateQuizData("targetWeight", value)
                   // Aguarda um momento para que quizData seja atualizado
                   setTimeout(() => {
                     const calculatedTime = calculateTimeToGoal()
@@ -1652,6 +1653,9 @@ export default function QuizPage() {
                     }
                   }, 100)
                 }}
+                min="1"
+                max="500"
+                step="0.1"
                 className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
               />
             </div>
