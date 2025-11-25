@@ -353,9 +353,9 @@ export default function DashboardPage() {
 
   const getModelImage = () => {
     if (quizData?.gender === "mulher") {
-      return "/placeholder.svg?height=400&width=300"
+      return "/images/female-model-dashboard.webp"
     }
-    return "/placeholder.svg?height=400&width=300"
+    return "/images/male-model-dashboard.webp"
   }
 
   const getUserName = () => {
@@ -554,7 +554,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center space-x-3">
                 <img
-                  src="/images/fitgoal-logo-black.png"
+                  src="/images/fitgoal-logo-black.webp"
                   alt="FitGoal Logo"
                   className="h-12 w-auto dark:hidden"
                   onError={(e) => {
@@ -562,7 +562,7 @@ export default function DashboardPage() {
                   }}
                 />
                 <img
-                  src="/images/fitgoal-logo.png"
+                  src="/images/fitgoal-logo.webp"
                   alt="FitGoal Logo"
                   className="h-12 w-auto hidden dark:block"
                   onError={(e) => {
@@ -679,8 +679,8 @@ export default function DashboardPage() {
 
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-center mb-8">
-            <img src="/images/fitgoal-logo-black.png" alt="FitGoal Logo" className="h-16 w-auto dark:hidden" />
-            <img src="/images/fitgoal-logo.png" alt="FitGoal Logo" className="h-16 w-auto hidden dark:block" />
+            <img src="/images/fitgoal-logo-black.webp" alt="FitGoal Logo" className="h-16 w-auto dark:hidden" />
+            <img src="/images/fitgoal-logo.webp" alt="FitGoal Logo" className="h-16 w-auto hidden dark:block" />
           </div>
 
           <div className="text-center mb-12">

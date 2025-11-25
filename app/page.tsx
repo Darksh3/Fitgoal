@@ -316,7 +316,7 @@ export default function Home() {
         <div className="flex items-center">
           {/* Theme-aware logo switching */}
           <img
-            src="/images/fitgoal-logo-black.png"
+            src="/images/fitgoal-logo-black.webp"
             alt="FitGoal Logo"
             className="h-24 w-auto dark:hidden"
             onError={(e) => {
@@ -325,7 +325,7 @@ export default function Home() {
             }}
           />
           <img
-            src="/images/fitgoal-logo.png"
+            src="/images/fitgoal-logo.webp"
             alt="FitGoal Logo"
             className="h-24 w-auto hidden dark:block"
             onError={(e) => {
@@ -464,7 +464,7 @@ export default function Home() {
 
           <div className="relative">
             <img
-              src="/images/fitness-couple-new.png"
+              src="/images/fitness-couple-new.webp"
               alt="Casal fitness"
               className="object-contain h-auto w-full"
               onError={(e) => {
@@ -939,7 +939,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
             <img
-              src="/images/fitgoal-logo-black.png"
+              src="/images/fitgoal-logo-black.webp"
               alt="FitGoal Logo"
               className="h-16 w-auto dark:hidden"
               onError={(e) => {
@@ -948,7 +948,7 @@ export default function Home() {
               }}
             />
             <img
-              src="/images/fitgoal-logo.png"
+              src="/images/fitgoal-logo.webp"
               alt="FitGoal Logo"
               className="h-16 w-auto hidden dark:block"
               onError={(e) => {

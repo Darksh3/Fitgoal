@@ -218,73 +218,70 @@ export default function QuizPage() {
 
       // Prefetch images for next step based on current step
       if (currentStep === 1) {
-        // Next: Body type images
         imagesToPrefetch.push(
-          "/images/male-ectomorph-real-new.png",
-          "/images/male-mesomorfo-real-new.png", // Corrected typo
-          "/images/male-endomorph-real-new.png",
-          "/images/female-ectomorph-real-new.png",
-          "/images/female-mesomorph-real-new.png",
-          "/images/female-endomorph-real-new.png",
+          "/images/male-ectomorph-real-new.webp",
+          "/images/male-mesomorfo-real-new.webp",
+          "/images/male-endomorph-real-new.webp",
+          "/images/female-ectomorph-real-new.webp",
+          "/images/female-mesomorph-real-new.webp",
+          "/images/female-endomorph-real-new.webp",
         )
       } else if (currentStep === 2) {
         // Based on gender, prefetch body type images
         if (quizData.gender === "mulher") {
           imagesToPrefetch.push(
-            "/images/female-ectomorph-real-new.png",
-            "/images/female-mesomorph-real-new.png",
-            "/images/female-endomorph-real-new.png",
+            "/images/female-ectomorph-real-new.webp",
+            "/images/female-mesomorph-real-new.webp",
+            "/images/female-endomorph-real-new.webp",
           )
         } else {
           imagesToPrefetch.push(
-            "/images/male-ectomorph-real-new.png",
-            "/images/male-mesomorph-real-new.png",
-            "/images/male-endomorph-real-new.png",
+            "/images/male-ectomorph-real-new.webp",
+            "/images/male-mesomorph-real-new.webp",
+            "/images/male-endomorph-real-new.webp",
           )
         }
       } else if (currentStep === 3) {
-        // Next: Goals images
         imagesToPrefetch.push(
-          "/images/calories-icon.png",
-          "/images/body-icon.png",
-          "/images/slim-body-icon.png",
-          "/images/better-health-icon.png",
-          "/images/training-icon.png",
+          "/images/calories-icon.webp",
+          "/images/body-icon.webp",
+          "/images/slim-body-icon.webp",
+          "/images/better-health-icon.webp",
+          "/images/training-icon.webp",
         )
       } else if (currentStep === 4) {
         // Next: Sub-goal images based on gender
         if (quizData.gender === "mulher") {
           imagesToPrefetch.push(
-            "/images/female-ectomorph-real-new.png", // Re-added to ensure correct images for female body type selection
-            "/images/female-mesomorph-real-new.png",
-            "/images/female-endomorph-real-new.png",
-            "/images/female-ectomorfo-real-new.png", // Corrected typo
-            "/images/female-mesomorfo-real-new.png", // Corrected typo
-            "/images/female-endomorfo-real-new.png", // Corrected typo
+            "/images/female-ectomorph-real-new.webp",
+            "/images/female-mesomorph-real-new.webp",
+            "/images/female-endomorph-real-new.webp",
+            "/images/female-ectomorfo-real-new.webp",
+            "/images/female-mesomorfo-real-new.webp",
+            "/images/female-endomorfo-real-new.webp",
           )
         } else {
           imagesToPrefetch.push(
-            "/images/male-ectomorph-real-new.png", // Re-added to ensure correct images for male body type selection
-            "/images/male-mesomorfo-real-new.png", // Corrected typo
-            "/images/male-endomorph-real-new.png",
-            "/images/male-ectomorfo-real-new.png", // Corrected typo
-            "/images/male-mesomorfo-real-new.png", // Corrected typo
-            "/images/male-endomorfo-real-new.png", // Corrected typo
+            "/images/male-ectomorph-real-new.webp",
+            "/images/male-mesomorfo-real-new.webp",
+            "/images/male-endomorph-real-new.webp",
+            "/images/male-ectomorfo-real-new.webp",
+            "/images/male-mesomorfo-real-new.webp",
+            "/images/male-endomorfo-real-new.webp",
           )
         }
       } else if (currentStep === 16) {
-        // Next: Exercise preferences images
         if (quizData.gender === "mulher") {
           imagesToPrefetch.push(
-            "/images/female-cardio-real.png",
-            "/images/female-pullup-real.png",
-            "/images/female-stretching-real.png",
+            "/images/female-cardio-real.webp",
+            "/images/female-pullup-real.webp",
+            "/images/female-stretching-real.webp",
           )
         } else {
           imagesToPrefetch.push(
-            "/images/male-cardio-real.png",
-            "/images/male-pullup-real.png",
-            "/images/male-stretching-real.png",
+            "/images/male-cardio-real.webp",
+            "/images/male-pullup-real.webp",
+            "/images/male-stretching-real.webp",
           )
         }
       }
@@ -297,7 +294,7 @@ export default function QuizPage() {
     }
 
     prefetchImages()
-  }, [currentStep, quizData.gender, quizData.bodyType]) // Added quizData.bodyType to dependency array
+  }, [currentStep, quizData.gender, quizData.bodyType])
 
   const calculateIMC = (weight: number, height: number): { imc: number; classification: string; status: string } => {
     const heightInMeters = height / 100
@@ -565,11 +562,11 @@ export default function QuizPage() {
 
     switch (bodyType) {
       case "ectomorfo":
-        return isWoman ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
+        return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
       case "mesomorfo":
-        return isWoman ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorfo-real-new.png"
+        return isWoman ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorfo-real-new.webp"
       case "endomorfo":
-        return isWoman ? "/images/female-endomorph-real-new.png" : "/images/male-endomorph-real-new.png"
+        return isWoman ? "/images/female-endomorph-real-new.webp" : "/images/male-endomorph-real-new.webp"
       default:
         return getBodyImage(quizData.gender)
     }
@@ -696,18 +693,18 @@ export default function QuizPage() {
   }) => {
     const getBodyImage = () => {
       if (currentStep === 1) {
-        return gender === "female" ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
+        return gender === "female" ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
       }
       if (type === "ectomorfo") {
-        return gender === "female" ? "/images/female-ectomorfo-real-new.png" : "/images/male-ectomorfo-real-new.png"
+        return gender === "female" ? "/images/female-ectomorfo-real-new.webp" : "/images/male-ectomorfo-real-new.webp"
       }
       if (type === "mesomorfo") {
-        return gender === "female" ? "/images/female-mesomorfo-real-new.png" : "/images/male-mesomorfo-real-new.png"
+        return gender === "female" ? "/images/female-mesomorfo-real-new.webp" : "/images/male-mesomorfo-real-new.webp"
       }
       if (type === "endomorfo") {
-        return gender === "female" ? "/images/female-endomorfo-real-new.png" : "/images/male-endomorfo-real-new.png"
+        return gender === "female" ? "/images/female-endomorfo-real-new.webp" : "/images/male-endomorfo-real-new.webp"
       }
-      return gender === "female" ? "/images/female-ectomorfo-real-new.png" : "/images/male-ectomorfo-real-new.png"
+      return gender === "female" ? "/images/female-ectomorfo-real-new.webp" : "/images/male-ectomorfo-real-new.webp"
     }
     return (
       <div className={`${className} relative`}>
@@ -757,13 +754,13 @@ export default function QuizPage() {
       const isWoman = quizData.gender === "mulher"
       switch (type) {
         case "cardio":
-          return isWoman ? "/images/female-cardio-real.png" : "/images/male-cardio-real.png"
+          return isWoman ? "/images/female-cardio-real.webp" : "/images/male-cardio-real.webp"
         case "pullups":
-          return isWoman ? "/images/female-pullup-real.png" : "/images/male-pullup-real.png"
+          return isWoman ? "/images/female-pullup-real.webp" : "/images/male-pullup-real.webp"
         case "yoga":
-          return isWoman ? "/images/female-stretching-real.png" : "/images/male-stretching-real.png"
+          return isWoman ? "/images/female-stretching-real.webp" : "/images/male-stretching-real.webp"
         default:
-          return isWoman ? "/images/female-cardio-real.png" : "/images/male-cardio-real.png"
+          return isWoman ? "/images/female-cardio-real.webp" : "/images/male-cardio-real.webp"
       }
     }
     const getSVGFallback = () => {
@@ -1061,8 +1058,8 @@ export default function QuizPage() {
             {/* Adicionado grid-cols-1 para mobile antes do grid-cols-2 para melhor visualização em telas pequenas */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-lg mx-auto">
               {[
-                { value: "homem", label: "Homem", icon: "/images/male-gender-icon.png" },
-                { value: "mulher", label: "Mulher", icon: "/images/female-gender-icon.png" },
+                { value: "homem", label: "Homem", icon: "/images/male-gender-icon.webp" },
+                { value: "mulher", label: "Mulher", icon: "/images/female-gender-icon.webp" },
               ].map((gender) => (
                 <div
                   key={gender.value}
@@ -1115,11 +1112,11 @@ export default function QuizPage() {
           const isWoman = quizData.gender === "mulher"
           switch (type) {
             case "ectomorfo":
-              return isWoman ? "/images/female-ectomorph-real-new.png" : "/images/male-ectomorph-real-new.png"
+              return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
             case "mesomorfo":
-              return isWoman ? "/images/female-mesomorph-real-new.png" : "/images/male-mesomorfo-real-new.png"
+              return isWoman ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorfo-real-new.webp"
             case "endomorfo":
-              return isWoman ? "/images/female-endomorph-real-new.png" : "/images/male-endomorph-real-new.png"
+              return isWoman ? "/images/female-endomorph-real-new.webp" : "/images/male-endomorph-real-new.webp"
             default:
               return "/placeholder.svg"
           }
@@ -1165,13 +1162,13 @@ export default function QuizPage() {
         const getGoalIcon = (goalValue: string) => {
           switch (goalValue) {
             case "perder-peso":
-              return "/images/calories-icon.png"
+              return "/images/calories-icon.webp"
             case "ganhar-massa":
-              return quizData.gender === "mulher" ? "/images/slim-body-icon.png" : "/images/body-icon.png"
+              return quizData.gender === "mulher" ? "/images/slim-body-icon.webp" : "/images/body-icon.webp"
             case "melhorar-saude":
-              return "/images/better-health-icon.png"
+              return "/images/better-health-icon.webp"
             case "aumentar-resistencia":
-              return "/images/training-icon.png"
+              return "/images/training-icon.webp"
             default:
               return "/placeholder.svg"
           }

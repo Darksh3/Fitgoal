@@ -270,9 +270,9 @@ export default function ProgressoPage() {
   const analysis = getBodyAnalysis()
 
   const biotypeImage: Record<string, string> = {
-    ectomorfo: "/biotypes/ectomorfo1.png",
-    mesomorfo: "/biotypes/mesomorfo1.png",
-    endomorfo: "/biotypes/endomorfo1.png",
+    ectomorfo: "/images/male-ectomorph-real-new.webp",
+    mesomorfo: "/images/male-mesomorfo-real-new.webp",
+    endomorfo: "/images/male-endomorph-real-new.webp",
   }
 
   return (
