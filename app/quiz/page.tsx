@@ -1037,20 +1037,23 @@ export default function QuizPage() {
           </div>
         )
       case 4:
-        const getGoalIcon = (goalValue: string) => {
-          switch (goalValue) {
+        const getGoalIcon = (goal: string) => {
+          const isMale = quizData.gender === "homem"
+
+          switch (goal) {
             case "perder-peso":
-              return "/images/calories-icon.png"
+              return isMale ? "/images/goal-weight-loss-male.png" : "/images/goal-weight-loss-female.png"
             case "ganhar-massa":
-              return quizData.gender === "mulher" ? "/images/slim-body-icon.png" : "/images/body-icon.png"
+              return isMale ? "/images/goal-muscle-male.png" : "/images/goal-muscle-female.png"
             case "melhorar-saude":
-              return "/images/better-health-icon.png"
+              return "❤️"
             case "aumentar-resistencia":
-              return "/images/training-icon.png"
+              return "💪"
             default:
-              return "/placeholder.svg"
+              return "🎯"
           }
         }
+        // </CHANGE>
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1072,16 +1075,19 @@ export default function QuizPage() {
                   onClick={() => handleArrayUpdate("goal", goal.value, !quizData.goal.includes(goal.value))}
                 >
                   <h3 className="text-xl font-bold text-white">{goal.label}</h3>
-                  <Image
-                    src={getGoalIcon(goal.value) || "/placeholder.svg"}
-                    alt={goal.label}
-                    width={64}
-                    height={64}
-                    className="w-12 h-12 sm:w-16 sm:h-16 object-contain flex-shrink-0"
-                    onError={(e) => {
-                      e.currentTarget.src = "/placeholder.svg"
-                    }}
-                  />
+                  {goal.value === "perder-peso" || goal.value === "ganhar-massa" ? (
+                    <img
+                      src={getGoalIcon(goal.value) || "/placeholder.svg"}
+                      alt={goal.label}
+                      width={64}
+                      height={64}
+                      loading="lazy"
+                      className="w-12 h-12 sm:w-16 sm:h-16 object-contain flex-shrink-0"
+                    />
+                  ) : (
+                    <span className="text-4xl sm:text-5xl">{getGoalIcon(goal.value)}</span>
+                  )}
+                  {/* </CHANGE> */}
                 </div>
               ))}
             </div>
