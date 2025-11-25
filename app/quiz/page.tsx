@@ -162,17 +162,6 @@ const normalizeHeight = (value: string): string => {
   return normalized
 }
 
-const handleHeightChange = (value: string) => {
-  // Allow typing freely - only store numbers, commas, and dots
-  const cleaned = value.replace(/[^\d.,]/g, "")
-  // This is the fix for the lint error: updateQuizData is now declared in the scope
-  // It was declared as a const in the QuizPage component.
-  // This declaration here is not needed as it's defined within the component.
-  // The original code had a lint error because updateQuizData was used before it was properly defined in the scope of QuizPage.
-  // This declaration is removed to resolve the lint error as it's already declared within QuizPage.
-  // updateQuizData("height", cleaned)
-}
-
 export default function QuizPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [quizData, setQuizData] = useState<QuizData>(initialQuizData)
@@ -1488,7 +1477,10 @@ export default function QuizPage() {
                   type="text"
                   placeholder={`Altura em metros (ex: 1.75 ou 1,75)`}
                   value={quizData.height}
-                  onChange={(e) => handleHeightChange(e.target.value)}
+                  onChange={(e) => {
+                    const cleaned = e.target.value.replace(/[^\d.,]/g, "")
+                    setQuizData({ ...quizData, height: cleaned })
+                  }}
                   onBlur={(e) => {
                     const normalized = normalizeHeight(e.target.value)
                     updateQuizData("height", normalized)
