@@ -570,6 +570,19 @@ export default function QuizPage() {
     }
   }
 
+  const getBodyFatImage = (bodyFat: number): string => {
+    if (bodyFat >= 5 && bodyFat <= 10) return "/images/bodyfat-1.webp"
+    if (bodyFat >= 11 && bodyFat <= 15) return "/images/bodyfat-2.webp"
+    if (bodyFat >= 16 && bodyFat <= 20) return "/images/bodyfat-3.webp"
+    if (bodyFat >= 21 && bodyFat <= 25) return "/images/bodyfat-4.webp"
+    if (bodyFat >= 26 && bodyFat <= 30) return "/images/bodyfat-5.webp"
+    if (bodyFat >= 31 && bodyFat <= 35) return "/images/bodyfat-6.webp"
+    if (bodyFat >= 36 && bodyFat <= 39) return "/images/bodyfat-7.webp"
+    if (bodyFat >= 40) return "/images/bodyfat-8.webp"
+    return "/images/bodyfat-1.webp" // default
+  }
+  // </CHANGE>
+
   const nextStep = () => {
     if (currentStep === 8 && quizData.diet !== "nao-sigo") {
       // Updated from step 7 to 8
@@ -694,10 +707,10 @@ export default function QuizPage() {
         return gender === "female" ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
       }
       if (type === "ectomorfo") {
-        return gender === "female" ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
+        return gender === "female" ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorfo-real-new.webp"
       }
       if (type === "mesomorfo") {
-        return gender === "female" ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorph-real-new.webp"
+        return gender === "female" ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorfo-real-new.webp"
       }
       if (type === "endomorfo") {
         return gender === "female" ? "/images/female-endomorph-real-new.webp" : "/images/male-endomorph-real-new.webp"
@@ -1204,18 +1217,6 @@ export default function QuizPage() {
           </div>
         )
       case 5:
-        // Helper function to determine which body fat image to show
-        const getBodyFatImage = (bodyFat: number): string => {
-          if (bodyFat >= 5 && bodyFat <= 10) return "/images/bodyfat-1.webp"
-          if (bodyFat >= 11 && bodyFat <= 15) return "/images/bodyfat-2.webp"
-          if (bodyFat >= 16 && bodyFat <= 20) return "/images/bodyfat-3.webp"
-          if (bodyFat >= 21 && bodyFat <= 25) return "/images/bodyfat-4.webp"
-          if (bodyFat >= 26 && bodyFat <= 30) return "/images/bodyfat-5.webp"
-          if (bodyFat >= 31 && bodyFat <= 35) return "/images/bodyfat-6.webp"
-          if (bodyFat >= 36 && bodyFat <= 39) return "/images/bodyfat-7.webp"
-          if (bodyFat >= 40) return "/images/bodyfat-8.webp"
-          return "/images/bodyfat-1.webp" // default
-        }
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
