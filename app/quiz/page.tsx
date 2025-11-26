@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image" // Import Image component
+// import Image from "next/image" // Import Image component
 
 import { Button } from "@/components/ui/button"
 
@@ -1223,13 +1223,13 @@ export default function QuizPage() {
             </div>
             <div className="text-center space-y-8">
               <div className="relative w-64 h-80 mx-auto">
-                <Image
+                <img
                   src={getBodyFatImage() || "/placeholder.svg"}
                   alt="Body fat representation"
-                  width={256}
-                  height={320}
-                  className="object-contain transition-opacity duration-500"
-                  priority
+                  className="w-full h-full object-contain transition-opacity duration-500"
+                  onError={(e) => {
+                    e.currentTarget.src = "/placeholder.svg"
+                  }}
                 />
               </div>
               <div className="space-y-4">
