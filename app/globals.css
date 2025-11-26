@@ -244,3 +244,87 @@ input[type="range"].slider-thumb:focus::-webkit-slider-thumb {
 input[type="range"].slider-thumb:focus::-moz-range-thumb {
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
 }
+
+/* Custom styles for body fat slider */
+.body-fat-slider {
+  height: 8px;
+  background: linear-gradient(to right, #3f3f46 0%, #3f3f46 100%);
+  border-radius: 9999px;
+  position: relative;
+}
+
+.body-fat-slider::-webkit-slider-track {
+  height: 8px;
+  background: #3f3f46;
+  border-radius: 9999px;
+}
+
+.body-fat-slider::-moz-range-track {
+  height: 8px;
+  background: #3f3f46;
+  border-radius: 9999px;
+}
+
+.body-fat-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: #ff5722;
+  border: 2px solid #ff5722;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(255, 87, 34, 0.6);
+  transition: all 0.2s ease;
+}
+
+.body-fat-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(255, 87, 34, 0.8);
+}
+
+.body-fat-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background: #ff5722;
+  border: 2px solid #ff5722;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(255, 87, 34, 0.6);
+  transition: all 0.2s ease;
+}
+
+.body-fat-slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(255, 87, 34, 0.8);
+}
+
+.body-fat-slider:focus {
+  outline: none;
+}
+
+.body-fat-slider:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px rgba(255, 87, 34, 0.3);
+}
+
+.body-fat-slider:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 4px rgba(255, 87, 34, 0.3);
+}
+
+/* Gradient effect for filled portion */
+@supports (background: linear-gradient(to right, #ff5722, #ff5722)) {
+  .body-fat-slider::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #ff5722 0%, #ff5722 var(--value), #3f3f46 var(--value), #3f3f46 100%);
+  }
+
+  .body-fat-slider::-moz-range-progress {
+    background: #ff5722;
+    height: 8px;
+    border-radius: 9999px;
+  }
+}
+
+/* Radial gradient glow effect */
+.bg-gradient-radial {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 50%, transparent 70%);
+}

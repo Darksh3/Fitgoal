@@ -1051,8 +1051,19 @@ export default function QuizPage() {
     if (quizData.bodyFat <= 25) return "/images/bodyfat-four.webp"
     if (quizData.bodyFat <= 30) return "/images/bodyfat-five.webp"
     if (quizData.bodyFat <= 35) return "/images/bodyfat-six.webp"
-    if (quizData.bodyFat <= 40) return "/images/bodyfat-seven.webp"
+    if (quizData.bodyFat <= 39) return "/images/bodyfat-seven.webp"
     return "/images/bodyfat-eight.webp"
+  }
+
+  const getBodyFatRange = () => {
+    if (quizData.bodyFat <= 10) return "5-10%"
+    if (quizData.bodyFat <= 15) return "11-15%"
+    if (quizData.bodyFat <= 20) return "16-20%"
+    if (quizData.bodyFat <= 25) return "21-25%"
+    if (quizData.bodyFat <= 30) return "26-30%"
+    if (quizData.bodyFat <= 35) return "31-35%"
+    if (quizData.bodyFat <= 39) return "36-39%"
+    return ">40%"
   }
 
   const renderStep = () => {
@@ -1223,28 +1234,40 @@ export default function QuizPage() {
             </div>
             <div className="text-center space-y-8">
               <div className="relative w-64 h-80 mx-auto">
+                {/* Background glow effect */}
+                <div className="absolute inset-0 bg-gradient-radial from-white/20 via-white/5 to-transparent blur-3xl" />
+
+                {/* Body fat image */}
                 <img
                   src={getBodyFatImage() || "/placeholder.svg"}
                   alt="Body fat representation"
-                  className="w-full h-full object-contain transition-opacity duration-500"
+                  className="relative w-full h-full object-contain transition-opacity duration-500 z-10"
                   onError={(e) => {
                     e.currentTarget.src = "/placeholder.svg"
                   }}
                 />
               </div>
+
               <div className="space-y-4">
-                <div className="bg-gray-700 rounded-full px-4 py-2 inline-block">
-                  <span className="text-white font-bold">{quizData.bodyFat}%</span>
+                {/* Range label above slider */}
+                <div className="bg-zinc-800 rounded-lg px-4 py-2 inline-block">
+                  <span className="text-white font-semibold">{getBodyFatRange()}</span>
                 </div>
-                <div className="px-4">
-                  <Slider
-                    value={[quizData.bodyFat]}
-                    onValueChange={(value) => updateQuizData("bodyFat", value[0])}
-                    max={45}
-                    min={5}
-                    step={1}
-                    className="w-full"
-                  />
+
+                {/* Custom styled slider */}
+                <div className="px-4 max-w-md mx-auto">
+                  <div className="relative">
+                    <Slider
+                      value={[quizData.bodyFat]}
+                      onValueChange={(value) => updateQuizData("bodyFat", value[0])}
+                      max={45}
+                      min={5}
+                      step={1}
+                      className="w-full [&>span:first-child]:h-2 [&>span:first-child]:bg-zinc-700 [&_[role=slider]]:bg-[#FF5722] [&_[role=slider]]:border-[#FF5722] [&_[role=slider]]:w-6 [&_[role=slider]]:h-6 [&_[role=slider]]:shadow-lg [&>span:first-child>span]:bg-[#FF5722]"
+                    />
+                  </div>
+
+                  {/* Min and max labels below slider */}
                   <div className="flex justify-between text-gray-400 text-sm mt-2">
                     <span>5-9%</span>
                     <span>{">40%"}</span>
