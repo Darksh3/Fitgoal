@@ -17,13 +17,14 @@ import { Textarea } from "@/components/ui/textarea"
 import { ArrowLeft, CheckCircle, Droplets, X, ThumbsUp, ThumbsDown, Meh, Loader2, Dumbbell } from "lucide-react"
 
 import { useRouter } from "next/navigation"
-import Image from "next/image"
 
 import { db, auth } from "@/lib/firebaseClient"
 
 import { doc, setDoc, getDoc } from "firebase/firestore"
 
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth"
+
+import Image from "next/image" // Import Image from next/image
 
 interface QuizData {
   gender: string
@@ -570,18 +571,16 @@ export default function QuizPage() {
     }
   }
 
-  const getBodyFatImage = (bodyFat: number): string => {
-    if (bodyFat >= 5 && bodyFat <= 10) return "/images/bodyfat-1.webp"
-    if (bodyFat >= 11 && bodyFat <= 15) return "/images/bodyfat-2.webp"
-    if (bodyFat >= 16 && bodyFat <= 20) return "/images/bodyfat-3.webp"
-    if (bodyFat >= 21 && bodyFat <= 25) return "/images/bodyfat-4.webp"
-    if (bodyFat >= 26 && bodyFat <= 30) return "/images/bodyfat-5.webp"
-    if (bodyFat >= 31 && bodyFat <= 35) return "/images/bodyfat-6.webp"
-    if (bodyFat >= 36 && bodyFat <= 39) return "/images/bodyfat-7.webp"
-    if (bodyFat >= 40) return "/images/bodyfat-8.webp"
-    return "/images/bodyfat-1.webp" // default
+  const getBodyFatImage = (percentage: number): string => {
+    if (percentage >= 5 && percentage <= 10) return "/images/bodyfat-one.webp"
+    if (percentage >= 11 && percentage <= 15) return "/images/bodyfat-two.webp"
+    if (percentage >= 16 && percentage <= 20) return "/images/bodyfat-three.webp"
+    if (percentage >= 21 && percentage <= 25) return "/images/bodyfat-four.webp"
+    if (percentage >= 26 && percentage <= 30) return "/images/bodyfat-five.webp"
+    if (percentage >= 31 && percentage <= 35) return "/images/bodyfat-six.webp"
+    if (percentage >= 36 && percentage <= 39) return "/images/bodyfat-seven.webp"
+    return "/images/bodyfat-eight.webp"
   }
-  // </CHANGE>
 
   const nextStep = () => {
     if (currentStep === 8 && quizData.diet !== "nao-sigo") {
@@ -707,10 +706,10 @@ export default function QuizPage() {
         return gender === "female" ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
       }
       if (type === "ectomorfo") {
-        return gender === "female" ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorfo-real-new.webp"
+        return gender === "female" ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
       }
       if (type === "mesomorfo") {
-        return gender === "female" ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorfo-real-new.webp"
+        return gender === "female" ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorph-real-new.webp"
       }
       if (type === "endomorfo") {
         return gender === "female" ? "/images/female-endomorph-real-new.webp" : "/images/male-endomorph-real-new.webp"
@@ -1104,7 +1103,7 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">Qual a sua idade?</h2>
             </div>
             <div className="max-w-md mx-auto">
-              <input
+              <Input
                 type="number"
                 min="16"
                 max="80"
@@ -1226,10 +1225,9 @@ export default function QuizPage() {
               <div className="relative w-64 h-80 mx-auto">
                 <Image
                   src={getBodyFatImage(quizData.bodyFat) || "/placeholder.svg"}
-                  alt={`Nível de gordura corporal ${quizData.bodyFat}%`}
-                  width={256}
-                  height={320}
-                  className="rounded-lg object-cover transition-opacity duration-500"
+                  alt={`Body fat ${quizData.bodyFat}%`}
+                  fill
+                  className="object-contain transition-opacity duration-500"
                   priority
                 />
               </div>
@@ -1247,8 +1245,8 @@ export default function QuizPage() {
                     className="w-full"
                   />
                   <div className="flex justify-between text-gray-400 text-sm mt-2">
-                    <span>5%</span>
-                    <span>45%</span>
+                    <span>5-9%</span>
+                    <span>{">40%"}</span>
                   </div>
                 </div>
               </div>
