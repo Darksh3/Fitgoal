@@ -1233,8 +1233,15 @@ export default function QuizPage() {
             </div>
             <div className="text-center space-y-8">
               <div className="relative w-64 h-80 mx-auto">
-                {/* Background glow effect */}
-                <div className="absolute inset-0 bg-gradient-radial from-white/20 via-white/5 to-transparent blur-3xl" />
+                {/* Primary glow - bright center */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-48 h-48 bg-white/30 rounded-full blur-[80px]" />
+                </div>
+
+                {/* Secondary glow - larger spread */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-64 h-64 bg-blue-400/20 rounded-full blur-[100px]" />
+                </div>
 
                 {/* Body fat image */}
                 <img
