@@ -1044,6 +1044,17 @@ export default function QuizPage() {
     )
   }
 
+  const getBodyFatImage = () => {
+    if (quizData.bodyFat <= 10) return "/images/bodyfat-one.webp"
+    if (quizData.bodyFat <= 15) return "/images/bodyfat-two.webp"
+    if (quizData.bodyFat <= 20) return "/images/bodyfat-three.webp"
+    if (quizData.bodyFat <= 25) return "/images/bodyfat-four.webp"
+    if (quizData.bodyFat <= 30) return "/images/bodyfat-five.webp"
+    if (quizData.bodyFat <= 35) return "/images/bodyfat-six.webp"
+    if (quizData.bodyFat <= 40) return "/images/bodyfat-seven.webp"
+    return "/images/bodyfat-eight.webp"
+  }
+
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -1204,17 +1215,7 @@ export default function QuizPage() {
           </div>
         )
       case 5:
-        const getBodyFatImage = () => {
-          if (quizData.bodyFat <= 10) return "/images/bodyfat-one.webp"
-          if (quizData.bodyFat <= 15) return "/images/bodyfat-two.webp"
-          if (quizData.bodyFat <= 20) return "/images/bodyfat-three.webp"
-          if (quizData.bodyFat <= 25) return "/images/bodyfat-four.webp"
-          if (quizData.bodyFat <= 30) return "/images/bodyfat-five.webp"
-          if (quizData.bodyFat <= 35) return "/images/bodyfat-six.webp"
-          if (quizData.bodyFat <= 40) return "/images/bodyfat-seven.webp"
-          return "/images/bodyfat-eight.webp"
-        }
-
+        // </CHANGE>
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
