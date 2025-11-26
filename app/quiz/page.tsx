@@ -1255,7 +1255,8 @@ export default function QuizPage() {
                   <img
                     src="/images/chest.webp"
                     alt="Peito destacado"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
+                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
+                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
                   />
                 )}
 
@@ -1263,7 +1264,8 @@ export default function QuizPage() {
                   <img
                     src="/images/arms.webp"
                     alt="Braços destacados"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
+                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
+                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
                   />
                 )}
 
@@ -1271,7 +1273,8 @@ export default function QuizPage() {
                   <img
                     src="/images/abs.webp"
                     alt="Abdômen destacado"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
+                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
+                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
                   />
                 )}
 
@@ -1279,7 +1282,8 @@ export default function QuizPage() {
                   <img
                     src="/images/legs.webp"
                     alt="Pernas destacadas"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
+                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
+                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
                   />
                 )}
 
@@ -1287,7 +1291,8 @@ export default function QuizPage() {
                   <img
                     src="/images/fullbody.webp"
                     alt="Corpo inteiro destacado"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
+                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
+                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
                   />
                 )}
 
@@ -1295,7 +1300,8 @@ export default function QuizPage() {
                   <img
                     src="/images/wchest.webp"
                     alt="Peito destacado"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
+                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
+                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
                   />
                 )}
 
@@ -1303,7 +1309,8 @@ export default function QuizPage() {
                   <img
                     src="/images/warms.webp"
                     alt="Braços destacados"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
+                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
+                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
                   />
                 )}
 
@@ -1311,7 +1318,8 @@ export default function QuizPage() {
                   <img
                     src="/images/wabs.webp"
                     alt="Abdômen destacado"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
+                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
+                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
                   />
                 )}
 
@@ -1319,7 +1327,8 @@ export default function QuizPage() {
                   <img
                     src="/images/wlegs.webp"
                     alt="Pernas destacadas"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
+                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
+                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
                   />
                 )}
 
@@ -1327,7 +1336,8 @@ export default function QuizPage() {
                   <img
                     src="/images/wfullbody.webp"
                     alt="Corpo inteiro destacado"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
+                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
+                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
                   />
                 )}
               </div>
