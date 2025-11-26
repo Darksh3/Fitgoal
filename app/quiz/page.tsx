@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image" // Import Image component
 
 import { Button } from "@/components/ui/button"
 
@@ -1203,16 +1204,33 @@ export default function QuizPage() {
           </div>
         )
       case 5:
+        const getBodyFatImage = () => {
+          if (quizData.bodyFat <= 10) return "/images/bodyfat-one.webp"
+          if (quizData.bodyFat <= 15) return "/images/bodyfat-two.webp"
+          if (quizData.bodyFat <= 20) return "/images/bodyfat-three.webp"
+          if (quizData.bodyFat <= 25) return "/images/bodyfat-four.webp"
+          if (quizData.bodyFat <= 30) return "/images/bodyfat-five.webp"
+          if (quizData.bodyFat <= 35) return "/images/bodyfat-six.webp"
+          if (quizData.bodyFat <= 40) return "/images/bodyfat-seven.webp"
+          return "/images/bodyfat-eight.webp"
+        }
+
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold text-white">Escolha o seu nível de gordura corporal</h2>
             </div>
             <div className="text-center space-y-8">
-              <BodyIllustration
-                className="w-32 h-40 mx-auto"
-                gender={quizData.gender === "mulher" ? "female" : "male"}
-              />
+              <div className="relative w-64 h-80 mx-auto">
+                <Image
+                  src={getBodyFatImage() || "/placeholder.svg"}
+                  alt="Body fat representation"
+                  width={256}
+                  height={320}
+                  className="object-contain transition-opacity duration-500"
+                  priority
+                />
+              </div>
               <div className="space-y-4">
                 <div className="bg-gray-700 rounded-full px-4 py-2 inline-block">
                   <span className="text-white font-bold">{quizData.bodyFat}%</span>
