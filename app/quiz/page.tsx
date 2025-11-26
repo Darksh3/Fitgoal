@@ -1243,11 +1243,12 @@ export default function QuizPage() {
               <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="flex items-center justify-center space-x-8">
-              <div className="relative w-64 h-auto">
+              <div className="relative w-64 h-auto bg-transparent">
                 <img
                   src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
                   alt="Corpo base"
                   className="w-full h-auto object-contain"
+                  style={quizData.gender === "mulher" ? { mixBlendMode: "lighten" } : {}}
                 />
 
                 {/* Overlay images for each selected area - male */}
@@ -1255,8 +1256,8 @@ export default function QuizPage() {
                   <img
                     src="/images/chest.webp"
                     alt="Peito destacado"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
-                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
+                    className="absolute inset-0 w-full h-auto object-contain"
+                    style={{ mixBlendMode: "lighten" }}
                   />
                 )}
 
@@ -1264,8 +1265,8 @@ export default function QuizPage() {
                   <img
                     src="/images/arms.webp"
                     alt="Braços destacados"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
-                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
+                    className="absolute inset-0 w-full h-auto object-contain"
+                    style={{ mixBlendMode: "lighten" }}
                   />
                 )}
 
@@ -1273,8 +1274,8 @@ export default function QuizPage() {
                   <img
                     src="/images/abs.webp"
                     alt="Abdômen destacado"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
-                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
+                    className="absolute inset-0 w-full h-auto object-contain"
+                    style={{ mixBlendMode: "lighten" }}
                   />
                 )}
 
@@ -1282,8 +1283,8 @@ export default function QuizPage() {
                   <img
                     src="/images/legs.webp"
                     alt="Pernas destacadas"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
-                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
+                    className="absolute inset-0 w-full h-auto object-contain"
+                    style={{ mixBlendMode: "lighten" }}
                   />
                 )}
 
@@ -1291,8 +1292,8 @@ export default function QuizPage() {
                   <img
                     src="/images/fullbody.webp"
                     alt="Corpo inteiro destacado"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
-                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
+                    className="absolute inset-0 w-full h-auto object-contain"
+                    style={{ mixBlendMode: "lighten" }}
                   />
                 )}
 
@@ -1300,8 +1301,8 @@ export default function QuizPage() {
                   <img
                     src="/images/wchest.webp"
                     alt="Peito destacado"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
-                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
+                    className="absolute inset-0 w-full h-auto object-contain"
+                    style={{ mixBlendMode: "lighten" }}
                   />
                 )}
 
@@ -1309,8 +1310,8 @@ export default function QuizPage() {
                   <img
                     src="/images/warms.webp"
                     alt="Braços destacados"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
-                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
+                    className="absolute inset-0 w-full h-auto object-contain"
+                    style={{ mixBlendMode: "lighten" }}
                   />
                 )}
 
@@ -1318,8 +1319,8 @@ export default function QuizPage() {
                   <img
                     src="/images/wabs.webp"
                     alt="Abdômen destacado"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
-                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
+                    className="absolute inset-0 w-full h-auto object-contain"
+                    style={{ mixBlendMode: "lighten" }}
                   />
                 )}
 
@@ -1327,8 +1328,8 @@ export default function QuizPage() {
                   <img
                     src="/images/wlegs.webp"
                     alt="Pernas destacadas"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
-                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
+                    className="absolute inset-0 w-full h-auto object-contain"
+                    style={{ mixBlendMode: "lighten" }}
                   />
                 )}
 
@@ -1336,11 +1337,12 @@ export default function QuizPage() {
                   <img
                     src="/images/wfullbody.webp"
                     alt="Corpo inteiro destacado"
-                    className="absolute inset-0 w-full h-auto object-contain mix-blend-screen"
-                    style={{ filter: "brightness(1.2) contrast(1.3)" }}
+                    className="absolute inset-0 w-full h-auto object-contain"
+                    style={{ mixBlendMode: "lighten" }}
                   />
                 )}
               </div>
+
               <div className="space-y-4 flex-1 max-w-sm">
                 {["Peito", "Braços", "Barriga", "Pernas", "Corpo inteiro"].map((area) => (
                   <div
