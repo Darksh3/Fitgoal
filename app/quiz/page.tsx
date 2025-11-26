@@ -1226,7 +1226,6 @@ export default function QuizPage() {
           </div>
         )
       case 5:
-        // </CHANGE>
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1248,14 +1247,24 @@ export default function QuizPage() {
                 />
               </div>
 
-              <div className="space-y-4">
-                {/* Range label above slider */}
-                <div className="bg-zinc-800 rounded-lg px-4 py-2 inline-block">
-                  <span className="text-white font-semibold">{getBodyFatRange()}</span>
-                </div>
+              {/* Slider container matching reference design */}
+              <div className="max-w-md mx-auto px-4">
+                <div className="bg-zinc-900/80 backdrop-blur-sm rounded-2xl px-6 py-6 space-y-4">
+                  {/* Tooltip above slider thumb showing current percentage */}
+                  <div className="relative h-8">
+                    <div
+                      className="absolute bg-zinc-800 text-white text-sm font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 -translate-x-1/2"
+                      style={{
+                        left: `${((quizData.bodyFat - 5) / 40) * 100}%`,
+                        top: "-8px",
+                      }}
+                    >
+                      {getBodyFatRange()}
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-zinc-800" />
+                    </div>
+                  </div>
 
-                {/* Custom styled slider */}
-                <div className="px-4 max-w-md mx-auto">
+                  {/* Custom styled slider */}
                   <div className="relative">
                     <Slider
                       value={[quizData.bodyFat]}
@@ -1263,12 +1272,12 @@ export default function QuizPage() {
                       max={45}
                       min={5}
                       step={1}
-                      className="w-full [&>span:first-child]:h-2 [&>span:first-child]:bg-zinc-700 [&_[role=slider]]:bg-[#FF5722] [&_[role=slider]]:border-[#FF5722] [&_[role=slider]]:w-6 [&_[role=slider]]:h-6 [&_[role=slider]]:shadow-lg [&>span:first-child>span]:bg-[#FF5722]"
+                      className="w-full body-fat-slider"
                     />
                   </div>
 
                   {/* Min and max labels below slider */}
-                  <div className="flex justify-between text-gray-400 text-sm mt-2">
+                  <div className="flex justify-between text-gray-400 text-sm">
                     <span>5-9%</span>
                     <span>{">40%"}</span>
                   </div>
@@ -1277,6 +1286,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
+      // </CHANGE>
       case 6:
         return (
           <div className="space-y-8">
