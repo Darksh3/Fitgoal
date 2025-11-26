@@ -65,16 +65,17 @@ export async function POST(req: Request) {
       payment_method: paymentMethodId,
       confirm: true,
       payment_method_types: ["card"],
-      // Parcelamento suportado em pagamentos únicos
+      // Parcelamento corrigido para API do Stripe Brasil
       payment_method_options: {
         card: {
           installments: {
-            enabled: true,
-            plan: {
-              count: validInstallments,
-              interval: "month",
-              type: "fixed_count",
-            },
+            enabled: validInstallments > 1,
+            ...(validInstallments > 1 && {
+              plan: {
+                count: validInstallments,
+                type: "fixed_count" as const,
+              },
+            }),
           },
         },
       },
