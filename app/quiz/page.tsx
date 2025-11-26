@@ -1233,15 +1233,8 @@ export default function QuizPage() {
             </div>
             <div className="text-center space-y-8">
               <div className="relative w-64 h-80 mx-auto">
-                {/* Primary glow - bright center */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-48 h-48 bg-white/30 rounded-full blur-[80px]" />
-                </div>
-
-                {/* Secondary glow - larger spread */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-64 h-64 bg-blue-400/20 rounded-full blur-[100px]" />
-                </div>
+                {/* Background glow effect */}
+                <div className="absolute inset-0 bg-gradient-radial from-white/20 via-white/5 to-transparent blur-3xl" />
 
                 {/* Body fat image */}
                 <img
@@ -1303,10 +1296,16 @@ export default function QuizPage() {
             </div>
             <div className="flex items-center justify-center space-x-8">
               <div className="relative w-64 h-auto bg-transparent">
+                {/* Radial glow effect */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="absolute w-[400px] h-[400px] bg-gradient-radial from-white/20 via-blue-400/10 to-transparent rounded-full blur-3xl"></div>
+                  <div className="absolute w-[250px] h-[250px] bg-gradient-radial from-white/30 to-transparent rounded-full blur-2xl"></div>
+                </div>
+
                 <img
                   src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
                   alt="Corpo base"
-                  className="w-full h-auto object-contain"
+                  className="w-full h-auto object-contain relative z-10"
                   style={quizData.gender === "mulher" ? { mixBlendMode: "lighten" } : {}}
                 />
 
@@ -1315,7 +1314,7 @@ export default function QuizPage() {
                   <img
                     src="/images/chest.webp"
                     alt="Peito destacado"
-                    className="absolute inset-0 w-full h-auto object-contain"
+                    className="absolute inset-0 w-full h-auto object-contain z-20"
                     style={{ mixBlendMode: "lighten" }}
                   />
                 )}
@@ -1324,7 +1323,7 @@ export default function QuizPage() {
                   <img
                     src="/images/arms.webp"
                     alt="Braços destacados"
-                    className="absolute inset-0 w-full h-auto object-contain"
+                    className="absolute inset-0 w-full h-auto object-contain z-20"
                     style={{ mixBlendMode: "lighten" }}
                   />
                 )}
@@ -1333,7 +1332,7 @@ export default function QuizPage() {
                   <img
                     src="/images/abs.webp"
                     alt="Abdômen destacado"
-                    className="absolute inset-0 w-full h-auto object-contain"
+                    className="absolute inset-0 w-full h-auto object-contain z-20"
                     style={{ mixBlendMode: "lighten" }}
                   />
                 )}
@@ -1342,7 +1341,7 @@ export default function QuizPage() {
                   <img
                     src="/images/legs.webp"
                     alt="Pernas destacadas"
-                    className="absolute inset-0 w-full h-auto object-contain"
+                    className="absolute inset-0 w-full h-auto object-contain z-20"
                     style={{ mixBlendMode: "lighten" }}
                   />
                 )}
@@ -1351,7 +1350,7 @@ export default function QuizPage() {
                   <img
                     src="/images/fullbody.webp"
                     alt="Corpo inteiro destacado"
-                    className="absolute inset-0 w-full h-auto object-contain"
+                    className="absolute inset-0 w-full h-auto object-contain z-20"
                     style={{ mixBlendMode: "lighten" }}
                   />
                 )}
@@ -1360,7 +1359,7 @@ export default function QuizPage() {
                   <img
                     src="/images/wchest.webp"
                     alt="Peito destacado"
-                    className="absolute inset-0 w-full h-auto object-contain"
+                    className="absolute inset-0 w-full h-auto object-contain z-20"
                     style={{ mixBlendMode: "lighten" }}
                   />
                 )}
@@ -1369,7 +1368,7 @@ export default function QuizPage() {
                   <img
                     src="/images/warms.webp"
                     alt="Braços destacados"
-                    className="absolute inset-0 w-full h-auto object-contain"
+                    className="absolute inset-0 w-full h-auto object-contain z-20"
                     style={{ mixBlendMode: "lighten" }}
                   />
                 )}
@@ -1378,7 +1377,7 @@ export default function QuizPage() {
                   <img
                     src="/images/wabs.webp"
                     alt="Abdômen destacado"
-                    className="absolute inset-0 w-full h-auto object-contain"
+                    className="absolute inset-0 w-full h-auto object-contain z-20"
                     style={{ mixBlendMode: "lighten" }}
                   />
                 )}
@@ -1387,7 +1386,7 @@ export default function QuizPage() {
                   <img
                     src="/images/wlegs.webp"
                     alt="Pernas destacadas"
-                    className="absolute inset-0 w-full h-auto object-contain"
+                    className="absolute inset-0 w-full h-auto object-contain z-20"
                     style={{ mixBlendMode: "lighten" }}
                   />
                 )}
@@ -1396,7 +1395,7 @@ export default function QuizPage() {
                   <img
                     src="/images/wfullbody.webp"
                     alt="Corpo inteiro destacado"
-                    className="absolute inset-0 w-full h-auto object-contain"
+                    className="absolute inset-0 w-full h-auto object-contain z-20"
                     style={{ mixBlendMode: "lighten" }}
                   />
                 )}
