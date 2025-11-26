@@ -24,8 +24,6 @@ import { doc, setDoc, getDoc } from "firebase/firestore"
 
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth"
 
-import Image from "next/image" // Import Image from next/image
-
 interface QuizData {
   gender: string
   bodyType: string
@@ -571,17 +569,6 @@ export default function QuizPage() {
     }
   }
 
-  const getBodyFatImage = (percentage: number): string => {
-    if (percentage >= 5 && percentage <= 10) return "/images/bodyfat-one.webp"
-    if (percentage >= 11 && percentage <= 15) return "/images/bodyfat-two.webp"
-    if (percentage >= 16 && percentage <= 20) return "/images/bodyfat-three.webp"
-    if (percentage >= 21 && percentage <= 25) return "/images/bodyfat-four.webp"
-    if (percentage >= 26 && percentage <= 30) return "/images/bodyfat-five.webp"
-    if (percentage >= 31 && percentage <= 35) return "/images/bodyfat-six.webp"
-    if (percentage >= 36 && percentage <= 39) return "/images/bodyfat-seven.webp"
-    return "/images/bodyfat-eight.webp"
-  }
-
   const nextStep = () => {
     if (currentStep === 8 && quizData.diet !== "nao-sigo") {
       // Updated from step 7 to 8
@@ -1103,7 +1090,7 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">Qual a sua idade?</h2>
             </div>
             <div className="max-w-md mx-auto">
-              <Input
+              <input
                 type="number"
                 min="16"
                 max="80"
@@ -1222,15 +1209,10 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">Escolha o seu nível de gordura corporal</h2>
             </div>
             <div className="text-center space-y-8">
-              <div className="relative w-64 h-80 mx-auto">
-                <Image
-                  src={getBodyFatImage(quizData.bodyFat) || "/placeholder.svg"}
-                  alt={`Body fat ${quizData.bodyFat}%`}
-                  fill
-                  className="object-contain transition-opacity duration-500"
-                  priority
-                />
-              </div>
+              <BodyIllustration
+                className="w-32 h-40 mx-auto"
+                gender={quizData.gender === "mulher" ? "female" : "male"}
+              />
               <div className="space-y-4">
                 <div className="bg-gray-700 rounded-full px-4 py-2 inline-block">
                   <span className="text-white font-bold">{quizData.bodyFat}%</span>
