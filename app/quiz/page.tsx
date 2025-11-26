@@ -1045,14 +1045,29 @@ export default function QuizPage() {
   }
 
   const getBodyFatImage = () => {
-    if (quizData.bodyFat <= 10) return "/images/bodyfat-one.webp"
-    if (quizData.bodyFat <= 15) return "/images/bodyfat-two.webp"
-    if (quizData.bodyFat <= 20) return "/images/bodyfat-three.webp"
-    if (quizData.bodyFat <= 25) return "/images/bodyfat-four.webp"
-    if (quizData.bodyFat <= 30) return "/images/bodyfat-five.webp"
-    if (quizData.bodyFat <= 35) return "/images/bodyfat-six.webp"
-    if (quizData.bodyFat <= 39) return "/images/bodyfat-seven.webp"
-    return "/images/bodyfat-eight.webp"
+    const isMale = quizData.gender === "homem"
+
+    if (isMale) {
+      // Male images: mone.webp to meight.webp
+      if (quizData.bodyFat <= 10) return "/images/mone.webp"
+      if (quizData.bodyFat <= 15) return "/images/mtwo.webp"
+      if (quizData.bodyFat <= 20) return "/images/mthree.webp"
+      if (quizData.bodyFat <= 25) return "/images/mfour.webp"
+      if (quizData.bodyFat <= 30) return "/images/mfive.webp"
+      if (quizData.bodyFat <= 35) return "/images/msix.webp"
+      if (quizData.bodyFat <= 39) return "/images/mseven.webp"
+      return "/images/meight.webp"
+    } else {
+      // Female images: bodyfat-one.webp to bodyfat-eight.webp
+      if (quizData.bodyFat <= 10) return "/images/bodyfat-one.webp"
+      if (quizData.bodyFat <= 15) return "/images/bodyfat-two.webp"
+      if (quizData.bodyFat <= 20) return "/images/bodyfat-three.webp"
+      if (quizData.bodyFat <= 25) return "/images/bodyfat-four.webp"
+      if (quizData.bodyFat <= 30) return "/images/bodyfat-five.webp"
+      if (quizData.bodyFat <= 35) return "/images/bodyfat-six.webp"
+      if (quizData.bodyFat <= 39) return "/images/bodyfat-seven.webp"
+      return "/images/bodyfat-eight.webp"
+    }
   }
 
   const getBodyFatRange = () => {
