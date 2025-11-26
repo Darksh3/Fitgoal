@@ -1244,11 +1244,14 @@ export default function QuizPage() {
             </div>
             <div className="flex items-center justify-center space-x-8">
               <div className="relative w-64 h-auto">
-                {/* Base body image - always visible */}
-                <img src="/images/body.webp" alt="Corpo base" className="w-full h-auto object-contain" />
+                <img
+                  src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
+                  alt="Corpo base"
+                  className="w-full h-auto object-contain"
+                />
 
-                {/* Overlay images for each selected area */}
-                {quizData.problemAreas.includes("Peito") && (
+                {/* Overlay images for each selected area - male */}
+                {quizData.gender !== "mulher" && quizData.problemAreas.includes("Peito") && (
                   <img
                     src="/images/chest.webp"
                     alt="Peito destacado"
@@ -1256,7 +1259,7 @@ export default function QuizPage() {
                   />
                 )}
 
-                {quizData.problemAreas.includes("Braços") && (
+                {quizData.gender !== "mulher" && quizData.problemAreas.includes("Braços") && (
                   <img
                     src="/images/arms.webp"
                     alt="Braços destacados"
@@ -1264,7 +1267,7 @@ export default function QuizPage() {
                   />
                 )}
 
-                {quizData.problemAreas.includes("Barriga") && (
+                {quizData.gender !== "mulher" && quizData.problemAreas.includes("Barriga") && (
                   <img
                     src="/images/abs.webp"
                     alt="Abdômen destacado"
@@ -1272,7 +1275,7 @@ export default function QuizPage() {
                   />
                 )}
 
-                {quizData.problemAreas.includes("Pernas") && (
+                {quizData.gender !== "mulher" && quizData.problemAreas.includes("Pernas") && (
                   <img
                     src="/images/legs.webp"
                     alt="Pernas destacadas"
@@ -1280,9 +1283,49 @@ export default function QuizPage() {
                   />
                 )}
 
-                {quizData.problemAreas.includes("Corpo inteiro") && (
+                {quizData.gender !== "mulher" && quizData.problemAreas.includes("Corpo inteiro") && (
                   <img
                     src="/images/fullbody.webp"
+                    alt="Corpo inteiro destacado"
+                    className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
+                  />
+                )}
+
+                {quizData.gender === "mulher" && quizData.problemAreas.includes("Peito") && (
+                  <img
+                    src="/images/wchest.webp"
+                    alt="Peito destacado"
+                    className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
+                  />
+                )}
+
+                {quizData.gender === "mulher" && quizData.problemAreas.includes("Braços") && (
+                  <img
+                    src="/images/warms.webp"
+                    alt="Braços destacados"
+                    className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
+                  />
+                )}
+
+                {quizData.gender === "mulher" && quizData.problemAreas.includes("Barriga") && (
+                  <img
+                    src="/images/wabs.webp"
+                    alt="Abdômen destacado"
+                    className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
+                  />
+                )}
+
+                {quizData.gender === "mulher" && quizData.problemAreas.includes("Pernas") && (
+                  <img
+                    src="/images/wlegs.webp"
+                    alt="Pernas destacadas"
+                    className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
+                  />
+                )}
+
+                {quizData.gender === "mulher" && quizData.problemAreas.includes("Corpo inteiro") && (
+                  <img
+                    src="/images/wfullbody.webp"
                     alt="Corpo inteiro destacado"
                     className="absolute inset-0 w-full h-auto object-contain mix-blend-lighten"
                   />
