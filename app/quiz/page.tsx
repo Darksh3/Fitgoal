@@ -1479,7 +1479,7 @@ export default function QuizPage() {
                   <>
                     {/* Peito esquerdo - circular shape */}
                     <div
-                      className="absolute top-[18%] left-[35%] w-[11%] h-[8%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[21%] left-[17%] w-[11%] h-[8%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50%",
                         boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
@@ -1487,7 +1487,7 @@ export default function QuizPage() {
                     ></div>
                     {/* Peito direito - circular shape */}
                     <div
-                      className="absolute top-[18%] right-[35%] w-[11%] h-[8%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[21%] right-[17%] w-[11%] h-[8%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50%",
                         boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
