@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-// import Image from "next/image" // Import Image component
+import Image from "next/image" // Import Image component
 
 import { Button } from "@/components/ui/button"
 
@@ -176,6 +176,33 @@ export default function QuizPage() {
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false) // Add isSubmitting state
+
+  const [debugMode, setDebugMode] = useState(false)
+  const [debugValues, setDebugValues] = useState({
+    chest_left: { top: 19, left: 31, width: 14, height: 11, rotate: 0, borderRadius: 50, scale: 1 },
+    chest_right: { top: 19, right: 31, width: 14, height: 11, rotate: 0, borderRadius: 50, scale: 1 },
+    arm_upper_left: { top: 17, left: 13, width: 4, height: 9, rotate: 17, borderRadius: 50, scale: 1 },
+    arm_lower_left: { top: 27, left: 10, width: 3, height: 9, rotate: 17, borderRadius: 50, scale: 1 },
+    arm_upper_right: { top: 17, right: 13, width: 4, height: 9, rotate: -32, borderRadius: 50, scale: 1 },
+    arm_lower_right: { top: 27, right: 10, width: 3, height: 9, rotate: -32, borderRadius: 50, scale: 1 },
+    belly: { top: 29, left: 50, width: 22, height: 13, rotate: 0, borderRadius: 50, scale: 1 },
+    leg_upper_left: { top: 45, left: 31, width: 8, height: 19, rotate: 7, borderRadius: 50, scale: 1 },
+    leg_lower_left: { top: 65, left: 33, width: 3, height: 7, rotate: 7, borderRadius: 50, scale: 1 },
+    leg_upper_right: { top: 45, right: 31, width: 8, height: 19, rotate: -18, borderRadius: 50, scale: 1 },
+    leg_lower_right: { top: 65, right: 33, width: 3, height: 7, rotate: -18, borderRadius: 50, scale: 1 },
+  })
+
+  const updateDebugValue = (key: string, property: string, value: number) => {
+    setDebugValues((prev) => ({
+      ...prev,
+      [key]: { ...prev[key], [property]: value },
+    }))
+  }
+
+  const copyDebugValues = () => {
+    navigator.clipboard.writeText(JSON.stringify(debugValues, null, 2))
+    alert("Valores copiados para área de transferência!")
+  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -1307,8 +1334,16 @@ export default function QuizPage() {
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
               <p className="text-gray-300">Selecione todos que se aplicam</p>
+              {quizData.gender === "mulher" && (
+                <button
+                  onClick={() => setDebugMode(!debugMode)}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm"
+                >
+                  {debugMode ? "Sair do Modo Debug" : "Ativar Modo Debug"}
+                </button>
+              )}
             </div>
-            <div className="flex items-center justify-center space-x-8">
+            <div className="flex items-start justify-center space-x-8">
               <div className="relative w-64 h-auto bg-transparent">
                 <img
                   src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
@@ -1468,33 +1503,38 @@ export default function QuizPage() {
                   </>
                 )}
 
-                {/* FEMININE PROBLEM AREAS - Now using SVG markings */}
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Peito") && (
                   <>
-                    {/* Peito esquerdo - marking_3 */}
-                    <img
+                    <Image
                       src="/images/marking_3.svg"
-                      alt="Destaque peito esquerdo"
-                      className="absolute pointer-events-none z-20 animate-pulse"
+                      alt="chest left"
+                      width={100}
+                      height={100}
+                      className="absolute animate-pulse"
                       style={{
-                        top: "19%",
-                        left: "28%",
-                        width: "15%",
-                        height: "auto",
-                        mixBlendMode: "lighten",
+                        top: `${debugMode ? debugValues.chest_left.top : 19}%`,
+                        left: `${debugMode ? debugValues.chest_left.left : 31}%`,
+                        width: `${debugMode ? debugValues.chest_left.width : 14}%`,
+                        height: `${debugMode ? debugValues.chest_left.height : 11}%`,
+                        transform: `translate(-50%, -50%) rotate(${debugMode ? debugValues.chest_left.rotate : 0}deg) scale(${debugMode ? debugValues.chest_left.scale : 1})`,
+                        borderRadius: `${debugMode ? debugValues.chest_left.borderRadius : 50}%`,
+                        objectFit: "contain",
                       }}
                     />
-                    {/* Peito direito - marking_4 */}
-                    <img
+                    <Image
                       src="/images/marking_4.svg"
-                      alt="Destaque peito direito"
-                      className="absolute pointer-events-none z-20 animate-pulse"
+                      alt="chest right"
+                      width={100}
+                      height={100}
+                      className="absolute animate-pulse"
                       style={{
-                        top: "19%",
-                        right: "28%",
-                        width: "15%",
-                        height: "auto",
-                        mixBlendMode: "lighten",
+                        top: `${debugMode ? debugValues.chest_right.top : 19}%`,
+                        right: `${debugMode ? debugValues.chest_right.right : 31}%`,
+                        width: `${debugMode ? debugValues.chest_right.width : 14}%`,
+                        height: `${debugMode ? debugValues.chest_right.height : 11}%`,
+                        transform: `translate(50%, -50%) rotate(${debugMode ? debugValues.chest_right.rotate : 0}deg) scale(${debugMode ? debugValues.chest_right.scale : 1})`,
+                        borderRadius: `${debugMode ? debugValues.chest_right.borderRadius : 50}%`,
+                        objectFit: "contain",
                       }}
                     />
                   </>
@@ -1502,153 +1542,286 @@ export default function QuizPage() {
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Braços") && (
                   <>
-                    {/* Ombro esquerdo - marking_1 */}
-                    <img
-                      src="/images/marking_1.svg"
-                      alt="Destaque ombro esquerdo"
-                      className="absolute pointer-events-none z-20 animate-pulse"
-                      style={{
-                        top: "14%",
-                        left: "11%",
-                        width: "11%",
-                        height: "auto",
-                        transform: "rotate(15deg)",
-                        mixBlendMode: "lighten",
-                      }}
-                    />
-                    {/* Ombro direito - marking_2 */}
-                    <img
-                      src="/images/marking_2.svg"
-                      alt="Destaque ombro direito"
-                      className="absolute pointer-events-none z-20 animate-pulse"
-                      style={{
-                        top: "14%",
-                        right: "11%",
-                        width: "11%",
-                        height: "auto",
-                        transform: "rotate(-15deg)",
-                        mixBlendMode: "lighten",
-                      }}
-                    />
-                    {/* Braço superior esquerdo - marking_5 */}
-                    <img
+                    <Image
                       src="/images/marking_5.svg"
-                      alt="Destaque braço superior esquerdo"
-                      className="absolute pointer-events-none z-20 animate-pulse"
+                      alt="arm upper left"
+                      width={100}
+                      height={100}
+                      className="absolute animate-pulse"
                       style={{
-                        top: "22%",
-                        left: "9%",
-                        width: "9%",
-                        height: "auto",
-                        transform: "rotate(17deg)",
-                        mixBlendMode: "lighten",
+                        top: `${debugMode ? debugValues.arm_upper_left.top : 17}%`,
+                        left: `${debugMode ? debugValues.arm_upper_left.left : 13}%`,
+                        width: `${debugMode ? debugValues.arm_upper_left.width : 4}%`,
+                        height: `${debugMode ? debugValues.arm_upper_left.height : 9}%`,
+                        transform: `translate(-50%, -50%) rotate(${debugMode ? debugValues.arm_upper_left.rotate : 17}deg) scale(${debugMode ? debugValues.arm_upper_left.scale : 1})`,
+                        borderRadius: `${debugMode ? debugValues.arm_upper_left.borderRadius : 50}%`,
+                        objectFit: "contain",
                       }}
                     />
-                    {/* Braço superior direito - marking_6 */}
-                    <img
+                    <Image
                       src="/images/marking_6.svg"
-                      alt="Destaque braço superior direito"
-                      className="absolute pointer-events-none z-20 animate-pulse"
+                      alt="arm lower left"
+                      width={100}
+                      height={100}
+                      className="absolute animate-pulse"
                       style={{
-                        top: "22%",
-                        right: "9%",
-                        width: "9%",
-                        height: "auto",
-                        transform: "rotate(-25deg)",
-                        mixBlendMode: "lighten",
+                        top: `${debugMode ? debugValues.arm_lower_left.top : 27}%`,
+                        left: `${debugMode ? debugValues.arm_lower_left.left : 10}%`,
+                        width: `${debugMode ? debugValues.arm_lower_left.width : 3}%`,
+                        height: `${debugMode ? debugValues.arm_lower_left.height : 9}%`,
+                        transform: `translate(-50%, -50%) rotate(${debugMode ? debugValues.arm_lower_left.rotate : 17}deg) scale(${debugMode ? debugValues.arm_lower_left.scale : 1})`,
+                        borderRadius: `${debugMode ? debugValues.arm_lower_left.borderRadius : 50}%`,
+                        objectFit: "contain",
                       }}
                     />
-                    {/* Braço inferior esquerdo - marking_7 */}
-                    <img
+                    <Image
                       src="/images/marking_7.svg"
-                      alt="Destaque antebraço esquerdo"
-                      className="absolute pointer-events-none z-20 animate-pulse"
+                      alt="arm upper right"
+                      width={100}
+                      height={100}
+                      className="absolute animate-pulse"
                       style={{
-                        top: "32%",
-                        left: "6%",
-                        width: "7%",
-                        height: "auto",
-                        transform: "rotate(17deg)",
-                        mixBlendMode: "lighten",
+                        top: `${debugMode ? debugValues.arm_upper_right.top : 17}%`,
+                        right: `${debugMode ? debugValues.arm_upper_right.right : 13}%`,
+                        width: `${debugMode ? debugValues.arm_upper_right.width : 4}%`,
+                        height: `${debugMode ? debugValues.arm_upper_right.height : 9}%`,
+                        transform: `translate(50%, -50%) rotate(${debugMode ? debugValues.arm_upper_right.rotate : -32}deg) scale(${debugMode ? debugValues.arm_upper_right.scale : 1})`,
+                        borderRadius: `${debugMode ? debugValues.arm_upper_right.borderRadius : 50}%`,
+                        objectFit: "contain",
                       }}
                     />
-                    {/* Braço inferior direito - marking_8 */}
-                    <img
+                    <Image
                       src="/images/marking_8.svg"
-                      alt="Destaque antebraço direito"
-                      className="absolute pointer-events-none z-20 animate-pulse"
+                      alt="arm lower right"
+                      width={100}
+                      height={100}
+                      className="absolute animate-pulse"
                       style={{
-                        top: "32%",
-                        right: "6%",
-                        width: "7%",
-                        height: "auto",
-                        transform: "rotate(-25deg)",
-                        mixBlendMode: "lighten",
+                        top: `${debugMode ? debugValues.arm_lower_right.top : 27}%`,
+                        right: `${debugMode ? debugValues.arm_lower_right.right : 10}%`,
+                        width: `${debugMode ? debugValues.arm_lower_right.width : 3}%`,
+                        height: `${debugMode ? debugValues.arm_lower_right.height : 9}%`,
+                        transform: `translate(50%, -50%) rotate(${debugMode ? debugValues.arm_lower_right.rotate : -32}deg) scale(${debugMode ? debugValues.arm_lower_right.scale : 1})`,
+                        borderRadius: `${debugMode ? debugValues.arm_lower_right.borderRadius : 50}%`,
+                        objectFit: "contain",
                       }}
                     />
                   </>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Barriga") && (
-                  /* Using marking_9.svg for abdomen */
-                  <img
+                  <Image
                     src="/images/marking_9.svg"
-                    alt="Destaque abdômen"
-                    className="absolute pointer-events-none z-20 animate-pulse"
+                    alt="belly"
+                    width={100}
+                    height={100}
+                    className="absolute animate-pulse"
                     style={{
-                      top: "31%",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      width: "18%",
-                      height: "auto",
-                      mixBlendMode: "lighten",
+                      top: `${debugMode ? debugValues.belly.top : 29}%`,
+                      left: `${debugMode ? debugValues.belly.left : 50}%`,
+                      width: `${debugMode ? debugValues.belly.width : 22}%`,
+                      height: `${debugMode ? debugValues.belly.height : 13}%`,
+                      transform: `translate(-50%, -50%) rotate(${debugMode ? debugValues.belly.rotate : 0}deg) scale(${debugMode ? debugValues.belly.scale : 1})`,
+                      borderRadius: `${debugMode ? debugValues.belly.borderRadius : 50}%`,
+                      objectFit: "contain",
                     }}
                   />
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Pernas") && (
                   <>
-                    {/* Left thigh - marking_10 */}
-                    <img
+                    <Image
                       src="/images/marking_10.svg"
-                      alt="Left thigh highlight"
-                      className="absolute top-[45%] left-[28%] w-[10%] h-auto pointer-events-none z-20 animate-pulse"
+                      alt="leg upper left"
+                      width={100}
+                      height={100}
+                      className="absolute animate-pulse"
                       style={{
-                        transform: "rotate(7deg)",
+                        top: `${debugMode ? debugValues.leg_upper_left.top : 45}%`,
+                        left: `${debugMode ? debugValues.leg_upper_left.left : 31}%`,
+                        width: `${debugMode ? debugValues.leg_upper_left.width : 8}%`,
+                        height: `${debugMode ? debugValues.leg_upper_left.height : 19}%`,
+                        transform: `translate(-50%, -50%) rotate(${debugMode ? debugValues.leg_upper_left.rotate : 7}deg) scale(${debugMode ? debugValues.leg_upper_left.scale : 1})`,
+                        borderRadius: `${debugMode ? debugValues.leg_upper_left.borderRadius : 50}%`,
+                        objectFit: "contain",
                       }}
                     />
-                    {/* Left calf - marking_13 */}
-                    <img
-                      src="/images/marking_13.svg"
-                      alt="Left calf highlight"
-                      className="absolute top-[65%] left-[32%] w-[6%] h-auto pointer-events-none z-20 animate-pulse"
-                      style={{
-                        transform: "rotate(7deg)",
-                      }}
-                    />
-                    {/* Right thigh - marking_11 */}
-                    <img
+                    <Image
                       src="/images/marking_11.svg"
-                      alt="Right thigh highlight"
-                      className="absolute top-[45%] right-[28%] w-[10%] h-auto pointer-events-none z-20 animate-pulse"
+                      alt="leg lower left"
+                      width={100}
+                      height={100}
+                      className="absolute animate-pulse"
                       style={{
-                        transform: "rotate(-18deg)",
+                        top: `${debugMode ? debugValues.leg_lower_left.top : 65}%`,
+                        left: `${debugMode ? debugValues.leg_lower_left.left : 33}%`,
+                        width: `${debugMode ? debugValues.leg_lower_left.width : 3}%`,
+                        height: `${debugMode ? debugValues.leg_lower_left.height : 7}%`,
+                        transform: `translate(-50%, -50%) rotate(${debugMode ? debugValues.leg_lower_left.rotate : 7}deg) scale(${debugMode ? debugValues.leg_lower_left.scale : 1})`,
+                        borderRadius: `${debugMode ? debugValues.leg_lower_left.borderRadius : 50}%`,
+                        objectFit: "contain",
                       }}
                     />
-                    {/* Right calf - marking_14 */}
-                    <img
-                      src="/images/marking_14.svg"
-                      alt="Right calf highlight"
-                      className="absolute top-[65%] right-[32%] w-[6%] h-auto pointer-events-none z-20 animate-pulse"
+                    <Image
+                      src="/images/marking_12.svg"
+                      alt="leg upper right"
+                      width={100}
+                      height={100}
+                      className="absolute animate-pulse"
                       style={{
-                        transform: "rotate(-18deg)",
+                        top: `${debugMode ? debugValues.leg_upper_right.top : 45}%`,
+                        right: `${debugMode ? debugValues.leg_upper_right.right : 31}%`,
+                        width: `${debugMode ? debugValues.leg_upper_right.width : 8}%`,
+                        height: `${debugMode ? debugValues.leg_upper_right.height : 19}%`,
+                        transform: `translate(50%, -50%) rotate(${debugMode ? debugValues.leg_upper_right.rotate : -18}deg) scale(${debugMode ? debugValues.leg_upper_right.scale : 1})`,
+                        borderRadius: `${debugMode ? debugValues.leg_upper_right.borderRadius : 50}%`,
+                        objectFit: "contain",
+                      }}
+                    />
+                    <Image
+                      src="/images/marking_13.svg"
+                      alt="leg lower right"
+                      width={100}
+                      height={100}
+                      className="absolute animate-pulse"
+                      style={{
+                        top: `${debugMode ? debugValues.leg_lower_right.top : 65}%`,
+                        right: `${debugMode ? debugValues.leg_lower_right.right : 33}%`,
+                        width: `${debugMode ? debugValues.leg_lower_right.width : 3}%`,
+                        height: `${debugMode ? debugValues.leg_lower_right.height : 7}%`,
+                        transform: `translate(50%, -50%) rotate(${debugMode ? debugValues.leg_lower_right.rotate : -18}deg) scale(${debugMode ? debugValues.leg_lower_right.scale : 1})`,
+                        borderRadius: `${debugMode ? debugValues.leg_lower_right.borderRadius : 50}%`,
+                        objectFit: "contain",
                       }}
                     />
                   </>
                 )}
               </div>
 
-              <div className="space-y-4 flex-1 max-w-sm">
+              {debugMode && quizData.gender === "mulher" && (
+                <div className="w-96 max-h-[600px] overflow-y-auto bg-gray-900/95 rounded-lg p-4 space-y-4 border border-purple-500">
+                  <div className="flex justify-between items-center sticky top-0 bg-gray-900 pb-2 border-b border-purple-500">
+                    <h3 className="text-lg font-bold text-white">Ajustar Marcações</h3>
+                    <button
+                      onClick={copyDebugValues}
+                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm"
+                    >
+                      Copiar Valores
+                    </button>
+                  </div>
+
+                  {Object.entries(debugValues).map(([key, values]) => (
+                    <div key={key} className="space-y-2 border-b border-gray-700 pb-3">
+                      <h4 className="text-sm font-semibold text-purple-300">{key.replace(/_/g, " ").toUpperCase()}</h4>
+
+                      <div className="space-y-1">
+                        <label className="text-xs text-gray-400 flex justify-between">
+                          <span>Top: {values.top}%</span>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={values.top}
+                            onChange={(e) => updateDebugValue(key, "top", Number(e.target.value))}
+                            className="w-48"
+                          />
+                        </label>
+
+                        {"left" in values && (
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Left: {values.left}%</span>
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={values.left}
+                              onChange={(e) => updateDebugValue(key, "left", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+                        )}
+
+                        {"right" in values && (
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Right: {values.right}%</span>
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={values.right}
+                              onChange={(e) => updateDebugValue(key, "right", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+                        )}
+
+                        <label className="text-xs text-gray-400 flex justify-between">
+                          <span>Width: {values.width}%</span>
+                          <input
+                            type="range"
+                            min="1"
+                            max="50"
+                            value={values.width}
+                            onChange={(e) => updateDebugValue(key, "width", Number(e.target.value))}
+                            className="w-48"
+                          />
+                        </label>
+
+                        <label className="text-xs text-gray-400 flex justify-between">
+                          <span>Height: {values.height}%</span>
+                          <input
+                            type="range"
+                            min="1"
+                            max="50"
+                            value={values.height}
+                            onChange={(e) => updateDebugValue(key, "height", Number(e.target.value))}
+                            className="w-48"
+                          />
+                        </label>
+
+                        <label className="text-xs text-gray-400 flex justify-between">
+                          <span>Rotate: {values.rotate}°</span>
+                          <input
+                            type="range"
+                            min="-90"
+                            max="90"
+                            value={values.rotate}
+                            onChange={(e) => updateDebugValue(key, "rotate", Number(e.target.value))}
+                            className="w-48"
+                          />
+                        </label>
+
+                        <label className="text-xs text-gray-400 flex justify-between">
+                          <span>Border Radius: {values.borderRadius}%</span>
+                          <input
+                            type="range"
+                            min="0"
+                            max="50"
+                            value={values.borderRadius}
+                            onChange={(e) => updateDebugValue(key, "borderRadius", Number(e.target.value))}
+                            className="w-48"
+                          />
+                        </label>
+
+                        <label className="text-xs text-gray-400 flex justify-between">
+                          <span>Scale: {values.scale.toFixed(2)}</span>
+                          <input
+                            type="range"
+                            min="0.5"
+                            max="2"
+                            step="0.05"
+                            value={values.scale}
+                            onChange={(e) => updateDebugValue(key, "scale", Number(e.target.value))}
+                            className="w-48"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex flex-col space-y-4 max-w-md">
                 {["Peito", "Braços", "Barriga", "Pernas", "Corpo inteiro"].map((area) => (
                   <div
                     key={area}
@@ -1790,7 +1963,7 @@ export default function QuizPage() {
           <div className="space-y-8">
             <div className="text-center">
               <div className="mb-6">
-                <h2 className="text-3xl font-bold text-white">Qual é sua altura?</h2>
+                <h2 className="text-3xl font-bold text-white">Qual é a sua altura?</h2>
               </div>
               <div className="space-y-6">
                 <Input
