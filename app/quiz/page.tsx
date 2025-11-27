@@ -1310,12 +1310,6 @@ export default function QuizPage() {
             </div>
             <div className="flex items-center justify-center space-x-8">
               <div className="relative w-64 h-auto bg-transparent">
-                {/* Radial glow effect */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="absolute w-[400px] h-[400px] bg-gradient-radial from-white/20 via-blue-400/10 to-transparent rounded-full blur-3xl"></div>
-                  <div className="absolute w-[250px] h-[250px] bg-gradient-radial from-white/30 to-transparent rounded-full blur-2xl"></div>
-                </div>
-
                 <img
                   src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
                   alt="Corpo base"
@@ -1474,107 +1468,182 @@ export default function QuizPage() {
                   </>
                 )}
 
+                {/* FEMININE PROBLEM AREAS - Now using SVG markings */}
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Peito") && (
                   <>
-                    <div
-                      className="absolute top-[19%] left-[31%] w-[14%] h-[11%] pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
+                    {/* Peito esquerdo - marking_3 */}
+                    <img
+                      src="/images/marking_3.svg"
+                      alt="Destaque peito esquerdo"
+                      className="absolute pointer-events-none z-20 animate-pulse"
                       style={{
-                        borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
-                        boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
+                        top: "19%",
+                        left: "28%",
+                        width: "15%",
+                        height: "auto",
+                        mixBlendMode: "lighten",
                       }}
-                    ></div>
-                    <div
-                      className="absolute top-[19%] right-[31%] w-[14%] h-[11%] pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
+                    />
+                    {/* Peito direito - marking_4 */}
+                    <img
+                      src="/images/marking_4.svg"
+                      alt="Destaque peito direito"
+                      className="absolute pointer-events-none z-20 animate-pulse"
                       style={{
-                        borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
-                        boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
+                        top: "19%",
+                        right: "28%",
+                        width: "15%",
+                        height: "auto",
+                        mixBlendMode: "lighten",
                       }}
-                    ></div>
+                    />
                   </>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Braços") && (
                   <>
-                    <div
-                      className="absolute top-[17%] left-[13%] w-[4%] h-[9%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                    {/* Ombro esquerdo - marking_1 */}
+                    <img
+                      src="/images/marking_1.svg"
+                      alt="Destaque ombro esquerdo"
+                      className="absolute pointer-events-none z-20 animate-pulse"
                       style={{
-                        borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
+                        top: "14%",
+                        left: "11%",
+                        width: "11%",
+                        height: "auto",
+                        transform: "rotate(15deg)",
+                        mixBlendMode: "lighten",
+                      }}
+                    />
+                    {/* Ombro direito - marking_2 */}
+                    <img
+                      src="/images/marking_2.svg"
+                      alt="Destaque ombro direito"
+                      className="absolute pointer-events-none z-20 animate-pulse"
+                      style={{
+                        top: "14%",
+                        right: "11%",
+                        width: "11%",
+                        height: "auto",
+                        transform: "rotate(-15deg)",
+                        mixBlendMode: "lighten",
+                      }}
+                    />
+                    {/* Braço superior esquerdo - marking_5 */}
+                    <img
+                      src="/images/marking_5.svg"
+                      alt="Destaque braço superior esquerdo"
+                      className="absolute pointer-events-none z-20 animate-pulse"
+                      style={{
+                        top: "22%",
+                        left: "9%",
+                        width: "9%",
+                        height: "auto",
                         transform: "rotate(17deg)",
-                        boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
+                        mixBlendMode: "lighten",
                       }}
-                    ></div>
-                    <div
-                      className="absolute top-[27%] left-[10%] w-[3%] h-[9%] pointer-events-none z-20 bg-cyan-600/90"
+                    />
+                    {/* Braço superior direito - marking_6 */}
+                    <img
+                      src="/images/marking_6.svg"
+                      alt="Destaque braço superior direito"
+                      className="absolute pointer-events-none z-20 animate-pulse"
                       style={{
-                        borderRadius: "45% 55% 50% 50% / 60% 60% 40% 40%",
+                        top: "22%",
+                        right: "9%",
+                        width: "9%",
+                        height: "auto",
+                        transform: "rotate(-25deg)",
+                        mixBlendMode: "lighten",
+                      }}
+                    />
+                    {/* Braço inferior esquerdo - marking_7 */}
+                    <img
+                      src="/images/marking_7.svg"
+                      alt="Destaque antebraço esquerdo"
+                      className="absolute pointer-events-none z-20 animate-pulse"
+                      style={{
+                        top: "32%",
+                        left: "6%",
+                        width: "7%",
+                        height: "auto",
                         transform: "rotate(17deg)",
-                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
+                        mixBlendMode: "lighten",
                       }}
-                    ></div>
-                    <div
-                      className="absolute top-[17%] right-[13%] w-[4%] h-[9%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                    />
+                    {/* Braço inferior direito - marking_8 */}
+                    <img
+                      src="/images/marking_8.svg"
+                      alt="Destaque antebraço direito"
+                      className="absolute pointer-events-none z-20 animate-pulse"
                       style={{
-                        borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
-                        transform: "rotate(-32deg)",
-                        boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
+                        top: "32%",
+                        right: "6%",
+                        width: "7%",
+                        height: "auto",
+                        transform: "rotate(-25deg)",
+                        mixBlendMode: "lighten",
                       }}
-                    ></div>
-                    <div
-                      className="absolute top-[27%] right-[10%] w-[3%] h-[9%] pointer-events-none z-20 bg-cyan-600/90"
-                      style={{
-                        borderRadius: "55% 45% 50% 50% / 60% 60% 40% 40%",
-                        transform: "rotate(-32deg)",
-                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
-                      }}
-                    ></div>
+                    />
                   </>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Barriga") && (
-                  /* Barriga descida um pouco mais (de 27% para 29%) e reduzida para 80% altura, 70% largura */
-                  <div
-                    className="absolute top-[29%] left-1/2 -translate-x-1/2 w-[22%] h-[13%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                  /* Using marking_9.svg for abdomen */
+                  <img
+                    src="/images/marking_9.svg"
+                    alt="Destaque abdômen"
+                    className="absolute pointer-events-none z-20 animate-pulse"
                     style={{
-                      borderRadius: "45% 55% 50% 50% / 40% 40% 60% 60%",
-                      boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.4)",
+                      top: "31%",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      width: "18%",
+                      height: "auto",
+                      mixBlendMode: "lighten",
                     }}
-                  ></div>
+                  />
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Pernas") && (
                   <>
-                    <div
-                      className="absolute top-[45%] left-[31%] w-[8%] h-[19%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                    {/* Left thigh - marking_10 */}
+                    <img
+                      src="/images/marking_10.svg"
+                      alt="Left thigh highlight"
+                      className="absolute top-[45%] left-[28%] w-[10%] h-auto pointer-events-none z-20 animate-pulse"
                       style={{
-                        borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
                         transform: "rotate(7deg)",
-                        boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                       }}
-                    ></div>
-                    <div
-                      className="absolute top-[65%] left-[33%] w-[3%] h-[7%] pointer-events-none z-20 bg-cyan-600/90"
+                    />
+                    {/* Left calf - marking_13 */}
+                    <img
+                      src="/images/marking_13.svg"
+                      alt="Left calf highlight"
+                      className="absolute top-[65%] left-[32%] w-[6%] h-auto pointer-events-none z-20 animate-pulse"
                       style={{
-                        borderRadius: "50% 50% 45% 55% / 65% 65% 35% 35%",
                         transform: "rotate(7deg)",
-                        boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
-                    ></div>
-                    <div
-                      className="absolute top-[45%] right-[31%] w-[8%] h-[19%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                    />
+                    {/* Right thigh - marking_11 */}
+                    <img
+                      src="/images/marking_11.svg"
+                      alt="Right thigh highlight"
+                      className="absolute top-[45%] right-[28%] w-[10%] h-auto pointer-events-none z-20 animate-pulse"
                       style={{
-                        borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
                         transform: "rotate(-18deg)",
-                        boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                       }}
-                    ></div>
-                    <div
-                      className="absolute top-[65%] right-[33%] w-[3%] h-[7%] pointer-events-none z-20 bg-cyan-600/90"
+                    />
+                    {/* Right calf - marking_14 */}
+                    <img
+                      src="/images/marking_14.svg"
+                      alt="Right calf highlight"
+                      className="absolute top-[65%] right-[32%] w-[6%] h-auto pointer-events-none z-20 animate-pulse"
                       style={{
-                        borderRadius: "50% 50% 55% 45% / 65% 65% 35% 35%",
                         transform: "rotate(-18deg)",
-                        boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
-                    ></div>
+                    />
                   </>
                 )}
               </div>
@@ -1721,7 +1790,7 @@ export default function QuizPage() {
           <div className="space-y-8">
             <div className="text-center">
               <div className="mb-6">
-                <h2 className="text-3xl font-bold text-white">Qual é a sua altura?</h2>
+                <h2 className="text-3xl font-bold text-white">Qual é sua altura?</h2>
               </div>
               <div className="space-y-6">
                 <Input
