@@ -178,7 +178,7 @@ export default function QuizPage() {
   const [isSubmitting, setIsSubmitting] = useState(false) // Add isSubmitting state
 
   const [debugMode, setDebugMode] = useState(false)
-  const [debugValues, setDebugValues] = useState({
+  const [debugValues, setDebugValues] = useState<Record<string, any>>({
     chest_left: { top: 19, left: 31, width: 14, height: 11, rotate: 0, borderRadius: 50, scale: 1 },
     chest_right: { top: 19, right: 31, width: 14, height: 11, rotate: 0, borderRadius: 50, scale: 1 },
     arm_upper_left: { top: 17, left: 13, width: 4, height: 9, rotate: 17, borderRadius: 50, scale: 1 },
@@ -2510,7 +2510,7 @@ export default function QuizPage() {
               disabled={isSubmitting}
               className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl font-bold rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
             >
-              <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 disabled:hover:scale-100 disabled:shadow-none">
+              <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                 <span className="relative z-10 flex items-center gap-3">
                   {isSubmitting ? (
                     <>
