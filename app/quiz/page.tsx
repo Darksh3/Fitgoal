@@ -1349,39 +1349,35 @@ export default function QuizPage() {
 
                 {quizData.gender !== "mulher" && quizData.problemAreas.includes("Braços") && (
                   <>
-                    {/* Braço esquerdo - bíceps */}
                     <div
                       className="absolute top-[22%] left-[16%] w-[8%] h-[10%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "45% 55% 50% 50% / 50% 50% 45% 55%",
-                        transform: "rotate(-15deg)",
+                        transform: "rotate(20deg)",
                         boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                       }}
                     ></div>
-                    {/* Braço esquerdo - antebraço */}
                     <div
                       className="absolute top-[33%] left-[14%] w-[7%] h-[12%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "40% 60% 50% 50% / 60% 40% 50% 50%",
-                        transform: "rotate(-12deg)",
+                        transform: "rotate(20deg)",
                         boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                       }}
                     ></div>
-                    {/* Braço direito - bíceps */}
                     <div
                       className="absolute top-[22%] right-[16%] w-[8%] h-[10%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "55% 45% 50% 50% / 50% 50% 55% 45%",
-                        transform: "rotate(15deg)",
+                        transform: "rotate(-20deg)",
                         boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                       }}
                     ></div>
-                    {/* Braço direito - antebraço */}
                     <div
                       className="absolute top-[33%] right-[14%] w-[7%] h-[12%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "60% 40% 50% 50% / 40% 60% 50% 50%",
-                        transform: "rotate(12deg)",
+                        transform: "rotate(-20deg)",
                         boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                       }}
                     ></div>
@@ -1443,39 +1439,35 @@ export default function QuizPage() {
 
                 {quizData.gender !== "mulher" && quizData.problemAreas.includes("Pernas") && (
                   <>
-                    {/* Coxa esquerda - quadríceps */}
                     <div
                       className="absolute top-[50%] left-[32%] w-[10%] h-[15%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
-                        transform: "rotate(-3deg)",
+                        transform: "rotate(12deg)",
                         boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                       }}
                     ></div>
-                    {/* Panturrilha esquerda */}
                     <div
                       className="absolute top-[68%] left-[33%] w-[8%] h-[11%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "50% 50% 40% 60% / 60% 60% 50% 50%",
-                        transform: "rotate(-2deg)",
+                        transform: "rotate(12deg)",
                         boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                       }}
                     ></div>
-                    {/* Coxa direita - quadríceps */}
                     <div
                       className="absolute top-[50%] right-[32%] w-[10%] h-[15%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
-                        transform: "rotate(3deg)",
+                        transform: "rotate(-12deg)",
                         boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                       }}
                     ></div>
-                    {/* Panturrilha direita */}
                     <div
                       className="absolute top-[68%] right-[33%] w-[8%] h-[11%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
-                        transform: "rotate(2deg)",
+                        transform: "rotate(-12deg)",
                         boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                       }}
                     ></div>
