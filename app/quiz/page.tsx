@@ -1301,6 +1301,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
+      // </CHANGE>
       case 6:
         return (
           <div className="space-y-8">
@@ -1328,14 +1329,8 @@ export default function QuizPage() {
                   <img
                     src="/images/chest.webp"
                     alt="Peito destacado"
-                    className="absolute top-0 left-0 w-full h-full z-20 pointer-events-none"
-                    style={{
-                      mixBlendMode: "lighten",
-                      filter: "brightness(1.5) contrast(2)",
-                      objectFit: "cover",
-                      transform: "scale(1.2)",
-                      transformOrigin: "center center",
-                    }}
+                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
+                    style={{ mixBlendMode: "screen" }}
                   />
                 )}
 
@@ -1343,14 +1338,8 @@ export default function QuizPage() {
                   <img
                     src="/images/arms.webp"
                     alt="Braços destacados"
-                    className="absolute top-0 left-0 w-full h-full z-20 pointer-events-none"
-                    style={{
-                      mixBlendMode: "lighten",
-                      filter: "brightness(1.5) contrast(2)",
-                      objectFit: "cover",
-                      transform: "scale(1.2)",
-                      transformOrigin: "center center",
-                    }}
+                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
+                    style={{ mixBlendMode: "screen" }}
                   />
                 )}
 
@@ -1358,14 +1347,8 @@ export default function QuizPage() {
                   <img
                     src="/images/abs.webp"
                     alt="Abdômen destacado"
-                    className="absolute top-0 left-0 w-full h-full z-20 pointer-events-none"
-                    style={{
-                      mixBlendMode: "lighten",
-                      filter: "brightness(1.5) contrast(2)",
-                      objectFit: "cover",
-                      transform: "scale(1.2)",
-                      transformOrigin: "center center",
-                    }}
+                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
+                    style={{ mixBlendMode: "screen" }}
                   />
                 )}
 
@@ -1373,14 +1356,8 @@ export default function QuizPage() {
                   <img
                     src="/images/legs.webp"
                     alt="Pernas destacadas"
-                    className="absolute top-0 left-0 w-full h-full z-20 pointer-events-none"
-                    style={{
-                      mixBlendMode: "lighten",
-                      filter: "brightness(1.5) contrast(2)",
-                      objectFit: "cover",
-                      transform: "scale(1.2)",
-                      transformOrigin: "center center",
-                    }}
+                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
+                    style={{ mixBlendMode: "screen" }}
                   />
                 )}
 
@@ -1388,14 +1365,8 @@ export default function QuizPage() {
                   <img
                     src="/images/fullbody.webp"
                     alt="Corpo inteiro destacado"
-                    className="absolute top-0 left-0 w-full h-full z-20 pointer-events-none"
-                    style={{
-                      mixBlendMode: "lighten",
-                      filter: "brightness(1.5) contrast(2)",
-                      objectFit: "cover",
-                      transform: "scale(1.2)",
-                      transformOrigin: "center center",
-                    }}
+                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
+                    style={{ mixBlendMode: "screen" }}
                   />
                 )}
 
@@ -1403,8 +1374,8 @@ export default function QuizPage() {
                   <img
                     src="/images/wchest.webp"
                     alt="Peito destacado"
-                    className="absolute top-0 left-0 w-full h-full z-20 pointer-events-none"
-                    style={{ mixBlendMode: "lighten", filter: "brightness(1.5) contrast(2)" }}
+                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
+                    style={{ mixBlendMode: "screen" }}
                   />
                 )}
 
@@ -1412,8 +1383,8 @@ export default function QuizPage() {
                   <img
                     src="/images/warms.webp"
                     alt="Braços destacados"
-                    className="absolute top-0 left-0 w-full h-full z-20 pointer-events-none"
-                    style={{ mixBlendMode: "lighten", filter: "brightness(1.5) contrast(2)" }}
+                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
+                    style={{ mixBlendMode: "screen" }}
                   />
                 )}
 
@@ -1421,8 +1392,8 @@ export default function QuizPage() {
                   <img
                     src="/images/wabs.webp"
                     alt="Abdômen destacado"
-                    className="absolute top-0 left-0 w-full h-full z-20 pointer-events-none"
-                    style={{ mixBlendMode: "lighten", filter: "brightness(1.5) contrast(2)" }}
+                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
+                    style={{ mixBlendMode: "screen" }}
                   />
                 )}
 
@@ -1430,8 +1401,8 @@ export default function QuizPage() {
                   <img
                     src="/images/wlegs.webp"
                     alt="Pernas destacadas"
-                    className="absolute top-0 left-0 w-full h-full z-20 pointer-events-none"
-                    style={{ mixBlendMode: "lighten", filter: "brightness(1.5) contrast(2)" }}
+                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
+                    style={{ mixBlendMode: "screen" }}
                   />
                 )}
 
@@ -1439,8 +1410,8 @@ export default function QuizPage() {
                   <img
                     src="/images/wfullbody.webp"
                     alt="Corpo inteiro destacado"
-                    className="absolute top-0 left-0 w-full h-full z-20 pointer-events-none"
-                    style={{ mixBlendMode: "lighten", filter: "brightness(1.5) contrast(2)" }}
+                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
+                    style={{ mixBlendMode: "screen" }}
                   />
                 )}
               </div>
@@ -1723,6 +1694,7 @@ export default function QuizPage() {
                 <X className={`h-6 w-6 ${quizData.wantsSupplement === "nao" ? "text-lime-500" : "text-gray-500"}`} />
               </button>
             </div>
+            {/* </CHANGE> */}
             {quizData.wantsSupplement === "sim" && quizData.supplementType && (
               <div className="bg-lime-500/10 border border-lime-500 rounded-lg p-4 text-center">
                 <p className="text-lime-400 font-semibold">
@@ -1738,6 +1710,7 @@ export default function QuizPage() {
             )}
           </div>
         )
+      // </CHANGE>
 
       case 14:
         return (
