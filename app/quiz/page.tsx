@@ -1323,106 +1323,262 @@ export default function QuizPage() {
                   style={quizData.gender === "mulher" ? { mixBlendMode: "lighten" } : {}}
                 />
 
+                {/* Male problem areas */}
                 {quizData.gender !== "mulher" && quizData.problemAreas.includes("Peito") && (
-                  <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-[60%] h-[12%] pointer-events-none z-20">
-                    <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
-                    <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
-                  </div>
+                  <>
+                    {/* Peitoral esquerdo */}
+                    <div
+                      className="absolute top-[16%] left-[32%] w-[15%] h-[10%] pointer-events-none z-20"
+                      style={{ transform: "rotate(-5deg)" }}
+                    >
+                      <div
+                        className="absolute inset-0 bg-gradient-radial from-cyan-400/70 via-cyan-400/40 to-transparent blur-lg animate-pulse"
+                        style={{ borderRadius: "50% 50% 40% 60% / 60% 40% 60% 40%" }}
+                      ></div>
+                    </div>
+                    {/* Peitoral direito */}
+                    <div
+                      className="absolute top-[16%] right-[32%] w-[15%] h-[10%] pointer-events-none z-20"
+                      style={{ transform: "rotate(5deg)" }}
+                    >
+                      <div
+                        className="absolute inset-0 bg-gradient-radial from-cyan-400/70 via-cyan-400/40 to-transparent blur-lg animate-pulse"
+                        style={{ borderRadius: "50% 50% 60% 40% / 60% 40% 40% 60%" }}
+                      ></div>
+                    </div>
+                  </>
                 )}
 
                 {quizData.gender !== "mulher" && quizData.problemAreas.includes("Braços") && (
                   <>
-                    {/* Braço esquerdo */}
-                    <div className="absolute top-[15%] left-[8%] w-[18%] h-[25%] pointer-events-none z-20">
-                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
-                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    {/* Braço esquerdo - bíceps */}
+                    <div
+                      className="absolute top-[18%] left-[10%] w-[12%] h-[15%] pointer-events-none z-20"
+                      style={{ transform: "rotate(-10deg)" }}
+                    >
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/70 via-cyan-400/50 to-cyan-400/20 blur-lg animate-pulse"
+                        style={{ borderRadius: "45% 55% 50% 50% / 50% 50% 45% 55%" }}
+                      ></div>
                     </div>
-                    {/* Braço direito */}
-                    <div className="absolute top-[15%] right-[8%] w-[18%] h-[25%] pointer-events-none z-20">
-                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
-                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    {/* Braço esquerdo - antebraço */}
+                    <div
+                      className="absolute top-[33%] left-[8%] w-[10%] h-[18%] pointer-events-none z-20"
+                      style={{ transform: "rotate(-5deg)" }}
+                    >
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/50 via-cyan-400/30 to-transparent blur-md"
+                        style={{ borderRadius: "40% 60% 50% 50% / 60% 40% 50% 50%" }}
+                      ></div>
+                    </div>
+                    {/* Braço direito - bíceps */}
+                    <div
+                      className="absolute top-[18%] right-[10%] w-[12%] h-[15%] pointer-events-none z-20"
+                      style={{ transform: "rotate(10deg)" }}
+                    >
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/70 via-cyan-400/50 to-cyan-400/20 blur-lg animate-pulse"
+                        style={{ borderRadius: "55% 45% 50% 50% / 50% 50% 55% 45%" }}
+                      ></div>
+                    </div>
+                    {/* Braço direito - antebraço */}
+                    <div
+                      className="absolute top-[33%] right-[8%] w-[10%] h-[18%] pointer-events-none z-20"
+                      style={{ transform: "rotate(5deg)" }}
+                    >
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/50 via-cyan-400/30 to-transparent blur-md"
+                        style={{ borderRadius: "60% 40% 50% 50% / 40% 60% 50% 50%" }}
+                      ></div>
                     </div>
                   </>
                 )}
 
                 {quizData.gender !== "mulher" && quizData.problemAreas.includes("Barriga") && (
-                  <div className="absolute top-[28%] left-1/2 -translate-x-1/2 w-[45%] h-[18%] pointer-events-none z-20">
-                    <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
-                    <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
-                  </div>
-                )}
-
-                {quizData.gender !== "mulher" && quizData.problemAreas.includes("Pernas") && (
                   <>
-                    {/* Perna esquerda */}
-                    <div className="absolute top-[48%] left-[22%] w-[20%] h-[35%] pointer-events-none z-20">
-                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
-                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    {/* Abdômen superior esquerdo */}
+                    <div className="absolute top-[27%] left-[36%] w-[10%] h-[6%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-cyan-400/70 blur-md animate-pulse"
+                        style={{ borderRadius: "45% 55% 40% 60%" }}
+                      ></div>
                     </div>
-                    {/* Perna direita */}
-                    <div className="absolute top-[48%] right-[22%] w-[20%] h-[35%] pointer-events-none z-20">
-                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
-                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    {/* Abdômen superior direito */}
+                    <div className="absolute top-[27%] right-[36%] w-[10%] h-[6%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-cyan-400/70 blur-md animate-pulse"
+                        style={{ borderRadius: "55% 45% 60% 40%" }}
+                      ></div>
+                    </div>
+                    {/* Abdômen médio esquerdo */}
+                    <div className="absolute top-[34%] left-[36%] w-[10%] h-[6%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-cyan-400/70 blur-md animate-pulse"
+                        style={{ borderRadius: "40% 60% 45% 55%" }}
+                      ></div>
+                    </div>
+                    {/* Abdômen médio direito */}
+                    <div className="absolute top-[34%] right-[36%] w-[10%] h-[6%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-cyan-400/70 blur-md animate-pulse"
+                        style={{ borderRadius: "60% 40% 55% 45%" }}
+                      ></div>
+                    </div>
+                    {/* Abdômen inferior esquerdo */}
+                    <div className="absolute top-[41%] left-[37%] w-[9%] h-[5%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-cyan-400/70 blur-md animate-pulse"
+                        style={{ borderRadius: "45% 55% 50% 50%" }}
+                      ></div>
+                    </div>
+                    {/* Abdômen inferior direito */}
+                    <div className="absolute top-[41%] right-[37%] w-[9%] h-[5%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-cyan-400/70 blur-md animate-pulse"
+                        style={{ borderRadius: "55% 45% 50% 50%" }}
+                      ></div>
                     </div>
                   </>
                 )}
 
-                {quizData.gender !== "mulher" && quizData.problemAreas.includes("Corpo inteiro") && (
-                  <div className="absolute top-[10%] left-1/2 -translate-x-1/2 w-[80%] h-[75%] pointer-events-none z-20">
-                    <div className="absolute inset-0 bg-cyan-400/50 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute inset-0 bg-cyan-300/30 rounded-full blur-2xl"></div>
-                  </div>
+                {quizData.gender !== "mulher" && quizData.problemAreas.includes("Pernas") && (
+                  <>
+                    {/* Coxa esquerda - quadríceps */}
+                    <div className="absolute top-[48%] left-[28%] w-[13%] h-[20%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/70 via-cyan-400/50 to-cyan-400/30 blur-lg animate-pulse"
+                        style={{ borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%" }}
+                      ></div>
+                    </div>
+                    {/* Panturrilha esquerda */}
+                    <div className="absolute top-[70%] left-[30%] w-[10%] h-[15%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/60 via-cyan-400/40 to-transparent blur-md"
+                        style={{ borderRadius: "50% 50% 40% 60% / 60% 60% 50% 50%" }}
+                      ></div>
+                    </div>
+                    {/* Coxa direita - quadríceps */}
+                    <div className="absolute top-[48%] right-[28%] w-[13%] h-[20%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/70 via-cyan-400/50 to-cyan-400/30 blur-lg animate-pulse"
+                        style={{ borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%" }}
+                      ></div>
+                    </div>
+                    {/* Panturrilha direita */}
+                    <div className="absolute top-[70%] right-[30%] w-[10%] h-[15%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/60 via-cyan-400/40 to-transparent blur-md"
+                        style={{ borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%" }}
+                      ></div>
+                    </div>
+                  </>
                 )}
 
+                {/* Female problem areas */}
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Peito") && (
-                  <div className="absolute top-[18%] left-1/2 -translate-x-1/2 w-[50%] h-[10%] pointer-events-none z-20">
-                    <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
-                    <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
-                  </div>
+                  <>
+                    {/* Peito esquerdo */}
+                    <div className="absolute top-[19%] left-[34%] w-[13%] h-[8%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-gradient-radial from-cyan-400/70 via-cyan-400/40 to-transparent blur-lg animate-pulse"
+                        style={{ borderRadius: "50%" }}
+                      ></div>
+                    </div>
+                    {/* Peito direito */}
+                    <div className="absolute top-[19%] right-[34%] w-[13%] h-[8%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-gradient-radial from-cyan-400/70 via-cyan-400/40 to-transparent blur-lg animate-pulse"
+                        style={{ borderRadius: "50%" }}
+                      ></div>
+                    </div>
+                  </>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Braços") && (
                   <>
-                    {/* Braço esquerdo */}
-                    <div className="absolute top-[18%] left-[12%] w-[15%] h-[22%] pointer-events-none z-20">
-                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
-                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    {/* Braço esquerdo superior */}
+                    <div
+                      className="absolute top-[20%] left-[13%] w-[10%] h-[13%] pointer-events-none z-20"
+                      style={{ transform: "rotate(-8deg)" }}
+                    >
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/70 via-cyan-400/40 to-cyan-400/20 blur-lg animate-pulse"
+                        style={{ borderRadius: "45% 55% 50% 50%" }}
+                      ></div>
                     </div>
-                    {/* Braço direito */}
-                    <div className="absolute top-[18%] right-[12%] w-[15%] h-[22%] pointer-events-none z-20">
-                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
-                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    {/* Braço esquerdo inferior */}
+                    <div
+                      className="absolute top-[33%] left-[11%] w-[8%] h-[15%] pointer-events-none z-20"
+                      style={{ transform: "rotate(-3deg)" }}
+                    >
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/50 via-cyan-400/25 to-transparent blur-md"
+                        style={{ borderRadius: "40% 60% 50% 50%" }}
+                      ></div>
+                    </div>
+                    {/* Braço direito superior */}
+                    <div
+                      className="absolute top-[20%] right-[13%] w-[10%] h-[13%] pointer-events-none z-20"
+                      style={{ transform: "rotate(8deg)" }}
+                    >
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/70 via-cyan-400/40 to-cyan-400/20 blur-lg animate-pulse"
+                        style={{ borderRadius: "55% 45% 50% 50%" }}
+                      ></div>
+                    </div>
+                    {/* Braço direito inferior */}
+                    <div
+                      className="absolute top-[33%] right-[11%] w-[8%] h-[15%] pointer-events-none z-20"
+                      style={{ transform: "rotate(3deg)" }}
+                    >
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/50 via-cyan-400/25 to-transparent blur-md"
+                        style={{ borderRadius: "60% 40% 50% 50%" }}
+                      ></div>
                     </div>
                   </>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Barriga") && (
-                  <div className="absolute top-[30%] left-1/2 -translate-x-1/2 w-[40%] h-[15%] pointer-events-none z-20">
-                    <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
-                    <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                  <div className="absolute top-[30%] left-1/2 -translate-x-1/2 w-[35%] h-[16%] pointer-events-none z-20">
+                    <div
+                      className="absolute inset-0 bg-gradient-radial from-cyan-400/70 via-cyan-400/40 to-transparent blur-xl animate-pulse"
+                      style={{ borderRadius: "45% 55% 50% 50% / 50% 50% 55% 45%" }}
+                    ></div>
                   </div>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Pernas") && (
                   <>
-                    {/* Perna esquerda */}
-                    <div className="absolute top-[48%] left-[25%] w-[18%] h-[35%] pointer-events-none z-20">
-                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
-                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    {/* Coxa esquerda */}
+                    <div className="absolute top-[48%] left-[31%] w-[12%] h-[18%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/70 via-cyan-400/45 to-cyan-400/25 blur-lg animate-pulse"
+                        style={{ borderRadius: "50% 50% 45% 55%" }}
+                      ></div>
                     </div>
-                    {/* Perna direita */}
-                    <div className="absolute top-[48%] right-[25%] w-[18%] h-[35%] pointer-events-none z-20">
-                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
-                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    {/* Panturrilha esquerda */}
+                    <div className="absolute top-[68%] left-[32%] w-[9%] h-[13%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/60 via-cyan-400/35 to-transparent blur-md"
+                        style={{ borderRadius: "50% 50% 45% 55%" }}
+                      ></div>
+                    </div>
+                    {/* Coxa direita */}
+                    <div className="absolute top-[48%] right-[31%] w-[12%] h-[18%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/70 via-cyan-400/45 to-cyan-400/25 blur-lg animate-pulse"
+                        style={{ borderRadius: "50% 50% 55% 45%" }}
+                      ></div>
+                    </div>
+                    {/* Panturrilha direita */}
+                    <div className="absolute top-[68%] right-[32%] w-[9%] h-[13%] pointer-events-none z-20">
+                      <div
+                        className="absolute inset-0 bg-gradient-to-b from-cyan-400/60 via-cyan-400/35 to-transparent blur-md"
+                        style={{ borderRadius: "50% 50% 55% 45%" }}
+                      ></div>
                     </div>
                   </>
-                )}
-
-                {quizData.gender === "mulher" && quizData.problemAreas.includes("Corpo inteiro") && (
-                  <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-[70%] h-[70%] pointer-events-none z-20">
-                    <div className="absolute inset-0 bg-cyan-400/50 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute inset-0 bg-cyan-300/30 rounded-full blur-2xl"></div>
-                  </div>
                 )}
               </div>
 
