@@ -1476,19 +1476,17 @@ export default function QuizPage() {
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Peito") && (
                   <>
-                    {/* Peito esquerdo - circular shape */}
                     <div
-                      className="absolute top-[19%] left-[32%] w-[13%] h-[10%] pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
+                      className="absolute top-[19%] left-[31%] w-[14%] h-[11%] pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
                       style={{
-                        borderRadius: "50%",
+                        borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
                         boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
                       }}
                     ></div>
-                    {/* Peito direito - circular shape */}
                     <div
-                      className="absolute top-[19%] right-[32%] w-[13%] h-[10%] pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
+                      className="absolute top-[19%] right-[31%] w-[14%] h-[11%] pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
                       style={{
-                        borderRadius: "50%",
+                        borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
                         boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
                       }}
                     ></div>
@@ -1497,39 +1495,35 @@ export default function QuizPage() {
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Braços") && (
                   <>
-                    {/* Ombro/braço esquerdo superior - rounded shape covering shoulder and upper arm */}
                     <div
-                      className="absolute top-[17%] left-[13%] w-[11%] h-[13%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[17%] left-[13%] w-[9%] h-[13%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
-                        transform: "rotate(-5deg)",
+                        transform: "rotate(27deg)",
                         boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
-                    {/* Antebraço esquerdo */}
                     <div
-                      className="absolute top-[31%] left-[10%] w-[8%] h-[14%] pointer-events-none z-20 bg-cyan-600/90"
+                      className="absolute top-[31%] left-[10%] w-[7%] h-[14%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "45% 55% 50% 50% / 60% 60% 40% 40%",
-                        transform: "rotate(-8deg)",
+                        transform: "rotate(27deg)",
                         boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
-                    {/* Ombro/braço direito superior - rounded shape covering shoulder and upper arm */}
                     <div
-                      className="absolute top-[17%] right-[13%] w-[11%] h-[13%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[17%] right-[13%] w-[9%] h-[13%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
-                        transform: "rotate(5deg)",
+                        transform: "rotate(-27deg)",
                         boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
-                    {/* Antebraço direito */}
                     <div
-                      className="absolute top-[31%] right-[10%] w-[8%] h-[14%] pointer-events-none z-20 bg-cyan-600/90"
+                      className="absolute top-[31%] right-[10%] w-[7%] h-[14%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "55% 45% 50% 50% / 60% 60% 40% 40%",
-                        transform: "rotate(8deg)",
+                        transform: "rotate(-27deg)",
                         boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
@@ -1537,7 +1531,7 @@ export default function QuizPage() {
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Barriga") && (
-                  /* Barriga - wider rectangular/oval area covering midriff */
+                  /* Barriga - sem rotação, apenas centralizada */
                   <div
                     className="absolute top-[27%] left-1/2 -translate-x-1/2 w-[32%] h-[16%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                     style={{
@@ -1549,39 +1543,35 @@ export default function QuizPage() {
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Pernas") && (
                   <>
-                    {/* Coxa esquerda - elongated shape */}
                     <div
-                      className="absolute top-[45%] left-[32%] w-[13%] h-[20%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[45%] left-[31%] w-[15%] h-[22%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
-                        transform: "rotate(2deg)",
+                        transform: "rotate(13deg)",
                         boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
-                    {/* Panturrilha esquerda */}
                     <div
-                      className="absolute top-[67%] left-[33%] w-[9%] h-[14%] pointer-events-none z-20 bg-cyan-600/90"
+                      className="absolute top-[68%] left-[33%] w-[8%] h-[12%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "50% 50% 45% 55% / 65% 65% 35% 35%",
-                        transform: "rotate(1deg)",
+                        transform: "rotate(13deg)",
                         boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
-                    {/* Coxa direita - elongated shape */}
                     <div
-                      className="absolute top-[45%] right-[32%] w-[13%] h-[20%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[45%] right-[31%] w-[15%] h-[22%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
-                        transform: "rotate(-2deg)",
+                        transform: "rotate(-13deg)",
                         boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
-                    {/* Panturrilha direita */}
                     <div
-                      className="absolute top-[67%] right-[33%] w-[9%] h-[14%] pointer-events-none z-20 bg-cyan-600/90"
+                      className="absolute top-[68%] right-[33%] w-[8%] h-[12%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "50% 50% 55% 45% / 65% 65% 35% 35%",
-                        transform: "rotate(-1deg)",
+                        transform: "rotate(-13deg)",
                         boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
