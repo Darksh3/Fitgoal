@@ -1477,20 +1477,20 @@ export default function QuizPage() {
                 {/* FEMALE PROBLEM AREAS */}
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Peito") && (
                   <>
-                    {/* Peito esquerdo */}
+                    {/* Peito esquerdo - circular shape */}
                     <div
-                      className="absolute top-[20%] left-[36%] w-[10%] h-[7%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[18%] left-[35%] w-[11%] h-[8%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50%",
-                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                        boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
-                    {/* Peito direito */}
+                    {/* Peito direito - circular shape */}
                     <div
-                      className="absolute top-[20%] right-[36%] w-[10%] h-[7%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[18%] right-[35%] w-[11%] h-[8%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50%",
-                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                        boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
                   </>
@@ -1498,87 +1498,92 @@ export default function QuizPage() {
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Braços") && (
                   <>
-                    {/* Braço esquerdo superior */}
+                    {/* Ombro/braço esquerdo superior - rounded shape covering shoulder and upper arm */}
                     <div
-                      className="absolute top-[23%] left-[17%] w-[8%] h-[10%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[17%] left-[13%] w-[11%] h-[13%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
-                        borderRadius: "45% 55% 50% 50%",
-                        transform: "rotate(-10deg)",
-                        boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
-                      }}
-                    ></div>
-                    {/* Braço esquerdo inferior */}
-                    <div
-                      className="absolute top-[34%] left-[15%] w-[6%] h-[12%] pointer-events-none z-20 bg-cyan-600/90"
-                      style={{
-                        borderRadius: "40% 60% 50% 50%",
+                        borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
                         transform: "rotate(-5deg)",
-                        boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                        boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
-                    {/* Braço direito superior */}
+                    {/* Antebraço esquerdo */}
                     <div
-                      className="absolute top-[23%] right-[17%] w-[8%] h-[10%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[31%] left-[10%] w-[8%] h-[14%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
-                        borderRadius: "55% 45% 50% 50%",
-                        transform: "rotate(10deg)",
-                        boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                        borderRadius: "45% 55% 50% 50% / 60% 60% 40% 40%",
+                        transform: "rotate(-8deg)",
+                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
-                    {/* Braço direito inferior */}
+                    {/* Ombro/braço direito superior - rounded shape covering shoulder and upper arm */}
                     <div
-                      className="absolute top-[34%] right-[15%] w-[6%] h-[12%] pointer-events-none z-20 bg-cyan-600/90"
+                      className="absolute top-[17%] right-[13%] w-[11%] h-[13%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
-                        borderRadius: "60% 40% 50% 50%",
+                        borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
                         transform: "rotate(5deg)",
-                        boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                        boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
+                      }}
+                    ></div>
+                    {/* Antebraço direito */}
+                    <div
+                      className="absolute top-[31%] right-[10%] w-[8%] h-[14%] pointer-events-none z-20 bg-cyan-600/90"
+                      style={{
+                        borderRadius: "55% 45% 50% 50% / 60% 60% 40% 40%",
+                        transform: "rotate(8deg)",
+                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
                   </>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Barriga") && (
+                  /* Barriga - wider rectangular/oval area covering midriff */
                   <div
-                    className="absolute top-[32%] left-1/2 -translate-x-1/2 w-[28%] h-[12%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                    className="absolute top-[27%] left-1/2 -translate-x-1/2 w-[32%] h-[16%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                     style={{
-                      borderRadius: "45% 55% 50% 50% / 50% 50% 55% 45%",
-                      boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
+                      borderRadius: "45% 55% 50% 50% / 40% 40% 60% 60%",
+                      boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.4)",
                     }}
                   ></div>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Pernas") && (
                   <>
-                    {/* Coxa esquerda */}
+                    {/* Coxa esquerda - elongated shape */}
                     <div
-                      className="absolute top-[49%] left-[33%] w-[10%] h-[15%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[45%] left-[32%] w-[13%] h-[20%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
-                        borderRadius: "50% 50% 45% 55%",
-                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                        borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
+                        transform: "rotate(2deg)",
+                        boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
                     {/* Panturrilha esquerda */}
                     <div
-                      className="absolute top-[66%] left-[34%] w-[7%] h-[10%] pointer-events-none z-20 bg-cyan-600/90"
+                      className="absolute top-[67%] left-[33%] w-[9%] h-[14%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
-                        borderRadius: "50% 50% 45% 55%",
-                        boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                        borderRadius: "50% 50% 45% 55% / 65% 65% 35% 35%",
+                        transform: "rotate(1deg)",
+                        boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
-                    {/* Coxa direita */}
+                    {/* Coxa direita - elongated shape */}
                     <div
-                      className="absolute top-[49%] right-[33%] w-[10%] h-[15%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[45%] right-[32%] w-[13%] h-[20%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
-                        borderRadius: "50% 50% 55% 45%",
-                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                        borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
+                        transform: "rotate(-2deg)",
+                        boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
                     {/* Panturrilha direita */}
                     <div
-                      className="absolute top-[66%] right-[34%] w-[7%] h-[10%] pointer-events-none z-20 bg-cyan-600/90"
+                      className="absolute top-[67%] right-[33%] w-[9%] h-[14%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
-                        borderRadius: "50% 50% 55% 45%",
-                        boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                        borderRadius: "50% 50% 55% 45% / 65% 65% 35% 35%",
+                        transform: "rotate(-1deg)",
+                        boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
                   </>
