@@ -1323,12 +1323,12 @@ export default function QuizPage() {
                   style={quizData.gender === "mulher" ? { mixBlendMode: "lighten" } : {}}
                 />
 
-                {/* Male problem areas */}
+                {/* MASCULINE PROBLEM AREAS */}
                 {quizData.gender !== "mulher" && quizData.problemAreas.includes("Peito") && (
                   <>
                     {/* Peitoral esquerdo */}
                     <div
-                      className="absolute top-[21%] left-[35%] w-[12%] h-[9%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[21%] left-[33%] w-[14%] h-[9%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50% 50% 45% 55% / 55% 45% 60% 40%",
                         transform: "rotate(-8deg)",
@@ -1337,7 +1337,7 @@ export default function QuizPage() {
                     ></div>
                     {/* Peitoral direito */}
                     <div
-                      className="absolute top-[21%] right-[35%] w-[12%] h-[9%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[21%] right-[33%] w-[14%] h-[9%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50% 50% 55% 45% / 45% 55% 40% 60%",
                         transform: "rotate(8deg)",
@@ -1353,7 +1353,7 @@ export default function QuizPage() {
                       className="absolute top-[22%] left-[16%] w-[8%] h-[10%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "45% 55% 50% 50% / 50% 50% 45% 55%",
-                        transform: "rotate(20deg)",
+                        transform: "rotate(12deg)",
                         boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                       }}
                     ></div>
@@ -1361,7 +1361,7 @@ export default function QuizPage() {
                       className="absolute top-[33%] left-[14%] w-[7%] h-[12%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "40% 60% 50% 50% / 60% 40% 50% 50%",
-                        transform: "rotate(20deg)",
+                        transform: "rotate(12deg)",
                         boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                       }}
                     ></div>
@@ -1369,7 +1369,7 @@ export default function QuizPage() {
                       className="absolute top-[22%] right-[16%] w-[8%] h-[10%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "55% 45% 50% 50% / 50% 50% 55% 45%",
-                        transform: "rotate(-20deg)",
+                        transform: "rotate(-12deg)",
                         boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                       }}
                     ></div>
@@ -1377,7 +1377,7 @@ export default function QuizPage() {
                       className="absolute top-[33%] right-[14%] w-[7%] h-[12%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "60% 40% 50% 50% / 40% 60% 50% 50%",
-                        transform: "rotate(-20deg)",
+                        transform: "rotate(-12deg)",
                         boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                       }}
                     ></div>
@@ -1388,7 +1388,7 @@ export default function QuizPage() {
                   <>
                     {/* Abdômen superior esquerdo */}
                     <div
-                      className="absolute top-[31%] left-[38%] w-[8%] h-[4.5%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[31%] left-[40%] w-[8%] h-[4.5%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "45% 55% 40% 60%",
                         boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
@@ -1396,7 +1396,7 @@ export default function QuizPage() {
                     ></div>
                     {/* Abdômen superior direito */}
                     <div
-                      className="absolute top-[31%] right-[38%] w-[8%] h-[4.5%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[31%] right-[40%] w-[8%] h-[4.5%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "55% 45% 60% 40%",
                         boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
@@ -1404,7 +1404,7 @@ export default function QuizPage() {
                     ></div>
                     {/* Abdômen médio esquerdo */}
                     <div
-                      className="absolute top-[36%] left-[38%] w-[8%] h-[4.5%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[36%] left-[40%] w-[8%] h-[4.5%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "40% 60% 45% 55%",
                         boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
@@ -1412,7 +1412,7 @@ export default function QuizPage() {
                     ></div>
                     {/* Abdômen médio direito */}
                     <div
-                      className="absolute top-[36%] right-[38%] w-[8%] h-[4.5%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[36%] right-[40%] w-[8%] h-[4.5%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "60% 40% 55% 45%",
                         boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
@@ -1420,7 +1420,7 @@ export default function QuizPage() {
                     ></div>
                     {/* Abdômen inferior esquerdo */}
                     <div
-                      className="absolute top-[41%] left-[39%] w-[7%] h-[4%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[41%] left-[41%] w-[7%] h-[4%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "45% 55% 50% 50%",
                         boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
@@ -1428,7 +1428,7 @@ export default function QuizPage() {
                     ></div>
                     {/* Abdômen inferior direito */}
                     <div
-                      className="absolute top-[41%] right-[39%] w-[7%] h-[4%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[41%] right-[41%] w-[7%] h-[4%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "55% 45% 50% 50%",
                         boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
@@ -1440,7 +1440,7 @@ export default function QuizPage() {
                 {quizData.gender !== "mulher" && quizData.problemAreas.includes("Pernas") && (
                   <>
                     <div
-                      className="absolute top-[50%] left-[32%] w-[10%] h-[15%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[50%] left-[31%] w-[12%] h-[15%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
                         transform: "rotate(12deg)",
@@ -1448,15 +1448,15 @@ export default function QuizPage() {
                       }}
                     ></div>
                     <div
-                      className="absolute top-[68%] left-[33%] w-[8%] h-[11%] pointer-events-none z-20 bg-cyan-600/90"
+                      className="absolute top-[68%] left-[32%] w-[9%] h-[11%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "50% 50% 40% 60% / 60% 60% 50% 50%",
-                        transform: "rotate(12deg)",
+                        transform: "rotate(10deg)",
                         boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                       }}
                     ></div>
                     <div
-                      className="absolute top-[50%] right-[32%] w-[10%] h-[15%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[50%] right-[31%] w-[12%] h-[15%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
                         transform: "rotate(-12deg)",
@@ -1464,17 +1464,17 @@ export default function QuizPage() {
                       }}
                     ></div>
                     <div
-                      className="absolute top-[68%] right-[33%] w-[8%] h-[11%] pointer-events-none z-20 bg-cyan-600/90"
+                      className="absolute top-[68%] right-[32%] w-[9%] h-[11%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
-                        transform: "rotate(-12deg)",
+                        transform: "rotate(-10deg)",
                         boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                       }}
                     ></div>
                   </>
                 )}
 
-                {/* Female problem areas */}
+                {/* FEMALE PROBLEM AREAS */}
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Peito") && (
                   <>
                     {/* Peito esquerdo */}
