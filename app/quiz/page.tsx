@@ -1301,7 +1301,6 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      // </CHANGE>
       case 6:
         return (
           <div className="space-y-8">
@@ -1324,95 +1323,106 @@ export default function QuizPage() {
                   style={quizData.gender === "mulher" ? { mixBlendMode: "lighten" } : {}}
                 />
 
-                {/* Overlay images for each selected area - male */}
                 {quizData.gender !== "mulher" && quizData.problemAreas.includes("Peito") && (
-                  <img
-                    src="/images/chest.webp"
-                    alt="Peito destacado"
-                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
-                    style={{ mixBlendMode: "screen" }}
-                  />
+                  <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-[60%] h-[12%] pointer-events-none z-20">
+                    <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
+                    <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                  </div>
                 )}
 
                 {quizData.gender !== "mulher" && quizData.problemAreas.includes("Braços") && (
-                  <img
-                    src="/images/arms.webp"
-                    alt="Braços destacados"
-                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
-                    style={{ mixBlendMode: "screen" }}
-                  />
+                  <>
+                    {/* Braço esquerdo */}
+                    <div className="absolute top-[15%] left-[8%] w-[18%] h-[25%] pointer-events-none z-20">
+                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
+                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    </div>
+                    {/* Braço direito */}
+                    <div className="absolute top-[15%] right-[8%] w-[18%] h-[25%] pointer-events-none z-20">
+                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
+                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    </div>
+                  </>
                 )}
 
                 {quizData.gender !== "mulher" && quizData.problemAreas.includes("Barriga") && (
-                  <img
-                    src="/images/abs.webp"
-                    alt="Abdômen destacado"
-                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
-                    style={{ mixBlendMode: "screen" }}
-                  />
+                  <div className="absolute top-[28%] left-1/2 -translate-x-1/2 w-[45%] h-[18%] pointer-events-none z-20">
+                    <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
+                    <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                  </div>
                 )}
 
                 {quizData.gender !== "mulher" && quizData.problemAreas.includes("Pernas") && (
-                  <img
-                    src="/images/legs.webp"
-                    alt="Pernas destacadas"
-                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
-                    style={{ mixBlendMode: "screen" }}
-                  />
+                  <>
+                    {/* Perna esquerda */}
+                    <div className="absolute top-[48%] left-[22%] w-[20%] h-[35%] pointer-events-none z-20">
+                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
+                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    </div>
+                    {/* Perna direita */}
+                    <div className="absolute top-[48%] right-[22%] w-[20%] h-[35%] pointer-events-none z-20">
+                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
+                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    </div>
+                  </>
                 )}
 
                 {quizData.gender !== "mulher" && quizData.problemAreas.includes("Corpo inteiro") && (
-                  <img
-                    src="/images/fullbody.webp"
-                    alt="Corpo inteiro destacado"
-                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
-                    style={{ mixBlendMode: "screen" }}
-                  />
+                  <div className="absolute top-[10%] left-1/2 -translate-x-1/2 w-[80%] h-[75%] pointer-events-none z-20">
+                    <div className="absolute inset-0 bg-cyan-400/50 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute inset-0 bg-cyan-300/30 rounded-full blur-2xl"></div>
+                  </div>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Peito") && (
-                  <img
-                    src="/images/wchest.webp"
-                    alt="Peito destacado"
-                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
-                    style={{ mixBlendMode: "screen" }}
-                  />
+                  <div className="absolute top-[18%] left-1/2 -translate-x-1/2 w-[50%] h-[10%] pointer-events-none z-20">
+                    <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
+                    <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                  </div>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Braços") && (
-                  <img
-                    src="/images/warms.webp"
-                    alt="Braços destacados"
-                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
-                    style={{ mixBlendMode: "screen" }}
-                  />
+                  <>
+                    {/* Braço esquerdo */}
+                    <div className="absolute top-[18%] left-[12%] w-[15%] h-[22%] pointer-events-none z-20">
+                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
+                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    </div>
+                    {/* Braço direito */}
+                    <div className="absolute top-[18%] right-[12%] w-[15%] h-[22%] pointer-events-none z-20">
+                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
+                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    </div>
+                  </>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Barriga") && (
-                  <img
-                    src="/images/wabs.webp"
-                    alt="Abdômen destacado"
-                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
-                    style={{ mixBlendMode: "screen" }}
-                  />
+                  <div className="absolute top-[30%] left-1/2 -translate-x-1/2 w-[40%] h-[15%] pointer-events-none z-20">
+                    <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
+                    <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                  </div>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Pernas") && (
-                  <img
-                    src="/images/wlegs.webp"
-                    alt="Pernas destacadas"
-                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
-                    style={{ mixBlendMode: "screen" }}
-                  />
+                  <>
+                    {/* Perna esquerda */}
+                    <div className="absolute top-[48%] left-[25%] w-[18%] h-[35%] pointer-events-none z-20">
+                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
+                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    </div>
+                    {/* Perna direita */}
+                    <div className="absolute top-[48%] right-[25%] w-[18%] h-[35%] pointer-events-none z-20">
+                      <div className="absolute inset-0 bg-cyan-400/60 rounded-full blur-2xl animate-pulse"></div>
+                      <div className="absolute inset-0 bg-cyan-300/40 rounded-full blur-xl"></div>
+                    </div>
+                  </>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Corpo inteiro") && (
-                  <img
-                    src="/images/wfullbody.webp"
-                    alt="Corpo inteiro destacado"
-                    className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none"
-                    style={{ mixBlendMode: "screen" }}
-                  />
+                  <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-[70%] h-[70%] pointer-events-none z-20">
+                    <div className="absolute inset-0 bg-cyan-400/50 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute inset-0 bg-cyan-300/30 rounded-full blur-2xl"></div>
+                  </div>
                 )}
               </div>
 
