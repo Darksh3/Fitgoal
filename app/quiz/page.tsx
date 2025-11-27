@@ -1496,34 +1496,34 @@ export default function QuizPage() {
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Braços") && (
                   <>
                     <div
-                      className="absolute top-[17%] left-[13%] w-[9%] h-[13%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[17%] left-[13%] w-[4%] h-[9%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
-                        transform: "rotate(27deg)",
+                        transform: "rotate(17deg)",
                         boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
                     <div
-                      className="absolute top-[31%] left-[10%] w-[7%] h-[14%] pointer-events-none z-20 bg-cyan-600/90"
+                      className="absolute top-[27%] left-[10%] w-[3%] h-[9%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "45% 55% 50% 50% / 60% 60% 40% 40%",
-                        transform: "rotate(27deg)",
+                        transform: "rotate(17deg)",
                         boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
                     <div
-                      className="absolute top-[17%] right-[13%] w-[9%] h-[13%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[17%] right-[13%] w-[4%] h-[9%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
-                        transform: "rotate(-27deg)",
+                        transform: "rotate(-32deg)",
                         boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
                     <div
-                      className="absolute top-[31%] right-[10%] w-[7%] h-[14%] pointer-events-none z-20 bg-cyan-600/90"
+                      className="absolute top-[27%] right-[10%] w-[3%] h-[9%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "55% 45% 50% 50% / 60% 60% 40% 40%",
-                        transform: "rotate(-27deg)",
+                        transform: "rotate(-32deg)",
                         boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
@@ -1531,9 +1531,9 @@ export default function QuizPage() {
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Barriga") && (
-                  /* Barriga - sem rotação, apenas centralizada */
+                  /* Barriga descida um pouco mais (de 27% para 29%) e reduzida para 80% altura, 70% largura */
                   <div
-                    className="absolute top-[27%] left-1/2 -translate-x-1/2 w-[32%] h-[16%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                    className="absolute top-[29%] left-1/2 -translate-x-1/2 w-[22%] h-[13%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                     style={{
                       borderRadius: "45% 55% 50% 50% / 40% 40% 60% 60%",
                       boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.4)",
@@ -1544,34 +1544,34 @@ export default function QuizPage() {
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Pernas") && (
                   <>
                     <div
-                      className="absolute top-[45%] left-[31%] w-[15%] h-[22%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[45%] left-[31%] w-[8%] h-[19%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
-                        transform: "rotate(13deg)",
+                        transform: "rotate(7deg)",
                         boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
                     <div
-                      className="absolute top-[68%] left-[33%] w-[8%] h-[12%] pointer-events-none z-20 bg-cyan-600/90"
+                      className="absolute top-[65%] left-[33%] w-[3%] h-[7%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "50% 50% 45% 55% / 65% 65% 35% 35%",
-                        transform: "rotate(13deg)",
+                        transform: "rotate(7deg)",
                         boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
                     <div
-                      className="absolute top-[45%] right-[31%] w-[15%] h-[22%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[45%] right-[31%] w-[8%] h-[19%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
                         borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
-                        transform: "rotate(-13deg)",
+                        transform: "rotate(-18deg)",
                         boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
                     <div
-                      className="absolute top-[68%] right-[33%] w-[8%] h-[12%] pointer-events-none z-20 bg-cyan-600/90"
+                      className="absolute top-[65%] right-[33%] w-[3%] h-[7%] pointer-events-none z-20 bg-cyan-600/90"
                       style={{
                         borderRadius: "50% 50% 55% 45% / 65% 65% 35% 35%",
-                        transform: "rotate(-13deg)",
+                        transform: "rotate(-18deg)",
                         boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
                     ></div>
