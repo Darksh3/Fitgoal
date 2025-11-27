@@ -1474,23 +1474,22 @@ export default function QuizPage() {
                   </>
                 )}
 
-                {/* FEMALE PROBLEM AREAS */}
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Peito") && (
                   <>
                     {/* Peito esquerdo - circular shape */}
                     <div
-                      className="absolute top-[21%] left-[17%] w-[11%] h-[8%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[19%] left-[32%] w-[13%] h-[10%] pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
                       style={{
                         borderRadius: "50%",
-                        boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
+                        boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
                       }}
                     ></div>
                     {/* Peito direito - circular shape */}
                     <div
-                      className="absolute top-[21%] right-[17%] w-[11%] h-[8%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      className="absolute top-[19%] right-[32%] w-[13%] h-[10%] pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
                       style={{
                         borderRadius: "50%",
-                        boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
+                        boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
                       }}
                     ></div>
                   </>
