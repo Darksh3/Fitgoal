@@ -175,25 +175,27 @@ export default function QuizPage() {
   const [totalSteps, setTotalSteps] = useState(24)
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false) // Add isSubmitting state
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [debugMode, setDebugMode] = useState(false)
-  const [debugValues, setDebugValues] = useState<Record<string, any>>({
-    chest_left: { top: 19, left: 31, width: 14, height: 11, rotate: 0, borderRadius: 50, scale: 1 },
-    chest_right: { top: 19, right: 31, width: 14, height: 11, rotate: 0, borderRadius: 50, scale: 1 },
-    arm_upper_left: { top: 17, left: 13, width: 4, height: 9, rotate: 17, borderRadius: 50, scale: 1 },
-    arm_lower_left: { top: 27, left: 10, width: 3, height: 9, rotate: 17, borderRadius: 50, scale: 1 },
-    arm_upper_right: { top: 17, right: 13, width: 4, height: 9, rotate: -32, borderRadius: 50, scale: 1 },
-    arm_lower_right: { top: 27, right: 10, width: 3, height: 9, rotate: -32, borderRadius: 50, scale: 1 },
-    belly: { top: 29, left: 50, width: 22, height: 13, rotate: 0, borderRadius: 50, scale: 1 },
-    leg_upper_left: { top: 45, left: 31, width: 8, height: 19, rotate: 7, borderRadius: 50, scale: 1 },
-    leg_lower_left: { top: 65, left: 33, width: 3, height: 7, rotate: 7, borderRadius: 50, scale: 1 },
-    leg_upper_right: { top: 45, right: 31, width: 8, height: 19, rotate: -18, borderRadius: 50, scale: 1 },
-    leg_lower_right: { top: 65, right: 33, width: 3, height: 7, rotate: -18, borderRadius: 50, scale: 1 },
+  const [debugValues, setDebugValues] = useState<any>({
+    marking_1: { top: 14, left: 18, width: 8, height: 6, rotate: 17, borderRadius: 50, scale: 1 },
+    marking_2: { top: 14, right: 18, width: 8, height: 6, rotate: -32, borderRadius: 50, scale: 1 },
+    marking_3: { top: 19, left: 31, width: 14, height: 11, rotate: 0, borderRadius: 50, scale: 1 },
+    marking_4: { top: 19, right: 31, width: 14, height: 11, rotate: 0, borderRadius: 50, scale: 1 },
+    marking_5: { top: 17, left: 13, width: 4, height: 9, rotate: 17, borderRadius: 50, scale: 1 },
+    marking_6: { top: 27, left: 10, width: 3, height: 9, rotate: 17, borderRadius: 50, scale: 1 },
+    marking_7: { top: 17, right: 13, width: 4, height: 9, rotate: -32, borderRadius: 50, scale: 1 },
+    marking_8: { top: 27, right: 10, width: 3, height: 9, rotate: -32, borderRadius: 50, scale: 1 },
+    marking_9: { top: 29, left: 50, width: 22, height: 13, rotate: 0, borderRadius: 50, scale: 1 },
+    marking_10: { top: 45, left: 31, width: 8, height: 19, rotate: 7, borderRadius: 50, scale: 1 },
+    marking_11: { top: 45, right: 31, width: 8, height: 19, rotate: -18, borderRadius: 50, scale: 1 },
+    marking_13: { top: 65, left: 33, width: 3, height: 7, rotate: 7, borderRadius: 50, scale: 1 },
+    marking_14: { top: 65, right: 33, width: 3, height: 7, rotate: -18, borderRadius: 50, scale: 1 },
   })
 
   const updateDebugValue = (key: string, property: string, value: number) => {
-    setDebugValues((prev) => ({
+    setDebugValues((prev: any) => ({
       ...prev,
       [key]: { ...prev[key], [property]: value },
     }))
@@ -203,6 +205,11 @@ export default function QuizPage() {
     navigator.clipboard.writeText(JSON.stringify(debugValues, null, 2))
     alert("Valores copiados para área de transferência!")
   }
+
+  const getDebugValue = (key: string, property: string, defaultValue: number) => {
+    return debugValues[key]?.[property] ?? defaultValue
+  }
+  // </CHANGE>
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -1332,7 +1339,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
               <p className="text-gray-300">Selecione todos que se aplicam</p>
               {quizData.gender === "mulher" && (
                 <button
@@ -1512,12 +1519,12 @@ export default function QuizPage() {
                       height={100}
                       className="absolute animate-pulse"
                       style={{
-                        top: `${debugMode ? debugValues.chest_left.top : 19}%`,
-                        left: `${debugMode ? debugValues.chest_left.left : 31}%`,
-                        width: `${debugMode ? debugValues.chest_left.width : 14}%`,
-                        height: `${debugMode ? debugValues.chest_left.height : 11}%`,
-                        transform: `translate(-50%, -50%) rotate(${debugMode ? debugValues.chest_left.rotate : 0}deg) scale(${debugMode ? debugValues.chest_left.scale : 1})`,
-                        borderRadius: `${debugMode ? debugValues.chest_left.borderRadius : 50}%`,
+                        top: `${getDebugValue("marking_3", "top", 19)}%`,
+                        left: `${getDebugValue("marking_3", "left", 31)}%`,
+                        width: `${getDebugValue("marking_3", "width", 14)}%`,
+                        height: `${getDebugValue("marking_3", "height", 11)}%`,
+                        transform: `translate(-50%, -50%) rotate(${getDebugValue("marking_3", "rotate", 0)}deg) scale(${getDebugValue("marking_3", "scale", 1)})`,
+                        borderRadius: `${getDebugValue("marking_3", "borderRadius", 50)}%`,
                         objectFit: "contain",
                       }}
                     />
@@ -1528,12 +1535,12 @@ export default function QuizPage() {
                       height={100}
                       className="absolute animate-pulse"
                       style={{
-                        top: `${debugMode ? debugValues.chest_right.top : 19}%`,
-                        right: `${debugMode ? debugValues.chest_right.right : 31}%`,
-                        width: `${debugMode ? debugValues.chest_right.width : 14}%`,
-                        height: `${debugMode ? debugValues.chest_right.height : 11}%`,
-                        transform: `translate(50%, -50%) rotate(${debugMode ? debugValues.chest_right.rotate : 0}deg) scale(${debugMode ? debugValues.chest_right.scale : 1})`,
-                        borderRadius: `${debugMode ? debugValues.chest_right.borderRadius : 50}%`,
+                        top: `${getDebugValue("marking_4", "top", 19)}%`,
+                        right: `${getDebugValue("marking_4", "right", 31)}%`,
+                        width: `${getDebugValue("marking_4", "width", 14)}%`,
+                        height: `${getDebugValue("marking_4", "height", 11)}%`,
+                        transform: `translate(50%, -50%) rotate(${getDebugValue("marking_4", "rotate", 0)}deg) scale(${getDebugValue("marking_4", "scale", 1)})`,
+                        borderRadius: `${getDebugValue("marking_4", "borderRadius", 50)}%`,
                         objectFit: "contain",
                       }}
                     />
@@ -1549,12 +1556,12 @@ export default function QuizPage() {
                       height={100}
                       className="absolute animate-pulse"
                       style={{
-                        top: `${debugMode ? debugValues.arm_upper_left.top : 17}%`,
-                        left: `${debugMode ? debugValues.arm_upper_left.left : 13}%`,
-                        width: `${debugMode ? debugValues.arm_upper_left.width : 4}%`,
-                        height: `${debugMode ? debugValues.arm_upper_left.height : 9}%`,
-                        transform: `translate(-50%, -50%) rotate(${debugMode ? debugValues.arm_upper_left.rotate : 17}deg) scale(${debugMode ? debugValues.arm_upper_left.scale : 1})`,
-                        borderRadius: `${debugMode ? debugValues.arm_upper_left.borderRadius : 50}%`,
+                        top: `${getDebugValue("marking_5", "top", 17)}%`,
+                        left: `${getDebugValue("marking_5", "left", 13)}%`,
+                        width: `${getDebugValue("marking_5", "width", 4)}%`,
+                        height: `${getDebugValue("marking_5", "height", 9)}%`,
+                        transform: `translate(-50%, -50%) rotate(${getDebugValue("marking_5", "rotate", 17)}deg) scale(${getDebugValue("marking_5", "scale", 1)})`,
+                        borderRadius: `${getDebugValue("marking_5", "borderRadius", 50)}%`,
                         objectFit: "contain",
                       }}
                     />
@@ -1565,12 +1572,12 @@ export default function QuizPage() {
                       height={100}
                       className="absolute animate-pulse"
                       style={{
-                        top: `${debugMode ? debugValues.arm_lower_left.top : 27}%`,
-                        left: `${debugMode ? debugValues.arm_lower_left.left : 10}%`,
-                        width: `${debugMode ? debugValues.arm_lower_left.width : 3}%`,
-                        height: `${debugMode ? debugValues.arm_lower_left.height : 9}%`,
-                        transform: `translate(-50%, -50%) rotate(${debugMode ? debugValues.arm_lower_left.rotate : 17}deg) scale(${debugMode ? debugValues.arm_lower_left.scale : 1})`,
-                        borderRadius: `${debugMode ? debugValues.arm_lower_left.borderRadius : 50}%`,
+                        top: `${getDebugValue("marking_6", "top", 27)}%`,
+                        left: `${getDebugValue("marking_6", "left", 10)}%`,
+                        width: `${getDebugValue("marking_6", "width", 3)}%`,
+                        height: `${getDebugValue("marking_6", "height", 9)}%`,
+                        transform: `translate(-50%, -50%) rotate(${getDebugValue("marking_6", "rotate", 17)}deg) scale(${getDebugValue("marking_6", "scale", 1)})`,
+                        borderRadius: `${getDebugValue("marking_6", "borderRadius", 50)}%`,
                         objectFit: "contain",
                       }}
                     />
@@ -1581,12 +1588,12 @@ export default function QuizPage() {
                       height={100}
                       className="absolute animate-pulse"
                       style={{
-                        top: `${debugMode ? debugValues.arm_upper_right.top : 17}%`,
-                        right: `${debugMode ? debugValues.arm_upper_right.right : 13}%`,
-                        width: `${debugMode ? debugValues.arm_upper_right.width : 4}%`,
-                        height: `${debugMode ? debugValues.arm_upper_right.height : 9}%`,
-                        transform: `translate(50%, -50%) rotate(${debugMode ? debugValues.arm_upper_right.rotate : -32}deg) scale(${debugMode ? debugValues.arm_upper_right.scale : 1})`,
-                        borderRadius: `${debugMode ? debugValues.arm_upper_right.borderRadius : 50}%`,
+                        top: `${getDebugValue("marking_7", "top", 17)}%`,
+                        right: `${getDebugValue("marking_7", "right", 13)}%`,
+                        width: `${getDebugValue("marking_7", "width", 4)}%`,
+                        height: `${getDebugValue("marking_7", "height", 9)}%`,
+                        transform: `translate(50%, -50%) rotate(${getDebugValue("marking_7", "rotate", -32)}deg) scale(${getDebugValue("marking_7", "scale", 1)})`,
+                        borderRadius: `${getDebugValue("marking_7", "borderRadius", 50)}%`,
                         objectFit: "contain",
                       }}
                     />
@@ -1597,12 +1604,12 @@ export default function QuizPage() {
                       height={100}
                       className="absolute animate-pulse"
                       style={{
-                        top: `${debugMode ? debugValues.arm_lower_right.top : 27}%`,
-                        right: `${debugMode ? debugValues.arm_lower_right.right : 10}%`,
-                        width: `${debugMode ? debugValues.arm_lower_right.width : 3}%`,
-                        height: `${debugMode ? debugValues.arm_lower_right.height : 9}%`,
-                        transform: `translate(50%, -50%) rotate(${debugMode ? debugValues.arm_lower_right.rotate : -32}deg) scale(${debugMode ? debugValues.arm_lower_right.scale : 1})`,
-                        borderRadius: `${debugMode ? debugValues.arm_lower_right.borderRadius : 50}%`,
+                        top: `${getDebugValue("marking_8", "top", 27)}%`,
+                        right: `${getDebugValue("marking_8", "right", 10)}%`,
+                        width: `${getDebugValue("marking_8", "width", 3)}%`,
+                        height: `${getDebugValue("marking_8", "height", 9)}%`,
+                        transform: `translate(50%, -50%) rotate(${getDebugValue("marking_8", "rotate", -32)}deg) scale(${getDebugValue("marking_8", "scale", 1)})`,
+                        borderRadius: `${getDebugValue("marking_8", "borderRadius", 50)}%`,
                         objectFit: "contain",
                       }}
                     />
@@ -1617,12 +1624,12 @@ export default function QuizPage() {
                     height={100}
                     className="absolute animate-pulse"
                     style={{
-                      top: `${debugMode ? debugValues.belly.top : 29}%`,
-                      left: `${debugMode ? debugValues.belly.left : 50}%`,
-                      width: `${debugMode ? debugValues.belly.width : 22}%`,
-                      height: `${debugMode ? debugValues.belly.height : 13}%`,
-                      transform: `translate(-50%, -50%) rotate(${debugMode ? debugValues.belly.rotate : 0}deg) scale(${debugMode ? debugValues.belly.scale : 1})`,
-                      borderRadius: `${debugMode ? debugValues.belly.borderRadius : 50}%`,
+                      top: `${getDebugValue("marking_9", "top", 29)}%`,
+                      left: `${getDebugValue("marking_9", "left", 50)}%`,
+                      width: `${getDebugValue("marking_9", "width", 22)}%`,
+                      height: `${getDebugValue("marking_9", "height", 13)}%`,
+                      transform: `translate(-50%, -50%) rotate(${getDebugValue("marking_9", "rotate", 0)}deg) scale(${getDebugValue("marking_9", "scale", 1)})`,
+                      borderRadius: `${getDebugValue("marking_9", "borderRadius", 50)}%`,
                       objectFit: "contain",
                     }}
                   />
@@ -1637,12 +1644,12 @@ export default function QuizPage() {
                       height={100}
                       className="absolute animate-pulse"
                       style={{
-                        top: `${debugMode ? debugValues.leg_upper_left.top : 45}%`,
-                        left: `${debugMode ? debugValues.leg_upper_left.left : 31}%`,
-                        width: `${debugMode ? debugValues.leg_upper_left.width : 8}%`,
-                        height: `${debugMode ? debugValues.leg_upper_left.height : 19}%`,
-                        transform: `translate(-50%, -50%) rotate(${debugMode ? debugValues.leg_upper_left.rotate : 7}deg) scale(${debugMode ? debugValues.leg_upper_left.scale : 1})`,
-                        borderRadius: `${debugMode ? debugValues.leg_upper_left.borderRadius : 50}%`,
+                        top: `${getDebugValue("marking_10", "top", 45)}%`,
+                        left: `${getDebugValue("marking_10", "left", 31)}%`,
+                        width: `${getDebugValue("marking_10", "width", 8)}%`,
+                        height: `${getDebugValue("marking_10", "height", 19)}%`,
+                        transform: `translate(-50%, -50%) rotate(${getDebugValue("marking_10", "rotate", 7)}deg) scale(${getDebugValue("marking_10", "scale", 1)})`,
+                        borderRadius: `${getDebugValue("marking_10", "borderRadius", 50)}%`,
                         objectFit: "contain",
                       }}
                     />
@@ -1653,12 +1660,12 @@ export default function QuizPage() {
                       height={100}
                       className="absolute animate-pulse"
                       style={{
-                        top: `${debugMode ? debugValues.leg_lower_left.top : 65}%`,
-                        left: `${debugMode ? debugValues.leg_lower_left.left : 33}%`,
-                        width: `${debugMode ? debugValues.leg_lower_left.width : 3}%`,
-                        height: `${debugMode ? debugValues.leg_lower_left.height : 7}%`,
-                        transform: `translate(-50%, -50%) rotate(${debugMode ? debugValues.leg_lower_left.rotate : 7}deg) scale(${debugMode ? debugValues.leg_lower_left.scale : 1})`,
-                        borderRadius: `${debugMode ? debugValues.leg_lower_left.borderRadius : 50}%`,
+                        top: `${getDebugValue("marking_11", "top", 45)}%`,
+                        left: `${getDebugValue("marking_11", "left", 31)}%`,
+                        width: `${getDebugValue("marking_11", "width", 8)}%`,
+                        height: `${getDebugValue("marking_11", "height", 19)}%`,
+                        transform: `translate(-50%, -50%) rotate(${getDebugValue("marking_11", "rotate", -18)}deg) scale(${getDebugValue("marking_11", "scale", 1)})`,
+                        borderRadius: `${getDebugValue("marking_11", "borderRadius", 50)}%`,
                         objectFit: "contain",
                       }}
                     />
@@ -1669,12 +1676,12 @@ export default function QuizPage() {
                       height={100}
                       className="absolute animate-pulse"
                       style={{
-                        top: `${debugMode ? debugValues.leg_upper_right.top : 45}%`,
-                        right: `${debugMode ? debugValues.leg_upper_right.right : 31}%`,
-                        width: `${debugMode ? debugValues.leg_upper_right.width : 8}%`,
-                        height: `${debugMode ? debugValues.leg_upper_right.height : 19}%`,
-                        transform: `translate(50%, -50%) rotate(${debugMode ? debugValues.leg_upper_right.rotate : -18}deg) scale(${debugMode ? debugValues.leg_upper_right.scale : 1})`,
-                        borderRadius: `${debugMode ? debugValues.leg_upper_right.borderRadius : 50}%`,
+                        top: `${getDebugValue("marking_11", "top", 45)}%`,
+                        right: `${getDebugValue("marking_11", "right", 31)}%`,
+                        width: `${getDebugValue("marking_11", "width", 8)}%`,
+                        height: `${getDebugValue("marking_11", "height", 19)}%`,
+                        transform: `translate(50%, -50%) rotate(${getDebugValue("marking_11", "rotate", -18)}deg) scale(${getDebugValue("marking_11", "scale", 1)})`,
+                        borderRadius: `${getDebugValue("marking_11", "borderRadius", 50)}%`,
                         objectFit: "contain",
                       }}
                     />
@@ -1685,12 +1692,12 @@ export default function QuizPage() {
                       height={100}
                       className="absolute animate-pulse"
                       style={{
-                        top: `${debugMode ? debugValues.leg_lower_right.top : 65}%`,
-                        right: `${debugMode ? debugValues.leg_lower_right.right : 33}%`,
-                        width: `${debugMode ? debugValues.leg_lower_right.width : 3}%`,
-                        height: `${debugMode ? debugValues.leg_lower_right.height : 7}%`,
-                        transform: `translate(50%, -50%) rotate(${debugMode ? debugValues.leg_lower_right.rotate : -18}deg) scale(${debugMode ? debugValues.leg_lower_right.scale : 1})`,
-                        borderRadius: `${debugMode ? debugValues.leg_lower_right.borderRadius : 50}%`,
+                        top: `${getDebugValue("marking_13", "top", 65)}%`,
+                        right: `${getDebugValue("marking_13", "right", 33)}%`,
+                        width: `${getDebugValue("marking_13", "width", 3)}%`,
+                        height: `${getDebugValue("marking_13", "height", 7)}%`,
+                        transform: `translate(50%, -50%) rotate(${getDebugValue("marking_13", "rotate", -18)}deg) scale(${getDebugValue("marking_13", "scale", 1)})`,
+                        borderRadius: `${getDebugValue("marking_13", "borderRadius", 50)}%`,
                         objectFit: "contain",
                       }}
                     />
