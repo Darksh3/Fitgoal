@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image" // Import Image component
+// import Image from "next/image" // Import Image component
 
 import { Button } from "@/components/ui/button"
 
@@ -134,7 +134,7 @@ const debugFrequencySelection = (frequency: number) => {
     const stored = localStorage.getItem("quizData")
     if (stored) {
       try {
-        const parsed = JSON.JSON.parse(stored)
+        const parsed = JSON.parse(stored)
         console.log(`[QUIZ] Stored frequency: ${parsed.trainingDaysPerWeek}`)
       } catch (error) {
         console.error("[QUIZ] localStorage parse error:", error)
@@ -175,31 +175,34 @@ export default function QuizPage() {
   const [totalSteps, setTotalSteps] = useState(24)
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false) // Add isSubmitting state
 
-  const [showReportPrompt, setShowReportPrompt] = useState(false)
-  const [showRegenerateDialog, setShowRegenerateDialog] = useState(false)
-  const [generatingWorkout, setGeneratingWorkout] = useState(false)
-
-  // State for debug values
-  const [debugValues, setDebugValues] = useState<any>({})
+  const [debugMode, setDebugMode] = useState(false)
+  const [debugValues, setDebugValues] = useState({
+    chest_left: { top: 19, left: 31, width: 14, height: 11, rotate: 0 },
+    chest_right: { top: 19, right: 31, width: 14, height: 11, rotate: 0 },
+    arm_upper_left: { top: 17, left: 13, width: 4, height: 9, rotate: 17 },
+    arm_lower_left: { top: 27, left: 10, width: 3, height: 9, rotate: 17 },
+    arm_upper_right: { top: 17, right: 13, width: 4, height: 9, rotate: -32 },
+    arm_lower_right: { top: 27, right: 10, width: 3, height: 9, rotate: -32 },
+    belly: { top: 29, left: 50, width: 22, height: 13, rotate: 0 },
+    leg_upper_left: { top: 45, left: 31, width: 8, height: 19, rotate: 7 },
+    leg_lower_left: { top: 65, left: 33, width: 3, height: 7, rotate: 7 },
+    leg_upper_right: { top: 45, right: 31, width: 8, height: 19, rotate: -18 },
+    leg_lower_right: { top: 65, right: 33, width: 3, height: 7, rotate: -18 },
+  })
 
   const updateDebugValue = (key: string, property: string, value: number) => {
-    setDebugValues((prev: any) => ({
+    setDebugValues((prev) => ({
       ...prev,
       [key]: { ...prev[key], [property]: value },
     }))
   }
 
   const copyDebugValues = () => {
-    navigator.clipboard.writeText(JSON.JSON.stringify(debugValues, null, 2))
+    navigator.clipboard.writeText(JSON.stringify(debugValues, null, 2))
     alert("Valores copiados para área de transferência!")
   }
-
-  const getDebugValue = (key: string, property: string, defaultValue: number) => {
-    return debugValues[key]?.[property] ?? defaultValue
-  }
-  // </CHANGE>
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -1329,8 +1332,16 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
+              <h2 className="text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
               <p className="text-gray-300">Selecione todos que se aplicam</p>
+              {quizData.gender === "mulher" && (
+                <button
+                  onClick={() => setDebugMode(!debugMode)}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm"
+                >
+                  {debugMode ? "Sair do Modo Debug" : "Ativar Modo Debug"}
+                </button>
+              )}
             </div>
             <div className="flex items-start justify-center space-x-8">
               <div className="relative w-64 h-auto bg-transparent">
@@ -1494,219 +1505,252 @@ export default function QuizPage() {
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Peito") && (
                   <>
-                    <Image
-                      src="/images/marking_3.svg"
-                      alt="chest left"
-                      width={100}
-                      height={100}
-                      className="absolute animate-pulse pointer-events-none z-20"
+                    <div
+                      className="absolute pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
                       style={{
-                        top: "19%",
-                        left: "31%",
-                        width: "14%",
-                        height: "11%",
-                        transform: "translate(-50%, -50%)",
-                        objectFit: "contain",
+                        top: `${debugValues.chest_left.top}%`,
+                        left: `${debugValues.chest_left.left}%`,
+                        width: `${debugValues.chest_left.width}%`,
+                        height: `${debugValues.chest_left.height}%`,
+                        borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
+                        transform: `rotate(${debugValues.chest_left.rotate}deg)`,
+                        boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
                       }}
-                    />
-                    <Image
-                      src="/images/marking_4.svg"
-                      alt="chest right"
-                      width={100}
-                      height={100}
-                      className="absolute animate-pulse pointer-events-none z-20"
+                    ></div>
+                    <div
+                      className="absolute pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
                       style={{
-                        top: "19%",
-                        right: "31%",
-                        width: "14%",
-                        height: "11%",
-                        transform: "translate(50%, -50%)",
-                        objectFit: "contain",
+                        top: `${debugValues.chest_right.top}%`,
+                        right: `${debugValues.chest_right.right}%`,
+                        width: `${debugValues.chest_right.width}%`,
+                        height: `${debugValues.chest_right.height}%`,
+                        borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
+                        transform: `rotate(${debugValues.chest_right.rotate}deg)`,
+                        boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
                       }}
-                    />
+                    ></div>
                   </>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Braços") && (
                   <>
-                    <Image
-                      src="/images/marking_1.svg"
-                      alt="left shoulder"
-                      width={80}
-                      height={80}
-                      className="absolute animate-pulse pointer-events-none z-20"
+                    <div
+                      className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
-                        top: "18%",
-                        left: "20%",
-                        width: "9%",
-                        height: "7%",
-                        transform: "translate(-50%, -50%) rotate(17deg)",
-                        objectFit: "contain",
+                        top: `${debugValues.arm_upper_left.top}%`,
+                        left: `${debugValues.arm_upper_left.left}%`,
+                        width: `${debugValues.arm_upper_left.width}%`,
+                        height: `${debugValues.arm_upper_left.height}%`,
+                        borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
+                        transform: `rotate(${debugValues.arm_upper_left.rotate}deg)`,
+                        boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
-                    />
-                    <Image
-                      src="/images/marking_2.svg"
-                      alt="right shoulder"
-                      width={80}
-                      height={80}
-                      className="absolute animate-pulse pointer-events-none z-20"
+                    ></div>
+                    <div
+                      className="absolute pointer-events-none z-20 bg-cyan-600/90"
                       style={{
-                        top: "18%",
-                        right: "20%",
-                        width: "9%",
-                        height: "7%",
-                        transform: "translate(50%, -50%) rotate(-17deg)",
-                        objectFit: "contain",
+                        top: `${debugValues.arm_lower_left.top}%`,
+                        left: `${debugValues.arm_lower_left.left}%`,
+                        width: `${debugValues.arm_lower_left.width}%`,
+                        height: `${debugValues.arm_lower_left.height}%`,
+                        borderRadius: "45% 55% 50% 50% / 60% 60% 40% 40%",
+                        transform: `rotate(${debugValues.arm_lower_left.rotate}deg)`,
+                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
                       }}
-                    />
-                    <Image
-                      src="/images/marking_5.svg"
-                      alt="left upper arm"
-                      width={60}
-                      height={80}
-                      className="absolute animate-pulse pointer-events-none z-20"
+                    ></div>
+                    <div
+                      className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
-                        top: "26%",
-                        left: "14%",
-                        width: "6%",
-                        height: "9%",
-                        transform: "translate(-50%, -50%) rotate(17deg)",
-                        objectFit: "contain",
+                        top: `${debugValues.arm_upper_right.top}%`,
+                        right: `${debugValues.arm_upper_right.right}%`,
+                        width: `${debugValues.arm_upper_right.width}%`,
+                        height: `${debugValues.arm_upper_right.height}%`,
+                        borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
+                        transform: `rotate(${debugValues.arm_upper_right.rotate}deg)`,
+                        boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
-                    />
-                    <Image
-                      src="/images/marking_6.svg"
-                      alt="right upper arm"
-                      width={60}
-                      height={80}
-                      className="absolute animate-pulse pointer-events-none z-20"
+                    ></div>
+                    <div
+                      className="absolute pointer-events-none z-20 bg-cyan-600/90"
                       style={{
-                        top: "26%",
-                        right: "14%",
-                        width: "6%",
-                        height: "9%",
-                        transform: "translate(50%, -50%) rotate(-32deg)",
-                        objectFit: "contain",
+                        top: `${debugValues.arm_lower_right.top}%`,
+                        right: `${debugValues.arm_lower_right.right}%`,
+                        width: `${debugValues.arm_lower_right.width}%`,
+                        height: `${debugValues.arm_lower_right.height}%`,
+                        borderRadius: "55% 45% 50% 50% / 60% 60% 40% 40%",
+                        transform: `rotate(${debugValues.arm_lower_right.rotate}deg)`,
+                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
                       }}
-                    />
-                    <Image
-                      src="/images/marking_7.svg"
-                      alt="left forearm"
-                      width={50}
-                      height={70}
-                      className="absolute pointer-events-none z-20"
-                      style={{
-                        top: "36%",
-                        left: "12%",
-                        width: "4%",
-                        height: "8%",
-                        transform: "translate(-50%, -50%) rotate(17deg)",
-                        objectFit: "contain",
-                      }}
-                    />
-                    <Image
-                      src="/images/marking_8.svg"
-                      alt="right forearm"
-                      width={50}
-                      height={70}
-                      className="absolute pointer-events-none z-20"
-                      style={{
-                        top: "36%",
-                        right: "12%",
-                        width: "4%",
-                        height: "8%",
-                        transform: "translate(50%, -50%) rotate(-32deg)",
-                        objectFit: "contain",
-                      }}
-                    />
+                    ></div>
                   </>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Barriga") && (
-                  <Image
-                    src="/images/marking_9.svg"
-                    alt="abdomen"
-                    width={120}
-                    height={80}
-                    className="absolute animate-pulse pointer-events-none z-20"
+                  <div
+                    className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                     style={{
-                      top: "35%",
-                      left: "50%",
-                      width: "22%",
-                      height: "13%",
-                      transform: "translate(-50%, -50%)",
-                      objectFit: "contain",
+                      top: `${debugValues.belly.top}%`,
+                      left: `${debugValues.belly.left}%`,
+                      transform: `translateX(-50%) rotate(${debugValues.belly.rotate}deg)`,
+                      width: `${debugValues.belly.width}%`,
+                      height: `${debugValues.belly.height}%`,
+                      borderRadius: "45% 55% 50% 50% / 40% 40% 60% 60%",
+                      boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.4)",
                     }}
-                  />
+                  ></div>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Pernas") && (
                   <>
-                    <Image
-                      src="/images/marking_10.svg"
-                      alt="left thigh"
-                      width={80}
-                      height={120}
-                      className="absolute animate-pulse pointer-events-none z-20"
+                    <div
+                      className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
-                        top: "53%",
-                        left: "35%",
-                        width: "8%",
-                        height: "19%",
-                        transform: "translate(-50%, -50%) rotate(7deg)",
-                        objectFit: "contain",
+                        top: `${debugValues.leg_upper_left.top}%`,
+                        left: `${debugValues.leg_upper_left.left}%`,
+                        width: `${debugValues.leg_upper_left.width}%`,
+                        height: `${debugValues.leg_upper_left.height}%`,
+                        borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
+                        transform: `rotate(${debugValues.leg_upper_left.rotate}deg)`,
+                        boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                       }}
-                    />
-                    <Image
-                      src="/images/marking_11.svg"
-                      alt="right thigh"
-                      width={80}
-                      height={120}
-                      className="absolute animate-pulse pointer-events-none z-20"
+                    ></div>
+                    <div
+                      className="absolute pointer-events-none z-20 bg-cyan-600/90"
                       style={{
-                        top: "53%",
-                        right: "35%",
-                        width: "8%",
-                        height: "19%",
-                        transform: "translate(50%, -50%) rotate(-18deg)",
-                        objectFit: "contain",
+                        top: `${debugValues.leg_lower_left.top}%`,
+                        left: `${debugValues.leg_lower_left.left}%`,
+                        width: `${debugValues.leg_lower_left.width}%`,
+                        height: `${debugValues.leg_lower_left.height}%`,
+                        borderRadius: "50% 50% 45% 55% / 65% 65% 35% 35%",
+                        transform: `rotate(${debugValues.leg_lower_left.rotate}deg)`,
+                        boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
-                    />
-                    <Image
-                      src="/images/marking_13.svg"
-                      alt="left calf"
-                      width={40}
-                      height={80}
-                      className="absolute pointer-events-none z-20"
+                    ></div>
+                    <div
+                      className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
-                        top: "74%",
-                        left: "37%",
-                        width: "3%",
-                        height: "7%",
-                        transform: "translate(-50%, -50%) rotate(7deg)",
-                        objectFit: "contain",
+                        top: `${debugValues.leg_upper_right.top}%`,
+                        right: `${debugValues.leg_upper_right.right}%`,
+                        width: `${debugValues.leg_upper_right.width}%`,
+                        height: `${debugValues.leg_upper_right.height}%`,
+                        borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
+                        transform: `rotate(${debugValues.leg_upper_right.rotate}deg)`,
+                        boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                       }}
-                    />
-                    <Image
-                      src="/images/marking_14.svg"
-                      alt="right calf"
-                      width={40}
-                      height={80}
-                      className="absolute pointer-events-none z-20"
+                    ></div>
+                    <div
+                      className="absolute pointer-events-none z-20 bg-cyan-600/90"
                       style={{
-                        top: "74%",
-                        right: "37%",
-                        width: "3%",
-                        height: "7%",
-                        transform: "translate(50%, -50%) rotate(-18deg)",
-                        objectFit: "contain",
+                        top: `${debugValues.leg_lower_right.top}%`,
+                        right: `${debugValues.leg_lower_right.right}%`,
+                        width: `${debugValues.leg_lower_right.width}%`,
+                        height: `${debugValues.leg_lower_right.height}%`,
+                        borderRadius: "50% 50% 60% 40% / 65% 65% 35% 35%",
+                        transform: `rotate(${debugValues.leg_lower_right.rotate}deg)`,
+                        boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                       }}
-                    />
+                    ></div>
                   </>
                 )}
               </div>
 
-              {/* Removed debug mode rendering */}
+              {debugMode && quizData.gender === "mulher" && (
+                <div className="w-96 max-h-[600px] overflow-y-auto bg-gray-900/95 rounded-lg p-4 space-y-4 border border-purple-500">
+                  <div className="flex justify-between items-center sticky top-0 bg-gray-900 pb-2 border-b border-purple-500">
+                    <h3 className="text-lg font-bold text-white">Ajustar Marcações</h3>
+                    <button
+                      onClick={copyDebugValues}
+                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm"
+                    >
+                      Copiar Valores
+                    </button>
+                  </div>
+
+                  {Object.entries(debugValues).map(([key, values]) => (
+                    <div key={key} className="space-y-2 border-b border-gray-700 pb-3">
+                      <h4 className="text-sm font-semibold text-purple-300">{key.replace(/_/g, " ").toUpperCase()}</h4>
+
+                      <div className="space-y-1">
+                        <label className="text-xs text-gray-400 flex justify-between">
+                          <span>Top: {values.top}%</span>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={values.top}
+                            onChange={(e) => updateDebugValue(key, "top", Number(e.target.value))}
+                            className="w-48"
+                          />
+                        </label>
+
+                        {"left" in values && (
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Left: {values.left}%</span>
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={values.left}
+                              onChange={(e) => updateDebugValue(key, "left", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+                        )}
+
+                        {"right" in values && (
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Right: {values.right}%</span>
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={values.right}
+                              onChange={(e) => updateDebugValue(key, "right", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+                        )}
+
+                        <label className="text-xs text-gray-400 flex justify-between">
+                          <span>Width: {values.width}%</span>
+                          <input
+                            type="range"
+                            min="1"
+                            max="50"
+                            value={values.width}
+                            onChange={(e) => updateDebugValue(key, "width", Number(e.target.value))}
+                            className="w-48"
+                          />
+                        </label>
+
+                        <label className="text-xs text-gray-400 flex justify-between">
+                          <span>Height: {values.height}%</span>
+                          <input
+                            type="range"
+                            min="1"
+                            max="50"
+                            value={values.height}
+                            onChange={(e) => updateDebugValue(key, "height", Number(e.target.value))}
+                            className="w-48"
+                          />
+                        </label>
+
+                        <label className="text-xs text-gray-400 flex justify-between">
+                          <span>Rotate: {values.rotate}°</span>
+                          <input
+                            type="range"
+                            min="-90"
+                            max="90"
+                            value={values.rotate}
+                            onChange={(e) => updateDebugValue(key, "rotate", Number(e.target.value))}
+                            className="w-48"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <div className="flex flex-col space-y-4 max-w-md">
                 {["Peito", "Braços", "Barriga", "Pernas", "Corpo inteiro"].map((area) => (
@@ -2397,7 +2441,7 @@ export default function QuizPage() {
               disabled={isSubmitting}
               className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl font-bold rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
             >
-              <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+              <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 disabled:hover:scale-100 disabled:shadow-none">
                 <span className="relative z-10 flex items-center gap-3">
                   {isSubmitting ? (
                     <>
