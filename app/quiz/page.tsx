@@ -1328,24 +1328,22 @@ export default function QuizPage() {
                   <>
                     {/* Peitoral esquerdo */}
                     <div
-                      className="absolute top-[18%] left-[34%] w-[13%] h-[9%] pointer-events-none z-20"
-                      style={{ transform: "rotate(-3deg)" }}
-                    >
-                      <div
-                        className="absolute inset-0 bg-gradient-radial from-cyan-500/90 via-cyan-500/60 to-cyan-500/20 blur-md animate-pulse"
-                        style={{ borderRadius: "50% 50% 40% 60% / 60% 40% 60% 40%" }}
-                      ></div>
-                    </div>
+                      className="absolute top-[19%] left-[36%] w-[11%] h-[8%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "50% 50% 45% 55% / 60% 40% 60% 40%",
+                        transform: "rotate(-5deg)",
+                        boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Peitoral direito */}
                     <div
-                      className="absolute top-[18%] right-[34%] w-[13%] h-[9%] pointer-events-none z-20"
-                      style={{ transform: "rotate(3deg)" }}
-                    >
-                      <div
-                        className="absolute inset-0 bg-gradient-radial from-cyan-500/90 via-cyan-500/60 to-cyan-500/20 blur-md animate-pulse"
-                        style={{ borderRadius: "50% 50% 60% 40% / 60% 40% 40% 60%" }}
-                      ></div>
-                    </div>
+                      className="absolute top-[19%] right-[36%] w-[11%] h-[8%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "50% 50% 55% 45% / 60% 40% 40% 60%",
+                        transform: "rotate(5deg)",
+                        boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                   </>
                 )}
 
@@ -1353,124 +1351,130 @@ export default function QuizPage() {
                   <>
                     {/* Braço esquerdo - bíceps */}
                     <div
-                      className="absolute top-[20%] left-[13%] w-[10%] h-[12%] pointer-events-none z-20"
-                      style={{ transform: "rotate(-8deg)" }}
-                    >
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/85 via-cyan-500/60 to-cyan-500/25 blur-sm animate-pulse"
-                        style={{ borderRadius: "45% 55% 50% 50% / 50% 50% 45% 55%" }}
-                      ></div>
-                    </div>
+                      className="absolute top-[22%] left-[16%] w-[8%] h-[10%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "45% 55% 50% 50% / 50% 50% 45% 55%",
+                        transform: "rotate(-10deg)",
+                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Braço esquerdo - antebraço */}
                     <div
-                      className="absolute top-[33%] left-[11%] w-[9%] h-[15%] pointer-events-none z-20"
-                      style={{ transform: "rotate(-5deg)" }}
-                    >
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/70 via-cyan-500/45 to-cyan-500/15 blur-sm"
-                        style={{ borderRadius: "40% 60% 50% 50% / 60% 40% 50% 50%" }}
-                      ></div>
-                    </div>
+                      className="absolute top-[33%] left-[14%] w-[7%] h-[12%] pointer-events-none z-20 bg-cyan-600/90"
+                      style={{
+                        borderRadius: "40% 60% 50% 50% / 60% 40% 50% 50%",
+                        transform: "rotate(-8deg)",
+                        boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Braço direito - bíceps */}
                     <div
-                      className="absolute top-[20%] right-[13%] w-[10%] h-[12%] pointer-events-none z-20"
-                      style={{ transform: "rotate(8deg)" }}
-                    >
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/85 via-cyan-500/60 to-cyan-500/25 blur-sm animate-pulse"
-                        style={{ borderRadius: "55% 45% 50% 50% / 50% 50% 55% 45%" }}
-                      ></div>
-                    </div>
+                      className="absolute top-[22%] right-[16%] w-[8%] h-[10%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "55% 45% 50% 50% / 50% 50% 55% 45%",
+                        transform: "rotate(10deg)",
+                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Braço direito - antebraço */}
                     <div
-                      className="absolute top-[33%] right-[11%] w-[9%] h-[15%] pointer-events-none z-20"
-                      style={{ transform: "rotate(5deg)" }}
-                    >
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/70 via-cyan-500/45 to-cyan-500/15 blur-sm"
-                        style={{ borderRadius: "60% 40% 50% 50% / 40% 60% 50% 50%" }}
-                      ></div>
-                    </div>
+                      className="absolute top-[33%] right-[14%] w-[7%] h-[12%] pointer-events-none z-20 bg-cyan-600/90"
+                      style={{
+                        borderRadius: "60% 40% 50% 50% / 40% 60% 50% 50%",
+                        transform: "rotate(8deg)",
+                        boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                   </>
                 )}
 
                 {quizData.gender !== "mulher" && quizData.problemAreas.includes("Barriga") && (
                   <>
                     {/* Abdômen superior esquerdo */}
-                    <div className="absolute top-[28%] left-[37%] w-[9%] h-[5%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-cyan-500/90 blur-sm animate-pulse"
-                        style={{ borderRadius: "45% 55% 40% 60%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[29%] left-[38%] w-[8%] h-[4.5%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "45% 55% 40% 60%",
+                        boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Abdômen superior direito */}
-                    <div className="absolute top-[28%] right-[37%] w-[9%] h-[5%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-cyan-500/90 blur-sm animate-pulse"
-                        style={{ borderRadius: "55% 45% 60% 40%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[29%] right-[38%] w-[8%] h-[4.5%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "55% 45% 60% 40%",
+                        boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Abdômen médio esquerdo */}
-                    <div className="absolute top-[34%] left-[37%] w-[9%] h-[5%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-cyan-500/90 blur-sm animate-pulse"
-                        style={{ borderRadius: "40% 60% 45% 55%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[34%] left-[38%] w-[8%] h-[4.5%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "40% 60% 45% 55%",
+                        boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Abdômen médio direito */}
-                    <div className="absolute top-[34%] right-[37%] w-[9%] h-[5%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-cyan-500/90 blur-sm animate-pulse"
-                        style={{ borderRadius: "60% 40% 55% 45%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[34%] right-[38%] w-[8%] h-[4.5%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "60% 40% 55% 45%",
+                        boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Abdômen inferior esquerdo */}
-                    <div className="absolute top-[40%] left-[38%] w-[8%] h-[4%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-cyan-500/90 blur-sm animate-pulse"
-                        style={{ borderRadius: "45% 55% 50% 50%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[39%] left-[39%] w-[7%] h-[4%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "45% 55% 50% 50%",
+                        boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Abdômen inferior direito */}
-                    <div className="absolute top-[40%] right-[38%] w-[8%] h-[4%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-cyan-500/90 blur-sm animate-pulse"
-                        style={{ borderRadius: "55% 45% 50% 50%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[39%] right-[39%] w-[7%] h-[4%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "55% 45% 50% 50%",
+                        boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                   </>
                 )}
 
                 {quizData.gender !== "mulher" && quizData.problemAreas.includes("Pernas") && (
                   <>
                     {/* Coxa esquerda - quadríceps */}
-                    <div className="absolute top-[49%] left-[30%] w-[12%] h-[18%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/85 via-cyan-500/60 to-cyan-500/30 blur-md animate-pulse"
-                        style={{ borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[50%] left-[32%] w-[10%] h-[15%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
+                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Panturrilha esquerda */}
-                    <div className="absolute top-[69%] left-[31%] w-[9%] h-[13%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/75 via-cyan-500/50 to-cyan-500/10 blur-sm"
-                        style={{ borderRadius: "50% 50% 40% 60% / 60% 60% 50% 50%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[68%] left-[33%] w-[8%] h-[11%] pointer-events-none z-20 bg-cyan-600/90"
+                      style={{
+                        borderRadius: "50% 50% 40% 60% / 60% 60% 50% 50%",
+                        boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Coxa direita - quadríceps */}
-                    <div className="absolute top-[49%] right-[30%] w-[12%] h-[18%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/85 via-cyan-500/60 to-cyan-500/30 blur-md animate-pulse"
-                        style={{ borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[50%] right-[32%] w-[10%] h-[15%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
+                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Panturrilha direita */}
-                    <div className="absolute top-[69%] right-[31%] w-[9%] h-[13%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/75 via-cyan-500/50 to-cyan-500/10 blur-sm"
-                        style={{ borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[68%] right-[33%] w-[8%] h-[11%] pointer-events-none z-20 bg-cyan-600/90"
+                      style={{
+                        borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
+                        boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                   </>
                 )}
 
@@ -1478,19 +1482,21 @@ export default function QuizPage() {
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Peito") && (
                   <>
                     {/* Peito esquerdo */}
-                    <div className="absolute top-[19%] left-[35%] w-[12%] h-[7%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-gradient-radial from-cyan-500/90 via-cyan-500/55 to-cyan-500/15 blur-md animate-pulse"
-                        style={{ borderRadius: "50%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[20%] left-[36%] w-[10%] h-[7%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "50%",
+                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Peito direito */}
-                    <div className="absolute top-[19%] right-[35%] w-[12%] h-[7%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-gradient-radial from-cyan-500/90 via-cyan-500/55 to-cyan-500/15 blur-md animate-pulse"
-                        style={{ borderRadius: "50%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[20%] right-[36%] w-[10%] h-[7%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "50%",
+                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                   </>
                 )}
 
@@ -1498,86 +1504,87 @@ export default function QuizPage() {
                   <>
                     {/* Braço esquerdo superior */}
                     <div
-                      className="absolute top-[21%] left-[15%] w-[9%] h-[12%] pointer-events-none z-20"
-                      style={{ transform: "rotate(-8deg)" }}
-                    >
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/85 via-cyan-500/55 to-cyan-500/20 blur-sm animate-pulse"
-                        style={{ borderRadius: "45% 55% 50% 50%" }}
-                      ></div>
-                    </div>
+                      className="absolute top-[23%] left-[17%] w-[8%] h-[10%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "45% 55% 50% 50%",
+                        transform: "rotate(-10deg)",
+                        boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Braço esquerdo inferior */}
                     <div
-                      className="absolute top-[34%] left-[13%] w-[7%] h-[14%] pointer-events-none z-20"
-                      style={{ transform: "rotate(-3deg)" }}
-                    >
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/70 via-cyan-500/40 to-cyan-500/10 blur-sm"
-                        style={{ borderRadius: "40% 60% 50% 50%" }}
-                      ></div>
-                    </div>
+                      className="absolute top-[34%] left-[15%] w-[6%] h-[12%] pointer-events-none z-20 bg-cyan-600/90"
+                      style={{
+                        borderRadius: "40% 60% 50% 50%",
+                        transform: "rotate(-5deg)",
+                        boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Braço direito superior */}
                     <div
-                      className="absolute top-[21%] right-[15%] w-[9%] h-[12%] pointer-events-none z-20"
-                      style={{ transform: "rotate(8deg)" }}
-                    >
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/85 via-cyan-500/55 to-cyan-500/20 blur-sm animate-pulse"
-                        style={{ borderRadius: "55% 45% 50% 50%" }}
-                      ></div>
-                    </div>
+                      className="absolute top-[23%] right-[17%] w-[8%] h-[10%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "55% 45% 50% 50%",
+                        transform: "rotate(10deg)",
+                        boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Braço direito inferior */}
                     <div
-                      className="absolute top-[34%] right-[13%] w-[7%] h-[14%] pointer-events-none z-20"
-                      style={{ transform: "rotate(3deg)" }}
-                    >
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/70 via-cyan-500/40 to-cyan-500/10 blur-sm"
-                        style={{ borderRadius: "60% 40% 50% 50%" }}
-                      ></div>
-                    </div>
+                      className="absolute top-[34%] right-[15%] w-[6%] h-[12%] pointer-events-none z-20 bg-cyan-600/90"
+                      style={{
+                        borderRadius: "60% 40% 50% 50%",
+                        transform: "rotate(5deg)",
+                        boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                   </>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Barriga") && (
-                  <div className="absolute top-[31%] left-1/2 -translate-x-1/2 w-[32%] h-[14%] pointer-events-none z-20">
-                    <div
-                      className="absolute inset-0 bg-gradient-radial from-cyan-500/90 via-cyan-500/55 to-cyan-500/15 blur-lg animate-pulse"
-                      style={{ borderRadius: "45% 55% 50% 50% / 50% 50% 55% 45%" }}
-                    ></div>
-                  </div>
+                  <div
+                    className="absolute top-[32%] left-1/2 -translate-x-1/2 w-[28%] h-[12%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                    style={{
+                      borderRadius: "45% 55% 50% 50% / 50% 50% 55% 45%",
+                      boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
+                    }}
+                  ></div>
                 )}
 
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Pernas") && (
                   <>
                     {/* Coxa esquerda */}
-                    <div className="absolute top-[48%] left-[32%] w-[11%] h-[17%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/85 via-cyan-500/55 to-cyan-500/25 blur-md animate-pulse"
-                        style={{ borderRadius: "50% 50% 45% 55%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[49%] left-[33%] w-[10%] h-[15%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "50% 50% 45% 55%",
+                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Panturrilha esquerda */}
-                    <div className="absolute top-[67%] left-[33%] w-[8%] h-[12%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/75 via-cyan-500/45 to-cyan-500/10 blur-sm"
-                        style={{ borderRadius: "50% 50% 45% 55%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[66%] left-[34%] w-[7%] h-[10%] pointer-events-none z-20 bg-cyan-600/90"
+                      style={{
+                        borderRadius: "50% 50% 45% 55%",
+                        boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Coxa direita */}
-                    <div className="absolute top-[48%] right-[32%] w-[11%] h-[17%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/85 via-cyan-500/55 to-cyan-500/25 blur-md animate-pulse"
-                        style={{ borderRadius: "50% 50% 55% 45%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[49%] right-[33%] w-[10%] h-[15%] pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        borderRadius: "50% 50% 55% 45%",
+                        boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                     {/* Panturrilha direita */}
-                    <div className="absolute top-[67%] right-[33%] w-[8%] h-[12%] pointer-events-none z-20">
-                      <div
-                        className="absolute inset-0 bg-gradient-to-b from-cyan-500/75 via-cyan-500/45 to-cyan-500/10 blur-sm"
-                        style={{ borderRadius: "50% 50% 55% 45%" }}
-                      ></div>
-                    </div>
+                    <div
+                      className="absolute top-[66%] right-[34%] w-[7%] h-[10%] pointer-events-none z-20 bg-cyan-600/90"
+                      style={{
+                        borderRadius: "50% 50% 55% 45%",
+                        boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                      }}
+                    ></div>
                   </>
                 )}
               </div>
