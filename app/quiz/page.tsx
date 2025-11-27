@@ -134,7 +134,7 @@ const debugFrequencySelection = (frequency: number) => {
     const stored = localStorage.getItem("quizData")
     if (stored) {
       try {
-        const parsed = JSON.parse(stored)
+        const parsed = JSON.JSON.parse(stored)
         console.log(`[QUIZ] Stored frequency: ${parsed.trainingDaysPerWeek}`)
       } catch (error) {
         console.error("[QUIZ] localStorage parse error:", error)
@@ -177,22 +177,12 @@ export default function QuizPage() {
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const [debugMode, setDebugMode] = useState(false)
-  const [debugValues, setDebugValues] = useState<any>({
-    marking_1: { top: 14, left: 18, width: 8, height: 6, rotate: 17, borderRadius: 50, scale: 1 },
-    marking_2: { top: 14, right: 18, width: 8, height: 6, rotate: -32, borderRadius: 50, scale: 1 },
-    marking_3: { top: 19, left: 31, width: 14, height: 11, rotate: 0, borderRadius: 50, scale: 1 },
-    marking_4: { top: 19, right: 31, width: 14, height: 11, rotate: 0, borderRadius: 50, scale: 1 },
-    marking_5: { top: 17, left: 13, width: 4, height: 9, rotate: 17, borderRadius: 50, scale: 1 },
-    marking_6: { top: 27, left: 10, width: 3, height: 9, rotate: 17, borderRadius: 50, scale: 1 },
-    marking_7: { top: 17, right: 13, width: 4, height: 9, rotate: -32, borderRadius: 50, scale: 1 },
-    marking_8: { top: 27, right: 10, width: 3, height: 9, rotate: -32, borderRadius: 50, scale: 1 },
-    marking_9: { top: 29, left: 50, width: 22, height: 13, rotate: 0, borderRadius: 50, scale: 1 },
-    marking_10: { top: 45, left: 31, width: 8, height: 19, rotate: 7, borderRadius: 50, scale: 1 },
-    marking_11: { top: 45, right: 31, width: 8, height: 19, rotate: -18, borderRadius: 50, scale: 1 },
-    marking_13: { top: 65, left: 33, width: 3, height: 7, rotate: 7, borderRadius: 50, scale: 1 },
-    marking_14: { top: 65, right: 33, width: 3, height: 7, rotate: -18, borderRadius: 50, scale: 1 },
-  })
+  const [showReportPrompt, setShowReportPrompt] = useState(false)
+  const [showRegenerateDialog, setShowRegenerateDialog] = useState(false)
+  const [generatingWorkout, setGeneratingWorkout] = useState(false)
+
+  // State for debug values
+  const [debugValues, setDebugValues] = useState<any>({})
 
   const updateDebugValue = (key: string, property: string, value: number) => {
     setDebugValues((prev: any) => ({
@@ -202,7 +192,7 @@ export default function QuizPage() {
   }
 
   const copyDebugValues = () => {
-    navigator.clipboard.writeText(JSON.stringify(debugValues, null, 2))
+    navigator.clipboard.writeText(JSON.JSON.stringify(debugValues, null, 2))
     alert("Valores copiados para área de transferência!")
   }
 
@@ -1341,14 +1331,6 @@ export default function QuizPage() {
             <div className="text-center space-y-4">
               <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
               <p className="text-gray-300">Selecione todos que se aplicam</p>
-              {quizData.gender === "mulher" && (
-                <button
-                  onClick={() => setDebugMode(!debugMode)}
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm"
-                >
-                  {debugMode ? "Sair do Modo Debug" : "Ativar Modo Debug"}
-                </button>
-              )}
             </div>
             <div className="flex items-start justify-center space-x-8">
               <div className="relative w-64 h-auto bg-transparent">
@@ -1517,14 +1499,13 @@ export default function QuizPage() {
                       alt="chest left"
                       width={100}
                       height={100}
-                      className="absolute animate-pulse"
+                      className="absolute animate-pulse pointer-events-none z-20"
                       style={{
-                        top: `${getDebugValue("marking_3", "top", 19)}%`,
-                        left: `${getDebugValue("marking_3", "left", 31)}%`,
-                        width: `${getDebugValue("marking_3", "width", 14)}%`,
-                        height: `${getDebugValue("marking_3", "height", 11)}%`,
-                        transform: `translate(-50%, -50%) rotate(${getDebugValue("marking_3", "rotate", 0)}deg) scale(${getDebugValue("marking_3", "scale", 1)})`,
-                        borderRadius: `${getDebugValue("marking_3", "borderRadius", 50)}%`,
+                        top: "19%",
+                        left: "31%",
+                        width: "14%",
+                        height: "11%",
+                        transform: "translate(-50%, -50%)",
                         objectFit: "contain",
                       }}
                     />
@@ -1533,14 +1514,13 @@ export default function QuizPage() {
                       alt="chest right"
                       width={100}
                       height={100}
-                      className="absolute animate-pulse"
+                      className="absolute animate-pulse pointer-events-none z-20"
                       style={{
-                        top: `${getDebugValue("marking_4", "top", 19)}%`,
-                        right: `${getDebugValue("marking_4", "right", 31)}%`,
-                        width: `${getDebugValue("marking_4", "width", 14)}%`,
-                        height: `${getDebugValue("marking_4", "height", 11)}%`,
-                        transform: `translate(50%, -50%) rotate(${getDebugValue("marking_4", "rotate", 0)}deg) scale(${getDebugValue("marking_4", "scale", 1)})`,
-                        borderRadius: `${getDebugValue("marking_4", "borderRadius", 50)}%`,
+                        top: "19%",
+                        right: "31%",
+                        width: "14%",
+                        height: "11%",
+                        transform: "translate(50%, -50%)",
                         objectFit: "contain",
                       }}
                     />
@@ -1550,66 +1530,92 @@ export default function QuizPage() {
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Braços") && (
                   <>
                     <Image
-                      src="/images/marking_5.svg"
-                      alt="arm upper left"
-                      width={100}
-                      height={100}
-                      className="absolute animate-pulse"
+                      src="/images/marking_1.svg"
+                      alt="left shoulder"
+                      width={80}
+                      height={80}
+                      className="absolute animate-pulse pointer-events-none z-20"
                       style={{
-                        top: `${getDebugValue("marking_5", "top", 17)}%`,
-                        left: `${getDebugValue("marking_5", "left", 13)}%`,
-                        width: `${getDebugValue("marking_5", "width", 4)}%`,
-                        height: `${getDebugValue("marking_5", "height", 9)}%`,
-                        transform: `translate(-50%, -50%) rotate(${getDebugValue("marking_5", "rotate", 17)}deg) scale(${getDebugValue("marking_5", "scale", 1)})`,
-                        borderRadius: `${getDebugValue("marking_5", "borderRadius", 50)}%`,
+                        top: "18%",
+                        left: "20%",
+                        width: "9%",
+                        height: "7%",
+                        transform: "translate(-50%, -50%) rotate(17deg)",
+                        objectFit: "contain",
+                      }}
+                    />
+                    <Image
+                      src="/images/marking_2.svg"
+                      alt="right shoulder"
+                      width={80}
+                      height={80}
+                      className="absolute animate-pulse pointer-events-none z-20"
+                      style={{
+                        top: "18%",
+                        right: "20%",
+                        width: "9%",
+                        height: "7%",
+                        transform: "translate(50%, -50%) rotate(-17deg)",
+                        objectFit: "contain",
+                      }}
+                    />
+                    <Image
+                      src="/images/marking_5.svg"
+                      alt="left upper arm"
+                      width={60}
+                      height={80}
+                      className="absolute animate-pulse pointer-events-none z-20"
+                      style={{
+                        top: "26%",
+                        left: "14%",
+                        width: "6%",
+                        height: "9%",
+                        transform: "translate(-50%, -50%) rotate(17deg)",
                         objectFit: "contain",
                       }}
                     />
                     <Image
                       src="/images/marking_6.svg"
-                      alt="arm lower left"
-                      width={100}
-                      height={100}
-                      className="absolute animate-pulse"
+                      alt="right upper arm"
+                      width={60}
+                      height={80}
+                      className="absolute animate-pulse pointer-events-none z-20"
                       style={{
-                        top: `${getDebugValue("marking_6", "top", 27)}%`,
-                        left: `${getDebugValue("marking_6", "left", 10)}%`,
-                        width: `${getDebugValue("marking_6", "width", 3)}%`,
-                        height: `${getDebugValue("marking_6", "height", 9)}%`,
-                        transform: `translate(-50%, -50%) rotate(${getDebugValue("marking_6", "rotate", 17)}deg) scale(${getDebugValue("marking_6", "scale", 1)})`,
-                        borderRadius: `${getDebugValue("marking_6", "borderRadius", 50)}%`,
+                        top: "26%",
+                        right: "14%",
+                        width: "6%",
+                        height: "9%",
+                        transform: "translate(50%, -50%) rotate(-32deg)",
                         objectFit: "contain",
                       }}
                     />
                     <Image
                       src="/images/marking_7.svg"
-                      alt="arm upper right"
-                      width={100}
-                      height={100}
-                      className="absolute animate-pulse"
+                      alt="left forearm"
+                      width={50}
+                      height={70}
+                      className="absolute pointer-events-none z-20"
                       style={{
-                        top: `${getDebugValue("marking_7", "top", 17)}%`,
-                        right: `${getDebugValue("marking_7", "right", 13)}%`,
-                        width: `${getDebugValue("marking_7", "width", 4)}%`,
-                        height: `${getDebugValue("marking_7", "height", 9)}%`,
-                        transform: `translate(50%, -50%) rotate(${getDebugValue("marking_7", "rotate", -32)}deg) scale(${getDebugValue("marking_7", "scale", 1)})`,
-                        borderRadius: `${getDebugValue("marking_7", "borderRadius", 50)}%`,
+                        top: "36%",
+                        left: "12%",
+                        width: "4%",
+                        height: "8%",
+                        transform: "translate(-50%, -50%) rotate(17deg)",
                         objectFit: "contain",
                       }}
                     />
                     <Image
                       src="/images/marking_8.svg"
-                      alt="arm lower right"
-                      width={100}
-                      height={100}
-                      className="absolute animate-pulse"
+                      alt="right forearm"
+                      width={50}
+                      height={70}
+                      className="absolute pointer-events-none z-20"
                       style={{
-                        top: `${getDebugValue("marking_8", "top", 27)}%`,
-                        right: `${getDebugValue("marking_8", "right", 10)}%`,
-                        width: `${getDebugValue("marking_8", "width", 3)}%`,
-                        height: `${getDebugValue("marking_8", "height", 9)}%`,
-                        transform: `translate(50%, -50%) rotate(${getDebugValue("marking_8", "rotate", -32)}deg) scale(${getDebugValue("marking_8", "scale", 1)})`,
-                        borderRadius: `${getDebugValue("marking_8", "borderRadius", 50)}%`,
+                        top: "36%",
+                        right: "12%",
+                        width: "4%",
+                        height: "8%",
+                        transform: "translate(50%, -50%) rotate(-32deg)",
                         objectFit: "contain",
                       }}
                     />
@@ -1619,17 +1625,16 @@ export default function QuizPage() {
                 {quizData.gender === "mulher" && quizData.problemAreas.includes("Barriga") && (
                   <Image
                     src="/images/marking_9.svg"
-                    alt="belly"
-                    width={100}
-                    height={100}
-                    className="absolute animate-pulse"
+                    alt="abdomen"
+                    width={120}
+                    height={80}
+                    className="absolute animate-pulse pointer-events-none z-20"
                     style={{
-                      top: `${getDebugValue("marking_9", "top", 29)}%`,
-                      left: `${getDebugValue("marking_9", "left", 50)}%`,
-                      width: `${getDebugValue("marking_9", "width", 22)}%`,
-                      height: `${getDebugValue("marking_9", "height", 13)}%`,
-                      transform: `translate(-50%, -50%) rotate(${getDebugValue("marking_9", "rotate", 0)}deg) scale(${getDebugValue("marking_9", "scale", 1)})`,
-                      borderRadius: `${getDebugValue("marking_9", "borderRadius", 50)}%`,
+                      top: "35%",
+                      left: "50%",
+                      width: "22%",
+                      height: "13%",
+                      transform: "translate(-50%, -50%)",
                       objectFit: "contain",
                     }}
                   />
@@ -1639,65 +1644,61 @@ export default function QuizPage() {
                   <>
                     <Image
                       src="/images/marking_10.svg"
-                      alt="leg upper left"
-                      width={100}
-                      height={100}
-                      className="absolute animate-pulse"
+                      alt="left thigh"
+                      width={80}
+                      height={120}
+                      className="absolute animate-pulse pointer-events-none z-20"
                       style={{
-                        top: `${getDebugValue("marking_10", "top", 45)}%`,
-                        left: `${getDebugValue("marking_10", "left", 31)}%`,
-                        width: `${getDebugValue("marking_10", "width", 8)}%`,
-                        height: `${getDebugValue("marking_10", "height", 19)}%`,
-                        transform: `translate(-50%, -50%) rotate(${getDebugValue("marking_10", "rotate", 7)}deg) scale(${getDebugValue("marking_10", "scale", 1)})`,
-                        borderRadius: `${getDebugValue("marking_10", "borderRadius", 50)}%`,
+                        top: "53%",
+                        left: "35%",
+                        width: "8%",
+                        height: "19%",
+                        transform: "translate(-50%, -50%) rotate(7deg)",
                         objectFit: "contain",
                       }}
                     />
                     <Image
                       src="/images/marking_11.svg"
-                      alt="leg lower left"
-                      width={100}
-                      height={100}
-                      className="absolute animate-pulse"
+                      alt="right thigh"
+                      width={80}
+                      height={120}
+                      className="absolute animate-pulse pointer-events-none z-20"
                       style={{
-                        top: `${getDebugValue("marking_11", "top", 45)}%`,
-                        left: `${getDebugValue("marking_11", "left", 31)}%`,
-                        width: `${getDebugValue("marking_11", "width", 8)}%`,
-                        height: `${getDebugValue("marking_11", "height", 19)}%`,
-                        transform: `translate(-50%, -50%) rotate(${getDebugValue("marking_11", "rotate", -18)}deg) scale(${getDebugValue("marking_11", "scale", 1)})`,
-                        borderRadius: `${getDebugValue("marking_11", "borderRadius", 50)}%`,
-                        objectFit: "contain",
-                      }}
-                    />
-                    <Image
-                      src="/images/marking_12.svg"
-                      alt="leg upper right"
-                      width={100}
-                      height={100}
-                      className="absolute animate-pulse"
-                      style={{
-                        top: `${getDebugValue("marking_11", "top", 45)}%`,
-                        right: `${getDebugValue("marking_11", "right", 31)}%`,
-                        width: `${getDebugValue("marking_11", "width", 8)}%`,
-                        height: `${getDebugValue("marking_11", "height", 19)}%`,
-                        transform: `translate(50%, -50%) rotate(${getDebugValue("marking_11", "rotate", -18)}deg) scale(${getDebugValue("marking_11", "scale", 1)})`,
-                        borderRadius: `${getDebugValue("marking_11", "borderRadius", 50)}%`,
+                        top: "53%",
+                        right: "35%",
+                        width: "8%",
+                        height: "19%",
+                        transform: "translate(50%, -50%) rotate(-18deg)",
                         objectFit: "contain",
                       }}
                     />
                     <Image
                       src="/images/marking_13.svg"
-                      alt="leg lower right"
-                      width={100}
-                      height={100}
-                      className="absolute animate-pulse"
+                      alt="left calf"
+                      width={40}
+                      height={80}
+                      className="absolute pointer-events-none z-20"
                       style={{
-                        top: `${getDebugValue("marking_13", "top", 65)}%`,
-                        right: `${getDebugValue("marking_13", "right", 33)}%`,
-                        width: `${getDebugValue("marking_13", "width", 3)}%`,
-                        height: `${getDebugValue("marking_13", "height", 7)}%`,
-                        transform: `translate(50%, -50%) rotate(${getDebugValue("marking_13", "rotate", -18)}deg) scale(${getDebugValue("marking_13", "scale", 1)})`,
-                        borderRadius: `${getDebugValue("marking_13", "borderRadius", 50)}%`,
+                        top: "74%",
+                        left: "37%",
+                        width: "3%",
+                        height: "7%",
+                        transform: "translate(-50%, -50%) rotate(7deg)",
+                        objectFit: "contain",
+                      }}
+                    />
+                    <Image
+                      src="/images/marking_14.svg"
+                      alt="right calf"
+                      width={40}
+                      height={80}
+                      className="absolute pointer-events-none z-20"
+                      style={{
+                        top: "74%",
+                        right: "37%",
+                        width: "3%",
+                        height: "7%",
+                        transform: "translate(50%, -50%) rotate(-18deg)",
                         objectFit: "contain",
                       }}
                     />
@@ -1705,128 +1706,7 @@ export default function QuizPage() {
                 )}
               </div>
 
-              {debugMode && quizData.gender === "mulher" && (
-                <div className="w-96 max-h-[600px] overflow-y-auto bg-gray-900/95 rounded-lg p-4 space-y-4 border border-purple-500">
-                  <div className="flex justify-between items-center sticky top-0 bg-gray-900 pb-2 border-b border-purple-500">
-                    <h3 className="text-lg font-bold text-white">Ajustar Marcações</h3>
-                    <button
-                      onClick={copyDebugValues}
-                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm"
-                    >
-                      Copiar Valores
-                    </button>
-                  </div>
-
-                  {Object.entries(debugValues).map(([key, values]) => (
-                    <div key={key} className="space-y-2 border-b border-gray-700 pb-3">
-                      <h4 className="text-sm font-semibold text-purple-300">{key.replace(/_/g, " ").toUpperCase()}</h4>
-
-                      <div className="space-y-1">
-                        <label className="text-xs text-gray-400 flex justify-between">
-                          <span>Top: {values.top}%</span>
-                          <input
-                            type="range"
-                            min="0"
-                            max="100"
-                            value={values.top}
-                            onChange={(e) => updateDebugValue(key, "top", Number(e.target.value))}
-                            className="w-48"
-                          />
-                        </label>
-
-                        {"left" in values && (
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Left: {values.left}%</span>
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              value={values.left}
-                              onChange={(e) => updateDebugValue(key, "left", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-                        )}
-
-                        {"right" in values && (
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Right: {values.right}%</span>
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              value={values.right}
-                              onChange={(e) => updateDebugValue(key, "right", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-                        )}
-
-                        <label className="text-xs text-gray-400 flex justify-between">
-                          <span>Width: {values.width}%</span>
-                          <input
-                            type="range"
-                            min="1"
-                            max="50"
-                            value={values.width}
-                            onChange={(e) => updateDebugValue(key, "width", Number(e.target.value))}
-                            className="w-48"
-                          />
-                        </label>
-
-                        <label className="text-xs text-gray-400 flex justify-between">
-                          <span>Height: {values.height}%</span>
-                          <input
-                            type="range"
-                            min="1"
-                            max="50"
-                            value={values.height}
-                            onChange={(e) => updateDebugValue(key, "height", Number(e.target.value))}
-                            className="w-48"
-                          />
-                        </label>
-
-                        <label className="text-xs text-gray-400 flex justify-between">
-                          <span>Rotate: {values.rotate}°</span>
-                          <input
-                            type="range"
-                            min="-90"
-                            max="90"
-                            value={values.rotate}
-                            onChange={(e) => updateDebugValue(key, "rotate", Number(e.target.value))}
-                            className="w-48"
-                          />
-                        </label>
-
-                        <label className="text-xs text-gray-400 flex justify-between">
-                          <span>Border Radius: {values.borderRadius}%</span>
-                          <input
-                            type="range"
-                            min="0"
-                            max="50"
-                            value={values.borderRadius}
-                            onChange={(e) => updateDebugValue(key, "borderRadius", Number(e.target.value))}
-                            className="w-48"
-                          />
-                        </label>
-
-                        <label className="text-xs text-gray-400 flex justify-between">
-                          <span>Scale: {values.scale.toFixed(2)}</span>
-                          <input
-                            type="range"
-                            min="0.5"
-                            max="2"
-                            step="0.05"
-                            value={values.scale}
-                            onChange={(e) => updateDebugValue(key, "scale", Number(e.target.value))}
-                            className="w-48"
-                          />
-                        </label>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {/* Removed debug mode rendering */}
 
               <div className="flex flex-col space-y-4 max-w-md">
                 {["Peito", "Braços", "Barriga", "Pernas", "Corpo inteiro"].map((area) => (
