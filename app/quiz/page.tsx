@@ -898,23 +898,23 @@ export default function QuizPage() {
       Number.parseFloat(quizData.height),
     )
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 md:p-6">
-        <div className="text-center space-y-4 md:space-y-6 max-w-md">
-          <div className="w-32 md:w-48 h-48 md:h-64 mx-auto relative">
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
+        <div className="text-center space-y-6 max-w-md">
+          <div className="w-64 h-64 mx-auto relative">
             <Image
               src={getBodyTypeImageForFocus() || "/placeholder.svg"}
               alt="Seu biotipo"
-              width={192}
+              width={256}
               height={256}
               className="object-contain"
             />
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold">Resultado do seu IMC</h2>
-          <div className="bg-gray-800 rounded-lg p-4 md:p-6">
-            <p className="text-gray-300 text-base md:text-lg mb-3 md:mb-4">
+          <h2 className="text-3xl font-bold">Resultado do seu IMC</h2>
+          <div className="bg-gray-800 rounded-lg p-6">
+            <p className="text-gray-300 text-lg mb-4">
               Calculamos o seu IMC e ele é de <span className="text-lime-400 font-bold">{imc}</span>
             </p>
-            <p className="text-white text-xl md:text-xl mb-4">
+            <p className="text-white text-xl mb-4">
               Você está com <span className="text-lime-400 font-bold">{classification}</span>
             </p>
           </div>
@@ -1153,7 +1153,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-4 md:space-y-8">
             <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é a sua idade?</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é sua idade?</h2>
             </div>
             <div className="max-w-md mx-auto">
               <input
