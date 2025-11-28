@@ -958,24 +958,27 @@ export default function QuizPage() {
 
   if (showSuccess) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <div className="text-center space-y-6">
-          <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center mx-auto">
-            <CheckCircle className="h-12 w-12 text-white" />
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-center p-4">
+        <div className="text-center space-y-8 max-w-lg w-full">
+          <div className="w-32 h-32 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-green-500/30 animate-in zoom-in duration-500">
+            <CheckCircle className="h-16 w-16 text-white stroke-[3]" />
           </div>
-          <div className="bg-gray-800 rounded-lg p-6 max-w-md">
-            <h2 className="text-xl font-bold text-white mb-2">Seu plano de treino personalizado está pronto!</h2>
+
+          <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+            <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">
+              Seu plano de treino personalizado está pronto!
+            </h2>
           </div>
-          <Button
+
+          <button
             onClick={() => {
               setShowSuccess(false)
-              // Removendo parâmetros da URL para manter limpa
               router.push("/quiz/results")
             }}
-            className="w-full bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white py-6 px-8 text-xl font-bold rounded-full shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
+            className="text-white text-lg font-semibold hover:text-green-400 transition-colors duration-300 underline underline-offset-4 animate-in fade-in duration-700 delay-500"
           >
             Ver Resultados
-          </Button>
+          </button>
         </div>
       </div>
     )
