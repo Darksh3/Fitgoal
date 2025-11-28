@@ -616,6 +616,11 @@ export default function QuizPage() {
   }
 
   const nextStep = () => {
+    console.log("[v0] nextStep called, currentStep:", currentStep)
+    console.log("[v0] quizData.targetWeight:", quizData.targetWeight)
+    console.log("[v0] quizData.timeToGoal:", quizData.timeToGoal)
+    // </CHANGE>
+
     if (currentStep === 8 && quizData.diet !== "nao-sigo") {
       // Updated from step 7 to 8
       setShowNutritionInfo(true)
@@ -627,9 +632,17 @@ export default function QuizPage() {
       // </CHANGE>
     } else if (currentStep === 13 && quizData.wantsSupplement === "nao") {
       setCurrentStep(14)
-    } else if (currentStep === 15 && quizData.timeToGoal) {
-      // Check if timeToGoal is calculated
-      setShowTimeCalculation(true)
+    } else if (currentStep === 15) {
+      const calculatedTime = calculateTimeToGoal()
+      console.log("[v0] calculatedTime:", calculatedTime)
+      if (calculatedTime) {
+        updateQuizData("timeToGoal", calculatedTime)
+        setShowTimeCalculation(true)
+      } else {
+        // If calculation fails, just move to next step
+        setCurrentStep(currentStep + 1)
+      }
+      // </CHANGE>
     } else if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1)
     }
