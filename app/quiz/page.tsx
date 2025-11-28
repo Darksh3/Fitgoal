@@ -1355,9 +1355,11 @@ export default function QuizPage() {
         )
       case 5:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Escolha o seu nível de gordura corporal</h2>
+          <div className="space-y-5 sm:space-y-8">
+            <div className="text-center space-y-2 sm:space-y-4">
+              <h2 className="text-2xl sm:text-2xl md:text-3xl font-bold text-white">
+                Escolha o seu nível de gordura corporal
+              </h2>
             </div>
             <div className="relative flex flex-col items-center">
               {/* Body fat image */}
@@ -1381,7 +1383,7 @@ export default function QuizPage() {
                   {/* Tooltip above slider thumb showing current percentage */}
                   <div className="relative h-8">
                     <div
-                      className="absolute bg-zinc-800 text-white text-sm font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 -translate-x-1/2"
+                      className="absolute bg-zinc-800 text-white text-sm font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 -translate-x-1/2 min-w-[80px] text-center whitespace-nowrap"
                       style={{
                         left: `${((quizData.bodyFat - 5) / 40) * 100}%`,
                         top: "-8px",
@@ -1416,13 +1418,15 @@ export default function QuizPage() {
         )
       case 6:
         return (
-          <div className="space-y-4 sm:space-y-8">
-            <div className="text-center space-y-2 sm:space-y-4">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
-              <p className="text-sm sm:text-base text-gray-300">Selecione todos que se aplicam</p>
+          <div className="space-y-3 sm:space-y-4 md:space-y-8">
+            <div className="text-center space-y-1 sm:space-y-2 md:space-y-4">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white">
+                Qual área você quer focar mais?
+              </h2>
+              <p className="text-xs sm:text-sm md:text-base text-gray-300">Selecione todos que se aplicam</p>
             </div>
-            <div className="flex items-start justify-center space-x-8">
-              <div className="relative w-64 h-auto bg-transparent">
+            <div className="flex items-start justify-center space-x-4 sm:space-x-8">
+              <div className="relative w-40 sm:w-52 md:w-64 h-auto bg-transparent">
                 <img
                   src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
                   alt="Corpo base"
@@ -1909,11 +1913,11 @@ export default function QuizPage() {
                 </div>
               )}
 
-              <div className="flex flex-col space-y-4 max-w-md">
+              <div className="flex flex-col space-y-2 sm:space-y-3 md:space-y-4 max-w-md">
                 {["Peito", "Braços", "Barriga", "Pernas", "Corpo inteiro"].map((area) => (
                   <div
                     key={area}
-                    className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
+                    className={`rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all border-2 ${
                       quizData.problemAreas.includes(area)
                         ? "bg-orange-500 border-orange-500 text-white"
                         : "bg-gray-800 border-gray-700 text-white hover:border-orange-500"
@@ -1921,13 +1925,15 @@ export default function QuizPage() {
                     onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
                   >
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold">{area}</h3>
+                      <h3 className="text-sm sm:text-base md:text-lg font-bold">{area}</h3>
                       <div
-                        className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                        className={`w-5 h-5 sm:w-6 sm:h-6 rounded border-2 flex items-center justify-center ${
                           quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-gray-400"
                         }`}
                       >
-                        {quizData.problemAreas.includes(area) && <CheckCircle className="h-4 w-4 text-orange-500" />}
+                        {quizData.problemAreas.includes(area) && (
+                          <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
+                        )}
                       </div>
                     </div>
                   </div>
