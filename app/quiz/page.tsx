@@ -1424,11 +1424,13 @@ export default function QuizPage() {
               <p className="text-base text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="flex items-start justify-center space-x-8">
-              <div className="relative w-64 h-auto bg-transparent">
+              <div
+                className={`relative bg-transparent ${quizData.gender === "mulher" ? "w-48 h-[400px]" : "w-64 h-auto"}`}
+              >
                 <img
                   src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
                   alt="Corpo base"
-                  className="w-full h-auto object-contain relative z-10"
+                  className="w-full h-full object-contain relative z-10"
                   style={quizData.gender === "mulher" ? { mixBlendMode: "lighten" } : {}}
                 />
 
