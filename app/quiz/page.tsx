@@ -1291,27 +1291,25 @@ export default function QuizPage() {
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold text-white">Escolha o seu nível de gordura corporal</h2>
             </div>
-            <div className="text-center space-y-8">
-              <div className="relative w-64 h-80 mx-auto">
+            <div className="relative flex flex-col items-center">
+              {/* Body fat image */}
+              <div className="relative w-64 h-80 mb-[-80px] z-10">
                 {/* Background glow effect */}
                 <div className="absolute inset-0 bg-gradient-radial from-white/20 via-white/5 to-transparent blur-3xl" />
 
-                {/* Body fat image */}
                 <img
                   src={getBodyFatImage() || "/placeholder.svg"}
                   alt="Body fat representation"
-                  className="relative w-full h-full object-contain transition-opacity duration-500 z-10"
+                  className="relative w-full h-full object-contain transition-opacity duration-500"
                   onError={(e) => {
                     e.currentTarget.src = "/placeholder.svg"
                   }}
                 />
-
-                <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/80 to-transparent z-20 pointer-events-none" />
               </div>
 
-              {/* Slider container matching reference design */}
-              <div className="max-w-md mx-auto px-4">
-                <div className="bg-zinc-900/80 backdrop-blur-sm rounded-2xl px-6 py-6 space-y-4">
+              {/* Slider container - now overlapping the image bottom */}
+              <div className="relative max-w-md w-full px-4 z-20">
+                <div className="bg-zinc-900/95 backdrop-blur-sm rounded-2xl px-6 py-6 space-y-4 border border-zinc-800/50">
                   {/* Tooltip above slider thumb showing current percentage */}
                   <div className="relative h-8">
                     <div
