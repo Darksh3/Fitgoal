@@ -15,18 +15,7 @@ import { Slider } from "@/components/ui/slider"
 
 import { Textarea } from "@/components/ui/textarea"
 
-import {
-  ArrowLeft,
-  CheckCircle,
-  Droplets,
-  X,
-  ThumbsUp,
-  ThumbsDown,
-  Meh,
-  Loader2,
-  Dumbbell,
-  ArrowRight,
-} from "lucide-react"
+import { ArrowLeft, CheckCircle, Droplets, X, ThumbsUp, ThumbsDown, Meh, Loader2, Dumbbell } from "lucide-react"
 
 import { useRouter } from "next/navigation"
 
@@ -187,6 +176,51 @@ export default function QuizPage() {
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false) // Add isSubmitting state
+
+  const [debugMode, setDebugMode] = useState(false)
+  const [debugValues, setDebugValues] = useState({
+    // Feminine markings
+    chest_left: { top: 23, left: 26, width: 20, height: 6, rotate: -90 },
+    chest_right: { top: 23, right: 32, width: 20, height: 6, rotate: -90 },
+    arm_upper_left: { top: 23, left: 7, width: 9, height: 10, rotate: 4 },
+    arm_lower_left: { top: 37, left: 2, width: 10, height: 11, rotate: 2 },
+    arm_upper_right: { top: 23, right: 10, width: 9, height: 8, rotate: -25 },
+    arm_lower_right: { top: 32, right: 8, width: 6, height: 8, rotate: 29 },
+    belly: { top: 31, left: 50, width: 26, height: 11, rotate: 0 },
+    leg_upper_left: { top: 54, left: 24, width: 18, height: 12, rotate: -2 },
+    leg_lower_left: { top: 74, left: 37, width: 5, height: 9, rotate: -17 },
+    leg_upper_right: { top: 54, right: 33, width: 14, height: 11, rotate: 11 },
+    leg_lower_right: { top: 72, right: 41, width: 6, height: 13, rotate: 12 },
+    // Masculine markings
+    m_chest_left: { top: 21, left: 34, width: 21, height: 11, rotate: -90 },
+    m_chest_right: { top: 21, right: 32, width: 21, height: 11, rotate: -89 },
+    m_arm_upper_left: { top: 23, left: 20, width: 9, height: 10, rotate: 4 },
+    m_arm_lower_left: { top: 36, left: 17, width: 8, height: 12, rotate: 6 },
+    m_arm_upper_right: { top: 23, right: 19, width: 9, height: 10, rotate: -12 },
+    m_arm_lower_right: { top: 36, right: 15, width: 8, height: 12, rotate: -1 },
+    m_abs_1_left: { top: 31, left: 40, width: 12, height: 4.5, rotate: 0 },
+    m_abs_1_right: { top: 31, right: 40, width: 10, height: 4.5, rotate: 0 },
+    m_abs_2_left: { top: 35, left: 40, width: 11, height: 4.5, rotate: 0 },
+    m_abs_2_right: { top: 35, right: 40, width: 11, height: 4.5, rotate: 0 },
+    m_abs_3_left: { top: 39, left: 41, width: 11, height: 4, rotate: 0 },
+    m_abs_3_right: { top: 39, right: 41, width: 10, height: 4, rotate: 0 },
+    m_leg_upper_left: { top: 50, left: 31, width: 16, height: 15, rotate: 12 },
+    m_leg_lower_left: { top: 72, left: 23, width: 11, height: 16, rotate: 10 }, // Updated m_leg_lower_left height from 17 to 16
+    m_leg_upper_right: { top: 50, right: 31, width: 16, height: 15, rotate: -12 },
+    m_leg_lower_right: { top: 72, right: 25, width: 11, height: 16, rotate: -6 },
+  })
+
+  const updateDebugValue = (key: string, property: string, value: number) => {
+    setDebugValues((prev) => ({
+      ...prev,
+      [key]: { ...prev[key], [property]: value },
+    }))
+  }
+
+  const copyDebugValues = () => {
+    navigator.clipboard.writeText(JSON.stringify(debugValues, null, 2))
+    alert("Valores copiados para área de transferência!")
+  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -857,17 +891,9 @@ export default function QuizPage() {
     )
   }
 
-  const handleContinue = () => {
-    if (currentStep === totalSteps) {
-      handleSubmit()
-    } else {
-      nextStep()
-    }
-  }
-
   if (showLoading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 md:p-6">
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
         <div className="text-center space-y-6 max-w-md">
           <div className="w-32 h-32 mx-auto relative">
             <svg className="w-full h-full animate-spin" viewBox="0 0 100 100">
@@ -885,7 +911,7 @@ export default function QuizPage() {
               />
             </svg>
           </div>
-          <h2 className="text-2xl md:text-2xl font-bold">Analisando suas respostas...</h2>
+          <h2 className="text-2xl font-bold">Analisando suas respostas...</h2>
           <p className="text-gray-300">Criando seu plano personalizado</p>
         </div>
       </div>
@@ -900,11 +926,11 @@ export default function QuizPage() {
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
         <div className="text-center space-y-6 max-w-md">
-          <div className="w-64 h-64 mx-auto relative">
+          <div className="w-48 h-64 mx-auto relative">
             <Image
               src={getBodyTypeImageForFocus() || "/placeholder.svg"}
               alt="Seu biotipo"
-              width={256}
+              width={192}
               height={256}
               className="object-contain"
             />
@@ -1112,37 +1138,36 @@ export default function QuizPage() {
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual o seu gênero?</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Qual o seu gênero?</h2>
             </div>
-            {/* Adjusted grid for better mobile layout */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8 max-w-lg mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-lg mx-auto">
               {[
                 { value: "homem", label: "Homem", icon: "/images/male-gender-icon.webp" },
                 { value: "mulher", label: "Mulher", icon: "/images/female-gender-icon.webp" },
               ].map((gender) => (
                 <div
                   key={gender.value}
-                  className="text-center space-y-3 cursor-pointer"
+                  className="text-center space-y-4 cursor-pointer"
                   onClick={() => updateQuizData("gender", gender.value)}
                 >
-                  <div className="flex justify-center items-center h-32 md:h-40">
+                  <div className="flex justify-center items-center h-40">
                     <img
                       src={gender.icon || "/placeholder.svg"}
                       alt={gender.label}
-                      className="w-20 md:w-24 h-20 md:h-24 object-contain mx-auto"
+                      className="w-24 h-24 object-contain mx-auto"
                       onError={(e) => {
                         e.currentTarget.src = "/placeholder.svg"
                       }}
                     />
                   </div>
                   <div
-                    className={`bg-gray-800 rounded-lg p-3 md:p-4 transition-all ${
+                    className={`bg-gray-800 rounded-lg p-4 transition-all ${
                       quizData.gender === gender.value ? "border-2 border-lime-500" : "border border-gray-700"
                     }`}
                   >
-                    <h3 className="text-lg md:text-xl font-bold text-white">{gender.label}</h3>
+                    <h3 className="text-xl font-bold text-white">{gender.label}</h3>
                   </div>
                 </div>
               ))}
@@ -1151,9 +1176,9 @@ export default function QuizPage() {
         )
       case 2:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é sua idade?</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Qual a sua idade?</h2>
             </div>
             <div className="max-w-md mx-auto">
               <input
@@ -1162,7 +1187,7 @@ export default function QuizPage() {
                 max="80"
                 value={quizData.age || ""}
                 onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
-                className="w-full p-3 md:p-4 text-xl md:text-2xl text-center bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-lime-500 focus:outline-none"
+                className="w-full p-4 text-xl text-center bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-lime-500 focus:outline-none"
                 placeholder="Digite sua idade"
               />
             </div>
@@ -1183,11 +1208,11 @@ export default function QuizPage() {
           }
         }
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual o seu tipo de Corpo?</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual o seu tipo de Corpo?</h2>
             </div>
-            <div className="space-y-2 sm:space-y-4">
+            <div className="space-y-3 sm:space-y-6">
               {[
                 { value: "ectomorfo", label: "Ectomorfo", desc: "Corpo magro, dificuldade para ganhar peso" },
                 { value: "mesomorfo", label: "Mesomorfo", desc: "Corpo atlético, facilidade para ganhar músculos" },
@@ -1195,20 +1220,20 @@ export default function QuizPage() {
               ].map((type) => (
                 <div
                   key={type.value}
-                  className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
+                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
                     quizData.bodyType === type.value ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
                   onClick={() => updateQuizData("bodyType", type.value)}
                 >
                   <div className="flex-1">
-                    <h3 className="text-xl md:text-2xl font-bold text-white mb-1 md:mb-2">{type.label}</h3>
-                    <p className="text-gray-400 text-sm md:text-lg">{type.desc}</p>
+                    <h3 className="text-2xl font-bold text-white mb-2">{type.label}</h3>
+                    <p className="text-gray-400 text-lg">{type.desc}</p>
                   </div>
-                  <div className="flex-shrink-0 ml-4 md:ml-6">
+                  <div className="flex-shrink-0 ml-6">
                     <img
                       src={getBodyTypeImage(type.value) || "/placeholder.svg"}
                       alt={`${type.label} body type`}
-                      className="w-auto h-24 sm:h-32 md:h-48 object-contain"
+                      className="w-auto h-32 sm:h-48 object-contain"
                       onError={(e) => {
                         e.currentTarget.src = "/placeholder.svg"
                       }}
@@ -1235,10 +1260,10 @@ export default function QuizPage() {
           }
         }
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
               <h2 className="text-2xl sm:text-3xl font-bold text-white">Quais são os seus objetivos?</h2>
-              <p className="text-sm md:text-base text-gray-300">Selecione todos que se aplicam</p>
+              <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="space-y-3 sm:space-y-4">
               {[
@@ -1249,16 +1274,16 @@ export default function QuizPage() {
               ].map((goal) => (
                 <div
                   key={goal.value}
-                  className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
+                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
                     quizData.goal.includes(goal.value) ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
                   onClick={() => handleArrayUpdate("goal", goal.value, !quizData.goal.includes(goal.value))}
                 >
-                  <h3 className="text-lg md:text-xl font-bold text-white">{goal.label}</h3>
+                  <h3 className="text-xl font-bold text-white">{goal.label}</h3>
                   <img
                     src={getGoalIcon(goal.value) || "/placeholder.svg"}
                     alt={goal.label}
-                    className="w-10 md:w-12 h-10 md:h-12 object-contain flex-shrink-0"
+                    className="w-12 h-12 sm:w-16 sm:h-16 object-contain flex-shrink-0"
                     onError={(e) => {
                       e.currentTarget.src = "/placeholder.svg"
                     }}
@@ -1270,13 +1295,13 @@ export default function QuizPage() {
         )
       case 5:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Escolha o seu nível de gordura corporal</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Escolha o seu nível de gordura corporal</h2>
             </div>
             <div className="relative flex flex-col items-center">
               {/* Body fat image */}
-              <div className="relative w-48 md:w-64 h-60 md:h-80 mb-[-60px] md:mb-[-80px] z-10">
+              <div className="relative w-64 h-80 mb-[-80px] z-10">
                 {/* Background glow effect */}
                 <div className="absolute inset-0 bg-gradient-radial from-white/20 via-white/5 to-transparent blur-3xl" />
 
@@ -1292,7 +1317,7 @@ export default function QuizPage() {
 
               {/* Slider container - now overlapping the image bottom */}
               <div className="relative max-w-md w-full px-4 z-20">
-                <div className="bg-zinc-900/95 backdrop-blur-sm rounded-2xl px-4 py-5 md:px-6 md:py-6 space-y-4 border border-zinc-800/50">
+                <div className="bg-zinc-900/95 backdrop-blur-sm rounded-2xl px-6 py-6 space-y-4 border border-zinc-800/50">
                   {/* Tooltip above slider thumb showing current percentage */}
                   <div className="relative h-8">
                     <div
@@ -1331,13 +1356,19 @@ export default function QuizPage() {
         )
       case 6:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Quais áreas você quer trabalhar?</h2>
-              <p className="text-sm md:text-base text-gray-400">Selecione todas que se aplicam</p>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
+              <p className="text-gray-300">Selecione todos que se aplicam</p>
+              <button
+                onClick={() => setDebugMode(!debugMode)}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm"
+              >
+                {debugMode ? "Sair do Modo Debug" : "Ativar Modo Debug"}
+              </button>
             </div>
-            <div className="flex items-start justify-center space-x-4 md:space-x-8">
-              <div className="relative w-48 md:w-64 h-auto bg-transparent">
+            <div className="flex items-start justify-center space-x-8">
+              <div className="relative w-64 h-auto bg-transparent">
                 <img
                   src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
                   alt="Corpo base"
@@ -1353,12 +1384,12 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `23%`,
-                          left: `33%`,
-                          width: `15%`,
-                          height: `7%`,
+                          top: `${debugValues.m_chest_left.top}%`,
+                          left: `${debugValues.m_chest_left.left}%`,
+                          width: `${debugValues.m_chest_left.width}%`,
+                          height: `${debugValues.m_chest_left.height}%`,
                           borderRadius: "50% 50% 45% 55% / 55% 45% 60% 40%",
-                          transform: `rotate(-90deg)`,
+                          transform: `rotate(${debugValues.m_chest_left.rotate}deg)`,
                           boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
@@ -1366,12 +1397,12 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `23%`,
-                          right: `32%`,
-                          width: `15%`,
-                          height: `7%`,
+                          top: `${debugValues.m_chest_right.top}%`,
+                          right: `${debugValues.m_chest_right.right}%`,
+                          width: `${debugValues.m_chest_right.width}%`,
+                          height: `${debugValues.m_chest_right.height}%`,
                           borderRadius: "50% 50% 55% 45% / 45% 55% 40% 60%",
-                          transform: `rotate(-89deg)`,
+                          transform: `rotate(${debugValues.m_chest_right.rotate}deg)`,
                           boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
@@ -1384,48 +1415,48 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `23%`,
-                          left: `20%`,
-                          width: `9%`,
-                          height: `10%`,
+                          top: `${debugValues.m_arm_upper_left.top}%`,
+                          left: `${debugValues.m_arm_upper_left.left}%`,
+                          width: `${debugValues.m_arm_upper_left.width}%`,
+                          height: `${debugValues.m_arm_upper_left.height}%`,
                           borderRadius: "45% 55% 50% 50% / 50% 50% 45% 55%",
-                          transform: `rotate(4deg)`,
+                          transform: `rotate(${debugValues.m_arm_upper_left.rotate}deg)`,
                           boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `36%`,
-                          left: `17%`,
-                          width: `8%`,
-                          height: `12%`,
+                          top: `${debugValues.m_arm_lower_left.top}%`,
+                          left: `${debugValues.m_arm_lower_left.left}%`,
+                          width: `${debugValues.m_arm_lower_left.width}%`,
+                          height: `${debugValues.m_arm_lower_left.height}%`,
                           borderRadius: "40% 60% 50% 50% / 60% 40% 50% 50%",
-                          transform: `rotate(6deg)`,
+                          transform: `rotate(${debugValues.m_arm_lower_left.rotate}deg)`,
                           boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `23%`,
-                          right: `19%`,
-                          width: `9%`,
-                          height: `10%`,
+                          top: `${debugValues.m_arm_upper_right.top}%`,
+                          right: `${debugValues.m_arm_upper_right.right}%`,
+                          width: `${debugValues.m_arm_upper_right.width}%`,
+                          height: `${debugValues.m_arm_upper_right.height}%`,
                           borderRadius: "55% 45% 50% 50% / 50% 50% 55% 45%",
-                          transform: `rotate(-12deg)`,
+                          transform: `rotate(${debugValues.m_arm_upper_right.rotate}deg)`,
                           boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `36%`,
-                          right: `15%`,
-                          width: `8%`,
-                          height: `12%`,
+                          top: `${debugValues.m_arm_lower_right.top}%`,
+                          right: `${debugValues.m_arm_lower_right.right}%`,
+                          width: `${debugValues.m_arm_lower_right.width}%`,
+                          height: `${debugValues.m_arm_lower_right.height}%`,
                           borderRadius: "60% 40% 50% 50% / 40% 60% 50% 50%",
-                          transform: `rotate(-1deg)`,
+                          transform: `rotate(${debugValues.m_arm_lower_right.rotate}deg)`,
                           boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
@@ -1439,10 +1470,10 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `31%`,
-                          left: `40%`,
-                          width: `12%`,
-                          height: `4.5%`,
+                          top: `${debugValues.m_abs_1_left.top}%`,
+                          left: `${debugValues.m_abs_1_left.left}%`,
+                          width: `${debugValues.m_abs_1_left.width}%`,
+                          height: `${debugValues.m_abs_1_left.height}%`,
                           borderRadius: "45% 55% 40% 60%",
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
@@ -1451,10 +1482,10 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `31%`,
-                          right: `40%`,
-                          width: `10%`,
-                          height: `4.5%`,
+                          top: `${debugValues.m_abs_1_right.top}%`,
+                          right: `${debugValues.m_abs_1_right.right}%`,
+                          width: `${debugValues.m_abs_1_right.width}%`,
+                          height: `${debugValues.m_abs_1_right.height}%`,
                           borderRadius: "55% 45% 60% 40%",
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
@@ -1463,10 +1494,10 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `35%`,
-                          left: `40%`,
-                          width: `11%`,
-                          height: `4.5%`,
+                          top: `${debugValues.m_abs_2_left.top}%`,
+                          left: `${debugValues.m_abs_2_left.left}%`,
+                          width: `${debugValues.m_abs_2_left.width}%`,
+                          height: `${debugValues.m_abs_2_left.height}%`,
                           borderRadius: "40% 60% 45% 55%",
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
@@ -1475,10 +1506,10 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `35%`,
-                          right: `40%`,
-                          width: `11%`,
-                          height: `4.5%`,
+                          top: `${debugValues.m_abs_2_right.top}%`,
+                          right: `${debugValues.m_abs_2_right.right}%`,
+                          width: `${debugValues.m_abs_2_right.width}%`,
+                          height: `${debugValues.m_abs_2_right.height}%`,
                           borderRadius: "60% 40% 55% 45%",
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
@@ -1487,10 +1518,10 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `39%`,
-                          left: `41%`,
-                          width: `11%`,
-                          height: `4%`,
+                          top: `${debugValues.m_abs_3_left.top}%`,
+                          left: `${debugValues.m_abs_3_left.left}%`,
+                          width: `${debugValues.m_abs_3_left.width}%`,
+                          height: `${debugValues.m_abs_3_left.height}%`,
                           borderRadius: "45% 55% 50% 50%",
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
@@ -1499,10 +1530,10 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `39%`,
-                          right: `41%`,
-                          width: `10%`,
-                          height: `4%`,
+                          top: `${debugValues.m_abs_3_right.top}%`,
+                          right: `${debugValues.m_abs_3_right.right}%`,
+                          width: `${debugValues.m_abs_3_right.width}%`,
+                          height: `${debugValues.m_abs_3_right.height}%`,
                           borderRadius: "55% 45% 50% 50%",
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
@@ -1516,48 +1547,48 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `50%`,
-                          left: `31%`,
-                          width: `16%`,
-                          height: `15%`,
+                          top: `${debugValues.m_leg_upper_left.top}%`,
+                          left: `${debugValues.m_leg_upper_left.left}%`,
+                          width: `${debugValues.m_leg_upper_left.width}%`,
+                          height: `${debugValues.m_leg_upper_left.height}%`,
                           borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
-                          transform: `rotate(12deg)`,
+                          transform: `rotate(${debugValues.m_leg_upper_left.rotate}deg)`,
                           boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `72%`,
-                          left: `23%`,
-                          width: `11%`,
-                          height: `16%`,
+                          top: `${debugValues.m_leg_lower_left.top}%`,
+                          left: `${debugValues.m_leg_lower_left.left}%`,
+                          width: `${debugValues.m_leg_lower_left.width}%`,
+                          height: `${debugValues.m_leg_lower_left.height}%`,
                           borderRadius: "50% 50% 40% 60% / 60% 60% 50% 50%",
-                          transform: `rotate(10deg)`,
+                          transform: `rotate(${debugValues.m_leg_lower_left.rotate}deg)`,
                           boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `50%`,
-                          right: `31%`,
-                          width: `16%`,
-                          height: `15%`,
+                          top: `${debugValues.m_leg_upper_right.top}%`,
+                          right: `${debugValues.m_leg_upper_right.right}%`,
+                          width: `${debugValues.m_leg_upper_right.width}%`,
+                          height: `${debugValues.m_leg_upper_right.height}%`,
                           borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
-                          transform: `rotate(-12deg)`,
+                          transform: `rotate(${debugValues.m_leg_upper_right.rotate}deg)`,
                           boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `72%`,
-                          right: `25%`,
-                          width: `11%`,
-                          height: `16%`,
+                          top: `${debugValues.m_leg_lower_right.top}%`,
+                          right: `${debugValues.m_leg_lower_right.right}%`,
+                          width: `${debugValues.m_leg_lower_right.width}%`,
+                          height: `${debugValues.m_leg_lower_right.height}%`,
                           borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
-                          transform: `rotate(-6deg)`,
+                          transform: `rotate(${debugValues.m_leg_lower_right.rotate}deg)`,
                           boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
@@ -1571,24 +1602,24 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
                         style={{
-                          top: `23%`,
-                          left: `26%`,
-                          width: `20%`,
-                          height: `6%`,
+                          top: `${debugValues.chest_left.top}%`,
+                          left: `${debugValues.chest_left.left}%`,
+                          width: `${debugValues.chest_left.width}%`,
+                          height: `${debugValues.chest_left.height}%`,
                           borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
-                          transform: `rotate(-90deg)`,
+                          transform: `rotate(${debugValues.chest_left.rotate}deg)`,
                           boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
                         style={{
-                          top: `23%`,
-                          right: `32%`,
-                          width: `20%`,
-                          height: `6%`,
+                          top: `${debugValues.chest_right.top}%`,
+                          right: `${debugValues.chest_right.right}%`,
+                          width: `${debugValues.chest_right.width}%`,
+                          height: `${debugValues.chest_right.height}%`,
                           borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
-                          transform: `rotate(-90deg)`,
+                          transform: `rotate(${debugValues.chest_right.rotate}deg)`,
                           boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
                         }}
                       ></div>
@@ -1601,48 +1632,48 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `23%`,
-                          left: `7%`,
-                          width: `9%`,
-                          height: `10%`,
+                          top: `${debugValues.arm_upper_left.top}%`,
+                          left: `${debugValues.arm_upper_left.left}%`,
+                          width: `${debugValues.arm_upper_left.width}%`,
+                          height: `${debugValues.arm_upper_left.height}%`,
                           borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
-                          transform: `rotate(4deg)`,
+                          transform: `rotate(${debugValues.arm_upper_left.rotate}deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `37%`,
-                          left: `2%`,
-                          width: `10%`,
-                          height: `11%`,
+                          top: `${debugValues.arm_lower_left.top}%`,
+                          left: `${debugValues.arm_lower_left.left}%`,
+                          width: `${debugValues.arm_lower_left.width}%`,
+                          height: `${debugValues.arm_lower_left.height}%`,
                           borderRadius: "45% 55% 50% 50% / 60% 60% 40% 40%",
-                          transform: `rotate(2deg)`,
+                          transform: `rotate(${debugValues.arm_lower_left.rotate}deg)`,
                           boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `23%`,
-                          right: `10%`,
-                          width: `9%`,
-                          height: `8%`,
+                          top: `${debugValues.arm_upper_right.top}%`,
+                          right: `${debugValues.arm_upper_right.right}%`,
+                          width: `${debugValues.arm_upper_right.width}%`,
+                          height: `${debugValues.arm_upper_right.height}%`,
                           borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
-                          transform: `rotate(-25deg)`,
+                          transform: `rotate(${debugValues.arm_upper_right.rotate}deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `32%`,
-                          right: `8%`,
-                          width: `6%`,
-                          height: `8%`,
+                          top: `${debugValues.arm_lower_right.top}%`,
+                          right: `${debugValues.arm_lower_right.right}%`,
+                          width: `${debugValues.arm_lower_right.width}%`,
+                          height: `${debugValues.arm_lower_right.height}%`,
                           borderRadius: "55% 45% 50% 50% / 60% 60% 40% 40%",
-                          transform: `rotate(29deg)`,
+                          transform: `rotate(${debugValues.arm_lower_right.rotate}deg)`,
                           boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
@@ -1654,11 +1685,11 @@ export default function QuizPage() {
                     <div
                       className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
-                        top: `31%`,
-                        left: `50%`,
-                        transform: `translateX(-50%) rotate(0deg)`,
-                        width: `26%`,
-                        height: `11%`,
+                        top: `${debugValues.belly.top}%`,
+                        left: `${debugValues.belly.left}%`,
+                        transform: `translateX(-50%) rotate(${debugValues.belly.rotate}deg)`,
+                        width: `${debugValues.belly.width}%`,
+                        height: `${debugValues.belly.height}%`,
                         borderRadius: "45% 55% 50% 50% / 40% 40% 60% 60%",
                         boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.4)",
                       }}
@@ -1671,48 +1702,48 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `54%`,
-                          left: `24%`,
-                          width: `18%`,
-                          height: `12%`,
+                          top: `${debugValues.leg_upper_left.top}%`,
+                          left: `${debugValues.leg_upper_left.left}%`,
+                          width: `${debugValues.leg_upper_left.width}%`,
+                          height: `${debugValues.leg_upper_left.height}%`,
                           borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
-                          transform: `rotate(-2deg)`,
+                          transform: `rotate(${debugValues.leg_upper_left.rotate}deg)`,
                           boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `74%`,
-                          left: `37%`,
-                          width: `5%`,
-                          height: `9%`,
+                          top: `${debugValues.leg_lower_left.top}%`,
+                          left: `${debugValues.leg_lower_left.left}%`,
+                          width: `${debugValues.leg_lower_left.width}%`,
+                          height: `${debugValues.leg_lower_left.height}%`,
                           borderRadius: "50% 50% 45% 55% / 65% 65% 35% 35%",
-                          transform: `rotate(-17deg)`,
+                          transform: `rotate(${debugValues.leg_lower_left.rotate}deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `54%`,
-                          right: `33%`,
-                          width: `14%`,
-                          height: `11%`,
+                          top: `${debugValues.leg_upper_right.top}%`,
+                          right: `${debugValues.leg_upper_right.right}%`,
+                          width: `${debugValues.leg_upper_right.width}%`,
+                          height: `${debugValues.leg_upper_right.height}%`,
                           borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
-                          transform: `rotate(11deg)`,
+                          transform: `rotate(${debugValues.leg_upper_right.rotate}deg)`,
                           boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `72%`,
-                          right: `41%`,
-                          width: `6%`,
-                          height: `13%`,
+                          top: `${debugValues.leg_lower_right.top}%`,
+                          right: `${debugValues.leg_lower_right.right}%`,
+                          width: `${debugValues.leg_lower_right.width}%`,
+                          height: `${debugValues.leg_lower_right.height}%`,
                           borderRadius: "50% 50% 60% 40% / 65% 65% 35% 35%",
-                          transform: `rotate(12deg)`,
+                          transform: `rotate(${debugValues.leg_lower_right.rotate}deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
@@ -1720,13 +1751,115 @@ export default function QuizPage() {
                   )}
               </div>
 
-              {/* Removed debug mode UI */}
+              {debugMode && (
+                <div className="w-96 max-h-[600px] overflow-y-auto bg-gray-900/95 rounded-lg p-4 space-y-4 border border-purple-500">
+                  <div className="flex justify-between items-center sticky top-0 bg-gray-900 pb-2 border-b border-purple-500">
+                    <h3 className="text-lg font-bold text-white">
+                      Ajustar Marcações ({quizData.gender === "mulher" ? "Feminino" : "Masculino"})
+                    </h3>
+                    <button
+                      onClick={copyDebugValues}
+                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm"
+                    >
+                      Copiar Valores
+                    </button>
+                  </div>
 
-              <div className="flex flex-col space-y-3 md:space-y-4 max-w-md">
+                  {Object.entries(debugValues)
+                    .filter(([key]) => (quizData.gender === "mulher" ? !key.startsWith("m_") : key.startsWith("m_")))
+                    .map(([key, values]) => (
+                      <div key={key} className="space-y-2 border-b border-gray-700 pb-3">
+                        <h4 className="text-sm font-semibold text-purple-300">
+                          {key.replace(/m_/g, "").replace(/_/g, " ").toUpperCase()}
+                        </h4>
+
+                        <div className="space-y-1">
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Top: {values.top}%</span>
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={values.top}
+                              onChange={(e) => updateDebugValue(key, "top", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+
+                          {"left" in values && (
+                            <label className="text-xs text-gray-400 flex justify-between">
+                              <span>Left: {values.left}%</span>
+                              <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={values.left}
+                                onChange={(e) => updateDebugValue(key, "left", Number(e.target.value))}
+                                className="w-48"
+                              />
+                            </label>
+                          )}
+
+                          {"right" in values && (
+                            <label className="text-xs text-gray-400 flex justify-between">
+                              <span>Right: {values.right}%</span>
+                              <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={values.right}
+                                onChange={(e) => updateDebugValue(key, "right", Number(e.target.value))}
+                                className="w-48"
+                              />
+                            </label>
+                          )}
+
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Width: {values.width}%</span>
+                            <input
+                              type="range"
+                              min="1"
+                              max="50"
+                              value={values.width}
+                              onChange={(e) => updateDebugValue(key, "width", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Height: {values.height}%</span>
+                            <input
+                              type="range"
+                              min="1"
+                              max="50"
+                              value={values.height}
+                              onChange={(e) => updateDebugValue(key, "height", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Rotate: {values.rotate}°</span>
+                            <input
+                              type="range"
+                              min="-90"
+                              max="90"
+                              value={values.rotate}
+                              onChange={(e) => updateDebugValue(key, "rotate", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+
+              <div className="flex flex-col space-y-4 max-w-md">
                 {["Peito", "Braços", "Barriga", "Pernas", "Corpo inteiro"].map((area) => (
                   <div
                     key={area}
-                    className={`rounded-lg p-4 md:p-6 cursor-pointer transition-all border-2 ${
+                    className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
                       quizData.problemAreas.includes(area)
                         ? "bg-orange-500 border-orange-500 text-white"
                         : "bg-gray-800 border-gray-700 text-white hover:border-orange-500"
@@ -1734,9 +1867,9 @@ export default function QuizPage() {
                     onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
                   >
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg md:text-xl font-bold">{area}</h3>
+                      <h3 className="text-lg font-bold">{area}</h3>
                       <div
-                        className={`w-5 md:w-6 h-5 md:h-6 rounded border-2 flex items-center justify-center ${
+                        className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
                           quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-gray-400"
                         }`}
                       >
@@ -1751,11 +1884,11 @@ export default function QuizPage() {
         )
       case 7:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Você segue alguma dessas dietas?</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Você segue alguma dessas dietas?</h2>
             </div>
-            <div className="space-y-3 md:space-y-4">
+            <div className="space-y-4">
               {[
                 { value: "vegetariano", label: "Vegetariano", desc: "Exclui carne", icon: "🌱" },
                 { value: "vegano", label: "Vegano", desc: "Exclui todos os produtos de origem animal", icon: "🌿" },
@@ -1769,40 +1902,40 @@ export default function QuizPage() {
               ].map((diet) => (
                 <div
                   key={diet.value}
-                  className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 md:space-x-4 ${
+                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
                     quizData.diet === diet.value ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
                   onClick={() => updateQuizData("diet", diet.value)}
                 >
-                  <span className="text-xl md:text-2xl">{diet.icon}</span>
+                  <span className="text-2xl">{diet.icon}</span>
                   <div>
-                    <h3 className="text-lg md:text-xl font-bold text-white">{diet.label}</h3>
+                    <h3 className="text-lg font-bold text-white">{diet.label}</h3>
                     <p className="text-gray-400 text-sm">{diet.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="border-t border-gray-700 pt-3 md:pt-4">
+            <div className="border-t border-gray-700 pt-4">
               <div
-                className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
+                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
                   quizData.diet === "nao-sigo" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => updateQuizData("diet", "nao-sigo")}
               >
-                <h3 className="text-lg md:text-xl font-bold text-white">Não, não sigo nenhuma dessas dietas</h3>
-                <X className="h-5 md:h-6 w-5 md:w-6 text-lime-500" />
+                <h3 className="text-lg font-bold text-white">Não, não sigo nenhuma dessas dietas</h3>
+                <X className="h-6 w-6 text-lime-500" />
               </div>
             </div>
           </div>
         )
       case 8:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">
                 Com que frequência você consome doces ou bebidas alcoólicas?
               </h2>
-              <p className="text-sm md:text-base text-gray-300">Selecione todas que se aplicam</p>
+              <p className="text-gray-300">Selecione todas que se aplicam</p>
             </div>
             <div className="space-y-3">
               {[
@@ -1812,13 +1945,13 @@ export default function QuizPage() {
                 { value: "nao-consumo-alcool", label: "Não consumo álcool", icon: "🚫" },
                 { value: "nao-consumo-doces", label: "Não consumo doces", icon: "❌" },
               ].map((freq) => (
-                <div key={freq.value} className="flex items-center space-x-2 md:space-x-3">
+                <div key={freq.value} className="flex items-center space-x-3">
                   <Checkbox
                     id={freq.value}
                     checked={quizData.sugarFrequency.includes(freq.value)}
                     onCheckedChange={(checked) => handleArrayUpdate("sugarFrequency", freq.value, checked as boolean)}
                   />
-                  <Label htmlFor={freq.value} className="text-white text-base md:text-lg flex items-center space-x-2">
+                  <Label htmlFor={freq.value} className="text-white text-lg flex items-center space-x-2">
                     <span className="text-xl">{freq.icon}</span>
                     <span>{freq.label}</span>
                   </Label>
@@ -1829,11 +1962,11 @@ export default function QuizPage() {
         )
       case 9:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Quantidade diária de água</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Quantidade diária de água</h2>
             </div>
-            <div className="space-y-3 md:space-y-4">
+            <div className="space-y-4">
               {[
                 { value: "menos-2", label: "Menos de 2 copos", desc: "até 0,5 l", icon: Droplets },
                 { value: "2-6", label: "2-6 copos", desc: "0,5-1,5 l", icon: Droplets },
@@ -1842,15 +1975,15 @@ export default function QuizPage() {
               ].map((water) => (
                 <div
                   key={water.value}
-                  className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all ${
+                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
                     quizData.waterIntake === water.value ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
                   onClick={() => updateQuizData("waterIntake", water.value)}
                 >
-                  <div className="flex items-center space-x-3 md:space-x-4">
-                    <water.icon className="h-5 md:h-6 w-5 md:w-6 text-blue-400" />
+                  <div className="flex items-center space-x-4">
+                    <water.icon className="h-6 w-6 text-blue-400" />
                     <div>
-                      <h3 className="text-base md:text-lg font-bold text-white">{water.label}</h3>
+                      <h3 className="text-lg font-bold text-white">{water.label}</h3>
                       <p className="text-gray-400 text-sm">{water.desc}</p>
                     </div>
                   </div>
@@ -1861,76 +1994,74 @@ export default function QuizPage() {
         )
       case 10:
         return (
-          <div className="space-y-4 md:space-y-8">
+          <div className="space-y-8">
             <div className="text-center">
-              <div className="mb-4 md:mb-6">
-                <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é sua altura?</h2>
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold text-white">Qual é sua altura?</h2>
               </div>
-              <div className="flex items-center justify-center space-x-2 md:space-x-4">
-                <input
-                  type="number"
+              <div className="space-y-6">
+                <Input
+                  type="text"
+                  placeholder={`Altura em metros (ex: 1.75 ou 1,75)`}
                   value={quizData.height}
-                  onChange={(e) => updateQuizData("height", e.target.value)}
-                  className="w-20 md:w-24 px-3 md:px-4 py-2 md:py-3 text-xl md:text-3xl font-bold text-center bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-lime-500 outline-none"
-                  placeholder="Ex: 1.75"
+                  onChange={(e) => {
+                    const cleaned = e.target.value.replace(/[^\d.,]/g, "")
+                    setQuizData({ ...quizData, height: cleaned })
+                  }}
+                  onBlur={(e) => {
+                    const normalized = normalizeHeight(e.target.value)
+                    updateQuizData("height", normalized)
+                  }}
+                  className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
                 />
-                <span className="text-xl md:text-3xl font-bold text-gray-400">m</span>
+                <p className="text-gray-400 text-sm">Digite em metros (ex: 1.75) ou centímetros (ex: 175)</p>
               </div>
-              <p className="text-gray-400 text-xs md:text-sm mt-3">
-                Digite em metros (ex: 1.75) ou centímetros (ex: 175)
-              </p>
             </div>
           </div>
         )
       case 11:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Possui alergias ou restrições alimentares?</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Possui alergias ou restrições alimentares?</h2>
             </div>
-            <div className="space-y-3 md:space-y-4">
+            <div className="space-y-4">
               <div
-                className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all ${
+                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
                   quizData.allergies === "sim" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => updateQuizData("allergies", "sim")}
               >
-                <h3 className="text-base md:text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
+                <h3 className="text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
                 <CheckCircle
-                  className={`h-5 md:h-6 w-5 md:w-6 ${quizData.allergies === "sim" ? "text-lime-500" : "text-gray-500"}`}
+                  className={`h-6 w-6 ${quizData.allergies === "sim" ? "text-lime-500" : "text-gray-500"}`}
                 />
               </div>
               <div
-                className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all ${
+                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
                   quizData.allergies === "nao" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => updateQuizData("allergies", "nao")}
               >
-                <h3 className="text-base md:text-lg font-bold text-white">Não, não possuo alergias ou restrições</h3>
-                <X
-                  className={`h-5 md:h-6 w-5 md:w-6 ${quizData.allergies === "nao" ? "text-lime-500" : "text-gray-500"}`}
-                />
+                <h3 className="text-lg font-bold text-white">Não, não possuo alergias ou restrições</h3>
+                <X className={`h-6 w-6 ${quizData.allergies === "nao" ? "text-lime-500" : "text-gray-500"}`} />
               </div>
             </div>
           </div>
         )
       case 12:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">
-                Quais são suas alergias ou restrições alimentares?
-              </h2>
-              <p className="text-sm md:text-base text-gray-300">
-                Descreva suas alergias, intolerâncias ou restrições alimentares
-              </p>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Quais são suas alergias ou restrições alimentares?</h2>
+              <p className="text-gray-300">Descreva suas alergias, intolerâncias ou restrições alimentares</p>
             </div>
             <div className="space-y-6">
               <Textarea
                 placeholder="Ex: Alergia a amendoim, intolerância à lactose, não como carne vermelha..."
                 value={quizData.allergyDetails}
                 onChange={(e) => updateQuizData("allergyDetails", e.target.value)}
-                className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 min-h-24 md:min-h-32"
+                className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 min-h-32"
               />
             </div>
           </div>
@@ -1938,17 +2069,15 @@ export default function QuizPage() {
 
       case 13:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">
-                Podemos adicionar algum suplemento à sua dieta?
-              </h2>
-              <p className="text-sm md:text-base text-gray-300">Por exemplo: Hipercalórico, Whey Protein...</p>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Podemos adicionar algum suplemento à sua dieta?</h2>
+              <p className="text-gray-300">Por exemplo: Hipercalórico, Whey Protein...</p>
             </div>
-            <div className="space-y-3 md:space-y-4">
+            <div className="space-y-4">
               <button
                 type="button"
-                className={`w-full bg-gray-800 rounded-lg p-4 md:p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
+                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
                   quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500/10" : "border-gray-700"
                 }`}
                 onClick={() => {
@@ -1976,14 +2105,14 @@ export default function QuizPage() {
                   console.log("[v0] Updated supplementType to:", supplementType)
                 }}
               >
-                <h3 className="text-base md:text-lg font-bold text-white">Sim, pode adicionar</h3>
+                <h3 className="text-lg font-bold text-white">Sim, pode adicionar</h3>
                 <CheckCircle
-                  className={`h-5 md:h-6 w-5 md:w-6 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
+                  className={`h-6 w-6 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
                 />
               </button>
               <button
                 type="button"
-                className={`w-full bg-gray-800 rounded-lg p-4 md:p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
+                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
                   quizData.wantsSupplement === "nao" ? "border-lime-500 bg-lime-500/10" : "border-gray-700"
                 }`}
                 onClick={() => {
@@ -2000,20 +2129,18 @@ export default function QuizPage() {
                   console.log("[v0] Updated wantsSupplement to: nao")
                 }}
               >
-                <h3 className="text-base md:text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
-                <X
-                  className={`h-5 md:h-6 w-5 md:w-6 ${quizData.wantsSupplement === "nao" ? "text-lime-500" : "text-gray-500"}`}
-                />
+                <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
+                <X className={`h-6 w-6 ${quizData.wantsSupplement === "nao" ? "text-lime-500" : "text-gray-500"}`} />
               </button>
             </div>
             {/* </CHANGE> */}
             {quizData.wantsSupplement === "sim" && quizData.supplementType && (
-              <div className="bg-lime-500/10 border border-lime-500 rounded-lg p-3 md:p-4 text-center">
-                <p className="text-lime-400 font-semibold text-sm md:text-base">
+              <div className="bg-lime-500/10 border border-lime-500 rounded-lg p-4 text-center">
+                <p className="text-lime-400 font-semibold">
                   Recomendamos:{" "}
                   {quizData.supplementType === "hipercalorico" ? "Hipercalórico Growth" : "Whey Protein Growth"}
                 </p>
-                <p className="text-gray-300 text-xs md:text-sm mt-1 md:mt-2">
+                <p className="text-gray-300 text-sm mt-2">
                   {quizData.supplementType === "hipercalorico"
                     ? "Ideal para ganho de massa muscular e atingir suas calorias diárias"
                     : "Ideal para atingir suas metas de proteína e manter a massa muscular"}
@@ -2026,9 +2153,9 @@ export default function QuizPage() {
 
       case 14:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é o seu peso atual?</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Qual é o seu peso atual?</h2>
             </div>
             <div className="space-y-6">
               <Input
@@ -2036,16 +2163,16 @@ export default function QuizPage() {
                 placeholder={`Peso atual, kg`}
                 value={quizData.currentWeight}
                 onChange={(e) => updateQuizData("currentWeight", e.target.value)}
-                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl md:text-2xl rounded-none focus:border-lime-500"
+                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
               />
             </div>
           </div>
         )
       case 15:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
             </div>
             <div className="space-y-6">
               <Input
@@ -2065,16 +2192,16 @@ export default function QuizPage() {
                 min="1"
                 max="500"
                 step="0.1"
-                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl md:text-2xl rounded-none focus:border-lime-500"
+                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
               />
             </div>
           </div>
         )
       case 16:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é o seu nome?</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Qual é o seu nome?</h2>
             </div>
             <div className="space-y-6">
               <Input
@@ -2082,18 +2209,18 @@ export default function QuizPage() {
                 placeholder="Digite seu nome"
                 value={quizData.name}
                 onChange={(e) => updateQuizData("name", e.target.value)}
-                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl md:text-2xl rounded-none focus:border-lime-500"
+                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
               />
             </div>
           </div>
         )
       case 17:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Quanto tempo você tem para treinar?</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Quanto tempo você tem para treinar?</h2>
             </div>
-            <div className="space-y-3 md:space-y-4 max-w-2xl mx-auto">
+            <div className="space-y-4 max-w-2xl mx-auto">
               {[
                 { value: "30min", label: "30 minutos" },
                 { value: "45min", label: "45 minutos" },
@@ -2102,14 +2229,14 @@ export default function QuizPage() {
               ].map((time) => (
                 <div
                   key={time.value}
-                  className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all border ${
+                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all border ${
                     quizData.workoutTime === time.value
                       ? "border-lime-500 bg-lime-500/10"
                       : "border-gray-600 hover:border-gray-500"
                   }`}
                   onClick={() => updateQuizData("workoutTime", time.value)}
                 >
-                  <h3 className="text-base md:text-lg font-medium text-white text-center">{time.label}</h3>
+                  <h3 className="text-lg font-medium text-white text-center">{time.label}</h3>
                 </div>
               ))}
             </div>
@@ -2117,11 +2244,11 @@ export default function QuizPage() {
         )
       case 18:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é sua experiência com exercícios?</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Qual é sua experiência com exercícios?</h2>
             </div>
-            <div className="space-y-3 md:space-y-4 max-w-2xl mx-auto">
+            <div className="space-y-4 max-w-2xl mx-auto">
               {[
                 { value: "iniciante", label: "Iniciante - Nunca treinei" },
                 { value: "basico", label: "Básico - Treino ocasionalmente" },
@@ -2130,7 +2257,7 @@ export default function QuizPage() {
               ].map((level) => (
                 <div
                   key={level.value}
-                  className={`rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 md:space-x-4 ${
+                  className={`rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
                     quizData.experience === level.value
                       ? "bg-teal-600/80 border border-teal-500"
                       : "bg-teal-800/40 border border-teal-700/50 hover:bg-teal-700/50"
@@ -2138,15 +2265,13 @@ export default function QuizPage() {
                   onClick={() => updateQuizData("experience", level.value)}
                 >
                   <div
-                    className={`w-5 md:w-6 h-5 md:h-6 rounded-full border-2 flex items-center justify-center ${
+                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                       quizData.experience === level.value ? "border-white bg-white" : "border-teal-300"
                     }`}
                   >
-                    {quizData.experience === level.value && (
-                      <div className="w-2 md:w-3 h-2 md:h-3 rounded-full bg-teal-600" />
-                    )}
+                    {quizData.experience === level.value && <div className="w-3 h-3 rounded-full bg-teal-600" />}
                   </div>
-                  <h3 className="text-base md:text-lg font-medium text-white">{level.label}</h3>
+                  <h3 className="text-lg font-medium text-white">{level.label}</h3>
                 </div>
               ))}
             </div>
@@ -2154,10 +2279,10 @@ export default function QuizPage() {
         )
       case 19:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Que equipamentos você tem acesso?</h2>
-              <p className="text-sm md:text-base text-gray-300">Selecione todos que se aplicam</p>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Que equipamentos você tem acesso?</h2>
+              <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="space-y-3">
               {[
@@ -2169,16 +2294,13 @@ export default function QuizPage() {
                 { value: "bicicleta", label: "Bicicleta ergométrica", icon: "🚴" },
                 { value: "nenhum", label: "Apenas peso corporal", icon: "🤲" },
               ].map((equipment) => (
-                <div key={equipment.value} className="flex items-center space-x-2 md:space-x-3">
+                <div key={equipment.value} className="flex items-center space-x-3">
                   <Checkbox
                     id={equipment.value}
                     checked={quizData.equipment.includes(equipment.value)}
                     onCheckedChange={(checked) => handleArrayUpdate("equipment", equipment.value, checked as boolean)}
                   />
-                  <Label
-                    htmlFor={equipment.value}
-                    className="text-white text-base md:text-lg flex items-center space-x-2"
-                  >
+                  <Label htmlFor={equipment.value} className="text-white text-lg flex items-center space-x-2">
                     <span className="text-xl">{equipment.icon}</span>
                     <span>{equipment.label}</span>
                   </Label>
@@ -2189,15 +2311,13 @@ export default function QuizPage() {
         )
       case 20:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">
-                Como você se sente sobre exercícios cardiovasculares?
-              </h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Como você se sente sobre exercícios cardiovasculares?</h2>
             </div>
-            <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
-              <ExerciseIllustration type="cardio" className="w-48 md:w-64 h-48 md:h-64" />
-              <div className="space-y-3 md:space-y-4 flex-1 max-w-sm">
+            <div className="flex items-center justify-center space-x-8">
+              <ExerciseIllustration type="cardio" className="w-64 h-64" />
+              <div className="space-y-4 flex-1 max-w-sm">
                 {[
                   { value: "amo", label: "Amo cardio!", icon: ThumbsUp, color: "text-green-500" },
                   { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
@@ -2205,15 +2325,15 @@ export default function QuizPage() {
                 ].map((pref) => (
                   <div
                     key={pref.value}
-                    className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 md:space-x-4 ${
+                    className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
                       quizData.exercisePreferences.cardio === pref.value
                         ? "border-2 border-lime-500"
                         : "border border-gray-700"
                     }`}
                     onClick={() => updateExercisePreference("cardio", pref.value)}
                   >
-                    <pref.icon className={`h-5 md:h-6 w-5 md:w-6 ${pref.color}`} />
-                    <h3 className="text-base md:text-lg font-bold text-white">{pref.label}</h3>
+                    <pref.icon className={`h-6 w-6 ${pref.color}`} />
+                    <h3 className="text-lg font-bold text-white">{pref.label}</h3>
                   </div>
                 ))}
               </div>
@@ -2222,15 +2342,13 @@ export default function QuizPage() {
         )
       case 21:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">
-                Como você se sente sobre flexões e exercícios de força?
-              </h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Como você se sente sobre flexões e exercícios de força?</h2>
             </div>
-            <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
-              <ExerciseIllustration type="pullups" className="w-48 md:w-64 h-48 md:h-64" />
-              <div className="space-y-3 md:space-y-4 flex-1 max-w-sm">
+            <div className="flex items-center justify-center space-x-8">
+              <ExerciseIllustration type="pullups" className="w-64 h-64" />
+              <div className="space-y-4 flex-1 max-w-sm">
                 {[
                   { value: "amo", label: "Amo exercícios de força!", icon: ThumbsUp, color: "text-green-500" },
                   { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
@@ -2238,15 +2356,15 @@ export default function QuizPage() {
                 ].map((pref) => (
                   <div
                     key={pref.value}
-                    className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 md:space-x-4 ${
+                    className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
                       quizData.exercisePreferences.pullups === pref.value
                         ? "border-2 border-lime-500"
                         : "border border-gray-700"
                     }`}
                     onClick={() => updateExercisePreference("pullups", pref.value)}
                   >
-                    <pref.icon className={`h-5 md:h-6 w-5 md:w-6 ${pref.color}`} />
-                    <h3 className="text-base md:text-lg font-bold text-white">{pref.label}</h3>
+                    <pref.icon className={`h-6 w-6 ${pref.color}`} />
+                    <h3 className="text-lg font-bold text-white">{pref.label}</h3>
                   </div>
                 ))}
               </div>
@@ -2255,15 +2373,13 @@ export default function QuizPage() {
         )
       case 22:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">
-                Como você se sente sobre yoga e alongamento?
-              </h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Como você se sente sobre yoga e alongamento?</h2>
             </div>
-            <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
-              <ExerciseIllustration type="yoga" className="w-48 md:w-64 h-48 md:h-64" />
-              <div className="space-y-3 md:space-y-4 flex-1 max-w-sm">
+            <div className="flex items-center justify-center space-x-8">
+              <ExerciseIllustration type="yoga" className="w-64 h-64" />
+              <div className="space-y-4 flex-1 max-w-sm">
                 {[
                   { value: "amo", label: "Amo yoga/alongamento!", icon: ThumbsUp, color: "text-green-500" },
                   { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
@@ -2271,15 +2387,15 @@ export default function QuizPage() {
                 ].map((pref) => (
                   <div
                     key={pref.value}
-                    className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 md:space-x-4 ${
+                    className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
                       quizData.exercisePreferences.yoga === pref.value
                         ? "border-2 border-lime-500"
                         : "border border-gray-700"
                     }`}
                     onClick={() => updateExercisePreference("yoga", pref.value)}
                   >
-                    <pref.icon className={`h-5 md:h-6 w-5 md:w-6 ${pref.color}`} />
-                    <h3 className="text-base md:text-lg font-bold text-white">{pref.label}</h3>
+                    <pref.icon className={`h-6 w-6 ${pref.color}`} />
+                    <h3 className="text-lg font-bold text-white">{pref.label}</h3>
                   </div>
                 ))}
               </div>
@@ -2288,28 +2404,30 @@ export default function QuizPage() {
         )
       case 23:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
-              <p className="text-sm md:text-base text-gray-400">Selecione de 1 a 7 dias</p>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
+              <p className="text-gray-300">Selecione de 1 a 7 dias</p>
             </div>
-            <div className="bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-4 md:p-8 border border-zinc-800">
-              <div className="space-y-4">
-                <div className="bg-gray-700 rounded-full px-3 py-1.5 md:px-4 md:py-2 inline-block">
-                  <span className="text-white font-bold text-base md:text-lg">{quizData.trainingDaysPerWeek} dias</span>
-                </div>
-                <div className="px-2 md:px-4">
-                  <Slider
-                    value={[quizData.trainingDaysPerWeek]}
-                    onValueChange={(value) => updateQuizData("trainingDaysPerWeek", value[0])}
-                    max={7}
-                    min={1}
-                    step={1}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs md:text-sm text-gray-400 px-2">
-                    <span>1 dia</span>
-                    <span>7 dias</span>
+            <div className="text-center space-y-8">
+              <div className="bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-8 border border-zinc-800">
+                <div className="space-y-4">
+                  <div className="bg-gray-700 rounded-full px-4 py-2 inline-block">
+                    <span className="text-white font-bold">{quizData.trainingDaysPerWeek} dias</span>
+                  </div>
+                  <div className="px-4">
+                    <Slider
+                      value={[quizData.trainingDaysPerWeek]}
+                      onValueChange={(value) => updateQuizData("trainingDaysPerWeek", value[0])}
+                      max={7}
+                      min={1}
+                      step={1}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-gray-400 text-sm mt-2">
+                      <span>1 dia</span>
+                      <span>7 dias</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2318,10 +2436,10 @@ export default function QuizPage() {
         )
       case 24:
         return (
-          <div className="space-y-4 md:space-y-8">
-            <div className="text-center space-y-2 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Digite o seu e-mail</h2>
-              <p className="text-sm md:text-base text-gray-300">Para receber seu plano personalizado</p>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Digite o seu e-mail</h2>
+              <p className="text-gray-300">Para receber seu plano personalizado</p>
             </div>
             <div className="space-y-6">
               <Input
@@ -2329,7 +2447,7 @@ export default function QuizPage() {
                 placeholder="seu@email.com"
                 value={quizData.email}
                 onChange={(e) => updateQuizData("email", e.target.value)}
-                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl md:text-2xl rounded-none focus:border-lime-500"
+                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
               />
             </div>
           </div>
@@ -2399,71 +2517,63 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col p-4 md:p-6">
-      {/* Progress bar */}
-      <div className="mb-4 md:mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <Button variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="text-white p-2">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            <span className="hidden sm:inline">Voltar</span>
+    <div className="min-h-screen bg-gray-900 text-white p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <Button variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="text-white">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar
           </Button>
           <div className="text-center">
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400">
               {currentStep} de {totalSteps}
             </p>
           </div>
-          {/* Placeholder for alignment on smaller screens */}
-          <div className="w-16 sm:w-auto" />
+          <div className="w-16" />
         </div>
-        <div className="w-full bg-gray-700 rounded-full h-2">
+        <div className="w-full bg-gray-700 rounded-full h-2 mb-8">
           <div
             className="bg-lime-500 h-2 rounded-full transition-all duration-300"
             style={{ width: `${(currentStep / totalSteps) * 100}%` }}
           />
         </div>
-      </div>
-
-      {/* Main content area with optimized spacing */}
-      <div className="flex-1 flex items-center justify-center overflow-y-auto">
-        <div className="w-full max-w-2xl">{renderStep()}</div>
-      </div>
-
-      {/* Continue button with reduced size on mobile */}
-      {!showSuccess &&
-        !showLoading &&
-        !showIMCResult &&
-        !showNutritionInfo &&
-        !showWaterCongrats &&
-        !showTimeCalculation && (
-          <div className="mt-4 md:mt-6">
+        <div className="mb-8">{renderStep()}</div>
+        <div className="flex justify-center">
+          {currentStep === totalSteps ? (
             <Button
-              onClick={handleContinue}
-              disabled={!isStepValid(currentStep)} // Ensure isStepValid uses the current step
-              className="w-full bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white py-4 md:py-6 px-6 md:px-8 text-lg md:text-xl font-bold rounded-full shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl font-bold rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
             >
-              <div className="relative px-6 md:px-8 py-3 md:py-4">
-                <span className="relative z-10 flex items-center gap-2">
+              <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 disabled:hover:scale-100 disabled:shadow-none">
+                <span className="relative z-10 flex items-center gap-3">
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="h-5 md:h-6 w-5 md:w-6 animate-spin" />
-                      <span className="text-base md:text-lg">Processando...</span>
-                    </>
-                  ) : currentStep === totalSteps ? (
-                    <>
-                      <Dumbbell className="h-5 md:h-6 w-5 md:w-6" />
-                      <span className="text-base md:text-lg">Finalizar</span>
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                      Processando...
                     </>
                   ) : (
                     <>
-                      <span className="text-base md:text-lg">Continuar</span>
-                      <ArrowRight className="h-5 md:h-6 w-5 md:w-6" />
+                      Finalizar Avaliação
+                      <Dumbbell className="h-6 w-6" />
                     </>
                   )}
                 </span>
               </div>
             </Button>
-          </div>
-        )}
+          ) : (
+            <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                <span className="relative z-10">Continuar</span>
+
+                {/* Efeito de brilho animado */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            </Button>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
