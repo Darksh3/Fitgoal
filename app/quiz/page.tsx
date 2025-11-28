@@ -177,20 +177,19 @@ export default function QuizPage() {
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false) // Add isSubmitting state
 
-  const [debugMode, setDebugMode] = useState(true)
+  const [debugMode, setDebugMode] = useState(false) // Disabled debug mode
   const [debugValues, setDebugValues] = useState({
-    // Original was for w-64, now scaled for w-48 (25% smaller)
-    chest_left: { top: 23, left: 32, width: 20, height: 6, rotate: -90 },
-    chest_right: { top: 23, right: 40, width: 20, height: 6, rotate: -90 },
-    arm_upper_left: { top: 23, left: 8, width: 9, height: 10, rotate: 4 },
-    arm_lower_left: { top: 37, left: 2, width: 10, height: 11, rotate: 2 },
-    arm_upper_right: { top: 23, right: 12, width: 9, height: 8, rotate: -25 },
-    arm_lower_right: { top: 32, right: 10, width: 6, height: 8, rotate: 29 },
-    belly: { top: 31, left: 50, width: 30, height: 11, rotate: 0 },
-    leg_upper_left: { top: 54, left: 28, width: 18, height: 12, rotate: -2 },
-    leg_lower_left: { top: 74, left: 42, width: 5, height: 9, rotate: -17 },
-    leg_upper_right: { top: 54, right: 40, width: 14, height: 11, rotate: 11 },
-    leg_lower_right: { top: 72, right: 50, width: 6, height: 13, rotate: 12 },
+    chest_left: { top: 23, left: 33, width: 14, height: 6, rotate: -90 },
+    chest_right: { top: 23, right: 38, width: 14, height: 6, rotate: -90 },
+    arm_upper_left: { top: 22, left: 23, width: 6, height: 12, rotate: 4 },
+    arm_lower_left: { top: 37, left: 21, width: 5, height: 11, rotate: 2 },
+    arm_upper_right: { top: 20, right: 27, width: 5, height: 11, rotate: -25 },
+    arm_lower_right: { top: 32, right: 24, width: 5, height: 8, rotate: 29 },
+    belly: { top: 31, left: 49, width: 22, height: 13, rotate: 0 },
+    leg_upper_left: { top: 54, left: 34, width: 11, height: 14, rotate: -2 },
+    leg_lower_left: { top: 73, left: 42, width: 5, height: 9, rotate: -17 },
+    leg_upper_right: { top: 53, right: 39, width: 11, height: 13, rotate: 11 },
+    leg_lower_right: { top: 72, right: 44, width: 6, height: 13, rotate: 12 },
     // Masculine markings
     m_chest_left: { top: 21, left: 34, width: 21, height: 11, rotate: -90 },
     m_chest_right: { top: 21, right: 32, width: 21, height: 11, rotate: -89 },
