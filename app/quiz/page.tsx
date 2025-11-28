@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect } from "react"
 // import Image from "next/image" // Import Image component
 
@@ -173,7 +171,7 @@ export default function QuizPage() {
   const [showWaterCongrats, setShowWaterCongrats] = useState(false)
   const [showTimeCalculation, setShowTimeCalculation] = useState(false)
   const [showIMCResult, setShowIMCResult] = useState(false)
-  const [loading, setLoading] = useState(false) // Renamed showLoading to loading
+  const [showLoading, setShowLoading] = useState(false)
   const [totalSteps, setTotalSteps] = useState(24)
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
@@ -893,11 +891,11 @@ export default function QuizPage() {
     )
   }
 
-  if (loading) {
+  if (showLoading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 md:p-6">
-        <div className="text-center space-y-4 md:space-y-6 max-w-md">
-          <div className="w-24 h-24 md:w-32 md:h-32 mx-auto relative">
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
+        <div className="text-center space-y-6 max-w-md">
+          <div className="w-32 h-32 mx-auto relative">
             <svg className="w-full h-full animate-spin" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="40" stroke="#374151" strokeWidth="8" fill="none" />
               <circle
@@ -913,10 +911,8 @@ export default function QuizPage() {
               />
             </svg>
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold">Gerando seu plano personalizado...</h2>
-          <p className="text-sm md:text-base text-gray-400">
-            Analisando suas respostas e criando treinos ideais para você
-          </p>
+          <h2 className="text-2xl font-bold">Analisando suas respostas...</h2>
+          <p className="text-gray-300">Criando seu plano personalizado</p>
         </div>
       </div>
     )
@@ -928,30 +924,32 @@ export default function QuizPage() {
       Number.parseFloat(quizData.height),
     )
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 md:p-6">
-        <div className="text-center space-y-4 md:space-y-6 max-w-md">
-          <BodyIllustration
-            className="w-40 h-52 md:w-48 md:h-64 mx-auto"
-            gender={quizData.gender === "mulher" ? "female" : "male"}
-          />
-          <h2 className="text-2xl md:text-3xl font-bold">Resultado do seu IMC</h2>
-          <div className="bg-gray-800 rounded-lg p-4 md:p-6">
-            <p className="text-gray-300 text-base md:text-lg mb-4">
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
+        <div className="text-center space-y-6 max-w-md">
+          <BodyIllustration className="w-48 h-64 mx-auto" gender={quizData.gender === "mulher" ? "female" : "male"} />
+          <h2 className="text-3xl font-bold">Resultado do seu IMC</h2>
+          <div className="bg-gray-800 rounded-lg p-6">
+            <p className="text-gray-300 text-lg mb-4">
               Calculamos o seu IMC e ele é de <span className="text-lime-400 font-bold">{imc}</span>
             </p>
-            <p className="text-white text-lg md:text-xl mb-4">
+            <p className="text-white text-xl mb-4">
               Você está com <span className="text-lime-400 font-bold">{classification}</span>
-            </p>
-            <p className="text-sm md:text-base text-gray-400">
-              É importante manter um IMC saudável para sua saúde geral. Seu plano personalizado ajudará você a alcançar
-              seus objetivos!
             </p>
           </div>
           <Button
-            onClick={() => setShowIMCResult(false)}
-            className="w-full py-4 md:py-6 text-base md:text-lg bg-lime-500 hover:bg-lime-600 text-gray-900 font-bold"
+            onClick={() => {
+              setShowIMCResult(false)
+              setShowSuccess(true)
+            }}
+            className="group relative"
           >
-            Continuar
+            {/* Botão principal */}
+            <div className="relative px-16 py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+              <span className="relative z-10">Continuar</span>
+
+              {/* Efeito de brilho animado */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
           </Button>
         </div>
       </div>
@@ -961,13 +959,13 @@ export default function QuizPage() {
   if (showSuccess) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-center p-4">
-        <div className="text-center space-y-6 md:space-y-8 max-w-lg w-full">
-          <div className="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-green-500/30 animate-in zoom-in duration-500">
-            <CheckCircle className="h-12 w-12 md:h-16 md:w-16 text-white stroke-[3]" />
+        <div className="text-center space-y-8 max-w-lg w-full">
+          <div className="w-32 h-32 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-green-500/30 animate-in zoom-in duration-500">
+            <CheckCircle className="h-16 w-16 text-white stroke-[3]" />
           </div>
 
-          <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8 space-y-4 md:space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight">
+          <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+            <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">
               Seu plano de treino personalizado está pronto!
             </h2>
 
@@ -976,7 +974,7 @@ export default function QuizPage() {
                 setShowSuccess(false)
                 router.push("/quiz/results")
               }}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 md:py-5 px-6 rounded-xl transition-colors text-base md:text-lg"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] animate-in fade-in duration-700 delay-500"
             >
               Ver Resultados
             </button>
@@ -1048,44 +1046,53 @@ export default function QuizPage() {
     )
   }
 
-  if (showTimeCalculation) {
+  const renderTimeCalculation = () => {
     const current = Number.parseFloat(quizData.currentWeight)
     const target = Number.parseFloat(quizData.targetWeight)
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-8 max-w-md">
-          <h2 className="text-2xl font-bold">
-            O último plano de que você precisará para <span className="text-lime-400">finalmente entrar</span> em forma
+        <div className="text-center space-y-8 max-w-2xl">
+          <h2 className="text-3xl md:text-4xl font-bold leading-tight">
+            O último plano de que você precisará para <span className="text-lime-400">finalmente entrar em forma</span>
           </h2>
-          <p className="text-gray-300">Com base em nossos cálculos, você atingirá seu peso ideal de {target} kg até</p>
-          <div className="text-2xl font-bold text-lime-400 border-b-2 border-lime-400 pb-2 inline-block">
-            {quizData.timeToGoal}
-          </div>
-          <div className="relative h-32 bg-gray-800 rounded-lg p-4">
-            <div className="absolute top-4 left-4 bg-gray-700 px-3 py-1 rounded text-sm">{current} kg</div>
-            <div className="absolute bottom-4 right-4 bg-lime-500 px-3 py-1 rounded text-sm">{target} kg</div>
+
+          <p className="text-gray-300 text-lg">
+            Com base em nossos cálculos, você atingirá seu peso ideal de {target} kg até
+          </p>
+
+          <div className="text-4xl md:text-5xl font-bold text-lime-400">{quizData.timeToGoal}</div>
+
+          <div className="relative h-48 bg-gray-800/50 border border-gray-700 rounded-2xl p-8">
+            <div className="absolute top-6 left-6 bg-gray-700/80 px-4 py-2 rounded-lg text-base font-medium">
+              {current} kg
+            </div>
+            <div className="absolute bottom-6 right-6 bg-lime-500 px-4 py-2 rounded-lg text-base font-bold">
+              {target} kg
+            </div>
             <svg viewBox="0 0 300 100" className="w-full h-full">
               <defs>
                 <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#8B4513" />
+                  <stop offset="0%" stopColor="#f97316" />
                   <stop offset="100%" stopColor="#84CC16" />
                 </linearGradient>
               </defs>
-              <path d="M 20 20 Q 150 60 280 80" stroke="url(#progressGradient)" strokeWidth="4" fill="none" />
-              <circle cx="20" cy="20" r="4" fill="#8B4513" />
-              <circle cx="280" cy="80" r="4" fill="#84CC16" />
+              <path d="M 30 30 Q 150 50 270 75" stroke="url(#progressGradient)" strokeWidth="3" fill="none" />
+              <circle cx="30" cy="30" r="5" fill="#f97316" />
+              <circle cx="270" cy="75" r="5" fill="#84CC16" />
             </svg>
           </div>
-          <div className="flex justify-between text-sm text-gray-400">
+
+          <div className="flex justify-between text-base text-gray-400">
             <span>{getCurrentDate()}</span>
             <span>{quizData.timeToGoal}</span>
           </div>
+
           <Button
             onClick={() => {
               setShowTimeCalculation(false)
               setCurrentStep(currentStep + 1)
             }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-white py-4 text-lg rounded-full"
+            className="w-full max-w-xs mx-auto bg-blue-600 hover:bg-blue-700 text-white py-6 text-xl font-semibold rounded-full shadow-lg"
           >
             Entendi
           </Button>
@@ -1131,410 +1138,28 @@ export default function QuizPage() {
     return ">40%"
   }
 
-  // New structure for questions
-  const questions = [
-    {
-      step: 1,
-      question: "Qual o seu gênero?",
-      subtitle: "",
-      type: "single",
-      options: [
-        { value: "homem", label: "Homem", icon: "/images/male-gender-icon.webp" },
-        { value: "mulher", label: "Mulher", icon: "/images/female-gender-icon.webp" },
-      ],
-      onSelect: (value: string) => updateQuizData("gender", value),
-      value: quizData.gender,
-    },
-    {
-      step: 2,
-      question: "Qual a sua idade?",
-      subtitle: "",
-      type: "input_number",
-      value: quizData.age.toString(),
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => updateQuizData("age", Number.parseInt(e.target.value) || 0),
-      min: 16,
-      max: 80,
-      placeholder: "Digite sua idade",
-    },
-    {
-      step: 3,
-      question: "Qual o seu tipo de Corpo?",
-      subtitle: "Selecione a opção que melhor descreve seu biotipo",
-      type: "single_card",
-      options: [
-        {
-          value: "ectomorfo",
-          label: "Ectomorfo",
-          desc: "Corpo magro, dificuldade para ganhar peso",
-          img: "/images/female-ectomorph-real-new.webp",
-        },
-        {
-          value: "mesomorfo",
-          label: "Mesomorfo",
-          desc: "Corpo atlético, facilidade para ganhar músculos",
-          img: "/images/female-mesomorph-real-new.webp",
-        },
-        {
-          value: "endomorfo",
-          label: "Endomorfo",
-          desc: "Corpo mais largo, tendência a acumular gordura",
-          img: "/images/female-endomorph-real-new.webp",
-        },
-      ],
-      onSelect: (value: string) => updateQuizData("bodyType", value),
-      value: quizData.bodyType,
-      getImage: (type: string) => {
-        const isWoman = quizData.gender === "mulher"
-        switch (type) {
-          case "ectomorfo":
-            return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
-          case "mesomorfo":
-            return isWoman ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorph-real-new.webp"
-          case "endomorfo":
-            return isWoman ? "/images/female-endomorph-real-new.webp" : "/images/male-endomorph-real-new.webp"
-          default:
-            return "/placeholder.svg"
-        }
-      },
-    },
-    {
-      step: 4,
-      question: "Quais são os seus objetivos?",
-      subtitle: "Selecione todos que se aplicam",
-      type: "multiple_card",
-      options: [
-        { value: "perder-peso", label: "Perder peso e queimar gordura", icon: "/images/calories-icon.webp" },
-        {
-          value: "ganhar-massa",
-          label: "Ganhar massa muscular e definir o corpo",
-          icon: quizData.gender === "mulher" ? "/images/slim-body-icon.webp" : "/images/body-icon.webp",
-        },
-        {
-          value: "melhorar-saude",
-          label: "Melhorar minha saúde, disposição e bem-estar",
-          icon: "/images/better-health-icon.webp",
-        },
-        {
-          value: "aumentar-resistencia",
-          label: "Aumentar a minha resistência física e condicionamento",
-          icon: "/images/training-icon.webp",
-        },
-      ],
-      onSelect: (value: string, checked: boolean) => handleArrayUpdate("goal", value, checked),
-      value: quizData.goal,
-    },
-    {
-      step: 5,
-      question: "Escolha o seu nível de gordura corporal",
-      subtitle: "",
-      type: "slider",
-      value: quizData.bodyFat,
-      min: 5,
-      max: 45,
-      step: 1,
-      onChange: (value: number) => updateQuizData("bodyFat", value),
-      getRange: (value: number) => {
-        if (value <= 10) return "5-10%"
-        if (value <= 15) return "11-15%"
-        if (value <= 20) return "16-20%"
-        if (value <= 25) return "21-25%"
-        if (value <= 30) return "26-30%"
-        if (value <= 35) return "31-35%"
-        if (value <= 39) return "36-39%"
-        return ">40%"
-      },
-      getImage: () => getBodyFatImage(),
-    },
-    {
-      step: 6,
-      question: "Qual área você quer focar mais?",
-      subtitle: "Selecione todos que se aplicam",
-      type: "problem_areas",
-      options: ["Peito", "Braços", "Barriga", "Pernas", "Corpo inteiro"],
-      onSelect: (value: string, checked: boolean) => handleArrayUpdate("problemAreas", value, checked),
-      value: quizData.problemAreas,
-      getImage: () => (quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"),
-      debugMode: debugMode,
-      setDebugMode: setDebugMode,
-      debugValues: debugValues,
-      updateDebugValue: updateDebugValue,
-      copyDebugValues: copyDebugValues,
-    },
-    {
-      step: 7,
-      question: "Você segue alguma dessas dietas?",
-      subtitle: "",
-      type: "single_diet",
-      options: [
-        { value: "vegetariano", label: "Vegetariano", desc: "Exclui carne", icon: "🌱" },
-        { value: "vegano", label: "Vegano", desc: "Exclui todos os produtos de origem animal", icon: "🌿" },
-        { value: "keto", label: "Keto", desc: "Baixo teor de carboidratos e alto teor de gordura", icon: "🥑" },
-        { value: "mediterraneo", label: "Mediterrâneo", desc: "Rico em alimentos à base de plantas", icon: "🫒" },
-      ],
-      onSelect: (value: string) => updateQuizData("diet", value),
-      value: quizData.diet,
-      noDietOption: { value: "nao-sigo", label: "Não, não sigo nenhuma dessas dietas", icon: X },
-    },
-    {
-      step: 8,
-      question: "Com que frequência você consome doces ou bebidas alcoólicas?",
-      subtitle: "Selecione todas que se aplicam",
-      type: "multiple_checkbox",
-      options: [
-        { value: "esporadicamente", label: "Esporadicamente", icon: "🍷" },
-        { value: "com-frequencia", label: "Com frequência", icon: "🍭" },
-        { value: "todos-dias", label: "Todos os dias", icon: "🍰" },
-        { value: "nao-consumo-alcool", label: "Não consumo álcool", icon: "🚫" },
-        { value: "nao-consumo-doces", label: "Não consumo doces", icon: "❌" },
-      ],
-      onSelect: (value: string, checked: boolean) => handleArrayUpdate("sugarFrequency", value, checked),
-      value: quizData.sugarFrequency,
-    },
-    {
-      step: 9,
-      question: "Quantidade diária de água",
-      subtitle: "",
-      type: "single_card",
-      options: [
-        { value: "menos-2", label: "Menos de 2 copos", desc: "até 0,5 l", icon: Droplets },
-        { value: "2-6", label: "2-6 copos", desc: "0,5-1,5 l", icon: Droplets },
-        { value: "7-10", label: "7-10 copos", desc: "1,5-2,5 l", icon: Droplets },
-        { value: "mais-10", label: "Mais de 10 copos", desc: "mais de 2,5 l", icon: Droplets },
-      ],
-      onSelect: (value: string) => updateQuizData("waterIntake", value),
-      value: quizData.waterIntake,
-    },
-    {
-      step: 10,
-      question: "Qual é a sua altura?",
-      subtitle: "Digite em metros (ex: 1.75) ou centímetros (ex: 175)",
-      type: "input_text",
-      value: quizData.height,
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-        const cleaned = e.target.value.replace(/[^\d.,]/g, "")
-        setQuizData({ ...quizData, height: cleaned })
-      },
-      onBlur: (e: React.FocusEvent<HTMLInputElement>) => {
-        const normalized = normalizeHeight(e.target.value)
-        updateQuizData("height", normalized)
-      },
-      placeholder: "Altura em metros (ex: 1.75 ou 1,75)",
-    },
-    {
-      step: 11,
-      question: "Possui alergias ou restrições alimentares?",
-      subtitle: "",
-      type: "yes_no",
-      options: [
-        { value: "sim", label: "Sim, possuo alergias ou restrições", icon: CheckCircle, color: "text-lime-500" },
-        { value: "nao", label: "Não, não possuo alergias ou restrições", icon: X, color: "text-lime-500" },
-      ],
-      onSelect: (value: string) => updateQuizData("allergies", value),
-      value: quizData.allergies,
-    },
-    {
-      step: 12,
-      question: "Quais são suas alergias ou restrições alimentares?",
-      subtitle: "Descreva suas alergias, intolerâncias ou restrições alimentares",
-      type: "textarea",
-      value: quizData.allergyDetails,
-      onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => updateQuizData("allergyDetails", e.target.value),
-      placeholder: "Ex: Alergia a amendoim, intolerância à lactose, não como carne vermelha...",
-    },
-    {
-      step: 13,
-      question: "Podemos adicionar algum suplemento à sua dieta?",
-      subtitle: "Por exemplo: Hipercalórico, Whey Protein...",
-      type: "supplement_choice",
-      onSelect: (wantsSupplement: string, supplementType: string) => {
-        setQuizData((prev) => ({
-          ...prev,
-          wantsSupplement: wantsSupplement,
-          supplementType: supplementType,
-        }))
-      },
-      value: quizData.wantsSupplement,
-      supplementType: quizData.supplementType,
-      bodyType: quizData.bodyType,
-      bodyFat: quizData.bodyFat,
-      problemAreas: quizData.problemAreas,
-    },
-    {
-      step: 14,
-      question: "Qual é o seu peso atual?",
-      subtitle: "",
-      type: "input_number",
-      value: quizData.currentWeight,
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => updateQuizData("currentWeight", e.target.value),
-      placeholder: `Peso atual, kg`,
-    },
-    {
-      step: 15,
-      question: "Qual é o seu objetivo de peso?",
-      subtitle: "",
-      type: "input_number",
-      value: quizData.targetWeight,
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-        updateQuizData("targetWeight", e.target.value)
-      },
-      onBlur: () => {
-        const calculatedTime = calculateTimeToGoal()
-        if (calculatedTime) {
-          updateQuizData("timeToGoal", calculatedTime)
-        }
-      },
-      placeholder: `Peso alvo, kg`,
-      min: 1,
-      max: 500,
-      step: 0.1,
-    },
-    {
-      step: 16,
-      question: "Qual é o seu nome?",
-      subtitle: "",
-      type: "input_text",
-      value: quizData.name,
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => updateQuizData("name", e.target.value),
-      placeholder: "Digite seu nome",
-    },
-    {
-      step: 17,
-      question: "Quanto tempo você tem para treinar?",
-      subtitle: "",
-      type: "single_card",
-      options: [
-        { value: "30min", label: "30 minutos" },
-        { value: "45min", label: "45 minutos" },
-        { value: "1hora", label: "1 hora" },
-        { value: "mais-1h", label: "Mais de 1 hora" },
-      ],
-      onSelect: (value: string) => updateQuizData("workoutTime", value),
-      value: quizData.workoutTime,
-    },
-    {
-      step: 18,
-      question: "Qual é sua experiência com exercícios?",
-      subtitle: "",
-      type: "single_experience",
-      options: [
-        { value: "iniciante", label: "Iniciante - Nunca treinei" },
-        { value: "basico", label: "Básico - Treino ocasionalmente" },
-        { value: "intermediario", label: "Intermediário - Treino regularmente" },
-        { value: "avancado", label: "Avançado - Treino há anos" },
-      ],
-      onSelect: (value: string) => updateQuizData("experience", value),
-      value: quizData.experience,
-    },
-    {
-      step: 19,
-      question: "Que equipamentos você tem acesso?",
-      subtitle: "Selecione todos que se aplicam",
-      type: "multiple_checkbox",
-      options: [
-        { value: "academia", label: "Academia completa", icon: "🏋️" },
-        { value: "halteres", label: "Halteres", icon: "🏋️‍♀️" },
-        { value: "barras", label: "Barras para exercícios", icon: "🤸" },
-        { value: "elasticos", label: "Elásticos/Faixas", icon: "🎯" },
-        { value: "esteira", label: "Esteira", icon: "🏃" },
-        { value: "bicicleta", label: "Bicicleta ergométrica", icon: "🚴" },
-        { value: "nenhum", label: "Apenas peso corporal", icon: "🤲" },
-      ],
-      onSelect: (value: string, checked: boolean) => handleArrayUpdate("equipment", value, checked),
-      value: quizData.equipment,
-    },
-    {
-      step: 20,
-      question: "Como você se sente sobre exercícios cardiovasculares?",
-      subtitle: "",
-      type: "exercise_preference",
-      exerciseType: "cardio",
-      options: [
-        { value: "amo", label: "Amo cardio!", icon: ThumbsUp, color: "text-green-500" },
-        { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
-        { value: "odeio", label: "Odeio cardio", icon: ThumbsDown, color: "text-red-500" },
-      ],
-      onSelect: (value: string) => updateExercisePreference("cardio", value),
-      value: quizData.exercisePreferences.cardio,
-      illustration: <ExerciseIllustration type="cardio" className="w-64 h-64" />,
-    },
-    {
-      step: 21,
-      question: "Como você se sente sobre flexões e exercícios de força?",
-      subtitle: "",
-      type: "exercise_preference",
-      exerciseType: "pullups",
-      options: [
-        { value: "amo", label: "Amo exercícios de força!", icon: ThumbsUp, color: "text-green-500" },
-        { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
-        { value: "odeio", label: "Prefiro evitar", icon: ThumbsDown, color: "text-red-500" },
-      ],
-      onSelect: (value: string) => updateExercisePreference("pullups", value),
-      value: quizData.exercisePreferences.pullups,
-      illustration: <ExerciseIllustration type="pullups" className="w-64 h-64" />,
-    },
-    {
-      step: 22,
-      question: "Como você se sente sobre yoga e alongamento?",
-      subtitle: "",
-      type: "exercise_preference",
-      exerciseType: "yoga",
-      options: [
-        { value: "amo", label: "Amo yoga/alongamento!", icon: ThumbsUp, color: "text-green-500" },
-        { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
-        { value: "odeio", label: "Prefiro evitar", icon: ThumbsDown, color: "text-red-500" },
-      ],
-      onSelect: (value: string) => updateExercisePreference("yoga", value),
-      value: quizData.exercisePreferences.yoga,
-      illustration: <ExerciseIllustration type="yoga" className="w-64 h-64" />,
-    },
-    {
-      step: 23,
-      question: "Quantos dias você irá treinar por semana?",
-      subtitle: "Selecione de 1 a 7 dias",
-      type: "slider_days",
-      value: quizData.trainingDaysPerWeek,
-      min: 1,
-      max: 7,
-      step: 1,
-      onChange: (value: number) => updateQuizData("trainingDaysPerWeek", value),
-    },
-    {
-      step: 24,
-      question: "Digite o seu e-mail",
-      subtitle: "Para receber seu plano personalizado",
-      type: "input_email",
-      value: quizData.email,
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => updateQuizData("email", e.target.value),
-      placeholder: "seu@email.com",
-    },
-  ]
-
   const renderStep = () => {
-    const currentQuestion = questions.find((q) => q.step === currentStep)
-    if (!currentQuestion) return <div>Erro ao carregar pergunta.</div>
-
-    switch (currentQuestion.type) {
-      case "single":
+    switch (currentStep) {
+      case 1:
         return (
-          <div className="space-y-6 md:space-y-8">
-            <div className="text-center space-y-3 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">{currentQuestion.question}</h2>
-              {currentQuestion.subtitle && (
-                <p className="text-sm md:text-base text-gray-400">{currentQuestion.subtitle}</p>
-              )}
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Qual o seu gênero?</h2>
             </div>
-            {/* Reduced gap for mobile */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 max-w-lg mx-auto">
-              {currentQuestion.options.map((option: any) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-lg mx-auto">
+              {[
+                { value: "homem", label: "Homem", icon: "/images/male-gender-icon.webp" },
+                { value: "mulher", label: "Mulher", icon: "/images/female-gender-icon.webp" },
+              ].map((gender) => (
                 <div
-                  key={option.value}
+                  key={gender.value}
                   className="text-center space-y-4 cursor-pointer"
-                  onClick={() => currentQuestion.onSelect(option.value)}
+                  onClick={() => updateQuizData("gender", gender.value)}
                 >
                   <div className="flex justify-center items-center h-40">
                     <img
-                      src={option.icon || "/placeholder.svg"}
-                      alt={option.label}
+                      src={gender.icon || "/placeholder.svg"}
+                      alt={gender.label}
                       className="w-24 h-24 object-contain mx-auto"
                       onError={(e) => {
                         e.currentTarget.src = "/placeholder.svg"
@@ -1543,55 +1168,66 @@ export default function QuizPage() {
                   </div>
                   <div
                     className={`bg-gray-800 rounded-lg p-4 transition-all ${
-                      currentQuestion.value === option.value ? "border-2 border-lime-500" : "border border-gray-700"
+                      quizData.gender === gender.value ? "border-2 border-lime-500" : "border border-gray-700"
                     }`}
                   >
-                    <h3 className="text-xl font-bold text-white">{option.label}</h3>
+                    <h3 className="text-xl font-bold text-white">{gender.label}</h3>
                   </div>
                 </div>
               ))}
             </div>
           </div>
         )
-      case "input_number":
+      case 2:
         return (
-          <div className="space-y-6 md:space-y-8">
-            <div className="text-center space-y-3 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">{currentQuestion.question}</h2>
-              {currentQuestion.subtitle && (
-                <p className="text-sm md:text-base text-gray-400">{currentQuestion.subtitle}</p>
-              )}
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Qual a sua idade?</h2>
             </div>
             <div className="max-w-md mx-auto">
-              <Input
+              <input
                 type="number"
-                value={currentQuestion.value}
-                onChange={currentQuestion.onChange}
-                min={currentQuestion.min}
-                max={currentQuestion.max}
-                placeholder={currentQuestion.placeholder}
+                min="16"
+                max="80"
+                value={quizData.age || ""}
+                onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
                 className="w-full p-4 text-xl text-center bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-lime-500 focus:outline-none"
+                placeholder="Digite sua idade"
               />
             </div>
           </div>
         )
-      case "single_card":
+      case 3:
+        const getBodyTypeImage = (type: string) => {
+          const isWoman = quizData.gender === "mulher"
+          switch (type) {
+            case "ectomorfo":
+              return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
+            case "mesomorfo":
+              return isWoman ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorph-real-new.webp"
+            case "endomorfo":
+              return isWoman ? "/images/female-endomorph-real-new.webp" : "/images/male-endomorph-real-new.webp"
+            default:
+              return "/placeholder.svg"
+          }
+        }
         return (
-          <div className="space-y-6 md:space-y-8">
-            <div className="text-center space-y-3 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">{currentQuestion.question}</h2>
-              {currentQuestion.subtitle && (
-                <p className="text-sm md:text-base text-gray-400">{currentQuestion.subtitle}</p>
-              )}
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual o seu tipo de Corpo?</h2>
             </div>
             <div className="space-y-3 sm:space-y-6">
-              {currentQuestion.options.map((type: any) => (
+              {[
+                { value: "ectomorfo", label: "Ectomorfo", desc: "Corpo magro, dificuldade para ganhar peso" },
+                { value: "mesomorfo", label: "Mesomorfo", desc: "Corpo atlético, facilidade para ganhar músculos" },
+                { value: "endomorfo", label: "Endomorfo", desc: "Corpo mais largo, tendência a acumular gordura" },
+              ].map((type) => (
                 <div
                   key={type.value}
                   className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
-                    currentQuestion.value === type.value ? "border-2 border-lime-500" : "border border-gray-700"
+                    quizData.bodyType === type.value ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
-                  onClick={() => currentQuestion.onSelect(type.value)}
+                  onClick={() => updateQuizData("bodyType", type.value)}
                 >
                   <div className="flex-1">
                     <h3 className="text-2xl font-bold text-white mb-2">{type.label}</h3>
@@ -1599,7 +1235,7 @@ export default function QuizPage() {
                   </div>
                   <div className="flex-shrink-0 ml-6">
                     <img
-                      src={currentQuestion.getImage(type.value) || "/placeholder.svg"}
+                      src={getBodyTypeImage(type.value) || "/placeholder.svg"}
                       alt={`${type.label} body type`}
                       className="w-auto h-32 sm:h-48 object-contain"
                       onError={(e) => {
@@ -1612,27 +1248,44 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case "multiple_card":
+      case 4:
+        const getGoalIcon = (goalValue: string) => {
+          switch (goalValue) {
+            case "perder-peso":
+              return "/images/calories-icon.webp"
+            case "ganhar-massa":
+              return quizData.gender === "mulher" ? "/images/slim-body-icon.webp" : "/images/body-icon.webp"
+            case "melhorar-saude":
+              return "/images/better-health-icon.webp"
+            case "aumentar-resistencia":
+              return "/images/training-icon.webp"
+            default:
+              return "/placeholder.svg"
+          }
+        }
         return (
-          <div className="space-y-6 md:space-y-8">
-            <div className="text-center space-y-3 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">{currentQuestion.question}</h2>
-              {currentQuestion.subtitle && (
-                <p className="text-sm md:text-base text-gray-400">{currentQuestion.subtitle}</p>
-              )}
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">Quais são os seus objetivos?</h2>
+              <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="space-y-3 sm:space-y-4">
-              {currentQuestion.options.map((goal: any) => (
+              {[
+                { value: "perder-peso", label: "Perder peso e queimar gordura" },
+                { value: "ganhar-massa", label: "Ganhar massa muscular e definir o corpo" },
+                { value: "melhorar-saude", label: "Melhorar minha saúde, disposição e bem-estar" },
+                { value: "aumentar-resistencia", label: "Aumentar a minha resistência física e condicionamento" },
+              ].map((goal) => (
                 <div
                   key={goal.value}
                   className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
-                    currentQuestion.value.includes(goal.value) ? "border-2 border-lime-500" : "border border-gray-700"
+                    quizData.goal.includes(goal.value) ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
-                  onClick={() => currentQuestion.onSelect(goal.value, !currentQuestion.value.includes(goal.value))}
+                  onClick={() => handleArrayUpdate("goal", goal.value, !quizData.goal.includes(goal.value))}
                 >
                   <h3 className="text-xl font-bold text-white">{goal.label}</h3>
                   <img
-                    src={goal.icon || "/placeholder.svg"}
+                    src={getGoalIcon(goal.value) || "/placeholder.svg"}
                     alt={goal.label}
                     className="w-12 h-12 sm:w-16 sm:h-16 object-contain flex-shrink-0"
                     onError={(e) => {
@@ -1644,20 +1297,20 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case "slider":
+      case 5:
         return (
-          <div className="space-y-6 md:space-y-8">
-            <div className="text-center space-y-3 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">{currentQuestion.question}</h2>
-              {currentQuestion.subtitle && (
-                <p className="text-sm md:text-base text-gray-400">{currentQuestion.subtitle}</p>
-              )}
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Escolha o seu nível de gordura corporal</h2>
             </div>
             <div className="relative flex flex-col items-center">
+              {/* Body fat image */}
               <div className="relative w-64 h-80 mb-[-80px] z-10">
+                {/* Background glow effect */}
                 <div className="absolute inset-0 bg-gradient-radial from-white/20 via-white/5 to-transparent blur-3xl" />
+
                 <img
-                  src={currentQuestion.getImage() || "/placeholder.svg"}
+                  src={getBodyFatImage() || "/placeholder.svg"}
                   alt="Body fat representation"
                   className="relative w-full h-full object-contain transition-opacity duration-500"
                   onError={(e) => {
@@ -1665,52 +1318,63 @@ export default function QuizPage() {
                   }}
                 />
               </div>
+
+              {/* Slider container - now overlapping the image bottom */}
               <div className="relative max-w-md w-full px-4 z-20">
                 <div className="bg-zinc-900/95 backdrop-blur-sm rounded-2xl px-6 py-6 space-y-4 border border-zinc-800/50">
+                  {/* Tooltip above slider thumb showing current percentage */}
                   <div className="relative h-8">
                     <div
                       className="absolute bg-zinc-800 text-white text-sm font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 -translate-x-1/2"
                       style={{
-                        left: `${((currentQuestion.value - currentQuestion.min) / (currentQuestion.max - currentQuestion.min)) * 100}%`,
+                        left: `${((quizData.bodyFat - 5) / 40) * 100}%`,
                         top: "-8px",
                       }}
                     >
-                      {currentQuestion.getRange(currentQuestion.value)}
+                      {getBodyFatRange()}
                       <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-zinc-800" />
                     </div>
                   </div>
+
+                  {/* Custom styled slider */}
                   <div className="relative">
                     <Slider
-                      value={[currentQuestion.value]}
-                      onValueChange={(value) => currentQuestion.onChange(value[0])}
-                      max={currentQuestion.max}
-                      min={currentQuestion.min}
-                      step={currentQuestion.step}
+                      value={[quizData.bodyFat]}
+                      onValueChange={(value) => updateQuizData("bodyFat", value[0])}
+                      max={45}
+                      min={5}
+                      step={1}
                       className="w-full body-fat-slider"
                     />
                   </div>
+
+                  {/* Min and max labels below slider */}
                   <div className="flex justify-between text-gray-400 text-sm">
-                    <span>{currentQuestion.min}%</span>
-                    <span>{`>${currentQuestion.max - 5}%`}</span>
+                    <span>5-9%</span>
+                    <span>{">40%"}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         )
-      case "problem_areas":
+      case 6:
         return (
-          <div className="space-y-6 md:space-y-8">
-            <div className="text-center space-y-3 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">{currentQuestion.question}</h2>
-              {currentQuestion.subtitle && (
-                <p className="text-sm md:text-base text-gray-400">{currentQuestion.subtitle}</p>
-              )}
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
+              <p className="text-gray-300">Selecione todos que se aplicam</p>
+              <button
+                onClick={() => setDebugMode(!debugMode)}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm"
+              >
+                {debugMode ? "Sair do Modo Debug" : "Ativar Modo Debug"}
+              </button>
             </div>
             <div className="flex items-start justify-center space-x-8">
               <div className="relative w-64 h-auto bg-transparent">
                 <img
-                  src={currentQuestion.getImage() || "/placeholder.svg"}
+                  src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
                   alt="Corpo base"
                   className="w-full h-auto object-contain relative z-10"
                   style={quizData.gender === "mulher" ? { mixBlendMode: "lighten" } : {}}
@@ -1720,6 +1384,7 @@ export default function QuizPage() {
                 {quizData.gender !== "mulher" &&
                   (quizData.problemAreas.includes("Peito") || quizData.problemAreas.includes("Corpo inteiro")) && (
                     <>
+                      {/* Peitoral esquerdo */}
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
@@ -1732,6 +1397,7 @@ export default function QuizPage() {
                           boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
+                      {/* Peitoral direito */}
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
@@ -1804,6 +1470,7 @@ export default function QuizPage() {
                 {quizData.gender !== "mulher" &&
                   (quizData.problemAreas.includes("Barriga") || quizData.problemAreas.includes("Corpo inteiro")) && (
                     <>
+                      {/* Abdômen superior esquerdo */}
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
@@ -1815,6 +1482,7 @@ export default function QuizPage() {
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
+                      {/* Abdômen superior direito */}
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
@@ -1826,6 +1494,7 @@ export default function QuizPage() {
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
+                      {/* Abdômen médio esquerdo */}
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
@@ -1837,6 +1506,7 @@ export default function QuizPage() {
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
+                      {/* Abdômen médio direito */}
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
@@ -1848,6 +1518,7 @@ export default function QuizPage() {
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
+                      {/* Abdômen inferior esquerdo */}
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
@@ -1859,6 +1530,7 @@ export default function QuizPage() {
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
+                      {/* Abdômen inferior direito */}
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
@@ -2083,21 +1755,21 @@ export default function QuizPage() {
                   )}
               </div>
 
-              {currentQuestion.debugMode && (
+              {debugMode && (
                 <div className="w-96 max-h-[600px] overflow-y-auto bg-gray-900/95 rounded-lg p-4 space-y-4 border border-purple-500">
                   <div className="flex justify-between items-center sticky top-0 bg-gray-900 pb-2 border-b border-purple-500">
                     <h3 className="text-lg font-bold text-white">
                       Ajustar Marcações ({quizData.gender === "mulher" ? "Feminino" : "Masculino"})
                     </h3>
                     <button
-                      onClick={currentQuestion.copyDebugValues}
+                      onClick={copyDebugValues}
                       className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm"
                     >
                       Copiar Valores
                     </button>
                   </div>
 
-                  {Object.entries(currentQuestion.debugValues)
+                  {Object.entries(debugValues)
                     .filter(([key]) => (quizData.gender === "mulher" ? !key.startsWith("m_") : key.startsWith("m_")))
                     .map(([key, values]) => (
                       <div key={key} className="space-y-2 border-b border-gray-700 pb-3">
@@ -2113,7 +1785,7 @@ export default function QuizPage() {
                               min="0"
                               max="100"
                               value={values.top}
-                              onChange={(e) => currentQuestion.updateDebugValue(key, "top", Number(e.target.value))}
+                              onChange={(e) => updateDebugValue(key, "top", Number(e.target.value))}
                               className="w-48"
                             />
                           </label>
@@ -2126,7 +1798,7 @@ export default function QuizPage() {
                                 min="0"
                                 max="100"
                                 value={values.left}
-                                onChange={(e) => currentQuestion.updateDebugValue(key, "left", Number(e.target.value))}
+                                onChange={(e) => updateDebugValue(key, "left", Number(e.target.value))}
                                 className="w-48"
                               />
                             </label>
@@ -2140,7 +1812,7 @@ export default function QuizPage() {
                                 min="0"
                                 max="100"
                                 value={values.right}
-                                onChange={(e) => currentQuestion.updateDebugValue(key, "right", Number(e.target.value))}
+                                onChange={(e) => updateDebugValue(key, "right", Number(e.target.value))}
                                 className="w-48"
                               />
                             </label>
@@ -2153,7 +1825,7 @@ export default function QuizPage() {
                               min="1"
                               max="50"
                               value={values.width}
-                              onChange={(e) => currentQuestion.updateDebugValue(key, "width", Number(e.target.value))}
+                              onChange={(e) => updateDebugValue(key, "width", Number(e.target.value))}
                               className="w-48"
                             />
                           </label>
@@ -2165,7 +1837,7 @@ export default function QuizPage() {
                               min="1"
                               max="50"
                               value={values.height}
-                              onChange={(e) => currentQuestion.updateDebugValue(key, "height", Number(e.target.value))}
+                              onChange={(e) => updateDebugValue(key, "height", Number(e.target.value))}
                               className="w-48"
                             />
                           </label>
@@ -2177,7 +1849,7 @@ export default function QuizPage() {
                               min="-90"
                               max="90"
                               value={values.rotate}
-                              onChange={(e) => currentQuestion.updateDebugValue(key, "rotate", Number(e.target.value))}
+                              onChange={(e) => updateDebugValue(key, "rotate", Number(e.target.value))}
                               className="w-48"
                             />
                           </label>
@@ -2188,24 +1860,24 @@ export default function QuizPage() {
               )}
 
               <div className="flex flex-col space-y-4 max-w-md">
-                {currentQuestion.options.map((area: string) => (
+                {["Peito", "Braços", "Barriga", "Pernas", "Corpo inteiro"].map((area) => (
                   <div
                     key={area}
                     className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
-                      currentQuestion.value.includes(area)
+                      quizData.problemAreas.includes(area)
                         ? "bg-orange-500 border-orange-500 text-white"
                         : "bg-gray-800 border-gray-700 text-white hover:border-orange-500"
                     }`}
-                    onClick={() => currentQuestion.onSelect(area, !currentQuestion.value.includes(area))}
+                    onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-bold">{area}</h3>
                       <div
                         className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                          currentQuestion.value.includes(area) ? "bg-white border-white" : "border-gray-400"
+                          quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-gray-400"
                         }`}
                       >
-                        {currentQuestion.value.includes(area) && <CheckCircle className="h-4 w-4 text-orange-500" />}
+                        {quizData.problemAreas.includes(area) && <CheckCircle className="h-4 w-4 text-orange-500" />}
                       </div>
                     </div>
                   </div>
@@ -2214,23 +1886,30 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case "single_diet":
+      case 7:
         return (
-          <div className="space-y-6 md:space-y-8">
-            <div className="text-center space-y-3 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">{currentQuestion.question}</h2>
-              {currentQuestion.subtitle && (
-                <p className="text-sm md:text-base text-gray-400">{currentQuestion.subtitle}</p>
-              )}
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Você segue alguma dessas dietas?</h2>
             </div>
             <div className="space-y-4">
-              {currentQuestion.options.map((diet: any) => (
+              {[
+                { value: "vegetariano", label: "Vegetariano", desc: "Exclui carne", icon: "🌱" },
+                { value: "vegano", label: "Vegano", desc: "Exclui todos os produtos de origem animal", icon: "🌿" },
+                { value: "keto", label: "Keto", desc: "Baixo teor de carboidratos e alto teor de gordura", icon: "🥑" },
+                {
+                  value: "mediterraneo",
+                  label: "Mediterrâneo",
+                  desc: "Rico em alimentos à base de plantas",
+                  icon: "🫒",
+                },
+              ].map((diet) => (
                 <div
                   key={diet.value}
-                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 border ${
-                    currentQuestion.value === diet.value ? "border-2 border-lime-500" : "border-gray-700"
+                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
+                    quizData.diet === diet.value ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
-                  onClick={() => currentQuestion.onSelect(diet.value)}
+                  onClick={() => updateQuizData("diet", diet.value)}
                 >
                   <span className="text-2xl">{diet.icon}</span>
                   <div>
@@ -2243,34 +1922,38 @@ export default function QuizPage() {
             <div className="border-t border-gray-700 pt-4">
               <div
                 className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
-                  currentQuestion.value === currentQuestion.noDietOption.value
-                    ? "border-2 border-lime-500"
-                    : "border border-gray-700"
+                  quizData.diet === "nao-sigo" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
-                onClick={() => currentQuestion.onSelect(currentQuestion.noDietOption.value)}
+                onClick={() => updateQuizData("diet", "nao-sigo")}
               >
-                <h3 className="text-lg font-bold text-white">{currentQuestion.noDietOption.label}</h3>
-                <currentQuestion.noDietOption.icon className="h-6 w-6 text-lime-500" />
+                <h3 className="text-lg font-bold text-white">Não, não sigo nenhuma dessas dietas</h3>
+                <X className="h-6 w-6 text-lime-500" />
               </div>
             </div>
           </div>
         )
-      case "multiple_checkbox":
+      case 8:
         return (
-          <div className="space-y-6 md:space-y-8">
-            <div className="text-center space-y-3 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">{currentQuestion.question}</h2>
-              {currentQuestion.subtitle && (
-                <p className="text-sm md:text-base text-gray-400">{currentQuestion.subtitle}</p>
-              )}
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">
+                Com que frequência você consome doces ou bebidas alcoólicas?
+              </h2>
+              <p className="text-gray-300">Selecione todas que se aplicam</p>
             </div>
             <div className="space-y-3">
-              {currentQuestion.options.map((freq: any) => (
+              {[
+                { value: "esporadicamente", label: "Esporadicamente", icon: "🍷" },
+                { value: "com-frequencia", label: "Com frequência", icon: "🍭" },
+                { value: "todos-dias", label: "Todos os dias", icon: "🍰" },
+                { value: "nao-consumo-alcool", label: "Não consumo álcool", icon: "🚫" },
+                { value: "nao-consumo-doces", label: "Não consumo doces", icon: "❌" },
+              ].map((freq) => (
                 <div key={freq.value} className="flex items-center space-x-3">
                   <Checkbox
                     id={freq.value}
-                    checked={currentQuestion.value.includes(freq.value)}
-                    onCheckedChange={(checked) => currentQuestion.onSelect(freq.value, checked as boolean)}
+                    checked={quizData.sugarFrequency.includes(freq.value)}
+                    onCheckedChange={(checked) => handleArrayUpdate("sugarFrequency", freq.value, checked as boolean)}
                   />
                   <Label htmlFor={freq.value} className="text-white text-lg flex items-center space-x-2">
                     <span className="text-xl">{freq.icon}</span>
@@ -2281,123 +1964,188 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case "input_text":
-      case "input_email":
+      case 9:
         return (
-          <div className="space-y-6 md:space-y-8">
-            <div className="text-center space-y-3 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">{currentQuestion.question}</h2>
-              {currentQuestion.subtitle && (
-                <p className="text-sm md:text-base text-gray-400">{currentQuestion.subtitle}</p>
-              )}
-            </div>
-            <div className="space-y-6">
-              <Input
-                type={currentQuestion.type === "input_email" ? "email" : "text"}
-                value={currentQuestion.value}
-                onChange={currentQuestion.onChange}
-                placeholder={currentQuestion.placeholder}
-                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
-              />
-            </div>
-          </div>
-        )
-      case "yes_no":
-        return (
-          <div className="space-y-6 md:space-y-8">
-            <div className="text-center space-y-3 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">{currentQuestion.question}</h2>
-              {currentQuestion.subtitle && (
-                <p className="text-sm md:text-base text-gray-400">{currentQuestion.subtitle}</p>
-              )}
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Quantidade diária de água</h2>
             </div>
             <div className="space-y-4">
-              {currentQuestion.options.map((option: any) => (
+              {[
+                { value: "menos-2", label: "Menos de 2 copos", desc: "até 0,5 l", icon: Droplets },
+                { value: "2-6", label: "2-6 copos", desc: "0,5-1,5 l", icon: Droplets },
+                { value: "7-10", label: "7-10 copos", desc: "1,5-2,5 l", icon: Droplets },
+                { value: "mais-10", label: "Mais de 10 copos", desc: "mais de 2,5 l", icon: Droplets },
+              ].map((water) => (
                 <div
-                  key={option.value}
-                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
-                    currentQuestion.value === option.value ? "border-2 border-lime-500" : "border border-gray-700"
+                  key={water.value}
+                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
+                    quizData.waterIntake === water.value ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
-                  onClick={() => currentQuestion.onSelect(option.value)}
+                  onClick={() => updateQuizData("waterIntake", water.value)}
                 >
-                  <h3 className="text-lg font-bold text-white">{option.label}</h3>
-                  <option.icon className={`h-6 w-6 ${option.color}`} />
+                  <div className="flex items-center space-x-4">
+                    <water.icon className="h-6 w-6 text-blue-400" />
+                    <div>
+                      <h3 className="text-lg font-bold text-white">{water.label}</h3>
+                      <p className="text-gray-400 text-sm">{water.desc}</p>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         )
-      case "textarea":
+      case 10:
         return (
-          <div className="space-y-6 md:space-y-8">
-            <div className="text-center space-y-3 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">{currentQuestion.question}</h2>
-              {currentQuestion.subtitle && (
-                <p className="text-sm md:text-base text-gray-400">{currentQuestion.subtitle}</p>
-              )}
+          <div className="space-y-8">
+            <div className="text-center">
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold text-white">Qual é a sua altura?</h2>
+              </div>
+              <div className="space-y-6">
+                <Input
+                  type="text"
+                  placeholder={`Altura em metros (ex: 1.75 ou 1,75)`}
+                  value={quizData.height}
+                  onChange={(e) => {
+                    const cleaned = e.target.value.replace(/[^\d.,]/g, "")
+                    setQuizData({ ...quizData, height: cleaned })
+                  }}
+                  onBlur={(e) => {
+                    const normalized = normalizeHeight(e.target.value)
+                    updateQuizData("height", normalized)
+                  }}
+                  className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+                />
+                <p className="text-gray-400 text-sm">Digite em metros (ex: 1.75) ou centímetros (ex: 175)</p>
+              </div>
+            </div>
+          </div>
+        )
+      case 11:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Possui alergias ou restrições alimentares?</h2>
+            </div>
+            <div className="space-y-4">
+              <div
+                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
+                  quizData.allergies === "sim" ? "border-2 border-lime-500" : "border border-gray-700"
+                }`}
+                onClick={() => updateQuizData("allergies", "sim")}
+              >
+                <h3 className="text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
+                <CheckCircle
+                  className={`h-6 w-6 ${quizData.allergies === "sim" ? "text-lime-500" : "text-gray-500"}`}
+                />
+              </div>
+              <div
+                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
+                  quizData.allergies === "nao" ? "border-2 border-lime-500" : "border border-gray-700"
+                }`}
+                onClick={() => updateQuizData("allergies", "nao")}
+              >
+                <h3 className="text-lg font-bold text-white">Não, não possuo alergias ou restrições</h3>
+                <X className={`h-6 w-6 ${quizData.allergies === "nao" ? "text-lime-500" : "text-gray-500"}`} />
+              </div>
+            </div>
+          </div>
+        )
+      case 12:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Quais são suas alergias ou restrições alimentares?</h2>
+              <p className="text-gray-300">Descreva suas alergias, intolerâncias ou restrições alimentares</p>
             </div>
             <div className="space-y-6">
               <Textarea
-                value={currentQuestion.value}
-                onChange={currentQuestion.onChange}
-                placeholder={currentQuestion.placeholder}
+                placeholder="Ex: Alergia a amendoim, intolerância à lactose, não como carne vermelha..."
+                value={quizData.allergyDetails}
+                onChange={(e) => updateQuizData("allergyDetails", e.target.value)}
                 className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 min-h-32"
               />
             </div>
           </div>
         )
-      case "supplement_choice":
+
+      case 13:
         return (
-          <div className="space-y-6 md:space-y-8">
-            <div className="text-center space-y-3 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">{currentQuestion.question}</h2>
-              {currentQuestion.subtitle && (
-                <p className="text-sm md:text-base text-gray-400">{currentQuestion.subtitle}</p>
-              )}
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Podemos adicionar algum suplemento à sua dieta?</h2>
+              <p className="text-gray-300">Por exemplo: Hipercalórico, Whey Protein...</p>
             </div>
             <div className="space-y-4">
               <button
                 type="button"
                 className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
-                  currentQuestion.value === "sim" ? "border-lime-500 bg-lime-500/10" : "border-gray-700"
+                  quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500/10" : "border-gray-700"
                 }`}
                 onClick={() => {
-                  const isEctomorph = currentQuestion.bodyType === "ectomorfo"
-                  const hasHighBodyFat =
-                    currentQuestion.gender === "mulher" ? currentQuestion.bodyFat > 30 : currentQuestion.bodyFat > 20
-                  const hasBellyProblem = currentQuestion.problemAreas.includes("Barriga")
+                  console.log("[v0] Sim button clicked")
+                  console.log("[v0] Current wantsSupplement:", quizData.wantsSupplement)
+
+                  // Determine supplement type based on body type, body fat, and problem areas
+                  const isEctomorph = quizData.bodyType === "ectomorfo"
+                  const hasHighBodyFat = quizData.gender === "mulher" ? quizData.bodyFat > 30 : quizData.bodyFat > 20
+                  const hasBellyProblem = quizData.problemAreas.includes("Barriga")
 
                   let supplementType = "whey-protein"
                   if (isEctomorph && !hasHighBodyFat && !hasBellyProblem) {
                     supplementType = "hipercalorico"
                   }
-                  currentQuestion.onSelect("sim", supplementType)
+
+                  // Update both fields
+                  setQuizData((prev) => ({
+                    ...prev,
+                    wantsSupplement: "sim",
+                    supplementType: supplementType,
+                  }))
+
+                  console.log("[v0] Updated wantsSupplement to: sim")
+                  console.log("[v0] Updated supplementType to:", supplementType)
                 }}
               >
                 <h3 className="text-lg font-bold text-white">Sim, pode adicionar</h3>
                 <CheckCircle
-                  className={`h-6 w-6 ${currentQuestion.value === "sim" ? "text-lime-500" : "text-gray-500"}`}
+                  className={`h-6 w-6 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
                 />
               </button>
               <button
                 type="button"
                 className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
-                  currentQuestion.value === "nao" ? "border-lime-500 bg-lime-500/10" : "border-gray-700"
+                  quizData.wantsSupplement === "nao" ? "border-lime-500 bg-lime-500/10" : "border-gray-700"
                 }`}
-                onClick={() => currentQuestion.onSelect("nao", "")}
+                onClick={() => {
+                  console.log("[v0] Não button clicked")
+                  console.log("[v0] Current wantsSupplement:", quizData.wantsSupplement)
+
+                  // Update both fields
+                  setQuizData((prev) => ({
+                    ...prev,
+                    wantsSupplement: "nao",
+                    supplementType: "",
+                  }))
+
+                  console.log("[v0] Updated wantsSupplement to: nao")
+                }}
               >
                 <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
-                <X className={`h-6 w-6 ${currentQuestion.value === "nao" ? "text-lime-500" : "text-gray-500"}`} />
+                <X className={`h-6 w-6 ${quizData.wantsSupplement === "nao" ? "text-lime-500" : "text-gray-500"}`} />
               </button>
             </div>
-            {currentQuestion.value === "sim" && currentQuestion.supplementType && (
+            {/* </CHANGE> */}
+            {quizData.wantsSupplement === "sim" && quizData.supplementType && (
               <div className="bg-lime-500/10 border border-lime-500 rounded-lg p-4 text-center">
                 <p className="text-lime-400 font-semibold">
                   Recomendamos:{" "}
-                  {currentQuestion.supplementType === "hipercalorico" ? "Hipercalórico Growth" : "Whey Protein Growth"}
+                  {quizData.supplementType === "hipercalorico" ? "Hipercalórico Growth" : "Whey Protein Growth"}
                 </p>
                 <p className="text-gray-300 text-sm mt-2">
-                  {currentQuestion.supplementType === "hipercalorico"
+                  {quizData.supplementType === "hipercalorico"
                     ? "Ideal para ganho de massa muscular e atingir suas calorias diárias"
                     : "Ideal para atingir suas metas de proteína e manter a massa muscular"}
                 </p>
@@ -2405,25 +2153,188 @@ export default function QuizPage() {
             )}
           </div>
         )
-      case "exercise_preference":
+      // </CHANGE>
+
+      case 14:
         return (
-          <div className="space-y-6 md:space-y-8">
-            <div className="text-center space-y-3 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">{currentQuestion.question}</h2>
-              {currentQuestion.subtitle && (
-                <p className="text-sm md:text-base text-gray-400">{currentQuestion.subtitle}</p>
-              )}
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Qual é o seu peso atual?</h2>
             </div>
-            <div className="flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-8">
-              {currentQuestion.illustration}
+            <div className="space-y-6">
+              <Input
+                type="number"
+                placeholder={`Peso atual, kg`}
+                value={quizData.currentWeight}
+                onChange={(e) => updateQuizData("currentWeight", e.target.value)}
+                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+              />
+            </div>
+          </div>
+        )
+      case 15:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
+            </div>
+            <div className="space-y-6">
+              <Input
+                type="number"
+                placeholder={`Peso alvo, kg`}
+                value={quizData.targetWeight}
+                onChange={(e) => {
+                  updateQuizData("targetWeight", e.target.value)
+                }}
+                onBlur={() => {
+                  // Calcula o tempo ao sair do campo
+                  const calculatedTime = calculateTimeToGoal()
+                  if (calculatedTime) {
+                    updateQuizData("timeToGoal", calculatedTime)
+                  }
+                }}
+                min="1"
+                max="500"
+                step="0.1"
+                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+              />
+            </div>
+          </div>
+        )
+      case 16:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Qual é o seu nome?</h2>
+            </div>
+            <div className="space-y-6">
+              <Input
+                type="text"
+                placeholder="Digite seu nome"
+                value={quizData.name}
+                onChange={(e) => updateQuizData("name", e.target.value)}
+                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+              />
+            </div>
+          </div>
+        )
+      case 17:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Quanto tempo você tem para treinar?</h2>
+            </div>
+            <div className="space-y-4 max-w-2xl mx-auto">
+              {[
+                { value: "30min", label: "30 minutos" },
+                { value: "45min", label: "45 minutos" },
+                { value: "1hora", label: "1 hora" },
+                { value: "mais-1h", label: "Mais de 1 hora" },
+              ].map((time) => (
+                <div
+                  key={time.value}
+                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all border ${
+                    quizData.workoutTime === time.value
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-gray-600 hover:border-gray-500"
+                  }`}
+                  onClick={() => updateQuizData("workoutTime", time.value)}
+                >
+                  <h3 className="text-lg font-medium text-white text-center">{time.label}</h3>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      case 18:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Qual é sua experiência com exercícios?</h2>
+            </div>
+            <div className="space-y-4 max-w-2xl mx-auto">
+              {[
+                { value: "iniciante", label: "Iniciante - Nunca treinei" },
+                { value: "basico", label: "Básico - Treino ocasionalmente" },
+                { value: "intermediario", label: "Intermediário - Treino regularmente" },
+                { value: "avancado", label: "Avançado - Treino há anos" },
+              ].map((level) => (
+                <div
+                  key={level.value}
+                  className={`rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
+                    quizData.experience === level.value
+                      ? "bg-teal-600/80 border border-teal-500"
+                      : "bg-teal-800/40 border border-teal-700/50 hover:bg-teal-700/50"
+                  }`}
+                  onClick={() => updateQuizData("experience", level.value)}
+                >
+                  <div
+                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                      quizData.experience === level.value ? "border-white bg-white" : "border-teal-300"
+                    }`}
+                  >
+                    {quizData.experience === level.value && <div className="w-3 h-3 rounded-full bg-teal-600" />}
+                  </div>
+                  <h3 className="text-lg font-medium text-white">{level.label}</h3>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      case 19:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Que equipamentos você tem acesso?</h2>
+              <p className="text-gray-300">Selecione todos que se aplicam</p>
+            </div>
+            <div className="space-y-3">
+              {[
+                { value: "academia", label: "Academia completa", icon: "🏋️" },
+                { value: "halteres", label: "Halteres", icon: "🏋️‍♀️" },
+                { value: "barras", label: "Barras para exercícios", icon: "🤸" },
+                { value: "elasticos", label: "Elásticos/Faixas", icon: "🎯" },
+                { value: "esteira", label: "Esteira", icon: "🏃" },
+                { value: "bicicleta", label: "Bicicleta ergométrica", icon: "🚴" },
+                { value: "nenhum", label: "Apenas peso corporal", icon: "🤲" },
+              ].map((equipment) => (
+                <div key={equipment.value} className="flex items-center space-x-3">
+                  <Checkbox
+                    id={equipment.value}
+                    checked={quizData.equipment.includes(equipment.value)}
+                    onCheckedChange={(checked) => handleArrayUpdate("equipment", equipment.value, checked as boolean)}
+                  />
+                  <Label htmlFor={equipment.value} className="text-white text-lg flex items-center space-x-2">
+                    <span className="text-xl">{equipment.icon}</span>
+                    <span>{equipment.label}</span>
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      case 20:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Como você se sente sobre exercícios cardiovasculares?</h2>
+            </div>
+            <div className="flex items-center justify-center space-x-8">
+              <ExerciseIllustration type="cardio" className="w-64 h-64" />
               <div className="space-y-4 flex-1 max-w-sm">
-                {currentQuestion.options.map((pref: any) => (
+                {[
+                  { value: "amo", label: "Amo cardio!", icon: ThumbsUp, color: "text-green-500" },
+                  { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
+                  { value: "odeio", label: "Odeio cardio", icon: ThumbsDown, color: "text-red-500" },
+                ].map((pref) => (
                   <div
                     key={pref.value}
                     className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
-                      currentQuestion.value === pref.value ? "border-2 border-lime-500" : "border border-gray-700"
+                      quizData.exercisePreferences.cardio === pref.value
+                        ? "border-2 border-lime-500"
+                        : "border border-gray-700"
                     }`}
-                    onClick={() => currentQuestion.onSelect(pref.value)}
+                    onClick={() => updateExercisePreference("cardio", pref.value)}
                   >
                     <pref.icon className={`h-6 w-6 ${pref.color}`} />
                     <h3 className="text-lg font-bold text-white">{pref.label}</h3>
@@ -2433,33 +2344,93 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case "slider_days":
+      case 21:
         return (
-          <div className="space-y-6 md:space-y-8">
-            <div className="text-center space-y-3 md:space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">{currentQuestion.question}</h2>
-              {currentQuestion.subtitle && (
-                <p className="text-sm md:text-base text-gray-400">{currentQuestion.subtitle}</p>
-              )}
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Como você se sente sobre flexões e exercícios de força?</h2>
+            </div>
+            <div className="flex items-center justify-center space-x-8">
+              <ExerciseIllustration type="pullups" className="w-64 h-64" />
+              <div className="space-y-4 flex-1 max-w-sm">
+                {[
+                  { value: "amo", label: "Amo exercícios de força!", icon: ThumbsUp, color: "text-green-500" },
+                  { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
+                  { value: "odeio", label: "Prefiro evitar", icon: ThumbsDown, color: "text-red-500" },
+                ].map((pref) => (
+                  <div
+                    key={pref.value}
+                    className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
+                      quizData.exercisePreferences.pullups === pref.value
+                        ? "border-2 border-lime-500"
+                        : "border border-gray-700"
+                    }`}
+                    onClick={() => updateExercisePreference("pullups", pref.value)}
+                  >
+                    <pref.icon className={`h-6 w-6 ${pref.color}`} />
+                    <h3 className="text-lg font-bold text-white">{pref.label}</h3>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
+      case 22:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Como você se sente sobre yoga e alongamento?</h2>
+            </div>
+            <div className="flex items-center justify-center space-x-8">
+              <ExerciseIllustration type="yoga" className="w-64 h-64" />
+              <div className="space-y-4 flex-1 max-w-sm">
+                {[
+                  { value: "amo", label: "Amo yoga/alongamento!", icon: ThumbsUp, color: "text-green-500" },
+                  { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
+                  { value: "odeio", label: "Prefiro evitar", icon: ThumbsDown, color: "text-red-500" },
+                ].map((pref) => (
+                  <div
+                    key={pref.value}
+                    className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
+                      quizData.exercisePreferences.yoga === pref.value
+                        ? "border-2 border-lime-500"
+                        : "border border-gray-700"
+                    }`}
+                    onClick={() => updateExercisePreference("yoga", pref.value)}
+                  >
+                    <pref.icon className={`h-6 w-6 ${pref.color}`} />
+                    <h3 className="text-lg font-bold text-white">{pref.label}</h3>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
+      case 23:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
+              <p className="text-gray-300">Selecione de 1 a 7 dias</p>
             </div>
             <div className="text-center space-y-8">
               <div className="bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-8 border border-zinc-800">
                 <div className="space-y-4">
                   <div className="bg-gray-700 rounded-full px-4 py-2 inline-block">
-                    <span className="text-white font-bold">{currentQuestion.value} dias</span>
+                    <span className="text-white font-bold">{quizData.trainingDaysPerWeek} dias</span>
                   </div>
                   <div className="px-4">
                     <Slider
-                      value={[currentQuestion.value]}
-                      onValueChange={(value) => currentQuestion.onChange(value[0])}
-                      max={currentQuestion.max}
-                      min={currentQuestion.min}
-                      step={currentQuestion.step}
+                      value={[quizData.trainingDaysPerWeek]}
+                      onValueChange={(value) => updateQuizData("trainingDaysPerWeek", value[0])}
+                      max={7}
+                      min={1}
+                      step={1}
                       className="w-full"
                     />
                     <div className="flex justify-between text-gray-400 text-sm mt-2">
-                      <span>{currentQuestion.min} dia</span>
-                      <span>{currentQuestion.max} dias</span>
+                      <span>1 dia</span>
+                      <span>7 dias</span>
                     </div>
                   </div>
                 </div>
@@ -2467,65 +2438,92 @@ export default function QuizPage() {
             </div>
           </div>
         )
+      case 24:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Digite o seu e-mail</h2>
+              <p className="text-gray-300">Para receber seu plano personalizado</p>
+            </div>
+            <div className="space-y-6">
+              <Input
+                type="email"
+                placeholder="seu@email.com"
+                value={quizData.email}
+                onChange={(e) => updateQuizData("email", e.target.value)}
+                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+              />
+            </div>
+          </div>
+        )
       default:
-        return <div>Tipo de pergunta não suportado.</div>
+        return <div>Passo não encontrado</div>
     }
   }
 
   const isStepValid = (step: number): boolean => {
-    const currentQuestion = questions.find((q) => q.step === step)
-    if (!currentQuestion) return false
-
-    switch (currentQuestion.type) {
-      case "single":
-        return currentQuestion.value !== ""
-      case "input_number":
-        return (
-          currentQuestion.value !== "" &&
-          Number.parseFloat(currentQuestion.value) >= currentQuestion.min &&
-          Number.parseFloat(currentQuestion.value) <= currentQuestion.max
-        )
-      case "single_card":
-        return currentQuestion.value !== ""
-      case "multiple_card":
-        return currentQuestion.value.length > 0
-      case "slider":
-        return currentQuestion.value > 0
-      case "problem_areas":
-        return currentQuestion.value.length > 0
-      case "single_diet":
-        return currentQuestion.value !== ""
-      case "multiple_checkbox":
-        return currentQuestion.value.length > 0
-      case "input_text":
-      case "input_email":
-        return (
-          currentQuestion.value.trim() !== "" &&
-          (currentQuestion.type !== "input_email" || currentQuestion.value.includes("@"))
-        )
-      case "yes_no":
-        return currentQuestion.value !== ""
-      case "textarea":
-        return currentQuestion.value.trim() !== ""
-      case "supplement_choice":
-        return currentQuestion.value !== ""
-      case "exercise_preference":
-        return currentQuestion.value !== ""
-      case "slider_days":
-        return currentQuestion.value >= 1 && currentQuestion.value <= 7
+    switch (step) {
+      case 1:
+        return quizData.gender !== ""
+      case 2:
+        return quizData.age > 0 && quizData.age >= 16 && quizData.age <= 80
+      case 3:
+        return quizData.bodyType !== ""
+      case 4:
+        return quizData.goal.length > 0
+      case 5:
+        return quizData.bodyFat > 0
+      case 6:
+        return quizData.problemAreas.length > 0
+      case 7:
+        return quizData.diet !== ""
+      case 8:
+        return quizData.sugarFrequency.length > 0
+      case 9:
+        return quizData.waterIntake !== ""
+      case 10:
+        return quizData.height !== "" && Number.parseFloat(quizData.height) > 0
+      case 11:
+        return quizData.allergies !== ""
+      case 12:
+        return quizData.allergyDetails.trim() !== ""
+      case 13:
+        return quizData.wantsSupplement !== ""
+      case 14:
+        return quizData.currentWeight !== "" && Number.parseFloat(quizData.currentWeight) > 0
+      case 15:
+        return quizData.targetWeight !== "" && Number.parseFloat(quizData.targetWeight) > 0
+      case 16:
+        return quizData.name.trim() !== ""
+      case 17:
+        return quizData.workoutTime !== ""
+      case 18:
+        return quizData.experience !== ""
+      case 19:
+        return quizData.equipment.length > 0
+      case 20:
+        return quizData.exercisePreferences.cardio !== ""
+      case 21:
+        return quizData.exercisePreferences.pullups !== ""
+      case 22:
+        return quizData.exercisePreferences.yoga !== ""
+      case 23:
+        return quizData.trainingDaysPerWeek >= 1 && quizData.trainingDaysPerWeek <= 7
+      case 24:
+        return quizData.email.trim() !== "" && quizData.email.includes("@")
       default:
         return true
     }
   }
 
-  const canContinue = () => {
+  const canProceed = () => {
     return isStepValid(currentStep)
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4 md:p-6">
+    <div className="min-h-screen bg-gray-900 text-white p-6">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6 md:mb-8">
+        <div className="flex items-center justify-between mb-8">
           <Button variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="text-white">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
@@ -2537,19 +2535,14 @@ export default function QuizPage() {
           </div>
           <div className="w-16" />
         </div>
-
-        {/* Progress bar */}
-        <div className="w-full bg-gray-800 rounded-full h-2 mb-6 md:mb-8">
+        <div className="w-full bg-gray-700 rounded-full h-2 mb-8">
           <div
             className="bg-lime-500 h-2 rounded-full transition-all duration-300"
             style={{ width: `${(currentStep / totalSteps) * 100}%` }}
           />
         </div>
-
-        {/* Question content */}
-        <div className="space-y-6 md:space-y-8">{renderStep()}</div>
-
-        <div className="flex justify-center mt-12">
+        <div className="mb-8">{renderStep()}</div>
+        <div className="flex justify-center">
           {currentStep === totalSteps ? (
             <Button
               type="button"
@@ -2574,12 +2567,13 @@ export default function QuizPage() {
               </div>
             </Button>
           ) : (
-            <Button
-              onClick={nextStep}
-              disabled={!canContinue()}
-              className="w-full max-w-md mx-auto py-5 md:py-6 text-base md:text-lg bg-lime-500 hover:bg-lime-600 text-gray-900 font-bold"
-            >
-              Continuar
+            <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                <span className="relative z-10">Continuar</span>
+
+                {/* Efeito de brilho animado */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
             </Button>
           )}
         </div>
