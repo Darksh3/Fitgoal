@@ -15,7 +15,18 @@ import { Slider } from "@/components/ui/slider"
 
 import { Textarea } from "@/components/ui/textarea"
 
-import { ArrowLeft, CheckCircle, Droplets, X, ThumbsUp, ThumbsDown, Meh, Loader2, Dumbbell } from "lucide-react"
+import {
+  ArrowLeft,
+  CheckCircle,
+  Droplets,
+  X,
+  ThumbsUp,
+  ThumbsDown,
+  Meh,
+  Loader2,
+  Dumbbell,
+  ArrowRight,
+} from "lucide-react"
 
 import { useRouter } from "next/navigation"
 
@@ -891,9 +902,17 @@ export default function QuizPage() {
     )
   }
 
+  const handleContinue = () => {
+    if (currentStep === totalSteps) {
+      handleSubmit()
+    } else {
+      nextStep()
+    }
+  }
+
   if (showLoading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 md:p-6">
         <div className="text-center space-y-6 max-w-md">
           <div className="w-32 h-32 mx-auto relative">
             <svg className="w-full h-full animate-spin" viewBox="0 0 100 100">
@@ -911,7 +930,7 @@ export default function QuizPage() {
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold">Analisando suas respostas...</h2>
+          <h2 className="text-2xl md:text-2xl font-bold">Analisando suas respostas...</h2>
           <p className="text-gray-300">Criando seu plano personalizado</p>
         </div>
       </div>
@@ -924,9 +943,9 @@ export default function QuizPage() {
       Number.parseFloat(quizData.height),
     )
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-6 max-w-md">
-          <div className="w-48 h-64 mx-auto relative">
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 md:p-6">
+        <div className="text-center space-y-4 md:space-y-6 max-w-md">
+          <div className="w-32 md:w-48 h-48 md:h-64 mx-auto relative">
             <Image
               src={getBodyTypeImageForFocus() || "/placeholder.svg"}
               alt="Seu biotipo"
@@ -935,12 +954,12 @@ export default function QuizPage() {
               className="object-contain"
             />
           </div>
-          <h2 className="text-3xl font-bold">Resultado do seu IMC</h2>
-          <div className="bg-gray-800 rounded-lg p-6">
-            <p className="text-gray-300 text-lg mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold">Resultado do seu IMC</h2>
+          <div className="bg-gray-800 rounded-lg p-4 md:p-6">
+            <p className="text-gray-300 text-base md:text-lg mb-3 md:mb-4">
               Calculamos o seu IMC e ele é de <span className="text-lime-400 font-bold">{imc}</span>
             </p>
-            <p className="text-white text-xl mb-4">
+            <p className="text-white text-xl md:text-xl mb-4">
               Você está com <span className="text-lime-400 font-bold">{classification}</span>
             </p>
           </div>
@@ -1138,36 +1157,37 @@ export default function QuizPage() {
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual o seu gênero?</h2>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual o seu gênero?</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-lg mx-auto">
+            {/* Adjusted grid for better mobile layout */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8 max-w-lg mx-auto">
               {[
                 { value: "homem", label: "Homem", icon: "/images/male-gender-icon.webp" },
                 { value: "mulher", label: "Mulher", icon: "/images/female-gender-icon.webp" },
               ].map((gender) => (
                 <div
                   key={gender.value}
-                  className="text-center space-y-4 cursor-pointer"
+                  className="text-center space-y-3 cursor-pointer"
                   onClick={() => updateQuizData("gender", gender.value)}
                 >
-                  <div className="flex justify-center items-center h-40">
+                  <div className="flex justify-center items-center h-32 md:h-40">
                     <img
                       src={gender.icon || "/placeholder.svg"}
                       alt={gender.label}
-                      className="w-24 h-24 object-contain mx-auto"
+                      className="w-20 md:w-24 h-20 md:h-24 object-contain mx-auto"
                       onError={(e) => {
                         e.currentTarget.src = "/placeholder.svg"
                       }}
                     />
                   </div>
                   <div
-                    className={`bg-gray-800 rounded-lg p-4 transition-all ${
+                    className={`bg-gray-800 rounded-lg p-3 md:p-4 transition-all ${
                       quizData.gender === gender.value ? "border-2 border-lime-500" : "border border-gray-700"
                     }`}
                   >
-                    <h3 className="text-xl font-bold text-white">{gender.label}</h3>
+                    <h3 className="text-lg md:text-xl font-bold text-white">{gender.label}</h3>
                   </div>
                 </div>
               ))}
@@ -1176,9 +1196,9 @@ export default function QuizPage() {
         )
       case 2:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual a sua idade?</h2>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é a sua idade?</h2>
             </div>
             <div className="max-w-md mx-auto">
               <input
@@ -1187,7 +1207,7 @@ export default function QuizPage() {
                 max="80"
                 value={quizData.age || ""}
                 onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
-                className="w-full p-4 text-xl text-center bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-lime-500 focus:outline-none"
+                className="w-full p-3 md:p-4 text-xl md:text-2xl text-center bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-lime-500 focus:outline-none"
                 placeholder="Digite sua idade"
               />
             </div>
@@ -1208,11 +1228,11 @@ export default function QuizPage() {
           }
         }
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual o seu tipo de Corpo?</h2>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual o seu tipo de Corpo?</h2>
             </div>
-            <div className="space-y-3 sm:space-y-6">
+            <div className="space-y-2 sm:space-y-4">
               {[
                 { value: "ectomorfo", label: "Ectomorfo", desc: "Corpo magro, dificuldade para ganhar peso" },
                 { value: "mesomorfo", label: "Mesomorfo", desc: "Corpo atlético, facilidade para ganhar músculos" },
@@ -1220,20 +1240,20 @@ export default function QuizPage() {
               ].map((type) => (
                 <div
                   key={type.value}
-                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
+                  className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
                     quizData.bodyType === type.value ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
                   onClick={() => updateQuizData("bodyType", type.value)}
                 >
                   <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-white mb-2">{type.label}</h3>
-                    <p className="text-gray-400 text-lg">{type.desc}</p>
+                    <h3 className="text-xl md:text-2xl font-bold text-white mb-1 md:mb-2">{type.label}</h3>
+                    <p className="text-gray-400 text-sm md:text-lg">{type.desc}</p>
                   </div>
-                  <div className="flex-shrink-0 ml-6">
+                  <div className="flex-shrink-0 ml-4 md:ml-6">
                     <img
                       src={getBodyTypeImage(type.value) || "/placeholder.svg"}
                       alt={`${type.label} body type`}
-                      className="w-auto h-32 sm:h-48 object-contain"
+                      className="w-auto h-24 sm:h-32 md:h-48 object-contain"
                       onError={(e) => {
                         e.currentTarget.src = "/placeholder.svg"
                       }}
@@ -1260,10 +1280,10 @@ export default function QuizPage() {
           }
         }
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
               <h2 className="text-2xl sm:text-3xl font-bold text-white">Quais são os seus objetivos?</h2>
-              <p className="text-gray-300">Selecione todos que se aplicam</p>
+              <p className="text-sm md:text-base text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="space-y-3 sm:space-y-4">
               {[
@@ -1274,16 +1294,16 @@ export default function QuizPage() {
               ].map((goal) => (
                 <div
                   key={goal.value}
-                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
+                  className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
                     quizData.goal.includes(goal.value) ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
                   onClick={() => handleArrayUpdate("goal", goal.value, !quizData.goal.includes(goal.value))}
                 >
-                  <h3 className="text-xl font-bold text-white">{goal.label}</h3>
+                  <h3 className="text-lg md:text-xl font-bold text-white">{goal.label}</h3>
                   <img
                     src={getGoalIcon(goal.value) || "/placeholder.svg"}
                     alt={goal.label}
-                    className="w-12 h-12 sm:w-16 sm:h-16 object-contain flex-shrink-0"
+                    className="w-10 md:w-12 h-10 md:h-12 object-contain flex-shrink-0"
                     onError={(e) => {
                       e.currentTarget.src = "/placeholder.svg"
                     }}
@@ -1295,13 +1315,13 @@ export default function QuizPage() {
         )
       case 5:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Escolha o seu nível de gordura corporal</h2>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Escolha o seu nível de gordura corporal</h2>
             </div>
             <div className="relative flex flex-col items-center">
               {/* Body fat image */}
-              <div className="relative w-64 h-80 mb-[-80px] z-10">
+              <div className="relative w-48 md:w-64 h-60 md:h-80 mb-[-60px] md:mb-[-80px] z-10">
                 {/* Background glow effect */}
                 <div className="absolute inset-0 bg-gradient-radial from-white/20 via-white/5 to-transparent blur-3xl" />
 
@@ -1317,7 +1337,7 @@ export default function QuizPage() {
 
               {/* Slider container - now overlapping the image bottom */}
               <div className="relative max-w-md w-full px-4 z-20">
-                <div className="bg-zinc-900/95 backdrop-blur-sm rounded-2xl px-6 py-6 space-y-4 border border-zinc-800/50">
+                <div className="bg-zinc-900/95 backdrop-blur-sm rounded-2xl px-4 py-5 md:px-6 md:py-6 space-y-4 border border-zinc-800/50">
                   {/* Tooltip above slider thumb showing current percentage */}
                   <div className="relative h-8">
                     <div
@@ -1356,19 +1376,13 @@ export default function QuizPage() {
         )
       case 6:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
-              <p className="text-gray-300">Selecione todos que se aplicam</p>
-              <button
-                onClick={() => setDebugMode(!debugMode)}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm"
-              >
-                {debugMode ? "Sair do Modo Debug" : "Ativar Modo Debug"}
-              </button>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Quais áreas você quer trabalhar?</h2>
+              <p className="text-sm md:text-base text-gray-400">Selecione todas que se aplicam</p>
             </div>
-            <div className="flex items-start justify-center space-x-8">
-              <div className="relative w-64 h-auto bg-transparent">
+            <div className="flex items-start justify-center space-x-4 md:space-x-8">
+              <div className="relative w-48 md:w-64 h-auto bg-transparent">
                 <img
                   src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
                   alt="Corpo base"
@@ -1855,11 +1869,11 @@ export default function QuizPage() {
                 </div>
               )}
 
-              <div className="flex flex-col space-y-4 max-w-md">
+              <div className="flex flex-col space-y-3 md:space-y-4 max-w-md">
                 {["Peito", "Braços", "Barriga", "Pernas", "Corpo inteiro"].map((area) => (
                   <div
                     key={area}
-                    className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
+                    className={`rounded-lg p-4 md:p-6 cursor-pointer transition-all border-2 ${
                       quizData.problemAreas.includes(area)
                         ? "bg-orange-500 border-orange-500 text-white"
                         : "bg-gray-800 border-gray-700 text-white hover:border-orange-500"
@@ -1867,9 +1881,9 @@ export default function QuizPage() {
                     onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
                   >
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold">{area}</h3>
+                      <h3 className="text-lg md:text-xl font-bold">{area}</h3>
                       <div
-                        className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                        className={`w-5 md:w-6 h-5 md:h-6 rounded border-2 flex items-center justify-center ${
                           quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-gray-400"
                         }`}
                       >
@@ -1884,11 +1898,11 @@ export default function QuizPage() {
         )
       case 7:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Você segue alguma dessas dietas?</h2>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Você segue alguma dessas dietas?</h2>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {[
                 { value: "vegetariano", label: "Vegetariano", desc: "Exclui carne", icon: "🌱" },
                 { value: "vegano", label: "Vegano", desc: "Exclui todos os produtos de origem animal", icon: "🌿" },
@@ -1902,40 +1916,40 @@ export default function QuizPage() {
               ].map((diet) => (
                 <div
                   key={diet.value}
-                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
+                  className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 md:space-x-4 ${
                     quizData.diet === diet.value ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
                   onClick={() => updateQuizData("diet", diet.value)}
                 >
-                  <span className="text-2xl">{diet.icon}</span>
+                  <span className="text-xl md:text-2xl">{diet.icon}</span>
                   <div>
-                    <h3 className="text-lg font-bold text-white">{diet.label}</h3>
+                    <h3 className="text-lg md:text-xl font-bold text-white">{diet.label}</h3>
                     <p className="text-gray-400 text-sm">{diet.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="border-t border-gray-700 pt-4">
+            <div className="border-t border-gray-700 pt-3 md:pt-4">
               <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
+                className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
                   quizData.diet === "nao-sigo" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => updateQuizData("diet", "nao-sigo")}
               >
-                <h3 className="text-lg font-bold text-white">Não, não sigo nenhuma dessas dietas</h3>
-                <X className="h-6 w-6 text-lime-500" />
+                <h3 className="text-lg md:text-xl font-bold text-white">Não, não sigo nenhuma dessas dietas</h3>
+                <X className="h-5 md:h-6 w-5 md:w-6 text-lime-500" />
               </div>
             </div>
           </div>
         )
       case 8:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">
                 Com que frequência você consome doces ou bebidas alcoólicas?
               </h2>
-              <p className="text-gray-300">Selecione todas que se aplicam</p>
+              <p className="text-sm md:text-base text-gray-300">Selecione todas que se aplicam</p>
             </div>
             <div className="space-y-3">
               {[
@@ -1945,13 +1959,13 @@ export default function QuizPage() {
                 { value: "nao-consumo-alcool", label: "Não consumo álcool", icon: "🚫" },
                 { value: "nao-consumo-doces", label: "Não consumo doces", icon: "❌" },
               ].map((freq) => (
-                <div key={freq.value} className="flex items-center space-x-3">
+                <div key={freq.value} className="flex items-center space-x-2 md:space-x-3">
                   <Checkbox
                     id={freq.value}
                     checked={quizData.sugarFrequency.includes(freq.value)}
                     onCheckedChange={(checked) => handleArrayUpdate("sugarFrequency", freq.value, checked as boolean)}
                   />
-                  <Label htmlFor={freq.value} className="text-white text-lg flex items-center space-x-2">
+                  <Label htmlFor={freq.value} className="text-white text-base md:text-lg flex items-center space-x-2">
                     <span className="text-xl">{freq.icon}</span>
                     <span>{freq.label}</span>
                   </Label>
@@ -1962,11 +1976,11 @@ export default function QuizPage() {
         )
       case 9:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Quantidade diária de água</h2>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Quantidade diária de água</h2>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {[
                 { value: "menos-2", label: "Menos de 2 copos", desc: "até 0,5 l", icon: Droplets },
                 { value: "2-6", label: "2-6 copos", desc: "0,5-1,5 l", icon: Droplets },
@@ -1975,15 +1989,15 @@ export default function QuizPage() {
               ].map((water) => (
                 <div
                   key={water.value}
-                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
+                  className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all ${
                     quizData.waterIntake === water.value ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
                   onClick={() => updateQuizData("waterIntake", water.value)}
                 >
-                  <div className="flex items-center space-x-4">
-                    <water.icon className="h-6 w-6 text-blue-400" />
+                  <div className="flex items-center space-x-3 md:space-x-4">
+                    <water.icon className="h-5 md:h-6 w-5 md:w-6 text-blue-400" />
                     <div>
-                      <h3 className="text-lg font-bold text-white">{water.label}</h3>
+                      <h3 className="text-base md:text-lg font-bold text-white">{water.label}</h3>
                       <p className="text-gray-400 text-sm">{water.desc}</p>
                     </div>
                   </div>
@@ -1994,74 +2008,76 @@ export default function QuizPage() {
         )
       case 10:
         return (
-          <div className="space-y-8">
+          <div className="space-y-4 md:space-y-8">
             <div className="text-center">
-              <div className="mb-6">
-                <h2 className="text-3xl font-bold text-white">Qual é sua altura?</h2>
+              <div className="mb-4 md:mb-6">
+                <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é sua altura?</h2>
               </div>
-              <div className="space-y-6">
-                <Input
-                  type="text"
-                  placeholder={`Altura em metros (ex: 1.75 ou 1,75)`}
+              <div className="flex items-center justify-center space-x-2 md:space-x-4">
+                <input
+                  type="number"
                   value={quizData.height}
-                  onChange={(e) => {
-                    const cleaned = e.target.value.replace(/[^\d.,]/g, "")
-                    setQuizData({ ...quizData, height: cleaned })
-                  }}
-                  onBlur={(e) => {
-                    const normalized = normalizeHeight(e.target.value)
-                    updateQuizData("height", normalized)
-                  }}
-                  className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+                  onChange={(e) => updateQuizData("height", e.target.value)}
+                  className="w-20 md:w-24 px-3 md:px-4 py-2 md:py-3 text-xl md:text-3xl font-bold text-center bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-lime-500 outline-none"
+                  placeholder="Ex: 1.75"
                 />
-                <p className="text-gray-400 text-sm">Digite em metros (ex: 1.75) ou centímetros (ex: 175)</p>
+                <span className="text-xl md:text-3xl font-bold text-gray-400">m</span>
               </div>
+              <p className="text-gray-400 text-xs md:text-sm mt-3">
+                Digite em metros (ex: 1.75) ou centímetros (ex: 175)
+              </p>
             </div>
           </div>
         )
       case 11:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Possui alergias ou restrições alimentares?</h2>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Possui alergias ou restrições alimentares?</h2>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
+                className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all ${
                   quizData.allergies === "sim" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => updateQuizData("allergies", "sim")}
               >
-                <h3 className="text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
+                <h3 className="text-base md:text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
                 <CheckCircle
-                  className={`h-6 w-6 ${quizData.allergies === "sim" ? "text-lime-500" : "text-gray-500"}`}
+                  className={`h-5 md:h-6 w-5 md:w-6 ${quizData.allergies === "sim" ? "text-lime-500" : "text-gray-500"}`}
                 />
               </div>
               <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
+                className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all ${
                   quizData.allergies === "nao" ? "border-2 border-lime-500" : "border border-gray-700"
                 }`}
                 onClick={() => updateQuizData("allergies", "nao")}
               >
-                <h3 className="text-lg font-bold text-white">Não, não possuo alergias ou restrições</h3>
-                <X className={`h-6 w-6 ${quizData.allergies === "nao" ? "text-lime-500" : "text-gray-500"}`} />
+                <h3 className="text-base md:text-lg font-bold text-white">Não, não possuo alergias ou restrições</h3>
+                <X
+                  className={`h-5 md:h-6 w-5 md:w-6 ${quizData.allergies === "nao" ? "text-lime-500" : "text-gray-500"}`}
+                />
               </div>
             </div>
           </div>
         )
       case 12:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Quais são suas alergias ou restrições alimentares?</h2>
-              <p className="text-gray-300">Descreva suas alergias, intolerâncias ou restrições alimentares</p>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">
+                Quais são suas alergias ou restrições alimentares?
+              </h2>
+              <p className="text-sm md:text-base text-gray-300">
+                Descreva suas alergias, intolerâncias ou restrições alimentares
+              </p>
             </div>
             <div className="space-y-6">
               <Textarea
                 placeholder="Ex: Alergia a amendoim, intolerância à lactose, não como carne vermelha..."
                 value={quizData.allergyDetails}
                 onChange={(e) => updateQuizData("allergyDetails", e.target.value)}
-                className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 min-h-32"
+                className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 min-h-24 md:min-h-32"
               />
             </div>
           </div>
@@ -2069,15 +2085,17 @@ export default function QuizPage() {
 
       case 13:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Podemos adicionar algum suplemento à sua dieta?</h2>
-              <p className="text-gray-300">Por exemplo: Hipercalórico, Whey Protein...</p>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">
+                Podemos adicionar algum suplemento à sua dieta?
+              </h2>
+              <p className="text-sm md:text-base text-gray-300">Por exemplo: Hipercalórico, Whey Protein...</p>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               <button
                 type="button"
-                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
+                className={`w-full bg-gray-800 rounded-lg p-4 md:p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
                   quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500/10" : "border-gray-700"
                 }`}
                 onClick={() => {
@@ -2105,14 +2123,14 @@ export default function QuizPage() {
                   console.log("[v0] Updated supplementType to:", supplementType)
                 }}
               >
-                <h3 className="text-lg font-bold text-white">Sim, pode adicionar</h3>
+                <h3 className="text-base md:text-lg font-bold text-white">Sim, pode adicionar</h3>
                 <CheckCircle
-                  className={`h-6 w-6 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
+                  className={`h-5 md:h-6 w-5 md:w-6 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
                 />
               </button>
               <button
                 type="button"
-                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
+                className={`w-full bg-gray-800 rounded-lg p-4 md:p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
                   quizData.wantsSupplement === "nao" ? "border-lime-500 bg-lime-500/10" : "border-gray-700"
                 }`}
                 onClick={() => {
@@ -2129,18 +2147,20 @@ export default function QuizPage() {
                   console.log("[v0] Updated wantsSupplement to: nao")
                 }}
               >
-                <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
-                <X className={`h-6 w-6 ${quizData.wantsSupplement === "nao" ? "text-lime-500" : "text-gray-500"}`} />
+                <h3 className="text-base md:text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
+                <X
+                  className={`h-5 md:h-6 w-5 md:w-6 ${quizData.wantsSupplement === "nao" ? "text-lime-500" : "text-gray-500"}`}
+                />
               </button>
             </div>
             {/* </CHANGE> */}
             {quizData.wantsSupplement === "sim" && quizData.supplementType && (
-              <div className="bg-lime-500/10 border border-lime-500 rounded-lg p-4 text-center">
-                <p className="text-lime-400 font-semibold">
+              <div className="bg-lime-500/10 border border-lime-500 rounded-lg p-3 md:p-4 text-center">
+                <p className="text-lime-400 font-semibold text-sm md:text-base">
                   Recomendamos:{" "}
                   {quizData.supplementType === "hipercalorico" ? "Hipercalórico Growth" : "Whey Protein Growth"}
                 </p>
-                <p className="text-gray-300 text-sm mt-2">
+                <p className="text-gray-300 text-xs md:text-sm mt-1 md:mt-2">
                   {quizData.supplementType === "hipercalorico"
                     ? "Ideal para ganho de massa muscular e atingir suas calorias diárias"
                     : "Ideal para atingir suas metas de proteína e manter a massa muscular"}
@@ -2153,9 +2173,9 @@ export default function QuizPage() {
 
       case 14:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual é o seu peso atual?</h2>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é o seu peso atual?</h2>
             </div>
             <div className="space-y-6">
               <Input
@@ -2163,16 +2183,16 @@ export default function QuizPage() {
                 placeholder={`Peso atual, kg`}
                 value={quizData.currentWeight}
                 onChange={(e) => updateQuizData("currentWeight", e.target.value)}
-                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl md:text-2xl rounded-none focus:border-lime-500"
               />
             </div>
           </div>
         )
       case 15:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
             </div>
             <div className="space-y-6">
               <Input
@@ -2192,16 +2212,16 @@ export default function QuizPage() {
                 min="1"
                 max="500"
                 step="0.1"
-                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl md:text-2xl rounded-none focus:border-lime-500"
               />
             </div>
           </div>
         )
       case 16:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual é o seu nome?</h2>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é o seu nome?</h2>
             </div>
             <div className="space-y-6">
               <Input
@@ -2209,18 +2229,18 @@ export default function QuizPage() {
                 placeholder="Digite seu nome"
                 value={quizData.name}
                 onChange={(e) => updateQuizData("name", e.target.value)}
-                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl md:text-2xl rounded-none focus:border-lime-500"
               />
             </div>
           </div>
         )
       case 17:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Quanto tempo você tem para treinar?</h2>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Quanto tempo você tem para treinar?</h2>
             </div>
-            <div className="space-y-4 max-w-2xl mx-auto">
+            <div className="space-y-3 md:space-y-4 max-w-2xl mx-auto">
               {[
                 { value: "30min", label: "30 minutos" },
                 { value: "45min", label: "45 minutos" },
@@ -2229,14 +2249,14 @@ export default function QuizPage() {
               ].map((time) => (
                 <div
                   key={time.value}
-                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all border ${
+                  className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all border ${
                     quizData.workoutTime === time.value
                       ? "border-lime-500 bg-lime-500/10"
                       : "border-gray-600 hover:border-gray-500"
                   }`}
                   onClick={() => updateQuizData("workoutTime", time.value)}
                 >
-                  <h3 className="text-lg font-medium text-white text-center">{time.label}</h3>
+                  <h3 className="text-base md:text-lg font-medium text-white text-center">{time.label}</h3>
                 </div>
               ))}
             </div>
@@ -2244,11 +2264,11 @@ export default function QuizPage() {
         )
       case 18:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual é sua experiência com exercícios?</h2>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é sua experiência com exercícios?</h2>
             </div>
-            <div className="space-y-4 max-w-2xl mx-auto">
+            <div className="space-y-3 md:space-y-4 max-w-2xl mx-auto">
               {[
                 { value: "iniciante", label: "Iniciante - Nunca treinei" },
                 { value: "basico", label: "Básico - Treino ocasionalmente" },
@@ -2257,7 +2277,7 @@ export default function QuizPage() {
               ].map((level) => (
                 <div
                   key={level.value}
-                  className={`rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
+                  className={`rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 md:space-x-4 ${
                     quizData.experience === level.value
                       ? "bg-teal-600/80 border border-teal-500"
                       : "bg-teal-800/40 border border-teal-700/50 hover:bg-teal-700/50"
@@ -2265,13 +2285,15 @@ export default function QuizPage() {
                   onClick={() => updateQuizData("experience", level.value)}
                 >
                   <div
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                    className={`w-5 md:w-6 h-5 md:h-6 rounded-full border-2 flex items-center justify-center ${
                       quizData.experience === level.value ? "border-white bg-white" : "border-teal-300"
                     }`}
                   >
-                    {quizData.experience === level.value && <div className="w-3 h-3 rounded-full bg-teal-600" />}
+                    {quizData.experience === level.value && (
+                      <div className="w-2 md:w-3 h-2 md:h-3 rounded-full bg-teal-600" />
+                    )}
                   </div>
-                  <h3 className="text-lg font-medium text-white">{level.label}</h3>
+                  <h3 className="text-base md:text-lg font-medium text-white">{level.label}</h3>
                 </div>
               ))}
             </div>
@@ -2279,10 +2301,10 @@ export default function QuizPage() {
         )
       case 19:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Que equipamentos você tem acesso?</h2>
-              <p className="text-gray-300">Selecione todos que se aplicam</p>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Que equipamentos você tem acesso?</h2>
+              <p className="text-sm md:text-base text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="space-y-3">
               {[
@@ -2294,13 +2316,16 @@ export default function QuizPage() {
                 { value: "bicicleta", label: "Bicicleta ergométrica", icon: "🚴" },
                 { value: "nenhum", label: "Apenas peso corporal", icon: "🤲" },
               ].map((equipment) => (
-                <div key={equipment.value} className="flex items-center space-x-3">
+                <div key={equipment.value} className="flex items-center space-x-2 md:space-x-3">
                   <Checkbox
                     id={equipment.value}
                     checked={quizData.equipment.includes(equipment.value)}
                     onCheckedChange={(checked) => handleArrayUpdate("equipment", equipment.value, checked as boolean)}
                   />
-                  <Label htmlFor={equipment.value} className="text-white text-lg flex items-center space-x-2">
+                  <Label
+                    htmlFor={equipment.value}
+                    className="text-white text-base md:text-lg flex items-center space-x-2"
+                  >
                     <span className="text-xl">{equipment.icon}</span>
                     <span>{equipment.label}</span>
                   </Label>
@@ -2311,13 +2336,15 @@ export default function QuizPage() {
         )
       case 20:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Como você se sente sobre exercícios cardiovasculares?</h2>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">
+                Como você se sente sobre exercícios cardiovasculares?
+              </h2>
             </div>
-            <div className="flex items-center justify-center space-x-8">
-              <ExerciseIllustration type="cardio" className="w-64 h-64" />
-              <div className="space-y-4 flex-1 max-w-sm">
+            <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
+              <ExerciseIllustration type="cardio" className="w-48 md:w-64 h-48 md:h-64" />
+              <div className="space-y-3 md:space-y-4 flex-1 max-w-sm">
                 {[
                   { value: "amo", label: "Amo cardio!", icon: ThumbsUp, color: "text-green-500" },
                   { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
@@ -2325,15 +2352,15 @@ export default function QuizPage() {
                 ].map((pref) => (
                   <div
                     key={pref.value}
-                    className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
+                    className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 md:space-x-4 ${
                       quizData.exercisePreferences.cardio === pref.value
                         ? "border-2 border-lime-500"
                         : "border border-gray-700"
                     }`}
                     onClick={() => updateExercisePreference("cardio", pref.value)}
                   >
-                    <pref.icon className={`h-6 w-6 ${pref.color}`} />
-                    <h3 className="text-lg font-bold text-white">{pref.label}</h3>
+                    <pref.icon className={`h-5 md:h-6 w-5 md:w-6 ${pref.color}`} />
+                    <h3 className="text-base md:text-lg font-bold text-white">{pref.label}</h3>
                   </div>
                 ))}
               </div>
@@ -2342,13 +2369,15 @@ export default function QuizPage() {
         )
       case 21:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Como você se sente sobre flexões e exercícios de força?</h2>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">
+                Como você se sente sobre flexões e exercícios de força?
+              </h2>
             </div>
-            <div className="flex items-center justify-center space-x-8">
-              <ExerciseIllustration type="pullups" className="w-64 h-64" />
-              <div className="space-y-4 flex-1 max-w-sm">
+            <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
+              <ExerciseIllustration type="pullups" className="w-48 md:w-64 h-48 md:h-64" />
+              <div className="space-y-3 md:space-y-4 flex-1 max-w-sm">
                 {[
                   { value: "amo", label: "Amo exercícios de força!", icon: ThumbsUp, color: "text-green-500" },
                   { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
@@ -2356,15 +2385,15 @@ export default function QuizPage() {
                 ].map((pref) => (
                   <div
                     key={pref.value}
-                    className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
+                    className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 md:space-x-4 ${
                       quizData.exercisePreferences.pullups === pref.value
                         ? "border-2 border-lime-500"
                         : "border border-gray-700"
                     }`}
                     onClick={() => updateExercisePreference("pullups", pref.value)}
                   >
-                    <pref.icon className={`h-6 w-6 ${pref.color}`} />
-                    <h3 className="text-lg font-bold text-white">{pref.label}</h3>
+                    <pref.icon className={`h-5 md:h-6 w-5 md:w-6 ${pref.color}`} />
+                    <h3 className="text-base md:text-lg font-bold text-white">{pref.label}</h3>
                   </div>
                 ))}
               </div>
@@ -2373,13 +2402,15 @@ export default function QuizPage() {
         )
       case 22:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Como você se sente sobre yoga e alongamento?</h2>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">
+                Como você se sente sobre yoga e alongamento?
+              </h2>
             </div>
-            <div className="flex items-center justify-center space-x-8">
-              <ExerciseIllustration type="yoga" className="w-64 h-64" />
-              <div className="space-y-4 flex-1 max-w-sm">
+            <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
+              <ExerciseIllustration type="yoga" className="w-48 md:w-64 h-48 md:h-64" />
+              <div className="space-y-3 md:space-y-4 flex-1 max-w-sm">
                 {[
                   { value: "amo", label: "Amo yoga/alongamento!", icon: ThumbsUp, color: "text-green-500" },
                   { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
@@ -2387,15 +2418,15 @@ export default function QuizPage() {
                 ].map((pref) => (
                   <div
                     key={pref.value}
-                    className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
+                    className={`bg-gray-800 rounded-lg p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 md:space-x-4 ${
                       quizData.exercisePreferences.yoga === pref.value
                         ? "border-2 border-lime-500"
                         : "border border-gray-700"
                     }`}
                     onClick={() => updateExercisePreference("yoga", pref.value)}
                   >
-                    <pref.icon className={`h-6 w-6 ${pref.color}`} />
-                    <h3 className="text-lg font-bold text-white">{pref.label}</h3>
+                    <pref.icon className={`h-5 md:h-6 w-5 md:w-6 ${pref.color}`} />
+                    <h3 className="text-base md:text-lg font-bold text-white">{pref.label}</h3>
                   </div>
                 ))}
               </div>
@@ -2404,30 +2435,28 @@ export default function QuizPage() {
         )
       case 23:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
-              <p className="text-gray-300">Selecione de 1 a 7 dias</p>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
+              <p className="text-sm md:text-base text-gray-400">Selecione de 1 a 7 dias</p>
             </div>
-            <div className="text-center space-y-8">
-              <div className="bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-8 border border-zinc-800">
-                <div className="space-y-4">
-                  <div className="bg-gray-700 rounded-full px-4 py-2 inline-block">
-                    <span className="text-white font-bold">{quizData.trainingDaysPerWeek} dias</span>
-                  </div>
-                  <div className="px-4">
-                    <Slider
-                      value={[quizData.trainingDaysPerWeek]}
-                      onValueChange={(value) => updateQuizData("trainingDaysPerWeek", value[0])}
-                      max={7}
-                      min={1}
-                      step={1}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-gray-400 text-sm mt-2">
-                      <span>1 dia</span>
-                      <span>7 dias</span>
-                    </div>
+            <div className="bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-4 md:p-8 border border-zinc-800">
+              <div className="space-y-4">
+                <div className="bg-gray-700 rounded-full px-3 py-1.5 md:px-4 md:py-2 inline-block">
+                  <span className="text-white font-bold text-base md:text-lg">{quizData.trainingDaysPerWeek} dias</span>
+                </div>
+                <div className="px-2 md:px-4">
+                  <Slider
+                    value={[quizData.trainingDaysPerWeek]}
+                    onValueChange={(value) => updateQuizData("trainingDaysPerWeek", value[0])}
+                    max={7}
+                    min={1}
+                    step={1}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs md:text-sm text-gray-400 px-2">
+                    <span>1 dia</span>
+                    <span>7 dias</span>
                   </div>
                 </div>
               </div>
@@ -2436,10 +2465,10 @@ export default function QuizPage() {
         )
       case 24:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Digite o seu e-mail</h2>
-              <p className="text-gray-300">Para receber seu plano personalizado</p>
+          <div className="space-y-4 md:space-y-8">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Digite o seu e-mail</h2>
+              <p className="text-sm md:text-base text-gray-300">Para receber seu plano personalizado</p>
             </div>
             <div className="space-y-6">
               <Input
@@ -2447,7 +2476,7 @@ export default function QuizPage() {
                 placeholder="seu@email.com"
                 value={quizData.email}
                 onChange={(e) => updateQuizData("email", e.target.value)}
-                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl md:text-2xl rounded-none focus:border-lime-500"
               />
             </div>
           </div>
@@ -2517,63 +2546,71 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <Button variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="text-white">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col p-4 md:p-6">
+      {/* Progress bar */}
+      <div className="mb-4 md:mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <Button variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="text-white p-2">
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            <span className="hidden sm:inline">Voltar</span>
           </Button>
           <div className="text-center">
-            <p className="text-gray-400">
+            <p className="text-gray-400 text-sm">
               {currentStep} de {totalSteps}
             </p>
           </div>
-          <div className="w-16" />
+          {/* Placeholder for alignment on smaller screens */}
+          <div className="w-16 sm:w-auto" />
         </div>
-        <div className="w-full bg-gray-700 rounded-full h-2 mb-8">
+        <div className="w-full bg-gray-700 rounded-full h-2">
           <div
             className="bg-lime-500 h-2 rounded-full transition-all duration-300"
             style={{ width: `${(currentStep / totalSteps) * 100}%` }}
           />
         </div>
-        <div className="mb-8">{renderStep()}</div>
-        <div className="flex justify-center">
-          {currentStep === totalSteps ? (
+      </div>
+
+      {/* Main content area with optimized spacing */}
+      <div className="flex-1 flex items-center justify-center overflow-y-auto">
+        <div className="w-full max-w-2xl">{renderStep()}</div>
+      </div>
+
+      {/* Continue button with reduced size on mobile */}
+      {!showSuccess &&
+        !showLoading &&
+        !showIMCResult &&
+        !showNutritionInfo &&
+        !showWaterCongrats &&
+        !showTimeCalculation && (
+          <div className="mt-4 md:mt-6">
             <Button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl font-bold rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
+              onClick={handleContinue}
+              disabled={!isStepValid(currentStep)} // Ensure isStepValid uses the current step
+              className="w-full bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white py-4 md:py-6 px-6 md:px-8 text-lg md:text-xl font-bold rounded-full shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 disabled:hover:scale-100 disabled:shadow-none">
-                <span className="relative z-10 flex items-center gap-3">
+              <div className="relative px-6 md:px-8 py-3 md:py-4">
+                <span className="relative z-10 flex items-center gap-2">
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="h-6 w-6 animate-spin" />
-                      Processando...
+                      <Loader2 className="h-5 md:h-6 w-5 md:w-6 animate-spin" />
+                      <span className="text-base md:text-lg">Processando...</span>
+                    </>
+                  ) : currentStep === totalSteps ? (
+                    <>
+                      <Dumbbell className="h-5 md:h-6 w-5 md:w-6" />
+                      <span className="text-base md:text-lg">Finalizar</span>
                     </>
                   ) : (
                     <>
-                      Finalizar Avaliação
-                      <Dumbbell className="h-6 w-6" />
+                      <span className="text-base md:text-lg">Continuar</span>
+                      <ArrowRight className="h-5 md:h-6 w-5 md:w-6" />
                     </>
                   )}
                 </span>
               </div>
             </Button>
-          ) : (
-            <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
-              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                <span className="relative z-10">Continuar</span>
-
-                {/* Efeito de brilho animado */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            </Button>
-          )}
-        </div>
-      </div>
+          </div>
+        )}
     </div>
   )
 }
