@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-// import Image from "next/image" // Import Image component
+import Image from "next/image" // Import Image component
 
 import { Button } from "@/components/ui/button"
 
@@ -926,7 +926,15 @@ export default function QuizPage() {
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
         <div className="text-center space-y-6 max-w-md">
-          <BodyIllustration className="w-48 h-64 mx-auto" gender={quizData.gender === "mulher" ? "female" : "male"} />
+          <div className="w-48 h-64 mx-auto relative">
+            <Image
+              src={getBodyTypeImageForFocus() || "/placeholder.svg"}
+              alt="Seu biotipo"
+              width={192}
+              height={256}
+              className="object-contain"
+            />
+          </div>
           <h2 className="text-3xl font-bold">Resultado do seu IMC</h2>
           <div className="bg-gray-800 rounded-lg p-6">
             <p className="text-gray-300 text-lg mb-4">
@@ -1989,7 +1997,7 @@ export default function QuizPage() {
           <div className="space-y-8">
             <div className="text-center">
               <div className="mb-6">
-                <h2 className="text-3xl font-bold text-white">Qual é a sua altura?</h2>
+                <h2 className="text-3xl font-bold text-white">Qual é sua altura?</h2>
               </div>
               <div className="space-y-6">
                 <Input
@@ -2402,22 +2410,24 @@ export default function QuizPage() {
               <p className="text-gray-300">Selecione de 1 a 7 dias</p>
             </div>
             <div className="text-center space-y-8">
-              <div className="space-y-4">
-                <div className="bg-gray-700 rounded-full px-4 py-2 inline-block">
-                  <span className="text-white font-bold">{quizData.trainingDaysPerWeek} dias</span>
-                </div>
-                <div className="px-4">
-                  <Slider
-                    value={[quizData.trainingDaysPerWeek]}
-                    onValueChange={(value) => updateQuizData("trainingDaysPerWeek", value[0])}
-                    max={7}
-                    min={1}
-                    step={1}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-gray-400 text-sm mt-2">
-                    <span>1 dia</span>
-                    <span>7 dias</span>
+              <div className="bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-8 border border-zinc-800">
+                <div className="space-y-4">
+                  <div className="bg-gray-700 rounded-full px-4 py-2 inline-block">
+                    <span className="text-white font-bold">{quizData.trainingDaysPerWeek} dias</span>
+                  </div>
+                  <div className="px-4">
+                    <Slider
+                      value={[quizData.trainingDaysPerWeek]}
+                      onValueChange={(value) => updateQuizData("trainingDaysPerWeek", value[0])}
+                      max={7}
+                      min={1}
+                      step={1}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-gray-400 text-sm mt-2">
+                      <span>1 dia</span>
+                      <span>7 dias</span>
+                    </div>
                   </div>
                 </div>
               </div>
