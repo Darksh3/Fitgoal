@@ -964,21 +964,21 @@ export default function QuizPage() {
             <CheckCircle className="h-16 w-16 text-white stroke-[3]" />
           </div>
 
-          <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+          <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
             <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">
               Seu plano de treino personalizado está pronto!
             </h2>
-          </div>
 
-          <button
-            onClick={() => {
-              setShowSuccess(false)
-              router.push("/quiz/results")
-            }}
-            className="text-white text-lg font-semibold hover:text-green-400 transition-colors duration-300 underline underline-offset-4 animate-in fade-in duration-700 delay-500"
-          >
-            Ver Resultados
-          </button>
+            <button
+              onClick={() => {
+                setShowSuccess(false)
+                router.push("/quiz/results")
+              }}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] animate-in fade-in duration-700 delay-500"
+            >
+              Ver Resultados
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -1737,7 +1737,7 @@ export default function QuizPage() {
                           right: `${debugValues.leg_lower_right.right}%`,
                           width: `${debugValues.leg_lower_right.width}%`,
                           height: `${debugValues.leg_lower_right.height}%`,
-                          borderRadius: "50% 50% 60% 40% / 65% 65% 35% 35%",
+                          borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
                           transform: `rotate(${debugValues.leg_lower_right.rotate}deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
