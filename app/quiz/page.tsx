@@ -179,18 +179,18 @@ export default function QuizPage() {
 
   const [debugMode, setDebugMode] = useState(false)
   const [debugValues, setDebugValues] = useState({
-    // Feminine markings
-    chest_left: { top: 23, left: 26, width: 20, height: 6, rotate: -90 },
-    chest_right: { top: 23, right: 32, width: 20, height: 6, rotate: -90 },
-    arm_upper_left: { top: 23, left: 7, width: 9, height: 10, rotate: 4 },
+    // Original was for w-64, now scaled for w-48 (25% smaller)
+    chest_left: { top: 23, left: 32, width: 20, height: 6, rotate: -90 },
+    chest_right: { top: 23, right: 40, width: 20, height: 6, rotate: -90 },
+    arm_upper_left: { top: 23, left: 8, width: 9, height: 10, rotate: 4 },
     arm_lower_left: { top: 37, left: 2, width: 10, height: 11, rotate: 2 },
-    arm_upper_right: { top: 23, right: 10, width: 9, height: 8, rotate: -25 },
-    arm_lower_right: { top: 32, right: 8, width: 6, height: 8, rotate: 29 },
-    belly: { top: 31, left: 50, width: 26, height: 11, rotate: 0 },
-    leg_upper_left: { top: 54, left: 24, width: 18, height: 12, rotate: -2 },
-    leg_lower_left: { top: 74, left: 37, width: 5, height: 9, rotate: -17 },
-    leg_upper_right: { top: 54, right: 33, width: 14, height: 11, rotate: 11 },
-    leg_lower_right: { top: 72, right: 41, width: 6, height: 13, rotate: 12 },
+    arm_upper_right: { top: 23, right: 12, width: 9, height: 8, rotate: -25 },
+    arm_lower_right: { top: 32, right: 10, width: 6, height: 8, rotate: 29 },
+    belly: { top: 31, left: 50, width: 30, height: 11, rotate: 0 },
+    leg_upper_left: { top: 54, left: 28, width: 18, height: 12, rotate: -2 },
+    leg_lower_left: { top: 74, left: 42, width: 5, height: 9, rotate: -17 },
+    leg_upper_right: { top: 54, right: 40, width: 14, height: 11, rotate: 11 },
+    leg_lower_right: { top: 72, right: 50, width: 6, height: 13, rotate: 12 },
     // Masculine markings
     m_chest_left: { top: 21, left: 34, width: 21, height: 11, rotate: -90 },
     m_chest_right: { top: 21, right: 32, width: 21, height: 11, rotate: -89 },
@@ -205,7 +205,7 @@ export default function QuizPage() {
     m_abs_3_left: { top: 39, left: 41, width: 11, height: 4, rotate: 0 },
     m_abs_3_right: { top: 39, right: 41, width: 10, height: 4, rotate: 0 },
     m_leg_upper_left: { top: 50, left: 31, width: 16, height: 15, rotate: 12 },
-    m_leg_lower_left: { top: 72, left: 23, width: 11, height: 16, rotate: 10 }, // Updated m_leg_lower_left height from 17 to 16
+    m_leg_lower_left: { top: 72, left: 23, width: 11, height: 16, rotate: 10 },
     m_leg_upper_right: { top: 50, right: 31, width: 16, height: 15, rotate: -12 },
     m_leg_lower_right: { top: 72, right: 25, width: 11, height: 16, rotate: -6 },
   })
@@ -2041,7 +2041,7 @@ export default function QuizPage() {
               ].map((water) => (
                 <div
                   key={water.value}
-                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
+                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all border ${
                     quizData.waterIntake === water.value ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
                   onClick={() => updateQuizData("waterIntake", water.value)}
