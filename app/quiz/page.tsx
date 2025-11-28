@@ -205,7 +205,7 @@ export default function QuizPage() {
     m_abs_3_left: { top: 39, left: 41, width: 11, height: 4, rotate: 0 },
     m_abs_3_right: { top: 39, right: 41, width: 10, height: 4, rotate: 0 },
     m_leg_upper_left: { top: 50, left: 31, width: 16, height: 15, rotate: 12 },
-    m_leg_lower_left: { top: 72, left: 23, width: 11, height: 17, rotate: 10 },
+    m_leg_lower_left: { top: 72, left: 23, width: 11, height: 16, rotate: 10 }, // Updated m_leg_lower_left height from 17 to 16
     m_leg_upper_right: { top: 50, right: 31, width: 16, height: 15, rotate: -12 },
     m_leg_lower_right: { top: 72, right: 25, width: 11, height: 16, rotate: -6 },
   })
@@ -1305,6 +1305,8 @@ export default function QuizPage() {
                     e.currentTarget.src = "/placeholder.svg"
                   }}
                 />
+
+                <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/80 to-transparent z-20 pointer-events-none" />
               </div>
 
               {/* Slider container matching reference design */}
