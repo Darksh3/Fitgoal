@@ -1133,7 +1133,7 @@ export default function QuizPage() {
 
   if (showWaterCongrats) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
         <div className="text-center space-y-6 max-w-md">
           <div className="w-32 h-32 mx-auto relative">
             <svg viewBox="0 0 100 100" className="w-full h-full">
@@ -1145,13 +1145,12 @@ export default function QuizPage() {
           <h2 className="text-3xl font-bold">Uau! Impressionante!</h2>
           <p className="text-gray-300 text-lg">Você bebe mais água do que 92% dos usuários*</p>
           <p className="text-gray-300 text-lg">Continue assim!</p>
-          <p className="text-gray-500 text-sm">*Usuários do ATHLIX que fizeram o teste</p>
           <Button
             onClick={() => {
               setShowWaterCongrats(false)
               setCurrentStep(currentStep + 1)
             }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-white py-4 text-lg rounded-full"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg rounded-full"
           >
             Entendi
           </Button>
@@ -1246,7 +1245,7 @@ export default function QuizPage() {
               <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual a sua idade?</h2>
             </div>
             <div className="max-w-md mx-auto">
-              <Input
+              <input
                 type="number"
                 min="16"
                 max="80"
@@ -1285,8 +1284,8 @@ export default function QuizPage() {
               ].map((type) => (
                 <div
                   key={type.value}
-                  className={`bg-white/5 backdrop-blur-md rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
-                    quizData.bodyType === type.value ? "border-2 border-lime-500" : "border border-white/10"
+                  className={`bg-gray-800 rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
+                    quizData.bodyType === type.value ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
                   onClick={() => updateQuizData("bodyType", type.value)}
                 >
@@ -2581,7 +2580,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
+    <div className="min-h-screen bg-gray-900 text-white p-6">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <Button variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="text-white">

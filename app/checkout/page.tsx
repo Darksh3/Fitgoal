@@ -362,7 +362,7 @@ export default function CheckoutPage() {
   if (error) return <div className="flex justify-center items-center min-h-screen text-red-500">{error}</div>
 
   return (
-    <div className="min-h-screen bg-black p-6">
+    <div className="min-h-screen bg-gray-900 p-6">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-white text-center mb-8">Escolha seu Plano</h1>
 
