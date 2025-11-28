@@ -188,51 +188,6 @@ export default function QuizPage() {
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false) // Add isSubmitting state
 
-  const [debugMode, setDebugMode] = useState(false)
-  const [debugValues, setDebugValues] = useState({
-    // Feminine markings
-    chest_left: { top: 23, left: 26, width: 20, height: 6, rotate: -90 },
-    chest_right: { top: 23, right: 32, width: 20, height: 6, rotate: -90 },
-    arm_upper_left: { top: 23, left: 7, width: 9, height: 10, rotate: 4 },
-    arm_lower_left: { top: 37, left: 2, width: 10, height: 11, rotate: 2 },
-    arm_upper_right: { top: 23, right: 10, width: 9, height: 8, rotate: -25 },
-    arm_lower_right: { top: 32, right: 8, width: 6, height: 8, rotate: 29 },
-    belly: { top: 31, left: 50, width: 26, height: 11, rotate: 0 },
-    leg_upper_left: { top: 54, left: 24, width: 18, height: 12, rotate: -2 },
-    leg_lower_left: { top: 74, left: 37, width: 5, height: 9, rotate: -17 },
-    leg_upper_right: { top: 54, right: 33, width: 14, height: 11, rotate: 11 },
-    leg_lower_right: { top: 72, right: 41, width: 6, height: 13, rotate: 12 },
-    // Masculine markings
-    m_chest_left: { top: 21, left: 34, width: 21, height: 11, rotate: -90 },
-    m_chest_right: { top: 21, right: 32, width: 21, height: 11, rotate: -89 },
-    m_arm_upper_left: { top: 23, left: 20, width: 9, height: 10, rotate: 4 },
-    m_arm_lower_left: { top: 36, left: 17, width: 8, height: 12, rotate: 6 },
-    m_arm_upper_right: { top: 23, right: 19, width: 9, height: 10, rotate: -12 },
-    m_arm_lower_right: { top: 36, right: 15, width: 8, height: 12, rotate: -1 },
-    m_abs_1_left: { top: 31, left: 40, width: 12, height: 4.5, rotate: 0 },
-    m_abs_1_right: { top: 31, right: 40, width: 10, height: 4.5, rotate: 0 },
-    m_abs_2_left: { top: 35, left: 40, width: 11, height: 4.5, rotate: 0 },
-    m_abs_2_right: { top: 35, right: 40, width: 11, height: 4.5, rotate: 0 },
-    m_abs_3_left: { top: 39, left: 41, width: 11, height: 4, rotate: 0 },
-    m_abs_3_right: { top: 39, right: 41, width: 10, height: 4, rotate: 0 },
-    m_leg_upper_left: { top: 50, left: 31, width: 16, height: 15, rotate: 12 },
-    m_leg_lower_left: { top: 72, left: 23, width: 11, height: 16, rotate: 10 }, // Updated m_leg_lower_left height from 17 to 16
-    m_leg_upper_right: { top: 50, right: 31, width: 16, height: 15, rotate: -12 },
-    m_leg_lower_right: { top: 72, right: 25, width: 11, height: 16, rotate: -6 },
-  })
-
-  const updateDebugValue = (key: string, property: string, value: number) => {
-    setDebugValues((prev) => ({
-      ...prev,
-      [key]: { ...prev[key], [property]: value },
-    }))
-  }
-
-  const copyDebugValues = () => {
-    navigator.clipboard.writeText(JSON.stringify(debugValues, null, 2))
-    alert("Valores copiados para área de transferência!")
-  }
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -1398,12 +1353,12 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.m_chest_left.top}%`,
-                          left: `${debugValues.m_chest_left.left}%`,
-                          width: `${debugValues.m_chest_left.width}%`,
-                          height: `${debugValues.m_chest_left.height}%`,
+                          top: `23%`,
+                          left: `33%`,
+                          width: `15%`,
+                          height: `7%`,
                           borderRadius: "50% 50% 45% 55% / 55% 45% 60% 40%",
-                          transform: `rotate(${debugValues.m_chest_left.rotate}deg)`,
+                          transform: `rotate(-90deg)`,
                           boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
@@ -1411,12 +1366,12 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.m_chest_right.top}%`,
-                          right: `${debugValues.m_chest_right.right}%`,
-                          width: `${debugValues.m_chest_right.width}%`,
-                          height: `${debugValues.m_chest_right.height}%`,
+                          top: `23%`,
+                          right: `32%`,
+                          width: `15%`,
+                          height: `7%`,
                           borderRadius: "50% 50% 55% 45% / 45% 55% 40% 60%",
-                          transform: `rotate(${debugValues.m_chest_right.rotate}deg)`,
+                          transform: `rotate(-89deg)`,
                           boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
@@ -1429,48 +1384,48 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.m_arm_upper_left.top}%`,
-                          left: `${debugValues.m_arm_upper_left.left}%`,
-                          width: `${debugValues.m_arm_upper_left.width}%`,
-                          height: `${debugValues.m_arm_upper_left.height}%`,
+                          top: `23%`,
+                          left: `20%`,
+                          width: `9%`,
+                          height: `10%`,
                           borderRadius: "45% 55% 50% 50% / 50% 50% 45% 55%",
-                          transform: `rotate(${debugValues.m_arm_upper_left.rotate}deg)`,
+                          transform: `rotate(4deg)`,
                           boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `${debugValues.m_arm_lower_left.top}%`,
-                          left: `${debugValues.m_arm_lower_left.left}%`,
-                          width: `${debugValues.m_arm_lower_left.width}%`,
-                          height: `${debugValues.m_arm_lower_left.height}%`,
+                          top: `36%`,
+                          left: `17%`,
+                          width: `8%`,
+                          height: `12%`,
                           borderRadius: "40% 60% 50% 50% / 60% 40% 50% 50%",
-                          transform: `rotate(${debugValues.m_arm_lower_left.rotate}deg)`,
+                          transform: `rotate(6deg)`,
                           boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.m_arm_upper_right.top}%`,
-                          right: `${debugValues.m_arm_upper_right.right}%`,
-                          width: `${debugValues.m_arm_upper_right.width}%`,
-                          height: `${debugValues.m_arm_upper_right.height}%`,
+                          top: `23%`,
+                          right: `19%`,
+                          width: `9%`,
+                          height: `10%`,
                           borderRadius: "55% 45% 50% 50% / 50% 50% 55% 45%",
-                          transform: `rotate(${debugValues.m_arm_upper_right.rotate}deg)`,
+                          transform: `rotate(-12deg)`,
                           boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `${debugValues.m_arm_lower_right.top}%`,
-                          right: `${debugValues.m_arm_lower_right.right}%`,
-                          width: `${debugValues.m_arm_lower_right.width}%`,
-                          height: `${debugValues.m_arm_lower_right.height}%`,
+                          top: `36%`,
+                          right: `15%`,
+                          width: `8%`,
+                          height: `12%`,
                           borderRadius: "60% 40% 50% 50% / 40% 60% 50% 50%",
-                          transform: `rotate(${debugValues.m_arm_lower_right.rotate}deg)`,
+                          transform: `rotate(-1deg)`,
                           boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
@@ -1484,10 +1439,10 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.m_abs_1_left.top}%`,
-                          left: `${debugValues.m_abs_1_left.left}%`,
-                          width: `${debugValues.m_abs_1_left.width}%`,
-                          height: `${debugValues.m_abs_1_left.height}%`,
+                          top: `31%`,
+                          left: `40%`,
+                          width: `12%`,
+                          height: `4.5%`,
                           borderRadius: "45% 55% 40% 60%",
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
@@ -1496,10 +1451,10 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.m_abs_1_right.top}%`,
-                          right: `${debugValues.m_abs_1_right.right}%`,
-                          width: `${debugValues.m_abs_1_right.width}%`,
-                          height: `${debugValues.m_abs_1_right.height}%`,
+                          top: `31%`,
+                          right: `40%`,
+                          width: `10%`,
+                          height: `4.5%`,
                           borderRadius: "55% 45% 60% 40%",
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
@@ -1508,10 +1463,10 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.m_abs_2_left.top}%`,
-                          left: `${debugValues.m_abs_2_left.left}%`,
-                          width: `${debugValues.m_abs_2_left.width}%`,
-                          height: `${debugValues.m_abs_2_left.height}%`,
+                          top: `35%`,
+                          left: `40%`,
+                          width: `11%`,
+                          height: `4.5%`,
                           borderRadius: "40% 60% 45% 55%",
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
@@ -1520,10 +1475,10 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.m_abs_2_right.top}%`,
-                          right: `${debugValues.m_abs_2_right.right}%`,
-                          width: `${debugValues.m_abs_2_right.width}%`,
-                          height: `${debugValues.m_abs_2_right.height}%`,
+                          top: `35%`,
+                          right: `40%`,
+                          width: `11%`,
+                          height: `4.5%`,
                           borderRadius: "60% 40% 55% 45%",
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
@@ -1532,10 +1487,10 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.m_abs_3_left.top}%`,
-                          left: `${debugValues.m_abs_3_left.left}%`,
-                          width: `${debugValues.m_abs_3_left.width}%`,
-                          height: `${debugValues.m_abs_3_left.height}%`,
+                          top: `39%`,
+                          left: `41%`,
+                          width: `11%`,
+                          height: `4%`,
                           borderRadius: "45% 55% 50% 50%",
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
@@ -1544,10 +1499,10 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.m_abs_3_right.top}%`,
-                          right: `${debugValues.m_abs_3_right.right}%`,
-                          width: `${debugValues.m_abs_3_right.width}%`,
-                          height: `${debugValues.m_abs_3_right.height}%`,
+                          top: `39%`,
+                          right: `41%`,
+                          width: `10%`,
+                          height: `4%`,
                           borderRadius: "55% 45% 50% 50%",
                           boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
@@ -1561,48 +1516,48 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.m_leg_upper_left.top}%`,
-                          left: `${debugValues.m_leg_upper_left.left}%`,
-                          width: `${debugValues.m_leg_upper_left.width}%`,
-                          height: `${debugValues.m_leg_upper_left.height}%`,
+                          top: `50%`,
+                          left: `31%`,
+                          width: `16%`,
+                          height: `15%`,
                           borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
-                          transform: `rotate(${debugValues.m_leg_upper_left.rotate}deg)`,
+                          transform: `rotate(12deg)`,
                           boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `${debugValues.m_leg_lower_left.top}%`,
-                          left: `${debugValues.m_leg_lower_left.left}%`,
-                          width: `${debugValues.m_leg_lower_left.width}%`,
-                          height: `${debugValues.m_leg_lower_left.height}%`,
+                          top: `72%`,
+                          left: `23%`,
+                          width: `11%`,
+                          height: `16%`,
                           borderRadius: "50% 50% 40% 60% / 60% 60% 50% 50%",
-                          transform: `rotate(${debugValues.m_leg_lower_left.rotate}deg)`,
+                          transform: `rotate(10deg)`,
                           boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.m_leg_upper_right.top}%`,
-                          right: `${debugValues.m_leg_upper_right.right}%`,
-                          width: `${debugValues.m_leg_upper_right.width}%`,
-                          height: `${debugValues.m_leg_upper_right.height}%`,
+                          top: `50%`,
+                          right: `31%`,
+                          width: `16%`,
+                          height: `15%`,
                           borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
-                          transform: `rotate(${debugValues.m_leg_upper_right.rotate}deg)`,
+                          transform: `rotate(-12deg)`,
                           boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `${debugValues.m_leg_lower_right.top}%`,
-                          right: `${debugValues.m_leg_lower_right.right}%`,
-                          width: `${debugValues.m_leg_lower_right.width}%`,
-                          height: `${debugValues.m_leg_lower_right.height}%`,
+                          top: `72%`,
+                          right: `25%`,
+                          width: `11%`,
+                          height: `16%`,
                           borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
-                          transform: `rotate(${debugValues.m_leg_lower_right.rotate}deg)`,
+                          transform: `rotate(-6deg)`,
                           boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
@@ -1616,24 +1571,24 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
                         style={{
-                          top: `${debugValues.chest_left.top}%`,
-                          left: `${debugValues.chest_left.left}%`,
-                          width: `${debugValues.chest_left.width}%`,
-                          height: `${debugValues.chest_left.height}%`,
+                          top: `23%`,
+                          left: `26%`,
+                          width: `20%`,
+                          height: `6%`,
                           borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
-                          transform: `rotate(${debugValues.chest_left.rotate}deg)`,
+                          transform: `rotate(-90deg)`,
                           boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
                         style={{
-                          top: `${debugValues.chest_right.top}%`,
-                          right: `${debugValues.chest_right.right}%`,
-                          width: `${debugValues.chest_right.width}%`,
-                          height: `${debugValues.chest_right.height}%`,
+                          top: `23%`,
+                          right: `32%`,
+                          width: `20%`,
+                          height: `6%`,
                           borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
-                          transform: `rotate(${debugValues.chest_right.rotate}deg)`,
+                          transform: `rotate(-90deg)`,
                           boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
                         }}
                       ></div>
@@ -1646,48 +1601,48 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.arm_upper_left.top}%`,
-                          left: `${debugValues.arm_upper_left.left}%`,
-                          width: `${debugValues.arm_upper_left.width}%`,
-                          height: `${debugValues.arm_upper_left.height}%`,
+                          top: `23%`,
+                          left: `7%`,
+                          width: `9%`,
+                          height: `10%`,
                           borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
-                          transform: `rotate(${debugValues.arm_upper_left.rotate}deg)`,
+                          transform: `rotate(4deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `${debugValues.arm_lower_left.top}%`,
-                          left: `${debugValues.arm_lower_left.left}%`,
-                          width: `${debugValues.arm_lower_left.width}%`,
-                          height: `${debugValues.arm_lower_left.height}%`,
+                          top: `37%`,
+                          left: `2%`,
+                          width: `10%`,
+                          height: `11%`,
                           borderRadius: "45% 55% 50% 50% / 60% 60% 40% 40%",
-                          transform: `rotate(${debugValues.arm_lower_left.rotate}deg)`,
+                          transform: `rotate(2deg)`,
                           boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.arm_upper_right.top}%`,
-                          right: `${debugValues.arm_upper_right.right}%`,
-                          width: `${debugValues.arm_upper_right.width}%`,
-                          height: `${debugValues.arm_upper_right.height}%`,
+                          top: `23%`,
+                          right: `10%`,
+                          width: `9%`,
+                          height: `8%`,
                           borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
-                          transform: `rotate(${debugValues.arm_upper_right.rotate}deg)`,
+                          transform: `rotate(-25deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `${debugValues.arm_lower_right.top}%`,
-                          right: `${debugValues.arm_lower_right.right}%`,
-                          width: `${debugValues.arm_lower_right.width}%`,
-                          height: `${debugValues.arm_lower_right.height}%`,
+                          top: `32%`,
+                          right: `8%`,
+                          width: `6%`,
+                          height: `8%`,
                           borderRadius: "55% 45% 50% 50% / 60% 60% 40% 40%",
-                          transform: `rotate(${debugValues.arm_lower_right.rotate}deg)`,
+                          transform: `rotate(29deg)`,
                           boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
@@ -1699,11 +1654,11 @@ export default function QuizPage() {
                     <div
                       className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
-                        top: `${debugValues.belly.top}%`,
-                        left: `${debugValues.belly.left}%`,
-                        transform: `translateX(-50%) rotate(${debugValues.belly.rotate}deg)`,
-                        width: `${debugValues.belly.width}%`,
-                        height: `${debugValues.belly.height}%`,
+                        top: `31%`,
+                        left: `50%`,
+                        transform: `translateX(-50%) rotate(0deg)`,
+                        width: `26%`,
+                        height: `11%`,
                         borderRadius: "45% 55% 50% 50% / 40% 40% 60% 60%",
                         boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.4)",
                       }}
@@ -1716,48 +1671,48 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.leg_upper_left.top}%`,
-                          left: `${debugValues.leg_upper_left.left}%`,
-                          width: `${debugValues.leg_upper_left.width}%`,
-                          height: `${debugValues.leg_upper_left.height}%`,
+                          top: `54%`,
+                          left: `24%`,
+                          width: `18%`,
+                          height: `12%`,
                           borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
-                          transform: `rotate(${debugValues.leg_upper_left.rotate}deg)`,
+                          transform: `rotate(-2deg)`,
                           boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `${debugValues.leg_lower_left.top}%`,
-                          left: `${debugValues.leg_lower_left.left}%`,
-                          width: `${debugValues.leg_lower_left.width}%`,
-                          height: `${debugValues.leg_lower_left.height}%`,
+                          top: `74%`,
+                          left: `37%`,
+                          width: `5%`,
+                          height: `9%`,
                           borderRadius: "50% 50% 45% 55% / 65% 65% 35% 35%",
-                          transform: `rotate(${debugValues.leg_lower_left.rotate}deg)`,
+                          transform: `rotate(-17deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
-                          top: `${debugValues.leg_upper_right.top}%`,
-                          right: `${debugValues.leg_upper_right.right}%`,
-                          width: `${debugValues.leg_upper_right.width}%`,
-                          height: `${debugValues.leg_upper_right.height}%`,
+                          top: `54%`,
+                          right: `33%`,
+                          width: `14%`,
+                          height: `11%`,
                           borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
-                          transform: `rotate(${debugValues.leg_upper_right.rotate}deg)`,
+                          transform: `rotate(11deg)`,
                           boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `${debugValues.leg_lower_right.top}%`,
-                          right: `${debugValues.leg_lower_right.right}%`,
-                          width: `${debugValues.leg_lower_right.width}%`,
-                          height: `${debugValues.leg_lower_right.height}%`,
+                          top: `72%`,
+                          right: `41%`,
+                          width: `6%`,
+                          height: `13%`,
                           borderRadius: "50% 50% 60% 40% / 65% 65% 35% 35%",
-                          transform: `rotate(${debugValues.leg_lower_right.rotate}deg)`,
+                          transform: `rotate(12deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
@@ -1765,109 +1720,7 @@ export default function QuizPage() {
                   )}
               </div>
 
-              {debugMode && (
-                <div className="w-96 max-h-[600px] overflow-y-auto bg-gray-900/95 rounded-lg p-4 space-y-4 border border-purple-500">
-                  <div className="flex justify-between items-center sticky top-0 bg-gray-900 pb-2 border-b border-purple-500">
-                    <h3 className="text-lg font-bold text-white">
-                      Ajustar Marcações ({quizData.gender === "mulher" ? "Feminino" : "Masculino"})
-                    </h3>
-                    <button
-                      onClick={copyDebugValues}
-                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm"
-                    >
-                      Copiar Valores
-                    </button>
-                  </div>
-
-                  {Object.entries(debugValues)
-                    .filter(([key]) => (quizData.gender === "mulher" ? !key.startsWith("m_") : key.startsWith("m_")))
-                    .map(([key, values]) => (
-                      <div key={key} className="space-y-2 border-b border-gray-700 pb-3">
-                        <h4 className="text-sm font-semibold text-purple-300">
-                          {key.replace(/m_/g, "").replace(/_/g, " ").toUpperCase()}
-                        </h4>
-
-                        <div className="space-y-1">
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Top: {values.top}%</span>
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              value={values.top}
-                              onChange={(e) => updateDebugValue(key, "top", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-
-                          {"left" in values && (
-                            <label className="text-xs text-gray-400 flex justify-between">
-                              <span>Left: {values.left}%</span>
-                              <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                value={values.left}
-                                onChange={(e) => updateDebugValue(key, "left", Number(e.target.value))}
-                                className="w-48"
-                              />
-                            </label>
-                          )}
-
-                          {"right" in values && (
-                            <label className="text-xs text-gray-400 flex justify-between">
-                              <span>Right: {values.right}%</span>
-                              <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                value={values.right}
-                                onChange={(e) => updateDebugValue(key, "right", Number(e.target.value))}
-                                className="w-48"
-                              />
-                            </label>
-                          )}
-
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Width: {values.width}%</span>
-                            <input
-                              type="range"
-                              min="1"
-                              max="50"
-                              value={values.width}
-                              onChange={(e) => updateDebugValue(key, "width", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Height: {values.height}%</span>
-                            <input
-                              type="range"
-                              min="1"
-                              max="50"
-                              value={values.height}
-                              onChange={(e) => updateDebugValue(key, "height", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Rotate: {values.rotate}°</span>
-                            <input
-                              type="range"
-                              min="-90"
-                              max="90"
-                              value={values.rotate}
-                              onChange={(e) => updateDebugValue(key, "rotate", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              )}
+              {/* Removed debug mode UI */}
 
               <div className="flex flex-col space-y-3 md:space-y-4 max-w-md">
                 {["Peito", "Braços", "Barriga", "Pernas", "Corpo inteiro"].map((area) => (
