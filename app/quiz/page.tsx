@@ -632,7 +632,8 @@ export default function QuizPage() {
       // </CHANGE>
     } else if (currentStep === 13 && quizData.wantsSupplement === "nao") {
       setCurrentStep(14)
-    } else if (currentStep === 15) {
+    } else if (currentStep === 15 && quizData.currentWeight !== "" && quizData.targetWeight !== "") {
+      // Added check for weights
       const calculatedTime = calculateTimeToGoal()
       console.log("[v0] calculatedTime:", calculatedTime)
       if (calculatedTime) {
@@ -931,6 +932,62 @@ export default function QuizPage() {
     )
   }
 
+  if (showTimeCalculation) {
+    const current = Number.parseFloat(quizData.currentWeight)
+    const target = Number.parseFloat(quizData.targetWeight)
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
+        <div className="text-center space-y-8 max-w-2xl">
+          <h2 className="text-3xl md:text-4xl font-bold leading-tight">
+            O último plano de que você precisará para <span className="text-lime-400">finalmente entrar em forma</span>
+          </h2>
+
+          <p className="text-gray-300 text-lg">
+            Com base em nossos cálculos, você atingirá seu peso ideal de {target} kg até
+          </p>
+
+          <div className="text-4xl md:text-5xl font-bold text-lime-400">{quizData.timeToGoal}</div>
+
+          <div className="relative h-48 bg-gray-800/50 border border-gray-700 rounded-2xl p-8">
+            <div className="absolute top-6 left-6 bg-gray-700/80 px-4 py-2 rounded-lg text-base font-medium">
+              {current} kg
+            </div>
+            <div className="absolute bottom-6 right-6 bg-lime-500 px-4 py-2 rounded-lg text-base font-bold">
+              {target} kg
+            </div>
+            <svg viewBox="0 0 300 100" className="w-full h-full">
+              <defs>
+                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#f97316" />
+                  <stop offset="100%" stopColor="#84CC16" />
+                </linearGradient>
+              </defs>
+              <path d="M 30 30 Q 150 50 270 75" stroke="url(#progressGradient)" strokeWidth="3" fill="none" />
+              <circle cx="30" cy="30" r="5" fill="#f97316" />
+              <circle cx="270" cy="75" r="5" fill="#84CC16" />
+            </svg>
+          </div>
+
+          <div className="flex justify-between text-base text-gray-400">
+            <span>{getCurrentDate()}</span>
+            <span>{quizData.timeToGoal}</span>
+          </div>
+
+          <Button
+            onClick={() => {
+              setShowTimeCalculation(false)
+              setCurrentStep(currentStep + 1)
+            }}
+            className="w-full max-w-xs mx-auto bg-blue-600 hover:bg-blue-700 text-white py-6 text-xl font-semibold rounded-full shadow-lg"
+          >
+            Entendi
+          </Button>
+        </div>
+      </div>
+    )
+  }
+  // </CHANGE>
+
   if (showIMCResult) {
     const { imc, classification, status } = calculateIMC(
       Number.parseFloat(quizData.currentWeight),
@@ -1059,60 +1116,7 @@ export default function QuizPage() {
     )
   }
 
-  const renderTimeCalculation = () => {
-    const current = Number.parseFloat(quizData.currentWeight)
-    const target = Number.parseFloat(quizData.targetWeight)
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-8 max-w-2xl">
-          <h2 className="text-3xl md:text-4xl font-bold leading-tight">
-            O último plano de que você precisará para <span className="text-lime-400">finalmente entrar em forma</span>
-          </h2>
-
-          <p className="text-gray-300 text-lg">
-            Com base em nossos cálculos, você atingirá seu peso ideal de {target} kg até
-          </p>
-
-          <div className="text-4xl md:text-5xl font-bold text-lime-400">{quizData.timeToGoal}</div>
-
-          <div className="relative h-48 bg-gray-800/50 border border-gray-700 rounded-2xl p-8">
-            <div className="absolute top-6 left-6 bg-gray-700/80 px-4 py-2 rounded-lg text-base font-medium">
-              {current} kg
-            </div>
-            <div className="absolute bottom-6 right-6 bg-lime-500 px-4 py-2 rounded-lg text-base font-bold">
-              {target} kg
-            </div>
-            <svg viewBox="0 0 300 100" className="w-full h-full">
-              <defs>
-                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#f97316" />
-                  <stop offset="100%" stopColor="#84CC16" />
-                </linearGradient>
-              </defs>
-              <path d="M 30 30 Q 150 50 270 75" stroke="url(#progressGradient)" strokeWidth="3" fill="none" />
-              <circle cx="30" cy="30" r="5" fill="#f97316" />
-              <circle cx="270" cy="75" r="5" fill="#84CC16" />
-            </svg>
-          </div>
-
-          <div className="flex justify-between text-base text-gray-400">
-            <span>{getCurrentDate()}</span>
-            <span>{quizData.timeToGoal}</span>
-          </div>
-
-          <Button
-            onClick={() => {
-              setShowTimeCalculation(false)
-              setCurrentStep(currentStep + 1)
-            }}
-            className="w-full max-w-xs mx-auto bg-blue-600 hover:bg-blue-700 text-white py-6 text-xl font-semibold rounded-full shadow-lg"
-          >
-            Entendi
-          </Button>
-        </div>
-      </div>
-    )
-  }
+  // </CHANGE>
 
   const getBodyFatImage = () => {
     const isMale = quizData.gender === "homem"
