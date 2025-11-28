@@ -1268,11 +1268,11 @@ export default function QuizPage() {
           }
         }
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual o seu tipo de Corpo?</h2>
+          <div className="space-y-4 sm:space-y-8">
+            <div className="text-center space-y-2 sm:space-y-4">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">Qual o seu tipo de Corpo?</h2>
             </div>
-            <div className="space-y-3 sm:space-y-6">
+            <div className="space-y-2 sm:space-y-3 md:space-y-6">
               {[
                 { value: "ectomorfo", label: "Ectomorfo", desc: "Corpo magro, dificuldade para ganhar peso" },
                 { value: "mesomorfo", label: "Mesomorfo", desc: "Corpo atlético, facilidade para ganhar músculos" },
@@ -1280,20 +1280,20 @@ export default function QuizPage() {
               ].map((type) => (
                 <div
                   key={type.value}
-                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-between ${
+                  className={`bg-gray-800 rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
                     quizData.bodyType === type.value ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
                   onClick={() => updateQuizData("bodyType", type.value)}
                 >
                   <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-white mb-2">{type.label}</h3>
-                    <p className="text-gray-400 text-lg">{type.desc}</p>
+                    <h3 className="text-base sm:text-xl md:text-2xl font-bold text-white mb-1 sm:mb-2">{type.label}</h3>
+                    <p className="text-gray-400 text-xs sm:text-sm md:text-lg">{type.desc}</p>
                   </div>
-                  <div className="flex-shrink-0 ml-6">
+                  <div className="flex-shrink-0 ml-3 sm:ml-4 md:ml-6">
                     <img
                       src={getBodyTypeImage(type.value) || "/placeholder.svg"}
                       alt={`${type.label} body type`}
-                      className="w-auto h-32 sm:h-48 object-contain"
+                      className="w-auto h-20 sm:h-32 md:h-48 object-contain"
                       onError={(e) => {
                         e.currentTarget.src = "/placeholder.svg"
                       }}
@@ -1320,12 +1320,12 @@ export default function QuizPage() {
           }
         }
         return (
-          <div className="space-y-4 sm:space-y-8">
+          <div className="space-y-5 sm:space-y-8">
             <div className="text-center space-y-2 sm:space-y-4">
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">Quais são os seus objetivos?</h2>
               <p className="text-sm sm:text-base text-gray-300">Selecione todos que se aplicam</p>
             </div>
-            <div className="space-y-2 sm:space-y-3 md:space-y-4">
+            <div className="space-y-2.5 sm:space-y-3 md:space-y-4">
               {[
                 { value: "perder-peso", label: "Perder peso e queimar gordura" },
                 { value: "ganhar-massa", label: "Ganhar massa muscular e definir o corpo" },
@@ -1334,16 +1334,16 @@ export default function QuizPage() {
               ].map((goal) => (
                 <div
                   key={goal.value}
-                  className={`bg-gray-800 rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
+                  className={`bg-gray-800 rounded-lg p-3.5 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
                     quizData.goal.includes(goal.value) ? "border-2 border-lime-500" : "border border-gray-700"
                   }`}
                   onClick={() => handleArrayUpdate("goal", goal.value, !quizData.goal.includes(goal.value))}
                 >
-                  <h3 className="text-sm sm:text-base md:text-xl font-bold text-white pr-2">{goal.label}</h3>
+                  <h3 className="text-sm sm:text-lg md:text-xl font-bold text-white pr-2">{goal.label}</h3>
                   <img
                     src={getGoalIcon(goal.value) || "/placeholder.svg"}
                     alt={goal.label}
-                    className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 object-contain flex-shrink-0"
+                    className="w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain flex-shrink-0"
                     onError={(e) => {
                       e.currentTarget.src = "/placeholder.svg"
                     }}
@@ -1991,7 +1991,7 @@ export default function QuizPage() {
               </h2>
               <p className="text-gray-300">Selecione todas que se aplicam</p>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {[
                 { value: "esporadicamente", label: "Esporadicamente", icon: "🍷" },
                 { value: "com-frequencia", label: "Com frequência", icon: "🍭" },
