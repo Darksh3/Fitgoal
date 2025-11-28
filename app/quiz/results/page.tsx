@@ -100,7 +100,7 @@ export default function ResultsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center text-white bg-black">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lime-500 mx-auto mb-4"></div>
           <p>Carregando seus resultados...</p>
@@ -111,7 +111,7 @@ export default function ResultsPage() {
 
   if (!data) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center text-white bg-black">
         <div className="text-center">
           <p className="text-red-400 mb-4">Dados do quiz não encontrados</p>
           <Button onClick={() => router.push("/quiz")} className="bg-lime-500 hover:bg-lime-600">
@@ -123,7 +123,7 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className="min-h-screen bg-black text-white p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">
