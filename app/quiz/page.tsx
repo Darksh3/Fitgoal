@@ -2293,10 +2293,10 @@ export default function QuizPage() {
               ].map((time) => (
                 <div
                   key={time.value}
-                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all border ${
+                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-center ${
                     quizData.workoutTime === time.value
                       ? "border-lime-500 bg-lime-500/10"
-                      : "border-gray-600 hover:border-gray-500"
+                      : "border border-gray-600 hover:border-gray-500"
                   }`}
                   onClick={() => updateQuizData("workoutTime", time.value)}
                 >
@@ -2581,7 +2581,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className="min-h-screen bg-black text-white p-6">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <Button variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="text-white">
