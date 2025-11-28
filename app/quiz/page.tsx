@@ -177,7 +177,7 @@ export default function QuizPage() {
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false) // Add isSubmitting state
 
-  const [debugMode, setDebugMode] = useState(false)
+  const [debugMode, setDebugMode] = useState(true)
   const [debugValues, setDebugValues] = useState({
     // Original was for w-64, now scaled for w-48 (25% smaller)
     chest_left: { top: 23, left: 32, width: 20, height: 6, rotate: -90 },
