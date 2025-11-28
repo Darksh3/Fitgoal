@@ -946,7 +946,10 @@ export default function QuizPage() {
             Com base em nossos cálculos, você atingirá seu peso ideal de {target} kg até
           </p>
 
-          <div className="text-4xl md:text-5xl font-bold text-lime-400">{quizData.timeToGoal}</div>
+          <div className="relative inline-block">
+            <div className="absolute inset-0 bg-lime-400/20 blur-3xl rounded-full" />
+            <div className="relative text-4xl md:text-5xl font-bold text-lime-400">{quizData.timeToGoal}</div>
+          </div>
 
           <div className="relative h-48 bg-gray-800/50 border border-gray-700 rounded-2xl p-8">
             <div className="absolute top-6 left-6 bg-gray-700/80 px-4 py-2 rounded-lg text-base font-medium">
@@ -962,7 +965,13 @@ export default function QuizPage() {
                   <stop offset="100%" stopColor="#84CC16" />
                 </linearGradient>
               </defs>
-              <path d="M 30 30 Q 150 50 270 75" stroke="url(#progressGradient)" strokeWidth="3" fill="none" />
+              <path
+                d="M 30 30 Q 100 40, 150 50 T 270 75"
+                stroke="url(#progressGradient)"
+                strokeWidth="3"
+                fill="none"
+                strokeLinecap="round"
+              />
               <circle cx="30" cy="30" r="5" fill="#f97316" />
               <circle cx="270" cy="75" r="5" fill="#84CC16" />
             </svg>
@@ -973,20 +982,21 @@ export default function QuizPage() {
             <span>{quizData.timeToGoal}</span>
           </div>
 
-          <Button
-            onClick={() => {
-              setShowTimeCalculation(false)
-              setCurrentStep(currentStep + 1)
-            }}
-            className="w-full max-w-xs mx-auto bg-blue-600 hover:bg-blue-700 text-white py-6 text-xl font-semibold rounded-full shadow-lg"
-          >
-            Entendi
-          </Button>
+          <div className="bg-blue-600 hover:bg-blue-700 transition-colors rounded-full p-1 max-w-xs mx-auto">
+            <Button
+              onClick={() => {
+                setShowTimeCalculation(false)
+                setCurrentStep(currentStep + 1)
+              }}
+              className="w-full bg-transparent hover:bg-transparent text-white py-6 text-xl font-semibold"
+            >
+              Entendi
+            </Button>
+          </div>
         </div>
       </div>
     )
   }
-  // </CHANGE>
 
   if (showIMCResult) {
     const { imc, classification, status } = calculateIMC(
@@ -1381,12 +1391,6 @@ export default function QuizPage() {
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
               <p className="text-gray-300">Selecione todos que se aplicam</p>
-              <button
-                onClick={() => setDebugMode(!debugMode)}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm"
-              >
-                {debugMode ? "Sair do Modo Debug" : "Ativar Modo Debug"}
-              </button>
             </div>
             <div className="flex items-start justify-center space-x-8">
               <div className="relative w-64 h-auto bg-transparent">
