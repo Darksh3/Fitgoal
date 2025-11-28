@@ -935,6 +935,8 @@ export default function QuizPage() {
   if (showTimeCalculation) {
     const current = Number.parseFloat(quizData.currentWeight)
     const target = Number.parseFloat(quizData.targetWeight)
+    const isGaining = target > current
+
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
         <div className="text-center space-y-8 max-w-2xl">
@@ -952,10 +954,14 @@ export default function QuizPage() {
           </div>
 
           <div className="relative h-48 bg-gray-800/50 border border-gray-700 rounded-2xl p-8">
-            <div className="absolute top-6 left-6 bg-gray-700/80 px-4 py-2 rounded-lg text-base font-medium">
+            <div
+              className={`absolute ${isGaining ? "bottom-6 left-6" : "top-6 left-6"} bg-gray-700/80 px-4 py-2 rounded-lg text-base font-medium`}
+            >
               {current} kg
             </div>
-            <div className="absolute bottom-6 right-6 bg-lime-500 px-4 py-2 rounded-lg text-base font-bold">
+            <div
+              className={`absolute ${isGaining ? "top-6 right-6" : "bottom-6 right-6"} bg-lime-500 px-4 py-2 rounded-lg text-base font-bold`}
+            >
               {target} kg
             </div>
             <svg viewBox="0 0 300 100" className="w-full h-full">
@@ -966,14 +972,14 @@ export default function QuizPage() {
                 </linearGradient>
               </defs>
               <path
-                d="M 30 30 Q 100 40, 150 50 T 270 75"
+                d={isGaining ? "M 30 75 Q 100 60, 150 50 T 270 30" : "M 30 30 Q 100 40, 150 50 T 270 75"}
                 stroke="url(#progressGradient)"
                 strokeWidth="3"
                 fill="none"
                 strokeLinecap="round"
               />
-              <circle cx="30" cy="30" r="5" fill="#f97316" />
-              <circle cx="270" cy="75" r="5" fill="#84CC16" />
+              <circle cx="30" cy={isGaining ? 75 : 30} r="5" fill="#f97316" />
+              <circle cx="270" cy={isGaining ? 30 : 75} r="5" fill="#84CC16" />
             </svg>
           </div>
 
@@ -1421,7 +1427,7 @@ export default function QuizPage() {
           <div className="space-y-8">
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
-              <p className="text-base text-gray-300">Selecione todos que se aplicam</p>
+              <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="flex items-start justify-center space-x-8">
               <div
@@ -1944,7 +1950,9 @@ export default function QuizPage() {
         return (
           <div className="space-y-4 sm:space-y-8">
             <div className="text-center space-y-2 sm:space-y-4">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">Você segue alguma dessas dietas?</h2>
+              <h2 className="text-2xl sm:text-2xl md:text-3xl font-bold text-white">
+                Você segue alguma dessas dietas?
+              </h2>
             </div>
             <div className="space-y-2 sm:space-y-4">
               {[
@@ -2072,7 +2080,6 @@ export default function QuizPage() {
                   }}
                   className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
                 />
-                <p className="text-gray-400 text-sm">Digite em metros (ex: 1.75) ou centímetros (ex: 175)</p>
               </div>
             </div>
           </div>
