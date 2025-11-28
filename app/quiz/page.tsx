@@ -1003,10 +1003,39 @@ export default function QuizPage() {
       Number.parseFloat(quizData.currentWeight),
       Number.parseFloat(quizData.height),
     )
+
+    const getIMCBodyImage = () => {
+      const isWoman = quizData.gender === "mulher"
+      const bodyType = quizData.bodyType
+
+      if (!bodyType) {
+        // Fallback to generic image if bodyType is not set
+        return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
+      }
+
+      switch (bodyType) {
+        case "ectomorfo":
+          return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
+        case "mesomorfo":
+          return isWoman ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorph-real-new.webp"
+        case "endomorfo":
+          return isWoman ? "/images/female-endomorph-real-new.webp" : "/images/male-endomorph-real-new.webp"
+        default:
+          return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
+      }
+    }
+
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
         <div className="text-center space-y-6 max-w-md">
-          <BodyIllustration className="w-48 h-64 mx-auto" gender={quizData.gender === "mulher" ? "female" : "male"} />
+          <img
+            src={getIMCBodyImage() || "/placeholder.svg"}
+            alt={`${quizData.bodyType} body type`}
+            className="w-48 h-64 mx-auto object-contain"
+            onError={(e) => {
+              e.currentTarget.src = "/placeholder.svg"
+            }}
+          />
           <h2 className="text-3xl font-bold">Resultado do seu IMC</h2>
           <div className="bg-gray-800 rounded-lg p-6">
             <p className="text-gray-300 text-lg mb-4">
