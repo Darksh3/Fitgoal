@@ -1175,7 +1175,7 @@ export default function QuizPage() {
           <button
             onClick={() => {
               setShowWaterCongrats(false)
-              nextStep()
+              setCurrentStep(currentStep + 1)
             }}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-2xl transition-colors text-lg"
           >
