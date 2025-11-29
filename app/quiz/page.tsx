@@ -1145,15 +1145,7 @@ export default function QuizPage() {
           <h2 className="text-3xl font-bold">Uau! Impressionante!</h2>
           <p className="text-gray-300 text-lg">Você bebe mais água do que 92% dos usuários*</p>
           <p className="text-gray-300 text-lg">Continue assim!</p>
-          <Button
-            onClick={() => {
-              setShowWaterCongrats(false)
-              setCurrentStep(currentStep + 1)
-            }}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg rounded-full"
-          >
-            Entendi
-          </Button>
+          <p className="text-gray-500 text-sm">*Usuários do Fitgoal que fizeram o teste</p>
         </div>
       </div>
     )

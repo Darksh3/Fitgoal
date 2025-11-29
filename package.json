@@ -39,8 +39,6 @@
     "@radix-ui/react-toggle-group": "latest",
     "@radix-ui/react-tooltip": "latest",
     "@sendgrid/mail": "latest",
-    "@stripe/react-stripe-js": "latest",
-    "@stripe/stripe-js": "latest",
     "@vercel/blob": "latest",
     "ai": "latest",
     "class-variance-authority": "^0.7.1",

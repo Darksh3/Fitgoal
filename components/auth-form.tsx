@@ -47,12 +47,12 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
 
     try {
       // Conta de teste pré-configurada
-      await signInWithEmailAndPassword(auth, "teste@athlix.com", "123456789")
+      await signInWithEmailAndPassword(auth, "teste@fitgoal.com", "123456789")
       router.push("/dashboard")
     } catch (error: any) {
       // Se a conta de teste não existir, cria ela
       try {
-        await createUserWithEmailAndPassword(auth, "teste@athlix.com", "123456789")
+        await createUserWithEmailAndPassword(auth, "teste@fitgoal.com", "123456789")
         router.push("/dashboard")
       } catch (createError: any) {
         setError("Erro ao criar conta de teste: " + createError.message)
@@ -130,10 +130,10 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
           <CardTitle className="text-sm text-gray-600">Opções de Teste</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Button onClick={handleTestLogin} variant="outline" className="w-full" disabled={loading}>
+          <Button onClick={handleTestLogin} variant="outline" className="w-full bg-transparent" disabled={loading}>
             🧪 Login com Conta de Teste
           </Button>
-          <Button onClick={handleDemoAccess} variant="outline" className="w-full" disabled={loading}>
+          <Button onClick={handleDemoAccess} variant="outline" className="w-full bg-transparent" disabled={loading}>
             🎯 Acessar Demo (sem login)
           </Button>
           <p className="text-xs text-gray-500 text-center">Use estas opções para testar o dashboard rapidamente</p>

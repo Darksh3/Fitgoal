@@ -6,43 +6,90 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { CreditCard, Check, ShoppingCart, User, Lock } from "lucide-react"
-import { loadStripe } from "@stripe/stripe-js"
-import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js"
+import { CreditCard, Check, ShoppingCart, User, Lock, QrCode, FileText, Smartphone } from "lucide-react"
 import { auth, onAuthStateChanged, db } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import { formatCurrency } from "@/utils/currency"
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+type PaymentMethod = "pix" | "boleto" | "card"
 
-function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clientUid, onError, onSuccess }: any) {
-  const stripe = useStripe()
-  const elements = useElements()
+function PaymentMethodSelector({
+  onSelect,
+  selected,
+}: { onSelect: (method: PaymentMethod) => void; selected: PaymentMethod | null }) {
+  const methods = [
+    { id: "pix" as PaymentMethod, name: "Pix", icon: Smartphone, description: "Pagamento instantâneo" },
+    { id: "boleto" as PaymentMethod, name: "Boleto", icon: FileText, description: "Vencimento em 3 dias" },
+    { id: "card" as PaymentMethod, name: "Cartão", icon: CreditCard, description: "Parcelamento disponível" },
+  ]
+
+  return (
+    <Card className="bg-gray-800 border-gray-700 mb-6">
+      <CardHeader>
+        <CardTitle className="text-white">Método de Pagamento</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {methods.map((method) => {
+          const Icon = method.icon
+          return (
+            <button
+              key={method.id}
+              onClick={() => onSelect(method.id)}
+              className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
+                selected === method.id
+                  ? "border-lime-400 bg-lime-400/10"
+                  : "border-gray-700 bg-gray-800/50 hover:border-gray-600"
+              }`}
+            >
+              <Icon className={`h-6 w-6 ${selected === method.id ? "text-lime-400" : "text-gray-400"}`} />
+              <div className="flex-1 text-left">
+                <div className={`font-semibold ${selected === method.id ? "text-lime-400" : "text-white"}`}>
+                  {method.name}
+                </div>
+                <div className="text-sm text-gray-400">{method.description}</div>
+              </div>
+              {selected === method.id && <Check className="h-5 w-5 text-lime-400" />}
+            </button>
+          )
+        })}
+      </CardContent>
+    </Card>
+  )
+}
+
+function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, paymentMethod, onError, onSuccess }: any) {
   const [processing, setProcessing] = useState(false)
   const [installments, setInstallments] = useState(1)
+  const [cardData, setCardData] = useState({
+    holderName: "",
+    number: "",
+    expiryMonth: "",
+    expiryYear: "",
+    ccv: "",
+  })
+  const [addressData, setAddressData] = useState({
+    postalCode: "",
+    addressNumber: "",
+  })
+  const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string } | null>(null)
+  const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
 
   const maxInstallments = 6
   const minInstallmentValue = 50
-
-  // Para o plano semestral, permitir até 6 parcelas independente do valor mínimo
-  const isSemestral = currentPlan?.priceId === "price_1SPrzGPRgKqdJdqNNLfhAYNo"
+  const isSemestral = currentPlan?.name === "Plano Semestral"
 
   const calculateMaxInstallments = () => {
-    if (isSemestral) {
-      return maxInstallments // Semestral: sempre até 6x
-    }
-    // Outros planos: respeitar mínimo de R$ 50 por parcela
+    if (isSemestral) return maxInstallments
     return Math.min(maxInstallments, Math.floor(currentPlan.total / minInstallmentValue))
   }
 
-  const availableInstallments = calculateMaxInstallments()
+  const availableInstallments = paymentMethod === "card" ? calculateMaxInstallments() : 1
   const installmentOptions = Array.from({ length: availableInstallments }, (_, i) => i + 1)
-  const installmentValue = currentPlan.total / installments
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
-    if (!stripe || !elements || !userEmail || !quizAnswers || !clientUid || !currentPlan) {
+    if (!userEmail || !clientUid || !currentPlan) {
       onError("Dados essenciais ausentes. Por favor, refaça o quiz.")
       return
     }
@@ -50,143 +97,349 @@ function StripePaymentForm({ formData, currentPlan, userEmail, quizAnswers, clie
     setProcessing(true)
 
     try {
-      const response = await fetch("/api/create-payment-intent", {
+      // 1. Criar cobrança no Asaas
+      const paymentResponse = await fetch("/api/create-asaas-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: userEmail,
-          planType: currentPlan.priceId,
-          clientUid: clientUid,
-          installments: installments,
+          name: formData.name,
+          cpf: formData.cpf,
+          phone: formData.phone,
+          planType: currentPlan.key,
+          paymentMethod,
+          installments: paymentMethod === "card" ? installments : undefined,
+          clientUid,
         }),
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Erro ao criar intenção de pagamento.")
+      if (!paymentResponse.ok) {
+        const errorData = await paymentResponse.json()
+        throw new Error(errorData.error || "Erro ao criar cobrança")
       }
 
-      const { clientSecret, customerId } = await response.json()
-      const cardElement = elements.getElement(CardElement)
-      if (!cardElement) throw new Error("Elemento do cartão não encontrado.")
+      const paymentResult = await paymentResponse.json()
 
-      const { error, setupIntent } = await stripe.confirmCardSetup(clientSecret, {
-        payment_method: {
-          card: cardElement,
-          billing_details: { name: formData.name, email: userEmail, phone: formData.phone },
-        },
-      })
+      // 2. Se for Pix, mostrar QR Code
+      if (paymentMethod === "pix") {
+        setPixData({
+          qrCode: paymentResult.pixQrCode,
+          copyPaste: paymentResult.pixCopyPaste,
+        })
+        setProcessing(false)
+        return
+      }
 
-      if (error) throw new Error(error.message || "Erro ao processar pagamento.")
+      // 3. Se for Boleto, mostrar link
+      if (paymentMethod === "boleto") {
+        setBoletoData({
+          url: paymentResult.boletoUrl,
+          barCode: paymentResult.boletoBarCode,
+        })
+        setProcessing(false)
+        return
+      }
 
-      if (setupIntent?.status === "succeeded") {
-        const subscriptionResponse = await fetch("/api/create-subscription", {
+      // 4. Se for cartão, processar pagamento
+      if (paymentMethod === "card") {
+        const cardResponse = await fetch("/api/process-asaas-card", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            customerId,
-            paymentMethodId: setupIntent.payment_method,
-            priceId: currentPlan.priceId,
-            clientUid,
-            installments: installments,
+            paymentId: paymentResult.paymentId,
+            creditCard: {
+              holderName: cardData.holderName,
+              number: cardData.number.replace(/\s/g, ""),
+              expiryMonth: cardData.expiryMonth,
+              expiryYear: cardData.expiryYear,
+              ccv: cardData.ccv,
+            },
+            creditCardHolderInfo: {
+              name: formData.name,
+              email: userEmail,
+              cpfCnpj: formData.cpf.replace(/\D/g, ""),
+              postalCode: addressData.postalCode.replace(/\D/g, ""),
+              addressNumber: addressData.addressNumber,
+              phone: formData.phone.replace(/\D/g, ""),
+            },
           }),
         })
 
-        if (!subscriptionResponse.ok) {
-          const errorData = await subscriptionResponse.json()
-          throw new Error(errorData.error || "Erro ao criar assinatura.")
+        if (!cardResponse.ok) {
+          const errorData = await cardResponse.json()
+          throw new Error(errorData.error || "Erro ao processar cartão")
         }
 
         onSuccess()
       }
     } catch (err: any) {
       console.error("Erro no pagamento:", err)
-      onError(err.message || "Ocorreu um erro inesperado durante o pagamento.")
+      onError(err.message || "Ocorreu um erro durante o pagamento")
     } finally {
       setProcessing(false)
     }
   }
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+  // Tela de Pix
+  if (pixData) {
+    return (
       <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
-          <CardTitle className="text-white flex items-center">
-            <CreditCard className="h-5 w-5 mr-2" /> Dados do Cartão
+          <CardTitle className="text-white flex items-center gap-2">
+            <QrCode className="h-5 w-5" /> Pagamento via Pix
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="p-3 bg-gray-700 border border-gray-600 rounded-md">
-            <CardElement
-              options={{
-                style: {
-                  base: { fontSize: "16px", color: "#ffffff", "::placeholder": { color: "#9ca3af" } },
-                  invalid: { color: "#ef4444" },
-                },
+        <CardContent className="space-y-4">
+          <div className="text-center">
+            <p className="text-gray-300 mb-4">Escaneie o QR Code ou copie o código abaixo:</p>
+            <div className="bg-white p-4 rounded-lg inline-block mb-4">
+              <img src={`data:image/png;base64,${pixData.qrCode}`} alt="QR Code Pix" className="w-64 h-64" />
+            </div>
+            <div className="bg-gray-700 p-3 rounded-lg mb-4">
+              <p className="text-xs text-gray-300 break-all font-mono">{pixData.copyPaste}</p>
+            </div>
+            <Button
+              onClick={() => {
+                navigator.clipboard.writeText(pixData.copyPaste)
+                alert("Código Pix copiado!")
               }}
-            />
+              className="w-full bg-lime-500 hover:bg-lime-600"
+            >
+              Copiar Código Pix
+            </Button>
+            <p className="text-sm text-gray-400 mt-4">Após o pagamento, seu plano será ativado automaticamente</p>
           </div>
         </CardContent>
       </Card>
+    )
+  }
 
+  // Tela de Boleto
+  if (boletoData) {
+    return (
       <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
-          <CardTitle className="text-white">Parcelamento</CardTitle>
+          <CardTitle className="text-white flex items-center gap-2">
+            <FileText className="h-5 w-5" /> Boleto Bancário
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {installmentOptions.map((option) => {
-              const value = currentPlan.total / option
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => setInstallments(option)}
-                  className={`w-full p-3 rounded-lg border-2 transition-all ${
-                    installments === option
-                      ? "border-lime-400 bg-lime-400/10 text-lime-400"
-                      : "border-gray-700 bg-gray-800/50 text-gray-300 hover:border-gray-600"
-                  }`}
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">{option}x sem juros</span>
-                    <span className="text-sm">{formatCurrency(value)}/mês</span>
-                  </div>
-                </button>
-              )
-            })}
-            <div className="text-sm text-gray-400 mt-1">Total: {formatCurrency(currentPlan.total)} sem juros</div>
+        <CardContent className="space-y-4">
+          <div className="text-center">
+            <p className="text-gray-300 mb-4">Seu boleto foi gerado com sucesso!</p>
+            <div className="space-y-3">
+              <Button
+                onClick={() => window.open(boletoData.url, "_blank")}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+              >
+                Abrir Boleto
+              </Button>
+              <div className="bg-gray-700 p-3 rounded-lg">
+                <p className="text-xs text-gray-400 mb-1">Código de barras:</p>
+                <p className="text-xs text-gray-300 break-all font-mono">{boletoData.barCode}</p>
+              </div>
+              <Button
+                onClick={() => {
+                  navigator.clipboard.writeText(boletoData.barCode)
+                  alert("Código copiado!")
+                }}
+                className="w-full bg-gray-600 hover:bg-gray-700"
+              >
+                Copiar Código de Barras
+              </Button>
+            </div>
+            <p className="text-sm text-gray-400 mt-4">
+              Vencimento em 3 dias. Após o pagamento, seu plano será ativado automaticamente.
+            </p>
           </div>
         </CardContent>
       </Card>
+    )
+  }
 
-      <button
-        type="submit"
-        disabled={processing || !stripe || !elements || !currentPlan}
-        className={`btn-neon-outline w-full py-4 text-lg font-bold ${
-          processing ? "opacity-75 cursor-not-allowed" : ""
-        }`}
-      >
-        {processing ? (
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-lime-400 mr-2"></div>
-            Processando...
-          </div>
-        ) : (
-          <div className="flex items-center justify-center gap-3 w-full">
-            <Lock className="h-5 w-5" />
-            <span className="font-bold">
-              Pagar {installments}x de {formatCurrency(installmentValue)}
-            </span>
-            <div className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">SEGURO</div>
-          </div>
-        )}
-      </button>
-    </form>
+  // Formulário de cartão
+  if (paymentMethod === "card") {
+    return (
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <Card className="bg-gray-800 border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <CreditCard className="h-5 w-5 mr-2" /> Dados do Cartão
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Nome no Cartão</label>
+              <Input
+                value={cardData.holderName}
+                onChange={(e) => setCardData({ ...cardData, holderName: e.target.value })}
+                placeholder="NOME COMO ESTÁ NO CARTÃO"
+                className="bg-gray-700 border-gray-600 text-white"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Número do Cartão</label>
+              <Input
+                value={cardData.number}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "").slice(0, 16)
+                  const formatted = value.replace(/(\d{4})(?=\d)/g, "$1 ")
+                  setCardData({ ...cardData, number: formatted })
+                }}
+                placeholder="0000 0000 0000 0000"
+                className="bg-gray-700 border-gray-600 text-white"
+                maxLength={19}
+                required
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Mês</label>
+                <Input
+                  value={cardData.expiryMonth}
+                  onChange={(e) =>
+                    setCardData({ ...cardData, expiryMonth: e.target.value.replace(/\D/g, "").slice(0, 2) })
+                  }
+                  placeholder="MM"
+                  className="bg-gray-700 border-gray-600 text-white"
+                  maxLength={2}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Ano</label>
+                <Input
+                  value={cardData.expiryYear}
+                  onChange={(e) =>
+                    setCardData({ ...cardData, expiryYear: e.target.value.replace(/\D/g, "").slice(0, 4) })
+                  }
+                  placeholder="AAAA"
+                  className="bg-gray-700 border-gray-600 text-white"
+                  maxLength={4}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">CVV</label>
+                <Input
+                  value={cardData.ccv}
+                  onChange={(e) => setCardData({ ...cardData, ccv: e.target.value.replace(/\D/g, "").slice(0, 4) })}
+                  placeholder="000"
+                  className="bg-gray-700 border-gray-600 text-white"
+                  maxLength={4}
+                  required
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">CEP</label>
+                <Input
+                  value={addressData.postalCode}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/\D/g, "")
+                    if (value.length <= 8) {
+                      value = value.replace(/(\d{5})(\d)/, "$1-$2")
+                    }
+                    setAddressData({ ...addressData, postalCode: value })
+                  }}
+                  placeholder="00000-000"
+                  className="bg-gray-700 border-gray-600 text-white"
+                  maxLength={9}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Número</label>
+                <Input
+                  value={addressData.addressNumber}
+                  onChange={(e) => setAddressData({ ...addressData, addressNumber: e.target.value })}
+                  placeholder="123"
+                  className="bg-gray-700 border-gray-600 text-white"
+                  required
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Parcelamento */}
+        <Card className="bg-gray-800 border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-white">Parcelamento</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {installmentOptions.map((option) => {
+                const value = currentPlan.total / option
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setInstallments(option)}
+                    className={`w-full p-3 rounded-lg border-2 transition-all ${
+                      installments === option
+                        ? "border-lime-400 bg-lime-400/10 text-lime-400"
+                        : "border-gray-700 bg-gray-800/50 text-gray-300 hover:border-gray-600"
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">{option}x sem juros</span>
+                      <span className="text-sm">{formatCurrency(value)}/mês</span>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        <button
+          type="submit"
+          disabled={processing}
+          className={`w-full py-4 text-lg font-bold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-all ${
+            processing ? "opacity-75 cursor-not-allowed" : ""
+          }`}
+        >
+          {processing ? (
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              Processando...
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-3">
+              <Lock className="h-5 w-5" />
+              <span>
+                Pagar {installments}x de {formatCurrency(currentPlan.total / installments)}
+              </span>
+            </div>
+          )}
+        </button>
+      </form>
+    )
+  }
+
+  // Botão para Pix e Boleto
+  return (
+    <button
+      onClick={handleSubmit}
+      disabled={processing}
+      className={`w-full py-4 text-lg font-bold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-all ${
+        processing ? "opacity-75 cursor-not-allowed" : ""
+      }`}
+    >
+      {processing ? (
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+          Gerando...
+        </div>
+      ) : (
+        `Gerar ${paymentMethod === "pix" ? "Pix" : "Boleto"}`
+      )}
+    </button>
   )
 }
 
-// Componente para indicador de progresso
 function ProgressIndicator({ currentStep }: { currentStep: number }) {
   const steps = [
     { number: 1, title: "Escolher Plano", icon: ShoppingCart },
@@ -229,6 +482,7 @@ export default function CheckoutPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
 
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", cpf: "" })
   const [loading, setLoading] = useState(true)
@@ -241,11 +495,9 @@ export default function CheckoutPage() {
     const fetchData = async () => {
       try {
         const stored = localStorage.getItem("quizData")
-        console.log("[v0] Dados do localStorage:", stored)
 
         if (stored) {
           const parsed = JSON.parse(stored)
-          console.log("[v0] Dados parseados:", parsed)
           setQuizAnswers(parsed)
           setFormData((prev) => ({ ...prev, name: parsed.name || "", email: parsed.email || "" }))
           setUserEmail(parsed.email || null)
@@ -253,7 +505,6 @@ export default function CheckoutPage() {
 
         onAuthStateChanged(auth, async (user) => {
           if (user) {
-            console.log("[v0] Usuário autenticado:", user.uid)
             setClientUid(user.uid)
             if (!stored) {
               try {
@@ -261,53 +512,27 @@ export default function CheckoutPage() {
                 const snap = await getDoc(docRef)
                 if (snap.exists()) {
                   const data = snap.data()
-                  console.log("[v0] Dados do Firebase:", data)
                   setQuizAnswers(data)
                   setFormData((prev) => ({ ...prev, name: data.name || "", email: data.email || "" }))
                   setUserEmail(data.email || null)
-                } else {
-                  console.log("[v0] Documento não encontrado no Firebase")
                 }
               } catch (firebaseError) {
-                console.error("[v0] Erro ao buscar dados do Firebase:", firebaseError)
-                if (!stored) {
-                  setError("Erro ao carregar dados do Firebase. Dados do quiz podem estar incompletos.")
-                }
+                console.error("Erro ao buscar dados do Firebase:", firebaseError)
               }
             }
 
-            if (user.uid && (stored || quizAnswers)) {
-              console.log("[v0] Iniciando geração de planos em background...")
-              try {
-                fetch("/api/generate-plans-on-demand", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ userId: user.uid }),
-                })
-                  .then((response) => {
-                    if (response.ok) {
-                      console.log("[v0] Planos gerados com sucesso em background")
-                    } else {
-                      console.error("[v0] Erro ao gerar planos em background")
-                    }
-                  })
-                  .catch((err) => {
-                    console.error("[v0] Erro na chamada de geração de planos:", err)
-                  })
-              } catch (err) {
-                console.error("[v0] Erro ao iniciar geração de planos:", err)
-              }
-            }
-          } else {
-            console.log("[v0] Usuário não autenticado")
-            if (!stored) {
-              setError("Usuário não autenticado e dados não encontrados. Refaça o quiz.")
+            if (user.uid) {
+              fetch("/api/generate-plans-on-demand", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: user.uid }),
+              }).catch((err) => console.error("Erro ao gerar planos:", err))
             }
           }
           setLoading(false)
         })
       } catch (err) {
-        console.error("[v0] Erro geral:", err)
+        console.error("Erro geral:", err)
         setError("Erro ao carregar dados. Por favor, refaça o quiz.")
         setLoading(false)
       }
@@ -318,30 +543,27 @@ export default function CheckoutPage() {
 
   const plans = {
     mensal: {
+      key: "mensal",
       name: "Plano Mensal",
-      priceId: "price_1RajatPRgKqdJdqNnb9HQe17",
       price: 79.9,
       total: 79.9,
-      color: "lime",
       duration: "1 mês",
       description: "Para experimentar, sem compromisso.",
     },
     trimestral: {
+      key: "trimestral",
       name: "Plano Trimestral",
-      priceId: "price_1SPs2cPRgKqdJdqNbiXZYLhI",
       price: 64.9,
       total: 194.7,
-      color: "orange",
       duration: "3 meses",
       description: "Melhor custo-benefício. Perfeito para ver resultados reais.",
       recommended: true,
     },
     semestral: {
+      key: "semestral",
       name: "Plano Semestral",
-      priceId: "price_1SPrzGPRgKqdJdqNNLfhAYNo",
       price: 49.9,
       total: 299.4,
-      color: "purple",
       duration: "6 meses",
       description: "Para quem quer mudar o corpo de verdade e economizar.",
     },
@@ -362,11 +584,10 @@ export default function CheckoutPage() {
   if (error) return <div className="flex justify-center items-center min-h-screen text-red-500">{error}</div>
 
   return (
-    <div className="min-h-screen bg-gray-900 p-6">
+    <div className="min-h-screen bg-black p-6">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-white text-center mb-8">Escolha seu Plano</h1>
 
-        {/* Indicador de Progresso */}
         <ProgressIndicator currentStep={getCurrentStep()} />
 
         {/* Grid de Planos */}
@@ -421,13 +642,10 @@ export default function CheckoutPage() {
           <div className="text-center mb-8 p-6 bg-gray-800 rounded-lg border border-gray-700">
             <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-300 mb-4">Selecione um plano acima para continuar</p>
-            <Button disabled className="w-full max-w-md py-4 text-lg bg-gray-600 text-gray-400 cursor-not-allowed">
-              Escolha um plano para prosseguir
-            </Button>
           </div>
         )}
 
-        {/* Formulário - aparece apenas quando plano está selecionado */}
+        {/* Formulário */}
         {selectedPlan && (
           <>
             <Card className="bg-gray-800 border-gray-700 mb-6">
@@ -471,7 +689,7 @@ export default function CheckoutPage() {
                         }
                         setFormData((prev) => ({ ...prev, cpf: value }))
                       }}
-                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-lime-500 focus:border-lime-500"
+                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                       maxLength={14}
                       required
                     />
@@ -480,46 +698,42 @@ export default function CheckoutPage() {
               </CardContent>
             </Card>
 
-            {/* Componente de Pagamento */}
+            {/* Seleção de método de pagamento */}
             {formData.phone && formData.cpf && (
-              <Elements stripe={stripePromise}>
-                <StripePaymentForm
-                  formData={formData}
-                  currentPlan={currentPlan}
-                  userEmail={userEmail}
-                  quizAnswers={quizAnswers}
-                  clientUid={clientUid}
-                  onError={handlePaymentError}
-                  onSuccess={handlePaymentSuccess}
-                />
-              </Elements>
-            )}
+              <>
+                <PaymentMethodSelector onSelect={setPaymentMethod} selected={paymentMethod} />
 
-            {/* Mensagem para completar dados */}
-            {(!formData.phone || !formData.cpf) && (
-              <div className="text-center p-6 bg-gray-800 rounded-lg border border-gray-700">
-                <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-300 mb-4">Complete seus dados pessoais para prosseguir com o pagamento</p>
-                <div className="text-sm text-gray-400">Campos obrigatórios: Telefone e CPF</div>
-              </div>
+                {/* Componente de pagamento */}
+                {paymentMethod && (
+                  <AsaasPaymentForm
+                    formData={formData}
+                    currentPlan={currentPlan}
+                    userEmail={userEmail}
+                    clientUid={clientUid}
+                    paymentMethod={paymentMethod}
+                    onError={handlePaymentError}
+                    onSuccess={handlePaymentSuccess}
+                  />
+                )}
+              </>
             )}
           </>
         )}
 
-        {/* Garantias de Segurança */}
-        <div className="mt-8 text-center">
-          <div className="flex items-center justify-center space-x-6 text-gray-400 text-sm">
-            <div className="flex items-center">
-              <Lock className="h-4 w-4 mr-1" />
-              Pagamento Seguro
+        {/* Garantias */}
+        <div className="mt-12 text-center space-y-2">
+          <div className="flex items-center justify-center gap-4 text-gray-400 text-sm">
+            <div className="flex items-center gap-2">
+              <Lock className="h-4 w-4" />
+              <span>Pagamento Seguro</span>
             </div>
-            <div className="flex items-center">
-              <Check className="h-4 w-4 mr-1" />
-              SSL Certificado
+            <div className="flex items-center gap-2">
+              <Check className="h-4 w-4" />
+              <span>SSL Certificado</span>
             </div>
-            <div className="flex items-center">
-              <CreditCard className="h-4 w-4 mr-1" />
-              Stripe Protegido
+            <div className="flex items-center gap-2">
+              <Check className="h-4 w-4" />
+              <span>Asaas Protegido</span>
             </div>
           </div>
         </div>
