@@ -40,16 +40,13 @@ function getFirebaseApp(): FirebaseApp | null {
   const hasRequiredConfig = Boolean(firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId)
 
   if (!hasRequiredConfig) {
-    console.warn("⚠️ Firebase configuration incomplete")
     return null
   }
 
   try {
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
-    console.log("✅ Firebase app initialized")
     return app
   } catch (error) {
-    console.error("❌ Error initializing Firebase app:", error)
     return null
   }
 }
@@ -62,10 +59,8 @@ function getFirebaseAuth(): Auth | null {
 
   try {
     authInstance = getAuth(firebaseApp)
-    console.log("✅ Firebase Auth initialized")
     return authInstance
   } catch (error) {
-    console.error("❌ Error initializing Firebase Auth:", error)
     return null
   }
 }
@@ -78,10 +73,8 @@ function getFirebaseDb(): Firestore | null {
 
   try {
     dbInstance = getFirestore(firebaseApp)
-    console.log("✅ Firestore initialized")
     return dbInstance
   } catch (error) {
-    console.error("❌ Error initializing Firestore:", error)
     return null
   }
 }
@@ -100,7 +93,6 @@ export function useAuth() {
     const firebaseAuth = getFirebaseAuth()
 
     if (!firebaseAuth) {
-      console.warn("⚠️ Firebase Auth not available")
       setLoading(false)
       return
     }
@@ -113,7 +105,6 @@ export function useAuth() {
 
       return () => unsubscribe()
     } catch (error) {
-      console.error("❌ Error in auth listener:", error)
       setLoading(false)
     }
   }, [])

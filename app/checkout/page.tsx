@@ -344,7 +344,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                     setAddressData({ ...addressData, postalCode: value })
                   }}
                   placeholder="00000-000"
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                   maxLength={9}
                   required
                 />
@@ -355,7 +355,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                   value={addressData.addressNumber}
                   onChange={(e) => setAddressData({ ...addressData, addressNumber: e.target.value })}
                   placeholder="123"
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                   required
                 />
               </div>
@@ -584,7 +584,7 @@ export default function CheckoutPage() {
   if (error) return <div className="flex justify-center items-center min-h-screen text-red-500">{error}</div>
 
   return (
-    <div className="min-h-screen bg-black p-6">
+    <div className="min-h-screen bg-gray-900 p-6">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-white text-center mb-8">Escolha seu Plano</h1>
 
