@@ -1133,19 +1133,53 @@ export default function QuizPage() {
 
   if (showWaterCongrats) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-6 max-w-md">
+      <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
+        <div className="text-center space-y-8 max-w-md">
           <div className="w-32 h-32 mx-auto relative">
-            <svg viewBox="0 0 100 100" className="w-full h-full">
-              <circle cx="50" cy="50" r="45" fill="#374151" />
-              <path d="M 50 5 A 45 45 0 0 1 95 50 L 50 50 Z" fill="#3B82F6" />
-              <path d="M 50 5 A 45 45 0 1 1 20 80 L 50 50 Z" fill="#60A5FA" />
-            </svg>
+            <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-2xl"></div>
+            <div className="relative w-full h-full rounded-full border-4 border-blue-500 flex items-center justify-center bg-blue-500/10">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                className="w-16 h-16 text-blue-500"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
           </div>
-          <h2 className="text-3xl font-bold">Uau! Impressionante!</h2>
-          <p className="text-gray-300 text-lg">Você bebe mais água do que 92% dos usuários*</p>
-          <p className="text-gray-300 text-lg">Continue assim!</p>
-          <p className="text-gray-500 text-sm">*Usuários do Fitgoal que fizeram o teste</p>
+
+          <h2 className="text-4xl font-bold">Uau! Impressionante!</h2>
+
+          <p className="text-gray-300 text-lg">Você bebe mais água do que 92% dos usuários do Fitgoal.</p>
+
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6">
+            <div className="flex items-center gap-6">
+              <div className="w-24 h-24 flex-shrink-0">
+                <svg viewBox="0 0 100 100" className="w-full h-full">
+                  <circle cx="50" cy="50" r="45" fill="#374151" />
+                  <path d="M 50 5 A 45 45 0 0 1 95 50 L 50 50 Z" fill="#3B82F6" />
+                  <path d="M 50 5 A 45 45 0 1 1 20 80 L 50 50 Z" fill="#60A5FA" />
+                </svg>
+              </div>
+              <div className="text-left flex-1">
+                <h3 className="text-xl font-semibold mb-1">Nível de Hidratação</h3>
+                <p className="text-lg text-gray-300">92% acima da média</p>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-gray-300 text-base">Seu nível de hidratação está excelente — continue assim.</p>
+
+          <button
+            onClick={() => setShowWaterCongrats(false)}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-2xl transition-colors text-lg"
+          >
+            Continuar
+          </button>
+
+          <p className="text-gray-500 text-sm">Baseado nos dados dos usuários do Fitgoal</p>
         </div>
       </div>
     )
