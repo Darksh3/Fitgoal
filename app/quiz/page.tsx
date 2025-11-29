@@ -1173,7 +1173,10 @@ export default function QuizPage() {
           <p className="text-gray-300 text-base">Seu nível de hidratação está excelente — continue assim.</p>
 
           <button
-            onClick={() => setShowWaterCongrats(false)}
+            onClick={() => {
+              setShowWaterCongrats(false)
+              nextStep()
+            }}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-2xl transition-colors text-lg"
           >
             Continuar
