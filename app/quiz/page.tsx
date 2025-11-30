@@ -954,35 +954,102 @@ export default function QuizPage() {
             <div className="relative text-4xl md:text-5xl font-bold text-lime-400">{quizData.timeToGoal}</div>
           </div>
 
-          <div className="relative h-48 bg-gray-800/50 border border-gray-700 rounded-2xl p-8">
-            <div
-              className={`absolute ${isGaining ? "bottom-6 left-6" : "top-6 left-6"} bg-gray-700/80 px-4 py-2 rounded-lg text-base font-medium`}
-            >
-              {current} kg
+          <div className="relative w-full max-w-md mx-auto">
+            <div className="relative rounded-xl p-5 border border-lime-500/30 bg-[#0B0F10] shadow-[0_0_20px_rgba(132,204,22,0.15)]">
+              {/* Weight labels */}
+              <div
+                className={`absolute ${isGaining ? "bottom-6 left-6" : "top-6 left-6"} bg-gray-700/80 px-4 py-2 rounded-lg text-base font-medium z-20`}
+              >
+                {current} kg
+              </div>
+              <div
+                className={`absolute ${isGaining ? "top-6 right-6" : "bottom-6 right-6"} bg-lime-500 px-4 py-2 rounded-lg text-base font-bold z-20`}
+              >
+                {target} kg
+              </div>
+
+              {/* Animated Chart SVG */}
+              <svg viewBox="0 0 300 200" className="w-full h-auto relative z-10">
+                <defs>
+                  <filter id="limeGlow">
+                    <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#84cc16" />
+                  </filter>
+                  <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#f97316" />
+                    <stop offset="100%" stopColor="#84CC16" />
+                  </linearGradient>
+                </defs>
+
+                {/* Animated line */}
+                <polyline
+                  stroke="url(#progressGradient)"
+                  strokeWidth="4"
+                  fill="none"
+                  filter="url(#limeGlow)"
+                  strokeDasharray="450"
+                  strokeDashoffset="450"
+                  style={{
+                    animation: "madDraw 1.1s ease forwards",
+                  }}
+                  points={
+                    isGaining
+                      ? "10,150 70,140 130,120 180,100 230,75 280,55"
+                      : "10,55 70,75 130,100 180,120 230,140 280,150"
+                  }
+                />
+
+                {/* Animated points */}
+                {(isGaining
+                  ? [
+                      [70, 140, 0.25],
+                      [130, 120, 0.35],
+                      [180, 100, 0.45],
+                      [230, 75, 0.55],
+                      [280, 55, 0.65],
+                    ]
+                  : [
+                      [70, 75, 0.25],
+                      [130, 100, 0.35],
+                      [180, 120, 0.45],
+                      [230, 140, 0.55],
+                      [280, 150, 0.65],
+                    ]
+                ).map(([cx, cy, delay], i) => (
+                  <circle
+                    key={i}
+                    cx={cx}
+                    cy={cy}
+                    r="6"
+                    fill="#84cc16"
+                    filter="url(#limeGlow)"
+                    style={{
+                      animation: `madPulse 1.4s ease-in-out ${delay}s infinite`,
+                    }}
+                  />
+                ))}
+              </svg>
+
+              {/* Side bars */}
+              <div className="absolute left-0 top-5 bottom-5 w-[4px] bg-lime-500/15 rounded-full overflow-hidden">
+                <div
+                  className="bg-lime-500 w-full rounded-full"
+                  style={{
+                    animation: "madBar 1.3s cubic-bezier(.3,.8,.4,1) forwards",
+                  }}
+                />
+              </div>
+              <div className="absolute right-0 top-5 bottom-5 w-[4px] bg-lime-500/15 rounded-full overflow-hidden">
+                <div
+                  className="bg-lime-500 w-full rounded-full"
+                  style={{
+                    animation: "madBar 1.3s cubic-bezier(.3,.8,.4,1) forwards",
+                    animationDelay: ".2s",
+                  }}
+                />
+              </div>
             </div>
-            <div
-              className={`absolute ${isGaining ? "top-6 right-6" : "bottom-6 right-6"} bg-lime-500 px-4 py-2 rounded-lg text-base font-bold`}
-            >
-              {target} kg
-            </div>
-            <svg viewBox="0 0 300 100" className="w-full h-full">
-              <defs>
-                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#f97316" />
-                  <stop offset="100%" stopColor="#84CC16" />
-                </linearGradient>
-              </defs>
-              <path
-                d={isGaining ? "M 30 75 Q 100 60, 150 50 T 270 30" : "M 30 30 Q 100 40, 150 50 T 270 75"}
-                stroke="url(#progressGradient)"
-                strokeWidth="3"
-                fill="none"
-                strokeLinecap="round"
-              />
-              <circle cx="30" cy={isGaining ? 75 : 30} r="5" fill="#f97316" />
-              <circle cx="270" cy={isGaining ? 30 : 75} r="5" fill="#84CC16" />
-            </svg>
           </div>
+          {/* </CHANGE> */}
 
           <div className="flex justify-between text-base text-gray-400">
             <span>{getCurrentDate()}</span>
@@ -1000,6 +1067,21 @@ export default function QuizPage() {
               Entendi
             </Button>
           </div>
+
+          <style>{`
+            @keyframes madDraw {
+              to { stroke-dashoffset: 0; }
+            }
+            @keyframes madPulse {
+              0%,100% { transform: scale(1); opacity: 1; }
+              50% { transform: scale(1.15); opacity: .75; }
+            }
+            @keyframes madBar {
+              from { height: 0%; }
+              to { height: 100%; }
+            }
+          `}</style>
+          {/* </CHANGE> */}
         </div>
       </div>
     )
