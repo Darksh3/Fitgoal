@@ -1131,19 +1131,22 @@ export default function QuizPage() {
     )
   }
 
+  // Changed blue glow and border to emerald green
+  // Changed pie chart colors from blue to emerald green
+  // Changed button from blue to emerald green
   if (showWaterCongrats) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
         <div className="text-center space-y-8 max-w-md">
           <div className="w-32 h-32 mx-auto relative">
-            <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-2xl"></div>
-            <div className="relative w-full h-full rounded-full border-4 border-blue-500 flex items-center justify-center bg-blue-500/10">
+            <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl"></div>
+            <div className="relative w-full h-full rounded-full border-4 border-emerald-500 flex items-center justify-center bg-emerald-500/10">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="3"
-                className="w-16 h-16 text-blue-500"
+                className="w-16 h-16 text-emerald-500"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
@@ -1159,8 +1162,8 @@ export default function QuizPage() {
               <div className="w-24 h-24 flex-shrink-0">
                 <svg viewBox="0 0 100 100" className="w-full h-full">
                   <circle cx="50" cy="50" r="45" fill="#374151" />
-                  <path d="M 50 5 A 45 45 0 0 1 95 50 L 50 50 Z" fill="#3B82F6" />
-                  <path d="M 50 5 A 45 45 0 1 1 20 80 L 50 50 Z" fill="#60A5FA" />
+                  <path d="M 50 5 A 45 45 0 0 1 95 50 L 50 50 Z" fill="#10B981" />
+                  <path d="M 50 5 A 45 45 0 1 1 20 80 L 50 50 Z" fill="#34D399" />
                 </svg>
               </div>
               <div className="text-left flex-1">
@@ -1177,7 +1180,7 @@ export default function QuizPage() {
               setShowWaterCongrats(false)
               setCurrentStep(currentStep + 1)
             }}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-2xl transition-colors text-lg"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 px-8 rounded-2xl transition-colors text-lg"
           >
             Continuar
           </button>
@@ -2092,7 +2095,7 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">Qual é sua altura?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-lime-500 rounded-lg p-4 bg-blue-900/20">
+              <div className="border-2 border-gray-700 rounded-lg p-4 bg-blue-900/20 focus-within:border-lime-500 transition-colors">
                 <Input
                   type="text"
                   placeholder={`Altura em metros (ex: 1.75 ou 1,75)`}
@@ -2105,7 +2108,7 @@ export default function QuizPage() {
                     const normalized = normalizeHeight(e.target.value)
                     updateQuizData("height", normalized)
                   }}
-                  className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+                  className="bg-transparent border-0 text-white placeholder:text-gray-400 text-center text-xl focus:outline-none"
                 />
               </div>
             </div>
@@ -2250,13 +2253,13 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">Qual é o seu peso atual?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-lime-500 rounded-lg p-4 bg-blue-900/20">
+              <div className="border-2 border-gray-700 rounded-lg p-4 bg-blue-900/20 focus-within:border-lime-500 transition-colors">
                 <Input
                   type="number"
                   placeholder={`Peso atual, kg`}
                   value={quizData.currentWeight}
                   onChange={(e) => updateQuizData("currentWeight", e.target.value)}
-                  className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+                  className="bg-transparent border-0 text-white placeholder:text-gray-400 text-center text-xl focus:outline-none"
                 />
               </div>
             </div>
@@ -2298,13 +2301,13 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">Qual é o seu nome?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-lime-500 rounded-lg p-4 bg-blue-900/20">
+              <div className="border-2 border-gray-700 rounded-lg p-4 bg-blue-900/20 focus-within:border-lime-500 transition-colors">
                 <Input
                   type="text"
                   placeholder="Digite seu nome"
                   value={quizData.name}
                   onChange={(e) => updateQuizData("name", e.target.value)}
-                  className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+                  className="bg-transparent border-0 text-white placeholder:text-gray-400 text-center text-xl focus:outline-none"
                 />
               </div>
             </div>
@@ -2535,16 +2538,17 @@ export default function QuizPage() {
           <div className="space-y-8">
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold text-white">Digite o seu e-mail</h2>
-              <p className="text-gray-300">Para receber seu plano personalizado</p>
+              {/* Changed placeholder to gray */}
+              <p className="text-gray-400">Para receber seu plano personalizado</p>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-lime-500 rounded-lg p-4 bg-blue-900/20">
+              <div className="border-2 border-gray-700 rounded-lg p-4 bg-blue-900/20 focus-within:border-lime-500 transition-colors">
                 <Input
                   type="email"
                   placeholder="seu@email.com"
                   value={quizData.email}
                   onChange={(e) => updateQuizData("email", e.target.value)}
-                  className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+                  className="bg-transparent border-0 text-white placeholder:text-gray-400 text-center text-xl focus:outline-none"
                 />
               </div>
             </div>
