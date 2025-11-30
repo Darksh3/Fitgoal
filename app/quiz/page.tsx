@@ -1077,7 +1077,7 @@ export default function QuizPage() {
                 setShowTimeCalculation(false)
                 setCurrentStep(currentStep + 1)
               }}
-              className="w-full bg-transparent hover:bg-transparent text-white py-8 text-3xl font-semibold min-h-[80px]"
+              className="w-full block bg-lime-600 hover:bg-lime-700 text-white py-8 text-3xl font-semibold min-h-[80px] rounded-full"
             >
               Entendi
             </Button>
@@ -1623,7 +1623,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
+              <h2 className="text-2xl font-bold text-white">Qual área você quer focar mais?</h2>
               <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="flex items-start justify-center space-x-8">
@@ -2147,7 +2147,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Você segue alguma dessas dietas?</h2>
+              <h2 className="text-2xl font-bold text-white">Você segue alguma dessas dietas?</h2>
             </div>
             <div className="space-y-2 sm:space-y-4">
               {[
@@ -2199,7 +2199,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">
+              <h2 className="text-2xl font-bold text-white">
                 Com que frequência você consome doces ou bebidas alcoólicas?
               </h2>
               <p className="text-gray-300">Selecione todas que se aplicam</p>
@@ -2231,7 +2231,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Quantidade diária de água</h2>
+              <h2 className="text-2xl font-bold text-white">Quantidade diária de água</h2>
             </div>
             <div className="space-y-4">
               {[
@@ -2274,7 +2274,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual é sua altura?</h2>
+              <h2 className="text-2xl font-bold text-white">Qual é sua altura?</h2>
             </div>
             <div className="space-y-6">
               <div className="border-2 border-gray-700 rounded-lg p-4 bg-gray-800 focus-within:border-lime-500 transition-colors">
@@ -2300,7 +2300,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Possui alergias ou restrições alimentares?</h2>
+              <h2 className="text-2xl font-bold text-white">Possui alergias ou restrições alimentares?</h2>
             </div>
             <div className="space-y-4">
               <div
@@ -2339,7 +2339,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Quais são suas alergias ou restrições alimentares?</h2>
+              <h2 className="text-2xl font-bold text-white">Quais são suas alergias ou restrições alimentares?</h2>
               <p className="text-gray-300">Descreva suas alergias, intolerâncias ou restrições alimentares</p>
             </div>
             <div className="space-y-6">
@@ -2357,7 +2357,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Podemos adicionar algum suplemento à sua dieta?</h2>
+              <h2 className="text-2xl font-bold text-white">Podemos adicionar algum suplemento à sua dieta?</h2>
               <p className="text-gray-300">Por exemplo: Hipercalórico, Whey Protein...</p>
             </div>
             <div className="space-y-4">
@@ -2433,7 +2433,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual é o seu peso atual?</h2>
+              <h2 className="text-2xl font-bold text-white">Qual é o seu peso atual?</h2>
             </div>
             <div className="space-y-6">
               <div className="border-2 border-gray-700 rounded-lg p-4 bg-gray-800 focus-within:border-lime-500 transition-colors">
@@ -2452,7 +2452,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
+              <h2 className="text-2xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
             </div>
             <div className="space-y-6">
               <div className="border-2 border-gray-700 rounded-2xl p-6 bg-gray-800 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500">
@@ -2483,7 +2483,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual é o seu nome?</h2>
+              <h2 className="text-2xl font-bold text-white">Qual é o seu nome?</h2>
             </div>
             <div className="space-y-6">
               <div className="border-2 border-gray-700 rounded-lg p-4 bg-gray-800 focus-within:border-lime-500 transition-colors">
@@ -2502,7 +2502,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual é o seu tempo de treino?</h2>
+              <h2 className="text-2xl font-bold text-white">Qual é o seu tempo de treino?</h2>
             </div>
             <div className="space-y-4 max-w-2xl mx-auto">
               {[
@@ -2533,7 +2533,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Tem experiência com treinamento de força?</h2>
+              <h2 className="text-2xl font-bold text-white">Tem experiência com treinamento de força?</h2>
             </div>
             <div className="space-y-4">
               <div
@@ -2573,7 +2573,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Que equipamentos você tem acesso?</h2>
+              <h2 className="text-2xl font-bold text-white">Que equipamentos você tem acesso?</h2>
               <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="space-y-3">
@@ -2605,7 +2605,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Como você se sente sobre exercícios cardiovasculares?</h2>
+              <h2 className="text-2xl font-bold text-white">Como você se sente sobre exercícios cardiovasculares?</h2>
             </div>
             <div className="flex items-center justify-center space-x-8">
               <ExerciseIllustration type="cardio" className="w-64 h-64" />
@@ -2639,7 +2639,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Como você se sente sobre flexões e exercícios de força?</h2>
+              <h2 className="text-2xl font-bold text-white">Como você se sente sobre flexões e exercícios de força?</h2>
             </div>
             <div className="flex items-center justify-center space-x-8">
               <ExerciseIllustration type="pullups" className="w-64 h-64" />
@@ -2673,7 +2673,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Como você se sente sobre yoga e alongamento?</h2>
+              <h2 className="text-2xl font-bold text-white">Como você se sente sobre yoga e alongamento?</h2>
             </div>
             <div className="flex items-center justify-center space-x-8">
               <ExerciseIllustration type="yoga" className="w-64 h-64" />
@@ -2707,7 +2707,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
+              <h2 className="text-2xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
               <p className="text-gray-300">Selecione de 1 a 7 dias</p>
             </div>
             <div className="text-center space-y-8">
@@ -2739,7 +2739,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Digite o seu e-mail</h2>
+              <h2 className="text-2xl font-bold text-white">Digite o seu e-mail</h2>
               {/* Changed placeholder to gray */}
               <p className="text-gray-400">Para receber seu plano personalizado</p>
             </div>
