@@ -1468,7 +1468,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
+              <h2 className="text-2xl font-bold text-white">Qual área você quer focar mais?</h2>
               <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="flex items-start justify-center space-x-8">
@@ -1990,11 +1990,9 @@ export default function QuizPage() {
         )
       case 7:
         return (
-          <div className="space-y-4 sm:space-y-8">
-            <div className="text-center space-y-2 sm:space-y-4">
-              <h2 className="text-2xl sm:text-2xl md:text-3xl font-bold text-white">
-                Você segue alguma dessas dietas?
-              </h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Você segue alguma dessas dietas?</h2>
             </div>
             <div className="space-y-2 sm:space-y-4">
               {[
