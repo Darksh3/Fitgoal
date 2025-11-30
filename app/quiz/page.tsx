@@ -1270,7 +1270,7 @@ export default function QuizPage() {
                         : "border border-gray-700"
                     }`}
                   >
-                    <h3 className="text-lg sm:text-xl font-bold text-white">{gender.label}</h3>
+                    <h3 className="text-base sm:text-lg font-bold text-white">{gender.label}</h3>
                   </div>
                 </div>
               ))}
@@ -1334,8 +1334,8 @@ export default function QuizPage() {
                   }}
                 >
                   <div className="flex-1">
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1 sm:mb-2">{type.label}</h3>
-                    <p className="text-gray-400 text-sm sm:text-sm md:text-lg">{type.desc}</p>
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-white mb-1 sm:mb-2">{type.label}</h3>
+                    <p className="text-gray-400 text-xs sm:text-sm md:text-base">{type.desc}</p>
                   </div>
                   <div className="flex-shrink-0 ml-3 sm:ml-4 md:ml-6">
                     <img
@@ -1468,7 +1468,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual área você quer focar mais?</h2>
+              <h2 className="text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
               <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="flex items-start justify-center space-x-8">
@@ -2049,7 +2049,7 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">
                 Com que frequência você consome doces ou bebidas alcoólicas?
               </h2>
-              <p className="text-gray-300">Selecione todas que se aplicam</p>
+              <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="space-y-4">
               {[
@@ -2659,7 +2659,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gray-900 text-white p-6 pb-32">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <Button variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="text-white">
@@ -2681,40 +2681,46 @@ export default function QuizPage() {
         </div>
         <div className="mb-8">{renderStep()}</div>
         {![1, 3, 7, 9, 11, 13, 17, 18, 20, 21, 22].includes(currentStep) && (
-          <div className="flex justify-center">
-            {currentStep === totalSteps ? (
-              <Button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl font-bold rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
-              >
-                <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10 flex items-center gap-3">
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-6 w-6 animate-spin" />
-                        Processando...
-                      </>
-                    ) : (
-                      <>
-                        Finalizar Avaliação
-                        <Dumbbell className="h-6 w-6" />
-                      </>
-                    )}
-                  </span>
-                </div>
-              </Button>
-            ) : (
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
+          <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-gray-900 via-gray-900 to-transparent">
+            <div className="max-w-4xl mx-auto">
+              {currentStep === totalSteps ? (
+                <Button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="w-full bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white px-8 py-4 text-lg font-bold rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
+                >
+                  <div className="relative py-4 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                    <span className="relative z-10 flex items-center justify-center gap-3">
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="h-6 w-6 animate-spin" />
+                          Processando...
+                        </>
+                      ) : (
+                        <>
+                          Finalizar Avaliação
+                          <Dumbbell className="h-6 w-6" />
+                        </>
+                      )}
+                    </span>
+                  </div>
+                </Button>
+              ) : (
+                <Button
+                  onClick={nextStep}
+                  disabled={!canProceed()}
+                  className="w-full group relative disabled:opacity-50"
+                >
+                  <div className="relative py-4 md:py-5 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                    <span className="relative z-10">Continuar</span>
 
-                  {/* Efeito de brilho animado */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </Button>
-            )}
+                    {/* Efeito de brilho animado */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </Button>
+              )}
+            </div>
           </div>
         )}
       </div>
