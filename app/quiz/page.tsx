@@ -136,7 +136,7 @@ const debugFrequencySelection = (frequency: number) => {
     const stored = localStorage.getItem("quizData")
     if (stored) {
       try {
-        const parsed = JSON.parse(stored)
+        const parsed = JSON.JSON.parse(stored)
         console.log(`[QUIZ] Stored frequency: ${parsed.trainingDaysPerWeek}`)
       } catch (error) {
         console.error("[QUIZ] localStorage parse error:", error)
@@ -178,6 +178,7 @@ export default function QuizPage() {
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false) // Add isSubmitting state
+  const [waterFill, setWaterFill] = useState(0)
 
   const [debugMode, setDebugMode] = useState(false) // Disabled debug mode
   const [debugValues, setDebugValues] = useState({
@@ -221,6 +222,15 @@ export default function QuizPage() {
     navigator.clipboard.writeText(JSON.stringify(debugValues, null, 2))
     alert("Valores copiados para área de transferência!")
   }
+
+  useEffect(() => {
+    if (showWaterCongrats) {
+      setTimeout(() => setWaterFill(92), 200)
+    } else {
+      setWaterFill(0)
+    }
+  }, [showWaterCongrats])
+  // </CHANGE>
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -1235,6 +1245,16 @@ export default function QuizPage() {
   // Changed pie chart colors from blue to emerald green
   // Changed button from blue to emerald green
   if (showWaterCongrats) {
+    // useEffect hook moved to the top level of the component to satisfy linting rules.
+    // All hooks must be called in the same order in every component render.
+    // useEffect(() => {
+    //   if (showWaterCongrats) {
+    //     setTimeout(() => setWaterFill(92), 200)
+    //   } else {
+    //     setWaterFill(0)
+    //   }
+    // }, [showWaterCongrats])
+
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
         <div className="text-center space-y-8 max-w-md">
@@ -1258,18 +1278,55 @@ export default function QuizPage() {
           <p className="text-gray-300 text-lg">Você bebe mais água do que 92% dos usuários do Fitgoal.</p>
 
           <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6">
-            <div className="flex items-center gap-6">
-              <div className="w-24 h-24 flex-shrink-0">
-                <svg viewBox="0 0 100 100" className="w-full h-full">
-                  <circle cx="50" cy="50" r="45" fill="#374151" />
-                  <path d="M 50 5 A 45 45 0 0 1 95 50 L 50 50 Z" fill="#10B981" />
-                  <path d="M 50 5 A 45 45 0 1 1 20 80 L 50 50 Z" fill="#34D399" />
-                </svg>
+            <div className="flex flex-col items-center gap-4">
+              <h3 className="text-xl font-semibold">Nível de Hidratação</h3>
+
+              <div className="relative w-full max-w-[200px]">
+                <div className="relative w-full h-48 rounded-2xl overflow-hidden border border-emerald-400/40 bg-[#0B0F10] shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+                  {/* Water level animation */}
+                  <div
+                    className="absolute bottom-0 left-0 w-full bg-emerald-400/40 transition-all duration-[1800ms] ease-out"
+                    style={{
+                      height: `${waterFill}%`,
+                      clipPath: "url(#waveClip)",
+                    }}
+                  />
+
+                  {/* Wave SVG */}
+                  <svg className="absolute bottom-0 left-0 w-full h-full">
+                    <defs>
+                      <clipPath id="waveClip" clipPathUnits="objectBoundingBox">
+                        <path d="M0,0.7 C0.15,0.65 0.35,0.75 0.5,0.7 C0.65,0.65 0.85,0.75 1,0.7 V1 H0 Z" fill="white">
+                          <animate
+                            attributeName="d"
+                            dur="4s"
+                            repeatCount="indefinite"
+                            values="
+                              M0,0.7 C0.15,0.65 0.35,0.75 0.5,0.7 C0.65,0.65 0.85,0.75 1,0.7 V1 H0 Z;
+                              M0,0.72 C0.15,0.67 0.35,0.78 0.5,0.72 C0.65,0.67 0.85,0.78 1,0.72 V1 H0 Z;
+                              M0,0.68 C0.15,0.63 0.35,0.73 0.5,0.68 C0.65,0.63 0.85,0.73 1,0.68 V1 H0 Z;
+                              M0,0.7 C0.15,0.65 0.35,0.75 0.5,0.7 C0.65,0.65 0.85,0.75 1,0.7 V1 H0 Z
+                            "
+                          />
+                        </path>
+                      </clipPath>
+                    </defs>
+                  </svg>
+
+                  {/* Glow line on water surface */}
+                  <div
+                    className="absolute w-full h-1 bg-emerald-300/60 shadow-[0_0_12px_rgba(16,185,129,0.8)] transition-all duration-[1800ms]"
+                    style={{ bottom: `${waterFill}%` }}
+                  />
+                </div>
+
+                {/* Percentage display */}
+                <div className="text-center text-3xl mt-3 text-emerald-300 font-bold drop-shadow-[0_0_10px_rgba(16,185,129,0.9)]">
+                  {waterFill}%
+                </div>
               </div>
-              <div className="text-left flex-1">
-                <h3 className="text-xl font-semibold mb-1">Nível de Hidratação</h3>
-                <p className="text-lg text-gray-300">92% acima da média</p>
-              </div>
+
+              <p className="text-base text-gray-300">acima da média</p>
             </div>
           </div>
 
@@ -1290,8 +1347,6 @@ export default function QuizPage() {
       </div>
     )
   }
-
-  // </CHANGE>
 
   const getBodyFatImage = () => {
     const isMale = quizData.gender === "homem"
@@ -1568,7 +1623,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual área você quer focar mais?</h2>
+              <h2 className="text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
               <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="flex items-start justify-center space-x-8">
@@ -2235,7 +2290,7 @@ export default function QuizPage() {
                     const normalized = normalizeHeight(e.target.value)
                     updateQuizData("height", normalized)
                   }}
-                  className="bg-transparent border-0 text-gray-400 placeholder:text-gray-400 text-center text-xl focus:outline-none"
+                  className="bg-transparent border-0 text-white placeholder:text-gray-400 text-center text-xl focus:outline-none"
                 />
               </div>
             </div>
@@ -2695,7 +2750,7 @@ export default function QuizPage() {
                   placeholder="seu@email.com"
                   value={quizData.email}
                   onChange={(e) => updateQuizData("email", e.target.value)}
-                  className="bg-transparent border-0 text-gray-400 placeholder:text-gray-400 text-center text-xl focus:outline-none"
+                  className="bg-transparent border-0 text-white placeholder:text-gray-400 text-center text-xl focus:outline-none"
                 />
               </div>
             </div>
