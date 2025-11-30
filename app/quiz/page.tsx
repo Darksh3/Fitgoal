@@ -1364,7 +1364,7 @@ export default function QuizPage() {
                   <div
                     className={`bg-gray-800 rounded-lg p-3 sm:p-4 transition-all ${
                       quizData.gender === gender.value
-                        ? "border-2 border-lime-500 bg-emerald-500/10"
+                        ? "border-2 border-lime-500 bg-lime-500/10"
                         : "border border-gray-700"
                     }`}
                   >
@@ -1423,7 +1423,7 @@ export default function QuizPage() {
                   key={type.value}
                   className={`bg-gray-800 rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
                     quizData.bodyType === type.value
-                      ? "border-2 border-lime-500 bg-emerald-500/10"
+                      ? "border-2 border-lime-500 bg-lime-500/10"
                       : "border border-gray-700"
                   }`}
                   onClick={() => {
@@ -1482,7 +1482,7 @@ export default function QuizPage() {
                   key={goal.value}
                   className={`bg-gray-800 rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
                     quizData.goal.includes(goal.value)
-                      ? "border-2 border-lime-500 bg-emerald-500/10"
+                      ? "border-2 border-lime-500 bg-lime-500/10"
                       : "border border-gray-700"
                   }`}
                   onClick={() => handleArrayUpdate("goal", goal.value, !quizData.goal.includes(goal.value))}
@@ -1568,7 +1568,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
+              <h2 className="text-2xl font-bold text-white">Qual área você quer focar mais?</h2>
               <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="flex items-start justify-center space-x-8">
@@ -2109,9 +2109,7 @@ export default function QuizPage() {
                 <div
                   key={diet.value}
                   className={`bg-gray-800 rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                    quizData.diet === diet.value
-                      ? "border-2 border-lime-500 bg-emerald-500/10"
-                      : "border border-gray-700"
+                    quizData.diet === diet.value ? "border-2 border-lime-500 bg-lime-500/10" : "border border-gray-700"
                   }`}
                   onClick={() => {
                     updateQuizData("diet", diet.value)
@@ -2129,7 +2127,7 @@ export default function QuizPage() {
             <div className="border-t border-gray-700 pt-3 sm:pt-4">
               <div
                 className={`bg-gray-800 rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
-                  quizData.diet === "nao-sigo" ? "border-2 border-lime-500 bg-emerald-500/10" : "border border-gray-700"
+                  quizData.diet === "nao-sigo" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-gray-700"
                 }`}
                 onClick={() => {
                   updateQuizData("diet", "nao-sigo")
@@ -2191,12 +2189,18 @@ export default function QuizPage() {
                   key={water.value}
                   className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all border ${
                     quizData.waterIntake === water.value
-                      ? "border-2 border-lime-500 bg-emerald-500/10"
+                      ? "border-2 border-lime-500 bg-lime-500/10"
                       : "border border-gray-700"
                   }`}
                   onClick={() => {
                     updateQuizData("waterIntake", water.value)
-                    setTimeout(() => nextStep(), 300)
+                    setTimeout(() => {
+                      if (water.value === "7-10" || water.value === "mais-10") {
+                        setShowWaterCongrats(true)
+                      } else {
+                        nextStep()
+                      }
+                    }, 300)
                   }}
                 >
                   <div className="flex items-center space-x-4">
@@ -2246,7 +2250,7 @@ export default function QuizPage() {
             <div className="space-y-4">
               <div
                 className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
-                  quizData.allergies === "sim" ? "border-2 border-lime-500 bg-emerald-500/10" : "border border-gray-700"
+                  quizData.allergies === "sim" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-gray-700"
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "sim")
@@ -2260,7 +2264,7 @@ export default function QuizPage() {
               </div>
               <div
                 className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
-                  quizData.allergies === "nao" ? "border-2 border-lime-500 bg-emerald-500/10" : "border border-gray-700"
+                  quizData.allergies === "nao" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-gray-700"
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
@@ -2396,7 +2400,7 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-gray-700 rounded-2xl p-6 bg-blue-950/30 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500">
+              <div className="border-2 border-gray-700 rounded-2xl p-6 bg-gray-800 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500">
                 <Input
                   type="number"
                   placeholder={`Peso alvo, kg`}
@@ -2456,7 +2460,7 @@ export default function QuizPage() {
                   key={time.value}
                   className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-center ${
                     quizData.workoutTime === time.value
-                      ? "border-2 border-lime-500 bg-emerald-500/10"
+                      ? "border-2 border-lime-500 bg-lime-500/10"
                       : "border border-gray-600 hover:border-gray-500"
                   }`}
                   onClick={() => {
@@ -2480,7 +2484,7 @@ export default function QuizPage() {
               <div
                 className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
                   quizData.strengthTraining === "sim"
-                    ? "border-2 border-lime-500 bg-emerald-500/10"
+                    ? "border-2 border-lime-500 bg-lime-500/10"
                     : "border border-gray-700"
                 }`}
                 onClick={() => {
@@ -2496,7 +2500,7 @@ export default function QuizPage() {
               <div
                 className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
                   quizData.strengthTraining === "nao"
-                    ? "border-2 border-lime-500 bg-emerald-500/10"
+                    ? "border-2 border-lime-500 bg-lime-500/10"
                     : "border border-gray-700"
                 }`}
                 onClick={() => {
@@ -2560,7 +2564,7 @@ export default function QuizPage() {
                     key={pref.value}
                     className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
                       quizData.exercisePreferences.cardio === pref.value
-                        ? "border-2 border-lime-500 bg-emerald-500/10"
+                        ? "border-2 border-lime-500 bg-lime-500/10"
                         : "border border-gray-700"
                     }`}
                     onClick={() => {
@@ -2594,7 +2598,7 @@ export default function QuizPage() {
                     key={pref.value}
                     className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
                       quizData.exercisePreferences.pullups === pref.value
-                        ? "border-2 border-lime-500 bg-emerald-500/10"
+                        ? "border-2 border-lime-500 bg-lime-500/10"
                         : "border border-gray-700"
                     }`}
                     onClick={() => {
@@ -2628,7 +2632,7 @@ export default function QuizPage() {
                     key={pref.value}
                     className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
                       quizData.exercisePreferences.yoga === pref.value
-                        ? "border-2 border-lime-500 bg-emerald-500/10"
+                        ? "border-2 border-lime-500 bg-lime-500/10"
                         : "border border-gray-700"
                     }`}
                     onClick={() => {
