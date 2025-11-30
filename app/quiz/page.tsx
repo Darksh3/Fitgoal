@@ -136,7 +136,7 @@ const debugFrequencySelection = (frequency: number) => {
     const stored = localStorage.getItem("quizData")
     if (stored) {
       try {
-        const parsed = JSON.JSON.parse(stored)
+        const parsed = JSON.parse(stored)
         console.log(`[QUIZ] Stored frequency: ${parsed.trainingDaysPerWeek}`)
       } catch (error) {
         console.error("[QUIZ] localStorage parse error:", error)
@@ -191,6 +191,7 @@ export default function QuizPage() {
     leg_upper_left: { top: 54, left: 34, width: 11, height: 14, rotate: -2 },
     leg_lower_left: { top: 73, left: 42, width: 5, height: 9, rotate: -17 },
     leg_upper_right: { top: 53, right: 39, width: 11, height: 13, rotate: 11 },
+    leg_lower_right: { top: 72, right: 44, width: 6, height: 13, rotate: 12 },
     // Masculine markings
     m_chest_left: { top: 21, left: 34, width: 21, height: 11, rotate: -90 },
     m_chest_right: { top: 21, right: 32, width: 21, height: 11, rotate: -89 },
@@ -938,179 +939,70 @@ export default function QuizPage() {
     const isGaining = target > current
 
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
-        <div className="relative w-full max-w-md mx-auto">
-          {/* BACKGROUND PARTICLES */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {[...Array(25)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute w-1 h-1 bg-lime-400 rounded-full opacity-40"
-                style={{
-                  top: Math.random() * 100 + "%",
-                  left: Math.random() * 100 + "%",
-                  animation: `particle ${2 + Math.random() * 3}s ease-in-out ${Math.random() * 3}s infinite`,
-                }}
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
+        <div className="text-center space-y-8 max-w-2xl">
+          <h2 className="text-3xl md:text-4xl font-bold leading-tight">
+            O último plano de que você precisará para <span className="text-lime-400">finalmente entrar em forma</span>
+          </h2>
+
+          <p className="text-gray-300 text-lg">
+            Com base em nossos cálculos, você atingirá seu peso ideal de {target} kg até
+          </p>
+
+          <div className="relative inline-block">
+            <div className="absolute inset-0 bg-lime-400/20 blur-3xl rounded-full" />
+            <div className="relative text-4xl md:text-5xl font-bold text-lime-400">{quizData.timeToGoal}</div>
+          </div>
+
+          <div className="relative h-48 bg-gray-800/50 border border-gray-700 rounded-2xl p-8">
+            <div
+              className={`absolute ${isGaining ? "bottom-6 left-6" : "top-6 left-6"} bg-gray-700/80 px-4 py-2 rounded-lg text-base font-medium`}
+            >
+              {current} kg
+            </div>
+            <div
+              className={`absolute ${isGaining ? "top-6 right-6" : "bottom-6 right-6"} bg-lime-500 px-4 py-2 rounded-lg text-base font-bold`}
+            >
+              {target} kg
+            </div>
+            <svg viewBox="0 0 300 100" className="w-full h-full">
+              <defs>
+                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#f97316" />
+                  <stop offset="100%" stopColor="#84CC16" />
+                </linearGradient>
+              </defs>
+              <path
+                d={isGaining ? "M 30 75 Q 100 60, 150 50 T 270 30" : "M 30 30 Q 100 40, 150 50 T 270 75"}
+                stroke="url(#progressGradient)"
+                strokeWidth="3"
+                fill="none"
+                strokeLinecap="round"
               />
-            ))}
+              <circle cx="30" cy={isGaining ? 75 : 30} r="5" fill="#f97316" />
+              <circle cx="270" cy={isGaining ? 30 : 75} r="5" fill="#84CC16" />
+            </svg>
           </div>
 
-          {/* MAIN CONTENT */}
-          <div className="relative space-y-8">
-            {/* TITLE */}
-            <h2 className="text-2xl md:text-3xl font-bold leading-tight text-center">
-              O último plano de que você precisará para{" "}
-              <span className="text-lime-400">finalmente entrar em forma</span>
-            </h2>
-
-            {/* SUBTITLE */}
-            <p className="text-gray-300 text-base text-center">
-              Com base em nossos cálculos, você atingirá seu peso ideal de {target} kg até
-            </p>
-
-            {/* DATE WITH GLOW */}
-            <div className="relative inline-block w-full text-center">
-              <div className="absolute inset-0 bg-lime-400/20 blur-3xl rounded-full" />
-              <div className="relative text-4xl md:text-5xl font-bold text-lime-400">{quizData.timeToGoal}</div>
-            </div>
-
-            {/* CHART CONTAINER */}
-            <div className="relative rounded-xl p-6 border border-lime-400/40 bg-black/40 backdrop-blur-xl shadow-[0_0_25px_rgba(180,255,57,0.15)]">
-              {/* WEIGHT LABELS */}
-              <div className="relative mb-4">
-                <div
-                  className={`absolute ${isGaining ? "left-0" : "right-0"} bg-gray-700/80 px-4 py-2 rounded-lg text-sm font-medium`}
-                >
-                  {current} kg
-                </div>
-                <div
-                  className={`absolute ${isGaining ? "right-0" : "left-0"} bg-lime-500 px-4 py-2 rounded-lg text-sm font-bold`}
-                >
-                  {target} kg
-                </div>
-              </div>
-
-              {/* ANIMATED CHART SVG */}
-              <svg viewBox="0 0 300 150" className="w-full h-32 md:h-40 mt-12">
-                <defs>
-                  <filter id="glow">
-                    <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#B4FF39" />
-                  </filter>
-                  <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#f97316" />
-                    <stop offset="100%" stopColor="#B4FF39" />
-                  </linearGradient>
-                </defs>
-
-                <polyline
-                  stroke="url(#lineGradient)"
-                  strokeWidth="4"
-                  fill="none"
-                  filter="url(#glow)"
-                  strokeDasharray="500"
-                  strokeDashoffset="500"
-                  style={{
-                    animation: "drawLine 1.6s ease forwards",
-                  }}
-                  points={isGaining ? "20,120 80,100 140,80 200,50 260,30" : "20,30 80,50 140,80 200,100 260,120"}
-                />
-
-                {/* PULSING POINTS */}
-                {(isGaining
-                  ? [
-                      [80, 100],
-                      [140, 80],
-                      [200, 50],
-                      [260, 30],
-                    ]
-                  : [
-                      [80, 50],
-                      [140, 80],
-                      [200, 100],
-                      [260, 120],
-                    ]
-                ).map(([cx, cy], i) => (
-                  <circle
-                    key={i}
-                    cx={cx}
-                    cy={cy}
-                    r="6"
-                    fill="#B4FF39"
-                    filter="url(#glow)"
-                    style={{
-                      animation: `pulse 1.6s ease-in-out ${0.4 + i * 0.2}s infinite`,
-                    }}
-                  />
-                ))}
-              </svg>
-
-              {/* SIDE BARS */}
-              <div className="absolute left-0 top-6 bottom-6 w-[4px] bg-lime-500/20 rounded-full overflow-hidden">
-                <div
-                  className="bg-lime-400 w-full rounded-full"
-                  style={{
-                    animation: "growBar 1.8s cubic-bezier(.2,.7,.3,1) forwards",
-                  }}
-                />
-              </div>
-
-              <div className="absolute right-0 top-6 bottom-6 w-[4px] bg-lime-500/20 rounded-full overflow-hidden">
-                <div
-                  className="bg-lime-400 w-full rounded-full"
-                  style={{
-                    animation: "growBar 1.8s cubic-bezier(.2,.7,.3,1) forwards",
-                    animationDelay: ".3s",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* DATE LABELS */}
-            <div className="flex justify-between text-sm text-gray-400 px-2">
-              <span>{getCurrentDate()}</span>
-              <span>{quizData.timeToGoal}</span>
-            </div>
-
-            {/* ENTENDI BUTTON */}
-            <div className="bg-lime-500 hover:bg-lime-600 transition-colors rounded-full p-1 max-w-xs mx-auto mt-8">
-              <Button
-                onClick={() => {
-                  setShowTimeCalculation(false)
-                  setCurrentStep(currentStep + 1)
-                }}
-                className="w-full bg-transparent hover:bg-transparent text-black py-6 text-lg font-semibold"
-              >
-                Entendi
-              </Button>
-            </div>
+          <div className="flex justify-between text-base text-gray-400">
+            <span>{getCurrentDate()}</span>
+            <span>{quizData.timeToGoal}</span>
           </div>
 
-          {/* ANIMATIONS CSS */}
-          <style>{`
-            @keyframes drawLine {
-              to { stroke-dashoffset: 0; }
-            }
-
-            @keyframes pulse {
-              0%,100% { transform: scale(1); opacity: 1; }
-              50% { transform: scale(1.3); opacity: 0.6; }
-            }
-
-            @keyframes growBar {
-              from { height: 0%; }
-              to { height: 100%; }
-            }
-
-            @keyframes particle {
-              0% { transform: translateY(0px); opacity: .3; }
-              50% { opacity: .6; }
-              100% { transform: translateY(-30px); opacity: .2; }
-            }
-          `}</style>
+          <div className="bg-lime-500 hover:bg-lime-600 transition-colors rounded-full p-1 max-w-xs mx-auto">
+            <Button
+              onClick={() => {
+                setShowTimeCalculation(false)
+                setCurrentStep(currentStep + 1)
+              }}
+              className="w-full bg-transparent hover:bg-transparent text-white py-8 text-xl font-semibold"
+            >
+              Entendi
+            </Button>
+          </div>
         </div>
       </div>
     )
-    // </CHANGE>
   }
 
   if (showIMCResult) {
@@ -1574,7 +1466,7 @@ export default function QuizPage() {
         )
       case 6:
         return (
-          <div className="space-y-8 pb-24">
+          <div className="space-y-8">
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
               <p className="text-gray-300">Selecione todos que se aplicam</p>
@@ -2098,7 +1990,7 @@ export default function QuizPage() {
         )
       case 7:
         return (
-          <div className="space-y-5 sm:space-y-8">
+          <div className="space-y-4 sm:space-y-8">
             <div className="text-center space-y-2 sm:space-y-4">
               <h2 className="text-2xl sm:text-2xl md:text-3xl font-bold text-white">
                 Você segue alguma dessas dietas?
@@ -2159,7 +2051,7 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">
                 Com que frequência você consome doces ou bebidas alcoólicas?
               </h2>
-              <p className="text-gray-300">Selecione todos que se aplicam</p>
+              <p className="text-gray-300">Selecione todas que se aplicam</p>
             </div>
             <div className="space-y-4">
               {[
@@ -2768,19 +2660,6 @@ export default function QuizPage() {
     return isStepValid(currentStep)
   }
 
-  const handleContinue = () => {
-    if (currentStep === 6) {
-      // Special handling for step 6 to scroll to the button
-      const buttonContainer = document.getElementById("continue-button-container")
-      if (buttonContainer) {
-        buttonContainer.scrollIntoView({ behavior: "smooth", block: "end" })
-      }
-      nextStep()
-    } else {
-      nextStep()
-    }
-  }
-
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
       <div className="max-w-4xl mx-auto">
@@ -2804,14 +2683,7 @@ export default function QuizPage() {
         </div>
         <div className="mb-8">{renderStep()}</div>
         {![1, 3, 7, 9, 11, 13, 17, 18, 20, 21, 22].includes(currentStep) && (
-          <div
-            id="continue-button-container"
-            className={
-              currentStep === 6
-                ? "fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-gray-900 via-gray-900 to-transparent z-50"
-                : "flex justify-center"
-            }
-          >
+          <div className="flex justify-center">
             {currentStep === totalSteps ? (
               <Button
                 type="button"
@@ -2836,12 +2708,13 @@ export default function QuizPage() {
                 </div>
               </Button>
             ) : (
-              <Button
-                onClick={handleContinue}
-                disabled={!canProceed()}
-                className={`bg-lime-500 hover:bg-lime-600 text-gray-900 px-12 py-6 text-xl font-bold rounded-full disabled:opacity-50 ${currentStep === 6 ? "w-full max-w-4xl mx-auto" : ""}`}
-              >
-                Continuar
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+
+                  {/* Efeito de brilho animado */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
               </Button>
             )}
           </div>
