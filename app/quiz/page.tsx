@@ -60,6 +60,7 @@ interface QuizData {
   imcClassification: string
   imcStatus: string
   age: number
+  strengthTraining?: string // Added this field
 }
 
 const initialQuizData: QuizData = {
@@ -99,6 +100,7 @@ const initialQuizData: QuizData = {
   imcClassification: "",
   imcStatus: "",
   age: 0,
+  strengthTraining: "", // Initialize strengthTraining
 }
 
 const debugDataFlow = (stage: string, data: any) => {
@@ -1246,7 +1248,10 @@ export default function QuizPage() {
                 <div
                   key={gender.value}
                   className="text-center space-y-3 sm:space-y-4 cursor-pointer"
-                  onClick={() => updateQuizData("gender", gender.value)}
+                  onClick={() => {
+                    updateQuizData("gender", gender.value)
+                    setTimeout(() => nextStep(), 300)
+                  }}
                 >
                   <div className="flex justify-center items-center h-28 sm:h-40">
                     <img
@@ -1260,7 +1265,9 @@ export default function QuizPage() {
                   </div>
                   <div
                     className={`bg-gray-800 rounded-lg p-3 sm:p-4 transition-all ${
-                      quizData.gender === gender.value ? "border-2 border-lime-500" : "border border-gray-700"
+                      quizData.gender === gender.value
+                        ? "border-2 border-lime-500 bg-emerald-500/10"
+                        : "border border-gray-700"
                     }`}
                   >
                     <h3 className="text-lg sm:text-xl font-bold text-white">{gender.label}</h3>
@@ -1274,7 +1281,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-4 sm:space-y-8">
             <div className="text-center space-y-2 sm:space-y-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual a sua idade?</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual é sua idade?</h2>
             </div>
             <div className="max-w-md mx-auto">
               <input
@@ -1317,9 +1324,14 @@ export default function QuizPage() {
                 <div
                   key={type.value}
                   className={`bg-gray-800 rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
-                    quizData.bodyType === type.value ? "border-2 border-lime-500" : "border border-gray-700"
+                    quizData.bodyType === type.value
+                      ? "border-2 border-lime-500 bg-emerald-500/10"
+                      : "border border-gray-700"
                   }`}
-                  onClick={() => updateQuizData("bodyType", type.value)}
+                  onClick={() => {
+                    updateQuizData("bodyType", type.value)
+                    setTimeout(() => nextStep(), 300)
+                  }}
                 >
                   <div className="flex-1">
                     <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1 sm:mb-2">{type.label}</h3>
@@ -1999,9 +2011,14 @@ export default function QuizPage() {
                 <div
                   key={diet.value}
                   className={`bg-gray-800 rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                    quizData.diet === diet.value ? "border-2 border-lime-500" : "border border-gray-700"
+                    quizData.diet === diet.value
+                      ? "border-2 border-lime-500 bg-emerald-500/10"
+                      : "border border-gray-700"
                   }`}
-                  onClick={() => updateQuizData("diet", diet.value)}
+                  onClick={() => {
+                    updateQuizData("diet", diet.value)
+                    setTimeout(() => nextStep(), 300)
+                  }}
                 >
                   <span className="text-xl sm:text-2xl">{diet.icon}</span>
                   <div>
@@ -2014,9 +2031,12 @@ export default function QuizPage() {
             <div className="border-t border-gray-700 pt-3 sm:pt-4">
               <div
                 className={`bg-gray-800 rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
-                  quizData.diet === "nao-sigo" ? "border-2 border-lime-500" : "border border-gray-700"
+                  quizData.diet === "nao-sigo" ? "border-2 border-lime-500 bg-emerald-500/10" : "border border-gray-700"
                 }`}
-                onClick={() => updateQuizData("diet", "nao-sigo")}
+                onClick={() => {
+                  updateQuizData("diet", "nao-sigo")
+                  setTimeout(() => nextStep(), 300)
+                }}
               >
                 <h3 className="text-base sm:text-lg font-bold text-white">Não, não sigo nenhuma dessas dietas</h3>
                 <X className="h-5 w-5 sm:h-6 sm:w-6 text-lime-500" />
@@ -2072,9 +2092,14 @@ export default function QuizPage() {
                 <div
                   key={water.value}
                   className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all border ${
-                    quizData.waterIntake === water.value ? "border-2 border-lime-500" : "border border-gray-700"
+                    quizData.waterIntake === water.value
+                      ? "border-2 border-lime-500 bg-emerald-500/10"
+                      : "border border-gray-700"
                   }`}
-                  onClick={() => updateQuizData("waterIntake", water.value)}
+                  onClick={() => {
+                    updateQuizData("waterIntake", water.value)
+                    setTimeout(() => nextStep(), 300)
+                  }}
                 >
                   <div className="flex items-center space-x-4">
                     <water.icon className="h-6 w-6 text-blue-400" />
@@ -2123,9 +2148,12 @@ export default function QuizPage() {
             <div className="space-y-4">
               <div
                 className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
-                  quizData.allergies === "sim" ? "border-2 border-lime-500" : "border border-gray-700"
+                  quizData.allergies === "sim" ? "border-2 border-lime-500 bg-emerald-500/10" : "border border-gray-700"
                 }`}
-                onClick={() => updateQuizData("allergies", "sim")}
+                onClick={() => {
+                  updateQuizData("allergies", "sim")
+                  setTimeout(() => nextStep(), 300)
+                }}
               >
                 <h3 className="text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
                 <CheckCircle
@@ -2134,9 +2162,12 @@ export default function QuizPage() {
               </div>
               <div
                 className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
-                  quizData.allergies === "nao" ? "border-2 border-lime-500" : "border border-gray-700"
+                  quizData.allergies === "nao" ? "border-2 border-lime-500 bg-emerald-500/10" : "border border-gray-700"
                 }`}
-                onClick={() => updateQuizData("allergies", "nao")}
+                onClick={() => {
+                  updateQuizData("allergies", "nao")
+                  setTimeout(() => nextStep(), 300)
+                }}
               >
                 <h3 className="text-lg font-bold text-white">Não, não possuo alergias ou restrições</h3>
                 <X className={`h-6 w-6 ${quizData.allergies === "nao" ? "text-lime-500" : "text-gray-500"}`} />
@@ -2179,7 +2210,6 @@ export default function QuizPage() {
                   console.log("[v0] Sim button clicked")
                   console.log("[v0] Current wantsSupplement:", quizData.wantsSupplement)
 
-                  // Determine supplement type based on body type, body fat, and problem areas
                   const isEctomorph = quizData.bodyType === "ectomorfo"
                   const hasHighBodyFat = quizData.gender === "mulher" ? quizData.bodyFat > 30 : quizData.bodyFat > 20
                   const hasBellyProblem = quizData.problemAreas.includes("Barriga")
@@ -2189,7 +2219,6 @@ export default function QuizPage() {
                     supplementType = "hipercalorico"
                   }
 
-                  // Update both fields
                   setQuizData((prev) => ({
                     ...prev,
                     wantsSupplement: "sim",
@@ -2198,6 +2227,8 @@ export default function QuizPage() {
 
                   console.log("[v0] Updated wantsSupplement to: sim")
                   console.log("[v0] Updated supplementType to:", supplementType)
+
+                  setTimeout(() => nextStep(), 300)
                 }}
               >
                 <h3 className="text-lg font-bold text-white">Sim, pode adicionar</h3>
@@ -2212,16 +2243,8 @@ export default function QuizPage() {
                 }`}
                 onClick={() => {
                   console.log("[v0] Não button clicked")
-                  console.log("[v0] Current wantsSupplement:", quizData.wantsSupplement)
-
-                  // Update both fields
-                  setQuizData((prev) => ({
-                    ...prev,
-                    wantsSupplement: "nao",
-                    supplementType: "",
-                  }))
-
-                  console.log("[v0] Updated wantsSupplement to: nao")
+                  updateQuizData("wantsSupplement", "nao")
+                  setTimeout(() => nextStep(), 300)
                 }}
               >
                 <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
@@ -2272,25 +2295,27 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
             </div>
             <div className="space-y-6">
-              <Input
-                type="number"
-                placeholder={`Peso alvo, kg`}
-                value={quizData.targetWeight}
-                onChange={(e) => {
-                  updateQuizData("targetWeight", e.target.value)
-                }}
-                onBlur={() => {
-                  // Calcula o tempo ao sair do campo
-                  const calculatedTime = calculateTimeToGoal()
-                  if (calculatedTime) {
-                    updateQuizData("timeToGoal", calculatedTime)
-                  }
-                }}
-                min="1"
-                max="500"
-                step="0.1"
-                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
-              />
+              <div className="border-2 border-gray-700 rounded-2xl p-6 bg-blue-950/30 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500">
+                <Input
+                  type="number"
+                  placeholder={`Peso alvo, kg`}
+                  value={quizData.targetWeight}
+                  onChange={(e) => {
+                    updateQuizData("targetWeight", e.target.value)
+                  }}
+                  onBlur={() => {
+                    // Calcula o tempo ao sair do campo
+                    const calculatedTime = calculateTimeToGoal()
+                    if (calculatedTime) {
+                      updateQuizData("timeToGoal", calculatedTime)
+                    }
+                  }}
+                  min="1"
+                  max="500"
+                  step="0.1"
+                  className="bg-transparent border-0 text-white text-center text-xl placeholder:text-gray-400 focus:outline-none focus:ring-0 w-full"
+                />
+              </div>
             </div>
           </div>
         )
@@ -2317,7 +2342,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Quanto tempo você tem para treinar?</h2>
+              <h2 className="text-3xl font-bold text-white">Qual é o seu tempo de treino?</h2>
             </div>
             <div className="space-y-4 max-w-2xl mx-auto">
               {[
@@ -2333,7 +2358,10 @@ export default function QuizPage() {
                       ? "border-2 border-emerald-500 bg-emerald-500/20"
                       : "border border-gray-600 hover:border-gray-500"
                   }`}
-                  onClick={() => updateQuizData("workoutTime", time.value)}
+                  onClick={() => {
+                    updateQuizData("workoutTime", time.value)
+                    setTimeout(() => nextStep(), 300)
+                  }}
                 >
                   <h3 className="text-lg font-medium text-white text-center">{time.label}</h3>
                 </div>
@@ -2345,34 +2373,39 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-white">Qual é sua experiência com exercícios?</h2>
+              <h2 className="text-3xl font-bold text-white">Tem experiência com treinamento de força?</h2>
             </div>
-            <div className="space-y-4 max-w-2xl mx-auto">
-              {[
-                { value: "iniciante", label: "Iniciante - Nunca treinei" },
-                { value: "basico", label: "Básico - Treino ocasionalmente" },
-                { value: "intermediario", label: "Intermediário - Treino regularmente" },
-                { value: "avancado", label: "Avançado - Treino há anos" },
-              ].map((level) => (
-                <div
-                  key={level.value}
-                  className={`rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
-                    quizData.experience === level.value
-                      ? "bg-emerald-500/20 border-2 border-emerald-500"
-                      : "bg-gray-800/40 border border-gray-600 hover:bg-gray-700/50"
-                  }`}
-                  onClick={() => updateQuizData("experience", level.value)}
-                >
-                  <div
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      quizData.experience === level.value ? "border-white bg-white" : "border-emerald-300"
-                    }`}
-                  >
-                    {quizData.experience === level.value && <div className="w-3 h-3 rounded-full bg-emerald-600" />}
-                  </div>
-                  <h3 className="text-lg font-medium text-white">{level.label}</h3>
-                </div>
-              ))}
+            <div className="space-y-4">
+              <div
+                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
+                  quizData.strengthTraining === "sim"
+                    ? "border-2 border-lime-500 bg-emerald-500/10"
+                    : "border border-gray-700"
+                }`}
+                onClick={() => {
+                  updateQuizData("strengthTraining", "sim")
+                  setTimeout(() => nextStep(), 300)
+                }}
+              >
+                <h3 className="text-lg font-bold text-white">Sim, treino regularmente</h3>
+                <CheckCircle
+                  className={`h-6 w-6 ${quizData.strengthTraining === "sim" ? "text-lime-500" : "text-gray-500"}`}
+                />
+              </div>
+              <div
+                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
+                  quizData.strengthTraining === "nao"
+                    ? "border-2 border-lime-500 bg-emerald-500/10"
+                    : "border border-gray-700"
+                }`}
+                onClick={() => {
+                  updateQuizData("strengthTraining", "nao")
+                  setTimeout(() => nextStep(), 300)
+                }}
+              >
+                <h3 className="text-lg font-bold text-white">Não, sou iniciante</h3>
+                <X className={`h-6 w-6 ${quizData.strengthTraining === "nao" ? "text-lime-500" : "text-gray-500"}`} />
+              </div>
             </div>
           </div>
         )
@@ -2426,10 +2459,13 @@ export default function QuizPage() {
                     key={pref.value}
                     className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
                       quizData.exercisePreferences.cardio === pref.value
-                        ? "border-2 border-lime-500"
+                        ? "border-2 border-lime-500 bg-emerald-500/10"
                         : "border border-gray-700"
                     }`}
-                    onClick={() => updateExercisePreference("cardio", pref.value)}
+                    onClick={() => {
+                      updateExercisePreference("cardio", pref.value)
+                      setTimeout(() => nextStep(), 300)
+                    }}
                   >
                     <pref.icon className={`h-6 w-6 ${pref.color}`} />
                     <h3 className="text-lg font-bold text-white">{pref.label}</h3>
@@ -2457,10 +2493,13 @@ export default function QuizPage() {
                     key={pref.value}
                     className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
                       quizData.exercisePreferences.pullups === pref.value
-                        ? "border-2 border-lime-500"
+                        ? "border-2 border-lime-500 bg-emerald-500/10"
                         : "border border-gray-700"
                     }`}
-                    onClick={() => updateExercisePreference("pullups", pref.value)}
+                    onClick={() => {
+                      updateExercisePreference("pullups", pref.value)
+                      setTimeout(() => nextStep(), 300)
+                    }}
                   >
                     <pref.icon className={`h-6 w-6 ${pref.color}`} />
                     <h3 className="text-lg font-bold text-white">{pref.label}</h3>
@@ -2488,10 +2527,13 @@ export default function QuizPage() {
                     key={pref.value}
                     className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
                       quizData.exercisePreferences.yoga === pref.value
-                        ? "border-2 border-lime-500"
+                        ? "border-2 border-lime-500 bg-emerald-500/10"
                         : "border border-gray-700"
                     }`}
-                    onClick={() => updateExercisePreference("yoga", pref.value)}
+                    onClick={() => {
+                      updateExercisePreference("yoga", pref.value)
+                      setTimeout(() => nextStep(), 300)
+                    }}
                   >
                     <pref.icon className={`h-6 w-6 ${pref.color}`} />
                     <h3 className="text-lg font-bold text-white">{pref.label}</h3>
@@ -2596,7 +2638,7 @@ export default function QuizPage() {
       case 17:
         return quizData.workoutTime !== ""
       case 18:
-        return quizData.experience !== ""
+        return quizData.strengthTraining !== "" // Check strengthTraining
       case 19:
         return quizData.equipment.length > 0
       case 20:
@@ -2640,41 +2682,43 @@ export default function QuizPage() {
           />
         </div>
         <div className="mb-8">{renderStep()}</div>
-        <div className="flex justify-center">
-          {currentStep === totalSteps ? (
-            <Button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl font-bold rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
-            >
-              <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                <span className="relative z-10 flex items-center gap-3">
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="h-6 w-6 animate-spin" />
-                      Processando...
-                    </>
-                  ) : (
-                    <>
-                      Finalizar Avaliação
-                      <Dumbbell className="h-6 w-6" />
-                    </>
-                  )}
-                </span>
-              </div>
-            </Button>
-          ) : (
-            <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
-              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                <span className="relative z-10">Continuar</span>
+        {![1, 3, 7, 9, 11, 13, 17, 18, 20, 21, 22].includes(currentStep) && (
+          <div className="flex justify-center">
+            {currentStep === totalSteps ? (
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl font-bold rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
+              >
+                <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10 flex items-center gap-3">
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                        Processando...
+                      </>
+                    ) : (
+                      <>
+                        Finalizar Avaliação
+                        <Dumbbell className="h-6 w-6" />
+                      </>
+                    )}
+                  </span>
+                </div>
+              </Button>
+            ) : (
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
 
-                {/* Efeito de brilho animado */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            </Button>
-          )}
-        </div>
+                  {/* Efeito de brilho animado */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
