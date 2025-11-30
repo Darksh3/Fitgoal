@@ -225,7 +225,7 @@ export default function QuizPage() {
 
   useEffect(() => {
     if (showWaterCongrats) {
-      setTimeout(() => setWaterFill(92), 200)
+      setTimeout(() => setWaterFill(95), 200)
     } else {
       setWaterFill(0)
     }
@@ -884,7 +884,7 @@ export default function QuizPage() {
             </defs>
             <rect x="40" y="140" width="120" height="8" rx="4" fill="#8B4513" />
             <circle cx="100" cy="60" r="12" fill="url(#bodyGradient4)" />
-            <rect x="85" y="70" width="30" height="35" rx="15" fill="url(#bodyGradient4)" />
+            <rect x="85" y="70" width="30" height={35} rx="15" fill="url(#bodyGradient4)" />
             <ellipse cx="85" cy="85" rx="6" ry="15" fill="url(#bodyGradient4)" transform="rotate(-20 85 85)" />
             <ellipse cx="115" cy="85" rx="6" ry="15" fill="url(#bodyGradient4)" transform="rotate(20 115 85)" />
             <ellipse cx="85" cy="120" rx="12" ry="8" fill="url(#bodyGradient4)" transform="rotate(30 85 120)" />
@@ -1077,7 +1077,7 @@ export default function QuizPage() {
                 setShowTimeCalculation(false)
                 setCurrentStep(currentStep + 1)
               }}
-              className="w-full bg-transparent hover:bg-transparent text-white py-6 text-2xl font-semibold"
+              className="w-full bg-transparent hover:bg-transparent text-white py-8 text-3xl font-semibold min-h-[80px]"
             >
               Entendi
             </Button>
@@ -1259,14 +1259,14 @@ export default function QuizPage() {
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
         <div className="text-center space-y-8 max-w-md">
           <div className="w-32 h-32 mx-auto relative">
-            <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl"></div>
-            <div className="relative w-full h-full rounded-full border-4 border-emerald-500 flex items-center justify-center bg-emerald-500/10">
+            <div className="absolute inset-0 bg-cyan-500/20 rounded-full blur-2xl"></div>
+            <div className="relative w-full h-full rounded-full border-4 border-cyan-500 flex items-center justify-center bg-cyan-500/10">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="3"
-                className="w-16 h-16 text-emerald-500"
+                className="w-16 h-16 text-cyan-500"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
@@ -1275,17 +1275,17 @@ export default function QuizPage() {
 
           <h2 className="text-4xl font-bold">Uau! Impressionante!</h2>
 
-          <p className="text-gray-300 text-lg">Você bebe mais água do que 92% dos usuários do Fitgoal.</p>
+          <p className="text-gray-300 text-lg">Você bebe mais água do que 95% dos usuários do Fitgoal.</p>
 
           <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6">
             <div className="flex flex-col items-center gap-4">
               <h3 className="text-xl font-semibold">Nível de Hidratação</h3>
 
               <div className="relative w-full max-w-[200px]">
-                <div className="relative w-full h-48 rounded-2xl overflow-hidden border border-emerald-400/40 bg-[#0B0F10] shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+                <div className="relative w-full h-48 rounded-2xl overflow-hidden border border-cyan-400/40 bg-[#0B0F10] shadow-[0_0_20px_rgba(34,211,238,0.15)]">
                   {/* Water level animation */}
                   <div
-                    className="absolute bottom-0 left-0 w-full bg-emerald-400/40 transition-all duration-[1800ms] ease-out"
+                    className="absolute bottom-0 left-0 w-full bg-cyan-400/40 transition-all duration-[1800ms] ease-out"
                     style={{
                       height: `${waterFill}%`,
                       clipPath: "url(#waveClip)",
@@ -1315,13 +1315,13 @@ export default function QuizPage() {
 
                   {/* Glow line on water surface */}
                   <div
-                    className="absolute w-full h-1 bg-emerald-300/60 shadow-[0_0_12px_rgba(16,185,129,0.8)] transition-all duration-[1800ms]"
+                    className="absolute w-full h-1 bg-cyan-300/60 shadow-[0_0_12px_rgba(34,211,238,0.8)] transition-all duration-[1800ms]"
                     style={{ bottom: `${waterFill}%` }}
                   />
                 </div>
 
                 {/* Percentage display */}
-                <div className="text-center text-3xl mt-3 text-emerald-300 font-bold drop-shadow-[0_0_10px_rgba(16,185,129,0.9)]">
+                <div className="text-center text-3xl mt-3 text-cyan-300 font-bold drop-shadow-[0_0_10px_rgba(34,211,238,0.9)]">
                   {waterFill}%
                 </div>
               </div>
@@ -1337,7 +1337,7 @@ export default function QuizPage() {
               setShowWaterCongrats(false)
               setCurrentStep(currentStep + 1)
             }}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 px-8 rounded-2xl transition-colors text-lg"
+            className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-4 px-8 rounded-2xl transition-colors text-lg"
           >
             Continuar
           </button>
@@ -2290,7 +2290,7 @@ export default function QuizPage() {
                     const normalized = normalizeHeight(e.target.value)
                     updateQuizData("height", normalized)
                   }}
-                  className="bg-transparent border-0 text-white placeholder:text-gray-400 text-center text-xl focus:outline-none"
+                  className="bg-transparent border-0 text-white text-center text-xl focus:outline-none [&::placeholder]:text-gray-400"
                 />
               </div>
             </div>
@@ -2442,7 +2442,7 @@ export default function QuizPage() {
                   placeholder={`Peso atual, kg`}
                   value={quizData.currentWeight}
                   onChange={(e) => updateQuizData("currentWeight", e.target.value)}
-                  className="bg-transparent border-0 text-white placeholder:text-gray-400 text-center text-xl focus:outline-none"
+                  className="bg-transparent border-0 text-white text-center text-xl focus:outline-none [&::placeholder]:text-gray-400"
                 />
               </div>
             </div>
@@ -2473,7 +2473,7 @@ export default function QuizPage() {
                   min="1"
                   max="500"
                   step="0.1"
-                  className="bg-transparent border-0 text-white text-center text-xl placeholder:text-gray-400 focus:outline-none focus:ring-0 w-full"
+                  className="bg-transparent border-0 text-white text-center text-xl focus:outline-none focus:ring-0 w-full [&::placeholder]:text-gray-400"
                 />
               </div>
             </div>
@@ -2492,7 +2492,7 @@ export default function QuizPage() {
                   placeholder="Digite seu nome"
                   value={quizData.name}
                   onChange={(e) => updateQuizData("name", e.target.value)}
-                  className="bg-transparent border-0 text-white placeholder:text-gray-400 text-center text-xl focus:outline-none"
+                  className="bg-transparent border-0 text-white text-center text-xl focus:outline-none [&::placeholder]:text-gray-400"
                 />
               </div>
             </div>
@@ -2750,7 +2750,7 @@ export default function QuizPage() {
                   placeholder="seu@email.com"
                   value={quizData.email}
                   onChange={(e) => updateQuizData("email", e.target.value)}
-                  className="bg-transparent border-0 text-white placeholder:text-gray-400 text-center text-xl focus:outline-none"
+                  className="bg-transparent border-0 text-white text-center text-xl focus:outline-none [&::placeholder]:text-gray-400"
                 />
               </div>
             </div>
