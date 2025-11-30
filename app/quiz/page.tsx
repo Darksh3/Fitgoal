@@ -938,8 +938,25 @@ export default function QuizPage() {
     const isGaining = target > current
 
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-8 max-w-2xl">
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6 relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 bg-lime-400/40 rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                bottom: "-10px",
+                animation: `floatUp ${8 + Math.random() * 8}s linear infinite`,
+                animationDelay: `${Math.random() * 5}s`,
+                opacity: Math.random() * 0.5 + 0.3,
+              }}
+            />
+          ))}
+        </div>
+        {/* </CHANGE> */}
+
+        <div className="text-center space-y-8 max-w-2xl relative z-10">
           <h2 className="text-3xl md:text-4xl font-bold leading-tight">
             O último plano de que você precisará para <span className="text-lime-400">finalmente entrar em forma</span>
           </h2>
@@ -1055,7 +1072,6 @@ export default function QuizPage() {
               Entendi
             </Button>
           </div>
-          {/* </CHANGE> */}
 
           <style>{`
             @keyframes madDraw {
@@ -1065,8 +1081,23 @@ export default function QuizPage() {
               from { height: 0%; }
               to { height: 100%; }
             }
+            @keyframes floatUp {
+              0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+              }
+              10% {
+                opacity: 1;
+              }
+              90% {
+                opacity: 1;
+              }
+              100% {
+                transform: translateY(-100vh) translateX(${Math.random() * 40 - 20}px);
+                opacity: 0;
+              }
+            }
           `}</style>
-          {/* </CHANGE> */}
         </div>
       </div>
     )
@@ -1450,7 +1481,9 @@ export default function QuizPage() {
                 <div
                   key={goal.value}
                   className={`bg-gray-800 rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
-                    quizData.goal.includes(goal.value) ? "border-2 border-lime-500" : "border border-gray-700"
+                    quizData.goal.includes(goal.value)
+                      ? "border-2 border-lime-500 bg-emerald-500/10"
+                      : "border border-gray-700"
                   }`}
                   onClick={() => handleArrayUpdate("goal", goal.value, !quizData.goal.includes(goal.value))}
                 >
@@ -1535,7 +1568,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual área você quer focar mais?</h2>
+              <h2 className="text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
               <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="flex items-start justify-center space-x-8">
@@ -2185,7 +2218,7 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">Qual é sua altura?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-gray-700 rounded-lg p-4 bg-blue-900/20 focus-within:border-lime-500 transition-colors">
+              <div className="border-2 border-gray-700 rounded-lg p-4 bg-gray-800 focus-within:border-lime-500 transition-colors">
                 <Input
                   type="text"
                   placeholder={`Altura em metros (ex: 1.75 ou 1,75)`}
@@ -2198,7 +2231,7 @@ export default function QuizPage() {
                     const normalized = normalizeHeight(e.target.value)
                     updateQuizData("height", normalized)
                   }}
-                  className="bg-transparent border-0 text-white placeholder:text-gray-400 text-center text-xl focus:outline-none"
+                  className="bg-transparent border-0 text-gray-400 placeholder:text-gray-400 text-center text-xl focus:outline-none"
                 />
               </div>
             </div>
@@ -2344,7 +2377,7 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">Qual é o seu peso atual?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-gray-700 rounded-lg p-4 bg-blue-900/20 focus-within:border-lime-500 transition-colors">
+              <div className="border-2 border-gray-700 rounded-lg p-4 bg-gray-800 focus-within:border-lime-500 transition-colors">
                 <Input
                   type="number"
                   placeholder={`Peso atual, kg`}
@@ -2394,7 +2427,7 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">Qual é o seu nome?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-gray-700 rounded-lg p-4 bg-blue-900/20 focus-within:border-lime-500 transition-colors">
+              <div className="border-2 border-gray-700 rounded-lg p-4 bg-gray-800 focus-within:border-lime-500 transition-colors">
                 <Input
                   type="text"
                   placeholder="Digite seu nome"
@@ -2423,7 +2456,7 @@ export default function QuizPage() {
                   key={time.value}
                   className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-center ${
                     quizData.workoutTime === time.value
-                      ? "border-2 border-emerald-500 bg-emerald-500/20"
+                      ? "border-2 border-lime-500 bg-emerald-500/10"
                       : "border border-gray-600 hover:border-gray-500"
                   }`}
                   onClick={() => {
@@ -2652,13 +2685,13 @@ export default function QuizPage() {
               <p className="text-gray-400">Para receber seu plano personalizado</p>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-gray-700 rounded-lg p-4 bg-blue-900/20 focus-within:border-lime-500 transition-colors">
+              <div className="border-2 border-gray-700 rounded-lg p-4 bg-gray-800 focus-within:border-lime-500 transition-colors">
                 <Input
                   type="email"
                   placeholder="seu@email.com"
                   value={quizData.email}
                   onChange={(e) => updateQuizData("email", e.target.value)}
-                  className="bg-transparent border-0 text-white placeholder:text-gray-400 text-center text-xl focus:outline-none"
+                  className="bg-transparent border-0 text-gray-400 placeholder:text-gray-400 text-center text-xl focus:outline-none"
                 />
               </div>
             </div>
