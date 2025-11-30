@@ -191,7 +191,6 @@ export default function QuizPage() {
     leg_upper_left: { top: 54, left: 34, width: 11, height: 14, rotate: -2 },
     leg_lower_left: { top: 73, left: 42, width: 5, height: 9, rotate: -17 },
     leg_upper_right: { top: 53, right: 39, width: 11, height: 13, rotate: 11 },
-    leg_lower_right: { top: 72, right: 44, width: 6, height: 13, rotate: 12 },
     // Masculine markings
     m_chest_left: { top: 21, left: 34, width: 21, height: 11, rotate: -90 },
     m_chest_right: { top: 21, right: 32, width: 21, height: 11, rotate: -89 },
@@ -968,7 +967,6 @@ export default function QuizPage() {
                 {target} kg
               </div>
 
-              {/* Animated Chart SVG */}
               <svg viewBox="0 0 300 200" className="w-full h-auto relative z-10">
                 <defs>
                   <filter id="limeGlow">
@@ -980,7 +978,7 @@ export default function QuizPage() {
                   </linearGradient>
                 </defs>
 
-                {/* Animated line */}
+                {/* Animated line - slowed down to 2.5s */}
                 <polyline
                   stroke="url(#progressGradient)"
                   strokeWidth="4"
@@ -989,7 +987,7 @@ export default function QuizPage() {
                   strokeDasharray="450"
                   strokeDashoffset="450"
                   style={{
-                    animation: "madDraw 1.1s ease forwards",
+                    animation: "madDraw 2.5s ease forwards",
                   }}
                   points={
                     isGaining
@@ -998,36 +996,27 @@ export default function QuizPage() {
                   }
                 />
 
-                {/* Animated points */}
+                {/* Fixed points - no animation */}
                 {(isGaining
                   ? [
-                      [70, 140, 0.25],
-                      [130, 120, 0.35],
-                      [180, 100, 0.45],
-                      [230, 75, 0.55],
-                      [280, 55, 0.65],
+                      [70, 140],
+                      [130, 120],
+                      [180, 100],
+                      [230, 75],
+                      [280, 55],
                     ]
                   : [
-                      [70, 75, 0.25],
-                      [130, 100, 0.35],
-                      [180, 120, 0.45],
-                      [230, 140, 0.55],
-                      [280, 150, 0.65],
+                      [70, 75],
+                      [130, 100],
+                      [180, 120],
+                      [230, 140],
+                      [280, 150],
                     ]
-                ).map(([cx, cy, delay], i) => (
-                  <circle
-                    key={i}
-                    cx={cx}
-                    cy={cy}
-                    r="6"
-                    fill="#84cc16"
-                    filter="url(#limeGlow)"
-                    style={{
-                      animation: `madPulse 1.4s ease-in-out ${delay}s infinite`,
-                    }}
-                  />
+                ).map(([cx, cy], i) => (
+                  <circle key={i} cx={cx} cy={cy} r="6" fill="#84cc16" filter="url(#limeGlow)" />
                 ))}
               </svg>
+              {/* </CHANGE> */}
 
               {/* Side bars */}
               <div className="absolute left-0 top-5 bottom-5 w-[4px] bg-lime-500/15 rounded-full overflow-hidden">
@@ -1049,32 +1038,28 @@ export default function QuizPage() {
               </div>
             </div>
           </div>
-          {/* </CHANGE> */}
 
           <div className="flex justify-between text-base text-gray-400">
             <span>{getCurrentDate()}</span>
             <span>{quizData.timeToGoal}</span>
           </div>
 
-          <div className="bg-lime-500 hover:bg-lime-600 transition-colors rounded-full p-1 max-w-xs mx-auto">
+          <div className="bg-lime-500 hover:bg-lime-600 transition-colors rounded-full p-1 max-w-md mx-auto">
             <Button
               onClick={() => {
                 setShowTimeCalculation(false)
                 setCurrentStep(currentStep + 1)
               }}
-              className="w-full bg-transparent hover:bg-transparent text-white py-8 text-xl font-semibold"
+              className="w-full bg-transparent hover:bg-transparent text-white py-6 text-2xl font-semibold"
             >
               Entendi
             </Button>
           </div>
+          {/* </CHANGE> */}
 
           <style>{`
             @keyframes madDraw {
               to { stroke-dashoffset: 0; }
-            }
-            @keyframes madPulse {
-              0%,100% { transform: scale(1); opacity: 1; }
-              50% { transform: scale(1.15); opacity: .75; }
             }
             @keyframes madBar {
               from { height: 0%; }
@@ -2246,7 +2231,7 @@ export default function QuizPage() {
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
-                  setTimeout(() => nextStep(), 300)
+                  setCurrentStep(13)
                 }}
               >
                 <h3 className="text-lg font-bold text-white">Não, não possuo alergias ou restrições</h3>
@@ -2256,6 +2241,9 @@ export default function QuizPage() {
           </div>
         )
       case 12:
+        if (quizData.allergies !== "sim") {
+          return null
+        }
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2706,7 +2694,8 @@ export default function QuizPage() {
       case 11:
         return quizData.allergies !== ""
       case 12:
-        return quizData.allergyDetails.trim() !== ""
+        // If user has allergies, they must provide details. If not, this step is skipped.
+        return quizData.allergies === "nao" || (quizData.allergies === "sim" && quizData.allergyDetails.trim() !== "")
       case 13:
         return quizData.wantsSupplement !== ""
       case 14:
