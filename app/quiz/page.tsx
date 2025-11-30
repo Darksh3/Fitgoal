@@ -987,13 +987,13 @@ export default function QuizPage() {
             <span>{quizData.timeToGoal}</span>
           </div>
 
-          <div className="bg-blue-600 hover:bg-blue-700 transition-colors rounded-full p-1 max-w-xs mx-auto">
+          <div className="bg-lime-500 hover:bg-lime-600 transition-colors rounded-full p-1 max-w-xs mx-auto">
             <Button
               onClick={() => {
                 setShowTimeCalculation(false)
                 setCurrentStep(currentStep + 1)
               }}
-              className="w-full bg-transparent hover:bg-transparent text-white py-6 text-xl font-semibold"
+              className="w-full bg-transparent hover:bg-transparent text-white py-8 text-xl font-semibold"
             >
               Entendi
             </Button>
@@ -1952,8 +1952,8 @@ export default function QuizPage() {
                     key={area}
                     className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
                       quizData.problemAreas.includes(area)
-                        ? "bg-orange-500 border-orange-500 text-white"
-                        : "bg-gray-800 border-gray-700 text-white hover:border-orange-500"
+                        ? "bg-emerald-500 border-emerald-500 text-white"
+                        : "bg-gray-800 border-gray-700 text-white hover:border-emerald-500"
                     }`}
                     onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
                   >
@@ -1964,7 +1964,7 @@ export default function QuizPage() {
                           quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-gray-400"
                         }`}
                       >
-                        {quizData.problemAreas.includes(area) && <CheckCircle className="h-4 w-4 text-orange-500" />}
+                        {quizData.problemAreas.includes(area) && <CheckCircle className="h-4 w-4 text-emerald-500" />}
                       </div>
                     </div>
                   </div>
@@ -2088,11 +2088,11 @@ export default function QuizPage() {
       case 10:
         return (
           <div className="space-y-8">
-            <div className="text-center">
-              <div className="mb-6">
-                <h2 className="text-3xl font-bold text-white">Qual é sua altura?</h2>
-              </div>
-              <div className="space-y-6">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold text-white">Qual é sua altura?</h2>
+            </div>
+            <div className="space-y-6">
+              <div className="border-2 border-lime-500 rounded-lg p-4 bg-blue-900/20">
                 <Input
                   type="text"
                   placeholder={`Altura em metros (ex: 1.75 ou 1,75)`}
@@ -2250,13 +2250,15 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">Qual é o seu peso atual?</h2>
             </div>
             <div className="space-y-6">
-              <Input
-                type="number"
-                placeholder={`Peso atual, kg`}
-                value={quizData.currentWeight}
-                onChange={(e) => updateQuizData("currentWeight", e.target.value)}
-                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
-              />
+              <div className="border-2 border-lime-500 rounded-lg p-4 bg-blue-900/20">
+                <Input
+                  type="number"
+                  placeholder={`Peso atual, kg`}
+                  value={quizData.currentWeight}
+                  onChange={(e) => updateQuizData("currentWeight", e.target.value)}
+                  className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+                />
+              </div>
             </div>
           </div>
         )
@@ -2296,13 +2298,15 @@ export default function QuizPage() {
               <h2 className="text-3xl font-bold text-white">Qual é o seu nome?</h2>
             </div>
             <div className="space-y-6">
-              <Input
-                type="text"
-                placeholder="Digite seu nome"
-                value={quizData.name}
-                onChange={(e) => updateQuizData("name", e.target.value)}
-                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
-              />
+              <div className="border-2 border-lime-500 rounded-lg p-4 bg-blue-900/20">
+                <Input
+                  type="text"
+                  placeholder="Digite seu nome"
+                  value={quizData.name}
+                  onChange={(e) => updateQuizData("name", e.target.value)}
+                  className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+                />
+              </div>
             </div>
           </div>
         )
@@ -2323,7 +2327,7 @@ export default function QuizPage() {
                   key={time.value}
                   className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-center ${
                     quizData.workoutTime === time.value
-                      ? "border-lime-500 bg-lime-500/10"
+                      ? "border-2 border-emerald-500 bg-emerald-500/20"
                       : "border border-gray-600 hover:border-gray-500"
                   }`}
                   onClick={() => updateQuizData("workoutTime", time.value)}
@@ -2351,17 +2355,17 @@ export default function QuizPage() {
                   key={level.value}
                   className={`rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
                     quizData.experience === level.value
-                      ? "bg-teal-600/80 border border-teal-500"
-                      : "bg-teal-800/40 border border-teal-700/50 hover:bg-teal-700/50"
+                      ? "bg-emerald-500/20 border-2 border-emerald-500"
+                      : "bg-gray-800/40 border border-gray-600 hover:bg-gray-700/50"
                   }`}
                   onClick={() => updateQuizData("experience", level.value)}
                 >
                   <div
                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      quizData.experience === level.value ? "border-white bg-white" : "border-teal-300"
+                      quizData.experience === level.value ? "border-white bg-white" : "border-emerald-300"
                     }`}
                   >
-                    {quizData.experience === level.value && <div className="w-3 h-3 rounded-full bg-teal-600" />}
+                    {quizData.experience === level.value && <div className="w-3 h-3 rounded-full bg-emerald-600" />}
                   </div>
                   <h3 className="text-lg font-medium text-white">{level.label}</h3>
                 </div>
@@ -2534,13 +2538,15 @@ export default function QuizPage() {
               <p className="text-gray-300">Para receber seu plano personalizado</p>
             </div>
             <div className="space-y-6">
-              <Input
-                type="email"
-                placeholder="seu@email.com"
-                value={quizData.email}
-                onChange={(e) => updateQuizData("email", e.target.value)}
-                className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
-              />
+              <div className="border-2 border-lime-500 rounded-lg p-4 bg-blue-900/20">
+                <Input
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={quizData.email}
+                  onChange={(e) => updateQuizData("email", e.target.value)}
+                  className="bg-transparent border-0 border-b-2 border-gray-600 text-white text-center text-xl rounded-none focus:border-lime-500"
+                />
+              </div>
             </div>
           </div>
         )
