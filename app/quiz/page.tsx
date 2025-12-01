@@ -1551,7 +1551,7 @@ export default function QuizPage() {
                 { value: "perder-peso", label: "Perder peso e queimar gordura" },
                 { value: "ganhar-massa", label: "Ganhar massa muscular e definir o corpo" },
                 { value: "melhorar-saude", label: "Melhorar minha saúde, disposição e bem-estar" },
-                { value: "aumentar-resistencia", label: "Aumentar a minha resistência física e condicionamento" },
+                { value: "aumentar-resistencia", label: "Aumentar a minha resistência física" },
               ].map((goal) => (
                 <div
                   key={goal.value}
@@ -1659,7 +1659,7 @@ export default function QuizPage() {
 
                 {/* MASCULINE PROBLEM AREAS */}
                 {quizData.gender !== "mulher" &&
-                  (quizData.problemAreas.includes("Peito") || quizData.problemAreas.includes("Corpo inteiro")) && (
+                  (quizData.problemAreas.includes("Peito") || quizData.problemAreas.includes("Tudo")) && (
                     <>
                       {/* Peitoral esquerdo */}
                       <div
@@ -1691,7 +1691,7 @@ export default function QuizPage() {
                   )}
 
                 {quizData.gender !== "mulher" &&
-                  (quizData.problemAreas.includes("Braços") || quizData.problemAreas.includes("Corpo inteiro")) && (
+                  (quizData.problemAreas.includes("Braços") || quizData.problemAreas.includes("Tudo")) && (
                     <>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
@@ -1745,7 +1745,7 @@ export default function QuizPage() {
                   )}
 
                 {quizData.gender !== "mulher" &&
-                  (quizData.problemAreas.includes("Barriga") || quizData.problemAreas.includes("Corpo inteiro")) && (
+                  (quizData.problemAreas.includes("Barriga") || quizData.problemAreas.includes("Tudo")) && (
                     <>
                       {/* Abdômen superior esquerdo */}
                       <div
@@ -1823,7 +1823,7 @@ export default function QuizPage() {
                   )}
 
                 {quizData.gender !== "mulher" &&
-                  (quizData.problemAreas.includes("Pernas") || quizData.problemAreas.includes("Corpo inteiro")) && (
+                  (quizData.problemAreas.includes("Pernas") || quizData.problemAreas.includes("Tudo")) && (
                     <>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
@@ -1878,7 +1878,7 @@ export default function QuizPage() {
 
                 {/* FEMININE PROBLEM AREAS */}
                 {quizData.gender === "mulher" &&
-                  (quizData.problemAreas.includes("Peito") || quizData.problemAreas.includes("Corpo inteiro")) && (
+                  (quizData.problemAreas.includes("Peito") || quizData.problemAreas.includes("Tudo")) && (
                     <>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
@@ -1908,7 +1908,7 @@ export default function QuizPage() {
                   )}
 
                 {quizData.gender === "mulher" &&
-                  (quizData.problemAreas.includes("Braços") || quizData.problemAreas.includes("Corpo inteiro")) && (
+                  (quizData.problemAreas.includes("Braços") || quizData.problemAreas.includes("Tudo")) && (
                     <>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
@@ -1962,7 +1962,7 @@ export default function QuizPage() {
                   )}
 
                 {quizData.gender === "mulher" &&
-                  (quizData.problemAreas.includes("Barriga") || quizData.problemAreas.includes("Corpo inteiro")) && (
+                  (quizData.problemAreas.includes("Barriga") || quizData.problemAreas.includes("Tudo")) && (
                     <div
                       className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                       style={{
@@ -1978,7 +1978,7 @@ export default function QuizPage() {
                   )}
 
                 {quizData.gender === "mulher" &&
-                  (quizData.problemAreas.includes("Pernas") || quizData.problemAreas.includes("Corpo inteiro")) && (
+                  (quizData.problemAreas.includes("Pernas") || quizData.problemAreas.includes("Tudo")) && (
                     <>
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
@@ -2137,7 +2137,7 @@ export default function QuizPage() {
               )}
 
               <div className="flex flex-col space-y-4 max-w-md">
-                {["Peito", "Braços", "Barriga", "Pernas", "Corpo inteiro"].map((area) => (
+                {["Peito", "Braços", "Barriga", "Pernas", "Tudo"].map((area) => (
                   <div
                     key={area}
                     className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
@@ -2209,7 +2209,7 @@ export default function QuizPage() {
                   setTimeout(() => nextStep(), 300)
                 }}
               >
-                <h3 className="text-base sm:text-lg font-bold text-white">Não, não sigo nenhuma dessas dietas</h3>
+                <h3 className="text-base sm:text-lg font-bold text-white">Não, não sigo dieta</h3>
                 <X className="h-5 w-5 sm:h-6 sm:w-6 text-lime-500" />
               </div>
             </div>
@@ -2310,9 +2310,9 @@ export default function QuizPage() {
                     const normalized = normalizeHeight(e.target.value)
                     updateQuizData("height", normalized)
                   }}
-                  className="bg-transparent border-0 text-white text-center text-6xl focus:outline-none [&::placeholder]:text-gray-400 placeholder:text-xl flex-1"
+                  className="bg-transparent border-0 text-white text-center text-7xl focus:outline-none [&::placeholder]:text-gray-400 placeholder:text-xl flex-1"
                 />
-                <span className="text-gray-400 text-3xl ml-4">cm</span>
+                <span className="text-gray-400 text-7xl ml-2">cm</span>
               </div>
             </div>
           </div>
@@ -2347,7 +2347,7 @@ export default function QuizPage() {
                   setCurrentStep(13)
                 }}
               >
-                <h3 className="text-lg font-bold text-white">Não, não possuo alergias ou restrições</h3>
+                <h3 className="text-lg font-bold text-white">Não possuo alergias ou restrições</h3>
                 <X className={`h-6 w-6 ${quizData.allergies === "nao" ? "text-lime-500" : "text-gray-500"}`} />
               </div>
             </div>
@@ -2428,8 +2428,10 @@ export default function QuizPage() {
                   setTimeout(() => nextStep(), 300)
                 }}
               >
-                <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
-                <X className={`h-6 w-6 ${quizData.wantsSupplement === "nao" ? "text-lime-500" : "text-gray-500"}`} />
+                <h3 className="text-lg font-bold text-white text-left">Não, prefiro sem suplementos</h3>
+                <X
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "nao" ? "text-lime-500" : "text-gray-500"}`}
+                />
               </button>
             </div>
             {/* </CHANGE> */}
@@ -2448,8 +2450,6 @@ export default function QuizPage() {
             )}
           </div>
         )
-      // </CHANGE>
-
       case 14:
         return (
           <div className="space-y-8">
@@ -2467,10 +2467,10 @@ export default function QuizPage() {
                     min="1"
                     max="500"
                     step="0.1"
-                    className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
+                    className="bg-transparent border-0 text-white text-center text-7xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
                   />
                 </div>
-                <span className="text-gray-400 text-2xl font-medium ml-4">kg</span>
+                <span className="text-gray-400 text-7xl font-bold ml-2">kg</span>
               </div>
             </div>
           </div>
@@ -2501,10 +2501,10 @@ export default function QuizPage() {
                     min="1"
                     max="500"
                     step="0.1"
-                    className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
+                    className="bg-transparent border-0 text-white text-center text-7xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
                   />
                 </div>
-                <span className="text-gray-400 text-2xl font-medium ml-4">kg</span>
+                <span className="text-gray-400 text-7xl font-bold ml-2">kg</span>
               </div>
             </div>
           </div>
@@ -2516,7 +2516,7 @@ export default function QuizPage() {
               <h2 className="text-2xl font-bold text-white">Qual é o seu nome?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors">
+              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors flex items-center justify-center relative">
                 <Input
                   type="text"
                   placeholder="Digite seu nome"
@@ -2610,10 +2610,6 @@ export default function QuizPage() {
               {[
                 { value: "academia", label: "Academia completa", icon: "🏋️" },
                 { value: "halteres", label: "Halteres", icon: "🏋️‍♀️" },
-                { value: "barras", label: "Barras para exercícios", icon: "🤸" },
-                { value: "elasticos", label: "Elásticos/Faixas", icon: "🎯" },
-                { value: "esteira", label: "Esteira", icon: "🏃" },
-                { value: "bicicleta", label: "Bicicleta ergométrica", icon: "🚴" },
                 { value: "nenhum", label: "Apenas peso corporal", icon: "🤲" },
               ].map((equipment) => (
                 <div key={equipment.value} className="flex items-center space-x-3">
