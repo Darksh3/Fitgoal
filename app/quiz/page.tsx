@@ -981,10 +981,12 @@ export default function QuizPage() {
           </div>
 
           <div className="relative w-full max-w-md mx-auto">
-            <div className="relative rounded-xl p-5 border border-lime-500/30 bg-[#0B0F10] shadow-[0_0_20px_rgba(132,204,22,0.15)]">
+            <div
+              className={`relative rounded-xl p-5 border border-lime-500/30 bg-[#0B0F10] shadow-[0_0_20px_rgba(132,204,22,0.15)]`}
+            >
               {/* Weight labels */}
               <div
-                className={`absolute ${isGaining ? "bottom-6 left-6" : "top-6 left-6"} bg-gray-700/80 px-4 py-2 rounded-lg text-base font-medium z-20`}
+                className={`absolute ${isGaining ? "bottom-6 left-6" : "top-6 left-6"} bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg text-base font-medium z-20`}
               >
                 {current} kg
               </div>
@@ -1425,7 +1427,7 @@ export default function QuizPage() {
                   className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-6 transition-all cursor-pointer flex flex-col items-center justify-center gap-3 sm:gap-4 ${
                     quizData.gender === gender.value
                       ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-gray-700/50"
+                      : "border border-white/10"
                   }`}
                 >
                   <img
@@ -1452,7 +1454,7 @@ export default function QuizPage() {
                 max="80"
                 value={quizData.age || ""}
                 onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
-                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-lime-500 focus:outline-none"
+                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white focus:border-lime-500 focus:outline-none"
                 placeholder="Digite sua idade"
               />
             </div>
@@ -1485,10 +1487,10 @@ export default function QuizPage() {
               ].map((type) => (
                 <div
                   key={type.value}
-                  className={`bg-gray-800 rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
+                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
                     quizData.bodyType === type.value
                       ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-gray-700"
+                      : "border border-white/10"
                   }`}
                   onClick={() => {
                     updateQuizData("bodyType", type.value)
@@ -1544,10 +1546,10 @@ export default function QuizPage() {
               ].map((goal) => (
                 <div
                   key={goal.value}
-                  className={`bg-gray-800 rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
+                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
                     quizData.goal.includes(goal.value)
                       ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-gray-700"
+                      : "border border-white/10"
                   }`}
                   onClick={() => handleArrayUpdate("goal", goal.value, !quizData.goal.includes(goal.value))}
                 >
@@ -2132,7 +2134,7 @@ export default function QuizPage() {
                     className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
                       quizData.problemAreas.includes(area)
                         ? "bg-emerald-500 border-emerald-500 text-white"
-                        : "bg-gray-800 border-gray-700 text-white hover:border-emerald-500"
+                        : "bg-white/5 backdrop-blur-sm border-white/10 text-white hover:border-emerald-500"
                     }`}
                     onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
                   >
@@ -2172,8 +2174,8 @@ export default function QuizPage() {
               ].map((diet) => (
                 <div
                   key={diet.value}
-                  className={`bg-gray-800 rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                    quizData.diet === diet.value ? "border-2 border-lime-500 bg-lime-500/10" : "border border-gray-700"
+                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
+                    quizData.diet === diet.value ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
                   }`}
                   onClick={() => {
                     updateQuizData("diet", diet.value)
@@ -2190,8 +2192,8 @@ export default function QuizPage() {
             </div>
             <div className="border-t border-gray-700 pt-3 sm:pt-4">
               <div
-                className={`bg-gray-800 rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
-                  quizData.diet === "nao-sigo" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-gray-700"
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all ${
+                  quizData.diet === "nao-sigo" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
                 }`}
                 onClick={() => {
                   updateQuizData("diet", "nao-sigo")
@@ -2251,10 +2253,10 @@ export default function QuizPage() {
               ].map((water) => (
                 <div
                   key={water.value}
-                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all border ${
+                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
                     quizData.waterIntake === water.value
                       ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-gray-700"
+                      : "border border-white/10"
                   }`}
                   onClick={() => {
                     updateQuizData("waterIntake", water.value)
@@ -2286,7 +2288,7 @@ export default function QuizPage() {
               <h2 className="text-2xl font-bold text-white">Qual é sua altura?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-gray-700 rounded-lg p-4 bg-gray-800 focus-within:border-lime-500 transition-colors">
+              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors">
                 <Input
                   type="text"
                   placeholder={`Altura em metros (ex: 1.75 ou 1,75)`}
@@ -2313,8 +2315,8 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
-                  quizData.allergies === "sim" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-gray-700"
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all ${
+                  quizData.allergies === "sim" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "sim")
@@ -2327,8 +2329,8 @@ export default function QuizPage() {
                 />
               </div>
               <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
-                  quizData.allergies === "nao" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-gray-700"
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all ${
+                  quizData.allergies === "nao" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
@@ -2356,7 +2358,7 @@ export default function QuizPage() {
                 placeholder="Ex: Alergia a amendoim, intolerância à lactose, não como carne vermelha..."
                 value={quizData.allergyDetails}
                 onChange={(e) => updateQuizData("allergyDetails", e.target.value)}
-                className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 min-h-32"
+                className="bg-white/5 backdrop-blur-sm border-white/20 text-white placeholder-gray-400 min-h-32"
               />
             </div>
           </div>
@@ -2372,8 +2374,8 @@ export default function QuizPage() {
             <div className="space-y-4">
               <button
                 type="button"
-                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
-                  quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500/10" : "border-gray-700"
+                className={`w-full bg-white/5 backdrop-blur-sm rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
+                  quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
                 }`}
                 onClick={() => {
                   console.log("[v0] Sim button clicked")
@@ -2407,8 +2409,8 @@ export default function QuizPage() {
               </button>
               <button
                 type="button"
-                className={`w-full bg-gray-800 rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
-                  quizData.wantsSupplement === "nao" ? "border-lime-500 bg-lime-500/10" : "border-gray-700"
+                className={`w-full bg-white/5 backdrop-blur-sm rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
+                  quizData.wantsSupplement === "nao" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
                 }`}
                 onClick={() => {
                   console.log("[v0] Não button clicked")
@@ -2445,7 +2447,7 @@ export default function QuizPage() {
               <h2 className="text-2xl font-bold text-white">Qual é o seu peso atual?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-gray-700 rounded-lg p-4 bg-gray-800 focus-within:border-lime-500 transition-colors">
+              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors">
                 <Input
                   type="number"
                   placeholder={`Peso atual, kg`}
@@ -2464,7 +2466,7 @@ export default function QuizPage() {
               <h2 className="text-2xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-gray-700 rounded-2xl p-6 bg-gray-800 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500">
+              <div className="border-2 border-white/10 rounded-2xl p-6 bg-white/5 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500">
                 <Input
                   type="number"
                   placeholder={`Peso alvo, kg`}
@@ -2495,7 +2497,7 @@ export default function QuizPage() {
               <h2 className="text-2xl font-bold text-white">Qual é o seu nome?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-gray-700 rounded-lg p-4 bg-gray-800 focus-within:border-lime-500 transition-colors">
+              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors">
                 <Input
                   type="text"
                   placeholder="Digite seu nome"
@@ -2522,10 +2524,10 @@ export default function QuizPage() {
               ].map((time) => (
                 <div
                   key={time.value}
-                  className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center justify-center ${
+                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center justify-center ${
                     quizData.workoutTime === time.value
                       ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-gray-600 hover:border-gray-500"
+                      : "border border-white/10 hover:border-gray-500"
                   }`}
                   onClick={() => {
                     updateQuizData("workoutTime", time.value)
@@ -2546,10 +2548,10 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all ${
                   quizData.strengthTraining === "sim"
                     ? "border-2 border-lime-500 bg-lime-500/10"
-                    : "border border-gray-700"
+                    : "border border-white/10"
                 }`}
                 onClick={() => {
                   updateQuizData("strengthTraining", "sim")
@@ -2562,10 +2564,10 @@ export default function QuizPage() {
                 />
               </div>
               <div
-                className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all ${
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all ${
                   quizData.strengthTraining === "nao"
                     ? "border-2 border-lime-500 bg-lime-500/10"
-                    : "border border-gray-700"
+                    : "border border-white/10"
                 }`}
                 onClick={() => {
                   updateQuizData("strengthTraining", "nao")
@@ -2626,10 +2628,10 @@ export default function QuizPage() {
                 ].map((pref) => (
                   <div
                     key={pref.value}
-                    className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
+                    className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
                       quizData.exercisePreferences.cardio === pref.value
                         ? "border-2 border-lime-500 bg-lime-500/10"
-                        : "border border-gray-700"
+                        : "border border-white/10"
                     }`}
                     onClick={() => {
                       updateExercisePreference("cardio", pref.value)
@@ -2660,10 +2662,10 @@ export default function QuizPage() {
                 ].map((pref) => (
                   <div
                     key={pref.value}
-                    className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
+                    className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
                       quizData.exercisePreferences.pullups === pref.value
                         ? "border-2 border-lime-500 bg-lime-500/10"
-                        : "border border-gray-700"
+                        : "border border-white/10"
                     }`}
                     onClick={() => {
                       updateExercisePreference("pullups", pref.value)
@@ -2694,10 +2696,10 @@ export default function QuizPage() {
                 ].map((pref) => (
                   <div
                     key={pref.value}
-                    className={`bg-gray-800 rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
+                    className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
                       quizData.exercisePreferences.yoga === pref.value
                         ? "border-2 border-lime-500 bg-lime-500/10"
-                        : "border border-gray-700"
+                        : "border border-white/10"
                     }`}
                     onClick={() => {
                       updateExercisePreference("yoga", pref.value)
@@ -2720,9 +2722,9 @@ export default function QuizPage() {
               <p className="text-gray-300">Selecione de 1 a 7 dias</p>
             </div>
             <div className="text-center space-y-8">
-              <div className="bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-8 border border-zinc-800">
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
                 <div className="space-y-4">
-                  <div className="bg-gray-700 rounded-full px-4 py-2 inline-block">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 inline-block">
                     <span className="text-white font-bold">{quizData.trainingDaysPerWeek} dias</span>
                   </div>
                   <div className="px-4">
@@ -2753,7 +2755,7 @@ export default function QuizPage() {
               <p className="text-gray-400">Para receber seu plano personalizado</p>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-gray-700 rounded-lg p-4 bg-gray-800 focus-within:border-lime-500 transition-colors">
+              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors">
                 <Input
                   type="email"
                   placeholder="seu@email.com"
@@ -2876,7 +2878,7 @@ export default function QuizPage() {
           </div>
           <div className="w-16" />
         </div>
-        <div className="w-full bg-gray-700 rounded-full h-2 mb-8">
+        <div className="w-full bg-white/10 backdrop-blur-sm rounded-full h-2 mb-8">
           <div
             className="bg-lime-500 h-2 rounded-full transition-all duration-300"
             style={{ width: `${(currentStep / totalSteps) * 100}%` }}
