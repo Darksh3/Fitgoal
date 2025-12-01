@@ -1409,8 +1409,16 @@ export default function QuizPage() {
             </div>
             <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 max-w-lg mx-auto">
               {[
-                { value: "homem", label: "Homem", icon: "/images/male-gender-icon.webp" },
-                { value: "mulher", label: "Mulher", icon: "/images/female-gender-icon.webp" },
+                {
+                  value: "homem",
+                  label: "Homem",
+                  icon: "/images/male-gender-icon.webp",
+                },
+                {
+                  value: "mulher",
+                  label: "Mulher",
+                  icon: "/images/female-gender-icon.webp",
+                },
               ].map((gender) => (
                 <div
                   key={gender.value}
@@ -1418,7 +1426,7 @@ export default function QuizPage() {
                     updateQuizData("gender", gender.value)
                     setTimeout(() => nextStep(), 300)
                   }}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-6 transition-all cursor-pointer flex items-center gap-3 sm:gap-4 ${
+                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-6 transition-all cursor-pointer flex flex-col items-center justify-center gap-3 sm:gap-4 ${
                     quizData.gender === gender.value
                       ? "border-2 border-lime-500 bg-lime-500/10"
                       : "border border-gray-700/50"
@@ -1427,10 +1435,7 @@ export default function QuizPage() {
                   <img
                     src={gender.icon || "/placeholder.svg"}
                     alt={gender.label}
-                    className="w-12 h-12 sm:w-16 sm:h-16 object-contain flex-shrink-0"
-                    onError={(e) => {
-                      e.currentTarget.src = "/placeholder.svg"
-                    }}
+                    className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
                   />
                   <h3 className="text-lg sm:text-xl font-bold text-white">{gender.label}</h3>
                 </div>
