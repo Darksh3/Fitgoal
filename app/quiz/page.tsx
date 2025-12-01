@@ -1400,7 +1400,7 @@ export default function QuizPage() {
       case 1:
         return (
           <div
-            className="relative space-y-4 sm:space-y-8 bg-[#02060D]"
+            className="relative space-y-4 sm:space-y-8 bg-[#02060D] min-h-[calc(100vh-200px)] flex flex-col justify-center py-8"
             style={{
               background: "radial-gradient(at center, #0A1529 0%, #02060D 70%)",
             }}
