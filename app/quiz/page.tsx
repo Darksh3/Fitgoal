@@ -1072,7 +1072,7 @@ export default function QuizPage() {
           </div>
 
           <div className="bg-lime-500 hover:bg-lime-600 transition-colors rounded-full p-1 max-w-md mx-auto">
-            <Button
+            {/* <Button
               onClick={() => {
                 setShowTimeCalculation(false)
                 setCurrentStep(currentStep + 1)
@@ -1080,7 +1080,17 @@ export default function QuizPage() {
               className="w-full block bg-lime-600 hover:bg-lime-700 text-white py-8 text-3xl font-semibold min-h-[80px] rounded-full"
             >
               Entendi
-            </Button>
+            </Button> */}
+            {/* </CHANGE> Simplified button structure to ensure entire area is clickable */}
+            <button
+              onClick={() => {
+                setShowTimeCalculation(false)
+                setCurrentStep(currentStep + 1)
+              }}
+              className="w-full max-w-md mx-auto block bg-lime-500 hover:bg-lime-600 text-white py-8 px-8 text-3xl font-semibold min-h-[80px] rounded-full transition-colors"
+            >
+              Entendi
+            </button>
           </div>
 
           <style>{`
@@ -1389,11 +1399,17 @@ export default function QuizPage() {
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-4 sm:space-y-8">
-            <div className="text-center space-y-2 sm:space-y-4">
+          <div className="relative space-y-4 sm:space-y-8">
+            {/* Glow spot azul */}
+            <div className="absolute w-[400px] h-[400px] bg-[#1c3dff55] blur-[120px] rounded-full top-[10%] left-[60%] pointer-events-none" />
+
+            {/* Glow spot roxo */}
+            <div className="absolute w-[350px] h-[350px] bg-[#7f3dff44] blur-[150px] rounded-full bottom-[5%] left-[20%] pointer-events-none" />
+
+            <div className="relative z-10 text-center space-y-2 sm:space-y-4">
               <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual o seu gênero?</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 max-w-lg mx-auto">
+            <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 max-w-lg mx-auto">
               {[
                 { value: "homem", label: "Homem", icon: "/images/male-gender-icon.webp" },
                 { value: "mulher", label: "Mulher", icon: "/images/female-gender-icon.webp" },
