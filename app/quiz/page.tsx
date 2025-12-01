@@ -1400,11 +1400,9 @@ export default function QuizPage() {
       case 1:
         return (
           <div className="relative space-y-4 sm:space-y-8">
-            {/* Glow spot azul */}
-            <div className="absolute w-[400px] h-[400px] bg-[#1c3dff55] blur-[120px] rounded-full top-[10%] left-[60%] pointer-events-none" />
+            <div className="absolute w-[380px] h-[380px] bg-[#1c3dff55] blur-[150px] rounded-full top-[20%] right-[-10%] pointer-events-none" />
 
-            {/* Glow spot roxo */}
-            <div className="absolute w-[350px] h-[350px] bg-[#7f3dff44] blur-[150px] rounded-full bottom-[5%] left-[20%] pointer-events-none" />
+            <div className="absolute w-[300px] h-[300px] bg-[#7f3dff33] blur-[140px] rounded-full bottom-[10%] left-[15%] pointer-events-none" />
 
             <div className="relative z-10 text-center space-y-2 sm:space-y-4">
               <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual o seu gênero?</h2>
