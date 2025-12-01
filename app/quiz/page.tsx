@@ -2836,31 +2836,23 @@ export default function QuizPage() {
 
   return (
     <div
-      className={`min-h-screen text-white p-6 relative overflow-hidden ${
-        currentStep === 1 ? "bg-[#0a0f1a]" : "bg-gray-900"
-      }`}
-      style={
-        currentStep === 1
-          ? {
-              background: "radial-gradient(at center, #0f1419 0%, #0a0f1a 70%)",
-            }
-          : undefined
-      }
+      className="min-h-screen text-white p-6 relative overflow-hidden bg-[#0a0f1a]"
+      style={{
+        background: "radial-gradient(at center, #0f1419 0%, #0a0f1a 70%)",
+      }}
     >
-      {currentStep === 1 && (
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            width: "400px",
-            height: "400px",
-            background: "rgba(28, 61, 255, 0.15)",
-            filter: "blur(150px)",
-            borderRadius: "50%",
-            right: "-10%",
-            bottom: "-10%",
-          }}
-        />
-      )}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          width: "400px",
+          height: "400px",
+          background: "rgba(28, 61, 255, 0.15)",
+          filter: "blur(150px)",
+          borderRadius: "50%",
+          right: "-10%",
+          bottom: "-10%",
+        }}
+      />
 
       <div className="max-w-4xl mx-auto relative z-10">
         <div className="flex items-center justify-between mb-8">
