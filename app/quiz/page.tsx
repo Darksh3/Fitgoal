@@ -1546,14 +1546,13 @@ export default function QuizPage() {
               ].map((goal) => (
                 <div
                   key={goal.value}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
+                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center gap-4 ${
                     quizData.goal.includes(goal.value)
                       ? "border-2 border-lime-500 bg-lime-500/10"
                       : "border border-white/10"
                   }`}
                   onClick={() => handleArrayUpdate("goal", goal.value, !quizData.goal.includes(goal.value))}
                 >
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-white pr-2">{goal.label}</h3>
                   <img
                     src={getGoalIcon(goal.value) || "/placeholder.svg"}
                     alt={goal.label}
@@ -1562,6 +1561,7 @@ export default function QuizPage() {
                       e.currentTarget.src = "/placeholder.svg"
                     }}
                   />
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-white">{goal.label}</h3>
                 </div>
               ))}
             </div>
@@ -2447,14 +2447,15 @@ export default function QuizPage() {
               <h2 className="text-2xl font-bold text-white">Qual é o seu peso atual?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors">
+              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors flex items-center justify-between">
                 <Input
                   type="number"
-                  placeholder={`Peso atual, kg`}
+                  placeholder="80"
                   value={quizData.currentWeight}
                   onChange={(e) => updateQuizData("currentWeight", e.target.value)}
-                  className="bg-transparent border-0 text-white text-center text-xl focus:outline-none [&::placeholder]:text-gray-400"
+                  className="bg-transparent border-0 text-white text-xl focus:outline-none [&::placeholder]:text-gray-400 flex-1"
                 />
+                <span className="text-gray-400 text-lg ml-4">kg</span>
               </div>
             </div>
           </div>
