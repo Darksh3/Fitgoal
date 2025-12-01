@@ -2310,9 +2310,9 @@ export default function QuizPage() {
                     const normalized = normalizeHeight(e.target.value)
                     updateQuizData("height", normalized)
                   }}
-                  className="bg-transparent border-0 text-white text-center text-7xl focus:outline-none [&::placeholder]:text-gray-400 placeholder:text-xl flex-1"
+                  className="bg-transparent border-0 text-white text-center text-6xl focus:outline-none [&::placeholder]:text-gray-400 placeholder:text-xl flex-1"
                 />
-                <span className="text-gray-400 text-7xl ml-2">cm</span>
+                <span className="text-gray-400 text-2xl ml-4">cm</span>
               </div>
             </div>
           </div>
@@ -2467,10 +2467,10 @@ export default function QuizPage() {
                     min="1"
                     max="500"
                     step="0.1"
-                    className="bg-transparent border-0 text-white text-center text-7xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
+                    className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
                   />
                 </div>
-                <span className="text-gray-400 text-7xl font-bold ml-2">kg</span>
+                <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
               </div>
             </div>
           </div>
@@ -2501,10 +2501,10 @@ export default function QuizPage() {
                     min="1"
                     max="500"
                     step="0.1"
-                    className="bg-transparent border-0 text-white text-center text-7xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
+                    className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
                   />
                 </div>
-                <span className="text-gray-400 text-7xl font-bold ml-2">kg</span>
+                <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
               </div>
             </div>
           </div>
@@ -2631,13 +2631,13 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Como você se sente sobre exercícios cardiovasculares?</h2>
+              <h2 className="text-2xl font-bold text-white">Como você se sente sobre exercícios de cardio?</h2>
             </div>
             <div className="flex items-center justify-center space-x-8">
               <ExerciseIllustration type="cardio" className="w-64 h-64" />
               <div className="space-y-4 flex-1 max-w-sm">
                 {[
-                  { value: "amo", label: "Amo cardio!", icon: ThumbsUp, color: "text-green-500" },
+                  { value: "gosto", label: "Gosto!", icon: ThumbsUp, color: "text-green-500" },
                   { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
                   { value: "odeio", label: "Odeio cardio", icon: ThumbsDown, color: "text-red-500" },
                 ].map((pref) => (
@@ -2671,7 +2671,7 @@ export default function QuizPage() {
               <ExerciseIllustration type="pullups" className="w-64 h-64" />
               <div className="space-y-4 flex-1 max-w-sm">
                 {[
-                  { value: "amo", label: "Amo exercícios de força!", icon: ThumbsUp, color: "text-green-500" },
+                  { value: "gosto", label: "Gosto!", icon: ThumbsUp, color: "text-green-500" },
                   { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
                   { value: "odeio", label: "Prefiro evitar", icon: ThumbsDown, color: "text-red-500" },
                 ].map((pref) => (
@@ -2699,13 +2699,13 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Como você se sente sobre yoga e alongamento?</h2>
+              <h2 className="text-2xl font-bold text-white">Como você se sente sobre alongamentos?</h2>
             </div>
             <div className="flex items-center justify-center space-x-8">
               <ExerciseIllustration type="yoga" className="w-64 h-64" />
               <div className="space-y-4 flex-1 max-w-sm">
                 {[
-                  { value: "amo", label: "Amo yoga/alongamento!", icon: ThumbsUp, color: "text-green-500" },
+                  { value: "gosto", label: "Gosto!", icon: ThumbsUp, color: "text-green-500" },
                   { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
                   { value: "odeio", label: "Prefiro evitar", icon: ThumbsDown, color: "text-red-500" },
                 ].map((pref) => (
