@@ -2838,12 +2838,12 @@ export default function QuizPage() {
   return (
     <div
       className={`min-h-screen text-white p-6 relative overflow-hidden ${
-        currentStep === 1 ? "bg-[#02060D]" : "bg-gray-900"
+        currentStep === 1 ? "bg-[#0a0f1a]" : "bg-gray-900"
       }`}
       style={
         currentStep === 1
           ? {
-              background: "radial-gradient(at center, #0A1529 0%, #02060D 70%)",
+              background: "radial-gradient(at center, #0f1419 0%, #0a0f1a 70%)",
             }
           : undefined
       }
@@ -2852,13 +2852,13 @@ export default function QuizPage() {
         <div
           className="absolute pointer-events-none"
           style={{
-            width: "480px",
-            height: "480px",
-            background: "#1c3dff33",
-            filter: "blur(180px)",
+            width: "400px",
+            height: "400px",
+            background: "rgba(28, 61, 255, 0.15)",
+            filter: "blur(150px)",
             borderRadius: "50%",
-            right: "-15%",
-            top: "25%",
+            right: "-10%",
+            bottom: "-10%",
           }}
         />
       )}
