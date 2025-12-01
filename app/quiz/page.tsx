@@ -1400,10 +1400,6 @@ export default function QuizPage() {
       case 1:
         return (
           <div className="relative space-y-4 sm:space-y-8">
-            <div className="absolute w-[380px] h-[380px] bg-[#1c3dff55] blur-[150px] rounded-full top-[20%] right-[-10%] pointer-events-none" />
-
-            <div className="absolute w-[300px] h-[300px] bg-[#7f3dff33] blur-[140px] rounded-full bottom-[10%] left-[15%] pointer-events-none" />
-
             <div className="relative z-10 text-center space-y-2 sm:space-y-4">
               <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual o seu gênero?</h2>
             </div>
@@ -2844,13 +2840,26 @@ export default function QuizPage() {
       <div
         className="absolute pointer-events-none"
         style={{
-          width: "400px",
-          height: "400px",
-          background: "rgba(28, 61, 255, 0.15)",
+          width: "380px",
+          height: "380px",
+          background: "#1c3dff55",
           filter: "blur(150px)",
           borderRadius: "50%",
+          top: "20%",
           right: "-10%",
-          bottom: "-10%",
+        }}
+      />
+
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          width: "300px",
+          height: "300px",
+          background: "#7f3dff33",
+          filter: "blur(140px)",
+          borderRadius: "50%",
+          bottom: "10%",
+          left: "15%",
         }}
       />
 
