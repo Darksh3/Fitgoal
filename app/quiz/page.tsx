@@ -1399,10 +1399,24 @@ export default function QuizPage() {
     switch (currentStep) {
       case 1:
         return (
-          <div className="relative space-y-4 sm:space-y-8">
-            <div className="absolute w-[380px] h-[380px] bg-[#1c3dff55] blur-[150px] rounded-full top-[20%] right-[-10%] pointer-events-none" />
-
-            <div className="absolute w-[300px] h-[300px] bg-[#7f3dff33] blur-[140px] rounded-full bottom-[10%] left-[15%] pointer-events-none" />
+          <div
+            className="relative space-y-4 sm:space-y-8 bg-[#02060D]"
+            style={{
+              background: "radial-gradient(at center, #0A1529 0%, #02060D 70%)",
+            }}
+          >
+            {/* Single blue glow spot with exact specifications */}
+            <div
+              className="absolute rounded-full pointer-events-none"
+              style={{
+                width: "480px",
+                height: "480px",
+                background: "#1c3dff33",
+                filter: "blur(180px)",
+                right: "-15%",
+                top: "25%",
+              }}
+            />
 
             <div className="relative z-10 text-center space-y-2 sm:space-y-4">
               <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual o seu gênero?</h2>
