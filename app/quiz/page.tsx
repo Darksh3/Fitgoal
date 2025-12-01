@@ -1414,31 +1414,25 @@ export default function QuizPage() {
               ].map((gender) => (
                 <div
                   key={gender.value}
-                  className="text-center space-y-3 sm:space-y-4 cursor-pointer"
                   onClick={() => {
                     updateQuizData("gender", gender.value)
                     setTimeout(() => nextStep(), 300)
                   }}
+                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-6 transition-all cursor-pointer flex items-center gap-3 sm:gap-4 ${
+                    quizData.gender === gender.value
+                      ? "border-2 border-lime-500 bg-lime-500/10"
+                      : "border border-gray-700/50"
+                  }`}
                 >
-                  <div className="flex justify-center items-center h-28 sm:h-40">
-                    <img
-                      src={gender.icon || "/placeholder.svg"}
-                      alt={gender.label}
-                      className="w-20 h-20 sm:w-24 sm:h-24 object-contain mx-auto"
-                      onError={(e) => {
-                        e.currentTarget.src = "/placeholder.svg"
-                      }}
-                    />
-                  </div>
-                  <div
-                    className={`bg-gray-800 rounded-lg p-3 sm:p-4 transition-all ${
-                      quizData.gender === gender.value
-                        ? "border-2 border-lime-500 bg-lime-500/10"
-                        : "border border-gray-700"
-                    }`}
-                  >
-                    <h3 className="text-lg sm:text-xl font-bold text-white">{gender.label}</h3>
-                  </div>
+                  <img
+                    src={gender.icon || "/placeholder.svg"}
+                    alt={gender.label}
+                    className="w-12 h-12 sm:w-16 sm:h-16 object-contain flex-shrink-0"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.svg"
+                    }}
+                  />
+                  <h3 className="text-lg sm:text-xl font-bold text-white">{gender.label}</h3>
                 </div>
               ))}
             </div>
