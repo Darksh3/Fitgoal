@@ -61,6 +61,8 @@ interface QuizData {
   imcStatus: string
   age: number
   strengthTraining?: string // Added this field
+  // </CHANGE> Added weight field
+  weight: string
 }
 
 const initialQuizData: QuizData = {
@@ -101,6 +103,8 @@ const initialQuizData: QuizData = {
   imcStatus: "",
   age: 0,
   strengthTraining: "", // Initialize strengthTraining
+  // </CHANGE> Initialize weight field
+  weight: "",
 }
 
 const debugDataFlow = (stage: string, data: any) => {
@@ -377,9 +381,14 @@ export default function QuizPage() {
     const normalizedValue = key === "height" ? normalizeHeight(value) : value
     const newData = { ...quizData, [key]: normalizedValue }
 
-    if (key === "currentWeight" || key === "height") {
-      const weight = Number.parseFloat(key === "currentWeight" ? normalizedValue : newData.currentWeight)
-      const height = Number.parseFloat(key === "height" ? normalizedValue : newData.height)
+    // </CHANGE> Used quizData.weight for IMC calculation
+    if (key === "currentWeight" || key === "height" || key === "weight") {
+      const weight = Number.parseFloat(
+        key === "currentWeight"
+          ? normalizedValue
+          : quizData.currentWeight || (key === "weight" ? normalizedValue : "0"),
+      )
+      const height = Number.parseFloat(key === "height" ? normalizedValue : quizData.height || "0")
 
       if (weight > 0 && height > 0) {
         const imcData = calculateIMC(weight, height)
@@ -2288,7 +2297,7 @@ export default function QuizPage() {
               <h2 className="text-2xl font-bold text-white">Qual é sua altura?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors">
+              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors flex items-center justify-center relative">
                 <Input
                   type="text"
                   placeholder={`Altura em metros (ex: 1.75 ou 1,75)`}
@@ -2301,8 +2310,9 @@ export default function QuizPage() {
                     const normalized = normalizeHeight(e.target.value)
                     updateQuizData("height", normalized)
                   }}
-                  className="bg-transparent border-0 text-white text-center text-xl focus:outline-none [&::placeholder]:text-gray-400"
+                  className="bg-transparent border-0 text-white text-center text-6xl focus:outline-none [&::placeholder]:text-gray-400 placeholder:text-xl flex-1"
                 />
+                <span className="text-gray-400 text-3xl ml-4">cm</span>
               </div>
             </div>
           </div>
@@ -2447,15 +2457,20 @@ export default function QuizPage() {
               <h2 className="text-2xl font-bold text-white">Qual é o seu peso atual?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors flex items-center justify-between">
-                <Input
-                  type="number"
-                  placeholder="80"
-                  value={quizData.currentWeight}
-                  onChange={(e) => updateQuizData("currentWeight", e.target.value)}
-                  className="bg-transparent border-0 text-white text-xl focus:outline-none [&::placeholder]:text-gray-400 flex-1"
-                />
-                <span className="text-gray-400 text-lg ml-4">kg</span>
+              <div className="relative border-2 border-white/10 rounded-2xl p-6 bg-white/5 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500 flex items-center justify-between">
+                <div className="flex-1 flex justify-center">
+                  <Input
+                    type="number"
+                    placeholder="80"
+                    value={quizData.weight}
+                    onChange={(e) => updateQuizData("weight", e.target.value)}
+                    min="1"
+                    max="500"
+                    step="0.1"
+                    className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
+                  />
+                </div>
+                <span className="text-gray-400 text-2xl font-medium ml-4">kg</span>
               </div>
             </div>
           </div>
@@ -2467,26 +2482,29 @@ export default function QuizPage() {
               <h2 className="text-2xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-white/10 rounded-2xl p-6 bg-white/5 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500">
-                <Input
-                  type="number"
-                  placeholder={`Peso alvo, kg`}
-                  value={quizData.targetWeight}
-                  onChange={(e) => {
-                    updateQuizData("targetWeight", e.target.value)
-                  }}
-                  onBlur={() => {
-                    // Calcula o tempo ao sair do campo
-                    const calculatedTime = calculateTimeToGoal()
-                    if (calculatedTime) {
-                      updateQuizData("timeToGoal", calculatedTime)
-                    }
-                  }}
-                  min="1"
-                  max="500"
-                  step="0.1"
-                  className="bg-transparent border-0 text-white text-center text-xl focus:outline-none focus:ring-0 w-full [&::placeholder]:text-gray-400"
-                />
+              <div className="relative border-2 border-white/10 rounded-2xl p-6 bg-white/5 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500 flex items-center justify-between">
+                <div className="flex-1 flex justify-center">
+                  <Input
+                    type="number"
+                    placeholder="75"
+                    value={quizData.targetWeight}
+                    onChange={(e) => {
+                      updateQuizData("targetWeight", e.target.value)
+                    }}
+                    onBlur={() => {
+                      // Calcula o tempo ao sair do campo
+                      const calculatedTime = calculateTimeToGoal()
+                      if (calculatedTime) {
+                        updateQuizData("timeToGoal", calculatedTime)
+                      }
+                    }}
+                    min="1"
+                    max="500"
+                    step="0.1"
+                    className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
+                  />
+                </div>
+                <span className="text-gray-400 text-2xl font-medium ml-4">kg</span>
               </div>
             </div>
           </div>
@@ -2803,7 +2821,8 @@ export default function QuizPage() {
       case 13:
         return quizData.wantsSupplement !== ""
       case 14:
-        return quizData.currentWeight !== "" && Number.parseFloat(quizData.currentWeight) > 0
+        // </CHANGE> Check quizData.weight instead of currentWeight
+        return quizData.weight !== "" && Number.parseFloat(quizData.weight) > 0
       case 15:
         return quizData.targetWeight !== "" && Number.parseFloat(quizData.targetWeight) > 0
       case 16:
