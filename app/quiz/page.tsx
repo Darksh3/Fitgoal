@@ -1400,7 +1400,7 @@ export default function QuizPage() {
       case 1:
         return (
           <div
-            className="relative space-y-4 sm:space-y-8 bg-[#02060D] min-h-[calc(100vh-200px)] flex flex-col justify-center py-8"
+            className="relative space-y-4 sm:space-y-8 min-h-[calc(100vh-200px)] flex flex-col justify-center py-8"
             style={{
               background: "radial-gradient(at center, #0A1529 0%, #02060D 70%)",
             }}
@@ -2850,8 +2850,31 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
-      <div className="max-w-4xl mx-auto">
+    <div
+      className="min-h-screen text-white p-6 relative overflow-hidden"
+      style={
+        currentStep === 1
+          ? {
+              background: "radial-gradient(ellipse at center, #0A1529 0%, #02060D 100%)",
+            }
+          : { background: "#1f2937" }
+      }
+    >
+      {currentStep === 1 && (
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            width: "480px",
+            height: "480px",
+            background: "#1c3dff33",
+            filter: "blur(180px)",
+            right: "-15%",
+            top: "25%",
+          }}
+        />
+      )}
+
+      <div className="max-w-4xl mx-auto relative z-10">
         <div className="flex items-center justify-between mb-8">
           <Button variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="text-white">
             <ArrowLeft className="h-4 w-4 mr-2" />
