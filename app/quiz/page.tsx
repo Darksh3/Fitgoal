@@ -195,7 +195,7 @@ export default function QuizPage() {
     belly: { top: 31, left: 49, width: 22, height: 13, rotate: 0 },
     leg_upper_left: { top: 54, left: 34, width: 11, height: 14, rotate: -2 },
     leg_lower_left: { top: 73, left: 42, width: 5, height: 9, rotate: -17 },
-    leg_upper_right: { top: 53, right: 39, width: 11, height: 13, rotate: 11 },
+    leg_lower_right: { top: 73, right: 43, width: 5, height: 9, rotate: 17 },
     // Masculine markings
     m_chest_left: { top: 21, left: 34, width: 21, height: 11, rotate: -90 },
     m_chest_right: { top: 21, right: 32, width: 21, height: 11, rotate: -89 },
@@ -1372,6 +1372,16 @@ export default function QuizPage() {
   const getBodyFatImage = () => {
     const isMale = quizData.gender === "homem"
 
+    console.log(
+      "[v0] getBodyFatImage called, gender:",
+      quizData.gender,
+      "isMale:",
+      isMale,
+      "bodyFat:",
+      quizData.bodyFat,
+    )
+    // </CHANGE>
+
     if (isMale) {
       // Male images: mone.webp to meight.webp
       if (quizData.bodyFat <= 10) return "/images/mone.webp"
@@ -1384,14 +1394,26 @@ export default function QuizPage() {
       return "/images/meight.webp"
     } else {
       // Female images: bodyfat-one.webp to bodyfat-eight.webp
-      if (quizData.bodyFat <= 10) return "/images/bodyfat-one.webp"
-      if (quizData.bodyFat <= 15) return "/images/bodyfat-two.webp"
-      if (quizData.bodyFat <= 20) return "/images/bodyfat-three.webp"
-      if (quizData.bodyFat <= 25) return "/images/bodyfat-four.webp"
-      if (quizData.bodyFat <= 30) return "/images/bodyfat-five.webp"
-      if (quizData.bodyFat <= 35) return "/images/bodyfat-six.webp"
-      if (quizData.bodyFat <= 39) return "/images/bodyfat-seven.webp"
-      return "/images/bodyfat-eight.webp"
+      const imagePath =
+        quizData.bodyFat <= 10
+          ? "/images/bodyfat-one.webp"
+          : quizData.bodyFat <= 15
+            ? "/images/bodyfat-two.webp"
+            : quizData.bodyFat <= 20
+              ? "/images/bodyfat-three.webp"
+              : quizData.bodyFat <= 25
+                ? "/images/bodyfat-four.webp"
+                : quizData.bodyFat <= 30
+                  ? "/images/bodyfat-five.webp"
+                  : quizData.bodyFat <= 35
+                    ? "/images/bodyfat-six.webp"
+                    : quizData.bodyFat <= 39
+                      ? "/images/bodyfat-seven.webp"
+                      : "/images/bodyfat-eight.webp"
+
+      console.log("[v0] Female image path:", imagePath)
+      return imagePath
+      // </CHANGE>
     }
   }
 
@@ -1595,7 +1617,9 @@ export default function QuizPage() {
                   alt="Body fat representation"
                   className="relative w-full h-full object-contain transition-opacity duration-500"
                   onError={(e) => {
+                    console.error("[v0] Image failed to load:", e.currentTarget.src)
                     e.currentTarget.src = "/placeholder.svg"
+                    // </CHANGE>
                   }}
                 />
               </div>
@@ -2201,7 +2225,7 @@ export default function QuizPage() {
             </div>
             <div className="border-t border-gray-700 pt-3 sm:pt-4">
               <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all ${
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
                   quizData.diet === "nao-sigo" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
                 }`}
                 onClick={() => {
@@ -2209,8 +2233,8 @@ export default function QuizPage() {
                   setTimeout(() => nextStep(), 300)
                 }}
               >
+                <X className="h-5 w-5 sm:h-6 sm:w-6 text-red-500" />
                 <h3 className="text-base sm:text-lg font-bold text-white">Não, não sigo dieta</h3>
-                <X className="h-5 w-5 sm:h-6 sm:w-6 text-lime-500" />
               </div>
             </div>
           </div>
@@ -2310,7 +2334,7 @@ export default function QuizPage() {
                     const normalized = normalizeHeight(e.target.value)
                     updateQuizData("height", normalized)
                   }}
-                  className="bg-transparent border-0 text-white text-center text-6xl focus:outline-none [&::placeholder]:text-gray-400 placeholder:text-xl flex-1"
+                  className="bg-transparent border-0 text-white text-center text-6xl focus:outline-none focus:ring-0 [&::placeholder]:text-gray-400 placeholder:text-xl flex-1"
                 />
                 <span className="text-gray-400 text-2xl ml-4">cm</span>
               </div>
@@ -2325,7 +2349,7 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all ${
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
                   quizData.allergies === "sim" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
                 }`}
                 onClick={() => {
@@ -2333,13 +2357,13 @@ export default function QuizPage() {
                   setTimeout(() => nextStep(), 300)
                 }}
               >
-                <h3 className="text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
                 <CheckCircle
-                  className={`h-6 w-6 ${quizData.allergies === "sim" ? "text-lime-500" : "text-gray-500"}`}
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.allergies === "sim" ? "text-lime-500" : "text-gray-500"}`}
                 />
+                <h3 className="text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
               </div>
               <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all ${
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
                   quizData.allergies === "nao" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
                 }`}
                 onClick={() => {
@@ -2347,8 +2371,10 @@ export default function QuizPage() {
                   setCurrentStep(13)
                 }}
               >
+                <X
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.allergies === "nao" ? "text-red-500" : "text-gray-500"}`}
+                />
                 <h3 className="text-lg font-bold text-white">Não possuo alergias ou restrições</h3>
-                <X className={`h-6 w-6 ${quizData.allergies === "nao" ? "text-lime-500" : "text-gray-500"}`} />
               </div>
             </div>
           </div>
@@ -2384,7 +2410,7 @@ export default function QuizPage() {
             <div className="space-y-4">
               <button
                 type="button"
-                className={`w-full bg-white/5 backdrop-blur-sm rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
+                className={`w-full bg-white/5 backdrop-blur-sm rounded-lg p-6 transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 cursor-pointer ${
                   quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
                 }`}
                 onClick={() => {
@@ -2412,14 +2438,14 @@ export default function QuizPage() {
                   setTimeout(() => nextStep(), 300)
                 }}
               >
-                <h3 className="text-lg font-bold text-white">Sim, pode adicionar</h3>
                 <CheckCircle
-                  className={`h-6 w-6 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
                 />
+                <h3 className="text-lg font-bold text-white">Sim, pode adicionar</h3>
               </button>
               <button
                 type="button"
-                className={`w-full bg-white/5 backdrop-blur-sm rounded-lg p-6 transition-all flex items-center justify-between border-2 hover:border-lime-400 cursor-pointer ${
+                className={`w-full bg-white/5 backdrop-blur-sm rounded-lg p-6 transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 cursor-pointer ${
                   quizData.wantsSupplement === "nao" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
                 }`}
                 onClick={() => {
@@ -2428,10 +2454,10 @@ export default function QuizPage() {
                   setTimeout(() => nextStep(), 300)
                 }}
               >
-                <h3 className="text-lg font-bold text-white text-left">Não, prefiro sem suplementos</h3>
                 <X
-                  className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "nao" ? "text-lime-500" : "text-gray-500"}`}
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "nao" ? "text-red-500" : "text-gray-500"}`}
                 />
+                <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
               </button>
             </div>
             {/* </CHANGE> */}
@@ -2567,7 +2593,7 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all ${
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
                   quizData.strengthTraining === "sim"
                     ? "border-2 border-lime-500 bg-lime-500/10"
                     : "border border-white/10"
@@ -2577,13 +2603,13 @@ export default function QuizPage() {
                   setTimeout(() => nextStep(), 300)
                 }}
               >
-                <h3 className="text-lg font-bold text-white">Sim, treino regularmente</h3>
                 <CheckCircle
-                  className={`h-6 w-6 ${quizData.strengthTraining === "sim" ? "text-lime-500" : "text-gray-500"}`}
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.strengthTraining === "sim" ? "text-lime-500" : "text-gray-500"}`}
                 />
+                <h3 className="text-lg font-bold text-white">Sim, treino regularmente</h3>
               </div>
               <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all ${
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
                   quizData.strengthTraining === "nao"
                     ? "border-2 border-lime-500 bg-lime-500/10"
                     : "border border-white/10"
@@ -2593,8 +2619,10 @@ export default function QuizPage() {
                   setTimeout(() => nextStep(), 300)
                 }}
               >
+                <X
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.strengthTraining === "nao" ? "text-red-500" : "text-gray-500"}`}
+                />
                 <h3 className="text-lg font-bold text-white">Não, sou iniciante</h3>
-                <X className={`h-6 w-6 ${quizData.strengthTraining === "nao" ? "text-lime-500" : "text-gray-500"}`} />
               </div>
             </div>
           </div>
@@ -2638,8 +2666,8 @@ export default function QuizPage() {
               <div className="space-y-4 flex-1 max-w-sm">
                 {[
                   { value: "gosto", label: "Gosto!", icon: ThumbsUp, color: "text-green-500" },
-                  { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
-                  { value: "odeio", label: "Odeio cardio", icon: ThumbsDown, color: "text-red-500" },
+                  { value: "neutro", label: "Neutro", icon: Meh, color: "text-yellow-500" },
+                  { value: "odeio", label: "Prefiro evitar", icon: ThumbsDown, color: "text-red-500" },
                 ].map((pref) => (
                   <div
                     key={pref.value}
@@ -2672,7 +2700,7 @@ export default function QuizPage() {
               <div className="space-y-4 flex-1 max-w-sm">
                 {[
                   { value: "gosto", label: "Gosto!", icon: ThumbsUp, color: "text-green-500" },
-                  { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
+                  { value: "neutro", label: "Neutro", icon: Meh, color: "text-yellow-500" },
                   { value: "odeio", label: "Prefiro evitar", icon: ThumbsDown, color: "text-red-500" },
                 ].map((pref) => (
                   <div
@@ -2706,7 +2734,7 @@ export default function QuizPage() {
               <div className="space-y-4 flex-1 max-w-sm">
                 {[
                   { value: "gosto", label: "Gosto!", icon: ThumbsUp, color: "text-green-500" },
-                  { value: "neutro", label: "É ok para mim", icon: Meh, color: "text-yellow-500" },
+                  { value: "neutro", label: "Neutro", icon: Meh, color: "text-yellow-500" },
                   { value: "odeio", label: "Prefiro evitar", icon: ThumbsDown, color: "text-red-500" },
                 ].map((pref) => (
                   <div
