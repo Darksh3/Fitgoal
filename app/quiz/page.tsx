@@ -874,7 +874,7 @@ export default function QuizPage() {
             <rect x="50" y="20" width="100" height="8" rx="4" fill="#666" />
             <circle cx="100" cy="45" r="12" fill="url(#bodyGradient2)" />
             <rect x="85" y="55" width="30" height="50" rx="15" fill="url(#bodyGradient2)" />
-            <ellipse cx="80" cy="40" rx="6" ry="18" fill="url(#bodyGradient2)" />
+            <ellipse cx="85" cy="40" rx="6" ry="18" fill="url(#bodyGradient2)" />
             <ellipse cx="120" cy="40" rx="6" ry="18" fill="url(#bodyGradient2)" />
             <ellipse cx="90" cy="130" rx="8" ry="20" fill="url(#bodyGradient2)" transform="rotate(20 90 130)" />
             <ellipse cx="110" cy="130" rx="8" ry="20" fill="url(#bodyGradient2)" transform="rotate(-20 110 130)" />
@@ -952,7 +952,7 @@ export default function QuizPage() {
   }
 
   if (showTimeCalculation) {
-    const current = Number.parseFloat(quizData.currentWeight)
+    const current = Number.parseFloat(quizData.weight)
     const target = Number.parseFloat(quizData.targetWeight)
     const isGaining = target > current
 
@@ -1704,6 +1704,14 @@ export default function QuizPage() {
                 </div>
               ))}
             </div>
+            <button
+              onClick={nextStep}
+              disabled={!canProceed()}
+              className="w-full bg-gradient-to-r from-lime-400 to-lime-500 text-gray-900 py-4 sm:py-6 rounded-full font-bold text-xl sm:text-2xl hover:from-lime-500 hover:to-lime-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
+            >
+              <div className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+              <span className="relative z-10">Continuar</span>
+            </button>
           </div>
         )
       case 15:
@@ -2262,6 +2270,14 @@ export default function QuizPage() {
                 ))}
               </div>
             </div>
+            <button
+              onClick={nextStep}
+              disabled={!canProceed()}
+              className="w-full bg-gradient-to-r from-lime-400 to-lime-500 text-gray-900 py-4 sm:py-6 rounded-full font-bold text-xl sm:text-2xl hover:from-lime-500 hover:to-lime-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group mt-8"
+            >
+              <div className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+              <span className="relative z-10">Continuar</span>
+            </button>
           </div>
         )
       case 7:
@@ -2920,7 +2936,13 @@ export default function QuizPage() {
           />
         </div>
         <div className="mb-8">{renderQuestion()}</div>
-        {![1, 3, 7, 9, 11, 13, 17, 18, 20, 21, 22].includes(currentStep) && (
+
+        {(() => {
+          const actualQuestion = questionOrder[currentStep - 1]
+          // Questions that auto-advance (don't need continue button): 1, 3, 7, 9, 11, 13, 17, 18, 20, 21, 22
+          const questionsWithoutButton = [1, 3, 7, 9, 11, 13, 17, 18, 20, 21, 22]
+          return !questionsWithoutButton.includes(actualQuestion)
+        })() && (
           <div className="flex justify-center">
             {currentStep === totalSteps ? (
               <Button
