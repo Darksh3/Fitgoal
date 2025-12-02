@@ -229,7 +229,7 @@ export default function QuizPage() {
 
   useEffect(() => {
     if (showWaterCongrats) {
-      setTimeout(() => setWaterFill(95), 200)
+      setTimeout(() => setWaterFill(90), 200)
     } else {
       setWaterFill(0)
     }
@@ -423,7 +423,7 @@ export default function QuizPage() {
   }
 
   const calculateTimeToGoal = () => {
-    const current = Number.parseFloat(quizData.currentWeight)
+    const current = Number.parseFloat(quizData.weight)
     const target = Number.parseFloat(quizData.targetWeight)
     if (isNaN(current) || isNaN(target) || current <= 0 || target <= 0) return ""
 
@@ -651,8 +651,7 @@ export default function QuizPage() {
       // </CHANGE>
     } else if (currentStep === 13 && quizData.wantsSupplement === "nao") {
       setCurrentStep(14)
-    } else if (currentStep === 15 && quizData.currentWeight !== "" && quizData.targetWeight !== "") {
-      // Added check for weights
+    } else if (currentStep === 15 && quizData.weight !== "" && quizData.targetWeight !== "") {
       const calculatedTime = calculateTimeToGoal()
       console.log("[v0] calculatedTime:", calculatedTime)
       if (calculatedTime) {
@@ -1317,16 +1316,16 @@ export default function QuizPage() {
                   <svg className="absolute bottom-0 left-0 w-full h-full">
                     <defs>
                       <clipPath id="waveClip" clipPathUnits="objectBoundingBox">
-                        <path d="M0,0.7 C0.15,0.65 0.35,0.75 0.5,0.7 C0.65,0.65 0.85,0.75 1,0.7 V1 H0 Z" fill="white">
+                        <path d="M0,0.1 C0.15,0.08 0.35,0.12 0.5,0.1 C0.65,0.08 0.85,0.12 1,0.1 V1 H0 Z" fill="white">
                           <animate
                             attributeName="d"
                             dur="4s"
                             repeatCount="indefinite"
                             values="
-                              M0,0.7 C0.15,0.65 0.35,0.75 0.5,0.7 C0.65,0.65 0.85,0.75 1,0.7 V1 H0 Z;
-                              M0,0.72 C0.15,0.67 0.35,0.78 0.5,0.72 C0.65,0.67 0.85,0.78 1,0.72 V1 H0 Z;
-                              M0,0.68 C0.15,0.63 0.35,0.73 0.5,0.68 C0.65,0.63 0.85,0.73 1,0.68 V1 H0 Z;
-                              M0,0.7 C0.15,0.65 0.35,0.75 0.5,0.7 C0.65,0.65 0.85,0.75 1,0.7 V1 H0 Z
+                              M0,0.1 C0.15,0.08 0.35,0.12 0.5,0.1 C0.65,0.08 0.85,0.12 1,0.1 V1 H0 Z;
+                              M0,0.12 C0.15,0.10 0.35,0.14 0.5,0.12 C0.65,0.10 0.85,0.14 1,0.12 V1 H0 Z;
+                              M0,0.08 C0.15,0.06 0.35,0.10 0.5,0.08 C0.65,0.06 0.85,0.10 1,0.08 V1 H0 Z;
+                              M0,0.1 C0.15,0.08 0.35,0.12 0.5,0.1 C0.65,0.08 0.85,0.12 1,0.1 V1 H0 Z
                             "
                           />
                         </path>
@@ -1351,7 +1350,7 @@ export default function QuizPage() {
             </div>
           </div>
 
-          <p className="text-gray-300 text-base">Seu nível de hidratação está excelente — continue assim.</p>
+          <p className="text-gray-300 text-sm">Seu nível de hidratação está excelente — continue assim.</p>
 
           <button
             onClick={() => {
