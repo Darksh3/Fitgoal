@@ -1557,6 +1557,7 @@ export default function QuizPage() {
             <div className="max-w-md mx-auto">
               <input
                 type="number"
+                inputMode="numeric"
                 min="16"
                 max="80"
                 value={quizData.age || ""}
@@ -1750,6 +1751,7 @@ export default function QuizPage() {
               <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors flex items-center justify-center relative">
                 <Input
                   type="text"
+                  inputMode="decimal"
                   placeholder={`Altura em metros (ex: 1.75 ou 1,75)`}
                   value={quizData.height}
                   onChange={(e) => {
@@ -1778,6 +1780,7 @@ export default function QuizPage() {
                 <div className="flex-1 flex justify-center">
                   <Input
                     type="number"
+                    inputMode="decimal"
                     placeholder="80"
                     value={quizData.weight}
                     onChange={(e) => updateQuizData("weight", e.target.value)}
@@ -2747,6 +2750,9 @@ export default function QuizPage() {
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-white">Como você se sente sobre exercícios de cardio?</h2>
             </div>
+            <div className="flex justify-center mb-6">
+              <ExerciseIllustration type="cardio" />
+            </div>
             <div className="grid grid-cols-1 gap-4">
               {[
                 { value: "love", label: "Amo cardio!" },
@@ -2781,6 +2787,9 @@ export default function QuizPage() {
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-white">Como você se sente sobre flexões e exercícios de força?</h2>
             </div>
+            <div className="flex justify-center mb-6">
+              <ExerciseIllustration type="pullups" />
+            </div>
             <div className="grid grid-cols-1 gap-4">
               {[
                 { value: "love", label: "Adoro treinos de força!" },
@@ -2814,6 +2823,9 @@ export default function QuizPage() {
           <div className="space-y-8">
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-white">Como você se sente sobre alongamentos?</h2>
+            </div>
+            <div className="flex justify-center mb-6">
+              <ExerciseIllustration type="yoga" />
             </div>
             <div className="grid grid-cols-1 gap-4">
               {[
@@ -2872,6 +2884,13 @@ export default function QuizPage() {
                   </div>
                 </div>
               </div>
+            </div>
+            <div className="flex justify-center">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                </div>
+              </Button>
             </div>
           </div>
         )
