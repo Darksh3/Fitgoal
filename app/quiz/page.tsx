@@ -980,13 +980,16 @@ export default function QuizPage() {
     )
   }
 
-  if (showAnalyzingData) {
-    const messages = [
-      "Estamos analisando seus dados...",
-      "Calculando suas necessidades fisiológicas...",
-      "Ajustando seu plano ideal...",
-    ]
+  const messages = [
+    "Estamos analisando seus dados...",
+    "Calculando suas necessidades fisiológicas...",
+    "Ajustando seu plano ideal...",
+  ]
 
+  const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
+  // </CHANGE>
+
+  if (showAnalyzingData) {
     const current = Number.parseFloat(quizData.weight)
     const target = Number.parseFloat(quizData.targetWeight)
     const weightDifference = Math.abs(current - target)
@@ -1586,7 +1589,7 @@ export default function QuizPage() {
                 max="80"
                 value={quizData.age === 0 ? "" : quizData.age.toString()}
                 onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
-                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white focus:border-lime-500 focus:outline-none"
+                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-gray-300 focus:border-lime-500 focus:outline-none"
                 placeholder="Sua idade"
               />
             </div>
@@ -2944,6 +2947,14 @@ export default function QuizPage() {
                     </div>
                   </div>
                 </div>
+              </div>
+              <div className="flex justify-center">
+                <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                  <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                    <span className="relative z-10">Continuar</span>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </Button>
               </div>
             </div>
           </div>
