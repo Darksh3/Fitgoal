@@ -3018,7 +3018,9 @@ export default function QuizPage() {
           />
         </div>
         <div className="mb-8">{renderStep()}</div>
-        {![1, 3, 7, 9, 11, 13, 17, 18, 20, 21, 22].includes(currentStep) && (
+        {/* Atualizando a lista de exceções para refletir a nova ordem das perguntas
+        // Perguntas que não precisam de botão continuar: 1 (gênero), 3 (tipo corpo), 9 (dieta), 11 (água), 13 (alergias sim/não), 15 (suplemento), 16-22 (experiências de treino) */}
+        {![1, 3, 9, 11, 13, 15, 16, 17, 18, 19, 20, 21, 22].includes(currentStep) && (
           <div className="flex justify-center">
             {currentStep === totalSteps ? (
               <Button
