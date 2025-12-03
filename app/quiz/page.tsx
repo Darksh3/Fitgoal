@@ -15,7 +15,7 @@ import { Slider } from "@/components/ui/slider"
 
 import { Textarea } from "@/components/ui/textarea"
 
-import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, CheckCircle2 } from "lucide-react"
+import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, Clock } from "lucide-react"
 
 import { useRouter } from "next/navigation"
 
@@ -690,12 +690,12 @@ export default function QuizPage() {
       setShowNutritionInfo(true)
     } else if (currentStep === 10 && (quizData.waterIntake === "7-10" || quizData.waterIntake === "mais-10")) {
       setShowWaterCongrats(true)
-    } else if (currentStep === 11 && quizData.allergies === "nao") {
+    } else if (currentStep === 12 && quizData.allergies === "nao") {
       // Updated from step 12 to 13 since allergy details step was conditionally skipped
-      setCurrentStep(13)
+      setCurrentStep(14) // Skip step 13 and go directly to 14
       // </CHANGE>
-    } else if (currentStep === 13 && quizData.wantsSupplement === "nao") {
-      setCurrentStep(14)
+    } else if (currentStep === 14 && quizData.wantsSupplement === "nao") {
+      setCurrentStep(15) // Skip supplement details and go directly to target weight
     } else if (currentStep === 15 && quizData.weight !== "" && quizData.targetWeight !== "") {
       const calculatedTime = calculateTimeToGoal()
       console.log("[v0] calculatedTime:", calculatedTime)
@@ -717,11 +717,12 @@ export default function QuizPage() {
 
   const prevStep = () => {
     if (currentStep > 1) {
-      if (currentStep === 13 && quizData.allergies === "nao") {
-        // Updated from step 12 to 13 since allergy details step was conditionally skipped
-        setCurrentStep(11) // Updated from 10 to 11
-      } else if (currentStep === 14 && quizData.wantsSupplement === "nao") {
-        setCurrentStep(13)
+      if (currentStep === 14 && quizData.allergies === "nao") {
+        // Updated from step 13 to 14 since allergy details step was conditionally skipped
+        setCurrentStep(12) // Go back to allergies question
+      } else if (currentStep === 15 && quizData.wantsSupplement === "nao") {
+        // If we are at target weight and wantsSupplement was 'no', go back to supplement question
+        setCurrentStep(14)
       } else {
         setCurrentStep(currentStep - 1)
       }
@@ -1583,10 +1584,10 @@ export default function QuizPage() {
                 inputMode="numeric"
                 min="16"
                 max="80"
-                value={quizData.age.toString()} // Ensure value is string for Input
+                value={quizData.age === 0 ? "" : quizData.age.toString()}
                 onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
                 className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white focus:border-lime-500 focus:outline-none"
-                placeholder="Digite sua idade"
+                placeholder="Sua idade"
               />
             </div>
           </div>
@@ -2343,13 +2344,6 @@ export default function QuizPage() {
                 ))}
               </div>
             </div>
-            <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                </div>
-              </Button>
-            </div>
           </div>
         )
 
@@ -2661,14 +2655,35 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu tempo de treino?</h2>
-              <p className="text-gray-300">Escolha a opção que melhor descreve sua disponibilidade</p>
+              <h2 className="text-2xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
+              <p className="text-white/60">Quanto tempo você pode dedicar por sessão?</p>
             </div>
             <div className="grid grid-cols-1 gap-4">
               {[
-                { value: "beginner", label: "Iniciante (menos de 6 meses)" },
-                { value: "intermediate", label: "Intermediário (6 meses - 2 anos)" },
-                { value: "advanced", label: "Avançado (mais de 2 anos)" },
+                {
+                  value: "15-30",
+                  label: "15-30 minutos",
+                  desc: "Treinos rápidos e eficientes",
+                  icon: <Clock className="w-6 h-6 text-lime-500" />,
+                },
+                {
+                  value: "30-45",
+                  label: "30-45 minutos",
+                  desc: "Tempo ideal para maioria dos treinos",
+                  icon: <Clock className="w-6 h-6 text-lime-500" />,
+                },
+                {
+                  value: "45-60",
+                  label: "45-60 minutos",
+                  desc: "Treinos completos e detalhados",
+                  icon: <Clock className="w-6 h-6 text-lime-500" />,
+                },
+                {
+                  value: "60+",
+                  label: "Mais de 60 minutos",
+                  desc: "Treinos extensos e avançados",
+                  icon: <Clock className="w-6 h-6 text-lime-500" />,
+                },
               ].map((option) => (
                 <button
                   key={option.value}
@@ -2682,7 +2697,13 @@ export default function QuizPage() {
                       : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
                   }`}
                 >
-                  <span className="text-white">{option.label}</span>
+                  <div className="flex items-center space-x-3 sm:space-x-4">
+                    <div className="flex-shrink-0">{option.icon}</div>
+                    <div className="text-left flex-1">
+                      <h3 className="text-white font-medium">{option.label}</h3>
+                      <p className="text-white/50 text-sm mt-1">{option.desc}</p>
+                    </div>
+                  </div>
                 </button>
               ))}
             </div>
@@ -2693,19 +2714,27 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Tem experiência com treinamento de força?</h2>
+              <h2 className="text-2xl font-bold text-white">Qual seu nível de experiência com treinamento de força?</h2>
             </div>
             <div className="grid grid-cols-1 gap-4">
               {[
                 {
-                  value: "yes",
-                  label: "Sim, treino regularmente",
-                  icon: <CheckCircle2 className="w-6 h-6 text-lime-500" />,
+                  value: "beginner",
+                  label: "Iniciante",
+                  desc: "Menos de 6 meses de treino",
+                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
                 },
                 {
-                  value: "no",
-                  label: "Não, estou começando agora",
-                  icon: <X className="w-6 h-6 text-red-500" />,
+                  value: "intermediate",
+                  label: "Intermediário",
+                  desc: "6 meses a 2 anos de treino",
+                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
+                },
+                {
+                  value: "advanced",
+                  label: "Avançado",
+                  desc: "Mais de 2 anos de treino",
+                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
                 },
               ].map((option) => (
                 <button
@@ -2722,7 +2751,10 @@ export default function QuizPage() {
                 >
                   <div className="flex items-center space-x-3 sm:space-x-4">
                     <div className="flex-shrink-0">{option.icon}</div>
-                    <h3 className="text-white font-medium text-left flex-1">{option.label}</h3>
+                    <div className="text-left flex-1">
+                      <h3 className="text-white font-medium">{option.label}</h3>
+                      <p className="text-white/50 text-sm mt-1">{option.desc}</p>
+                    </div>
                   </div>
                 </button>
               ))}
@@ -2913,13 +2945,6 @@ export default function QuizPage() {
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="flex justify-center">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                </div>
-              </Button>
             </div>
           </div>
         )
@@ -3155,8 +3180,8 @@ export default function QuizPage() {
         </div>
         <div className="mb-8">{renderStep()}</div>
         {/* Atualizando a lista de exceções para refletir a nova ordem das perguntas
-        // Perguntas que não precisam de botão continuar: 1 (gênero), 3 (tipo corpo), 9 (dieta), 11 (água), 13 (alergias sim/não), 15 (suplemento), 16-22 (experiências de treino) */}
-        {![1, 3, 9, 11, 13, 16, 17, 19, 20, 21].includes(currentStep) && (
+        // Perguntas que não precisam de botão continuar: 1 (gênero), 3 (tipo corpo), 8 (problemas áreas), 9 (dieta), 11 (água), 12 (alergias), 13 (alergias sim/não), 14 (suplemento), 16-22 (experiências de treino) */}
+        {![1, 3, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22].includes(currentStep) && (
           <div className="flex justify-center">
             {currentStep === totalSteps ? (
               <Button
