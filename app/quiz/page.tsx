@@ -2347,6 +2347,14 @@ export default function QuizPage() {
                 ))}
               </div>
             </div>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
           </div>
         )
 
@@ -2952,7 +2960,7 @@ export default function QuizPage() {
                 <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
                   <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                     <span className="relative z-10">Continuar</span>
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
                   </div>
                 </Button>
               </div>
