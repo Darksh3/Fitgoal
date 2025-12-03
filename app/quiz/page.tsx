@@ -2474,7 +2474,8 @@ export default function QuizPage() {
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
-                  setCurrentStep(13) // Skip allergy details
+                  // </CHANGE> Skip case 13 (allergy details) and go directly to case 14
+                  setCurrentStep(14)
                 }}
               >
                 <X
