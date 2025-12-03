@@ -2731,6 +2731,13 @@ export default function QuizPage() {
                 </button>
               ))}
             </div>
+            <button
+              onClick={nextStep}
+              disabled={!canProceed()}
+              className="w-full py-4 px-8 bg-lime-500 hover:bg-lime-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 disabled:shadow-none"
+            >
+              Continuar
+            </button>
           </div>
         )
 
