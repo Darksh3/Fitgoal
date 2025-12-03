@@ -450,6 +450,62 @@ export default function QuizPage() {
     return `${day} de ${month}. de ${year}`
   }
 
+  const isStepValid = (questionId: number): boolean => {
+    switch (questionId) {
+      case 1: // Gender
+        return !!quizData.gender
+      case 2: // Age
+        return quizData.age >= 16 && quizData.age <= 80
+      case 10: // Height
+        return normalizeHeight(quizData.height) !== ""
+      case 14: // Current Weight
+        return quizData.weight !== ""
+      case 5: // Body Fat
+        return quizData.bodyFat >= 5 && quizData.bodyFat <= 45
+      case 3: // Body Type
+        return !!quizData.bodyType
+      case 4: // Goals
+        return quizData.goal.length > 0
+      case 15: // Target Weight
+        return quizData.targetWeight !== ""
+      case 6: // Problem Areas
+        return quizData.problemAreas.length > 0
+      case 7: // Diet
+        return !!quizData.diet
+      case 8: // Sugar Frequency
+        return quizData.sugarFrequency.length > 0
+      case 9: // Water Intake
+        return !!quizData.waterIntake
+      case 11: // Allergies
+        return !!quizData.allergies
+      case 12: // Allergy Details (only if allergies are 'sim')
+        return quizData.allergies === "nao" || (quizData.allergies === "sim" && quizData.allergyDetails !== "")
+      case 13: // Wants Supplement
+        return !!quizData.wantsSupplement
+      case 17: // Workout Time
+        return !!quizData.workoutTime
+      case 18: // Strength Training Experience
+        return !!quizData.strengthTraining
+      case 19: // Equipment
+        return quizData.equipment.length > 0
+      case 20: // Cardio Preference
+        return !!quizData.exercisePreferences.cardio
+      case 21: // Pullups/Strength Preference
+        return !!quizData.exercisePreferences.pullups
+      case 22: // Yoga/Stretching Preference
+        return !!quizData.exercisePreferences.yoga
+      case 23: // Training Days Per Week
+        return quizData.trainingDaysPerWeek >= 1 && quizData.trainingDaysPerWeek <= 7
+      case 16: // Name
+        return quizData.name.trim() !== ""
+      case 24: // Email
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(quizData.email)
+      default:
+        return false
+    }
+  }
+  // </CHANGE>
+
   const generateAndSavePlan = async (data: QuizData, userId: string) => {
     console.log("generateAndSavePlan: Iniciando para userId:", userId)
 
@@ -923,499 +979,6 @@ export default function QuizPage() {
       </div>
     )
   }
-
-  if (showLoading) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-6 max-w-md">
-          <div className="w-32 h-32 mx-auto relative">
-            <svg className="w-full h-full animate-spin" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="40" stroke="#374151" strokeWidth="8" fill="none" />
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                stroke="#84CC16"
-                strokeWidth="8"
-                fill="none"
-                strokeDasharray="251.2"
-                strokeDashoffset="188.4"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold">Analisando suas respostas...</h2>
-          <p className="text-gray-300">Criando seu plano personalizado</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (showTimeCalculation) {
-    const current = Number.parseFloat(quizData.weight)
-    const target = Number.parseFloat(quizData.targetWeight)
-    const isGaining = target > current
-
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6 relative overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 bg-lime-400/40 rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                bottom: "-10px",
-                animation: `floatUp ${8 + Math.random() * 8}s linear infinite`,
-                animationDelay: `${Math.random() * 5}s`,
-                opacity: Math.random() * 0.5 + 0.3,
-              }}
-            />
-          ))}
-        </div>
-        {/* </CHANGE> */}
-
-        <div className="text-center space-y-8 max-w-2xl relative z-10">
-          <h2 className="text-3xl md:text-4xl font-bold leading-tight">
-            O último plano de que você precisará para <span className="text-lime-400">finalmente entrar em forma</span>
-          </h2>
-
-          <p className="text-gray-300 text-lg">
-            Com base em nossos cálculos, você atingirá seu peso ideal de {target} kg até
-          </p>
-
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-lime-400/20 blur-3xl rounded-full" />
-            <div className="relative text-4xl md:text-5xl font-bold text-lime-400">{quizData.timeToGoal}</div>
-          </div>
-
-          <div className="relative w-full max-w-md mx-auto">
-            <div
-              className={`relative rounded-xl p-5 border border-lime-500/30 bg-[#0B0F10] shadow-[0_0_20px_rgba(132,204,22,0.15)]`}
-            >
-              {/* Weight labels */}
-              <div
-                className={`absolute ${isGaining ? "bottom-6 left-6" : "top-6 left-6"} bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg text-base font-medium z-20`}
-              >
-                {current} kg
-              </div>
-              <div
-                className={`absolute ${isGaining ? "top-6 right-6" : "bottom-6 right-6"} bg-lime-500 px-4 py-2 rounded-lg text-base font-bold z-20`}
-              >
-                {target} kg
-              </div>
-
-              <svg viewBox="0 0 300 200" className="w-full h-auto relative z-10">
-                <defs>
-                  <filter id="limeGlow">
-                    <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#84cc16" />
-                  </filter>
-                  <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#f97316" />
-                    <stop offset="100%" stopColor="#84CC16" />
-                  </linearGradient>
-                </defs>
-
-                {/* Animated line - slowed down to 2.5s */}
-                <polyline
-                  stroke="url(#progressGradient)"
-                  strokeWidth="4"
-                  fill="none"
-                  filter="url(#limeGlow)"
-                  strokeDasharray="450"
-                  strokeDashoffset="450"
-                  style={{
-                    animation: "madDraw 2.5s ease forwards",
-                  }}
-                  points={
-                    isGaining
-                      ? "10,150 70,140 130,120 180,100 230,75 280,55"
-                      : "10,55 70,75 130,100 180,120 230,140 280,150"
-                  }
-                />
-
-                {/* Fixed points - no animation */}
-                {(isGaining
-                  ? [
-                      [70, 140],
-                      [130, 120],
-                      [180, 100],
-                      [230, 75],
-                      [280, 55],
-                    ]
-                  : [
-                      [70, 75],
-                      [130, 100],
-                      [180, 120],
-                      [230, 140],
-                      [280, 150],
-                    ]
-                ).map(([cx, cy], i) => (
-                  <circle key={i} cx={cx} cy={cy} r="6" fill="#84cc16" filter="url(#limeGlow)" />
-                ))}
-              </svg>
-              {/* </CHANGE> */}
-
-              {/* Side bars */}
-              <div className="absolute left-0 top-5 bottom-5 w-[4px] bg-lime-500/15 rounded-full overflow-hidden">
-                <div
-                  className="bg-lime-500 w-full rounded-full"
-                  style={{
-                    animation: "madBar 1.3s cubic-bezier(.3,.8,.4,1) forwards",
-                  }}
-                />
-              </div>
-              <div className="absolute right-0 top-5 bottom-5 w-[4px] bg-lime-500/15 rounded-full overflow-hidden">
-                <div
-                  className="bg-lime-500 w-full rounded-full"
-                  style={{
-                    animation: "madBar 1.3s cubic-bezier(.3,.8,.4,1) forwards",
-                    animationDelay: ".2s",
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-between text-base text-gray-400">
-            <span>{getCurrentDate()}</span>
-            <span>{quizData.timeToGoal}</span>
-          </div>
-
-          <div className="bg-lime-500 hover:bg-lime-600 transition-colors rounded-full p-1 max-w-md mx-auto">
-            {/* <Button
-              onClick={() => {
-                setShowTimeCalculation(false)
-                setCurrentStep(currentStep + 1)
-              }}
-              className="w-full block bg-lime-600 hover:bg-lime-700 text-white py-8 text-3xl font-semibold min-h-[80px] rounded-full"
-            >
-              Entendi
-            </Button> */}
-            {/* </CHANGE> Simplified button structure to ensure entire area is clickable */}
-            <button
-              onClick={() => {
-                setShowTimeCalculation(false)
-                setCurrentStep(currentStep + 1)
-              }}
-              className="w-full max-w-md mx-auto block bg-lime-500 hover:bg-lime-600 text-white py-8 px-8 text-3xl font-semibold min-h-[80px] rounded-full transition-colors"
-            >
-              Entendi
-            </button>
-          </div>
-
-          <style>{`
-            @keyframes madDraw {
-              to { stroke-dashoffset: 0; }
-            }
-            @keyframes madBar {
-              from { height: 0%; }
-              to { height: 100%; }
-            }
-            @keyframes floatUp {
-              0% {
-                transform: translateY(0) translateX(0);
-                opacity: 0;
-              }
-              10% {
-                opacity: 1;
-              }
-              90% {
-                opacity: 1;
-              }
-              100% {
-                transform: translateY(-100vh) translateX(${Math.random() * 40 - 20}px);
-                opacity: 0;
-              }
-            }
-          `}</style>
-        </div>
-      </div>
-    )
-  }
-
-  if (showIMCResult) {
-    const { imc, classification, status } = calculateIMC(
-      Number.parseFloat(quizData.currentWeight),
-      Number.parseFloat(quizData.height),
-    )
-
-    const getIMCBodyImage = () => {
-      const isWoman = quizData.gender === "mulher"
-      const bodyType = quizData.bodyType
-
-      if (!bodyType) {
-        // Fallback to generic image if bodyType is not set
-        return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
-      }
-
-      switch (bodyType) {
-        case "ectomorfo":
-          return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
-        case "mesomorfo":
-          return isWoman ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorph-real-new.webp"
-        case "endomorfo":
-          return isWoman ? "/images/female-endomorph-real-new.webp" : "/images/male-endomorph-real-new.webp"
-        default:
-          return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
-      }
-    }
-
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-6 max-w-md">
-          <img
-            src={getIMCBodyImage() || "/placeholder.svg"}
-            alt={`${quizData.bodyType} body type`}
-            className="w-48 h-64 mx-auto object-contain"
-            onError={(e) => {
-              e.currentTarget.src = "/placeholder.svg"
-            }}
-          />
-          <h2 className="text-3xl font-bold">Resultado do seu IMC</h2>
-          <div className="bg-gray-800 rounded-lg p-6">
-            <p className="text-gray-300 text-lg mb-4">
-              Calculamos o seu IMC e ele é de <span className="text-lime-400 font-bold">{imc}</span>
-            </p>
-            <p className="text-white text-xl mb-4">
-              Você está com <span className="text-lime-400 font-bold">{classification}</span>
-            </p>
-          </div>
-          <Button
-            onClick={() => {
-              setShowIMCResult(false)
-              setShowSuccess(true)
-            }}
-            className="group relative"
-          >
-            {/* Botão principal */}
-            <div className="relative px-16 py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-              <span className="relative z-10">Continuar</span>
-
-              {/* Efeito de brilho animado */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  if (showSuccess) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-center p-4">
-        <div className="text-center space-y-8 max-w-lg w-full">
-          <div className="w-32 h-32 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-green-500/30 animate-in zoom-in duration-500">
-            <CheckCircle className="h-16 w-16 text-white stroke-[3]" />
-          </div>
-
-          <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-            <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">
-              Seu plano de treino personalizado está pronto!
-            </h2>
-
-            <button
-              onClick={() => {
-                setShowSuccess(false)
-                router.push("/quiz/results")
-              }}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] animate-in fade-in duration-700 delay-500"
-            >
-              Ver Resultados
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (showNutritionInfo) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-6 max-w-md">
-          <BodyIllustration className="w-48 h-64 mx-auto" gender={quizData.gender === "mulher" ? "female" : "male"} />
-          <h2 className="text-3xl font-bold">
-            <span className="text-lime-400">81%</span> dos seus resultados são sobre nutrição
-          </h2>
-          <p className="text-gray-300">Para obter os maiores ganhos em massa muscular e força, você precisa:</p>
-          <div className="space-y-4 text-left">
-            <div className="flex items-start space-x-3">
-              <CheckCircle className="h-6 w-6 text-green-500 mt-1 flex-shrink-0" />
-              <p className="text-white">Total de calorias suficientes a cada dia.</p>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle className="h-6 w-6 text-green-500 mt-1 flex-shrink-0" />
-              <p className="text-white">Proteína adequada para realmente reconstruir mais tecido muscular.</p>
-            </div>
-          </div>
-          <Button
-            onClick={() => {
-              setShowNutritionInfo(false)
-              setCurrentStep(currentStep + 1)
-            }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-white py-4 text-lg rounded-full"
-          >
-            Entendi
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  if (showWaterCongrats) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black flex items-center justify-center px-4 py-6">
-        <div className="text-center space-y-4 max-w-md">
-          <div className="w-20 h-20 mx-auto relative">
-            <div className="absolute inset-0 bg-cyan-500/20 rounded-full blur-2xl"></div>
-            <div className="relative w-full h-full rounded-full border-4 border-cyan-500 flex items-center justify-center bg-cyan-500/10">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                className="w-10 h-10 text-cyan-500"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-          </div>
-
-          <h2 className="text-2xl font-bold">Uau! Impressionante!</h2>
-
-          <p className="text-gray-300 text-sm">Você bebe mais água do que 95% dos usuários do Fitgoal.</p>
-
-          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-4">
-            <div className="flex flex-col items-center gap-2">
-              <h3 className="text-lg font-semibold">Nível de Hidratação</h3>
-
-              <div className="relative w-full max-w-[160px]">
-                <div className="relative w-full h-32 rounded-2xl overflow-hidden border border-cyan-400/40 bg-[#0B0F10] shadow-[0_0_20px_rgba(34,211,238,0.15)]">
-                  {/* Water level animation */}
-                  <div
-                    className="absolute bottom-0 left-0 w-full bg-cyan-400/40 transition-all duration-[1800ms] ease-out"
-                    style={{
-                      height: `${waterFill}%`,
-                      clipPath: "url(#waveClip)",
-                    }}
-                  />
-
-                  {/* Wave SVG */}
-                  <svg className="absolute bottom-0 left-0 w-full h-full">
-                    <defs>
-                      <clipPath id="waveClip" clipPathUnits="objectBoundingBox">
-                        <path d="M0,0.1 C0.15,0.08 0.35,0.12 0.5,0.1 C0.65,0.08 0.85,0.12 1,0.1 V1 H0 Z" fill="white">
-                          <animate
-                            attributeName="d"
-                            dur="4s"
-                            repeatCount="indefinite"
-                            values="
-                              M0,0.1 C0.15,0.08 0.35,0.12 0.5,0.1 C0.65,0.08 0.85,0.12 1,0.1 V1 H0 Z;
-                              M0,0.12 C0.15,0.10 0.35,0.14 0.5,0.12 C0.65,0.10 0.85,0.14 1,0.12 V1 H0 Z;
-                              M0,0.08 C0.15,0.06 0.35,0.10 0.5,0.08 C0.65,0.06 0.85,0.10 1,0.08 V1 H0 Z;
-                              M0,0.1 C0.15,0.08 0.35,0.12 0.5,0.1 C0.65,0.08 0.85,0.12 1,0.1 V1 H0 Z
-                            "
-                          />
-                        </path>
-                      </clipPath>
-                    </defs>
-                  </svg>
-
-                  {/* Glow line on water surface */}
-                  <div
-                    className="absolute w-full h-1 bg-cyan-300/60 shadow-[0_0_12px_rgba(34,211,238,0.8)] transition-all duration-[1800ms]"
-                    style={{ bottom: `${waterFill}%` }}
-                  />
-                </div>
-
-                <div className="text-center text-2xl mt-2 text-cyan-300 font-bold drop-shadow-[0_0_10px_rgba(34,211,238,0.9)]">
-                  {waterFill}%
-                </div>
-              </div>
-
-              <p className="text-sm text-gray-300">acima da média</p>
-            </div>
-          </div>
-
-          <p className="text-gray-300 text-sm">Seu nível de hidratação está excelente — continue assim.</p>
-
-          <button
-            onClick={() => {
-              setShowWaterCongrats(false)
-              setCurrentStep(currentStep + 1)
-            }}
-            className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3 px-8 rounded-2xl transition-colors text-base"
-          >
-            Continuar
-          </button>
-
-          <p className="text-gray-500 text-xs">Baseado nos dados dos usuários do Fitgoal</p>
-        </div>
-      </div>
-    )
-  }
-
-  const getBodyFatImage = () => {
-    const isMale = quizData.gender === "homem"
-
-    console.log(
-      "[v0] getBodyFatImage called, gender:",
-      quizData.gender,
-      "isMale:",
-      isMale,
-      "bodyFat:",
-      quizData.bodyFat,
-    )
-    // </CHANGE>
-
-    if (isMale) {
-      // Male images: mone.webp to meight.webp
-      if (quizData.bodyFat <= 10) return "/images/mone.webp"
-      if (quizData.bodyFat <= 15) return "/images/mtwo.webp"
-      if (quizData.bodyFat <= 20) return "/images/mthree.webp"
-      if (quizData.bodyFat <= 25) return "/images/mfour.webp"
-      if (quizData.bodyFat <= 30) return "/images/mfive.webp"
-      if (quizData.bodyFat <= 35) return "/images/msix.webp"
-      if (quizData.bodyFat <= 39) return "/images/mseven.webp"
-      return "/images/meight.webp"
-    } else {
-      // Female images: bodyfat-one.webp to bodyfat-eight.webp
-      const imagePath =
-        quizData.bodyFat <= 10
-          ? "/images/bodyfat-one.webp"
-          : quizData.bodyFat <= 15
-            ? "/images/bodyfat-two.webp"
-            : quizData.bodyFat <= 20
-              ? "/images/bodyfat-three.webp"
-              : quizData.bodyFat <= 25
-                ? "/images/bodyfat-four.webp"
-                : quizData.bodyFat <= 30
-                  ? "/images/bodyfat-five.webp"
-                  : quizData.bodyFat <= 35
-                    ? "/images/bodyfat-six.webp"
-                    : quizData.bodyFat <= 39
-                      ? "/images/bodyfat-seven.webp"
-                      : "/images/bodyfat-eight.webp"
-
-      console.log("[v0] Female image path:", imagePath)
-      return imagePath
-      // </CHANGE>
-    }
-  }
-
-  const getBodyFatRange = () => {
-    if (quizData.bodyFat <= 10) return "5-10%"
-    if (quizData.bodyFat <= 15) return "11-15%"
-    if (quizData.bodyFat <= 20) return "16-20%"
-    if (quizData.bodyFat <= 25) return "21-25%"
-    if (quizData.bodyFat <= 30) return "26-30%"
-    if (quizData.bodyFat <= 35) return "31-35%"
-    if (quizData.bodyFat <= 39) return "36-39%"
-    return ">40%"
-  }
-
-  // Maps each step (1-24) to the actual question number
-  const questionOrder = [1, 2, 10, 14, 5, 3, 4, 15, 6, 7, 8, 9, 11, 12, 13, 17, 18, 19, 20, 21, 22, 23, 16, 24]
 
   const renderQuestion = () => {
     const actualQuestion = questionOrder[currentStep - 1]
@@ -2822,66 +2385,503 @@ export default function QuizPage() {
     }
   }
 
-  const isStepValid = (step: number): boolean => {
-    switch (step) {
-      case 1:
-        return quizData.gender !== ""
-      case 2:
-        return quizData.age > 0 && quizData.age >= 16 && quizData.age <= 80
-      case 3:
-        return quizData.bodyType !== ""
-      case 4:
-        return quizData.goal.length > 0
-      case 5:
-        return quizData.bodyFat > 0
-      case 6:
-        return quizData.problemAreas.length > 0
-      case 7:
-        return quizData.diet !== ""
-      case 8:
-        return quizData.sugarFrequency.length > 0
-      case 9:
-        return quizData.waterIntake !== ""
-      case 10:
-        return quizData.height !== "" && Number.parseFloat(quizData.height) > 0
-      case 11:
-        return quizData.allergies !== ""
-      case 12:
-        // If user has allergies, they must provide details. If not, this step is skipped.
-        return quizData.allergies === "nao" || (quizData.allergies === "sim" && quizData.allergyDetails.trim() !== "")
-      case 13:
-        return quizData.wantsSupplement !== ""
-      case 14:
-        // </CHANGE> Check quizData.weight instead of currentWeight
-        return quizData.weight !== "" && Number.parseFloat(quizData.weight) > 0
-      case 15:
-        return quizData.targetWeight !== "" && Number.parseFloat(quizData.targetWeight) > 0
-      case 16:
-        return quizData.name.trim() !== ""
-      case 17:
-        return quizData.workoutTime !== ""
-      case 18:
-        return quizData.strengthTraining !== "" // Check strengthTraining
-      case 19:
-        return quizData.equipment.length > 0
-      case 20:
-        return quizData.exercisePreferences.cardio !== ""
-      case 21:
-        return quizData.exercisePreferences.pullups !== ""
-      case 22:
-        return quizData.exercisePreferences.yoga !== ""
-      case 23:
-        return quizData.trainingDaysPerWeek >= 1 && quizData.trainingDaysPerWeek <= 7
-      case 24:
-        return quizData.email.trim() !== "" && quizData.email.includes("@")
-      default:
-        return true
+  const canProceed = () => {
+    const actualQuestion = questionOrder[currentStep - 1]
+    return isStepValid(actualQuestion)
+  }
+
+  if (showLoading) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
+        <div className="text-center space-y-6 max-w-md">
+          <div className="w-32 h-32 mx-auto relative">
+            <svg className="w-full h-full animate-spin" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="40" stroke="#374151" strokeWidth="8" fill="none" />
+              <circle
+                cx="50"
+                cy="50"
+                r="40"
+                stroke="#84CC16"
+                strokeWidth="8"
+                fill="none"
+                strokeDasharray="251.2"
+                strokeDashoffset="188.4"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold">Analisando suas respostas...</h2>
+          <p className="text-gray-300">Criando seu plano personalizado</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (showTimeCalculation) {
+    const current = Number.parseFloat(quizData.weight)
+    const target = Number.parseFloat(quizData.targetWeight)
+    const isGaining = target > current
+
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6 relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 bg-lime-400/40 rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                bottom: "-10px",
+                animation: `floatUp ${8 + Math.random() * 8}s linear infinite`,
+                animationDelay: `${Math.random() * 5}s`,
+                opacity: Math.random() * 0.5 + 0.3,
+              }}
+            />
+          ))}
+        </div>
+        {/* </CHANGE> */}
+
+        <div className="text-center space-y-8 max-w-2xl relative z-10">
+          <h2 className="text-3xl md:text-4xl font-bold leading-tight">
+            O último plano de que você precisará para <span className="text-lime-400">finalmente entrar em forma</span>
+          </h2>
+
+          <p className="text-gray-300 text-lg">
+            Com base em nossos cálculos, você atingirá seu peso ideal de {target} kg até
+          </p>
+
+          <div className="relative inline-block">
+            <div className="absolute inset-0 bg-lime-400/20 blur-3xl rounded-full" />
+            <div className="relative text-4xl md:text-5xl font-bold text-lime-400">{quizData.timeToGoal}</div>
+          </div>
+
+          <div className="relative w-full max-w-md mx-auto">
+            <div
+              className={`relative rounded-xl p-5 border border-lime-500/30 bg-[#0B0F10] shadow-[0_0_20px_rgba(132,204,22,0.15)]`}
+            >
+              {/* Weight labels */}
+              <div
+                className={`absolute ${isGaining ? "bottom-6 left-6" : "top-6 left-6"} bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg text-base font-medium z-20`}
+              >
+                {current} kg
+              </div>
+              <div
+                className={`absolute ${isGaining ? "top-6 right-6" : "bottom-6 right-6"} bg-lime-500 px-4 py-2 rounded-lg text-base font-bold z-20`}
+              >
+                {target} kg
+              </div>
+
+              <svg viewBox="0 0 300 200" className="w-full h-auto relative z-10">
+                <defs>
+                  <filter id="limeGlow">
+                    <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#84cc16" />
+                  </filter>
+                  <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#f97316" />
+                    <stop offset="100%" stopColor="#84CC16" />
+                  </linearGradient>
+                </defs>
+
+                {/* Animated line - slowed down to 2.5s */}
+                <polyline
+                  stroke="url(#progressGradient)"
+                  strokeWidth="4"
+                  fill="none"
+                  filter="url(#limeGlow)"
+                  strokeDasharray="450"
+                  strokeDashoffset="450"
+                  style={{
+                    animation: "madDraw 2.5s ease forwards",
+                  }}
+                  points={
+                    isGaining
+                      ? "10,150 70,140 130,120 180,100 230,75 280,55"
+                      : "10,55 70,75 130,100 180,120 230,140 280,150"
+                  }
+                />
+
+                {/* Fixed points - no animation */}
+                {(isGaining
+                  ? [
+                      [70, 140],
+                      [130, 120],
+                      [180, 100],
+                      [230, 75],
+                      [280, 55],
+                    ]
+                  : [
+                      [70, 75],
+                      [130, 100],
+                      [180, 120],
+                      [230, 140],
+                      [280, 150],
+                    ]
+                ).map(([cx, cy], i) => (
+                  <circle key={i} cx={cx} cy={cy} r="6" fill="#84cc16" filter="url(#limeGlow)" />
+                ))}
+              </svg>
+              {/* </CHANGE> */}
+
+              {/* Side bars */}
+              <div className="absolute left-0 top-5 bottom-5 w-[4px] bg-lime-500/15 rounded-full overflow-hidden">
+                <div
+                  className="bg-lime-500 w-full rounded-full"
+                  style={{
+                    animation: "madBar 1.3s cubic-bezier(.3,.8,.4,1) forwards",
+                  }}
+                />
+              </div>
+              <div className="absolute right-0 top-5 bottom-5 w-[4px] bg-lime-500/15 rounded-full overflow-hidden">
+                <div
+                  className="bg-lime-500 w-full rounded-full"
+                  style={{
+                    animation: "madBar 1.3s cubic-bezier(.3,.8,.4,1) forwards",
+                    animationDelay: ".2s",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-between text-base text-gray-400">
+            <span>{getCurrentDate()}</span>
+            <span>{quizData.timeToGoal}</span>
+          </div>
+
+          <div className="bg-lime-500 hover:bg-lime-600 transition-colors rounded-full p-1 max-w-md mx-auto">
+            {/* <Button
+              onClick={() => {
+                setShowTimeCalculation(false)
+                setCurrentStep(currentStep + 1)
+              }}
+              className="w-full block bg-lime-600 hover:bg-lime-700 text-white py-8 text-3xl font-semibold min-h-[80px] rounded-full"
+            >
+              Entendi
+            </Button> */}
+            {/* </CHANGE> Simplified button structure to ensure entire area is clickable */}
+            <button
+              onClick={() => {
+                setShowTimeCalculation(false)
+                setCurrentStep(currentStep + 1)
+              }}
+              className="w-full max-w-md mx-auto block bg-lime-500 hover:bg-lime-600 text-white py-8 px-8 text-3xl font-semibold min-h-[80px] rounded-full transition-colors"
+            >
+              Entendi
+            </button>
+          </div>
+
+          <style>{`
+            @keyframes madDraw {
+              to { stroke-dashoffset: 0; }
+            }
+            @keyframes madBar {
+              from { height: 0%; }
+              to { height: 100%; }
+            }
+            @keyframes floatUp {
+              0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+              }
+              10% {
+                opacity: 1;
+              }
+              90% {
+                opacity: 1;
+              }
+              100% {
+                transform: translateY(-100vh) translateX(${Math.random() * 40 - 20}px);
+                opacity: 0;
+              }
+            }
+          `}</style>
+        </div>
+      </div>
+    )
+  }
+
+  if (showIMCResult) {
+    const { imc, classification, status } = calculateIMC(
+      Number.parseFloat(quizData.currentWeight),
+      Number.parseFloat(quizData.height),
+    )
+
+    const getIMCBodyImage = () => {
+      const isWoman = quizData.gender === "mulher"
+      const bodyType = quizData.bodyType
+
+      if (!bodyType) {
+        // Fallback to generic image if bodyType is not set
+        return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
+      }
+
+      switch (bodyType) {
+        case "ectomorfo":
+          return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
+        case "mesomorfo":
+          return isWoman ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorph-real-new.webp"
+        case "endomorfo":
+          return isWoman ? "/images/female-endomorph-real-new.webp" : "/images/male-endomorph-real-new.webp"
+        default:
+          return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
+      }
+    }
+
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
+        <div className="text-center space-y-6 max-w-md">
+          <img
+            src={getIMCBodyImage() || "/placeholder.svg"}
+            alt={`${quizData.bodyType} body type`}
+            className="w-48 h-64 mx-auto object-contain"
+            onError={(e) => {
+              e.currentTarget.src = "/placeholder.svg"
+            }}
+          />
+          <h2 className="text-3xl font-bold">Resultado do seu IMC</h2>
+          <div className="bg-gray-800 rounded-lg p-6">
+            <p className="text-gray-300 text-lg mb-4">
+              Calculamos o seu IMC e ele é de <span className="text-lime-400 font-bold">{imc}</span>
+            </p>
+            <p className="text-white text-xl mb-4">
+              Você está com <span className="text-lime-400 font-bold">{classification}</span>
+            </p>
+          </div>
+          <Button
+            onClick={() => {
+              setShowIMCResult(false)
+              setShowSuccess(true)
+            }}
+            className="group relative"
+          >
+            {/* Botão principal */}
+            <div className="relative px-16 py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+              <span className="relative z-10">Continuar</span>
+
+              {/* Efeito de brilho animado */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (showSuccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-center p-4">
+        <div className="text-center space-y-8 max-w-lg w-full">
+          <div className="w-32 h-32 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-green-500/30 animate-in zoom-in duration-500">
+            <CheckCircle className="h-16 w-16 text-white stroke-[3]" />
+          </div>
+
+          <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+            <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">
+              Seu plano de treino personalizado está pronto!
+            </h2>
+
+            <button
+              onClick={() => {
+                setShowSuccess(false)
+                router.push("/quiz/results")
+              }}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] animate-in fade-in duration-700 delay-500"
+            >
+              Ver Resultados
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (showNutritionInfo) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
+        <div className="text-center space-y-6 max-w-md">
+          <BodyIllustration className="w-48 h-64 mx-auto" gender={quizData.gender === "mulher" ? "female" : "male"} />
+          <h2 className="text-3xl font-bold">
+            <span className="text-lime-400">81%</span> dos seus resultados são sobre nutrição
+          </h2>
+          <p className="text-gray-300">Para obter os maiores ganhos em massa muscular e força, você precisa:</p>
+          <div className="space-y-4 text-left">
+            <div className="flex items-start space-x-3">
+              <CheckCircle className="h-6 w-6 text-green-500 mt-1 flex-shrink-0" />
+              <p className="text-white">Total de calorias suficientes a cada dia.</p>
+            </div>
+            <div className="flex items-start space-x-3">
+              <CheckCircle className="h-6 w-6 text-green-500 mt-1 flex-shrink-0" />
+              <p className="text-white">Proteína adequada para realmente reconstruir mais tecido muscular.</p>
+            </div>
+          </div>
+          <Button
+            onClick={() => {
+              setShowNutritionInfo(false)
+              setCurrentStep(currentStep + 1)
+            }}
+            className="w-full bg-lime-500 hover:bg-lime-600 text-white py-4 text-lg rounded-full"
+          >
+            Entendi
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (showWaterCongrats) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black flex items-center justify-center px-4 py-6">
+        <div className="text-center space-y-4 max-w-md">
+          <div className="w-20 h-20 mx-auto relative">
+            <div className="absolute inset-0 bg-cyan-500/20 rounded-full blur-2xl"></div>
+            <div className="relative w-full h-full rounded-full border-4 border-cyan-500 flex items-center justify-center bg-cyan-500/10">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                className="w-10 h-10 text-cyan-500"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          </div>
+
+          <h2 className="text-2xl font-bold">Uau! Impressionante!</h2>
+
+          <p className="text-gray-300 text-sm">Você bebe mais água do que 95% dos usuários do Fitgoal.</p>
+
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-4">
+            <div className="flex flex-col items-center gap-2">
+              <h3 className="text-lg font-semibold">Nível de Hidratação</h3>
+
+              <div className="relative w-full max-w-[160px]">
+                <div className="relative w-full h-32 rounded-2xl overflow-hidden border border-cyan-400/40 bg-[#0B0F10] shadow-[0_0_20px_rgba(34,211,238,0.15)]">
+                  {/* Water level animation */}
+                  <div
+                    className="absolute bottom-0 left-0 w-full bg-cyan-400/40 transition-all duration-[1800ms] ease-out"
+                    style={{
+                      height: `${waterFill}%`,
+                      clipPath: "url(#waveClip)",
+                    }}
+                  />
+
+                  {/* Wave SVG */}
+                  <svg className="absolute bottom-0 left-0 w-full h-full">
+                    <defs>
+                      <clipPath id="waveClip" clipPathUnits="objectBoundingBox">
+                        <path d="M0,0.1 C0.15,0.08 0.35,0.12 0.5,0.1 C0.65,0.08 0.85,0.12 1,0.1 V1 H0 Z" fill="white">
+                          <animate
+                            attributeName="d"
+                            dur="4s"
+                            repeatCount="indefinite"
+                            values="
+                              M0,0.1 C0.15,0.08 0.35,0.12 0.5,0.1 C0.65,0.08 0.85,0.12 1,0.1 V1 H0 Z;
+                              M0,0.12 C0.15,0.10 0.35,0.14 0.5,0.12 C0.65,0.10 0.85,0.14 1,0.12 V1 H0 Z;
+                              M0,0.08 C0.15,0.06 0.35,0.10 0.5,0.08 C0.65,0.06 0.85,0.10 1,0.08 V1 H0 Z;
+                              M0,0.1 C0.15,0.08 0.35,0.12 0.5,0.1 C0.65,0.08 0.85,0.12 1,0.1 V1 H0 Z
+                            "
+                          />
+                        </path>
+                      </clipPath>
+                    </defs>
+                  </svg>
+
+                  {/* Glow line on water surface */}
+                  <div
+                    className="absolute w-full h-1 bg-cyan-300/60 shadow-[0_0_12px_rgba(34,211,238,0.8)] transition-all duration-[1800ms]"
+                    style={{ bottom: `${waterFill}%` }}
+                  />
+                </div>
+
+                <div className="text-center text-2xl mt-2 text-cyan-300 font-bold drop-shadow-[0_0_10px_rgba(34,211,238,0.9)]">
+                  {waterFill}%
+                </div>
+              </div>
+
+              <p className="text-sm text-gray-300">acima da média</p>
+            </div>
+          </div>
+
+          <p className="text-gray-300 text-sm">Seu nível de hidratação está excelente — continue assim.</p>
+
+          <button
+            onClick={() => {
+              setShowWaterCongrats(false)
+              setCurrentStep(currentStep + 1)
+            }}
+            className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3 px-8 rounded-2xl transition-colors text-base"
+          >
+            Continuar
+          </button>
+
+          <p className="text-gray-500 text-xs">Baseado nos dados dos usuários do Fitgoal</p>
+        </div>
+      </div>
+    )
+  }
+
+  const getBodyFatImage = () => {
+    const isMale = quizData.gender === "homem"
+
+    console.log(
+      "[v0] getBodyFatImage called, gender:",
+      quizData.gender,
+      "isMale:",
+      isMale,
+      "bodyFat:",
+      quizData.bodyFat,
+    )
+    // </CHANGE>
+
+    if (isMale) {
+      // Male images: mone.webp to meight.webp
+      if (quizData.bodyFat <= 10) return "/images/mone.webp"
+      if (quizData.bodyFat <= 15) return "/images/mtwo.webp"
+      if (quizData.bodyFat <= 20) return "/images/mthree.webp"
+      if (quizData.bodyFat <= 25) return "/images/mfour.webp"
+      if (quizData.bodyFat <= 30) return "/images/mfive.webp"
+      if (quizData.bodyFat <= 35) return "/images/msix.webp"
+      if (quizData.bodyFat <= 39) return "/images/mseven.webp"
+      return "/images/meight.webp"
+    } else {
+      // Female images: bodyfat-one.webp to bodyfat-eight.webp
+      const imagePath =
+        quizData.bodyFat <= 10
+          ? "/images/bodyfat-one.webp"
+          : quizData.bodyFat <= 15
+            ? "/images/bodyfat-two.webp"
+            : quizData.bodyFat <= 20
+              ? "/images/bodyfat-three.webp"
+              : quizData.bodyFat <= 25
+                ? "/images/bodyfat-four.webp"
+                : quizData.bodyFat <= 30
+                  ? "/images/bodyfat-five.webp"
+                  : quizData.bodyFat <= 35
+                    ? "/images/bodyfat-six.webp"
+                    : quizData.bodyFat <= 39
+                      ? "/images/bodyfat-seven.webp"
+                      : "/images/bodyfat-eight.webp"
+
+      console.log("[v0] Female image path:", imagePath)
+      return imagePath
+      // </CHANGE>
     }
   }
 
-  const canProceed = () => {
-    return isStepValid(currentStep)
+  const getBodyFatRange = () => {
+    if (quizData.bodyFat <= 10) return "5-10%"
+    if (quizData.bodyFat <= 15) return "11-15%"
+    if (quizData.bodyFat <= 20) return "16-20%"
+    if (quizData.bodyFat <= 25) return "21-25%"
+    if (quizData.bodyFat <= 30) return "26-30%"
+    if (quizData.bodyFat <= 35) return "31-35%"
+    if (quizData.bodyFat <= 39) return "36-39%"
+    return ">40%"
   }
+
+  // Maps each step (1-24) to the actual question number
+  const questionOrder = [1, 2, 10, 14, 5, 3, 4, 15, 6, 7, 8, 9, 11, 12, 13, 17, 18, 19, 20, 21, 22, 23, 16, 24]
 
   return (
     <div
