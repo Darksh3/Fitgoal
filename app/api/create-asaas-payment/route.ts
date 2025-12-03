@@ -30,32 +30,38 @@ export async function POST(req: Request) {
 
     // Limpar CPF/CNPJ
     const cleanCpf = cpf.replace(/\D/g, "")
-    const cleanPhone = phone.replace(/\D/g, "")
+    const cleanPhone = phone ? phone.replace(/\D/g, "") : ""
 
     // 1. Criar ou buscar cliente no Asaas
+    const customerData: any = {
+      name,
+      email,
+      cpfCnpj: cleanCpf,
+      externalReference: clientUid,
+    }
+
+    // Only add phone if provided
+    if (cleanPhone) {
+      customerData.phone = cleanPhone
+    }
+
     const customerResponse = await fetch(`${ASAAS_API_URL}/customers`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         access_token: ASAAS_API_KEY,
       },
-      body: JSON.stringify({
-        name,
-        email,
-        cpfCnpj: cleanCpf,
-        phone: cleanPhone,
-        externalReference: clientUid,
-      }),
+      body: JSON.stringify(customerData),
     })
 
-    const customerData = await customerResponse.json()
+    const customerResult = await customerResponse.json()
 
-    if (!customerResponse.ok && customerData.errors?.[0]?.code !== "already_exists") {
-      console.error("Erro ao criar cliente Asaas:", customerData)
+    if (!customerResponse.ok && customerResult.errors?.[0]?.code !== "already_exists") {
+      console.error("Erro ao criar cliente Asaas:", customerResult)
       return NextResponse.json({ error: "Erro ao processar cliente" }, { status: 400 })
     }
 
-    const customerId = customerData.id || customerData.errors?.[0]?.description?.match(/id: ([a-z0-9_]+)/)?.[1]
+    const customerId = customerResult.id || customerResult.errors?.[0]?.description?.match(/id: ([a-z0-9_]+)/)?.[1]
 
     if (!customerId) {
       return NextResponse.json({ error: "Erro ao obter ID do cliente" }, { status: 400 })

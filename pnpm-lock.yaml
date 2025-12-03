@@ -10,10 +10,10 @@ importers:
     dependencies:
       '@ai-sdk/openai':
         specifier: latest
-        version: 2.0.76(zod@3.25.76)
+        version: 2.0.77(zod@3.25.76)
       '@hookform/resolvers':
         specifier: ^3.9.1
-        version: 3.9.1(react-hook-form@7.67.0(react@19.0.0))
+        version: 3.9.1(react-hook-form@7.68.0(react@19.0.0))
       '@radix-ui/react-accordion':
         specifier: latest
         version: 1.2.12(@types/react-dom@18.0.0)(@types/react@18.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -114,7 +114,7 @@ importers:
         specifier: latest
         version: 1.1.1(@types/react-dom@18.0.0)(@types/react@18.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       crypto:
-        specifier: latest
+        specifier: 1.0.1
         version: 1.0.1
       date-fns:
         specifier: 4.1.0
@@ -163,7 +163,7 @@ importers:
         version: 5.1.1(firebase@12.6.0)(react@19.0.0)
       react-hook-form:
         specifier: latest
-        version: 7.67.0(react@19.0.0)
+        version: 7.68.0(react@19.0.0)
       react-resizable-panels:
         specifier: latest
         version: 3.0.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -225,8 +225,8 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/openai@2.0.76':
-    resolution: {integrity: sha512-ryUkhTDVxe3D1GSAGc94vPZsJlSY8ZuBDLkpf4L81Dm7Ik5AgLfhQrZa8+0hD4kp0dxdVaIoxhpa3QOt1CmncA==}
+  '@ai-sdk/openai@2.0.77':
+    resolution: {integrity: sha512-lEJ9vyWSU5VLo+6Msr6r32RnABf4SRxPSV3Hz1Yb5yt43bWYxbBzwaDNYGhJaDL6rCgfUVvcIf5TKiiEuVd4EQ==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -2410,8 +2410,8 @@ packages:
       firebase: '>= 9.0.0'
       react: '>= 16.8.0'
 
-  react-hook-form@7.67.0:
-    resolution: {integrity: sha512-E55EOwKJHHIT/I6J9DmQbCWToAYSw9nN5R57MZw9rMtjh+YQreMDxRLfdjfxQbiJ3/qbg3Z02wGzBX4M+5fMtQ==}
+  react-hook-form@7.68.0:
+    resolution: {integrity: sha512-oNN3fjrZ/Xo40SWlHf1yCjlMK417JxoSJVUXQjGdvdRCU07NTFei1i1f8ApUAts+IVh14e4EdakeLEA+BEAs/Q==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
@@ -2792,7 +2792,7 @@ snapshots:
       '@vercel/oidc': 3.0.5
       zod: 3.25.76
 
-  '@ai-sdk/openai@2.0.76(zod@3.25.76)':
+  '@ai-sdk/openai@2.0.77(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@ai-sdk/provider-utils': 3.0.18(zod@3.25.76)
@@ -3228,9 +3228,9 @@ snapshots:
       protobufjs: 7.5.4
       yargs: 17.7.2
 
-  '@hookform/resolvers@3.9.1(react-hook-form@7.67.0(react@19.0.0))':
+  '@hookform/resolvers@3.9.1(react-hook-form@7.68.0(react@19.0.0))':
     dependencies:
-      react-hook-form: 7.67.0(react@19.0.0)
+      react-hook-form: 7.68.0(react@19.0.0)
 
   '@img/colour@1.0.0':
     optional: true
@@ -5159,7 +5159,7 @@ snapshots:
       firebase: 12.6.0
       react: 19.0.0
 
-  react-hook-form@7.67.0(react@19.0.0):
+  react-hook-form@7.68.0(react@19.0.0):
     dependencies:
       react: 19.0.0
 

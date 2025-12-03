@@ -740,10 +740,16 @@ export default function QuizPage() {
     }
 
     try {
-      const { imc, classification, status } = calculateIMC(
-        Number.parseFloat(quizData.currentWeight),
-        Number.parseFloat(quizData.height),
-      )
+      const weightForIMC = Number.parseFloat(quizData.currentWeight || quizData.weight || "0")
+      const heightForIMC = Number.parseFloat(quizData.height || "0")
+
+      console.log("[v0] IMC Calculation - Weight:", weightForIMC, "Height:", heightForIMC)
+
+      const { imc, classification, status } = calculateIMC(weightForIMC, heightForIMC)
+
+      console.log("[v0] IMC Result:", { imc, classification, status })
+      // </CHANGE>
+
       const updatedQuizData = {
         ...quizData,
         imc: imc,
