@@ -677,7 +677,7 @@ export default function QuizPage() {
       // Updated from step 8 to 9
       setShowWaterCongrats(true)
     } else if (currentStep === 11 && quizData.allergies === "nao") {
-      setCurrentStep(13)
+      setCurrentStep(13) // Updated from step 12 to 13
       // </CHANGE>
     } else if (currentStep === 13 && quizData.wantsSupplement === "nao") {
       setCurrentStep(14)
@@ -2614,6 +2614,13 @@ export default function QuizPage() {
                 </div>
                 <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
               </div>
+              <button
+                onClick={nextStep}
+                disabled={!canProceed()}
+                className="w-full py-4 bg-lime-500 hover:bg-lime-400 disabled:bg-gray-700 disabled:text-gray-500 text-gray-900 font-bold rounded-xl transition-all duration-300 disabled:cursor-not-allowed shadow-lg hover:shadow-lime-500/50"
+              >
+                Continuar
+              </button>
             </div>
           </div>
         )
