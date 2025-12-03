@@ -686,14 +686,13 @@ export default function QuizPage() {
     console.log("[v0] quizData.timeToGoal:", quizData.timeToGoal)
     // </CHANGE>
 
-    if (currentStep === 8 && quizData.diet !== "nao-sigo") {
-      // Updated from step 7 to 8
+    if (currentStep === 9 && quizData.diet !== "nao-sigo") {
       setShowNutritionInfo(true)
-    } else if (currentStep === 9 && (quizData.waterIntake === "7-10" || quizData.waterIntake === "mais-10")) {
-      // Updated from step 8 to 9
+    } else if (currentStep === 10 && (quizData.waterIntake === "7-10" || quizData.waterIntake === "mais-10")) {
       setShowWaterCongrats(true)
     } else if (currentStep === 11 && quizData.allergies === "nao") {
-      setCurrentStep(13) // Updated from step 12 to 13
+      // Updated from step 12 to 13 since allergy details step was conditionally skipped
+      setCurrentStep(13)
       // </CHANGE>
     } else if (currentStep === 13 && quizData.wantsSupplement === "nao") {
       setCurrentStep(14)
@@ -719,7 +718,7 @@ export default function QuizPage() {
   const prevStep = () => {
     if (currentStep > 1) {
       if (currentStep === 13 && quizData.allergies === "nao") {
-        // Updated from step 12 to 13
+        // Updated from step 12 to 13 since allergy details step was conditionally skipped
         setCurrentStep(11) // Updated from 10 to 11
       } else if (currentStep === 14 && quizData.wantsSupplement === "nao") {
         setCurrentStep(13)
@@ -2348,7 +2347,6 @@ export default function QuizPage() {
               <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </Button>
             </div>
