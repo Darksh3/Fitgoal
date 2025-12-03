@@ -1819,13 +1819,6 @@ export default function QuizPage() {
                 </div>
               ))}
             </div>
-            <button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="w-full py-3 rounded-full text-base font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-lime-500 text-black hover:bg-lime-400 active:scale-95"
-            >
-              Continuar
-            </button>
           </div>
         )
 
@@ -2991,8 +2984,7 @@ export default function QuizPage() {
       case 9:
         return !!quizData.diet
       case 10:
-        // Updated validation for case 10 (sweets frequency)
-        return !!quizData.sweetsFrequency && quizData.sweetsFrequency.length > 0
+        return !!quizData.sugarFrequency && quizData.sugarFrequency.length > 0
       case 11:
         return !!quizData.waterIntake
       case 12:
@@ -3038,7 +3030,69 @@ export default function QuizPage() {
   }
 
   const canProceed = () => {
-    return isStepValid(currentStep)
+    switch (currentStep) {
+      case 1:
+        return !!quizData.gender
+      case 2:
+        return !!quizData.age && quizData.age >= 16
+      case 3:
+        return !!quizData.bodyType
+      case 4:
+        return !!quizData.height && Number.parseFloat(quizData.height.replace(",", ".")) > 0
+      case 5:
+        return !!quizData.weight && Number.parseFloat(quizData.weight) > 0
+      case 6:
+        return quizData.bodyFat >= 5 && quizData.bodyFat <= 45
+      case 7:
+        return quizData.goal.length > 0
+      case 8:
+        return quizData.problemAreas.length > 0
+      case 9:
+        return !!quizData.diet
+      case 10:
+        return !!quizData.sugarFrequency && quizData.sugarFrequency.length > 0
+      case 11:
+        return !!quizData.waterIntake
+      case 12:
+        return !!quizData.allergies
+      case 13:
+        // Updated validation for case 13 (health conditions)
+        return (
+          quizData.allergies !== "sim" ||
+          (quizData.healthConditions.length > 0 && quizData.healthConditions.some((hc) => hc.trim().length > 0))
+        )
+      case 14:
+        // Updated validation for case 14 (supplement)
+        return !!quizData.supplement
+      case 15:
+        return !!quizData.targetWeight && Number.parseFloat(quizData.targetWeight) > 0
+      case 16:
+        // Updated validation for case 16 (training time)
+        return !!quizData.workoutTime
+      case 17:
+        // Updated validation for case 17 (strength training experience)
+        return !!quizData.strengthTraining
+      case 18:
+        return quizData.equipment.length > 0
+      case 19:
+        // Updated validation for case 19 (cardio feeling)
+        return !!quizData.cardioFeeling
+      case 20:
+        // Updated validation for case 20 (strength feeling)
+        return !!quizData.strengthFeeling
+      case 21:
+        // Updated validation for case 21 (stretching feeling)
+        return !!quizData.stretchingFeeling
+      case 22:
+        // Updated validation for case 22 (training days)
+        return !!quizData.trainingDays && Number.parseInt(quizData.trainingDays) >= 1
+      case 23:
+        return !!quizData.name && quizData.name.trim().length > 0
+      case 24:
+        return !!quizData.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(quizData.email)
+      default:
+        return true
+    }
   }
 
   return (
@@ -3096,7 +3150,7 @@ export default function QuizPage() {
         <div className="mb-8">{renderStep()}</div>
         {/* Atualizando a lista de exceções para refletir a nova ordem das perguntas
         // Perguntas que não precisam de botão continuar: 1 (gênero), 3 (tipo corpo), 9 (dieta), 11 (água), 13 (alergias sim/não), 15 (suplemento), 16-22 (experiências de treino) */}
-        {![1, 3, 9, 11, 13, 15, 16, 17, 18, 19, 20, 21, 22].includes(currentStep) && (
+        {![1, 3, 8, 9, 11, 13, 16, 17, 19, 20, 21].includes(currentStep) && (
           <div className="flex justify-center">
             {currentStep === totalSteps ? (
               <Button
