@@ -1670,6 +1670,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
+
       case 2:
         const getBodyTypeImage = (type: string) => {
           const isWoman = quizData.gender === "mulher"
@@ -2918,6 +2919,7 @@ export default function QuizPage() {
               <button
                 onClick={() => {
                   updateQuizData("previousProblems", [])
+                  console.log("[v0] 'Não tenho' clicked, advancing to motivation page")
                   nextStep()
                 }}
                 className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
@@ -2930,12 +2932,19 @@ export default function QuizPage() {
                 <span className="text-white text-left">Não, eu não tenho</span>
               </button>
             </div>
-            <button
-              onClick={nextStep}
-              className="w-full py-4 px-8 bg-lime-500 hover:bg-lime-600 text-white rounded-lg font-semibold transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40"
+            <Button
+              onClick={() => {
+                console.log("[v0] Continue button clicked on case 18, currentStep:", currentStep)
+                console.log("[v0] Selected problems:", quizData.previousProblems)
+                nextStep()
+              }}
+              className="group relative w-full max-w-md mx-auto overflow-hidden"
             >
-              Continuar
-            </button>
+              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                <span className="relative z-10">Continuar</span>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+              </div>
+            </Button>
           </div>
         )
 
