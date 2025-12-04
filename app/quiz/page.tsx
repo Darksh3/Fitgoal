@@ -1637,6 +1637,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
+
       case 3:
         const getGoalIcon = (goalValue: string) => {
           switch (goalValue) {
@@ -1686,16 +1687,21 @@ export default function QuizPage() {
                 </div>
               ))}
             </div>
+            <Button
+              onClick={nextStep}
+              disabled={!canProceed()}
+              className="w-full bg-lime-500 hover:bg-lime-600 text-black font-bold py-6 rounded-full text-lg"
+            >
+              Continuar
+            </Button>
           </div>
         )
 
       case 4:
         return (
-          <div className="space-y-5 sm:space-y-8">
-            <div className="text-center space-y-2 sm:space-y-4">
-              <h2 className="text-2xl sm:text-2xl md:text-3xl font-bold text-white">
-                Escolha o seu nível de gordura corporal
-              </h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual é o seu nível de gordura corporal?</h2>
             </div>
             <div className="relative flex flex-col items-center">
               {/* Body fat image */}
@@ -2441,7 +2447,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é sua altura?</h2>
+              <h2 className="text-2xl font-bold text-white">Qual é a sua altura?</h2>
             </div>
             <div className="space-y-6">
               <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors flex items-center justify-center relative">
