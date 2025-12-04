@@ -787,11 +787,7 @@ export default function QuizPage() {
     }
     // </CHANGE>
 
-    if (currentStep === 21) {
-      setShowCortisolMessage(true)
-      return
-    }
-    // </CHANGE>
+    // This was causing the quiz to get stuck when clicking continue on food preferences
 
     // This block was originally for step 9 related to diet info, but step numbering has changed.
     // Re-evaluating based on new step numbers:
