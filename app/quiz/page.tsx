@@ -3883,7 +3883,7 @@ export default function QuizPage() {
         </div>
         <div className="mb-8">{renderStep()}</div>
         {/* Updated the exclusion list based on the new step numbering and logic */}
-        {![1, 2, 3, 7, 8, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25].includes(currentStep) && (
+        {![1, 2, 3, 5, 7, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25].includes(currentStep) && (
           <div className="flex justify-center">
             {currentStep === 27 ? ( // This should be currentStep === 27 now
               <Button
