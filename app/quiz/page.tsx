@@ -2434,9 +2434,9 @@ export default function QuizPage() {
 
       case 9:
         return (
-          <div className="space-y-4 sm:space-y-8">
-            <div className="text-center space-y-2 sm:space-y-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual é a sua idade?</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual é a sua idade?</h2>
             </div>
             <div className="max-w-md mx-auto">
               <Input
@@ -2519,6 +2519,7 @@ export default function QuizPage() {
                     min="1"
                     max="500"
                     step="0.1"
+                    inputMode="decimal"
                     className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
                   />
                 </div>
@@ -2539,6 +2540,205 @@ export default function QuizPage() {
         )
 
       case 12:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
+            </div>
+            <div className="space-y-6">
+              <div className="relative border-2 border-white/10 rounded-2xl p-6 bg-white/5 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500 flex items-center justify-between">
+                <div className="flex-1 flex justify-center">
+                  <Input
+                    type="number"
+                    placeholder="75"
+                    value={quizData.targetWeight}
+                    onChange={(e) => {
+                      updateQuizData("targetWeight", e.target.value)
+                    }}
+                    onBlur={() => {
+                      const calculatedTime = calculateTimeToGoal()
+                      if (calculatedTime) {
+                        updateQuizData("timeToGoal", calculatedTime)
+                      }
+                    }}
+                    min="1"
+                    max="500"
+                    step="0.1"
+                    inputMode="decimal"
+                    className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
+                  />
+                </div>
+                <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
+              </div>
+            </div>
+            <Button
+              onClick={nextStep}
+              disabled={!canProceed()}
+              className="group relative w-full max-w-md mx-auto overflow-hidden"
+            >
+              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                <span className="relative z-10">Continuar</span>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+              </div>
+            </Button>
+          </div>
+        )
+
+      case 13:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual seu nível de experiência com treinamento de força?</h2>
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                {
+                  value: "beginner",
+                  label: "Iniciante",
+                  desc: "Menos de 6 meses de treino",
+                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
+                },
+                {
+                  value: "intermediate",
+                  label: "Intermediário",
+                  desc: "6 meses a 2 anos de treino",
+                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
+                },
+                {
+                  value: "advanced",
+                  label: "Avançado",
+                  desc: "Mais de 2 anos de treino",
+                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
+                },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    updateQuizData("strengthTraining", option.value)
+                    nextStep()
+                  }}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    quizData.strengthTraining === option.value
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
+                  }`}
+                >
+                  <div className="flex items-center space-x-3 sm:space-x-4">
+                    <div className="flex-shrink-0">{option.icon}</div>
+                    <div className="text-left flex-1">
+                      <h3 className="text-white font-medium">{option.label}</h3>
+                      <p className="text-white/50 text-sm mt-1">{option.desc}</p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+
+      case 14:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Como você se sente com cardio?</h2>
+            </div>
+            <div className="flex justify-center mb-6">
+              <ExerciseIllustration type="cardio" />
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                { value: "love", label: "Amo cardio!" },
+                { value: "neutral", label: "Posso fazer, mas não é minha prioridade" },
+                { value: "avoid", label: "Prefiro evitar" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    updateQuizData("cardioFeeling", option.value)
+                    nextStep()
+                  }}
+                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                    quizData.cardioFeeling === option.value
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
+                  }`}
+                >
+                  <span className="text-white">{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+
+      case 15:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Como você se sente com flexões?</h2>
+            </div>
+            <div className="flex justify-center mb-6">
+              <ExerciseIllustration type="pullups" />
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                { value: "love", label: "Adoro flexões e exercícios de força!" },
+                { value: "neutral", label: "Posso fazer, mas não é minha prioridade" },
+                { value: "modify", label: "Preciso de modificações" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    updateQuizData("strengthFeeling", option.value)
+                    nextStep()
+                  }}
+                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                    quizData.strengthFeeling === option.value
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
+                  }`}
+                >
+                  <span className="text-white">{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+
+      case 16:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Como você se sente com alongamentos?</h2>
+            </div>
+            <div className="flex justify-center mb-6">
+              <ExerciseIllustration type="yoga" />
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                { value: "love", label: "Adoro alongar!" },
+                { value: "neutral", label: "Posso fazer, mas não é minha prioridade" },
+                { value: "skip", label: "Prefiro pular" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    updateQuizData("stretchingFeeling", option.value)
+                    nextStep()
+                  }}
+                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                    quizData.stretchingFeeling === option.value
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
+                  }`}
+                >
+                  <span className="text-white">{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+
+      case 17:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2565,8 +2765,7 @@ export default function QuizPage() {
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
-                  // </CHANGE> Skip case 13 (allergy details) and go directly to case 14
-                  setCurrentStep(14)
+                  setCurrentStep(19)
                 }}
               >
                 <X
@@ -2577,13 +2776,10 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 13:
-        // This case is now conditional based on the previous step's selection
+
+      case 18:
         if (quizData.allergies !== "sim") {
-          // If allergies is 'no', this step is skipped, so we return null or handle appropriately.
-          // However, the logic in `nextStep` already bypasses this.
-          // If for some reason we land here and allergies is 'no', we should probably just proceed.
-          return null // Or force next step if this is reached unexpectedly.
+          return null
         }
         return (
           <div className="space-y-8">
@@ -2602,7 +2798,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 14:
+      case 19:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2616,9 +2812,6 @@ export default function QuizPage() {
                   quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
                 }`}
                 onClick={() => {
-                  console.log("[v0] Sim button clicked")
-                  console.log("[v0] Current wantsSupplement:", quizData.wantsSupplement)
-
                   const isEctomorph = quizData.bodyType === "ectomorfo"
                   const hasHighBodyFat = quizData.gender === "mulher" ? quizData.bodyFat > 30 : quizData.bodyFat > 20
                   const hasBellyProblem = quizData.problemAreas.includes("Barriga")
@@ -2628,22 +2821,16 @@ export default function QuizPage() {
                     supplementType = "hipercalorico"
                   }
 
-                  setQuizData((prev) => ({
-                    ...prev,
-                    wantsSupplement: "sim",
-                    supplementType: supplementType,
-                  }))
-
-                  console.log("[v0] Updated wantsSupplement to: sim")
-                  console.log("[v0] Updated supplementType to:", supplementType)
-
-                  setTimeout(() => nextStep(), 300)
+                  updateQuizData("wantsSupplement", "sim")
+                  updateQuizData("supplement", supplementType)
+                  updateQuizData("supplementType", supplementType)
+                  nextStep()
                 }}
               >
                 <CheckCircle
                   className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
                 />
-                <h3 className="text-lg font-bold text-white">Sim, pode adicionar</h3>
+                <h3 className="text-lg font-bold text-white">Sim, quero adicionar suplementos</h3>
               </button>
               <button
                 type="button"
@@ -2651,9 +2838,10 @@ export default function QuizPage() {
                   quizData.wantsSupplement === "nao" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
                 }`}
                 onClick={() => {
-                  console.log("[v0] Não button clicked")
                   updateQuizData("wantsSupplement", "nao")
-                  setTimeout(() => nextStep(), 300)
+                  updateQuizData("supplement", "nao")
+                  updateQuizData("supplementType", "nao")
+                  nextStep()
                 }}
               >
                 <X
@@ -2662,58 +2850,10 @@ export default function QuizPage() {
                 <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
               </button>
             </div>
-            {/* </CHANGE> */}
-            {quizData.wantsSupplement === "sim" && quizData.supplementType && (
-              <div className="bg-lime-500/10 border border-lime-500 rounded-lg p-4 text-center">
-                <p className="text-lime-400 font-semibold">
-                  Recomendamos:{" "}
-                  {quizData.supplementType === "hipercalorico" ? "Hipercalórico Growth" : "Whey Protein Growth"}
-                </p>
-                <p className="text-gray-300 text-sm mt-2">
-                  {quizData.supplementType === "hipercalorico"
-                    ? "Ideal para ganho de massa muscular e atingir suas calorias diárias"
-                    : "Ideal para atingir suas metas de proteína e manter a massa muscular"}
-                </p>
-              </div>
-            )}
-          </div>
-        )
-      case 15:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
-            </div>
-            <div className="space-y-6">
-              <div className="relative border-2 border-white/10 rounded-2xl p-6 bg-white/5 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500 flex items-center justify-between">
-                <div className="flex-1 flex justify-center">
-                  <Input
-                    type="number"
-                    placeholder="75"
-                    value={quizData.targetWeight}
-                    onChange={(e) => {
-                      updateQuizData("targetWeight", e.target.value)
-                    }}
-                    onBlur={() => {
-                      // Calcula o tempo ao sair do campo
-                      const calculatedTime = calculateTimeToGoal()
-                      if (calculatedTime) {
-                        updateQuizData("timeToGoal", calculatedTime)
-                      }
-                    }}
-                    min="1"
-                    max="500"
-                    step="0.1"
-                    className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
-                  />
-                </div>
-                <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
-              </div>
-            </div>
           </div>
         )
 
-      case 16:
+      case 20:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2772,59 +2912,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 17:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual seu nível de experiência com treinamento de força?</h2>
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                {
-                  value: "beginner",
-                  label: "Iniciante",
-                  desc: "Menos de 6 meses de treino",
-                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "intermediate",
-                  label: "Intermediário",
-                  desc: "6 meses a 2 anos de treino",
-                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "advanced",
-                  label: "Avançado",
-                  desc: "Mais de 2 anos de treino",
-                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
-                },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("strengthTraining", option.value)
-                    nextStep()
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    quizData.strengthTraining === option.value
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
-                  }`}
-                >
-                  <div className="flex items-center space-x-3 sm:space-x-4">
-                    <div className="flex-shrink-0">{option.icon}</div>
-                    <div className="text-left flex-1">
-                      <h3 className="text-white font-medium">{option.label}</h3>
-                      <p className="text-white/50 text-sm mt-1">{option.desc}</p>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )
-
-      case 18:
+      case 21:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2864,117 +2952,6 @@ export default function QuizPage() {
             >
               Continuar
             </button>
-          </div>
-        )
-
-      case 19:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Como você se sente sobre exercícios de cardio?</h2>
-            </div>
-            <div className="flex justify-center mb-6">
-              <ExerciseIllustration type="cardio" />
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                { value: "love", label: "Amo cardio!" },
-                { value: "neutral", label: "Posso fazer, mas não é minha prioridade" },
-                { value: "avoid", label: "Prefiro evitar" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("exercisePreferences", {
-                      ...quizData.exercisePreferences,
-                      cardio: option.value,
-                    })
-                    nextStep()
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
-                    quizData.exercisePreferences.cardio === option.value
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
-                  }`}
-                >
-                  <span className="text-white">{option.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )
-
-      case 20:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Como você se sente sobre flexões e exercícios de força?</h2>
-            </div>
-            <div className="flex justify-center mb-6">
-              <ExerciseIllustration type="pullups" />
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                { value: "love", label: "Adoro treinos de força!" },
-                { value: "neutral", label: "Posso fazer, mas não é minha prioridade" },
-                { value: "modify", label: "Preciso de modificações" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("exercisePreferences", {
-                      ...quizData.exercisePreferences,
-                      pullups: option.value,
-                    })
-                    nextStep()
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
-                    quizData.exercisePreferences.pullups === option.value
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
-                  }`}
-                >
-                  <span className="text-white">{option.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )
-
-      case 21:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Como você se sente sobre alongamentos?</h2>
-            </div>
-            <div className="flex justify-center mb-6">
-              <ExerciseIllustration type="yoga" />
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                { value: "love", label: "Adoro alongar!" },
-                { value: "neutral", label: "Posso fazer, mas não é minha prioridade" },
-                { value: "skip", label: "Prefiro pular" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("exercisePreferences", {
-                      ...quizData.exercisePreferences,
-                      yoga: option.value,
-                    })
-                    nextStep()
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
-                    quizData.exercisePreferences.yoga === option.value
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
-                  }`}
-                >
-                  <span className="text-white">{option.label}</span>
-                </button>
-              ))}
-            </div>
           </div>
         )
 
@@ -3071,9 +3048,9 @@ export default function QuizPage() {
       case 2:
         return !!quizData.bodyType
       case 3:
-        return quizData.bodyFat >= 5 && quizData.bodyFat <= 45
-      case 4:
         return quizData.goal.length > 0
+      case 4:
+        return quizData.bodyFat >= 5 && quizData.bodyFat <= 45
       case 5:
         return quizData.problemAreas.length > 0
       case 6:
@@ -3089,37 +3066,26 @@ export default function QuizPage() {
       case 11:
         return !!quizData.weight && Number.parseFloat(quizData.weight) > 0
       case 12:
-        return !!quizData.allergies
-      case 13:
-        // Updated validation for case 13 (health conditions)
-        return (
-          quizData.allergies !== "sim" ||
-          (quizData.healthConditions.length > 0 && quizData.healthConditions.some((hc) => hc.trim().length > 0))
-        )
-      case 14:
-        // Updated validation for case 14 (supplement)
-        return !!quizData.supplement
-      case 15:
         return !!quizData.targetWeight && Number.parseFloat(quizData.targetWeight) > 0
-      case 16:
-        // Updated validation for case 16 (training time)
-        return !!quizData.workoutTime
-      case 17:
-        // Updated validation for case 17 (strength training experience)
+      case 13:
         return !!quizData.strengthTraining
-      case 18:
-        return quizData.equipment.length > 0
-      case 19:
-        // Updated validation for case 19 (cardio feeling)
+      case 14:
         return !!quizData.cardioFeeling
-      case 20:
-        // Updated validation for case 20 (strength feeling)
+      case 15:
         return !!quizData.strengthFeeling
-      case 21:
-        // Updated validation for case 21 (stretching feeling)
+      case 16:
         return !!quizData.stretchingFeeling
+      case 17:
+        return !!quizData.allergies
+      case 18:
+        return quizData.allergies !== "sim" || (quizData.allergyDetails && quizData.allergyDetails.trim().length > 0)
+      case 19:
+        return !!quizData.wantsSupplement
+      case 20:
+        return !!quizData.workoutTime
+      case 21:
+        return quizData.equipment.length > 0
       case 22:
-        // Updated validation for case 22 (training days)
         return !!quizData.trainingDays && Number.parseInt(quizData.trainingDays) >= 1
       case 23:
         return !!quizData.name && quizData.name.trim().length > 0
@@ -3137,9 +3103,9 @@ export default function QuizPage() {
       case 2:
         return !!quizData.bodyType
       case 3:
-        return quizData.bodyFat >= 5 && quizData.bodyFat <= 45
-      case 4:
         return quizData.goal.length > 0
+      case 4:
+        return quizData.bodyFat >= 5 && quizData.bodyFat <= 45
       case 5:
         return quizData.problemAreas.length > 0
       case 6:
@@ -3155,37 +3121,26 @@ export default function QuizPage() {
       case 11:
         return !!quizData.weight && Number.parseFloat(quizData.weight) > 0
       case 12:
-        return !!quizData.allergies
-      case 13:
-        // Updated validation for case 13 (health conditions)
-        return (
-          quizData.allergies !== "sim" ||
-          (quizData.healthConditions.length > 0 && quizData.healthConditions.some((hc) => hc.trim().length > 0))
-        )
-      case 14:
-        // Updated validation for case 14 (supplement)
-        return !!quizData.supplement
-      case 15:
         return !!quizData.targetWeight && Number.parseFloat(quizData.targetWeight) > 0
-      case 16:
-        // Updated validation for case 16 (training time)
-        return !!quizData.workoutTime
-      case 17:
-        // Updated validation for case 17 (strength training experience)
+      case 13:
         return !!quizData.strengthTraining
-      case 18:
-        return quizData.equipment.length > 0
-      case 19:
-        // Updated validation for case 19 (cardio feeling)
+      case 14:
         return !!quizData.cardioFeeling
-      case 20:
-        // Updated validation for case 20 (strength feeling)
+      case 15:
         return !!quizData.strengthFeeling
-      case 21:
-        // Updated validation for case 21 (stretching feeling)
+      case 16:
         return !!quizData.stretchingFeeling
+      case 17:
+        return !!quizData.allergies
+      case 18:
+        return quizData.allergies !== "sim" || (quizData.allergyDetails && quizData.allergyDetails.trim().length > 0)
+      case 19:
+        return !!quizData.wantsSupplement
+      case 20:
+        return !!quizData.workoutTime
+      case 21:
+        return quizData.equipment.length > 0
       case 22:
-        // Updated validation for case 22 (training days)
         return !!quizData.trainingDays && Number.parseInt(quizData.trainingDays) >= 1
       case 23:
         return !!quizData.name && quizData.name.trim().length > 0
