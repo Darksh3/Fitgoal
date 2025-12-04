@@ -356,7 +356,7 @@ export default function QuizPage() {
         const timer = setTimeout(() => {
           setShowAnalyzingData(false)
           setAnalyzingStep(0)
-          setCurrentStep(25) // Move to name question - This should now be 26 based on totalSteps
+          setCurrentStep(27) // Move to email question
         }, 2500)
         return () => clearTimeout(timer)
       }
@@ -763,76 +763,167 @@ export default function QuizPage() {
   }
 
   const nextStep = () => {
-    console.log("[v0] nextStep called, currentStep:", currentStep)
-    console.log("[v0] quizData.targetWeight:", quizData.targetWeight)
-    console.log("[v0] quizData.timeToGoal:", quizData.timeToGoal)
-
-    // </CHANGE> Moved cortisol message to show after step 21 (food preferences) instead of after step 20
-    if (currentStep === 21) {
-      setShowCortisolMessage(true)
-      return
-    }
-    // </CHANGE>
-
-    if (currentStep === 17) {
-      // Moved motivation message logic to the case 18 (additional goals) which is now case 18
-      // This case 17 is now about previous problems
-      console.log("[v0] Advancing from step 17, checking for motivation message logic...")
-      if (quizData.previousProblems.length === 0) {
-        // If user selected "Não, eu não tenho", we show motivation message directly
-        setShowMotivationMessage(true)
-        console.log("[v0] No previous problems selected, showing motivation message.")
+    // Updated logic based on new step numbers and conditions
+    if (currentStep === 1) {
+      if (quizData.gender === "mulher") {
+        // Jump to step 4 directly if female and current step is 1
+        setCurrentStep(4)
+      } else if (quizData.gender === "homem") {
+        // Jump to step 3 directly if male and current step is 1
+        setCurrentStep(3)
       }
-      setCurrentStep(currentStep + 1) // Always advance to the next step (which is now name)
-      return
-    }
-    // </CHANGE>
-
-    // This was causing the quiz to get stuck when clicking continue on food preferences
-
-    // This block was originally for step 9 related to diet info, but step numbering has changed.
-    // Re-evaluating based on new step numbers:
-    // Step 6 is Diet choice. If quizData.diet !== "nao-sigo", showNutritionInfo.
-    if (currentStep === 6 && quizData.diet !== "nao-sigo") {
-      setShowNutritionInfo(true)
-    } else if (currentStep === 8 && (quizData.waterIntake === "7-10" || quizData.waterIntake === "mais-10")) {
-      // Step 8 is water intake
-      setShowWaterCongrats(true)
-    } else if (currentStep === 22 && quizData.allergies === "nao") {
-      // Step 22 is allergies, if 'nao', it skips to case 23 (allergy details).
-      // This means if currentStep is 22 and allergies is 'nao', we should advance past the details directly.
-      // The current logic might skip to step 23 correctly due to setCurrentStep(25) in case 22.
-      // However, to ensure flow, if allergies is 'nao', we should directly go to supplement question (case 24).
-      // This implies when allergies is 'nao', we directly go to step 24. Let's adjust the logic here.
-      // Corrected: When allergies is 'nao' at step 22, the `onClick` handler already sets `setCurrentStep(25)`.
-      // So this condition might be redundant or needs to check if we are coming *from* a skipped step.
-      // For now, relying on the `onClick` handler for skipping.
-    } else if (currentStep === 23 && quizData.allergies === "nao") {
-    } else if (currentStep === 24 && quizData.wantsSupplement === "nao") {
-      // Step 24 is supplement choice. If 'nao', we skip supplement details (case 24 handles this by setting currentStep to 25).
-      // So if we are at 24 and it was 'nao', we go to step 25 (training days)
-      setCurrentStep(25) // Skip supplement details and go directly to workout time
-    } else if (currentStep === 26 && quizData.wantsSupplement === "nao") {
-      setCurrentStep(25)
-    } else if (currentStep === 12 && quizData.weight !== "" && quizData.targetWeight !== "") {
-      // Original was step 15, now step 13 (weight related)
-      const calculatedTime = calculateTimeToGoal()
-      console.log("[v0] calculatedTime:", calculatedTime)
-      if (calculatedTime) {
-        updateQuizData("timeToGoal", calculatedTime)
-        setShowTimeCalculation(true)
+    } else if (currentStep === 2) {
+      // This step is now skipped for females and males based on the logic above
+      // If it were to be reached, it would transition to step 4
+      setCurrentStep(4)
+    } else if (currentStep === 3) {
+      // From step 3 (Goals), transition to step 4
+      setCurrentStep(4)
+    } else if (currentStep === 4) {
+      // From step 4 (Body Fat), check goals to decide next step
+      const hasGainOrLoseWeightGoal = quizData.goal.includes("perder-peso") || quizData.goal.includes("ganhar-massa")
+      if (hasGainOrLoseWeightGoal) {
+        // If goals include gain or lose weight, go to step 5 (Problem Areas)
+        setCurrentStep(5)
       } else {
-        // If calculation fails, just move to next step
-        setCurrentStep(currentStep + 1)
+        // Otherwise, skip step 5 and go to step 6 (Diet)
+        setCurrentStep(6)
       }
-      // </CHANGE>
-    } else if (currentStep === 28) {
-      // </CHANGE>
+    } else if (currentStep === 5) {
+      // From step 5 (Problem Areas), go to step 6 (Diet)
+      setCurrentStep(6)
+    } else if (currentStep === 6) {
+      // From step 6 (Diet), show Nutrition Info if not vegan/vegetarian
+      if (quizData.diet !== "nao-sigo") {
+        setShowNutritionInfo(true)
+      } else {
+        // If no diet selected, proceed to the next logical step (which would be step 7 - Sugar Frequency)
+        setCurrentStep(7)
+      }
+    } else if (currentStep === 7) {
+      // From step 7 (Sugar Frequency), check water intake
+      if (quizData.waterIntake === "menos-2") {
+        // If water intake is "less than 2 cups", show Water Congrats
+        setShowWaterCongrats(true)
+      } else {
+        // Otherwise, proceed to the next step (step 8 - Age)
+        setCurrentStep(8)
+      }
+    } else if (currentStep === 8) {
+      // From step 8 (Age), calculate and show IMC result
+      const heightValue = Number.parseFloat(quizData.height.replace(",", "."))
+      const weightValue = Number.parseFloat(quizData.weight)
+
+      if (Number.isNaN(heightValue) || Number.isNaN(weightValue) || heightValue <= 0 || weightValue <= 0) {
+        console.error("Invalid height or weight for IMC calculation")
+        setCurrentStep(9) // Skip to next step if values are invalid
+        return
+      }
+
+      const { imc, classification, status } = calculateIMC(weightValue, heightValue)
+
+      setQuizData((prev) => ({
+        ...prev,
+        imc: imc,
+        imcClassification: classification,
+        imcStatus: status,
+      }))
+      setShowIMCResult(true)
+    } else if (currentStep === 9) {
+      // From step 9 (IMC Result), calculate time to goal and show calculation
+      const current = Number.parseFloat(quizData.weight)
+      const target = Number.parseFloat(quizData.targetWeight)
+
+      if (Number.isNaN(current) || Number.isNaN(target) || current <= 0 || target <= 0) {
+        console.error("Invalid weight values for time calculation")
+        setCurrentStep(10) // Skip to next step if invalid
+        return
+      }
+
+      const weightDifference = Math.abs(current - target)
+      const weeksNeeded = Math.ceil(weightDifference / 0.75) // Assuming 0.75kg/week loss/gain
+
+      setQuizData((prev) => ({
+        ...prev,
+        timeToGoal: `${weeksNeeded} semanas`,
+      }))
+      setShowTimeCalculation(true)
+    } else if (currentStep === 10) {
+      // From step 10 (Time to Goal), proceed to step 11 (Experience)
+      setCurrentStep(11)
+    } else if (currentStep === 11) {
+      // From step 11 (Experience), proceed to step 12 (Workout Time)
+      setCurrentStep(12)
+    } else if (currentStep === 12) {
+      // From step 12 (Workout Time), proceed to step 13 (Equipment)
+      setCurrentStep(13)
+    } else if (currentStep === 13) {
+      // From step 13 (Equipment), proceed to step 14 (Cardio Feeling)
+      setCurrentStep(14)
+    } else if (currentStep === 14) {
+      // From step 14 (Cardio Feeling), proceed to step 15 (Strength Feeling)
+      setCurrentStep(15)
+    } else if (currentStep === 15) {
+      // From step 15 (Strength Feeling), proceed to step 16 (Stretching Feeling)
+      setCurrentStep(16)
+    } else if (currentStep === 16) {
+      // From step 16 (Stretching Feeling), proceed to step 17 (Previous Problems)
+      setCurrentStep(17)
+    } else if (currentStep === 17) {
+      // From step 17 (Previous Problems), proceed to step 18 (Additional Goals)
+      // If no previous problems were selected, show motivation message
+      if (quizData.previousProblems.length === 0) {
+        setShowMotivationMessage(true)
+      }
+      setCurrentStep(18)
+    } else if (currentStep === 18) {
+      // From step 18 (Additional Goals), proceed to step 19 (Food Preferences)
+      setCurrentStep(19)
+    } else if (currentStep === 19) {
+      // From step 19 (Food Preferences), proceed to step 20 (Dietary Habits - now has Sugar Frequency)
+      setCurrentStep(20)
+    } else if (currentStep === 20) {
+      // From step 20 (Dietary Habits), proceed to step 21 (Water Intake)
+      setCurrentStep(21)
+    } else if (currentStep === 21) {
+      // From step 21 (Water Intake), show water congrats if conditions met
+      if (quizData.waterIntake === "7-10" || quizData.waterIntake === "mais-10") {
+        setShowWaterCongrats(true)
+      } else {
+        // Otherwise, proceed to step 22 (Allergies)
+        setCurrentStep(22)
+      }
+    } else if (currentStep === 22) {
+      // From step 22 (Allergies), check if user has allergies
+      if (quizData.allergies === "sim") {
+        // If yes, go to step 23 (Allergy Details)
+        setCurrentStep(23)
+      } else {
+        // If no, skip step 23 and go directly to step 24 (Supplement)
+        setCurrentStep(24)
+      }
+    } else if (currentStep === 23) {
+      // From step 23 (Allergy Details), proceed to step 24 (Supplement)
+      setCurrentStep(24)
+    } else if (currentStep === 24) {
+      // From step 24 (Supplement), check if user wants supplements
+      if (quizData.wantsSupplement === "sim") {
+        // If yes, go to step 25 (Training Days)
+        setCurrentStep(25)
+      } else {
+        // If no, skip step 25 and go directly to step 26 (Name)
+        setCurrentStep(26)
+      }
+    } else if (currentStep === 25) {
+      // From step 25 (Training Days), proceed to step 26 (Name)
+      setCurrentStep(26)
+    } else if (currentStep === 26) {
+      // From step 26 (Name), show the analyzing data screen
       setShowAnalyzingData(true)
-      // </CHANGE>
+      // The analyzing data screen will then transition to the next step
     } else if (currentStep < totalSteps) {
-      const nextStepNumber = currentStep + 1
-      setCurrentStep(nextStepNumber)
+      // For all other steps, simply increment the current step
+      setCurrentStep(currentStep + 1)
     }
   }
 
@@ -840,34 +931,32 @@ export default function QuizPage() {
     if (currentStep > 1) {
       // Adjusted step numbers to match the new flow
       if (currentStep === 25 && quizData.allergies === "nao") {
-        // If we are at supplement question (case 25) and allergies was 'no' (case 22, which jumps to 25)
-        // We need to go back to the allergies question (case 22).
-        setCurrentStep(22) // Go back to allergies question
+        // If we are at step 25 (Supplement) and allergies was 'no' (which skipped step 23 to 24, then 24 to 25)
+        // we need to go back to the allergies question (step 22).
+        setCurrentStep(22)
       } else if (currentStep === 26 && quizData.wantsSupplement === "nao") {
-        // If we are at training days (case 26) and supplement was 'no' (case 25, which jumps to 26)
-        // We need to go back to the supplement question (case 25).
-        setCurrentStep(25) // Go back to supplement question
-      } else if (currentStep === 24 && quizData.allergies === "sim") {
-        // If we are at allergy details (case 24) and allergies was 'yes' (case 22)
-        // We need to go back to the allergies question (case 22).
-        setCurrentStep(22) // Go back to allergies question
-      } else if (currentStep === 18 && quizData.additionalGoals.length === 0) {
-        // If we are at the additional goals page (now case 18) and user selected none,
-        // and if we are navigating back from this page, we should go back to the previous problem page (case 17)
-        setShowMotivationMessage(false) // Hide motivation message if it was shown
+        // If we are at step 26 (Name) and supplement was 'no' (which skipped step 25 to 26)
+        // we need to go back to the supplement question (step 24).
+        setCurrentStep(24)
+      } else if (currentStep === 23 && quizData.allergies === "sim") {
+        // If we are at step 23 (Allergy Details) and allergies was 'yes'
+        // we need to go back to the allergies question (step 22).
+        setCurrentStep(22)
+      } else if (currentStep === 18 && quizData.previousProblems.length === 0) {
+        // If we are at step 18 (Additional Goals) and motivation message was shown (meaning previousProblems was empty)
+        // we need to go back to the previous problems question (step 17).
+        setShowMotivationMessage(false) // Hide motivation message
         setCurrentStep(17)
       } else if (currentStep === 18 && showMotivationMessage) {
-        // If motivation message was shown, go back to previous step before motivation message
+        // If motivation message is currently showing at step 18, hide it and go back to step 17.
         setShowMotivationMessage(false)
-        // The logic to show motivation message is now tied to previousProblems being empty.
-        // So if we are at step 18 (additional goals) and motivation message was shown, it means we came from step 17
-        // where previousProblems was empty. So we should go back to step 17.
         setCurrentStep(17)
       } else if (currentStep === 22 && showCortisolMessage) {
+        // If cortisol message is showing at step 22, hide it and go back to step 21.
         setShowCortisolMessage(false)
         setCurrentStep(21)
-        // </CHANGE>
       } else {
+        // For all other cases, simply decrement the step.
         setCurrentStep(currentStep - 1)
       }
     }
@@ -3032,14 +3121,27 @@ export default function QuizPage() {
                         : [...quizData.previousProblems, option.value],
                     )
                   }
-                  className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
+                  className={`w-full p-4 rounded-lg border-2 transition-all ${
                     quizData.previousProblems.includes(option.value)
                       ? "border-lime-500 bg-lime-500/10"
                       : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
                   }`}
                 >
-                  <span className="text-2xl">{option.icon}</span>
-                  <span className="text-white text-left">{option.label}</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{option.icon}</span>
+                      <span className="text-white text-left">{option.label}</span>
+                    </div>
+                    <div
+                      className={`w-6 h-6 rounded border-2 ${
+                        quizData.previousProblems.includes(option.value) ? "bg-white border-white" : "border-gray-400"
+                      }`}
+                    >
+                      {quizData.previousProblems.includes(option.value) && (
+                        <CheckCircle className="h-4 w-4 text-lime-500" />
+                      )}
+                    </div>
+                  </div>
                 </button>
               ))}
               <button
@@ -3048,14 +3150,21 @@ export default function QuizPage() {
                   console.log("[v0] 'Não tenho' clicked, advancing to motivation page")
                   nextStep()
                 }}
-                className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
+                className={`w-full p-4 rounded-lg border-2 transition-all flex items-center justify-between ${
                   quizData.previousProblems.length === 0
                     ? "border-red-500 bg-red-500/10"
                     : "border-white/10 bg-white/5 hover:border-red-500/50 backdrop-blur-sm"
                 }`}
               >
-                <span className="text-2xl">❌</span>
-                <span className="text-white text-left">Não, eu não tenho</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">❌</span>
+                  <span className="text-white text-left">Não, eu não tenho</span>
+                </div>
+                {quizData.previousProblems.length === 0 && (
+                  <div className="w-6 h-6 rounded border-2 bg-white border-white">
+                    <CheckCircle className="h-4 w-4 text-lime-500" />
+                  </div>
+                )}
               </button>
             </div>
             <Button
@@ -3078,62 +3187,187 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <p className="text-gray-400 text-sm">
-                Temos certeza de que você deseja não apenas um corpo melhor, mas também melhorar seu estilo de vida.
+              <h2 className="text-2xl font-bold text-white">Escolha os produtos que você gosta.</h2>
+              <p className="text-gray-300 text-sm">
+                Vamos criar um plano alimentar com base nas suas preferências. Você sempre poderá ajustá-lo
+                posteriormente.
               </p>
-              <h2 className="text-2xl font-bold text-white">Marque abaixo os seus objetivos adicionais:</h2>
             </div>
-            <div className="space-y-4">
-              {[
-                { value: "better-sleep", label: "Melhore o sono", icon: "😴" },
-                { value: "physical-habit", label: "Forme um hábito físico", icon: "📅" },
-                { value: "feel-healthier", label: "Sinta-se mais saudável", icon: "➕" },
-                { value: "reduce-stress", label: "Reduzir o estresse", icon: "🧘" },
-                { value: "increase-energy", label: "Aumentar a energia", icon: "⚡" },
-                { value: "increase-metabolism", label: "Aumenta o metabolismo", icon: "🚀" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() =>
-                    updateQuizData(
-                      "additionalGoals",
-                      quizData.additionalGoals.includes(option.value)
-                        ? quizData.additionalGoals.filter((g) => g !== option.value)
-                        : [...quizData.additionalGoals, option.value],
-                    )
-                  }
-                  className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
-                    quizData.additionalGoals.includes(option.value)
-                      ? "border-orange-500 bg-orange-500/10"
-                      : "border-white/10 bg-white/5 hover:border-orange-500/50 backdrop-blur-sm"
-                  }`}
-                >
-                  <span className="text-2xl">{option.icon}</span>
-                  <span className="text-white text-left">{option.label}</span>
-                </button>
-              ))}
+
+            {/* Toggle switch */}
+            <div className="flex items-center justify-between bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
+              <span className="text-white font-medium">Deixe que a FitGoal escolha.</span>
               <button
-                onClick={() => {
-                  updateQuizData("additionalGoals", [])
-                  nextStep()
-                }}
-                className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
-                  quizData.additionalGoals.length === 0
-                    ? "border-red-500 bg-red-500/10"
-                    : "border-white/10 bg-white/5 hover:border-red-500/50 backdrop-blur-sm"
+                onClick={() => updateQuizData("letMadMusclesChoose", !quizData.letMadMusclesChoose)}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                  quizData.letMadMusclesChoose ? "bg-lime-500" : "bg-gray-600"
                 }`}
               >
-                <span className="text-2xl">❌</span>
-                <span className="text-white text-left">Nenhuma das acima</span>
+                <span
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                    quizData.letMadMusclesChoose ? "translate-x-7" : "translate-x-1"
+                  }`}
+                />
               </button>
             </div>
-            <button
-              onClick={nextStep}
-              disabled={quizData.additionalGoals.length === 0}
-              className="w-full py-6 px-12 rounded-full bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold text-lg transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 disabled:shadow-none"
-            >
-              Continuar
-            </button>
+
+            {/* Food categories */}
+            <div className="space-y-6">
+              {/* Vegetables */}
+              <div>
+                <h3 className="text-white font-bold mb-3">Vegetais</h3>
+                <div className="flex flex-wrap gap-2">
+                  {["Brócolis", "Couve-flor", "Cebola", "Pimentão", "Beringela", "Repolho", "Pepino", "Tomate"].map(
+                    (item) => (
+                      <button
+                        key={item}
+                        onClick={() => {
+                          const current = quizData.foodPreferences.vegetables
+                          const updated = current.includes(item)
+                            ? current.filter((i) => i !== item)
+                            : [...current, item]
+                          updateQuizData("foodPreferences", { ...quizData.foodPreferences, vegetables: updated })
+                        }}
+                        className={`px-4 py-2 rounded-full border-2 transition-all ${
+                          quizData.foodPreferences.vegetables.includes(item)
+                            ? "border-lime-500 bg-lime-500/20 text-white"
+                            : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    ),
+                  )}
+                </div>
+              </div>
+
+              {/* Grains */}
+              <div>
+                <h3 className="text-white font-bold mb-3">Grão</h3>
+                <div className="flex flex-wrap gap-2">
+                  {["Arroz", "Quinoa", "Cuscuz", "Grãos de painço", "Fubá", "Farinha"].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        const current = quizData.foodPreferences.grains
+                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
+                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, grains: updated })
+                      }}
+                      className={`px-4 py-2 rounded-full border-2 transition-all ${
+                        quizData.foodPreferences.grains.includes(item)
+                          ? "border-lime-500 bg-lime-500/20 text-white"
+                          : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Ingredients */}
+              <div>
+                <h3 className="text-white font-bold mb-3">Ingredientes</h3>
+                <div className="flex flex-wrap gap-2">
+                  {["Abacate", "Feijões", "Ovos", "Cogumelos", "Queijo tipo cottage", "Leite", "Leite vegetal"].map(
+                    (item) => (
+                      <button
+                        key={item}
+                        onClick={() => {
+                          const current = quizData.foodPreferences.ingredients
+                          const updated = current.includes(item)
+                            ? current.filter((i) => i !== item)
+                            : [...current, item]
+                          updateQuizData("foodPreferences", { ...quizData.foodPreferences, ingredients: updated })
+                        }}
+                        className={`px-4 py-2 rounded-full border-2 transition-all ${
+                          quizData.foodPreferences.ingredients.includes(item)
+                            ? "border-lime-500 bg-lime-500/20 text-white"
+                            : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    ),
+                  )}
+                </div>
+              </div>
+
+              {/* Meats and Fish - Optional */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-white font-bold">Carnes e peixes</h3>
+                  <span className="text-gray-400 text-sm">Opcional</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {["Peru", "Carne bovina", "Frango", "Frutos do mar", "Carne de porco", "Peixe"].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        const current = quizData.foodPreferences.meats
+                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
+                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, meats: updated })
+                      }}
+                      className={`px-4 py-2 rounded-full border-2 transition-all ${
+                        quizData.foodPreferences.meats.includes(item)
+                          ? "border-lime-500 bg-lime-500/20 text-white"
+                          : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Fruits and Berries - Optional */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-white font-bold">Frutas e bagas</h3>
+                  <span className="text-gray-400 text-sm">Opcional</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Maçã",
+                    "Pera",
+                    "Kiwi",
+                    "Bananas",
+                    "Caqui",
+                    "Pêssego",
+                    "Frutas vermelhas",
+                    "Uva",
+                    "Romã",
+                    "Frutas tropicais (abacaxi, mamão, pitaya)",
+                  ].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        const current = quizData.foodPreferences.fruits
+                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
+                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, fruits: updated })
+                      }}
+                      className={`px-4 py-2 rounded-full border-2 transition-all ${
+                        quizData.foodPreferences.fruits.includes(item)
+                          ? "border-lime-500 bg-lime-500/20 text-white"
+                          : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Continue button */}
+            <div className="flex justify-center">
+              <Button onClick={nextStep} className="group relative">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
           </div>
         )
 
@@ -3454,7 +3688,7 @@ export default function QuizPage() {
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
-                  setCurrentStep(25) // Skip allergy details (case 24) and go to supplement (case 25)
+                  setCurrentStep(24) // Go to supplement question (case 24)
                 }}
               >
                 <X
