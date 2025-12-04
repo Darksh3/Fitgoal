@@ -3006,7 +3006,7 @@ export default function QuizPage() {
                     )
                   }
                   className={`w-full p-4 rounded-lg border-2 transition-all ${
-                    quizData.previousProblems.includes(option.value)
+                    quizData.problemAreas.includes(option.value)
                       ? "border-lime-500 bg-lime-500/10"
                       : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
                   }`}
@@ -3020,21 +3020,12 @@ export default function QuizPage() {
                   console.log("[v0] 'Não tenho' clicked, advancing to motivation page")
                   nextStep()
                 }}
-                className={`w-full p-4 rounded-lg border-2 transition-all ${
-                  quizData.previousProblems.length === 0
-                    ? "border-red-500 bg-red-500/10"
-                    : "border-white/10 bg-white/5 hover:border-red-500/50 backdrop-blur-sm"
-                }`}
+                className="w-full p-4 rounded-lg border-2 border-white/10 bg-white/5 hover:border-red-500/50 backdrop-blur-sm transition-all"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">❌</span>
                   <span className="text-white text-left">Não, eu não tenho</span>
                 </div>
-                {quizData.previousProblems.length === 0 && (
-                  <div className="w-6 h-6 rounded border-2 bg-white border-white">
-                    <CheckCircle className="h-4 w-4 text-lime-500" />
-                  </div>
-                )}
               </button>
             </div>
             <Button
@@ -3881,7 +3872,7 @@ export default function QuizPage() {
         </div>
         <div className="mb-8">{renderStep()}</div>
         {/* Updated the exclusion list based on the new step numbering and logic */}
-        {![1, 2, 3, 5, 7, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25].includes(currentStep) && (
+        {![1, 2, 3, 5, 7, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].includes(currentStep) && (
           <div className="flex justify-center">
             {currentStep === 27 ? ( // This should be currentStep === 27 now
               <Button
