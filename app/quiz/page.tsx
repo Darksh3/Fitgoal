@@ -767,7 +767,8 @@ export default function QuizPage() {
     console.log("[v0] quizData.targetWeight:", quizData.targetWeight)
     console.log("[v0] quizData.timeToGoal:", quizData.timeToGoal)
 
-    if (currentStep === 20) {
+    if (currentStep === 21) {
+      setCurrentStep(currentStep + 1) // Advance to step 22
       setShowCortisolMessage(true)
       return
     }
@@ -1148,7 +1149,7 @@ export default function QuizPage() {
   const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
   // </CHANGE>
 
-  if (showCortisolMessage && currentStep === 20) {
+  if (showCortisolMessage && currentStep === 22) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center p-6">
         <div className="max-w-2xl w-full space-y-8">
@@ -1196,11 +1197,10 @@ export default function QuizPage() {
 
           <button
             onClick={() => {
-              console.log("[v0] Got it button clicked, advancing to step 21")
+              console.log("[v0] Got it button clicked, continuing on step 22")
               setShowCortisolMessage(false)
-              setCurrentStep(21)
             }}
-            className="w-full py-4 px-8 bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-white rounded-full font-semibold transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 text-lg"
+            className="w-full py-6 px-12 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-full text-xl font-bold transition-all duration-300 shadow-lg hover:shadow-orange-500/50 transform hover:scale-105"
           >
             Entendi
           </button>
@@ -3126,13 +3126,15 @@ export default function QuizPage() {
                 <span className="text-white text-left">Nenhuma das acima</span>
               </button>
             </div>
-            <button
-              onClick={nextStep}
-              disabled={quizData.additionalGoals.length === 0}
-              className="w-full py-6 px-12 rounded-full bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold text-lg transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 disabled:shadow-none"
-            >
-              Continuar
-            </button>
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={nextStep}
+                disabled={quizData.additionalGoals.length === 0}
+                className="px-8 md:px-16 py-4 md:py-6 rounded-full bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold text-lg transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 disabled:shadow-none"
+              >
+                Continuar
+              </Button>
+            </div>
           </div>
         )
 
@@ -3169,13 +3171,15 @@ export default function QuizPage() {
                 </button>
               ))}
             </div>
-            <button
-              onClick={nextStep}
-              disabled={quizData.equipment.length === 0}
-              className="w-full py-6 px-12 rounded-full bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold text-lg transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 disabled:shadow-none"
-            >
-              Continuar
-            </button>
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={nextStep}
+                disabled={quizData.equipment.length === 0}
+                className="px-8 md:px-16 py-4 md:py-6 rounded-full bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold text-lg transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 disabled:shadow-none"
+              >
+                Continuar
+              </Button>
+            </div>
           </div>
         )
 
