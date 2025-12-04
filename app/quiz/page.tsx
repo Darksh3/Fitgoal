@@ -2716,6 +2716,39 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Quantos litros de água você bebe por dia?</h2>
+              <p className="text-gray-300">Selecione a opção que mais se aproxima</p>
+            </div>
+            <div className="space-y-4">
+              {[
+                { value: "menos-1", label: "Menos de 1 litro", icon: "💧" },
+                { value: "1-2", label: "1 a 2 litros", icon: "💦" },
+                { value: "2-3", label: "2 a 3 litros", icon: "🌊" },
+                { value: "mais-3", label: "Mais de 3 litros", icon: "🏊" },
+              ].map((water) => (
+                <button
+                  key={water.value}
+                  type="button"
+                  onClick={() => {
+                    updateQuizData("waterIntake", water.value)
+                    nextStep()
+                  }}
+                  className={`w-full bg-white/5 backdrop-blur-sm rounded-lg p-6 transition-all flex items-center space-x-4 border-2 hover:border-lime-400 cursor-pointer ${
+                    quizData.waterIntake === water.value ? "border-lime-500 bg-lime-500/10" : "border-white/10"
+                  }`}
+                >
+                  <span className="text-3xl">{water.icon}</span>
+                  <span className="text-lg font-bold text-white">{water.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+
+      case 9:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-white">Qual é a sua idade?</h2>
             </div>
             <div className="max-w-md mx-auto">
@@ -2733,7 +2766,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 9:
+      case 10:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2762,7 +2795,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 10:
+      case 11:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2789,7 +2822,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 11:
+      case 12:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2824,7 +2857,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 12:
+      case 13:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2876,7 +2909,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 13:
+      case 14:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2910,7 +2943,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 14:
+      case 15:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2944,7 +2977,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 15:
+      case 16:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2978,7 +3011,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 16:
+      case 17:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3044,7 +3077,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 17:
+      case 18:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3232,7 +3265,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 18:
+      case 19:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3275,7 +3308,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 19:
+      case 20:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3334,7 +3367,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 20:
+      case 21:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3522,7 +3555,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 21:
+      case 22:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3561,7 +3594,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 22:
+      case 23:
         if (quizData.allergies !== "sim") {
           return null
         }
@@ -3590,7 +3623,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 23:
+      case 24:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3662,7 +3695,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 24:
+      case 25:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3703,7 +3736,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 25:
+      case 26:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3723,7 +3756,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 26:
+      case 27:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3765,31 +3798,37 @@ export default function QuizPage() {
         return !!quizData.diet
       case 7:
         return quizData.sugarFrequency && quizData.sugarFrequency.length > 0
+      // </CHANGE> Updated canProceed for the new step 8 (water intake)
       case 8:
-        return !!quizData.age && quizData.age >= 16
+        return quizData.waterIntake !== ""
+
       case 9:
-        return !!quizData.height && Number.parseFloat(quizData.height.replace(",", ".")) > 0
+        return quizData.age >= 16
+
       case 10:
-        return !!quizData.weight && Number.parseFloat(quizData.weight) > 0
+        return quizData.height !== ""
+
       case 11:
-        return !!quizData.targetWeight && Number.parseFloat(quizData.targetWeight) > 0
+        return !!quizData.weight && Number.parseFloat(quizData.weight) > 0
       case 12:
-        return !!quizData.strengthTraining
+        return !!quizData.targetWeight && Number.parseFloat(quizData.targetWeight) > 0
       case 13:
-        return !!quizData.cardioFeeling
+        return !!quizData.strengthTraining
       case 14:
-        return !!quizData.strengthFeeling
+        return !!quizData.cardioFeeling
       case 15:
+        return !!quizData.strengthFeeling
+      case 16:
         return !!quizData.stretchingFeeling
-      case 16: // Now relates to previousProblems
+      case 17: // Now relates to previousProblems
         return true // Always can proceed since "Não, eu não tenho" is an option
-      case 17: // Now relates to additionalGoals (was case 19)
+      case 18: // Now relates to additionalGoals (was case 19)
         return quizData.additionalGoals.length > 0
-      case 18: // Equipment (was case 20)
+      case 19: // Equipment (was case 20)
         return quizData.equipment.length > 0
-      case 19: // Workout time (was case 21)
+      case 20: // Workout time (was case 21)
         return quizData.workoutTime !== ""
-      case 20: // Food preferences (was case 22)
+      case 21: // Food preferences (was case 22)
         // Allow proceeding if toggle is on, or if some preferences are selected
         return (
           quizData.letMadMusclesChoose ||
@@ -3800,17 +3839,17 @@ export default function QuizPage() {
           quizData.foodPreferences.fruits.length > 0
         )
       // </CHANGE>
-      case 21: // Allergies question (was case 23)
+      case 22: // Allergies question (was case 23)
         return !!quizData.allergies
-      case 22: // Allergy details (was case 24)
+      case 23: // Allergy details (was case 24)
         return quizData.allergyDetails.trim().length > 0
-      case 23: // Supplement question (was case 25)
+      case 24: // Supplement question (was case 25)
         return !!quizData.wantsSupplement
-      case 24: // Training days (was case 26)
+      case 25: // Training days (was case 26)
         return quizData.trainingDays !== "" && Number.parseInt(quizData.trainingDays) >= 1
-      case 25: // Name (was case 27)
+      case 26: // Name (was case 27)
         return !!quizData.name && quizData.name.trim().length > 0
-      case 26: // Email (was case 28)
+      case 27: // Email (was case 28)
         return !!quizData.email && quizData.email.includes("@")
 
       default:
