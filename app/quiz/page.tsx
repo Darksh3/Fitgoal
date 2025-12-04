@@ -15,7 +15,7 @@ import { Slider } from "@/components/ui/slider"
 
 import { Textarea } from "@/components/ui/textarea"
 
-import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, Clock } from "lucide-react"
+import { ArrowLeft, CheckCircle, X, Loader2, Dumbbell, Clock } from "lucide-react"
 
 import { useRouter } from "next/navigation"
 
@@ -1332,7 +1332,7 @@ export default function QuizPage() {
               setShowMotivationMessage(false)
               // The renderQuestion will handle showing case 19 (additional goals)
             }}
-            className="w-full py-4 px-8 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition-all shadow-lg"
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition-all shadow-lg"
           >
             Entendi
           </button>
@@ -2105,16 +2105,6 @@ export default function QuizPage() {
                 </div>
               </div>
             </div>
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="group relative w-full max-w-md mx-auto overflow-hidden"
-            >
-              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                <span className="relative z-10">Continuar</span>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-              </div>
-            </Button>
           </div>
         )
 
@@ -2734,61 +2724,19 @@ export default function QuizPage() {
                 </div>
               ))}
             </div>
-            <button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="w-full bg-gradient-to-r from-lime-400 to-lime-500 hover:from-lime-500 hover:to-lime-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-6 rounded-full text-2xl"
-            >
-              Continuar
-            </button>
+            <div className="flex justify-center">
+              <button
+                onClick={nextStep}
+                disabled={!canProceed()}
+                className="max-w-md bg-gradient-to-r from-lime-400 to-lime-500 hover:from-lime-500 hover:to-lime-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold px-8 md:px-16 py-4 md:py-6 rounded-full text-lg md:text-2xl"
+              >
+                Continuar
+              </button>
+            </div>
           </div>
         )
 
       case 8:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Quantidade diária de água</h2>
-            </div>
-            <div className="space-y-4">
-              {[
-                { value: "menos-2", label: "Menos de 2 copos", desc: "até 0,5 l", icon: Droplets },
-                { value: "2-6", label: "2-6 copos", desc: "0,5-1,5 l", icon: Droplets },
-                { value: "7-10", label: "7-10 copos", desc: "1,5-2,5 l", icon: Droplets },
-                { value: "mais-10", label: "Mais de 10 copos", desc: "mais de 2,5 l", icon: Droplets },
-              ].map((water) => (
-                <div
-                  key={water.value}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
-                    quizData.waterIntake === water.value
-                      ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10"
-                  }`}
-                  onClick={() => {
-                    updateQuizData("waterIntake", water.value)
-                    setTimeout(() => {
-                      if (water.value === "7-10" || water.value === "mais-10") {
-                        setShowWaterCongrats(true)
-                      } else {
-                        nextStep()
-                      }
-                    }, 300)
-                  }}
-                >
-                  <div className="flex items-center space-x-4">
-                    <water.icon className="h-6 w-6 text-blue-400" />
-                    <div>
-                      <h3 className="text-lg font-bold text-white">{water.label}</h3>
-                      <p className="text-gray-400 text-sm">{water.desc}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )
-
-      case 9:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2806,20 +2754,10 @@ export default function QuizPage() {
                 placeholder="Sua idade"
               />
             </div>
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="group relative w-full max-w-md mx-auto overflow-hidden"
-            >
-              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                <span className="relative z-10">Continuar</span>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-              </div>
-            </Button>
           </div>
         )
 
-      case 10:
+      case 9:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2845,20 +2783,10 @@ export default function QuizPage() {
                 <span className="text-gray-400 text-2xl ml-4">cm</span>
               </div>
             </div>
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="group relative w-full max-w-md mx-auto overflow-hidden"
-            >
-              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                <span className="relative z-10">Continuar</span>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-              </div>
-            </Button>
           </div>
         )
 
-      case 11:
+      case 10:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2882,20 +2810,10 @@ export default function QuizPage() {
                 <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
               </div>
             </div>
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="group relative w-full max-w-md mx-auto overflow-hidden"
-            >
-              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                <span className="relative z-10">Continuar</span>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-              </div>
-            </Button>
           </div>
         )
 
-      case 12:
+      case 11:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2927,20 +2845,10 @@ export default function QuizPage() {
                 <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
               </div>
             </div>
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="group relative w-full max-w-md mx-auto overflow-hidden"
-            >
-              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                <span className="relative z-10">Continuar</span>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-              </div>
-            </Button>
           </div>
         )
 
-      case 13:
+      case 12:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2992,7 +2900,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 14:
+      case 13:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3026,7 +2934,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 15:
+      case 14:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3060,7 +2968,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 16:
+      case 15:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3094,7 +3002,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 17:
+      case 16:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3183,7 +3091,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 18:
+      case 17:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3371,7 +3279,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 19:
+      case 18:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3414,7 +3322,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 20:
+      case 19:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3473,7 +3381,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 21:
+      case 20:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3661,7 +3569,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 22:
+      case 21:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3700,7 +3608,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 23:
+      case 22:
         if (quizData.allergies !== "sim") {
           return null
         }
@@ -3729,7 +3637,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 24:
+      case 23:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3801,7 +3709,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 25:
+      case 24:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3842,7 +3750,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 26:
+      case 25:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3862,7 +3770,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 27:
+      case 26:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -4013,7 +3921,7 @@ export default function QuizPage() {
         </div>
         <div className="mb-8">{renderStep()}</div>
         {/* Updated the exclusion list based on the new step numbering and logic */}
-        {![1, 3, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25].includes(currentStep) && (
+        {![1, 3, 7, 8, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25].includes(currentStep) && (
           <div className="flex justify-center">
             {currentStep === 27 ? ( // This should be currentStep === 27 now
               <Button
