@@ -1757,6 +1757,16 @@ export default function QuizPage() {
                 </div>
               </div>
             </div>
+            <Button
+              onClick={nextStep}
+              disabled={!canProceed()}
+              className="group relative w-full max-w-md mx-auto overflow-hidden"
+            >
+              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                <span className="relative z-10">Continuar</span>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+              </div>
+            </Button>
           </div>
         )
 
@@ -2426,7 +2436,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-4 sm:space-y-8">
             <div className="text-center space-y-2 sm:space-y-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual é sua idade?</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual é a sua idade?</h2>
             </div>
             <div className="max-w-md mx-auto">
               <Input
@@ -2440,6 +2450,16 @@ export default function QuizPage() {
                 placeholder="Sua idade"
               />
             </div>
+            <Button
+              onClick={nextStep}
+              disabled={!canProceed()}
+              className="group relative w-full max-w-md mx-auto overflow-hidden"
+            >
+              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                <span className="relative z-10">Continuar</span>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+              </div>
+            </Button>
           </div>
         )
 
@@ -2469,6 +2489,16 @@ export default function QuizPage() {
                 <span className="text-gray-400 text-2xl ml-4">cm</span>
               </div>
             </div>
+            <Button
+              onClick={nextStep}
+              disabled={!canProceed()}
+              className="group relative w-full max-w-md mx-auto overflow-hidden"
+            >
+              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                <span className="relative z-10">Continuar</span>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+              </div>
+            </Button>
           </div>
         )
 
@@ -2483,7 +2513,6 @@ export default function QuizPage() {
                 <div className="flex-1 flex justify-center">
                   <Input
                     type="number"
-                    inputMode="decimal"
                     placeholder="80"
                     value={quizData.weight}
                     onChange={(e) => updateQuizData("weight", e.target.value)}
@@ -2496,6 +2525,16 @@ export default function QuizPage() {
                 <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
               </div>
             </div>
+            <Button
+              onClick={nextStep}
+              disabled={!canProceed()}
+              className="group relative w-full max-w-md mx-auto overflow-hidden"
+            >
+              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                <span className="relative z-10">Continuar</span>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+              </div>
+            </Button>
           </div>
         )
 
