@@ -2022,16 +2022,14 @@ export default function QuizPage() {
                 </div>
               </div>
             </div>
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="group relative w-full max-w-md mx-auto overflow-hidden"
-            >
-              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                <span className="relative z-10">Continuar</span>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-              </div>
-            </Button>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
           </div>
         )
 
@@ -2723,16 +2721,14 @@ export default function QuizPage() {
                 placeholder="Sua idade"
               />
             </div>
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="group relative w-full max-w-md mx-auto overflow-hidden"
-            >
-              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                <span className="relative z-10">Continuar</span>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-              </div>
-            </Button>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
           </div>
         )
 
@@ -3423,7 +3419,15 @@ export default function QuizPage() {
 
             {/* Continue button */}
             <div className="flex justify-center">
-              <Button onClick={nextStep} className="group relative">
+              <Button
+                onClick={() => {
+                  console.log("[v0] Case 21 continue button clicked")
+                  console.log("[v0] Current step:", currentStep)
+                  console.log("[v0] Food preferences:", quizData.foodPreferences)
+                  nextStep()
+                }}
+                className="group relative"
+              >
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
@@ -3441,8 +3445,8 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                  quizData.allergies === "sim" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 ${
+                  quizData.allergies === "sim" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "sim")
@@ -3455,8 +3459,8 @@ export default function QuizPage() {
                 <h3 className="text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
               </div>
               <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                  quizData.allergies === "nao" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-red-400 ${
+                  quizData.allergies === "nao" ? "border-red-500 bg-red-500/10" : "border-white/10"
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
