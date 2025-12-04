@@ -356,7 +356,7 @@ export default function QuizPage() {
         const timer = setTimeout(() => {
           setShowAnalyzingData(false)
           setAnalyzingStep(0)
-          setCurrentStep(25) // Move to name question - This should now be 26 based on totalSteps
+          setCurrentStep(25) // Move to supplement question - this should now be 26 based on totalSteps update
         }, 2500)
         return () => clearTimeout(timer)
       }
@@ -768,8 +768,8 @@ export default function QuizPage() {
     console.log("[v0] quizData.timeToGoal:", quizData.timeToGoal)
 
     if (currentStep === 21) {
-      setCurrentStep(currentStep + 1) // Advance to step 22
-      setShowCortisolMessage(true)
+      // This case handles food preferences. After this, we go to allergies.
+      setCurrentStep(22)
       return
     }
     // </CHANGE>
@@ -803,25 +803,27 @@ export default function QuizPage() {
       // Step 8 is water intake
       setShowWaterCongrats(true)
     } else if (currentStep === 22 && quizData.allergies === "nao") {
-      // Step 22 is allergies, if 'nao', it skips to case 23 (allergy details).
+      // Step 22 is allergies, if 'nao', it skips to case 24 (allergy details).
       // This means if currentStep is 22 and allergies is 'nao', we should advance past the details directly.
-      // The current logic might skip to step 23 correctly due to setCurrentStep(25) in case 22.
-      // However, to ensure flow, if allergies is 'nao', we should directly go to supplement question (case 24).
-      // This implies when allergies is 'nao', we directly go to step 24. Let's adjust the logic here.
-      // Corrected: When allergies is 'nao' at step 22, the `onClick` handler already sets `setCurrentStep(25)`.
+      // The current logic might skip to step 24 correctly due to setCurrentStep(24) in case 22.
+      // However, to ensure flow, if allergies is 'nao', we should directly go to supplement question (case 25).
+      // This implies when allergies is 'nao', we directly go to step 25. Let's adjust the logic here.
+      // Corrected: When allergies is 'nao' at step 22, the `onClick` handler already sets `setCurrentStep(24)`.
       // So this condition might be redundant or needs to check if we are coming *from* a skipped step.
       // For now, relying on the `onClick` handler for skipping.
     } else if (currentStep === 23 && quizData.allergies === "nao") {
-    } else if (currentStep === 25 && quizData.allergies === "nao") {
+      // This case is for allergy details, if allergies was 'nao', this step is skipped.
+      // The `onClick` handler in case 22 already advances to case 24.
+    } else if (currentStep === 24 && quizData.allergies === "nao") {
       // </CHANGE>
       setCurrentStep(25)
     } else if (currentStep === 24 && quizData.wantsSupplement === "nao") {
       // Step 24 is supplement choice. If 'nao', we skip supplement details (case 24 handles this by setting currentStep to 25).
       // So if we are at 24 and it was 'nao', we go to step 25 (training days)
-      setCurrentStep(25) // Skip supplement details and go to step 25 (training days)
-    } else if (currentStep === 26 && quizData.wantsSupplement === "nao") {
+      setCurrentStep(26) // Skip supplement recommendation and go to step 26 (name)
+    } else if (currentStep === 25 && quizData.wantsSupplement === "nao") {
       // </CHANGE>
-      setCurrentStep(25)
+      setCurrentStep(26)
     } else if (currentStep === 12 && quizData.weight !== "" && quizData.targetWeight !== "") {
       // Original was step 15, now step 13 (weight related)
       const calculatedTime = calculateTimeToGoal()
@@ -834,7 +836,7 @@ export default function QuizPage() {
         setCurrentStep(currentStep + 1)
       }
       // </CHANGE>
-    } else if (currentStep === 28) {
+    } else if (currentStep === 27) {
       // </CHANGE>
       setShowAnalyzingData(true)
       // </CHANGE>
@@ -847,16 +849,20 @@ export default function QuizPage() {
   const prevStep = () => {
     if (currentStep > 1) {
       // Adjusted step numbers to match the new flow
-      if (currentStep === 25 && quizData.allergies === "nao") {
-        // If we are at supplement question (case 25) and allergies was 'no' (case 22, which jumps to 25)
+      if (currentStep === 24 && quizData.allergies === "nao") {
+        // If we are at supplement question (case 24) and allergies was 'no' (case 22, which jumps to 24)
         // We need to go back to the allergies question (case 22).
         setCurrentStep(22) // Go back to allergies question
       } else if (currentStep === 26 && quizData.wantsSupplement === "nao") {
-        // If we are at training days (case 26) and supplement was 'no' (case 25, which jumps to 26)
-        // We need to go back to the supplement question (case 25).
-        setCurrentStep(25) // Go back to supplement question
-      } else if (currentStep === 24 && quizData.allergies === "sim") {
-        // If we are at allergy details (case 24) and allergies was 'yes' (case 22)
+        // If we are at name question (case 26) and supplement was 'no' (case 24, which jumps to 26)
+        // We need to go back to the supplement question (case 24).
+        setCurrentStep(24) // Go back to supplement question
+      } else if (currentStep === 25 && quizData.wantsSupplement === "sim") {
+        // If we are at supplement recommendation (case 25) and supplement was 'yes' (case 24)
+        // We need to go back to the supplement question (case 24).
+        setCurrentStep(24)
+      } else if (currentStep === 23 && quizData.allergies === "sim") {
+        // If we are at allergy details (case 23) and allergies was 'yes' (case 22)
         // We need to go back to the allergies question (case 22).
         setCurrentStep(22) // Go back to allergies question
       } else if (currentStep === 18 && quizData.additionalGoals.length === 0) {
@@ -1199,6 +1205,7 @@ export default function QuizPage() {
             onClick={() => {
               console.log("[v0] Got it button clicked, continuing on step 22")
               setShowCortisolMessage(false)
+              // The renderQuestion will handle showing the next step correctly (case 22)
             }}
             className="w-full py-6 px-12 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-full text-xl font-bold transition-all duration-300 shadow-lg hover:shadow-orange-500/50 transform hover:scale-105"
           >
@@ -1247,7 +1254,7 @@ export default function QuizPage() {
             onClick={() => {
               console.log("[v0] Entendi button clicked, hiding motivation and advancing")
               setShowMotivationMessage(false)
-              // The renderQuestion will handle showing case 19 (additional goals)
+              // The renderQuestion will handle showing case 19 (additional goals) which is now case 19
             }}
             className="w-full py-4 px-8 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition-all shadow-lg"
           >
@@ -2718,7 +2725,7 @@ export default function QuizPage() {
                 max="80"
                 value={quizData.age === 0 ? "" : quizData.age.toString()}
                 onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
-                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-gray-400 font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500"
+                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500"
                 placeholder="Sua idade"
               />
             </div>
@@ -3465,7 +3472,7 @@ export default function QuizPage() {
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
-                  setCurrentStep(25) // Skip allergy details (case 24) and go to supplement (case 25)
+                  setCurrentStep(24) // Skip allergy details (case 23) and go to supplement interest (case 24)
                 }}
               >
                 <X
@@ -3507,6 +3514,53 @@ export default function QuizPage() {
         )
 
       case 24:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Você quer adicionar algum suplemento?</h2>
+              <p className="text-gray-300">Suplementos podem ajudar a alcançar seus objetivos mais rapidamente</p>
+            </div>
+            <div className="space-y-4">
+              <div
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 ${
+                  quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
+                }`}
+                onClick={() => {
+                  updateQuizData("wantsSupplement", "sim")
+                  setTimeout(() => nextStep(), 300)
+                }}
+              >
+                <CheckCircle
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
+                />
+                <h3 className="text-lg font-bold text-white">Sim, quero adicionar suplementos</h3>
+              </div>
+              <div
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-red-400 ${
+                  quizData.wantsSupplement === "nao" ? "border-red-500 bg-red-500/10" : "border-white/10"
+                }`}
+                onClick={() => {
+                  updateQuizData("wantsSupplement", "nao")
+                  updateQuizData("supplement", "nao")
+                  updateQuizData("supplementType", "nao")
+                  setCurrentStep(26) // Skip supplement recommendation and go to name
+                }}
+              >
+                <X
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "nao" ? "text-red-500" : "text-gray-500"}`}
+                />
+                <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
+              </div>
+            </div>
+          </div>
+        )
+
+      case 25:
+        // Only show if user wants supplement
+        if (quizData.wantsSupplement !== "sim") {
+          return null
+        }
+
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3566,7 +3620,7 @@ export default function QuizPage() {
                   updateQuizData("wantsSupplement", "nao")
                   updateQuizData("supplement", "nao")
                   updateQuizData("supplementType", "nao")
-                  nextStep()
+                  setCurrentStep(26) // Skip supplement recommendation and go to name
                 }}
               >
                 <X
@@ -3574,47 +3628,6 @@ export default function QuizPage() {
                 />
                 <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
               </button>
-            </div>
-          </div>
-        )
-
-      case 25:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
-              <p className="text-gray-300">Selecione de 1 a 7 dias</p>
-            </div>
-            <div className="text-center space-y-8">
-              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
-                <div className="space-y-4">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 inline-block">
-                    <span className="text-white font-bold">{quizData.trainingDays} dias</span>
-                  </div>
-                  <div className="px-4">
-                    <Slider
-                      value={[Number.parseInt(quizData.trainingDays)]} // Ensure value is number for Slider
-                      onValueChange={(value) => updateQuizData("trainingDays", value[0].toString())}
-                      max={7}
-                      min={1}
-                      step={1}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-gray-400 text-sm mt-2">
-                      <span>1 dia</span>
-                      <span>7 dias</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-center">
-                <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
-                  <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                    <span className="relative z-10">Continuar</span>
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                  </div>
-                </Button>
-              </div>
             </div>
           </div>
         )
@@ -3636,6 +3649,7 @@ export default function QuizPage() {
                 />
               </div>
             </div>
+            {/* No continue button needed here, it's handled at the bottom */}
           </div>
         )
 
@@ -3643,7 +3657,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Digite o seu e-mail</h2>
+              <h2 className="text-2xl font-bold text-white">Qual é o seu e-mail?</h2>
               {/* Changed placeholder to gray */}
               <p className="text-gray-400">Para receber seu plano personalizado</p>
             </div>
@@ -3658,6 +3672,19 @@ export default function QuizPage() {
                 />
               </div>
             </div>
+            {/* No continue button needed here, it's handled at the bottom */}
+          </div>
+        )
+      case 28:
+        return (
+          <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8">
+            <h2 className="text-3xl font-bold text-white text-center">Quase lá!</h2>
+            <p className="text-gray-300 text-center text-lg max-w-md">
+              Estamos gerando seu plano personalizado com base em todas as suas respostas.
+            </p>
+            <div className="animate-bounce">
+              <Loader2 className="h-16 w-16 text-lime-400 animate-spin" />
+            </div>
           </div>
         )
       default:
@@ -3668,69 +3695,59 @@ export default function QuizPage() {
   const canProceed = () => {
     switch (currentStep) {
       case 1:
-        return !!quizData.gender
+        return quizData.gender !== ""
       case 2:
-        return !!quizData.bodyType
+        return quizData.bodyType !== ""
       case 3:
         return quizData.goal.length > 0
       case 4:
-        return quizData.bodyFat >= 5 && quizData.bodyFat <= 45
+        return quizData.bodyFat > 0
       case 5:
         return quizData.problemAreas.length > 0
       case 6:
-        return !!quizData.diet
+        return quizData.diet !== "" // Updated for diet
       case 7:
-        return quizData.sugarFrequency && quizData.sugarFrequency.length > 0
+        return quizData.sugarFrequency.length > 0 // Updated for sugarFrequency
       case 8:
-        return !!quizData.waterIntake
+        return quizData.waterIntake !== ""
       case 9:
-        return !!quizData.age && quizData.age >= 16
+        return quizData.age >= 16 && quizData.age <= 100
       case 10:
-        return !!quizData.height && Number.parseFloat(quizData.height.replace(",", ".")) > 0
+        return quizData.height !== "" && Number.parseFloat(quizData.height.replace(",", ".")) > 100 // Check for valid height in cm
       case 11:
-        return !!quizData.weight && Number.parseFloat(quizData.weight) > 0
+        return quizData.weight !== "" && Number.parseFloat(quizData.weight) > 0
       case 12:
-        return !!quizData.targetWeight && Number.parseFloat(quizData.targetWeight) > 0
+        return quizData.targetWeight !== "" && Number.parseFloat(quizData.targetWeight) > 0
       case 13:
-        return !!quizData.strengthTraining
+        return quizData.strengthTraining !== "" // Updated for strengthTraining
       case 14:
-        return !!quizData.cardioFeeling
+        return quizData.cardioFeeling !== "" // Updated for cardioFeeling
       case 15:
-        return !!quizData.strengthFeeling
+        return quizData.strengthFeeling !== "" // Updated for strengthFeeling
       case 16:
-        return !!quizData.stretchingFeeling
+        return quizData.stretchingFeeling !== "" // Updated for stretchingFeeling
       case 17: // Now relates to previousProblems
         return true // Always can proceed since "Não, eu não tenho" is an option
-      case 18: // Now relates to additionalGoals (was case 19)
+      case 18: // Now relates to additionalGoals
         return quizData.additionalGoals.length > 0
-      case 19: // Equipment (was case 20)
+      case 19: // Equipment
         return quizData.equipment.length > 0
-      case 20: // Workout time (was case 21)
+      case 20: // Workout time
         return quizData.workoutTime !== ""
-      case 21: // Food preferences (was case 22)
-        // Allow proceeding if toggle is on, or if some preferences are selected
-        return (
-          quizData.letMadMusclesChoose ||
-          quizData.foodPreferences.vegetables.length > 0 ||
-          quizData.foodPreferences.grains.length > 0 ||
-          quizData.foodPreferences.ingredients.length > 0 ||
-          quizData.foodPreferences.meats.length > 0 ||
-          quizData.foodPreferences.fruits.length > 0
-        )
-      // </CHANGE>
-      case 22: // Allergies question (was case 23)
-        return !!quizData.allergies
-      case 23: // Allergy details (was case 24)
-        return quizData.allergyDetails.trim().length > 0
-      case 24: // Supplement question (was case 25)
-        return !!quizData.wantsSupplement
-      case 25: // Training days (was case 26)
-        return quizData.trainingDays !== "" && Number.parseInt(quizData.trainingDays) >= 1
-      case 26: // Name (was case 27)
-        return !!quizData.name && quizData.name.trim().length > 0
-      case 27: // Email (was case 28)
-        return !!quizData.email && quizData.email.includes("@")
-
+      case 21: // Food preferences
+        return true // Allow proceeding if toggle is on, or if some preferences are selected
+      case 22: // Allergies question
+        return quizData.allergies !== ""
+      case 23: // Allergy details
+        return quizData.allergyDetails.trim() !== ""
+      case 24: // Supplement interest question
+        return quizData.wantsSupplement !== ""
+      case 25: // Supplement recommendation (only shown if wantsSupplement === "sim")
+        return true // Always proceed if shown
+      case 26: // Name
+        return quizData.name.trim() !== ""
+      case 27: // Email
+        return quizData.email.trim() !== "" && quizData.email.includes("@")
       default:
         return true
     }
@@ -3789,7 +3806,8 @@ export default function QuizPage() {
           />
         </div>
         <div className="mb-8">{renderStep()}</div>
-        {![1, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25].includes(
+        {/* Adjust the condition to include steps that don't need a manual next button */}
+        {![1, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 28].includes(
           currentStep,
         ) && (
           <div className="flex justify-center">
