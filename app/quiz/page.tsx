@@ -572,7 +572,7 @@ export default function QuizPage() {
 
       if (response.ok) {
         const result = await response.json()
-        console.log("generateAndSavePlan: API /api/generate-plans-on-demand response:", result)
+        console.log("generateAndSavePlan: API /api-generate-plans-on-demand response:", result)
         // A API agora é responsável por salvar dietPlan e workoutPlan no Firestore
         // Não é necessário salvá-los aqui novamente.
       } else {
@@ -1582,26 +1582,6 @@ export default function QuizPage() {
           </div>
         )
       case 2:
-        return (
-          <div className="space-y-4 sm:space-y-8">
-            <div className="text-center space-y-2 sm:space-y-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual é sua idade?</h2>
-            </div>
-            <div className="max-w-md mx-auto">
-              <Input
-                type="number"
-                inputMode="numeric"
-                min="16"
-                max="80"
-                value={quizData.age === 0 ? "" : quizData.age.toString()}
-                onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
-                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-gray-300 font-bold focus:border-lime-500 focus:outline-none"
-                placeholder="Sua idade"
-              />
-            </div>
-          </div>
-        )
-      case 3:
         const getBodyTypeImage = (type: string) => {
           const isWoman = quizData.gender === "mulher"
           switch (type) {
@@ -1657,64 +1637,59 @@ export default function QuizPage() {
             </div>
           </div>
         )
+      case 3:
+        const getGoalIcon = (goalValue: string) => {
+          switch (goalValue) {
+            case "perder-peso":
+              return "/images/calories-icon.webp"
+            case "ganhar-massa":
+              return quizData.gender === "mulher" ? "/images/slim-body-icon.webp" : "/images/body-icon.webp"
+            case "melhorar-saude":
+              return "/images/better-health-icon.webp"
+            case "aumentar-resistencia":
+              return "/images/training-icon.webp"
+            default:
+              return "/placeholder.svg"
+          }
+        }
+        return (
+          <div className="space-y-6 sm:space-y-8">
+            <div className="text-center space-y-2 sm:space-y-4">
+              <h2 className="text-2xl sm:text-2xl md:text-3xl font-bold text-white">Quais são os seus objetivos?</h2>
+              <p className="text-base sm:text-base text-gray-300">Selecione todos que se aplicam</p>
+            </div>
+            <div className="space-y-3 sm:space-y-3 md:space-y-4">
+              {[
+                { value: "perder-peso", label: "Perder peso e queimar gordura" },
+                { value: "ganhar-massa", label: "Ganhar massa muscular e definir o corpo" },
+                { value: "melhorar-saude", label: "Melhorar minha saúde, disposição e bem-estar" },
+                { value: "aumentar-resistencia", label: "Aumentar a minha resistência física" },
+              ].map((goal) => (
+                <div
+                  key={goal.value}
+                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center gap-4 ${
+                    quizData.goal.includes(goal.value)
+                      ? "border-2 border-lime-500 bg-lime-500/10"
+                      : "border border-white/10"
+                  }`}
+                  onClick={() => handleArrayUpdate("goal", goal.value, !quizData.goal.includes(goal.value))}
+                >
+                  <img
+                    src={getGoalIcon(goal.value) || "/placeholder.svg"}
+                    alt={goal.label}
+                    className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain flex-shrink-0"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.svg"
+                    }}
+                  />
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-white">{goal.label}</h3>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
 
       case 4:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é sua altura?</h2>
-            </div>
-            <div className="space-y-6">
-              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors flex items-center justify-center relative">
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  placeholder={`Altura em metros (ex: 1.75 ou 1,75)`}
-                  value={quizData.height}
-                  onChange={(e) => {
-                    const cleaned = e.target.value.replace(/[^\d.,]/g, "")
-                    setQuizData({ ...quizData, height: cleaned })
-                  }}
-                  onBlur={(e) => {
-                    const normalized = normalizeHeight(e.target.value)
-                    updateQuizData("height", normalized)
-                  }}
-                  className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 [&::placeholder]:text-gray-400 placeholder:text-xl flex-1"
-                />
-                <span className="text-gray-400 text-2xl ml-4">cm</span>
-              </div>
-            </div>
-          </div>
-        )
-
-      case 5:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu peso atual?</h2>
-            </div>
-            <div className="space-y-6">
-              <div className="relative border-2 border-white/10 rounded-2xl p-6 bg-white/5 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500 flex items-center justify-between">
-                <div className="flex-1 flex justify-center">
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    placeholder="80"
-                    value={quizData.weight}
-                    onChange={(e) => updateQuizData("weight", e.target.value)}
-                    min="1"
-                    max="500"
-                    step="0.1"
-                    className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
-                  />
-                </div>
-                <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
-              </div>
-            </div>
-          </div>
-        )
-
-      case 6:
         return (
           <div className="space-y-5 sm:space-y-8">
             <div className="text-center space-y-2 sm:space-y-4">
@@ -1779,59 +1754,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 7:
-        const getGoalIcon = (goalValue: string) => {
-          switch (goalValue) {
-            case "perder-peso":
-              return "/images/calories-icon.webp"
-            case "ganhar-massa":
-              return quizData.gender === "mulher" ? "/images/slim-body-icon.webp" : "/images/body-icon.webp"
-            case "melhorar-saude":
-              return "/images/better-health-icon.webp"
-            case "aumentar-resistencia":
-              return "/images/training-icon.webp"
-            default:
-              return "/placeholder.svg"
-          }
-        }
-        return (
-          <div className="space-y-6 sm:space-y-8">
-            <div className="text-center space-y-2 sm:space-y-4">
-              <h2 className="text-2xl sm:text-2xl md:text-3xl font-bold text-white">Quais são os seus objetivos?</h2>
-              <p className="text-base sm:text-base text-gray-300">Selecione todos que se aplicam</p>
-            </div>
-            <div className="space-y-3 sm:space-y-3 md:space-y-4">
-              {[
-                { value: "perder-peso", label: "Perder peso e queimar gordura" },
-                { value: "ganhar-massa", label: "Ganhar massa muscular e definir o corpo" },
-                { value: "melhorar-saude", label: "Melhorar minha saúde, disposição e bem-estar" },
-                { value: "aumentar-resistencia", label: "Aumentar a minha resistência física" },
-              ].map((goal) => (
-                <div
-                  key={goal.value}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center gap-4 ${
-                    quizData.goal.includes(goal.value)
-                      ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10"
-                  }`}
-                  onClick={() => handleArrayUpdate("goal", goal.value, !quizData.goal.includes(goal.value))}
-                >
-                  <img
-                    src={getGoalIcon(goal.value) || "/placeholder.svg"}
-                    alt={goal.label}
-                    className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain flex-shrink-0"
-                    onError={(e) => {
-                      e.currentTarget.src = "/placeholder.svg"
-                    }}
-                  />
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-white">{goal.label}</h3>
-                </div>
-              ))}
-            </div>
-          </div>
-        )
-
-      case 8:
+      case 5:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2364,7 +2287,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 9:
+      case 6:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2417,7 +2340,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 10:
+      case 7:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2449,7 +2372,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 11:
+      case 8:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2489,6 +2412,83 @@ export default function QuizPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )
+
+      case 9:
+        return (
+          <div className="space-y-4 sm:space-y-8">
+            <div className="text-center space-y-2 sm:space-y-4">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual é sua idade?</h2>
+            </div>
+            <div className="max-w-md mx-auto">
+              <Input
+                type="number"
+                inputMode="numeric"
+                min="16"
+                max="80"
+                value={quizData.age === 0 ? "" : quizData.age.toString()}
+                onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
+                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-gray-400 font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500"
+                placeholder="Sua idade"
+              />
+            </div>
+          </div>
+        )
+
+      case 10:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual é sua altura?</h2>
+            </div>
+            <div className="space-y-6">
+              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors flex items-center justify-center relative">
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder={`Altura em metros (ex: 1.75 ou 1,75)`}
+                  value={quizData.height}
+                  onChange={(e) => {
+                    const cleaned = e.target.value.replace(/[^\d.,]/g, "")
+                    setQuizData({ ...quizData, height: cleaned })
+                  }}
+                  onBlur={(e) => {
+                    const normalized = normalizeHeight(e.target.value)
+                    updateQuizData("height", normalized)
+                  }}
+                  className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 [&::placeholder]:text-gray-400 placeholder:text-xl flex-1"
+                />
+                <span className="text-gray-400 text-2xl ml-4">cm</span>
+              </div>
+            </div>
+          </div>
+        )
+
+      case 11:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual é o seu peso atual?</h2>
+            </div>
+            <div className="space-y-6">
+              <div className="relative border-2 border-white/10 rounded-2xl p-6 bg-white/5 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500 flex items-center justify-between">
+                <div className="flex-1 flex justify-center">
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    placeholder="80"
+                    value={quizData.weight}
+                    onChange={(e) => updateQuizData("weight", e.target.value)}
+                    min="1"
+                    max="500"
+                    step="0.1"
+                    className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
+                  />
+                </div>
+                <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
+              </div>
             </div>
           </div>
         )
@@ -2980,7 +2980,7 @@ export default function QuizPage() {
               <h2 className="text-2xl font-bold text-white">Qual é o seu nome?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors flex items-center justify-center relative">
+              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors">
                 <Input
                   type="text"
                   placeholder="Digite seu nome"
@@ -3024,25 +3024,25 @@ export default function QuizPage() {
       case 1:
         return !!quizData.gender
       case 2:
-        return !!quizData.age && quizData.age >= 16
-      case 3:
         return !!quizData.bodyType
-      case 4:
-        return !!quizData.height && Number.parseFloat(quizData.height.replace(",", ".")) > 0
-      case 5:
-        return !!quizData.weight && Number.parseFloat(quizData.weight) > 0
-      case 6:
+      case 3:
         return quizData.bodyFat >= 5 && quizData.bodyFat <= 45
-      case 7:
+      case 4:
         return quizData.goal.length > 0
-      case 8:
+      case 5:
         return quizData.problemAreas.length > 0
-      case 9:
+      case 6:
         return !!quizData.diet
-      case 10:
+      case 7:
         return !!quizData.sugarFrequency && quizData.sugarFrequency.length > 0
-      case 11:
+      case 8:
         return !!quizData.waterIntake
+      case 9:
+        return !!quizData.age && quizData.age >= 16
+      case 10:
+        return !!quizData.height && Number.parseFloat(quizData.height.replace(",", ".")) > 0
+      case 11:
+        return !!quizData.weight && Number.parseFloat(quizData.weight) > 0
       case 12:
         return !!quizData.allergies
       case 13:
@@ -3090,25 +3090,25 @@ export default function QuizPage() {
       case 1:
         return !!quizData.gender
       case 2:
-        return !!quizData.age && quizData.age >= 16
-      case 3:
         return !!quizData.bodyType
-      case 4:
-        return !!quizData.height && Number.parseFloat(quizData.height.replace(",", ".")) > 0
-      case 5:
-        return !!quizData.weight && Number.parseFloat(quizData.weight) > 0
-      case 6:
+      case 3:
         return quizData.bodyFat >= 5 && quizData.bodyFat <= 45
-      case 7:
+      case 4:
         return quizData.goal.length > 0
-      case 8:
+      case 5:
         return quizData.problemAreas.length > 0
-      case 9:
+      case 6:
         return !!quizData.diet
-      case 10:
+      case 7:
         return !!quizData.sugarFrequency && quizData.sugarFrequency.length > 0
-      case 11:
+      case 8:
         return !!quizData.waterIntake
+      case 9:
+        return !!quizData.age && quizData.age >= 16
+      case 10:
+        return !!quizData.height && Number.parseFloat(quizData.height.replace(",", ".")) > 0
+      case 11:
+        return !!quizData.weight && Number.parseFloat(quizData.weight) > 0
       case 12:
         return !!quizData.allergies
       case 13:
