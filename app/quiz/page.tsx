@@ -1966,7 +1966,7 @@ export default function QuizPage() {
             case "perder-peso":
               return "/images/fire.png"
             case "ganhar-massa":
-              return "/images/strong.png"
+              return "/images/dumbbell.png"
             case "melhorar-saude":
               return "/images/heart.png"
             case "aumentar-resistencia":
@@ -3020,7 +3020,7 @@ export default function QuizPage() {
                   console.log("[v0] 'Não tenho' clicked, advancing to motivation page")
                   nextStep()
                 }}
-                className={`w-full p-4 rounded-lg border-2 transition-all flex items-center justify-between ${
+                className={`w-full p-4 rounded-lg border-2 transition-all ${
                   quizData.previousProblems.length === 0
                     ? "border-red-500 bg-red-500/10"
                     : "border-white/10 bg-white/5 hover:border-red-500/50 backdrop-blur-sm"
