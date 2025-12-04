@@ -692,15 +692,13 @@ export default function QuizPage() {
     console.log("[v0] nextStep called, currentStep:", currentStep)
     console.log("[v0] quizData.targetWeight:", quizData.targetWeight)
     console.log("[v0] quizData.timeToGoal:", quizData.timeToGoal)
-    // </CHANGE>
 
-    // Show motivation message after case 18 (previous problems)
     if (currentStep === 18) {
-      setShowMotivationMessage(true)
+      setCurrentStep(19) // Advance to step 19 first
+      setShowMotivationMessage(true) // Then show the motivation message
       return
     }
-
-    // ... existing code for other special cases ...
+    // </CHANGE>
 
     if (currentStep === 9 && quizData.diet !== "nao-sigo") {
       // Step 9 is now age, this logic needs to be re-evaluated
@@ -759,10 +757,11 @@ export default function QuizPage() {
         // allergy details step is 21, if allergies was 'yes', we are here. If previous was 'nao', we skip 21. So if we are here, we go back to 20 (allergies question)
         // If we are at allergy details and allergies was 'yes'
         setCurrentStep(20) // Go back to allergies question
-      } else if (currentStep === 18 && showMotivationMessage) {
+      } else if (currentStep === 19 && showMotivationMessage) {
+        // Changed condition from 18 to 19
         // If motivation message was shown, go back to previous step before motivation message
         setShowMotivationMessage(false)
-        setCurrentStep(17)
+        setCurrentStep(18) // Changed from 17 to 18
       } else {
         setCurrentStep(currentStep - 1)
       }
@@ -1037,7 +1036,6 @@ export default function QuizPage() {
   // </CHANGE>
 
   if (showMotivationMessage && currentStep === 19) {
-    // Ensure this only shows at the correct step
     return (
       <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center p-6">
         <div className="max-w-2xl w-full space-y-8 text-center">
@@ -1071,9 +1069,9 @@ export default function QuizPage() {
 
           <button
             onClick={() => {
+              console.log("[v0] Entendi button clicked, hiding motivation and advancing")
               setShowMotivationMessage(false)
-              // Move to the next step, which is step 20 (allergies)
-              setCurrentStep(20) // Changed from 19 to 20
+              // The renderQuestion will handle showing case 19 (additional goals)
             }}
             className="w-full py-4 px-8 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition-all shadow-lg"
           >
@@ -1083,6 +1081,7 @@ export default function QuizPage() {
       </div>
     )
   }
+  // </CHANGE>
 
   if (showAnalyzingData) {
     const current = Number.parseFloat(quizData.weight)
