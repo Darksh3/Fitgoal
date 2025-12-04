@@ -202,7 +202,7 @@ export default function QuizPage() {
   const [showTimeCalculation, setShowTimeCalculation] = useState(false)
   const [showIMCResult, setShowIMCResult] = useState(false)
   const [showLoading, setShowLoading] = useState(false)
-  const [totalSteps, setTotalSteps] = useState(25) // Updated totalSteps to 25
+  const [totalSteps, setTotalSteps] = useState(26) // Updated totalSteps to 26 (from 25)
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false) // Add isSubmitting state
@@ -733,6 +733,7 @@ export default function QuizPage() {
       }
       // </CHANGE>
     } else if (currentStep === 25) {
+      // Updated from 24 to 25
       // Changed to 25 from 24 (now before submitting)
       // Updated from step 24 to 25 (final step before submit)
       setShowAnalyzingData(true)
@@ -1072,7 +1073,7 @@ export default function QuizPage() {
             onClick={() => {
               setShowMotivationMessage(false)
               // Move to the next step, which is step 20 (allergies)
-              setCurrentStep(20)
+              setCurrentStep(20) // Changed from 19 to 20
             }}
             className="w-full py-4 px-8 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition-all shadow-lg"
           >
@@ -2931,15 +2932,13 @@ export default function QuizPage() {
             </div>
             <button
               onClick={nextStep}
-              disabled={quizData.previousProblems.length === 0}
-              className="w-full py-4 px-8 bg-lime-500 hover:bg-lime-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 disabled:shadow-none"
+              className="w-full py-4 px-8 bg-lime-500 hover:bg-lime-600 text-white rounded-lg font-semibold transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40"
             >
               Continuar
             </button>
           </div>
         )
 
-      // Add new case 19 for additional goals after case 18
       case 19:
         return (
           <div className="space-y-8">
