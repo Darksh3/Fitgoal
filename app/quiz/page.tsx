@@ -767,6 +767,13 @@ export default function QuizPage() {
     console.log("[v0] quizData.targetWeight:", quizData.targetWeight)
     console.log("[v0] quizData.timeToGoal:", quizData.timeToGoal)
 
+    if (currentStep === 20) {
+      setCurrentStep(currentStep + 1)
+      setShowCortisolMessage(true)
+      return
+    }
+    // </CHANGE>
+
     if (currentStep === 17) {
       // Moved motivation message logic to the case 18 (additional goals) which is now case 18
       // This case 17 is now about previous problems
@@ -798,7 +805,7 @@ export default function QuizPage() {
     } else if (currentStep === 22 && quizData.allergies === "nao") {
       // Step 22 is allergies, if 'nao', it skips to case 23 (allergy details).
       // This means if currentStep is 22 and allergies is 'nao', we should advance past the details directly.
-      // The current logic might skip to step 23 correctly due to setCurrentStep(24) in case 22.
+      // The current logic might skip to step 23 correctly due to setCurrentStep(25) in case 22.
       // However, to ensure flow, if allergies is 'nao', we should directly go to supplement question (case 24).
       // This implies when allergies is 'nao', we directly go to step 24. Let's adjust the logic here.
       // Corrected: When allergies is 'nao' at step 22, the `onClick` handler already sets `setCurrentStep(25)`.
@@ -1190,7 +1197,7 @@ export default function QuizPage() {
 
           <button
             onClick={() => {
-              console.log("[v0] Got it button clicked, hiding cortisol message")
+              console.log("[v0] Got it button clicked, hiding cortisol message and advancing")
               setShowCortisolMessage(false)
             }}
             className="w-full py-4 px-8 bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-white rounded-full font-semibold transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 text-lg"
@@ -3480,7 +3487,7 @@ export default function QuizPage() {
                 placeholder="Ex: Alergia a amendoim, intolerância à lactose, não como carne vermelha..."
                 value={quizData.allergyDetails}
                 onChange={(e) => updateQuizData("allergyDetails", e.target.value)}
-                className="bg-white/5 backdrop-blur-sm border-white/20 text-white placeholder-gray-400 min-h-32"
+                className="bg-white/5 backdrop-blur-sm border-white/20 text-white min-h-32"
               />
             </div>
             <div className="flex justify-center">
