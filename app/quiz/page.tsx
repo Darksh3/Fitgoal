@@ -1961,16 +1961,16 @@ export default function QuizPage() {
         )
 
       case 3:
-        const getGoalIcon = (goalValue: string) => {
-          switch (goalValue) {
+        const getGoalIcon = (goal: string) => {
+          switch (goal) {
             case "perder-peso":
-              return "/images/calories-icon.webp"
+              return "/images/fire.png"
             case "ganhar-massa":
-              return quizData.gender === "mulher" ? "/images/slim-body-icon.webp" : "/images/body-icon.webp"
+              return "/images/strong.png"
             case "melhorar-saude":
-              return "/images/better-health-icon.webp"
+              return "/images/heart.png"
             case "aumentar-resistencia":
-              return "/images/training-icon.webp"
+              return "/images/dumbbell.png"
             default:
               return "/placeholder.svg"
           }
@@ -2008,6 +2008,15 @@ export default function QuizPage() {
                   <h3 className="text-base sm:text-lg md:text-xl font-bold text-white">{goal.label}</h3>
                 </div>
               ))}
+            </div>
+            <div className="flex justify-center pt-4">
+              <Button
+                onClick={nextStep}
+                disabled={quizData.goal.length === 0}
+                className="w-full max-w-md bg-lime-500 hover:bg-lime-600 text-black font-bold py-6 rounded-full text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Continuar
+              </Button>
             </div>
           </div>
         )
@@ -3002,21 +3011,7 @@ export default function QuizPage() {
                       : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{option.icon}</span>
-                      <span className="text-white text-left">{option.label}</span>
-                    </div>
-                    <div
-                      className={`w-6 h-6 rounded border-2 ${
-                        quizData.previousProblems.includes(option.value) ? "bg-white border-white" : "border-gray-400"
-                      }`}
-                    >
-                      {quizData.previousProblems.includes(option.value) && (
-                        <CheckCircle className="h-4 w-4 text-lime-500" />
-                      )}
-                    </div>
-                  </div>
+                  <span className="text-white">{option.label}</span>
                 </button>
               ))}
               <button
