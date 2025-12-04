@@ -7,6 +7,16 @@ export async function POST(req: Request) {
   try {
     const { email, name, cpf, phone, planType, paymentMethod, installments, clientUid } = await req.json()
 
+    console.log("[v0] create-asaas-payment - Dados recebidos:", {
+      email,
+      name,
+      cpf,
+      phone,
+      planType,
+      paymentMethod,
+      clientUid,
+    })
+
     if (!email || !name || !cpf || !planType || !paymentMethod || !clientUid) {
       return NextResponse.json({ error: "Dados obrigatórios ausentes" }, { status: 400 })
     }
@@ -32,6 +42,8 @@ export async function POST(req: Request) {
     const cleanCpf = cpf.replace(/\D/g, "")
     const cleanPhone = phone ? phone.replace(/\D/g, "") : ""
 
+    console.log("[v0] create-asaas-payment - Dados limpos:", { cleanCpf, cleanPhone })
+
     // 1. Criar ou buscar cliente no Asaas
     const customerData: any = {
       name,
@@ -45,6 +57,8 @@ export async function POST(req: Request) {
       customerData.phone = cleanPhone
     }
 
+    console.log("[v0] create-asaas-payment - Criando cliente com dados:", customerData)
+
     const customerResponse = await fetch(`${ASAAS_API_URL}/customers`, {
       method: "POST",
       headers: {
@@ -56,14 +70,48 @@ export async function POST(req: Request) {
 
     const customerResult = await customerResponse.json()
 
-    if (!customerResponse.ok && customerResult.errors?.[0]?.code !== "already_exists") {
-      console.error("Erro ao criar cliente Asaas:", customerResult)
-      return NextResponse.json({ error: "Erro ao processar cliente" }, { status: 400 })
+    console.log("[v0] create-asaas-payment - Resposta do Asaas:", {
+      status: customerResponse.status,
+      ok: customerResponse.ok,
+      result: customerResult,
+    })
+
+    let customerId = null
+
+    if (customerResponse.ok) {
+      // Cliente criado com sucesso
+      customerId = customerResult.id
+      console.log("[v0] create-asaas-payment - Cliente criado com sucesso:", customerId)
+    } else if (customerResult.errors?.[0]?.code === "already_exists") {
+      // Cliente já existe, buscar por CPF
+      console.log("[v0] create-asaas-payment - Cliente já existe, buscando por CPF...")
+
+      const searchResponse = await fetch(`${ASAAS_API_URL}/customers?cpfCnpj=${cleanCpf}`, {
+        headers: {
+          access_token: ASAAS_API_KEY,
+        },
+      })
+
+      const searchResult = await searchResponse.json()
+      console.log("[v0] create-asaas-payment - Resultado da busca:", searchResult)
+
+      if (searchResponse.ok && searchResult.data?.[0]?.id) {
+        customerId = searchResult.data[0].id
+        console.log("[v0] create-asaas-payment - Cliente encontrado:", customerId)
+      }
+    } else {
+      // Erro ao criar cliente
+      console.error("[v0] create-asaas-payment - Erro ao criar cliente:", customerResult)
+      return NextResponse.json(
+        {
+          error: `Erro ao processar cliente: ${customerResult.errors?.[0]?.description || "Erro desconhecido"}`,
+        },
+        { status: 400 },
+      )
     }
 
-    const customerId = customerResult.id || customerResult.errors?.[0]?.description?.match(/id: ([a-z0-9_]+)/)?.[1]
-
     if (!customerId) {
+      console.error("[v0] create-asaas-payment - Não foi possível obter ID do cliente")
       return NextResponse.json({ error: "Erro ao obter ID do cliente" }, { status: 400 })
     }
 
