@@ -2589,7 +2589,7 @@ export default function QuizPage() {
                     key={area}
                     className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
                       quizData.problemAreas.includes(area)
-                        ? "bg-emerald-500 border-emerald-500 text-white"
+                        ? "border-emerald-500 bg-emerald-500/10 text-white"
                         : "bg-white/5 backdrop-blur-sm border-white/10 text-white hover:border-emerald-500"
                     }`}
                     onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
@@ -3292,7 +3292,7 @@ export default function QuizPage() {
             </div>
             <button
               onClick={nextStep}
-              disabled={quizData.equipment.length === 0}
+              disabled={!canProceed()}
               className="w-full py-6 px-12 rounded-full bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold text-lg transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 disabled:shadow-none"
             >
               Continuar
