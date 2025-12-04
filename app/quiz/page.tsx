@@ -3775,32 +3775,30 @@ export default function QuizPage() {
       case 7:
         return quizData.sugarFrequency && quizData.sugarFrequency.length > 0
       case 8:
-        return !!quizData.waterIntake // Assuming waterIntake is a required field now
-      case 9:
         return !!quizData.age && quizData.age >= 16
-      case 10:
+      case 9:
         return !!quizData.height && Number.parseFloat(quizData.height.replace(",", ".")) > 0
-      case 11:
+      case 10:
         return !!quizData.weight && Number.parseFloat(quizData.weight) > 0
-      case 12:
+      case 11:
         return !!quizData.targetWeight && Number.parseFloat(quizData.targetWeight) > 0
-      case 13:
+      case 12:
         return !!quizData.strengthTraining
-      case 14:
+      case 13:
         return !!quizData.cardioFeeling
-      case 15:
+      case 14:
         return !!quizData.strengthFeeling
-      case 16:
+      case 15:
         return !!quizData.stretchingFeeling
-      case 17: // Now relates to previousProblems
+      case 16: // Now relates to previousProblems
         return true // Always can proceed since "Não, eu não tenho" is an option
-      case 18: // Now relates to additionalGoals (was case 19)
+      case 17: // Now relates to additionalGoals (was case 19)
         return quizData.additionalGoals.length > 0
-      case 19: // Equipment (was case 20)
+      case 18: // Equipment (was case 20)
         return quizData.equipment.length > 0
-      case 20: // Workout time (was case 21)
+      case 19: // Workout time (was case 21)
         return quizData.workoutTime !== ""
-      case 21: // Food preferences (was case 22)
+      case 20: // Food preferences (was case 22)
         // Allow proceeding if toggle is on, or if some preferences are selected
         return (
           quizData.letMadMusclesChoose ||
@@ -3811,17 +3809,17 @@ export default function QuizPage() {
           quizData.foodPreferences.fruits.length > 0
         )
       // </CHANGE>
-      case 22: // Allergies question (was case 23)
+      case 21: // Allergies question (was case 23)
         return !!quizData.allergies
-      case 23: // Allergy details (was case 24)
+      case 22: // Allergy details (was case 24)
         return quizData.allergyDetails.trim().length > 0
-      case 24: // Supplement question (was case 25)
+      case 23: // Supplement question (was case 25)
         return !!quizData.wantsSupplement
-      case 25: // Training days (was case 26)
+      case 24: // Training days (was case 26)
         return quizData.trainingDays !== "" && Number.parseInt(quizData.trainingDays) >= 1
-      case 26: // Name (was case 27)
+      case 25: // Name (was case 27)
         return !!quizData.name && quizData.name.trim().length > 0
-      case 27: // Email (was case 28)
+      case 26: // Email (was case 28)
         return !!quizData.email && quizData.email.includes("@")
 
       default:
