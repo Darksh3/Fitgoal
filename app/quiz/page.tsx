@@ -75,7 +75,16 @@ interface QuizData {
   stretchingFeeling: string // Added for step 21
   trainingDays: string // Renamed from trainingDaysPerWeek to string for consistency in canProceed
   previousProblems: string[] // Added for new step 18
-  additionalGoals: string[] // Added for additional goals question
+  additionalGoals: string[]
+  letMadMusclesChoose: boolean
+  foodPreferences: {
+    vegetables: string[]
+    grains: string[]
+    ingredients: string[]
+    meats: string[]
+    fruits: string[]
+  }
+  // </CHANGE>
 }
 
 const initialQuizData: QuizData = {
@@ -127,7 +136,16 @@ const initialQuizData: QuizData = {
   stretchingFeeling: "", // Initialize stretchingFeeling
   trainingDays: "1", // Initialize trainingDays as string, default to 1
   previousProblems: [], // Initialize previousProblems
-  additionalGoals: [], // Initialize additionalGoals
+  additionalGoals: [],
+  letMadMusclesChoose: false,
+  foodPreferences: {
+    vegetables: [],
+    grains: [],
+    ingredients: [],
+    meats: [],
+    fruits: [],
+  },
+  // </CHANGE>
 }
 
 const debugDataFlow = (stage: string, data: any) => {
@@ -193,16 +211,72 @@ const normalizeHeight = (value: string): string => {
 }
 
 export default function QuizPage() {
-  const [showMotivationMessage, setShowMotivationMessage] = useState(false) // Moved useState inside component
+  const [showMotivationMessage, setShowMotivationMessage] = useState(false)
+  const [showCortisolMessage, setShowCortisolMessage] = useState(false)
+  // </CHANGE>
   const [currentStep, setCurrentStep] = useState(1)
-  const [quizData, setQuizData] = useState<QuizData>(initialQuizData)
+  const [quizData, setQuizData] = useState<QuizData>({
+    gender: "",
+    bodyType: "",
+    goal: [],
+    subGoal: "",
+    bodyFat: 15,
+    problemAreas: [],
+    diet: "",
+    sugarFrequency: [],
+    waterIntake: "",
+    allergies: "",
+    allergyDetails: "",
+    wantsSupplement: "",
+    supplementType: "",
+    height: "",
+    heightUnit: "cm",
+    currentWeight: "",
+    targetWeight: "",
+    weightUnit: "kg",
+    timeToGoal: "",
+    name: "",
+    workoutTime: "",
+    experience: "",
+    equipment: [],
+    exercisePreferences: {
+      cardio: "",
+      pullups: "",
+      yoga: "",
+    },
+    trainingDaysPerWeek: 3,
+    email: "",
+    imc: 0,
+    imcClassification: "",
+    imcStatus: "",
+    age: 0,
+    weight: "",
+    healthConditions: [],
+    supplement: "",
+    sweetsFrequency: [],
+    cardioFeeling: "",
+    strengthFeeling: "",
+    stretchingFeeling: "",
+    trainingDays: "",
+    previousProblems: [],
+    additionalGoals: [],
+    letMadMusclesChoose: false,
+    foodPreferences: {
+      vegetables: [],
+      grains: [],
+      ingredients: [],
+      meats: [],
+      fruits: [],
+    },
+    // </CHANGE>
+  })
   const [showSuccess, setShowSuccess] = useState(false)
   const [showNutritionInfo, setShowNutritionInfo] = useState(false)
   const [showWaterCongrats, setShowWaterCongrats] = useState(false)
   const [showTimeCalculation, setShowTimeCalculation] = useState(false)
   const [showIMCResult, setShowIMCResult] = useState(false)
   const [showLoading, setShowLoading] = useState(false)
-  const [totalSteps, setTotalSteps] = useState(26) // Updated totalSteps to 26 (from 25)
+  const [totalSteps, setTotalSteps] = useState(27) // Updated totalSteps to 27
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false) // Add isSubmitting state
@@ -282,7 +356,7 @@ export default function QuizPage() {
         const timer = setTimeout(() => {
           setShowAnalyzingData(false)
           setAnalyzingStep(0)
-          setCurrentStep(24) // Move to email question - This should now be 25 based on totalSteps
+          setCurrentStep(25) // Move to name question - This should now be 26 based on totalSteps
         }, 2500)
         return () => clearTimeout(timer)
       }
@@ -700,26 +774,43 @@ export default function QuizPage() {
     }
     // </CHANGE>
 
-    if (currentStep === 9 && quizData.diet !== "nao-sigo") {
-      // Step 9 is now age, this logic needs to be re-evaluated
-      // This block needs to be re-checked with new step numbering.
-      // Original: currentStep === 9 (diet info) -> setShowNutritionInfo(true)
-      // New: currentStep === 6 (diet choice) -> showNutritionInfo should be shown after step 6.
-      // For now, assuming this was related to diet, it should be moved or removed.
-      // Let's assume this was meant to be after diet selection (step 6).
-      // If currentStep === 6 && quizData.diet !== "nao-sigo" { setShowNutritionInfo(true); }
+    if (currentStep === 21) {
+      setCurrentStep(22)
+      setShowCortisolMessage(true)
+      return
+    }
+    // </CHANGE>
+
+    // This block was originally for step 9 related to diet info, but step numbering has changed.
+    // Re-evaluating based on new step numbers:
+    // Step 6 is Diet choice. If quizData.diet !== "nao-sigo", showNutritionInfo.
+    if (currentStep === 6 && quizData.diet !== "nao-sigo") {
+      setShowNutritionInfo(true)
     } else if (currentStep === 8 && (quizData.waterIntake === "7-10" || quizData.waterIntake === "mais-10")) {
       // Step 8 is water intake
       setShowWaterCongrats(true)
-    } else if (currentStep === 19 && quizData.allergies === "nao") {
-      // Step 19 is now about additional goals, allergies is step 20
-      // Updated from step 17 to 19 (new step numbering)
-      setCurrentStep(21) // Skip step 20 (allergy details) and go directly to 21 (supplement)
+    } else if (currentStep === 22 && quizData.allergies === "nao") {
+      // Step 22 is allergies, if 'nao', it skips to case 23 (allergy details).
+      // This means if currentStep is 22 and allergies is 'nao', we should advance past the details directly.
+      // The current logic might skip to step 23 correctly due to setCurrentStep(24) in case 22.
+      // However, to ensure flow, if allergies is 'nao', we should directly go to supplement question (case 24).
+      // This implies when allergies is 'nao', we directly go to step 24. Let's adjust the logic here.
+      // Corrected: When allergies is 'nao' at step 22, the `onClick` handler already sets `setCurrentStep(24)`.
+      // So this condition might be redundant or needs to check if we are coming *from* a skipped step.
+      // For now, relying on the `onClick` handler for skipping.
+    } else if (currentStep === 24 && quizData.allergies === "nao") {
+    } else if (currentStep === 25 && quizData.allergies === "nao") {
       // </CHANGE>
-    } else if (currentStep === 22 && quizData.wantsSupplement === "nao") {
-      setCurrentStep(23) // Skip supplement details and go directly to workout time
-    } else if (currentStep === 12 && quizData.weight !== "" && quizData.targetWeight !== "") {
-      // Original was step 15, now step 12 (weight related)
+      setCurrentStep(25)
+    } else if (currentStep === 24 && quizData.wantsSupplement === "nao") {
+      // Step 24 is supplement choice. If 'nao', we skip supplement details (case 24 handles this by setting currentStep to 25).
+      // So if we are at 24 and it was 'nao', we go to step 25 (training days)
+      setCurrentStep(25) // Skip supplement details and go directly to workout time
+    } else if (currentStep === 26 && quizData.wantsSupplement === "nao") {
+      // </CHANGE>
+      setCurrentStep(25)
+    } else if (currentStep === 13 && quizData.weight !== "" && quizData.targetWeight !== "") {
+      // Original was step 15, now step 13 (weight related)
       const calculatedTime = calculateTimeToGoal()
       console.log("[v0] calculatedTime:", calculatedTime)
       if (calculatedTime) {
@@ -730,10 +821,10 @@ export default function QuizPage() {
         setCurrentStep(currentStep + 1)
       }
       // </CHANGE>
-    } else if (currentStep === 25) {
-      // Updated from 24 to 25
-      // Changed to 25 from 24 (now before submitting)
-      // Updated from step 24 to 25 (final step before submit)
+    } else if (currentStep === 27) {
+      // Step 27 is the final step (email) before submitting
+    } else if (currentStep === 29) {
+      // </CHANGE>
       setShowAnalyzingData(true)
       // </CHANGE>
     } else if (currentStep < totalSteps) {
@@ -745,23 +836,27 @@ export default function QuizPage() {
   const prevStep = () => {
     if (currentStep > 1) {
       // Adjusted step numbers to match the new flow
-      if (currentStep === 22 && quizData.allergies === "nao") {
-        // allergies step is 20, if 'nao', it skips to 21, so if we are at 22, we go to 20
-        // If we are at supplement question and allergies was 'no'
-        setCurrentStep(20) // Go back to allergies question
-      } else if (currentStep === 23 && quizData.wantsSupplement === "nao") {
-        // supplement step is 22, if 'nao', it skips to 23, so if we are at 23, we go to 22
-        // If we are at workout time and wantsSupplement was 'no'
-        setCurrentStep(22) // Go back to supplement question
-      } else if (currentStep === 21 && quizData.allergies === "sim") {
-        // allergy details step is 21, if allergies was 'yes', we are here. If previous was 'nao', we skip 21. So if we are here, we go back to 20 (allergies question)
-        // If we are at allergy details and allergies was 'yes'
-        setCurrentStep(20) // Go back to allergies question
+      if (currentStep === 24 && quizData.allergies === "nao") {
+        // If we are at supplement question (case 24) and allergies was 'no' (case 22, which jumps to 24)
+        // We need to go back to the allergies question (case 22).
+        setCurrentStep(22) // Go back to allergies question
+      } else if (currentStep === 25 && quizData.wantsSupplement === "nao") {
+        // If we are at training days (case 25) and supplement was 'no' (case 24, which jumps to 25)
+        // We need to go back to the supplement question (case 24).
+        setCurrentStep(24) // Go back to supplement question
+      } else if (currentStep === 23 && quizData.allergies === "sim") {
+        // If we are at allergy details (case 23) and allergies was 'yes' (case 22)
+        // We need to go back to the allergies question (case 22).
+        setCurrentStep(22) // Go back to allergies question
       } else if (currentStep === 19 && showMotivationMessage) {
-        // Changed condition from 18 to 19
         // If motivation message was shown, go back to previous step before motivation message
         setShowMotivationMessage(false)
         setCurrentStep(18) // Changed from 17 to 18
+      } else if (currentStep === 22 && showCortisolMessage) {
+        // Adding back navigation for cortisol message
+        setShowCortisolMessage(false)
+        setCurrentStep(21)
+        // </CHANGE>
       } else {
         setCurrentStep(currentStep - 1)
       }
@@ -1033,6 +1128,67 @@ export default function QuizPage() {
   ]
 
   const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
+  // </CHANGE>
+
+  if (showCortisolMessage && currentStep === 22) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center p-6">
+        <div className="max-w-2xl w-full space-y-8">
+          <h2 className="text-3xl font-bold text-white text-center">Não é necessário se esforçar ao limite!</h2>
+
+          <div className="relative bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+            {/* Graph visualization */}
+            <div className="relative h-64 mb-6">
+              <svg className="w-full h-full" viewBox="0 0 400 200" preserveAspectRatio="none">
+                {/* Cortisol line (white) going down */}
+                <path
+                  d="M 0,60 Q 100,50 200,80 Q 300,110 400,150"
+                  stroke="white"
+                  strokeWidth="3"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+                {/* Testosterone line (orange) going up */}
+                <path
+                  d="M 0,120 Q 100,130 200,100 Q 300,70 400,40"
+                  stroke="#f97316"
+                  strokeWidth="3"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+                {/* End point indicators */}
+                <circle cx="400" cy="150" r="6" fill="white" />
+                <circle cx="400" cy="40" r="6" fill="#f97316" />
+              </svg>
+              {/* Labels */}
+              <div className="absolute top-12 left-4 text-white text-sm font-semibold">Cortisol</div>
+              <div className="absolute top-24 left-4 text-orange-500 text-sm font-semibold">Testosterona</div>
+              <div className="absolute bottom-2 left-4 text-gray-400 text-xs">Agora</div>
+              <div className="absolute bottom-2 right-4 text-gray-400 text-xs">6 meses</div>
+            </div>
+
+            <div className="space-y-4 text-center">
+              <p className="text-gray-300 text-lg leading-relaxed">
+                Exercícios muito intensos podem aumentar seus níveis de cortisol e dificultar o ganho de massa muscular.
+                Nosso programa personaliza seu plano para ajudá-lo a atingir seus objetivos sem exagerar.
+              </p>
+              <p className="text-gray-400 text-sm italic">*Baseado em dados de 1.3m treinos.</p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              console.log("[v0] Got it button clicked, hiding cortisol message")
+              setShowCortisolMessage(false)
+            }}
+            className="w-full py-4 px-8 bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-white rounded-full font-semibold transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 text-lg"
+          >
+            Entendi
+          </button>
+        </div>
+      </div>
+    )
+  }
   // </CHANGE>
 
   if (showMotivationMessage && currentStep === 19) {
@@ -1404,7 +1560,7 @@ export default function QuizPage() {
               <span className="relative z-10">Continuar</span>
 
               {/* Efeito de brilho animado */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
             </div>
           </Button>
         </div>
@@ -2478,7 +2634,7 @@ export default function QuizPage() {
             <button
               onClick={nextStep}
               disabled={!canProceed()}
-              className="w-full bg-gradient-to-r from-lime-400 to-lime-500 text-black font-bold py-6 rounded-full hover:from-lime-500 hover:to-lime-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-2xl"
+              className="w-full bg-gradient-to-r from-lime-400 to-lime-500 hover:from-lime-500 hover:to-lime-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-6 rounded-full text-2xl"
             >
               Continuar
             </button>
@@ -3003,138 +3159,58 @@ export default function QuizPage() {
             <button
               onClick={nextStep}
               disabled={quizData.additionalGoals.length === 0}
-              className="w-full py-4 px-8 bg-lime-500 hover:bg-lime-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 disabled:shadow-none"
+              className="w-full py-6 px-12 rounded-full bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold text-lg transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 disabled:shadow-none"
             >
-              Continue
+              Continuar
             </button>
           </div>
         )
 
-      case 20: // Was case 19
+      case 20:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Possui alergias ou restrições alimentares?</h2>
+              <h2 className="text-2xl font-bold text-white">Que equipamentos você tem acesso?</h2>
+              <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
             <div className="space-y-4">
-              <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                  quizData.allergies === "sim" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
-                }`}
-                onClick={() => {
-                  updateQuizData("allergies", "sim")
-                  setTimeout(() => nextStep(), 300)
-                }}
-              >
-                <CheckCircle
-                  className={`h-6 w-6 flex-shrink-0 ${quizData.allergies === "sim" ? "text-lime-500" : "text-gray-500"}`}
-                />
-                <h3 className="text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
-              </div>
-              <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                  quizData.allergies === "nao" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
-                }`}
-                onClick={() => {
-                  updateQuizData("allergies", "nao")
-                  setCurrentStep(21) // Skips allergy details (case 21) and goes to supplement (case 22)
-                }}
-              >
-                <X
-                  className={`h-6 w-6 flex-shrink-0 ${quizData.allergies === "nao" ? "text-red-500" : "text-gray-500"}`}
-                />
-                <h3 className="text-lg font-bold text-white">Não possuo alergias ou restrições</h3>
-              </div>
-            </div>
-          </div>
-        )
-
-      case 21: // Was case 20
-        if (quizData.allergies !== "sim") {
-          return null
-        }
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Quais são suas alergias ou restrições alimentares?</h2>
-              <p className="text-gray-300">Descreva suas alergias, intolerâncias ou restrições alimentares</p>
-            </div>
-            <div className="space-y-6">
-              <Textarea
-                placeholder="Ex: Alergia a amendoim, intolerância à lactose, não como carne vermelha..."
-                value={quizData.allergyDetails}
-                onChange={(e) => updateQuizData("allergyDetails", e.target.value)}
-                className="bg-white/5 backdrop-blur-sm border-white/20 text-white placeholder-gray-400 min-h-32"
-              />
-            </div>
-            {/* Button to proceed from allergy details */}
-            <div className="flex justify-center">
-              <Button onClick={nextStep} className="group relative">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      case 22: // Was case 21
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Podemos adicionar algum suplemento à sua dieta?</h2>
-              <p className="text-gray-300">Por exemplo: Hipercalórico, Whey Protein...</p>
-            </div>
-            <div className="space-y-4">
-              <button
-                type="button"
-                className={`w-full bg-white/5 backdrop-blur-sm rounded-lg p-6 transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 cursor-pointer ${
-                  quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
-                }`}
-                onClick={() => {
-                  const isEctomorph = quizData.bodyType === "ectomorfo"
-                  const hasHighBodyFat = quizData.gender === "mulher" ? quizData.bodyFat > 30 : quizData.bodyFat > 20
-                  const hasBellyProblem = quizData.problemAreas.includes("Barriga")
-
-                  let supplementType = "whey-protein" // Default
-                  if (isEctomorph && !hasHighBodyFat && !hasBellyProblem) {
-                    supplementType = "hipercalorico"
+              {[
+                { value: "gym", label: "Academia completa" },
+                { value: "dumbbells", label: "Halteres" },
+                { value: "bodyweight", label: "Apenas peso corporal" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() =>
+                    updateQuizData(
+                      "equipment",
+                      quizData.equipment.includes(option.value)
+                        ? quizData.equipment.filter((e) => e !== option.value)
+                        : [...quizData.equipment, option.value],
+                    )
                   }
-
-                  updateQuizData("wantsSupplement", "sim")
-                  updateQuizData("supplement", supplementType) // Keeping for historical reasons, 'wantsSupplement' is primary now
-                  updateQuizData("supplementType", supplementType)
-                  nextStep()
-                }}
-              >
-                <CheckCircle
-                  className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
-                />
-                <h3 className="text-lg font-bold text-white">Sim, quero adicionar suplementos</h3>
-              </button>
-              <button
-                type="button"
-                className={`w-full bg-white/5 backdrop-blur-sm rounded-lg p-6 transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 cursor-pointer ${
-                  quizData.wantsSupplement === "nao" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
-                }`}
-                onClick={() => {
-                  updateQuizData("wantsSupplement", "nao")
-                  updateQuizData("supplement", "nao")
-                  updateQuizData("supplementType", "nao")
-                  nextStep()
-                }}
-              >
-                <X
-                  className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "nao" ? "text-red-500" : "text-gray-500"}`}
-                />
-                <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
-              </button>
+                  className={`w-full p-4 rounded-lg border-2 transition-all ${
+                    quizData.equipment.includes(option.value)
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
+                  }`}
+                >
+                  <span className="text-white">{option.label}</span>
+                </button>
+              ))}
             </div>
+            <button
+              onClick={nextStep}
+              disabled={quizData.equipment.length === 0}
+              className="w-full py-6 px-12 rounded-full bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold text-lg transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 disabled:shadow-none"
+            >
+              Continuar
+            </button>
           </div>
         )
+      // </CHANGE>
 
-      case 23: // Was case 22
+      case 21:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3192,8 +3268,324 @@ export default function QuizPage() {
             </div>
           </div>
         )
+      // </CHANGE>
 
-      case 24: // Was case 23
+      case 22:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Escolha os produtos que você gosta.</h2>
+              <p className="text-gray-300 text-sm">
+                Vamos criar um plano alimentar com base nas suas preferências. Você sempre poderá ajustá-lo
+                posteriormente.
+              </p>
+            </div>
+
+            {/* Toggle switch */}
+            <div className="flex items-center justify-between bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
+              <span className="text-white font-medium">Deixe que a FitGoal escolha.</span>
+              <button
+                onClick={() => updateQuizData("letMadMusclesChoose", !quizData.letMadMusclesChoose)}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                  quizData.letMadMusclesChoose ? "bg-lime-500" : "bg-gray-600"
+                }`}
+              >
+                <span
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                    quizData.letMadMusclesChoose ? "translate-x-7" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Food categories */}
+            <div className="space-y-6">
+              {/* Vegetables */}
+              <div>
+                <h3 className="text-white font-bold mb-3">Vegetais</h3>
+                <div className="flex flex-wrap gap-2">
+                  {["Brócolis", "Couve-flor", "Cebola", "Pimentão", "Beringela", "Repolho", "Pepino", "Tomate"].map(
+                    (item) => (
+                      <button
+                        key={item}
+                        onClick={() => {
+                          const current = quizData.foodPreferences.vegetables
+                          const updated = current.includes(item)
+                            ? current.filter((i) => i !== item)
+                            : [...current, item]
+                          updateQuizData("foodPreferences", { ...quizData.foodPreferences, vegetables: updated })
+                        }}
+                        className={`px-4 py-2 rounded-full border-2 transition-all ${
+                          quizData.foodPreferences.vegetables.includes(item)
+                            ? "border-lime-500 bg-lime-500/20 text-white"
+                            : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    ),
+                  )}
+                </div>
+              </div>
+
+              {/* Grains */}
+              <div>
+                <h3 className="text-white font-bold mb-3">Grão</h3>
+                <div className="flex flex-wrap gap-2">
+                  {["Arroz", "Quinoa", "Cuscuz", "Grãos de painço", "Fubá", "Farinha"].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        const current = quizData.foodPreferences.grains
+                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
+                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, grains: updated })
+                      }}
+                      className={`px-4 py-2 rounded-full border-2 transition-all ${
+                        quizData.foodPreferences.grains.includes(item)
+                          ? "border-lime-500 bg-lime-500/20 text-white"
+                          : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Ingredients */}
+              <div>
+                <h3 className="text-white font-bold mb-3">Ingredientes</h3>
+                <div className="flex flex-wrap gap-2">
+                  {["Abacate", "Feijões", "Ovos", "Cogumelos", "Queijo tipo cottage", "Leite", "Leite vegetal"].map(
+                    (item) => (
+                      <button
+                        key={item}
+                        onClick={() => {
+                          const current = quizData.foodPreferences.ingredients
+                          const updated = current.includes(item)
+                            ? current.filter((i) => i !== item)
+                            : [...current, item]
+                          updateQuizData("foodPreferences", { ...quizData.foodPreferences, ingredients: updated })
+                        }}
+                        className={`px-4 py-2 rounded-full border-2 transition-all ${
+                          quizData.foodPreferences.ingredients.includes(item)
+                            ? "border-lime-500 bg-lime-500/20 text-white"
+                            : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    ),
+                  )}
+                </div>
+              </div>
+
+              {/* Meats and Fish - Optional */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-white font-bold">Carnes e peixes</h3>
+                  <span className="text-gray-400 text-sm">Opcional</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {["Peru", "Carne bovina", "Frango", "Frutos do mar", "Carne de porco", "Peixe"].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        const current = quizData.foodPreferences.meats
+                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
+                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, meats: updated })
+                      }}
+                      className={`px-4 py-2 rounded-full border-2 transition-all ${
+                        quizData.foodPreferences.meats.includes(item)
+                          ? "border-lime-500 bg-lime-500/20 text-white"
+                          : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Fruits and Berries - Optional */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-white font-bold">Frutas e bagas</h3>
+                  <span className="text-gray-400 text-sm">Opcional</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Maçã",
+                    "Pera",
+                    "Kiwi",
+                    "Bananas",
+                    "Caqui",
+                    "Pêssego",
+                    "Frutas vermelhas",
+                    "Uva",
+                    "Romã",
+                    "Frutas tropicais (abacaxi, mamão, pitaya)",
+                  ].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        const current = quizData.foodPreferences.fruits
+                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
+                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, fruits: updated })
+                      }}
+                      className={`px-4 py-2 rounded-full border-2 transition-all ${
+                        quizData.foodPreferences.fruits.includes(item)
+                          ? "border-lime-500 bg-lime-500/20 text-white"
+                          : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Continue button */}
+            <div className="flex justify-center">
+              <Button onClick={nextStep} className="group relative">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
+      // </CHANGE>
+
+      case 23:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Possui alergias ou restrições alimentares?</h2>
+            </div>
+            <div className="space-y-4">
+              <div
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
+                  quizData.allergies === "sim" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
+                }`}
+                onClick={() => {
+                  updateQuizData("allergies", "sim")
+                  setTimeout(() => nextStep(), 300)
+                }}
+              >
+                <CheckCircle
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.allergies === "sim" ? "text-lime-500" : "text-gray-500"}`}
+                />
+                <h3 className="text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
+              </div>
+              <div
+                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
+                  quizData.allergies === "nao" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
+                }`}
+                onClick={() => {
+                  updateQuizData("allergies", "nao")
+                  setCurrentStep(25) // Skip allergy details (case 24) and go to supplement (case 25)
+                }}
+              >
+                <X
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.allergies === "nao" ? "text-red-500" : "text-gray-500"}`}
+                />
+                <h3 className="text-lg font-bold text-white">Não possuo alergias ou restrições</h3>
+              </div>
+            </div>
+          </div>
+        )
+      // </CHANGE>
+
+      case 24:
+        if (quizData.allergies !== "sim") {
+          return null
+        }
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Quais são suas alergias ou restrições alimentares?</h2>
+              <p className="text-gray-300">Descreva suas alergias, intolerâncias ou restrições alimentares</p>
+            </div>
+            <div className="space-y-6">
+              <Textarea
+                placeholder="Ex: Alergia a amendoim, intolerância à lactose, não como carne vermelha..."
+                value={quizData.allergyDetails}
+                onChange={(e) => updateQuizData("allergyDetails", e.target.value)}
+                className="bg-white/5 backdrop-blur-sm border-white/20 text-white placeholder-gray-400 min-h-32"
+              />
+            </div>
+            <div className="flex justify-center">
+              <Button onClick={nextStep} className="group relative">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
+      // </CHANGE>
+
+      case 25:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Podemos adicionar algum suplemento à sua dieta?</h2>
+              <p className="text-gray-300">Por exemplo: Hipercalórico, Whey Protein...</p>
+            </div>
+            <div className="space-y-4">
+              <button
+                type="button"
+                className={`w-full bg-white/5 backdrop-blur-sm rounded-lg p-6 transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 cursor-pointer ${
+                  quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
+                }`}
+                onClick={() => {
+                  const isEctomorph = quizData.bodyType === "ectomorfo"
+                  const hasHighBodyFat = quizData.gender === "mulher" ? quizData.bodyFat > 30 : quizData.bodyFat > 20
+                  const hasBellyProblem = quizData.problemAreas.includes("Barriga")
+
+                  let supplementType = "whey-protein"
+                  if (isEctomorph && !hasHighBodyFat && !hasBellyProblem) {
+                    supplementType = "hipercalorico"
+                  }
+
+                  updateQuizData("wantsSupplement", "sim")
+                  updateQuizData("supplement", supplementType)
+                  updateQuizData("supplementType", supplementType)
+                  nextStep()
+                }}
+              >
+                <CheckCircle
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
+                />
+                <h3 className="text-lg font-bold text-white">Sim, quero adicionar suplementos</h3>
+              </button>
+              <button
+                type="button"
+                className={`w-full bg-white/5 backdrop-blur-sm rounded-lg p-6 transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 cursor-pointer ${
+                  quizData.wantsSupplement === "nao" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
+                }`}
+                onClick={() => {
+                  updateQuizData("wantsSupplement", "nao")
+                  updateQuizData("supplement", "nao")
+                  updateQuizData("supplementType", "nao")
+                  nextStep()
+                }}
+              >
+                <X
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "nao" ? "text-red-500" : "text-gray-500"}`}
+                />
+                <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
+              </button>
+            </div>
+          </div>
+        )
+      // </CHANGE>
+
+      case 26:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3233,8 +3625,9 @@ export default function QuizPage() {
             </div>
           </div>
         )
+      // </CHANGE>
 
-      case 25: // Was case 24
+      case 27:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3253,8 +3646,9 @@ export default function QuizPage() {
             </div>
           </div>
         )
+      // </CHANGE>
 
-      case 26: // Was case 25
+      case 28:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3275,6 +3669,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
+      // </CHANGE>
       default:
         return <div>Passo não encontrado</div>
     }
@@ -3319,20 +3714,33 @@ export default function QuizPage() {
       case 18:
         return true // Always can proceed since "Não, eu não tenho" is an option
       case 19:
-        return true // Additional goals - always can proceed since "Nenhuma das acima" is an option
-      case 20: // Was case 19
-        return !!quizData.allergies
-      case 21: // Was case 20
-        return quizData.allergies !== "sim" || (quizData.allergyDetails && quizData.allergyDetails.trim().length > 0)
-      case 22: // Was case 21
-        return !!quizData.wantsSupplement
-      case 23: // Was case 22
-        return !!quizData.workoutTime
-      case 24: // Was case 23
-        return !!quizData.trainingDays && Number.parseInt(quizData.trainingDays) >= 1
-      case 25: // Was case 24
+        return quizData.additionalGoals.length > 0
+      case 20:
+        return quizData.equipment.length > 0
+      case 21:
+        return quizData.workoutTime !== ""
+      case 22:
+        // Updated condition for step 22 to check food preferences
+        return (
+          quizData.letMadMusclesChoose ||
+          quizData.foodPreferences.vegetables.length > 0 ||
+          quizData.foodPreferences.grains.length > 0 ||
+          quizData.foodPreferences.ingredients.length > 0 ||
+          quizData.foodPreferences.meats.length > 0 ||
+          quizData.foodPreferences.fruits.length > 0
+        )
+      // </CHANGE>
+      case 23:
+        return quizData.allergies !== ""
+      case 24:
+        return quizData.allergyDetails !== ""
+      case 25:
+        return quizData.supplement !== ""
+      case 26:
+        return quizData.trainingDays > 0
+      case 27:
         return !!quizData.name && quizData.name.trim().length > 0
-      case 26: // Was case 25
+      case 28:
         return !!quizData.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(quizData.email)
       default:
         return true
@@ -3392,12 +3800,10 @@ export default function QuizPage() {
           />
         </div>
         <div className="mb-8">{renderStep()}</div>
-        {/* Atualizando a lista de exceções para refletir a nova ordem das perguntas
-        // Perguntas que não precisam de botão continuar: 1 (gênero), 3 (tipo corpo), 7 (problemas áreas), 8 (dieta), 10 (água), 11 (alergias), 12 (alergias sim/não), 13 (suplemento), 15-22 (experiências de treino) */}
-        {/* Adjusted the exclusion list based on the new step numbering and logic */}
-        {![1, 3, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23].includes(currentStep) && (
+        {/* Updated the exclusion list based on the new step numbering and logic */}
+        {![1, 3, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26].includes(currentStep) && (
           <div className="flex justify-center">
-            {currentStep === totalSteps ? ( // This should be currentStep === 26 now
+            {currentStep === totalSteps ? ( // This should be currentStep === 28 now
               <Button
                 type="button"
                 onClick={handleSubmit}
