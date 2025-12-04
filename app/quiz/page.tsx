@@ -2995,49 +2995,6 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Que equipamentos você tem acesso?</h2>
-              <p className="text-gray-300">Selecione todos que se aplicam</p>
-            </div>
-            <div className="space-y-4">
-              {[
-                { value: "gym", label: "Academia completa" },
-                { value: "dumbbells", label: "Halteres" },
-                { value: "bodyweight", label: "Apenas peso corporal" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() =>
-                    updateQuizData(
-                      "equipment",
-                      quizData.equipment.includes(option.value)
-                        ? quizData.equipment.filter((e) => e !== option.value)
-                        : [...quizData.equipment, option.value],
-                    )
-                  }
-                  className={`w-full p-4 rounded-lg border-2 transition-all ${
-                    quizData.equipment.includes(option.value)
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
-                  }`}
-                >
-                  <span className="text-white">{option.label}</span>
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="w-full py-4 px-8 bg-lime-500 hover:bg-lime-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 disabled:shadow-none"
-            >
-              Continuar
-            </button>
-          </div>
-        )
-
-      case 18:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-white">
                 Você já enfrentou algum desses problemas em suas tentativas anteriores de entrar em forma?
               </h2>
@@ -3089,7 +3046,7 @@ export default function QuizPage() {
             </div>
             <Button
               onClick={() => {
-                console.log("[v0] Continue button clicked on case 18, currentStep:", currentStep)
+                console.log("[v0] Continue button clicked on case 17, currentStep:", currentStep)
                 console.log("[v0] Selected problems:", quizData.previousProblems)
                 nextStep()
               }}
@@ -3100,6 +3057,26 @@ export default function QuizPage() {
                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
               </div>
             </Button>
+          </div>
+        )
+
+      case 18:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual é o seu nome?</h2>
+            </div>
+            <div className="space-y-6">
+              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors">
+                <Input
+                  type="text"
+                  placeholder="Digite seu nome"
+                  value={quizData.name}
+                  onChange={(e) => updateQuizData("name", e.target.value)}
+                  className="bg-transparent border-0 text-white text-center text-xl focus:outline-none [&::placeholder]:text-gray-400"
+                />
+              </div>
+            </div>
           </div>
         )
 
@@ -3215,7 +3192,7 @@ export default function QuizPage() {
           <div className="space-y-8">
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
-              <p className="text-white/60">Quanto tempo você pode dedicar por sessão?</p>
+              <p className="text-gray-300">Quanto tempo você pode dedicar por sessão?</p>
             </div>
             <div className="grid grid-cols-1 gap-4">
               {[
@@ -3536,6 +3513,22 @@ export default function QuizPage() {
               <h2 className="text-2xl font-bold text-white">Podemos adicionar algum suplemento à sua dieta?</h2>
               <p className="text-gray-300">Por exemplo: Hipercalórico, Whey Protein...</p>
             </div>
+
+            {(() => {
+              const isEctomorph = quizData.bodyType === "ectomorfo"
+              const hasHighBodyFat = quizData.gender === "mulher" ? quizData.bodyFat > 30 : quizData.bodyFat > 20
+              const hasBellyProblem = quizData.problemAreas.includes("Barriga")
+
+              const recommendedSupplement =
+                isEctomorph && !hasHighBodyFat && !hasBellyProblem ? "Hipercalórico" : "Whey Protein"
+
+              return (
+                <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-4 text-center">
+                  <p className="text-lime-400 font-semibold">💡 Recomendamos: {recommendedSupplement}</p>
+                </div>
+              )
+            })()}
+
             <div className="space-y-4">
               <button
                 type="button"
@@ -3563,10 +3556,11 @@ export default function QuizPage() {
                 />
                 <h3 className="text-lg font-bold text-white">Sim, quero adicionar suplementos</h3>
               </button>
+
               <button
                 type="button"
-                className={`w-full bg-white/5 backdrop-blur-sm rounded-lg p-6 transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 cursor-pointer ${
-                  quizData.wantsSupplement === "nao" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
+                className={`w-full bg-white/5 backdrop-blur-sm rounded-lg p-6 transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-red-400 cursor-pointer ${
+                  quizData.wantsSupplement === "nao" ? "border-red-500 bg-red-500/10" : "border-white/10"
                 }`}
                 onClick={() => {
                   updateQuizData("wantsSupplement", "nao")
@@ -3709,13 +3703,13 @@ export default function QuizPage() {
         return !!quizData.strengthFeeling
       case 16:
         return !!quizData.stretchingFeeling
-      case 17:
-        return quizData.equipment.length > 0
-      case 18:
+      case 17: // Now relates to previousProblems
         return true // Always can proceed since "Não, eu não tenho" is an option
+      case 18: // Now relates to name
+        return !!quizData.name && quizData.name.trim().length > 0
       case 19:
         return quizData.additionalGoals.length > 0
-      case 20:
+      case 20: // Equipment
         return quizData.equipment.length > 0
       case 21:
         return quizData.workoutTime !== ""
