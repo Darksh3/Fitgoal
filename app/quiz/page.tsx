@@ -817,7 +817,7 @@ export default function QuizPage() {
     } else if (currentStep === 24 && quizData.wantsSupplement === "nao") {
       // Step 24 is supplement choice. If 'nao', we skip supplement details (case 24 handles this by setting currentStep to 25).
       // So if we are at 24 and it was 'nao', we go to step 25 (training days)
-      setCurrentStep(25) // Skip supplement details and go directly to workout time
+      setCurrentStep(25) // Skip supplement details and go to step 25 (training days)
     } else if (currentStep === 26 && quizData.wantsSupplement === "nao") {
       // </CHANGE>
       setCurrentStep(25)
@@ -2649,13 +2649,14 @@ export default function QuizPage() {
                 </div>
               ))}
             </div>
-            <button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="w-full bg-gradient-to-r from-lime-400 to-lime-500 hover:from-lime-500 hover:to-lime-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-6 rounded-full text-2xl"
-            >
-              Continuar
-            </button>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
           </div>
         )
 
@@ -2758,16 +2759,14 @@ export default function QuizPage() {
                 <span className="text-gray-400 text-2xl ml-4">cm</span>
               </div>
             </div>
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="group relative w-full max-w-md mx-auto overflow-hidden"
-            >
-              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                <span className="relative z-10">Continuar</span>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-              </div>
-            </Button>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative overflow-hidden">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
           </div>
         )
 
@@ -2795,16 +2794,14 @@ export default function QuizPage() {
                 <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
               </div>
             </div>
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="group relative w-full max-w-md mx-auto overflow-hidden"
-            >
-              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                <span className="relative z-10">Continuar</span>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-              </div>
-            </Button>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative overflow-hidden">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
           </div>
         )
 
@@ -2840,16 +2837,14 @@ export default function QuizPage() {
                 <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
               </div>
             </div>
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="group relative w-full max-w-md mx-auto overflow-hidden"
-            >
-              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                <span className="relative z-10">Continuar</span>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-              </div>
-            </Button>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative overflow-hidden">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
           </div>
         )
 
@@ -3060,19 +3055,21 @@ export default function QuizPage() {
                 <span className="text-white text-left">Não, eu não tenho</span>
               </button>
             </div>
-            <Button
-              onClick={() => {
-                console.log("[v0] Continue button clicked on case 17, currentStep:", currentStep)
-                console.log("[v0] Selected problems:", quizData.previousProblems)
-                nextStep()
-              }}
-              className="group relative w-full max-w-md mx-auto overflow-hidden"
-            >
-              <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                <span className="relative z-10">Continuar</span>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-              </div>
-            </Button>
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={() => {
+                  console.log("[v0] Continue button clicked on case 17, currentStep:", currentStep)
+                  console.log("[v0] Selected problems:", quizData.previousProblems)
+                  nextStep()
+                }}
+                className="group relative overflow-hidden"
+              >
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
           </div>
         )
 
