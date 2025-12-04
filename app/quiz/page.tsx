@@ -1994,10 +1994,10 @@ export default function QuizPage() {
             </div>
             <div className="space-y-3 sm:space-y-3 md:space-y-4">
               {[
-                { value: "perder-peso", label: "Perder peso e queimar gordura" },
-                { value: "ganhar-massa", label: "Ganhar massa muscular e definir o corpo" },
-                { value: "melhorar-saude", label: "Melhorar minha saúde, disposição e bem-estar" },
-                { value: "aumentar-resistencia", label: "Aumentar a minha resistência física" },
+                { value: "perder-peso", label: "Perder peso e queimar gordura", icon: "🔥" },
+                { value: "ganhar-massa", label: "Ganhar massa muscular e definir o corpo", icon: "💪" },
+                { value: "melhorar-saude", label: "Melhorar minha saúde, disposição e bem-estar", icon: "❤️" },
+                { value: "aumentar-resistencia", label: "Aumentar a minha resistência física", icon: "🏋️" },
               ].map((goal) => (
                 <div
                   key={goal.value}
@@ -2020,13 +2020,6 @@ export default function QuizPage() {
                 </div>
               ))}
             </div>
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="w-full bg-lime-500 hover:bg-lime-600 text-black font-bold py-6 rounded-full text-lg"
-            >
-              Continuar
-            </Button>
           </div>
         )
 
