@@ -2474,8 +2474,16 @@ export default function QuizPage() {
                 </div>
               ))}
             </div>
+            <button
+              onClick={nextStep}
+              disabled={!canProceed()}
+              className="w-full bg-gradient-to-r from-lime-400 to-lime-500 text-black font-bold py-6 rounded-full hover:from-lime-500 hover:to-lime-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-2xl"
+            >
+              Continuar
+            </button>
           </div>
         )
+
       case 8:
         return (
           <div className="space-y-8">
@@ -2995,7 +3003,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 20: // Was case 19 - allergies
+      case 20: // Was case 19
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
