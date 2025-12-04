@@ -768,7 +768,6 @@ export default function QuizPage() {
     console.log("[v0] quizData.timeToGoal:", quizData.timeToGoal)
 
     if (currentStep === 20) {
-      setCurrentStep(currentStep + 1)
       setShowCortisolMessage(true)
       return
     }
@@ -1149,7 +1148,7 @@ export default function QuizPage() {
   const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
   // </CHANGE>
 
-  if (showCortisolMessage && currentStep === 21) {
+  if (showCortisolMessage && currentStep === 20) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center p-6">
         <div className="max-w-2xl w-full space-y-8">
@@ -1197,8 +1196,9 @@ export default function QuizPage() {
 
           <button
             onClick={() => {
-              console.log("[v0] Got it button clicked, hiding cortisol message and advancing")
+              console.log("[v0] Got it button clicked, advancing to step 21")
               setShowCortisolMessage(false)
+              setCurrentStep(21)
             }}
             className="w-full py-4 px-8 bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-white rounded-full font-semibold transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 text-lg"
           >
