@@ -767,7 +767,8 @@ export default function QuizPage() {
     console.log("[v0] quizData.targetWeight:", quizData.targetWeight)
     console.log("[v0] quizData.timeToGoal:", quizData.timeToGoal)
 
-    if (currentStep === 20) {
+    // </CHANGE> Moved cortisol message to show after step 21 (food preferences) instead of after step 20
+    if (currentStep === 21) {
       setShowCortisolMessage(true)
       return
     }
@@ -807,15 +808,11 @@ export default function QuizPage() {
       // So this condition might be redundant or needs to check if we are coming *from* a skipped step.
       // For now, relying on the `onClick` handler for skipping.
     } else if (currentStep === 23 && quizData.allergies === "nao") {
-    } else if (currentStep === 25 && quizData.allergies === "nao") {
-      // </CHANGE>
-      setCurrentStep(25)
     } else if (currentStep === 24 && quizData.wantsSupplement === "nao") {
       // Step 24 is supplement choice. If 'nao', we skip supplement details (case 24 handles this by setting currentStep to 25).
       // So if we are at 24 and it was 'nao', we go to step 25 (training days)
       setCurrentStep(25) // Skip supplement details and go directly to workout time
     } else if (currentStep === 26 && quizData.wantsSupplement === "nao") {
-      // </CHANGE>
       setCurrentStep(25)
     } else if (currentStep === 12 && quizData.weight !== "" && quizData.targetWeight !== "") {
       // Original was step 15, now step 13 (weight related)
@@ -867,7 +864,6 @@ export default function QuizPage() {
         // where previousProblems was empty. So we should go back to step 17.
         setCurrentStep(17)
       } else if (currentStep === 22 && showCortisolMessage) {
-        // Adding back navigation for cortisol message
         setShowCortisolMessage(false)
         setCurrentStep(21)
         // </CHANGE>
@@ -1144,7 +1140,8 @@ export default function QuizPage() {
   const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
   // </CHANGE>
 
-  if (showCortisolMessage && currentStep === 20) {
+  // </CHANGE> Updated conditional rendering for cortisol message
+  if (showCortisolMessage && currentStep === 21) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center p-6">
         <div className="max-w-2xl w-full space-y-8">
@@ -1192,9 +1189,10 @@ export default function QuizPage() {
 
           <button
             onClick={() => {
-              console.log("[v0] Got it button clicked, advancing to step 21")
+              console.log("[v0] Got it button clicked, advancing to step 22")
               setShowCortisolMessage(false)
-              setCurrentStep(21)
+              setCurrentStep(22)
+              // </CHANGE>
             }}
             className="w-full py-4 px-8 bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-white rounded-full font-semibold transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 text-lg"
           >
@@ -2542,7 +2540,7 @@ export default function QuizPage() {
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-bold">{area}</h3>
                       <div
-                        className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                        className={`w-6 h-6 rounded border-2 ${
                           quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-gray-400"
                         }`}
                       >
@@ -3462,7 +3460,7 @@ export default function QuizPage() {
                 <X
                   className={`h-6 w-6 flex-shrink-0 ${quizData.allergies === "nao" ? "text-red-500" : "text-gray-500"}`}
                 />
-                <h3 className="text-lg font-bold text-white">Não possuo alergias ou restrições</h3>
+                <h3 className="text-lg font-bold text-white">Não, não possuo alergias ou restrições</h3>
               </div>
             </div>
           </div>
