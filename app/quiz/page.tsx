@@ -787,13 +787,9 @@ export default function QuizPage() {
       }
     } else if (currentStep === 7) {
       // From step 7 (Sugar Frequency), check water intake
-      if (quizData.waterIntake === "menos-2") {
-        // If water intake is "less than 2 cups", show Water Congrats
-        setShowWaterCongrats(true)
-      } else {
-        // Otherwise, proceed to the next step (step 8 - Age)
-        setCurrentStep(8)
-      }
+      // The logic for water intake check was moved to step 21 (current step number),
+      // so we proceed directly to step 8 (Age) here.
+      setCurrentStep(8)
     } else if (currentStep === 8) {
       // From step 8 (Age), calculate and show IMC result
       const heightValue = Number.parseFloat(quizData.height.replace(",", "."))
@@ -855,29 +851,24 @@ export default function QuizPage() {
       // From step 16 (Stretching Feeling), proceed to step 17 (Previous Problems)
       setCurrentStep(17)
     } else if (currentStep === 17) {
-      // From step 17 (Previous Problems), proceed to step 18 (Additional Goals)
-      // If no previous problems were selected, show motivation message
+      // From step 17 (Previous Problems), if no previous problems were selected, show motivation message
       if (quizData.previousProblems.length === 0) {
         setShowMotivationMessage(true)
       }
+      // Proceed to step 18 (Additional Goals)
       setCurrentStep(18)
     } else if (currentStep === 18) {
-      // From step 18 (Additional Goals), proceed to step 19 (Food Preferences)
+      // From step 18 (Additional Goals), proceed to step 19 (Equipment)
       setCurrentStep(19)
     } else if (currentStep === 19) {
-      // From step 19 (Food Preferences), proceed to step 20 (Dietary Habits - now has Sugar Frequency)
+      // From step 19 (Equipment), proceed to step 20 (Workout Time)
       setCurrentStep(20)
     } else if (currentStep === 20) {
-      // From step 20 (Dietary Habits), proceed to step 21 (Water Intake)
+      // From step 20 (Workout Time), proceed to step 21 (Food Preferences)
       setCurrentStep(21)
     } else if (currentStep === 21) {
-      // From step 21 (Water Intake), show water congrats if conditions met
-      if (quizData.waterIntake === "7-10" || quizData.waterIntake === "mais-10") {
-        setShowWaterCongrats(true)
-      } else {
-        // Otherwise, proceed to step 22 (Allergies)
-        setCurrentStep(22)
-      }
+      // From step 21 (Food Preferences), proceed to step 22 (Allergies)
+      setCurrentStep(22)
     } else if (currentStep === 22) {
       // From step 22 (Allergies), check if user has allergies
       if (quizData.allergies === "sim") {
@@ -891,19 +882,16 @@ export default function QuizPage() {
       // From step 23 (Allergy Details), proceed to step 24 (Supplement)
       setCurrentStep(24)
     } else if (currentStep === 24) {
-      // From step 24 (Supplement), check if user wants supplements
-      if (quizData.wantsSupplement === "sim") {
-        // If yes, go to step 25 (Training Days)
-        setCurrentStep(25)
-      } else {
-        // If no, skip step 25 and go directly to step 26 (Name)
-        setCurrentStep(26)
-      }
+      // From step 24 (Supplement), proceed to step 25 (Training Days)
+      setCurrentStep(25)
     } else if (currentStep === 25) {
       // From step 25 (Training Days), proceed to step 26 (Name)
       setCurrentStep(26)
     } else if (currentStep === 26) {
-      // From step 26 (Name), show the analyzing data screen
+      // From step 26 (Name), proceed to step 27 (Email)
+      setCurrentStep(27)
+    } else if (currentStep === 27) {
+      // From step 27 (Email), show the analyzing data screen
       setShowAnalyzingData(true)
       // The analyzing data screen will then transition to the next step
     } else if (currentStep < totalSteps) {
@@ -915,12 +903,12 @@ export default function QuizPage() {
   const prevStep = () => {
     if (currentStep > 1) {
       // Adjusted step numbers to match the new flow
-      if (currentStep === 25 && quizData.allergies === "nao") {
-        // If we are at step 25 (Supplement) and allergies was 'no' (which skipped step 23 to 24, then 24 to 25)
+      if (currentStep === 24 && quizData.allergies === "nao") {
+        // If we are at step 24 (Supplement) and allergies was 'no' (which skipped step 23 to 24)
         // we need to go back to the allergies question (step 22).
         setCurrentStep(22)
-      } else if (currentStep === 26 && quizData.wantsSupplement === "nao") {
-        // If we are at step 26 (Name) and supplement was 'no' (which skipped step 25 to 26)
+      } else if (currentStep === 25 && quizData.wantsSupplement === "nao") {
+        // If we are at step 25 (Training Days) and supplement was 'no' (which skipped step 24 to 25)
         // we need to go back to the supplement question (step 24).
         setCurrentStep(24)
       } else if (currentStep === 23 && quizData.allergies === "sim") {
@@ -936,10 +924,11 @@ export default function QuizPage() {
         // If motivation message is currently showing at step 18, hide it and go back to step 17.
         setShowMotivationMessage(false)
         setCurrentStep(17)
-      } else if (currentStep === 22 && showCortisolMessage) {
-        // If cortisol message is showing at step 22, hide it and go back to step 21.
+      } else if (currentStep === 21 && showCortisolMessage) {
+        // If cortisol message is showing at step 21, hide it and go back to step 20.
+        // Note: This condition might need adjustment if showCortisolMessage is triggered at a different step.
         setShowCortisolMessage(false)
-        setCurrentStep(21)
+        setCurrentStep(20)
       } else {
         // For all other cases, simply decrement the step.
         setCurrentStep(currentStep - 1)
