@@ -2839,7 +2839,7 @@ export default function QuizPage() {
                 max="80"
                 value={quizData.age === 0 ? "" : quizData.age.toString()}
                 onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
-                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500"
+                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:[text-gray-500]"
                 placeholder="Sua idade"
               />
             </div>
