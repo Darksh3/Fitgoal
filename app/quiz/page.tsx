@@ -3033,8 +3033,8 @@ export default function QuizPage() {
             <div className="grid grid-cols-1 gap-4">
               {[
                 { value: "love", label: "Gosto!" },
-                { value: "neutral", label: "Neutro" },
-                { value: "avoid", label: "Não Gosto Muito" },
+                { value: "neutral", label: "Neutro!" },
+                { value: "avoid", label: "Não Gosto Muito!" },
               ].map((option) => (
                 <button
                   key={option.value}
@@ -3067,8 +3067,8 @@ export default function QuizPage() {
             <div className="grid grid-cols-1 gap-4">
               {[
                 { value: "love", label: "Gosto!" },
-                { value: "neutral", label: "Neutro" },
-                { value: "modify", label: "Não Gosto Muito" },
+                { value: "neutral", label: "Neutro!" },
+                { value: "modify", label: "Não Gosto Muito!" },
               ].map((option) => (
                 <button
                   key={option.value}
@@ -3101,8 +3101,8 @@ export default function QuizPage() {
             <div className="grid grid-cols-1 gap-4">
               {[
                 { value: "love", label: "Gosto!" },
-                { value: "neutral", label: "Neutro" },
-                { value: "skip", label: "Não Gosto Muito" },
+                { value: "neutral", label: "Neutro!" },
+                { value: "skip", label: "Não Gosto Muito!" },
               ].map((option) => (
                 <button
                   key={option.value}
@@ -3197,19 +3197,17 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
+            <h2 className="text-2xl font-bold text-white">Marque abaixo os seus objetivos adicionais:</h2>
               <p className="text-gray-400 text-sm">
                 Temos certeza de que você deseja não apenas um corpo melhor, mas também melhorar seu estilo de vida.
               </p>
-              <h2 className="text-2xl font-bold text-white">Marque abaixo os seus objetivos adicionais:</h2>
             </div>
             <div className="space-y-4">
               {[
-                { value: "better-sleep", label: "Melhore o sono", icon: "😴" },
-                { value: "physical-habit", label: "Forme um hábito físico", icon: "📅" },
-                { value: "feel-healthier", label: "Sinta-se mais saudável", icon: "➕" },
+                { value: "better-sleep", label: "Melhorar o sono", icon: "😴" },
+                { value: "feel-healthier", label: "Se sentir mais saudável", icon: "➕" },
                 { value: "reduce-stress", label: "Reduzir o estresse", icon: "🧘" },
-                { value: "increase-energy", label: "Aumentar a energia", icon: "⚡" },
-                { value: "increase-metabolism", label: "Aumenta o metabolismo", icon: "🚀" },
+                { value: "increase-energy", label: "Me sentir com mais energia", icon: "⚡" },
               ].map((option) => (
                 <button
                   key={option.value}
