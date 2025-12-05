@@ -42,6 +42,8 @@ interface QuizData {
   allergyDetails: string
   wantsSupplement: string
   supplementType: string
+  recommendedSupplement: string
+  // </CHANGE>
   height: string
   heightUnit: string
   currentWeight: string
@@ -101,6 +103,8 @@ const initialQuizData: QuizData = {
   allergyDetails: "",
   wantsSupplement: "",
   supplementType: "",
+  recommendedSupplement: "",
+  // </CHANGE>
   // </CHANGE>
   height: "",
   heightUnit: "cm",
@@ -274,6 +278,10 @@ export default function QuizPage() {
   const [showNutritionInfo, setShowNutritionInfo] = useState(false)
   const [showWaterCongrats, setShowWaterCongrats] = useState(false)
   const [showTimeCalculation, setShowTimeCalculation] = useState(false)
+  const [showGoalTimeline, setShowGoalTimeline] = useState(false)
+  const [calculatedWeeks, setCalculatedWeeks] = useState(0)
+  const [isCalculatingGoal, setIsCalculatingGoal] = useState(false)
+  // </CHANGE>
   const [showIMCResult, setShowIMCResult] = useState(false)
   const [showLoading, setShowLoading] = useState(false)
   const [totalSteps, setTotalSteps] = useState(28) // Updated totalSteps from 27 to 28 to reflect the added supplement question
@@ -362,6 +370,27 @@ export default function QuizPage() {
       }
     }
   }, [showAnalyzingData, analyzingStep])
+  // </CHANGE>
+
+  useEffect(() => {
+    if (showGoalTimeline) {
+      setIsCalculatingGoal(true)
+
+      // Calculate weeks
+      const current = Number.parseFloat(quizData.weight)
+      const target = Number.parseFloat(quizData.targetWeight)
+      if (!isNaN(current) && !isNaN(target) && current > 0 && target > 0) {
+        const weightDifference = Math.abs(current - target)
+        const weeks = Math.ceil(weightDifference / 0.75)
+
+        // Show loading animation for 2 seconds, then reveal result
+        setTimeout(() => {
+          setCalculatedWeeks(weeks)
+          setIsCalculatingGoal(false)
+        }, 2000)
+      }
+    }
+  }, [showGoalTimeline, quizData.weight, quizData.targetWeight])
   // </CHANGE>
 
   useEffect(() => {
@@ -837,6 +866,27 @@ export default function QuizPage() {
       // Updated condition from currentStep === 28 to currentStep === 29 for showing analyzing data screen
       setShowAnalyzingData(true)
       // </CHANGE>
+    } else if (currentStep === 26 && quizData.name.trim() !== "") {
+      // Calculate weeks to reach goal based on weight difference and goals
+      const current = Number.parseFloat(quizData.currentWeight)
+      const target = Number.parseFloat(quizData.targetWeight)
+      const diff = Math.abs(target - current)
+
+      // Basic calculation: 0.5-1kg per week is healthy
+      // For weight loss: 8-16 weeks, for muscle gain: 12-20 weeks
+      let weeks = 11 // default
+
+      if (quizData.goal.includes("perder-peso")) {
+        weeks = Math.ceil(diff / 0.5) // 0.5kg per week for weight loss
+        weeks = Math.max(8, Math.min(weeks, 16)) // Between 8-16 weeks
+      } else if (quizData.goal.includes("ganhar-massa")) {
+        weeks = Math.ceil(diff / 0.3) // 0.3kg per week for muscle gain
+        weeks = Math.max(12, Math.min(weeks, 20)) // Between 12-20 weeks
+      }
+
+      setCalculatedWeeks(weeks)
+      setShowGoalTimeline(true)
+      return
     } else if (currentStep < totalSteps) {
       const nextStepNumber = currentStep + 1
       setCurrentStep(nextStepNumber)
@@ -853,7 +903,7 @@ export default function QuizPage() {
       } else if (currentStep === 27 && quizData.wantsSupplement === "nao") {
         // If we are at name question (case 27) and supplement interest was 'no' (case 25, which jumps to 26)
         // We need to go back to the supplement interest question (case 25).
-        setCurrentStep(25) // Go back to supplement interest question
+        setCurrentStep(25)
       } else if (currentStep === 26 && quizData.wantsSupplement === "sim") {
         // If we are at supplement recommendation (case 26) and supplement interest was 'yes' (case 25)
         // We need to go back to the supplement interest question (case 25).
@@ -1253,7 +1303,7 @@ export default function QuizPage() {
               setShowMotivationMessage(false)
               // The renderQuestion will handle showing case 19 (additional goals) which is now case 19
             }}
-            className="w-full py-4 px-8 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition-all shadow-lg"
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition-all shadow-lg"
           >
             Entendi
           </button>
@@ -1263,94 +1313,81 @@ export default function QuizPage() {
   }
   // </CHANGE>
 
-  if (showAnalyzingData) {
-    const current = Number.parseFloat(quizData.weight)
-    const target = Number.parseFloat(quizData.targetWeight)
-    const weightDifference = Math.abs(current - target)
-    const weeksNeeded = Math.ceil(weightDifference / 0.75)
-
+  if (showGoalTimeline) {
     return (
-      <main className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-        <style jsx>{`
-          .neon-loader {
-            width: 90px;
-            height: 90px;
-            border: 6px solid rgba(0, 255, 255, 0.15);
-            border-top-color: #00e1ff;
-            border-radius: 50%;
-            animation: spin 1.2s linear infinite, glow 1.5s ease-in-out infinite;
-          }
-
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
-
-          @keyframes glow {
-            0% { box-shadow: 0 0 6px #00e1ff; }
-            50% { box-shadow: 0 0 16px #00e1ff; }
-            100% { box-shadow: 0 0 6px #00e1ff; }
-          }
-
-          .animate-fade-text {
-            animation: fadeText 1.8s ease-in-out;
-          }
-
-          @keyframes fadeText {
-            0% { opacity: 0; }
-            20% { opacity: 1; }
-            80% { opacity: 1; }
-            100% { opacity: 0; }
-          }
-        `}</style>
-
-        <div className="flex flex-col items-center justify-center space-y-10 animate-in fade-in duration-800">
-          <div className="neon-loader" />
-
-          {analyzingStep < messages.length ? (
-            <p className="text-xl text-center font-medium text-white animate-fade-text max-w-md">
-              {messages[analyzingStep]}
-            </p>
-          ) : (
-            <div className="text-center space-y-2 animate-in fade-in duration-500">
-              <p className="text-lg text-white/90 max-w-md">Baseado no seu perfil, você pode atingir seu objetivo em</p>
-              <div className="flex items-baseline justify-center gap-2">
-                <span className="text-8xl font-bold text-lime-400">{weeksNeeded}</span>
-                <span className="text-3xl font-medium text-lime-400">semanas</span>
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
+        <div className="text-center space-y-8 max-w-md">
+          {isCalculatingGoal ? (
+            <>
+              {/* Loading state with animated spinner */}
+              <div className="relative w-48 h-48 mx-auto">
+                <svg className="w-full h-full" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#1e3a4f" strokeWidth="8" />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    fill="none"
+                    stroke="#06b6d4"
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeDasharray="251.2"
+                    strokeDashoffset="62.8"
+                    style={{
+                      animation: "spinCircle 1.5s ease-in-out infinite",
+                      filter: "drop-shadow(0 0 10px #06b6d4)",
+                    }}
+                  />
+                </svg>
               </div>
-            </div>
+              <p className="text-gray-300 text-lg">Baseado no seu perfil, você pode atingir seu objetivo em</p>
+            </>
+          ) : (
+            <>
+              {/* Result state */}
+              <p className="text-gray-300 text-lg">Baseado no seu perfil, você pode atingir seu objetivo em</p>
+              <div className="relative inline-block">
+                <div className="absolute inset-0 bg-lime-400/20 blur-3xl rounded-full" />
+                <div className="relative">
+                  <div className="text-8xl font-bold text-lime-400">{calculatedWeeks}</div>
+                  <div className="text-3xl font-semibold text-lime-400 mt-2">semanas</div>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowGoalTimeline(false)
+                  setIsCalculatingGoal(false)
+                  setCalculatedWeeks(0)
+                  setCurrentStep(27) // Adjusted to step 27 which is Email
+                }}
+                className="mt-8 bg-lime-500 hover:bg-lime-600 text-gray-900 font-bold py-4 px-12 rounded-full text-lg transition-colors"
+              >
+                Continuar
+              </button>
+            </>
           )}
-        </div>
-      </main>
-    )
-  }
-  // </CHANGE>
 
-  if (showLoading) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-6 max-w-md">
-          <div className="w-32 h-32 mx-auto relative">
-            <svg className="w-full h-full animate-spin" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="40" stroke="#374151" strokeWidth="8" fill="none" />
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                stroke="#84CC16"
-                strokeWidth="8"
-                fill="none"
-                strokeDasharray="251.2"
-                strokeDashoffset="188.4"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold">Analisando suas respostas...</h2>
-          <p className="text-gray-300">Criando seu plano personalizado</p>
+          <style>{`
+            @keyframes spinCircle {
+              0% {
+                stroke-dashoffset: 251.2;
+                transform: rotate(0deg);
+              }
+              50% {
+                stroke-dashoffset: 62.8;
+                transform: rotate(180deg);
+              }
+              100% {
+                stroke-dashoffset: 251.2;
+                transform: rotate(360deg);
+              }
+            }
+          `}</style>
         </div>
       </div>
     )
   }
+  // </CHANGE>
 
   if (showTimeCalculation) {
     const current = Number.parseFloat(quizData.weight)
@@ -3579,7 +3616,7 @@ export default function QuizPage() {
               <Button onClick={nextStep} className="group relative">
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-400 to-lime-500 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
                 </div>
               </Button>
             </div>
@@ -3644,54 +3681,97 @@ export default function QuizPage() {
 
       case 25:
         const supplementRecommendation =
-          quizData.bodyType === "ectomorfo" || quizData.bodyType === "skinny" // Assuming 'skinny' is a possible bodyType or fallback
+          quizData.bodyType === "ectomorph" || quizData.bodyType === "magro"
             ? {
                 name: "Hipercalórico Growth",
                 description: "Ideal para ganho de massa muscular e atingir suas calorias diárias",
               }
-            : { name: "Whey Protein", description: "Ideal para ganho de massa muscular e recuperação pós-treino" }
+            : {
+                name: "Whey Protein",
+                description: "Ideal para ganho de massa muscular e recuperação pós-treino",
+              }
 
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Podemos adicionar algum suplemento à sua dieta?</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">
+                Podemos adicionar algum suplemento à sua dieta?
+              </h2>
               <p className="text-gray-400">Por exemplo: Hipercalórico, Whey Protein...</p>
             </div>
-            <div className="space-y-4">
-              <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 ${
-                  quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
-                }`}
+
+            <div className="max-w-2xl mx-auto space-y-4">
+              {/* Yes option with recommendation */}
+              <button
                 onClick={() => {
                   updateQuizData("wantsSupplement", "sim")
+                  updateQuizData("recommendedSupplement", supplementRecommendation.name)
                   nextStep()
                 }}
-              >
-                <CheckCircle
-                  className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
-                />
-                <h3 className="text-lg font-bold text-white">Sim, pode adicionar</h3>
-              </div>
-              <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-red-400 ${
-                  quizData.wantsSupplement === "nao" ? "border-red-500 bg-red-500/10" : "border-white/10"
+                className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
+                  quizData.wantsSupplement === "sim"
+                    ? "border-lime-500 bg-lime-500/10"
+                    : "border-white/20 bg-white/5 hover:border-lime-500/50"
                 }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
+                      quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500" : "border-white/30"
+                    }`}
+                  >
+                    {quizData.wantsSupplement === "sim" && (
+                      <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-white font-bold text-lg">Sim, pode adicionar</span>
+                </div>
+              </button>
+
+              {/* No option */}
+              <button
                 onClick={() => {
                   updateQuizData("wantsSupplement", "nao")
-                  setCurrentStep(26) // Skip to name
+                  updateQuizData("recommendedSupplement", "")
+                  nextStep()
                 }}
+                className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
+                  quizData.wantsSupplement === "nao"
+                    ? "border-red-500 bg-red-500/10"
+                    : "border-white/20 bg-white/5 hover:border-red-500/50"
+                }`}
               >
-                <X
-                  className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "nao" ? "text-red-500" : "text-gray-500"}`}
-                />
-                <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
-              </div>
-            </div>
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
+                      quizData.wantsSupplement === "nao" ? "border-red-500 bg-red-500/10" : "border-white/30"
+                    }`}
+                  >
+                    {quizData.wantsSupplement === "nao" && (
+                      <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-white font-bold text-lg">Não, prefiro sem suplementos</span>
+                </div>
+              </button>
 
-            {/* Recommendation box */}
-            <div className="bg-gradient-to-r from-lime-500/20 to-lime-400/20 backdrop-blur-sm rounded-lg p-6 border-2 border-lime-500">
-              <h3 className="text-lg font-bold text-lime-400 mb-2">Recomendamos: {supplementRecommendation.name}</h3>
-              <p className="text-gray-300">{supplementRecommendation.description}</p>
+              {/* Recommendation box */}
+              <div className="mt-6 p-6 rounded-xl border-2 border-lime-500/50 bg-lime-500/5">
+                <p className="text-lime-400 font-bold text-lg mb-2">Recomendamos: {supplementRecommendation.name}</p>
+                <p className="text-gray-300">{supplementRecommendation.description}</p>
+              </div>
             </div>
           </div>
         )
@@ -3855,7 +3935,7 @@ export default function QuizPage() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl font-bold rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
+                className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-black font-bold px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
               >
                 <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10 flex items-center gap-3">
