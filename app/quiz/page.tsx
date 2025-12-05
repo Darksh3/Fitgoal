@@ -3295,9 +3295,12 @@ export default function QuizPage() {
               <Button
                 onClick={nextStep}
                 disabled={quizData.equipment.length === 0}
-                className="px-8 md:px-16 py-4 md:py-6 rounded-full bg-gradient-to-r from-lime-400 via-lime-500 to-lime-600 hover:from-lime-500 hover:via-lime-600 hover:to-lime-700 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-black font-bold text-lg transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(132,204,22,0.3)] hover:shadow-[0_0_50px_rgba(132,204,22,0.5)] disabled:shadow-none"
+                className="group relative overflow-hidden"
               >
-                Continuar
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
               </Button>
             </div>
           </div>
@@ -3669,11 +3672,11 @@ export default function QuizPage() {
               </div>
 
               <div className="flex justify-center mt-8">
-                <Button
-                  onClick={nextStep}
-                  className="px-8 md:px-16 py-4 md:py-6 rounded-full bg-gradient-to-r from-lime-400 via-lime-500 to-lime-600 hover:from-lime-500 hover:via-lime-600 hover:to-lime-700 text-black font-bold text-lg transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(132,204,22,0.5)] hover:shadow-[0_0_50px_rgba(132,204,22,0.8)]"
-                >
-                  Continuar
+                <Button onClick={nextStep} className="group relative overflow-hidden">
+                  <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                    <span className="relative z-10">Continuar</span>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                  </div>
                 </Button>
               </div>
             </div>
