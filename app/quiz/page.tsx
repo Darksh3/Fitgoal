@@ -2902,7 +2902,7 @@ export default function QuizPage() {
                 <div className="flex-1 flex justify-center">
                   <Input
                     type="number"
-                    placeholder="80"
+                    placeholder="Peso atual"
                     value={quizData.weight}
                     onChange={(e) => updateQuizData("weight", e.target.value)}
                     min="1"
@@ -2937,7 +2937,7 @@ export default function QuizPage() {
                 <div className="flex-1 flex justify-center">
                   <Input
                     type="number"
-                    placeholder="75"
+                    placeholder="Meta"
                     value={quizData.targetWeight}
                     onChange={(e) => {
                       updateQuizData("targetWeight", e.target.value)
@@ -2973,7 +2973,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual seu nível de experiência com treinamento de força?</h2>
+              <h2 className="text-2xl font-bold text-white">Qual seu nível de experiência com treinos?</h2>
             </div>
             <div className="grid grid-cols-1 gap-4">
               {[
@@ -3032,9 +3032,9 @@ export default function QuizPage() {
             </div>
             <div className="grid grid-cols-1 gap-4">
               {[
-                { value: "love", label: "Amo cardio!" },
-                { value: "neutral", label: "Posso fazer, mas não é minha prioridade" },
-                { value: "avoid", label: "Prefiro evitar" },
+                { value: "love", label: "Gosto!" },
+                { value: "neutral", label: "Neutro" },
+                { value: "avoid", label: "Não Gosto Muito" },
               ].map((option) => (
                 <button
                   key={option.value}
@@ -3066,9 +3066,9 @@ export default function QuizPage() {
             </div>
             <div className="grid grid-cols-1 gap-4">
               {[
-                { value: "love", label: "Adoro flexões e exercícios de força!" },
-                { value: "neutral", label: "Posso fazer, mas não é minha prioridade" },
-                { value: "modify", label: "Preciso de modificações" },
+                { value: "love", label: "Gosto!" },
+                { value: "neutral", label: "Neutro" },
+                { value: "modify", label: "Não Gosto Muito" },
               ].map((option) => (
                 <button
                   key={option.value}
@@ -3100,9 +3100,9 @@ export default function QuizPage() {
             </div>
             <div className="grid grid-cols-1 gap-4">
               {[
-                { value: "love", label: "Adoro alongar!" },
-                { value: "neutral", label: "Posso fazer, mas não é minha prioridade" },
-                { value: "skip", label: "Prefiro pular" },
+                { value: "love", label: "Gosto!" },
+                { value: "neutral", label: "Neutro" },
+                { value: "skip", label: "Não Gosto Muito" },
               ].map((option) => (
                 <button
                   key={option.value}
@@ -3138,7 +3138,6 @@ export default function QuizPage() {
                 { value: "no-plan", label: "Não tinha um plano claro", icon: "📅" },
                 { value: "too-hard", label: "Meus treinos eram muito difíceis", icon: "🏋️" },
                 { value: "bad-training", label: "Treinamento ruim", icon: "👤" },
-                { value: "high-cholesterol", label: "Colesterol alto", icon: "❤️" },
               ].map((option) => (
                 <button
                   key={option.value}
