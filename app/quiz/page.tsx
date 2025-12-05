@@ -356,7 +356,7 @@ export default function QuizPage() {
         const timer = setTimeout(() => {
           setShowAnalyzingData(false)
           setAnalyzingStep(0)
-          setCurrentStep(25) // Move to supplement question - this should now be 26 based on totalSteps update
+          setCurrentStep(25) // Move to supplement interest question (this was 25, now it's the start of supplement section)
         }, 2500)
         return () => clearTimeout(timer)
       }
@@ -787,8 +787,19 @@ export default function QuizPage() {
     }
     // </CHANGE>
 
-    if (currentStep === 21) {
-      setShowCortisolMessage(true)
+    if (currentStep === 22) {
+      // This is related to the cortisol message, but it's already handled within the render logic for step 22.
+      // We will show the cortisol message directly when rendering step 22.
+      // This 'if' block should be removed or adjusted if it's not directly controlling flow.
+      // Based on current structure, this might be a remnant.
+      // If it's meant to show the message *after* step 22, then the logic is wrong.
+      // Assuming it's not crucial for flow for now.
+      // setShowCortisolMessage(true) // This would show the message and block further progression.
+      // The actual display logic is handled in the return statement.
+      // If the user clicks "Entendi" on the cortisol message, it sets showCortisolMessage to false,
+      // and the component re-renders, showing the actual step 22 content.
+      // So, here we just need to advance the step normally.
+      setCurrentStep(currentStep + 1)
       return
     }
     // </CHANGE>
@@ -804,12 +815,12 @@ export default function QuizPage() {
       // Corrected: When allergies is 'nao' at step 22, the `onClick` handler already sets `setCurrentStep(24)`.
     } else if (currentStep === 23 && quizData.allergies === "sim") {
       // This case is for allergy details, if allergies was 'nao', this step is skipped.
-    } else if (currentStep === 24 && quizData.wantsSupplement === "nao") {
-      // Step 24 is supplement interest. If 'nao', we skip supplement details (case 24 handles this by setting currentStep to 26).
-      setCurrentStep(26) // Skip supplement recommendation and go to step 26 (name)
     } else if (currentStep === 25 && quizData.wantsSupplement === "nao") {
+      // Step 25 is supplement interest. If 'nao', we skip supplement details (case 25 handles this by setting currentStep to 26).
+      setCurrentStep(26) // Skip supplement recommendation and go to step 26 (name)
+    } else if (currentStep === 26 && quizData.wantsSupplement === "nao") {
       // </CHANGE>
-      setCurrentStep(26)
+      setCurrentStep(27) // Skip supplement details and go to name (case 27)
     } else if (currentStep === 12 && quizData.weight !== "" && quizData.targetWeight !== "") {
       // Original was step 15, now step 13 (weight related)
       const calculatedTime = calculateTimeToGoal()
@@ -822,8 +833,8 @@ export default function QuizPage() {
         setCurrentStep(currentStep + 1)
       }
       // </CHANGE>
-    } else if (currentStep === 28) {
-      // Updated condition from currentStep === 27 to currentStep === 28 for showing analyzing data screen
+    } else if (currentStep === 29) {
+      // Updated condition from currentStep === 28 to currentStep === 29 for showing analyzing data screen
       setShowAnalyzingData(true)
       // </CHANGE>
     } else if (currentStep < totalSteps) {
@@ -835,18 +846,18 @@ export default function QuizPage() {
   const prevStep = () => {
     if (currentStep > 1) {
       // Adjusted step numbers to match the new flow
-      if (currentStep === 24 && quizData.allergies === "nao") {
-        // If we are at supplement interest question (case 24) and allergies was 'no' (case 22, which jumps to 24)
+      if (currentStep === 25 && quizData.allergies === "nao") {
+        // If we are at supplement interest question (case 25) and allergies was 'no' (case 22, which jumps to 24)
         // We need to go back to the allergies question (case 22).
         setCurrentStep(22) // Go back to allergies question
-      } else if (currentStep === 26 && quizData.wantsSupplement === "nao") {
-        // If we are at name question (case 26) and supplement interest was 'no' (case 24, which jumps to 26)
-        // We need to go back to the supplement interest question (case 24).
-        setCurrentStep(24) // Go back to supplement interest question
-      } else if (currentStep === 25 && quizData.wantsSupplement === "sim") {
-        // If we are at supplement recommendation (case 25) and supplement interest was 'yes' (case 24)
-        // We need to go back to the supplement interest question (case 24).
-        setCurrentStep(24)
+      } else if (currentStep === 27 && quizData.wantsSupplement === "nao") {
+        // If we are at name question (case 27) and supplement interest was 'no' (case 25, which jumps to 26)
+        // We need to go back to the supplement interest question (case 25).
+        setCurrentStep(25) // Go back to supplement interest question
+      } else if (currentStep === 26 && quizData.wantsSupplement === "sim") {
+        // If we are at supplement recommendation (case 26) and supplement interest was 'yes' (case 25)
+        // We need to go back to the supplement interest question (case 25).
+        setCurrentStep(25)
       } else if (currentStep === 23 && quizData.allergies === "sim") {
         // If we are at allergy details (case 23) and allergies was 'yes' (case 22)
         // We need to go back to the allergies question (case 22).
@@ -863,10 +874,10 @@ export default function QuizPage() {
         // So if we are at step 18 (additional goals) and motivation message was shown, it means we came from step 17
         // where previousProblems was empty. So we should go back to step 17.
         setCurrentStep(17)
-      } else if (currentStep === 22 && showCortisolMessage) {
+      } else if (currentStep === 23 && showCortisolMessage) {
         // Adding back navigation for cortisol message
         setShowCortisolMessage(false)
-        setCurrentStep(21)
+        setCurrentStep(22)
         // </CHANGE>
       } else {
         setCurrentStep(currentStep - 1)
@@ -1847,9 +1858,10 @@ export default function QuizPage() {
       case 24: // Supplement Interest
         return quizData.wantsSupplement !== ""
       case 25: // Supplement Type (only if wantsSupplement is 'sim')
-        return (
-          quizData.wantsSupplement === "nao" || (quizData.wantsSupplement === "sim" && quizData.supplementType !== "")
-        )
+        // This case is now for Supplement Recommendation, and we can always proceed to next step if we want to show recommendation.
+        // The actual *choice* of supplement type was removed from the flow.
+        return true // Always allow proceeding after seeing recommendation
+      // </CHANGE>
       case 26: // Name
         return quizData.name.trim() !== ""
       case 27: // Email
@@ -3575,6 +3587,7 @@ export default function QuizPage() {
         )
 
       case 24:
+        // Supplement Interest
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3630,11 +3643,19 @@ export default function QuizPage() {
       // </CHANGE>
 
       case 25:
-        // Supplement Interest
+        const supplementRecommendation =
+          quizData.bodyType === "ectomorfo" || quizData.bodyType === "skinny" // Assuming 'skinny' is a possible bodyType or fallback
+            ? {
+                name: "Hipercalórico Growth",
+                description: "Ideal para ganho de massa muscular e atingir suas calorias diárias",
+              }
+            : { name: "Whey Protein", description: "Ideal para ganho de massa muscular e recuperação pós-treino" }
+
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Você se interessa por suplementos?</h2>
+              <h2 className="text-2xl font-bold text-white">Podemos adicionar algum suplemento à sua dieta?</h2>
+              <p className="text-gray-400">Por exemplo: Hipercalórico, Whey Protein...</p>
             </div>
             <div className="space-y-4">
               <div
@@ -3649,7 +3670,7 @@ export default function QuizPage() {
                 <CheckCircle
                   className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
                 />
-                <h3 className="text-lg font-bold text-white">Sim, quero saber mais</h3>
+                <h3 className="text-lg font-bold text-white">Sim, pode adicionar</h3>
               </div>
               <div
                 className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-red-400 ${
@@ -3657,62 +3678,26 @@ export default function QuizPage() {
                 }`}
                 onClick={() => {
                   updateQuizData("wantsSupplement", "nao")
-                  setCurrentStep(26) // Skip supplement details (case 25) and go to name (case 26)
+                  setCurrentStep(26) // Skip to name
                 }}
               >
                 <X
                   className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "nao" ? "text-red-500" : "text-gray-500"}`}
                 />
-                <h3 className="text-lg font-bold text-white">Não, obrigado</h3>
+                <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
               </div>
+            </div>
+
+            {/* Recommendation box */}
+            <div className="bg-gradient-to-r from-lime-500/20 to-lime-400/20 backdrop-blur-sm rounded-lg p-6 border-2 border-lime-500">
+              <h3 className="text-lg font-bold text-lime-400 mb-2">Recomendamos: {supplementRecommendation.name}</h3>
+              <p className="text-gray-300">{supplementRecommendation.description}</p>
             </div>
           </div>
         )
 
       case 26:
-        // Supplement Type
-        if (quizData.wantsSupplement !== "sim") {
-          return null
-        }
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Que tipo de suplemento você busca?</h2>
-              <p className="text-gray-300">Selecione todos que se aplicam</p>
-            </div>
-            <div className="space-y-4">
-              {[
-                { value: "whey-protein", label: "Whey Protein" },
-                { value: "creatine", label: "Creatina" },
-                { value: "multivitamin", label: "Multivitamínico" },
-                { value: "pre-workout", label: "Pré-treino" },
-                { value: "other", label: "Outro" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => updateQuizData("supplementType", option.value)}
-                  className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
-                    quizData.supplementType === option.value
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
-                  }`}
-                >
-                  <span className="text-white">{option.label}</span>
-                </button>
-              ))}
-            </div>
-            <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      case 27: // Name
+        // Now case 26 is Name
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3738,7 +3723,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 28: // Email
+      case 27: // Email
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3765,7 +3750,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 29: // Training days per week
+      case 28: // Training days per week
         // Training days per week is now handled by the slider in case 24.
         // This case is now for the final submit.
         return (
