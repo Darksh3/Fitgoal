@@ -2069,13 +2069,14 @@ export default function QuizPage() {
                 </div>
               ))}
             </div>
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="w-full bg-lime-500 hover:bg-lime-600 text-black font-bold py-6 rounded-full text-lg"
-            >
-              Continuar
-            </Button>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
           </div>
         )
 
@@ -2673,7 +2674,7 @@ export default function QuizPage() {
               </div>
             </div>
             <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative">
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
@@ -3149,7 +3150,7 @@ export default function QuizPage() {
                   className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
                     quizData.previousProblems.includes(option.value)
                       ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50"
                   }`}
                 >
                   <span className="text-2xl">{option.icon}</span>
@@ -3165,7 +3166,7 @@ export default function QuizPage() {
                 className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
                   quizData.previousProblems.length === 0
                     ? "border-red-500 bg-red-500/10"
-                    : "border-white/10 bg-white/5 hover:border-red-500/50 backdrop-blur-sm"
+                    : "border-white/10 bg-white/5 hover:border-red-500/50"
                 }`}
               >
                 <span className="text-2xl">❌</span>
@@ -3221,7 +3222,7 @@ export default function QuizPage() {
                   className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
                     quizData.additionalGoals.includes(option.value)
                       ? "border-orange-500 bg-orange-500/10"
-                      : "border-white/10 bg-white/5 hover:border-orange-500/50 backdrop-blur-sm"
+                      : "border-white/10 bg-white/5 hover:border-orange-500/50"
                   }`}
                 >
                   <span className="text-2xl">{option.icon}</span>
@@ -3236,7 +3237,7 @@ export default function QuizPage() {
                 className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
                   quizData.additionalGoals.length === 0
                     ? "border-red-500 bg-red-500/10"
-                    : "border-white/10 bg-white/5 hover:border-red-500/50 backdrop-blur-sm"
+                    : "border-white/10 bg-white/5 hover:border-red-500/50"
                 }`}
               >
                 <span className="text-2xl">❌</span>
@@ -3244,13 +3245,13 @@ export default function QuizPage() {
               </button>
             </div>
             <div className="flex justify-center mt-8">
-              <Button
+              <button
                 onClick={nextStep}
                 disabled={quizData.additionalGoals.length === 0}
-                className="px-8 md:px-16 py-4 md:py-6 rounded-full bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold text-lg transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 disabled:shadow-none"
+                className="px-8 md:px-16 py-4 md:py-6 rounded-full bg-gradient-to-r from-lime-500 via-lime-400 to-green-500 hover:from-lime-600 hover:via-lime-500 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-black font-bold text-lg transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(132,204,22,0.3)] hover:shadow-[0_0_40px_rgba(132,204,22,0.5)] disabled:shadow-none"
               >
                 Continuar
-              </Button>
+              </button>
             </div>
           </div>
         )
@@ -3289,13 +3290,13 @@ export default function QuizPage() {
               ))}
             </div>
             <div className="flex justify-center mt-8">
-              <Button
+              <button
                 onClick={nextStep}
                 disabled={quizData.equipment.length === 0}
-                className="px-8 md:px-16 py-4 md:py-6 rounded-full bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold text-lg transition-all shadow-lg shadow-lime-500/20 hover:shadow-lime-500/40 disabled:shadow-none"
+                className="px-8 md:px-16 py-4 md:py-6 rounded-full bg-gradient-to-r from-lime-500 via-lime-400 to-green-500 hover:from-lime-600 hover:via-lime-500 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-black font-bold text-lg transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(132,204,22,0.3)] hover:shadow-[0_0_40px_rgba(132,204,22,0.5)] disabled:shadow-none"
               >
                 Continuar
-              </Button>
+              </button>
             </div>
           </div>
         )
@@ -3665,14 +3666,13 @@ export default function QuizPage() {
                 </div>
               </div>
 
-              {/* Continue button */}
               <div className="flex justify-center mt-8">
-                <Button
+                <button
                   onClick={nextStep}
-                  className="rounded-full bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-black font-bold px-8 md:px-16 py-4 md:py-6 text-base md:text-lg transition-all duration-300 hover:scale-105"
+                  className="px-8 md:px-16 py-4 md:py-6 rounded-full bg-gradient-to-r from-lime-500 via-lime-400 to-green-500 hover:from-lime-600 hover:via-lime-500 hover:to-green-600 text-black font-bold text-lg transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(132,204,22,0.3)] hover:shadow-[0_0_40px_rgba(132,204,22,0.5)]"
                 >
                   Continuar
-                </Button>
+                </button>
               </div>
             </div>
           </div>
@@ -3926,7 +3926,7 @@ export default function QuizPage() {
         </div>
         <div className="mb-8">{renderStep()}</div>
         {/* Adjust the condition to include steps that don't need a manual next button */}
-        {![1, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 28].includes(
+        {![1, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28].includes(
           currentStep,
         ) && (
           <div className="flex justify-center">
