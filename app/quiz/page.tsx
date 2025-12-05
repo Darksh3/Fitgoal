@@ -364,7 +364,7 @@ export default function QuizPage() {
         const timer = setTimeout(() => {
           setShowAnalyzingData(false)
           setAnalyzingStep(0)
-          setCurrentStep(24) // Move to training days per week (was 25, now 24)
+          setCurrentStep(25) // Move to supplement interest question (this was 25, now it's the start of supplement section)
         }, 2500)
         return () => clearTimeout(timer)
       }
@@ -865,7 +865,7 @@ export default function QuizPage() {
         setCurrentStep(currentStep + 1)
       }
       // </CHANGE>
-    } else if (currentStep === 28) {
+    } else if (currentStep === 29) {
       // Updated condition from currentStep === 28 to currentStep === 29 for showing analyzing data screen
       setShowAnalyzingData(true)
       // </CHANGE>
@@ -1203,73 +1203,6 @@ export default function QuizPage() {
   ]
 
   const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
-  // </CHANGE>
-
-  if (showAnalyzingData) {
-    const messages = [
-      "Estamos analisando seus dados...",
-      "Calculando suas necessidades fisiológicas...",
-      "Ajustando seu plano ideal...",
-    ]
-
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black flex items-center justify-center p-6">
-        <div className="max-w-2xl mx-auto text-center space-y-12">
-          {/* Animated spinner */}
-          <div className="relative w-32 h-32 mx-auto">
-            <div className="absolute inset-0 rounded-full border-4 border-cyan-500/20"></div>
-            <div
-              className="absolute inset-0 rounded-full border-4 border-transparent border-t-cyan-500 animate-spin"
-              style={{
-                boxShadow: "0 0 30px rgba(6, 182, 212, 0.5)",
-              }}
-            ></div>
-            <div
-              className="absolute inset-2 rounded-full border-4 border-transparent border-t-lime-500 animate-spin"
-              style={{
-                animationDuration: "1.5s",
-                animationDirection: "reverse",
-                boxShadow: "0 0 20px rgba(132, 204, 22, 0.5)",
-              }}
-            ></div>
-          </div>
-
-          {/* Messages */}
-          <div className="space-y-6">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`text-xl md:text-2xl font-medium transition-all duration-500 ${
-                  index <= analyzingStep
-                    ? "text-white opacity-100 translate-y-0"
-                    : "text-gray-600 opacity-0 translate-y-4"
-                }`}
-              >
-                {index < analyzingStep && <span className="inline-block mr-2 text-lime-500">✓</span>}
-                {message}
-              </div>
-            ))}
-          </div>
-
-          {/* Progress indicator */}
-          <div className="mt-12">
-            <div className="w-full max-w-md mx-auto bg-white/10 backdrop-blur-sm rounded-full h-2">
-              <div
-                className="bg-gradient-to-r from-cyan-500 to-lime-500 h-2 rounded-full transition-all duration-1000 ease-out"
-                style={{
-                  width: `${((analyzingStep + 1) / messages.length) * 100}%`,
-                  boxShadow: "0 0 20px rgba(132, 204, 22, 0.5)",
-                }}
-              />
-            </div>
-            <p className="text-gray-400 text-sm mt-4">
-              {Math.round(((analyzingStep + 1) / messages.length) * 100)}% concluído
-            </p>
-          </div>
-        </div>
-      </div>
-    )
-  }
   // </CHANGE>
 
   if (showCortisolMessage && currentStep === 22) {
@@ -3362,7 +3295,7 @@ export default function QuizPage() {
               <Button
                 onClick={nextStep}
                 disabled={quizData.equipment.length === 0}
-                className="px-8 md:px-16 py-4 md:py-6 rounded-full bg-gradient-to-r from-lime-400 via-lime-500 to-lime-600 hover:from-lime-500 hover:via-lime-600 hover:to-lime-700 text-black font-bold text-lg transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(132,204,22,0.3)] hover:shadow-[0_0_50px_rgba(132,204,22,0.5)] disabled:shadow-none"
+                className="px-8 md:px-16 py-4 md:py-6 rounded-full bg-gradient-to-r from-lime-400 via-lime-500 to-lime-600 hover:from-lime-500 hover:via-lime-600 hover:to-lime-700 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-black font-bold text-lg transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(132,204,22,0.3)] hover:shadow-[0_0_50px_rgba(132,204,22,0.5)] disabled:shadow-none"
               >
                 Continuar
               </Button>
