@@ -806,7 +806,10 @@ export default function QuizPage() {
     if (currentStep === 17) {
       // This case 17 is now about previous problems
       console.log("[v0] Advancing from step 17, checking for motivation message logic...")
-      if (quizData.previousProblems.length === 0) {
+      if (
+        quizData.previousProblems.length === 0 ||
+        (quizData.previousProblems.length === 1 && quizData.previousProblems[0] === "no-problems")
+      ) {
         // If user selected "Não, eu não tenho", we show motivation message directly
         setShowMotivationMessage(true)
         console.log("[v0] No previous problems selected, showing motivation message.")
@@ -3159,12 +3162,12 @@ export default function QuizPage() {
               ))}
               <button
                 onClick={() => {
-                  updateQuizData("previousProblems", [])
+                  updateQuizData("previousProblems", ["no-problems"]) // Changed from "no-plan" to "no-problems"
                   console.log("[v0] 'Não tenho' clicked, advancing to motivation page")
                   nextStep()
                 }}
                 className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
-                  quizData.previousProblems.length === 0
+                  quizData.previousProblems.includes("no-problems") // Changed from "no-plan" to "no-problems"
                     ? "border-red-500 bg-red-500/10"
                     : "border-white/10 bg-white/5 hover:border-red-500/50"
                 }`}
@@ -3231,11 +3234,11 @@ export default function QuizPage() {
               ))}
               <button
                 onClick={() => {
-                  updateQuizData("additionalGoals", [])
+                  updateQuizData("additionalGoals", ["none"])
                   nextStep()
                 }}
                 className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
-                  quizData.additionalGoals.length === 0
+                  quizData.additionalGoals.includes("none")
                     ? "border-red-500 bg-red-500/10"
                     : "border-white/10 bg-white/5 hover:border-red-500/50"
                 }`}
@@ -3245,13 +3248,12 @@ export default function QuizPage() {
               </button>
             </div>
             <div className="flex justify-center mt-8">
-              <button
-                onClick={nextStep}
-                disabled={quizData.additionalGoals.length === 0}
-                className="px-8 md:px-16 py-4 md:py-6 rounded-full bg-gradient-to-r from-lime-500 via-lime-400 to-green-500 hover:from-lime-600 hover:via-lime-500 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-black font-bold text-lg transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(132,204,22,0.3)] hover:shadow-[0_0_40px_rgba(132,204,22,0.5)] disabled:shadow-none"
-              >
-                Continuar
-              </button>
+              <Button onClick={nextStep} className="group relative overflow-hidden">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
             </div>
           </div>
         )
