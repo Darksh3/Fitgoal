@@ -1684,7 +1684,7 @@ export default function QuizPage() {
               setShowNutritionInfo(false)
               setCurrentStep(currentStep + 1)
             }}
-            className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300"
+            className="w-full bg-lime-500 hover:bg-lime-600 text-white py-4 text-lg rounded-full"
           >
             Entendi
           </Button>
