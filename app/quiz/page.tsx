@@ -1995,8 +1995,8 @@ export default function QuizPage() {
               ].map((type) => (
                 <div
                   key={type.value}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
-                    quizData.bodyType === type.value
+                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between gap-3 sm:gap-4
+                    ${quizData.bodyType === type.value
                       ? "border-2 border-lime-500 bg-lime-500/10"
                       : "border border-white/10"
                   }`}
