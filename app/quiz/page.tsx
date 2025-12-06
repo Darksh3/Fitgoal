@@ -801,19 +801,12 @@ export default function QuizPage() {
     // </CHANGE>
 
     if (currentStep === 22) {
-      // This is related to the cortisol message, but it's already handled within the render logic for step 22.
-      // We will show the cortisol message directly when rendering step 22.
-      // This 'if' block should be removed or adjusted if it's not directly controlling flow.
-      // Based on current structure, this might be a remnant.
-      // If it's meant to show the message *after* step 22, then the logic is wrong.
-      // Assuming it's not crucial for flow for now.
-      // setShowCortisolMessage(true) // This would show the message and block further progression.
-      // The actual display logic is handled in the return statement.
-      // If the user clicks "Entendi" on the cortisol message, it sets showCortisolMessage to false,
-      // and the component re-renders, showing the actual step 22 content.
-      // So, here we just need to advance the step normally.
-      setCurrentStep(currentStep + 1)
-      return
+      // This case 22 is now about allergies.
+      // If user answers 'nao', we skip to step 24.
+      if (quizData.allergies === "nao") {
+        setCurrentStep(24)
+        return
+      }
     }
     // </CHANGE>
 
@@ -845,14 +838,29 @@ export default function QuizPage() {
       // If the user clicks "Entendi" on the cortisol message, it sets showCortisolMessage to false,
       // and the component re-renders, showing the actual step 22 content.
       // So, here we just need to advance the step normally.
-      setCurrentStep(currentStep + 1)
+      // THIS BLOCK IS NOW REDUNDANT DUE TO THE CHANGE ABOVE
+      // setCurrentStep(currentStep + 1)
       return
     }
     // </CHANGE>
 
-    if (currentStep === 23) {
+    if (currentStep === 23 && quizData.allergies === "nao") {
+      // If on allergy details step (23) but allergies were 'no' (selected in 22, jumped to 24)
+      // We need to go back to step 24 (training days)
       setCurrentStep(24)
       return
+    }
+    // </CHANGE>
+
+    if (currentStep === 23 && quizData.allergies === "sim" && quizData.allergyDetails === "") {
+      // If user selected 'sim' for allergies, but didn't provide details, stay on step 23.
+      return
+    }
+    // </CHANGE>
+
+    if (currentStep === 24) {
+      // This is the Training Days step.
+      // The logic to go to step 25 is handled below.
     }
     // </CHANGE>
 
@@ -885,7 +893,7 @@ export default function QuizPage() {
         setCurrentStep(currentStep + 1)
       }
       // </CHANGE>
-    } else if (currentStep === 29) {
+    } else if (currentStep === 28) {
       // Updated condition from currentStep === 28 to currentStep === 29 for showing analyzing data screen
       setShowAnalyzingData(true)
       // </CHANGE>
@@ -2176,14 +2184,14 @@ export default function QuizPage() {
 
       case 5:
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual área você quer focar mais?</h2>
-              <p className="text-gray-300">Selecione todos que se aplicam</p>
+          <div className="space-y-4">
+            <div className="text-center space-y-2">
+              <h2 className="text-xl font-bold text-white">Qual área você quer focar mais?</h2>
+              <p className="text-sm text-gray-300">Selecione todos que se aplicam</p>
             </div>
-            <div className="flex items-start justify-center space-x-8">
+            <div className="flex items-start justify-center space-x-6">
               <div
-                className={`relative bg-transparent ${quizData.gender === "mulher" ? "w-48 h-[400px]" : "w-64 h-auto"}`}
+                className={`relative bg-transparent ${quizData.gender === "mulher" ? "w-40 h-[320px]" : "w-52 h-auto"}`}
               >
                 <img
                   src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
@@ -2559,7 +2567,7 @@ export default function QuizPage() {
                           width: `${debugValues.leg_lower_right.width}%`,
                           height: `${debugValues.leg_lower_right.height}%`,
                           borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
-                          transform: `rotate(${debugValues.leg_lower_right.rotate}deg)`,
+                          transform: `rotate(${debugValues.m_leg_lower_right.rotate}deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
@@ -2671,11 +2679,11 @@ export default function QuizPage() {
                 </div>
               )}
 
-              <div className="flex flex-col space-y-4 max-w-md">
+              <div className="flex flex-col space-y-3 max-w-md">
                 {["Peito", "Braços", "Barriga", "Pernas", "Tudo"].map((area) => (
                   <div
                     key={area}
-                    className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
+                    className={`rounded-lg p-4 cursor-pointer transition-all border-2 ${
                       quizData.problemAreas.includes(area)
                         ? "bg-emerald-500 border-emerald-500 text-white"
                         : "bg-white/5 backdrop-blur-sm border-white/10 text-white hover:border-emerald-500"
@@ -2683,20 +2691,20 @@ export default function QuizPage() {
                     onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
                   >
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold">{area}</h3>
+                      <h3 className="text-base font-bold">{area}</h3>
                       <div
-                        className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
                           quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-gray-400"
                         }`}
                       >
-                        {quizData.problemAreas.includes(area) && <CheckCircle className="h-4 w-4 text-emerald-500" />}
+                        {quizData.problemAreas.includes(area) && <CheckCircle className="h-3 w-3 text-emerald-500" />}
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="flex justify-center mt-8">
+            <div className="flex justify-center mt-4">
               <Button onClick={nextStep} disabled={!canProceed()} className="group relative">
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
@@ -3719,7 +3727,6 @@ export default function QuizPage() {
               </h2>
               <p className="text-gray-400">Por exemplo: Hipercalórico, Whey Protein...</p>
             </div>
-
             <div className="max-w-2xl mx-auto space-y-4">
               {/* Yes option with recommendation */}
               <button
