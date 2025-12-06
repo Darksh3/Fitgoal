@@ -2760,10 +2760,10 @@ export default function QuizPage() {
               ].map((freq) => (
                 <div
                   key={freq.value}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
+                  className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
                     quizData.sugarFrequency.includes(freq.value)
-                      ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10"
+                      ? "border-2 border-lime-500 bg-lime-500/20"
+                      : "border border-white/10 bg-white/5"
                   }`}
                   onClick={() => {
                     const newFrequencies = quizData.sugarFrequency.includes(freq.value)
