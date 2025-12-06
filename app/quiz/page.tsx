@@ -530,28 +530,36 @@ export default function QuizPage() {
   }
 
   const updateQuizData = (key: keyof QuizData, value: any) => {
+  setQuizData((prev) => {
     const normalizedValue = key === "height" ? normalizeHeight(value) : value
-    const newData = { ...quizData, [key]: normalizedValue }
+    const updated = { ...prev, [key]: normalizedValue }
 
-    // </CHANGE> Used quizData.weight for IMC calculation
+    // Recalcular IMC se necessário
     if (key === "currentWeight" || key === "height" || key === "weight") {
       const weight = Number.parseFloat(
         key === "currentWeight"
           ? normalizedValue
-          : quizData.currentWeight || (key === "weight" ? normalizedValue : "0"),
+          : prev.currentWeight || (key === "weight" ? normalizedValue : "0"),
       )
-      const height = Number.parseFloat(key === "height" ? normalizedValue : quizData.height || "0")
+
+      const height = Number.parseFloat(
+        key === "height"
+          ? normalizedValue
+          : prev.height || "0",
+      )
 
       if (weight > 0 && height > 0) {
         const imcData = calculateIMC(weight, height)
-        newData.imc = imcData.imc
-        newData.imcClassification = imcData.classification
-        newData.imcStatus = imcData.status
+        updated.imc = imcData.imc
+        updated.imcClassification = imcData.classification
+        updated.imcStatus = imcData.status
       }
     }
 
-    setQuizData(newData)
-  }
+    return updated
+  })
+}
+
 
   const updateExercisePreference = (exercise: string, preference: string) => {
     setQuizData((prev) => ({
