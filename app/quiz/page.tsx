@@ -2840,7 +2840,11 @@ export default function QuizPage() {
                 value={quizData.age === 0 ? "" : quizData.age.toString()}
                 onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
                 placeholder="Sua idade"
-                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:[color:#6B7280]"
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+
+                [--muted-foreground:theme(colors.gray.500)]
+                "
               />
             </div>
             <div className="flex justify-center mt-8">
