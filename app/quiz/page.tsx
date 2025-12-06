@@ -1684,7 +1684,7 @@ export default function QuizPage() {
               setShowNutritionInfo(false)
               setCurrentStep(currentStep + 1)
             }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-white py-4 text-lg rounded-full"
+            <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
           >
             Entendi
           </Button>
@@ -2751,11 +2751,9 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               {[
-                { value: "esporadicamente", label: "Esporadicamente", icon: "🍷" },
+                { value: "esporadicamente", label: "As vezes", icon: "🍷" },
                 { value: "com-frequencia", label: "Com frequência", icon: "🍭" },
                 { value: "todos-dias", label: "Todos os dias", icon: "🍰" },
-                { value: "nao-consumo-alcool", label: "Não consumo álcool", icon: "🚫" },
-                { value: "nao-consumo-doces", label: "Não consumo doces", icon: "❌" },
               ].map((freq) => (
                 <div key={freq.value} className="flex items-center space-x-3">
                   <Checkbox
@@ -3400,7 +3398,7 @@ export default function QuizPage() {
               <div>
                 <h3 className="text-white font-bold mb-3">Vegetais</h3>
                 <div className="flex flex-wrap gap-2">
-                  {["Brócolis", "Couve-flor", "Cebola", "Pimentão", "Beringela", "Repolho", "Pepino", "Tomate"].map(
+                  {["Brócolis", "Alface", "Cebola", "Pimentão", "Repolho", "Cenoura", "Tomate"].map(
                     (item) => (
                       <button
                         key={item}
@@ -3428,7 +3426,7 @@ export default function QuizPage() {
               <div>
                 <h3 className="text-white font-bold mb-3">Grão</h3>
                 <div className="flex flex-wrap gap-2">
-                  {["Arroz", "Quinoa", "Cuscuz", "Grãos de painço", "Fubá", "Farinha"].map((item) => (
+                  {["Arroz", "Quinoa", "Cuscuz", "Fubá", "Farinha"].map((item) => (
                     <button
                       key={item}
                       onClick={() => {
@@ -3452,7 +3450,7 @@ export default function QuizPage() {
               <div>
                 <h3 className="text-white font-bold mb-3">Ingredientes</h3>
                 <div className="flex flex-wrap gap-2">
-                  {["Abacate", "Feijões", "Ovos", "Cogumelos", "Queijo tipo cottage", "Leite", "Leite vegetal"].map(
+                  {["Abacate", "Feijões", "Ovos", "Aveia". "Granola", "Queijo", "Leite", "Leite vegetal"].map(
                     (item) => (
                       <button
                         key={item}
@@ -3483,7 +3481,7 @@ export default function QuizPage() {
                   <span className="text-gray-400 text-sm">Opcional</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {["Peru", "Carne bovina", "Frango", "Frutos do mar", "Carne de porco", "Peixe"].map((item) => (
+                  {["Carne moida", "Carne bovina", "Frango", "Carne de porco", "Peixe"].map((item) => (
                     <button
                       key={item}
                       onClick={() => {
@@ -3566,7 +3564,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Possui alergias ou restrições alimentares?</h2>
+              <h2 className="text-2xl font-bold text-white">Você possui alergias ou restrições alimentares?</h2>
             </div>
             <div className="space-y-4">
               <div
