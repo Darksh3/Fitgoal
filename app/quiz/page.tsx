@@ -5,11 +5,7 @@ import { useState, useEffect } from "react"
 
 import { Button } from "@/components/ui/button"
 
-import { Label } from "@/components/ui/label"
-
 import { Input } from "@/components/ui/input"
-
-import { Checkbox } from "@/components/ui/checkbox"
 
 import { Slider } from "@/components/ui/slider"
 
@@ -829,7 +825,7 @@ export default function QuizPage() {
     if (currentStep === 22 && quizData.allergies === "nao") {
       // This condition is now handled within the step 22 rendering logic by directly setting the next step.
       // If this block is reached, it means the user selected "nao" for allergies.
-      // The logic to skip to case 24 is already implemented in the button's onClick handler.
+      // The logic to skip to 24 is already implemented in the button's onClick handler.
       // So, no action needed here, just advance normally if this block is not removed.
       // However, the `nextStep` should be called from the UI handler.
       // If this block remains, it implies that `nextStep` is called regardless of the UI interaction, which is not ideal.
@@ -2747,6 +2743,7 @@ export default function QuizPage() {
         )
 
       case 7:
+        // </CHANGE> Changed from checkbox layout to translucent container style like other questions
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2761,16 +2758,24 @@ export default function QuizPage() {
                 { value: "com-frequencia", label: "Com frequência", icon: "🍭" },
                 { value: "todos-dias", label: "Todos os dias", icon: "🍰" },
               ].map((freq) => (
-                <div key={freq.value} className="flex items-center space-x-3">
-                  <Checkbox
-                    id={freq.value}
-                    checked={quizData.sugarFrequency.includes(freq.value)}
-                    onCheckedChange={(checked) => handleArrayUpdate("sugarFrequency", freq.value, checked as boolean)}
-                  />
-                  <Label htmlFor={freq.value} className="text-white text-lg flex items-center space-x-2">
-                    <span className="text-xl">{freq.icon}</span>
-                    <span>{freq.label}</span>
-                  </Label>
+                <div
+                  key={freq.value}
+                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
+                    quizData.sugarFrequency.includes(freq.value)
+                      ? "border-2 border-lime-500 bg-lime-500/10"
+                      : "border border-white/10"
+                  }`}
+                  onClick={() => {
+                    const newFrequencies = quizData.sugarFrequency.includes(freq.value)
+                      ? quizData.sugarFrequency.filter((f) => f !== freq.value)
+                      : [...quizData.sugarFrequency, freq.value]
+                    updateQuizData("sugarFrequency", newFrequencies)
+                  }}
+                >
+                  <div className="flex items-center space-x-4">
+                    <span className="text-3xl">{freq.icon}</span>
+                    <h3 className="text-lg font-bold text-white">{freq.label}</h3>
+                  </div>
                 </div>
               ))}
             </div>
