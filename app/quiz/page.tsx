@@ -2059,10 +2059,10 @@ export default function QuizPage() {
               ].map((goal) => (
                 <div
                   key={goal.value}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center gap-4 ${
+                  className={`backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center gap-4 ${
                     quizData.goal.includes(goal.value)
-                      ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10"
+                      ? "border-2 border-lime-500 bg-lime-500/20"
+                      : "border border-white/10 bg-white/5"
                   }`}
                   onClick={() => handleArrayUpdate("goal", goal.value, !quizData.goal.includes(goal.value))}
                 >
@@ -2713,8 +2713,10 @@ export default function QuizPage() {
               ].map((diet) => (
                 <div
                   key={diet.value}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                    quizData.diet === diet.value ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
+                  className={`backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
+                    quizData.diet === diet.value
+                      ? "border-2 border-lime-500 bg-lime-500/20"
+                      : "border border-white/10 bg-white/5"
                   }`}
                   onClick={() => {
                     updateQuizData("diet", diet.value)
@@ -2731,8 +2733,10 @@ export default function QuizPage() {
             </div>
             <div className="border-t border-gray-700 pt-3 sm:pt-4">
               <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                  quizData.diet === "nao-sigo" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
+                className={`backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
+                  quizData.diet === "nao-sigo"
+                    ? "border-2 border-lime-500 bg-lime-500/20"
+                    : "border border-white/10 bg-white/5"
                 }`}
                 onClick={() => {
                   updateQuizData("diet", "nao-sigo")
