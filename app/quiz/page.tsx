@@ -2061,7 +2061,7 @@ export default function QuizPage() {
                   key={goal.value}
                   className={`backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center gap-4 ${
                     quizData.goal.includes(goal.value)
-                      ? "border-2 border-lime-500 bg-lime-500/20"
+                      ? "border-2 border-lime-500 bg-lime-500/10"
                       : "border border-white/10 bg-white/5"
                   }`}
                   onClick={() => handleArrayUpdate("goal", goal.value, !quizData.goal.includes(goal.value))}
@@ -2080,7 +2080,7 @@ export default function QuizPage() {
             </div>
             <div className="flex justify-center mt-8">
               <Button onClick={nextStep} disabled={!canProceed()} className="group relative">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/10 transform hover:scale-105 transition-all duration-300">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
                 </div>
