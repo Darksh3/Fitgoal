@@ -1998,7 +1998,7 @@ export default function QuizPage() {
                   className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between gap-3 sm:gap-4
                     ${quizData.bodyType === type.value
                       ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10"
+                      : "border border-white/10 bg-white/5"
                   }`}
                   onClick={() => {
                     updateQuizData("bodyType", type.value)
