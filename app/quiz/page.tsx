@@ -791,13 +791,28 @@ export default function QuizPage() {
   }
 
   const nextStep = () => {
-    console.log("[v0] nextStep called, currentStep:", currentStep)
-    console.log("[v0] quizData.targetWeight:", quizData.targetWeight)
-    console.log("[v0] quizData.timeToGoal:", quizData.timeToGoal)
+    console.log("[v0] nextStep called, currentStep:", currentStep, "quizData:", quizData)
 
     if (currentStep === 21) {
-      // This case handles food preferences. After this, we go to allergies.
-      setCurrentStep(22)
+      setShowCortisolMessage(true)
+      setCurrentStep(22) // Move to step 22, but cortisol message will show first
+      return
+    }
+    // </CHANGE>
+
+    if (currentStep === 22) {
+      // This is related to the cortisol message, but it's already handled within the render logic for step 22.
+      // We will show the cortisol message directly when rendering step 22.
+      // This 'if' block should be removed or adjusted if it's not directly controlling flow.
+      // Based on current structure, this might be a remnant.
+      // If it's meant to show the message *after* step 22, then the logic is wrong.
+      // Assuming it's not crucial for flow for now.
+      // setShowCortisolMessage(true) // This would show the message and block further progression.
+      // The actual display logic is handled in the return statement.
+      // If the user clicks "Entendi" on the cortisol message, it sets showCortisolMessage to false,
+      // and the component re-renders, showing the actual step 22 content.
+      // So, here we just need to advance the step normally.
+      setCurrentStep(currentStep + 1)
       return
     }
     // </CHANGE>
@@ -818,7 +833,7 @@ export default function QuizPage() {
     }
     // </CHANGE>
 
-    if (currentStep === 22) {
+    if (currentStep === 22 && quizData.allergies === "nao") {
       // This is related to the cortisol message, but it's already handled within the render logic for step 22.
       // We will show the cortisol message directly when rendering step 22.
       // This 'if' block should be removed or adjusted if it's not directly controlling flow.
@@ -831,6 +846,12 @@ export default function QuizPage() {
       // and the component re-renders, showing the actual step 22 content.
       // So, here we just need to advance the step normally.
       setCurrentStep(currentStep + 1)
+      return
+    }
+    // </CHANGE>
+
+    if (currentStep === 23) {
+      setCurrentStep(24)
       return
     }
     // </CHANGE>
