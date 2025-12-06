@@ -2001,6 +2001,7 @@ export default function QuizPage() {
                       : "border border-white/10 bg-white/5"
                   }`}
                   onClick={() => {
+                    console.log("CLICADO:", type.value)
                     updateQuizData("bodyType", type.value)
                     setTimeout(() => nextStep(), 300)
                   }}
