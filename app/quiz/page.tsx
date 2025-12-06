@@ -2813,10 +2813,10 @@ export default function QuizPage() {
               ].map((water) => (
                 <div
                   key={water.value}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
+                  className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
                     quizData.waterIntake === water.value
-                      ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10"
+                      ? "border-2 border-lime-500 bg-lime-500/20"
+                      : "border border-white/10 bg-white/5"
                   }`}
                   onClick={() => {
                     updateQuizData("waterIntake", water.value)
@@ -2856,7 +2856,6 @@ export default function QuizPage() {
                 max="80"
                 value={quizData.age === 0 ? "" : quizData.age.toString()}
                 onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
-                placeholder="Sua idade"
                 className="
                 w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
 
@@ -3065,7 +3064,7 @@ export default function QuizPage() {
                   }}
                   className={`p-4 rounded-lg border-2 transition-all text-left ${
                     quizData.cardioFeeling === option.value
-                      ? "border-lime-500 bg-lime-500/10"
+                      ? "border-lime-500 bg-lime-500/20"
                       : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
                   }`}
                 >
@@ -3099,7 +3098,7 @@ export default function QuizPage() {
                   }}
                   className={`p-4 rounded-lg border-2 transition-all text-left ${
                     quizData.strengthFeeling === option.value
-                      ? "border-lime-500 bg-lime-500/10"
+                      ? "border-lime-500 bg-lime-500/20"
                       : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
                   }`}
                 >
@@ -3133,7 +3132,7 @@ export default function QuizPage() {
                   }}
                   className={`p-4 rounded-lg border-2 transition-all text-left ${
                     quizData.stretchingFeeling === option.value
-                      ? "border-lime-500 bg-lime-500/10"
+                      ? "border-lime-500 bg-lime-500/20"
                       : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
                   }`}
                 >
@@ -3170,14 +3169,26 @@ export default function QuizPage() {
                         : [...quizData.previousProblems, option.value],
                     )
                   }
-                  className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
+                  className={`w-full p-4 rounded-lg border-2 transition-all ${
                     quizData.previousProblems.includes(option.value)
                       ? "border-lime-500 bg-lime-500/10"
                       : "border-white/10 bg-white/5 hover:border-lime-500/50"
                   }`}
                 >
-                  <span className="text-2xl">{option.icon}</span>
-                  <span className="text-white text-left">{option.label}</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white text-left">{option.label}</span>
+                    <div
+                      className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                        quizData.previousProblems.includes(option.value)
+                          ? "bg-lime-500 border-lime-500"
+                          : "border-white/30"
+                      }`}
+                    >
+                      {quizData.previousProblems.includes(option.value) && (
+                        <CheckCircle className="h-4 w-4 text-white" />
+                      )}
+                    </div>
+                  </div>
                 </button>
               ))}
               <button
@@ -3186,14 +3197,24 @@ export default function QuizPage() {
                   console.log("[v0] 'Não tenho' clicked, advancing to motivation page")
                   nextStep()
                 }}
-                className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
+                className={`w-full p-4 rounded-lg border-2 transition-all ${
                   quizData.previousProblems.includes("no-problems") // Changed from "no-plan" to "no-problems"
                     ? "border-red-500 bg-red-500/10"
                     : "border-white/10 bg-white/5 hover:border-red-500/50"
                 }`}
               >
-                <span className="text-2xl">❌</span>
-                <span className="text-white text-left">Não, eu não tenho</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-white text-left">Não, eu não tenho</span>
+                  <div
+                    className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                      quizData.previousProblems.includes("no-problems")
+                        ? "bg-red-500 border-red-500"
+                        : "border-white/30"
+                    }`}
+                  >
+                    {quizData.previousProblems.includes("no-problems") && <X className="h-4 w-4 text-white" />}
+                  </div>
+                </div>
               </button>
             </div>
             <div className="flex justify-center mt-8">
@@ -3584,8 +3605,8 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 ${
-                  quizData.allergies === "sim" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
+                className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 ${
+                  quizData.allergies === "sim" ? "border-lime-500 bg-lime-500/20" : "border-white/10 bg-white/5"
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "sim")
@@ -3598,8 +3619,8 @@ export default function QuizPage() {
                 <h3 className="text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
               </div>
               <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-red-400 ${
-                  quizData.allergies === "nao" ? "border-red-500 bg-red-500/10" : "border-white/10"
+                className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-red-400 ${
+                  quizData.allergies === "nao" ? "border-red-500 bg-red-500/20" : "border-white/10 bg-white/5"
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
