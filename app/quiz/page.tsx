@@ -264,7 +264,6 @@ export default function QuizPage() {
     trainingDays: "",
     previousProblems: [],
     additionalGoals: [],
-    letMadMusclesChoose: false,
     foodPreferences: {
       vegetables: [],
       grains: [],
@@ -3199,7 +3198,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold text-white">Marque abaixo os seus objetivos adicionais:</h2>
+              <h2 className="text-2xl font-bold text-white">Marque abaixo os seus objetivos adicionais:</h2>
               <p className="text-gray-400 text-sm">
                 Temos certeza de que você deseja não apenas um corpo melhor, mas também melhorar seu estilo de vida.
               </p>
@@ -3398,27 +3397,23 @@ export default function QuizPage() {
               <div>
                 <h3 className="text-white font-bold mb-3">Vegetais</h3>
                 <div className="flex flex-wrap gap-2">
-                  {["Brócolis", "Alface", "Cebola", "Pimentão", "Repolho", "Cenoura", "Tomate"].map(
-                    (item) => (
-                      <button
-                        key={item}
-                        onClick={() => {
-                          const current = quizData.foodPreferences.vegetables
-                          const updated = current.includes(item)
-                            ? current.filter((i) => i !== item)
-                            : [...current, item]
-                          updateQuizData("foodPreferences", { ...quizData.foodPreferences, vegetables: updated })
-                        }}
-                        className={`px-4 py-2 rounded-full border-2 transition-all ${
-                          quizData.foodPreferences.vegetables.includes(item)
-                            ? "border-lime-500 bg-lime-500/20 text-white"
-                            : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
-                        }`}
-                      >
-                        {item}
-                      </button>
-                    ),
-                  )}
+                  {["Brócolis", "Alface", "Cebola", "Pimentão", "Repolho", "Cenoura", "Tomate"].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        const current = quizData.foodPreferences.vegetables
+                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
+                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, vegetables: updated })
+                      }}
+                      className={`px-4 py-2 rounded-full border-2 transition-all ${
+                        quizData.foodPreferences.vegetables.includes(item)
+                          ? "border-lime-500 bg-lime-500/20 text-white"
+                          : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -3450,7 +3445,7 @@ export default function QuizPage() {
               <div>
                 <h3 className="text-white font-bold mb-3">Ingredientes</h3>
                 <div className="flex flex-wrap gap-2">
-                  {["Abacate", "Feijões", "Ovos", "Aveia". "Granola", "Queijo", "Leite", "Leite vegetal"].map(
+                  {["Abacate", "Feijões", "Ovos", "Aveia", "Granola", "Queijo", "Leite", "Leite vegetal"].map(
                     (item) => (
                       <button
                         key={item}
@@ -3471,6 +3466,7 @@ export default function QuizPage() {
                       </button>
                     ),
                   )}
+                  {/* </CHANGE> */}
                 </div>
               </div>
 
@@ -3669,7 +3665,6 @@ export default function QuizPage() {
                   </div>
                 </div>
               </div>
-
               <div className="flex justify-center mt-8">
                 <Button onClick={nextStep} className="group relative overflow-hidden">
                   <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
