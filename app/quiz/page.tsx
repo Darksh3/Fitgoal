@@ -2762,7 +2762,7 @@ export default function QuizPage() {
                   key={freq.value}
                   className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
                     quizData.sugarFrequency.includes(freq.value)
-                      ? "border-2 border-lime-500 bg-lime-500/20"
+                      ? "border-2 border-lime-500 bg-lime-500/50"
                       : "border border-white/10 bg-white/5"
                   }`}
                   onClick={() => {
