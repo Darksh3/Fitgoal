@@ -530,36 +530,29 @@ export default function QuizPage() {
   }
 
   const updateQuizData = (key: keyof QuizData, value: any) => {
-  setQuizData((prev) => {
-    const normalizedValue = key === "height" ? normalizeHeight(value) : value
-    const updated = { ...prev, [key]: normalizedValue }
+    setQuizData((prev) => {
+      const normalizedValue = key === "height" ? normalizeHeight(value) : value
+      const updated = { ...prev, [key]: normalizedValue }
 
-    // Recalcular IMC se necessário
-    if (key === "currentWeight" || key === "height" || key === "weight") {
-      const weight = Number.parseFloat(
-        key === "currentWeight"
-          ? normalizedValue
-          : prev.currentWeight || (key === "weight" ? normalizedValue : "0"),
-      )
+      // Recalcular IMC se necessário
+      if (key === "currentWeight" || key === "height" || key === "weight") {
+        const weight = Number.parseFloat(
+          key === "currentWeight" ? normalizedValue : prev.currentWeight || (key === "weight" ? normalizedValue : "0"),
+        )
 
-      const height = Number.parseFloat(
-        key === "height"
-          ? normalizedValue
-          : prev.height || "0",
-      )
+        const height = Number.parseFloat(key === "height" ? normalizedValue : prev.height || "0")
 
-      if (weight > 0 && height > 0) {
-        const imcData = calculateIMC(weight, height)
-        updated.imc = imcData.imc
-        updated.imcClassification = imcData.classification
-        updated.imcStatus = imcData.status
+        if (weight > 0 && height > 0) {
+          const imcData = calculateIMC(weight, height)
+          updated.imc = imcData.imc
+          updated.imcClassification = imcData.classification
+          updated.imcStatus = imcData.status
+        }
       }
-    }
 
-    return updated
-  })
-}
-
+      return updated
+    })
+  }
 
   const updateExercisePreference = (exercise: string, preference: string) => {
     setQuizData((prev) => ({
@@ -1959,10 +1952,11 @@ export default function QuizPage() {
                     setTimeout(() => nextStep(), 300)
                   }}
                   className={`backdrop-blur-sm rounded-lg p-4 sm:p-6 transition-all cursor-pointer flex flex-col items-center justify-center gap-3 sm:gap-4
-                    ${quizData.gender === gender.value
-                      ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10 bg-white/5"
-                  }`}
+                    ${
+                      quizData.gender === gender.value
+                        ? "border-2 border-lime-500 bg-lime-500/10"
+                        : "border border-white/10 bg-white/5"
+                    }`}
                 >
                   <img
                     src={gender.icon || "/placeholder.svg"}
@@ -2003,11 +1997,12 @@ export default function QuizPage() {
               ].map((type) => (
                 <div
                   key={type.value}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between gap-3 sm:gap-4
-                    ${quizData.bodyType === type.value
-                      ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10 bg-white/5"
-                  }`}
+                  className={`backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between gap-3 sm:gap-4
+                    ${
+                      quizData.bodyType === type.value
+                        ? "border-2 border-lime-500 bg-lime-500/20"
+                        : "border border-white/10 bg-white/5"
+                    }`}
                   onClick={() => {
                     console.log("CLICADO:", type.value)
                     updateQuizData("bodyType", type.value)
