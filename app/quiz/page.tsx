@@ -2011,7 +2011,7 @@ export default function QuizPage() {
                   onClick={() => {
                     console.log("CLICADO:", type.value)
                     updateQuizData("bodyType", type.value)
-                    setTimeout(() => nextStep(), 2000)
+                    setTimeout(() => nextStep(), 300)
                   }}
                 >
                   <div className="flex-1">
