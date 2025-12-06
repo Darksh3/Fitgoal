@@ -1950,10 +1950,10 @@ export default function QuizPage() {
                     updateQuizData("gender", gender.value)
                     setTimeout(() => nextStep(), 300)
                   }}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-6 transition-all cursor-pointer flex flex-col items-center justify-center gap-3 sm:gap-4 ${
-                    quizData.gender === gender.value
+                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-6 transition-all cursor-pointer flex flex-col items-center justify-center gap-3 sm:gap-4
+                    ${quizData.gender === gender.value
                       ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10"
+                      : "border border-white/5"
                   }`}
                 >
                   <img
@@ -2762,7 +2762,7 @@ export default function QuizPage() {
                   key={freq.value}
                   className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
                     quizData.sugarFrequency.includes(freq.value)
-                      ? "border-2 border-lime-500 bg-lime-500/50"
+                      ? "border-2 border-lime-500 bg-lime-500/10"
                       : "border border-white/10 bg-white/5"
                   }`}
                   onClick={() => {
