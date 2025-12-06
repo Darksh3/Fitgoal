@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button"
 
 import { Input } from "@/components/ui/input"
 
+import { Slider } from "@/components/ui/slider"
+
 import { Textarea } from "@/components/ui/textarea"
 
-import { ArrowLeft, CheckCircle, X, Loader2, Dumbbell, Clock } from "lucide-react"
+import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, Clock } from "lucide-react"
 
 import { useRouter } from "next/navigation"
 
@@ -81,13 +83,6 @@ interface QuizData {
     fruits: string[]
   }
   // </CHANGE>
-  // Added new fields from updates
-  experienceLevel?: string
-  timeCommitment?: string
-  goal?: string
-  limitations?: string
-  squatFeeling?: string
-  burpeeFeeling?: string
 }
 
 const initialQuizData: QuizData = {
@@ -151,13 +146,6 @@ const initialQuizData: QuizData = {
     fruits: [],
   },
   // </CHANGE>
-  // Initialize new fields from updates
-  experienceLevel: "",
-  timeCommitment: "",
-  goal: "",
-  limitations: "",
-  squatFeeling: "",
-  burpeeFeeling: "",
 }
 
 const debugDataFlow = (stage: string, data: any) => {
@@ -280,13 +268,6 @@ export default function QuizPage() {
       fruits: [],
     },
     // </CHANGE>
-    // Initialize with new fields from updates
-    experienceLevel: "",
-    timeCommitment: "",
-    goal: "",
-    limitations: "",
-    squatFeeling: "",
-    burpeeFeeling: "",
   })
   const [showSuccess, setShowSuccess] = useState(false)
   const [showNutritionInfo, setShowNutritionInfo] = useState(false)
@@ -1129,10 +1110,6 @@ export default function QuizPage() {
           return isWoman ? "/images/female-pullup-real.webp" : "/images/male-pullup-real.webp"
         case "yoga":
           return isWoman ? "/images/female-stretching-real.webp" : "/images/male-stretching-real.webp"
-        case "squats":
-          return isWoman ? "/images/female-squat-real.webp" : "/images/male-squat-real.webp" // Added for squats
-        case "burpees":
-          return isWoman ? "/images/female-burpee-real.webp" : "/images/male-burpee-real.webp" // Added for burpees
         default:
           return isWoman ? "/images/female-cardio-real.webp" : "/images/male-cardio-real.webp"
       }
@@ -1201,46 +1178,6 @@ export default function QuizPage() {
             <circle cx="60" cy="50" r="2" fill="#84CC16" opacity="0.7" />
             <circle cx="140" cy="45" r="2" fill="#84CC16" opacity="0.7" />
             <circle cx="70" cy="40" r="1.5" fill="#84CC16" opacity="0.5" />
-          </svg>
-        ),
-        squats: (
-          <svg viewBox="0 0 200 200" className={className}>
-            <defs>
-              <linearGradient id="bodyGradientSquat" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#D4A574" />
-                <stop offset="100%" stopColor="#B8956A" />
-              </linearGradient>
-            </defs>
-            <circle cx="100" cy="35" r="12" fill="url(#bodyGradientSquat)" /> {/* Head */}
-            <rect x="85" y="45" width="30" height={45} rx="15" fill="url(#bodyGradientSquat)" /> {/* Torso */}
-            <ellipse cx="85" cy="70" rx="6" ry="15" fill="url(#bodyGradientSquat)" transform="rotate(-20 85 70)" />{" "}
-            {/* Left Arm */}
-            <ellipse cx="115" cy="70" rx="6" ry="15" fill="url(#bodyGradientSquat)" transform="rotate(20 115 70)" />{" "}
-            {/* Right Arm */}
-            <rect x="85" y="90" width="30" height={40} rx="15" fill="url(#bodyGradientSquat)" /> {/* Upper Legs */}
-            <rect x="85" y="130" width="30" height={40} rx="15" fill="url(#bodyGradientSquat)" /> {/* Lower Legs */}
-            <ellipse cx="90" cy="170" rx="12" ry="6" fill="#84CC16" /> {/* Left Foot */}
-            <ellipse cx="110" cy="170" rx="12" ry="6" fill="#84CC16" /> {/* Right Foot */}
-          </svg>
-        ),
-        burpees: (
-          <svg viewBox="0 0 200 200" className={className}>
-            <defs>
-              <linearGradient id="bodyGradientBurpee" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#D4A574" />
-                <stop offset="100%" stopColor="#B8956A" />
-              </linearGradient>
-            </defs>
-            <circle cx="100" cy="30" r="12" fill="url(#bodyGradientBurpee)" /> {/* Head */}
-            <rect x="85" y="40" width="30" height={30} rx="15" fill="url(#bodyGradientBurpee)" /> {/* Torso */}
-            <ellipse cx="70" cy="55" rx="6" ry="15" fill="url(#bodyGradientBurpee)" transform="rotate(-45 70 55)" />{" "}
-            {/* Left Arm */}
-            <ellipse cx="130" cy="55" rx="6" ry="15" fill="url(#bodyGradientBurpee)" transform="rotate(45 130 55)" />{" "}
-            {/* Right Arm */}
-            <rect x="75" y={75} width="50" height={30} rx="5" fill="#4A90A4" /> {/* Plank Position */}
-            <rect x="85" y={105} width={30} height={40} rx="15" fill="url(#bodyGradientBurpee)" /> {/* Legs */}
-            <ellipse cx="90" cy={145} rx="12" ry="6" fill="#84CC16" /> {/* Left Foot */}
-            <ellipse cx="110" cy={145} rx="12" ry="6" fill="#84CC16" /> {/* Right Foot */}
           </svg>
         ),
       }
@@ -1916,19 +1853,19 @@ export default function QuizPage() {
       case 1:
         return quizData.gender !== ""
       case 2:
-        return quizData.experienceLevel !== "" // Changed from quizData.bodyType
+        return quizData.bodyType !== ""
       case 3:
-        return quizData.timeCommitment !== "" // Changed from quizData.goal.length > 0
+        return quizData.goal.length > 0
       case 4:
         return quizData.bodyFat !== 0
       case 5:
         return quizData.problemAreas.length > 0
       case 6:
-        return quizData.goal !== "" // Changed from quizData.diet !== ""
+        return quizData.diet !== ""
       case 7:
-        return quizData.exercisePreferences.cardio !== "" // Changed from quizData.sugarFrequency.length > 0
+        return quizData.sugarFrequency.length > 0
       case 8:
-        return quizData.limitations !== "" // Changed from quizData.waterIntake !== ""
+        return quizData.waterIntake !== ""
       case 9:
         return quizData.age > 0
       case 10:
@@ -1940,11 +1877,11 @@ export default function QuizPage() {
       case 13:
         return quizData.strengthTraining !== ""
       case 14:
-        return quizData.squatFeeling !== "" // Changed from quizData.cardioFeeling
+        return quizData.cardioFeeling !== ""
       case 15:
         return quizData.strengthFeeling !== ""
       case 16:
-        return quizData.burpeeFeeling !== "" // Changed from quizData.stretchingFeeling
+        return quizData.stretchingFeeling !== ""
       case 17:
         // Allowing to proceed even if no previous problems are selected, as user can select "Não tenho"
         return true
@@ -2047,91 +1984,6 @@ export default function QuizPage() {
               return "/placeholder.svg"
           }
         }
-        // Updated case 2 to reflect new content
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">
-                Qual é o seu nível de experiência em exercícios físicos?
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                { value: "beginner", label: "Iniciante", description: "Pouca ou nenhuma experiência com exercícios" },
-                {
-                  value: "intermediate",
-                  label: "Intermediário",
-                  description: "Exercito-me regularmente há alguns meses",
-                },
-                { value: "advanced", label: "Avançado", description: "Tenho uma rotina consistente há mais de um ano" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("experienceLevel", option.value)
-                    nextStep()
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
-                    quizData.experienceLevel === option.value
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
-                  }`}
-                >
-                  <div className="font-semibold text-white">{option.label}</div>
-                  <div className="text-sm text-gray-400 mt-1">{option.description}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )
-
-      case 3:
-        // Updated case 3 to reflect new content
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Quanto tempo você pode dedicar aos exercícios por dia?</h2>
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                { value: "15-20", label: "15-20 minutos" },
-                { value: "20-30", label: "20-30 minutos" },
-                { value: "30-45", label: "30-45 minutos" },
-                { value: "45+", label: "45+ minutos" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("timeCommitment", option.value)
-                    nextStep()
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    quizData.timeCommitment === option.value
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
-                  }`}
-                >
-                  <span className="text-white">{option.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )
-
-      case 4:
-        const getBodyTypeImageForCase4 = (type: string) => {
-          const isWoman = quizData.gender === "mulher"
-          switch (type) {
-            case "ectomorfo":
-              return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
-            case "mesomorfo":
-              return isWoman ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorph-real-new.webp"
-            case "endomorfo":
-              return isWoman ? "/images/female-endomorph-real-new.webp" : "/images/male-endomorph-real-new.webp"
-            default:
-              return "/placeholder.svg"
-          }
-        }
         return (
           <div className="space-y-5 sm:space-y-8">
             <div className="text-center space-y-2 sm:space-y-4">
@@ -2163,7 +2015,7 @@ export default function QuizPage() {
                   </div>
                   <div className="flex-shrink-0 ml-3 sm:ml-4 md:ml-6">
                     <img
-                      src={getBodyTypeImageForCase4(type.value) || "/placeholder.svg"}
+                      src={getBodyTypeImage(type.value) || "/placeholder.svg"}
                       alt={`${type.label} body type`}
                       className="w-auto h-24 sm:h-32 md:h-48 object-contain"
                       onError={(e) => {
@@ -2177,7 +2029,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 5:
+      case 3:
         const getGoalIcon = (goalValue: string) => {
           switch (goalValue) {
             case "perder-peso":
@@ -2237,112 +2089,754 @@ export default function QuizPage() {
           </div>
         )
 
-      case 6:
-        // Updated case 6 to reflect new content
+      case 4:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu objetivo principal?</h2>
+              <h2 className="text-2xl font-bold text-white">Qual é o seu nível de gordura corporal?</h2>
             </div>
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                { value: "lose_weight", label: "Perder Peso", emoji: "🎯" },
-                { value: "gain_muscle", label: "Ganhar Músculo", emoji: "💪" },
-                { value: "tone", label: "Tonificar", emoji: "✨" },
-                { value: "improve_health", label: "Melhorar Saúde", emoji: "❤️" },
-                { value: "increase_flexibility", label: "Aumentar Flexibilidade", emoji: "🧘" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("goal", option.value) // Assuming 'goal' is the correct field
-                    nextStep()
+            <div className="relative flex flex-col items-center">
+              {/* Body fat image */}
+              <div className="relative w-64 h-80 mb-[-80px] z-10">
+                {/* Background glow effect */}
+                <div className="absolute inset-0 bg-gradient-radial from-white/20 via-white/5 to-transparent blur-3xl" />
+
+                <img
+                  src={getBodyFatImage() || "/placeholder.svg"}
+                  alt="Body fat representation"
+                  className="relative w-full h-full object-contain transition-opacity duration-500"
+                  onError={(e) => {
+                    console.error("[v0] Image failed to load:", e.currentTarget.src)
+                    e.currentTarget.src = "/placeholder.svg"
                   }}
-                  className={`p-4 rounded-lg border-2 transition-all flex items-center gap-3 ${
-                    quizData.goal === option.value
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
+                />
+              </div>
+
+              {/* Slider container - now overlapping the image bottom */}
+              <div className="relative max-w-md w-full px-4 z-20">
+                <div className="bg-zinc-900/95 backdrop-blur-sm rounded-2xl px-6 py-6 space-y-4 border border-zinc-800/50">
+                  {/* Tooltip above slider thumb showing current percentage */}
+                  <div className="relative h-8">
+                    <div
+                      className="absolute bg-zinc-800 text-white text-sm font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 -translate-x-1/2 min-w-[80px] text-center whitespace-nowrap"
+                      style={{
+                        left: `${((quizData.bodyFat - 5) / 40) * 100}%`,
+                        top: "-8px",
+                      }}
+                    >
+                      {getBodyFatRange()}
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-zinc-800" />
+                    </div>
+                  </div>
+
+                  {/* Custom styled slider */}
+                  <div className="relative">
+                    <Slider
+                      value={[quizData.bodyFat]}
+                      onValueChange={(value) => updateQuizData("bodyFat", value[0])}
+                      max={45}
+                      min={5}
+                      step={1}
+                      className="w-full body-fat-slider"
+                    />
+                  </div>
+
+                  {/* Min and max labels below slider */}
+                  <div className="flex justify-between text-gray-400 text-sm">
+                    <span>5-9%</span>
+                    <span>{">40%"}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
+
+      case 5:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual área você quer focar mais?</h2>
+              <p className="text-gray-300">Selecione todos que se aplicam</p>
+            </div>
+            <div className="flex items-start justify-center space-x-8">
+              <div
+                className={`relative bg-transparent ${quizData.gender === "mulher" ? "w-40 h-[320px]" : "w-52 h-auto"}`}
+              >
+                <img
+                  src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
+                  alt="Corpo base"
+                  className="w-full h-full object-contain relative z-10"
+                  style={quizData.gender === "mulher" ? { mixBlendMode: "lighten" } : {}}
+                />
+
+                {/* MASCULINE PROBLEM AREAS */}
+                {quizData.gender !== "mulher" &&
+                  (quizData.problemAreas.includes("Peito") || quizData.problemAreas.includes("Tudo")) && (
+                    <>
+                      {/* Peitoral esquerdo */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_chest_left.top}%`,
+                          left: `${debugValues.m_chest_left.left}%`,
+                          width: `${debugValues.m_chest_left.width}%`,
+                          height: `${debugValues.m_chest_left.height}%`,
+                          borderRadius: "50% 50% 45% 55% / 55% 45% 60% 40%",
+                          transform: `rotate(${debugValues.m_chest_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      {/* Peitoral direito */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_chest_right.top}%`,
+                          right: `${debugValues.m_chest_right.right}%`,
+                          width: `${debugValues.m_chest_right.width}%`,
+                          height: `${debugValues.m_chest_right.height}%`,
+                          borderRadius: "50% 50% 55% 45% / 45% 55% 40% 60%",
+                          transform: `rotate(${debugValues.m_chest_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                    </>
+                  )}
+
+                {quizData.gender !== "mulher" &&
+                  (quizData.problemAreas.includes("Braços") || quizData.problemAreas.includes("Tudo")) && (
+                    <>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_arm_upper_left.top}%`,
+                          left: `${debugValues.m_arm_upper_left.left}%`,
+                          width: `${debugValues.m_arm_upper_left.width}%`,
+                          height: `${debugValues.m_arm_upper_left.height}%`,
+                          borderRadius: "45% 55% 50% 50% / 50% 50% 45% 55%",
+                          transform: `rotate(${debugValues.m_arm_upper_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.m_arm_lower_left.top}%`,
+                          left: `${debugValues.m_arm_lower_left.left}%`,
+                          width: `${debugValues.m_arm_lower_left.width}%`,
+                          height: `${debugValues.m_arm_lower_left.height}%`,
+                          borderRadius: "40% 60% 50% 50% / 60% 40% 50% 50%",
+                          transform: `rotate(${debugValues.m_arm_lower_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_arm_upper_right.top}%`,
+                          right: `${debugValues.m_arm_upper_right.right}%`,
+                          width: `${debugValues.m_arm_upper_right.width}%`,
+                          height: `${debugValues.m_arm_upper_right.height}%`,
+                          borderRadius: "55% 45% 50% 50% / 50% 50% 55% 45%",
+                          transform: `rotate(${debugValues.m_arm_upper_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.m_arm_lower_right.top}%`,
+                          right: `${debugValues.m_arm_lower_right.right}%`,
+                          width: `${debugValues.m_arm_lower_right.width}%`,
+                          height: `${debugValues.m_arm_lower_right.height}%`,
+                          borderRadius: "60% 40% 50% 50% / 40% 60% 50% 50%",
+                          transform: `rotate(${debugValues.m_arm_lower_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                    </>
+                  )}
+
+                {quizData.gender !== "mulher" &&
+                  (quizData.problemAreas.includes("Barriga") || quizData.problemAreas.includes("Tudo")) && (
+                    <>
+                      {/* Abdômen superior esquerdo */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_abs_1_left.top}%`,
+                          left: `${debugValues.m_abs_1_left.left}%`,
+                          width: `${debugValues.m_abs_1_left.width}%`,
+                          height: `${debugValues.m_abs_1_left.height}%`,
+                          borderRadius: "45% 55% 40% 60%",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      {/* Abdômen superior direito */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_abs_1_right.top}%`,
+                          right: `${debugValues.m_abs_1_right.right}%`,
+                          width: `${debugValues.m_abs_1_right.width}%`,
+                          height: `${debugValues.m_abs_1_right.height}%`,
+                          borderRadius: "55% 45% 60% 40%",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      {/* Abdômen médio esquerdo */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_abs_2_left.top}%`,
+                          left: `${debugValues.m_abs_2_left.left}%`,
+                          width: `${debugValues.m_abs_2_left.width}%`,
+                          height: `${debugValues.m_abs_2_left.height}%`,
+                          borderRadius: "40% 60% 45% 55%",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      {/* Abdômen médio direito */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_abs_2_right.top}%`,
+                          right: `${debugValues.m_abs_2_right.right}%`,
+                          width: `${debugValues.m_abs_2_right.width}%`,
+                          height: `${debugValues.m_abs_2_right.height}%`,
+                          borderRadius: "60% 40% 55% 45%",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      {/* Abdômen inferior esquerdo */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_abs_3_left.top}%`,
+                          left: `${debugValues.m_abs_3_left.left}%`,
+                          width: `${debugValues.m_abs_3_left.width}%`,
+                          height: `${debugValues.m_abs_3_left.height}%`,
+                          borderRadius: "45% 55% 50% 50%",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      {/* Abdômen inferior direito */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_abs_3_right.top}%`,
+                          right: `${debugValues.m_abs_3_right.right}%`,
+                          width: `${debugValues.m_abs_3_right.width}%`,
+                          height: `${debugValues.m_abs_3_right.height}%`,
+                          borderRadius: "55% 45% 50% 50%",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                    </>
+                  )}
+
+                {quizData.gender !== "mulher" &&
+                  (quizData.problemAreas.includes("Pernas") || quizData.problemAreas.includes("Tudo")) && (
+                    <>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_leg_upper_left.top}%`,
+                          left: `${debugValues.m_leg_upper_left.left}%`,
+                          width: `${debugValues.m_leg_upper_left.width}%`,
+                          height: `${debugValues.m_leg_upper_left.height}%`,
+                          borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
+                          transform: `rotate(${debugValues.m_leg_upper_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.m_leg_lower_left.top}%`,
+                          left: `${debugValues.m_leg_lower_left.left}%`,
+                          width: `${debugValues.m_leg_lower_left.width}%`,
+                          height: `${debugValues.m_leg_lower_left.height}%`,
+                          borderRadius: "50% 50% 40% 60% / 60% 60% 50% 50%",
+                          transform: `rotate(${debugValues.m_leg_lower_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_leg_upper_right.top}%`,
+                          right: `${debugValues.m_leg_upper_right.right}%`,
+                          width: `${debugValues.m_leg_upper_right.width}%`,
+                          height: `${debugValues.m_leg_upper_right.height}%`,
+                          borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
+                          transform: `rotate(${debugValues.m_leg_upper_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.m_leg_lower_right.top}%`,
+                          right: `${debugValues.m_leg_lower_right.right}%`,
+                          width: `${debugValues.m_leg_lower_right.width}%`,
+                          height: `${debugValues.m_leg_lower_right.height}%`,
+                          borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
+                          transform: `rotate(${debugValues.m_leg_lower_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                    </>
+                  )}
+
+                {/* FEMININE PROBLEM AREAS */}
+                {quizData.gender === "mulher" &&
+                  (quizData.problemAreas.includes("Peito") || quizData.problemAreas.includes("Tudo")) && (
+                    <>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
+                        style={{
+                          top: `${debugValues.chest_left.top}%`,
+                          left: `${debugValues.chest_left.left}%`,
+                          width: `${debugValues.chest_left.width}%`,
+                          height: `${debugValues.chest_left.height}%`,
+                          borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
+                          transform: `rotate(${debugValues.chest_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
+                        style={{
+                          top: `${debugValues.chest_right.top}%`,
+                          right: `${debugValues.chest_right.right}%`,
+                          width: `${debugValues.chest_right.width}%`,
+                          height: `${debugValues.chest_right.height}%`,
+                          borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
+                          transform: `rotate(${debugValues.chest_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
+                        }}
+                      ></div>
+                    </>
+                  )}
+
+                {quizData.gender === "mulher" &&
+                  (quizData.problemAreas.includes("Braços") || quizData.problemAreas.includes("Tudo")) && (
+                    <>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.arm_upper_left.top}%`,
+                          left: `${debugValues.arm_upper_left.left}%`,
+                          width: `${debugValues.arm_upper_left.width}%`,
+                          height: `${debugValues.arm_upper_left.height}%`,
+                          borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
+                          transform: `rotate(${debugValues.arm_upper_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.arm_lower_left.top}%`,
+                          left: `${debugValues.arm_lower_left.left}%`,
+                          width: `${debugValues.arm_lower_left.width}%`,
+                          height: `${debugValues.arm_lower_left.height}%`,
+                          borderRadius: "45% 55% 50% 50% / 60% 60% 40% 40%",
+                          transform: `rotate(${debugValues.arm_lower_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.arm_upper_right.top}%`,
+                          right: `${debugValues.arm_upper_right.right}%`,
+                          width: `${debugValues.arm_upper_right.width}%`,
+                          height: `${debugValues.arm_upper_right.height}%`,
+                          borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
+                          transform: `rotate(${debugValues.arm_upper_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.arm_lower_right.top}%`,
+                          right: `${debugValues.arm_lower_right.right}%`,
+                          width: `${debugValues.arm_lower_right.width}%`,
+                          height: `${debugValues.arm_lower_right.height}%`,
+                          borderRadius: "55% 45% 50% 50% / 60% 60% 40% 40%",
+                          transform: `rotate(${debugValues.arm_lower_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                    </>
+                  )}
+
+                {quizData.gender === "mulher" &&
+                  (quizData.problemAreas.includes("Barriga") || quizData.problemAreas.includes("Tudo")) && (
+                    <div
+                      className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        top: `${debugValues.belly.top}%`,
+                        left: `${debugValues.belly.left}%`,
+                        transform: `translateX(-50%) rotate(${debugValues.belly.rotate}deg)`,
+                        width: `${debugValues.belly.width}%`,
+                        height: `${debugValues.belly.height}%`,
+                        borderRadius: "45% 55% 50% 50% / 40% 40% 60% 60%",
+                        boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.4)",
+                      }}
+                    ></div>
+                  )}
+
+                {quizData.gender === "mulher" &&
+                  (quizData.problemAreas.includes("Pernas") || quizData.problemAreas.includes("Tudo")) && (
+                    <>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.leg_upper_left.top}%`,
+                          left: `${debugValues.leg_upper_left.left}%`,
+                          width: `${debugValues.leg_upper_left.width}%`,
+                          height: `${debugValues.leg_upper_left.height}%`,
+                          borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
+                          transform: `rotate(${debugValues.leg_upper_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.leg_lower_left.top}%`,
+                          left: `${debugValues.leg_lower_left.left}%`,
+                          width: `${debugValues.leg_lower_left.width}%`,
+                          height: `${debugValues.leg_lower_left.height}%`,
+                          borderRadius: "50% 50% 45% 55% / 65% 65% 35% 35%",
+                          transform: `rotate(${debugValues.leg_lower_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.leg_upper_right.top}%`,
+                          right: `${debugValues.leg_upper_right.right}%`,
+                          width: `${debugValues.leg_upper_right.width}%`,
+                          height: `${debugValues.leg_upper_right.height}%`,
+                          borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
+                          transform: `rotate(${debugValues.leg_upper_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.leg_lower_right.top}%`,
+                          right: `${debugValues.leg_lower_right.right}%`,
+                          width: `${debugValues.leg_lower_right.width}%`,
+                          height: `${debugValues.leg_lower_right.height}%`,
+                          borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
+                          transform: `rotate(${debugValues.leg_lower_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                    </>
+                  )}
+              </div>
+
+              {debugMode && (
+                <div className="w-96 max-h-[600px] overflow-y-auto bg-gray-900/95 rounded-lg p-4 space-y-4 border border-purple-500">
+                  <div className="flex justify-between items-center sticky top-0 bg-gray-900 pb-2 border-b border-purple-500">
+                    <h3 className="text-lg font-bold text-white">
+                      Ajustar Marcações ({quizData.gender === "mulher" ? "Feminino" : "Masculino"})
+                    </h3>
+                    <button
+                      onClick={copyDebugValues}
+                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm"
+                    >
+                      Copiar Valores
+                    </button>
+                  </div>
+
+                  {Object.entries(debugValues)
+                    .filter(([key]) => (quizData.gender === "mulher" ? !key.startsWith("m_") : key.startsWith("m_")))
+                    .map(([key, values]) => (
+                      <div key={key} className="space-y-2 border-b border-gray-700 pb-3">
+                        <h4 className="text-sm font-semibold text-purple-300">
+                          {key.replace(/m_/g, "").replace(/_/g, " ").toUpperCase()}
+                        </h4>
+
+                        <div className="space-y-1">
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Top: {values.top}%</span>
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={values.top}
+                              onChange={(e) => updateDebugValue(key, "top", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+
+                          {"left" in values && (
+                            <label className="text-xs text-gray-400 flex justify-between">
+                              <span>Left: {values.left}%</span>
+                              <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={values.left}
+                                onChange={(e) => updateDebugValue(key, "left", Number(e.target.value))}
+                                className="w-48"
+                              />
+                            </label>
+                          )}
+
+                          {"right" in values && (
+                            <label className="text-xs text-gray-400 flex justify-between">
+                              <span>Right: {values.right}%</span>
+                              <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={values.right}
+                                onChange={(e) => updateDebugValue(key, "right", Number(e.target.value))}
+                                className="w-48"
+                              />
+                            </label>
+                          )}
+
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Width: {values.width}%</span>
+                            <input
+                              type="range"
+                              min="1"
+                              max="50"
+                              value={values.width}
+                              onChange={(e) => updateDebugValue(key, "width", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Height: {values.height}%</span>
+                            <input
+                              type="range"
+                              min="1"
+                              max="50"
+                              value={values.height}
+                              onChange={(e) => updateDebugValue(key, "height", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Rotate: {values.rotate}°</span>
+                            <input
+                              type="range"
+                              min="-90"
+                              max="90"
+                              value={values.rotate}
+                              onChange={(e) => updateDebugValue(key, "rotate", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+
+              <div className="flex flex-col space-y-4 max-w-md">
+                {["Peito", "Braços", "Barriga", "Pernas", "Tudo"].map((area) => (
+                  <div
+                    key={area}
+                    className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
+                      quizData.problemAreas.includes(area)
+                        ? "bg-emerald-500 border-emerald-500 text-white"
+                        : "bg-white/5 backdrop-blur-sm border-white/10 text-white hover:border-emerald-500"
+                    }`}
+                    onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold">{area}</h3>
+                      <div
+                        className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                          quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-gray-400"
+                        }`}
+                      >
+                        {quizData.problemAreas.includes(area) && <CheckCircle className="h-4 w-4 text-emerald-500" />}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
+
+      case 6:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Você segue alguma dessas dietas?</h2>
+            </div>
+            <div className="space-y-2 sm:space-y-4">
+              {[
+                { value: "vegetariano", label: "Vegetariano", desc: "Exclui carne", icon: "🌱" },
+                { value: "vegano", label: "Vegano", desc: "Exclui todos os produtos de origem animal", icon: "🌿" },
+                { value: "keto", label: "Keto", desc: "Baixo teor de carboidratos e alto teor de gordura", icon: "🥑" },
+                {
+                  value: "mediterraneo",
+                  label: "Mediterrâneo",
+                  desc: "Rico em alimentos à base de plantas",
+                  icon: "🫒",
+                },
+              ].map((diet) => (
+                <div
+                  key={diet.value}
+                  className={`backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
+                    quizData.diet === diet.value
+                      ? "border-2 border-lime-500 bg-lime-500/10"
+                      : "border border-white/10 bg-white/5"
                   }`}
+                  onClick={() => {
+                    updateQuizData("diet", diet.value)
+                    setTimeout(() => nextStep(), 300)
+                  }}
                 >
-                  <span className="text-2xl">{option.emoji}</span>
-                  <span className="text-white">{option.label}</span>
-                </button>
+                  <span className="text-xl sm:text-2xl">{diet.icon}</span>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-bold text-white">{diet.label}</h3>
+                    <p className="text-gray-400 text-xs sm:text-sm">{diet.desc}</p>
+                  </div>
+                </div>
               ))}
+            </div>
+            <div className="border-t border-gray-700 pt-3 sm:pt-4">
+              <div
+                className={`backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
+                  quizData.diet === "nao-sigo"
+                    ? "border-2 border-lime-500 bg-lime-500/10"
+                    : "border border-white/10 bg-white/5"
+                }`}
+                onClick={() => {
+                  updateQuizData("diet", "nao-sigo")
+                  setTimeout(() => nextStep(), 300)
+                }}
+              >
+                <X className="h-5 w-5 sm:h-6 sm:w-6 text-red-500" />
+                <h3 className="text-base sm:text-lg font-bold text-white">Não, não sigo dieta</h3>
+              </div>
             </div>
           </div>
         )
 
       case 7:
-        // Updated case 7 to reflect new content
+        // </CHANGE> Changed from checkbox layout to translucent container style like other questions
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Onde você prefere se exercitar?</h2>
+              <h2 className="text-2xl font-bold text-white">
+                Com que frequência você consome doces ou bebidas alcoólicas?
+              </h2>
+              <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
-            <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-4">
               {[
-                { value: "home", label: "Em Casa" },
-                { value: "gym", label: "Na Academia" },
-                { value: "outdoor", label: "Ao Ar Livre" },
-                { value: "mixed", label: "Combinação" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    // Assuming exercisePreferences is an array now
-                    const currentPreferences = quizData.exercisePreferences.cardio
-                      ? [quizData.exercisePreferences.cardio]
-                      : [] // Simplified assumption
-                    const newPreferences = currentPreferences.includes(option.value)
-                      ? currentPreferences.filter((p) => p !== option.value)
-                      : [...currentPreferences, option.value]
-                    updateQuizData("exercisePreferences", {
-                      ...quizData.exercisePreferences,
-                      cardio: newPreferences[0] || "",
-                    }) // Update 'cardio' as a proxy
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
-                    quizData.exercisePreferences.cardio === option.value // Check against cardio field
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
+                { value: "esporadicamente", label: "As vezes", icon: "🍷" },
+                { value: "com-frequencia", label: "Com frequência", icon: "🍭" },
+                { value: "todos-dias", label: "Todos os dias", icon: "🍰" },
+              ].map((freq) => (
+                <div
+                  key={freq.value}
+                  className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
+                    quizData.sugarFrequency.includes(freq.value)
+                      ? "border-2 border-lime-500 bg-lime-500/10"
+                      : "border border-white/10 bg-white/5"
                   }`}
+                  onClick={() => {
+                    const newFrequencies = quizData.sugarFrequency.includes(freq.value)
+                      ? quizData.sugarFrequency.filter((f) => f !== freq.value)
+                      : [...quizData.sugarFrequency, freq.value]
+                    updateQuizData("sugarFrequency", newFrequencies)
+                  }}
                 >
-                  <span className="text-white">{option.label}</span>
-                </button>
+                  <div className="flex items-center space-x-4">
+                    <span className="text-3xl">{freq.icon}</span>
+                    <h3 className="text-lg font-bold text-white">{freq.label}</h3>
+                  </div>
+                </div>
               ))}
+            </div>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/10 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
             </div>
           </div>
         )
 
       case 8:
-        // Updated case 8 to reflect new content
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Você tem alguma limitação física ou lesão?</h2>
+              <h2 className="text-2xl font-bold text-white">Quantidade diária de água</h2>
             </div>
-            <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-4">
               {[
-                { value: "none", label: "Nenhuma" },
-                { value: "back", label: "Problemas nas Costas" },
-                { value: "knee", label: "Problemas no Joelho" },
-                { value: "shoulder", label: "Problemas no Ombro" },
-                { value: "other", label: "Outras" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("limitations", option.value)
-                    nextStep()
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    quizData.limitations === option.value
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
+                { value: "menos-2", label: "Menos de 2 copos", desc: "até 0,5 l", icon: Droplets },
+                { value: "2-6", label: "2-6 copos", desc: "0,5-1,5 l", icon: Droplets },
+                { value: "7-10", label: "7-10 copos", desc: "1,5-2,5 l", icon: Droplets },
+                { value: "mais-10", label: "Mais de 10 copos", desc: "mais de 2,5 l", icon: Droplets },
+              ].map((water) => (
+                <div
+                  key={water.value}
+                  className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
+                    quizData.waterIntake === water.value
+                      ? "border-2 border-lime-500 bg-lime-500/10"
+                      : "border border-white/10 bg-white/5"
                   }`}
+                  onClick={() => {
+                    updateQuizData("waterIntake", water.value)
+                    setTimeout(() => {
+                      if (water.value === "7-10" || water.value === "mais-10") {
+                        setShowWaterCongrats(true)
+                      } else {
+                        nextStep()
+                      }
+                    }, 300)
+                  }}
                 >
-                  <span className="text-white">{option.label}</span>
-                </button>
+                  <div className="flex items-center space-x-4">
+                    <water.icon className="h-6 w-6 text-blue-400" />
+                    <div>
+                      <h3 className="text-lg font-bold text-white">{water.label}</h3>
+                      <p className="text-gray-400 text-sm">{water.desc}</p>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -2408,7 +2902,7 @@ export default function QuizPage() {
             </div>
             <div className="flex justify-center mt-8">
               <Button onClick={nextStep} disabled={!canProceed()} className="group relative overflow-hidden">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/10 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
                 </div>
@@ -2531,7 +3025,7 @@ export default function QuizPage() {
                   className={`p-4 rounded-lg border-2 transition-all ${
                     quizData.strengthTraining === option.value
                       ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
                   }`}
                 >
                   <div className="flex items-center space-x-3 sm:space-x-4">
@@ -2548,30 +3042,29 @@ export default function QuizPage() {
         )
 
       case 14:
-        // Updated case 14 to reflect new content
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Como você se sente com agachamentos?</h2>
+              <h2 className="text-2xl font-bold text-white">Como você se sente com cardio?</h2>
             </div>
             <div className="flex justify-center mb-6">
-              <ExerciseIllustration type="squats" />
+              <ExerciseIllustration type="cardio" />
             </div>
             <div className="grid grid-cols-1 gap-4">
               {[
                 { value: "love", label: "Gosto!" },
                 { value: "neutral", label: "Neutro!" },
-                { value: "modify", label: "Não Gosto Muito!" },
+                { value: "avoid", label: "Não Gosto Muito!" },
               ].map((option) => (
                 <button
                   key={option.value}
                   onClick={() => {
-                    updateQuizData("squatFeeling", option.value)
+                    updateQuizData("cardioFeeling", option.value)
                     nextStep()
                   }}
                   className={`p-4 rounded-lg border-2 transition-all text-left ${
-                    quizData.squatFeeling === option.value
-                      ? "border-lime-500 bg-lime-500/10"
+                    quizData.cardioFeeling === option.value
+                      ? "border-lime-500 bg-lime-500/50"
                       : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
                   }`}
                 >
@@ -2617,31 +3110,30 @@ export default function QuizPage() {
         )
 
       case 16:
-        // Updated case 16 to reflect new content
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Como você se sente com burpees?</h2>
+              <h2 className="text-2xl font-bold text-white">Como você se sente com alongamentos?</h2>
             </div>
             <div className="flex justify-center mb-6">
-              <ExerciseIllustration type="burpees" />
+              <ExerciseIllustration type="yoga" />
             </div>
             <div className="grid grid-cols-1 gap-4">
               {[
                 { value: "love", label: "Gosto!" },
                 { value: "neutral", label: "Neutro!" },
-                { value: "modify", label: "Não Gosto Muito!" },
+                { value: "skip", label: "Não Gosto Muito!" },
               ].map((option) => (
                 <button
                   key={option.value}
                   onClick={() => {
-                    updateQuizData("burpeeFeeling", option.value)
+                    updateQuizData("stretchingFeeling", option.value)
                     nextStep()
                   }}
                   className={`p-4 rounded-lg border-2 transition-all text-left ${
-                    quizData.burpeeFeeling === option.value
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
+                    quizData.stretchingFeeling === option.value
+                      ? "border-lime-500 bg-lime-500/20"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
                   }`}
                 >
                   <span className="text-white">{option.label}</span>
@@ -2752,7 +3244,6 @@ export default function QuizPage() {
                 Temos certeza de que você deseja não apenas um corpo melhor, mas também melhorar seu estilo de vida.
               </p>
             </div>
-
             <div className="space-y-4">
               {[
                 { value: "better-sleep", label: "Melhorar o sono", icon: "😴" },
@@ -3107,35 +3598,40 @@ export default function QuizPage() {
         )
 
       case 22:
-        // Updated case 22 to reflect new content
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Você tem alguma alergia alimentar?</h2>
+              <h2 className="text-2xl font-bold text-white">Você possui alergias ou restrições alimentares?</h2>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <button
+            <div className="space-y-4">
+              <div
+                className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 ${
+                  quizData.allergies === "sim" ? "border-lime-500 bg-lime-500/20" : "border-white/10 bg-white/5"
+                }`}
                 onClick={() => {
                   updateQuizData("allergies", "sim")
-                  nextStep()
+                  setTimeout(() => nextStep(), 300)
                 }}
-                className={`p-6 rounded-lg border-2 transition-all ${
-                  quizData.allergies === "sim" ? "border-lime-500 bg-lime-500/10" : "border-white/10 bg-white/5"
-                } hover:border-lime-500/50 backdrop-blur-sm`}
               >
-                <span className="text-white text-lg font-semibold">Sim</span>
-              </button>
-              <button
+                <CheckCircle
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.allergies === "sim" ? "text-lime-500" : "text-gray-500"}`}
+                />
+                <h3 className="text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
+              </div>
+              <div
+                className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-red-400 ${
+                  quizData.allergies === "nao" ? "border-red-500 bg-red-500/20" : "border-white/10 bg-white/5"
+                }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
                   setCurrentStep(24) // Skip allergy details (case 23) and go to supplement interest (case 24)
                 }}
-                className={`p-6 rounded-lg border-2 transition-all ${
-                  quizData.allergies === "nao" ? "border-red-500 bg-red-500/10" : "border-white/10 bg-white/5"
-                } hover:border-red-500/50 backdrop-blur-sm`}
               >
-                <span className="text-white text-lg font-semibold">Não</span>
-              </button>
+                <X
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.allergies === "nao" ? "text-red-500" : "text-gray-500"}`}
+                />
+                <h3 className="text-lg font-bold text-white">Não possuo alergias ou restrições</h3>
+              </div>
             </div>
           </div>
         )
@@ -3479,7 +3975,7 @@ export default function QuizPage() {
           !showTimeCalculation &&
           !showAnalyzingData &&
           ![
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+            1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
           ].includes(currentStep) && (
             <div className="mt-8 flex justify-center">
               <Button
