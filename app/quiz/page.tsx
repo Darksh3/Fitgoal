@@ -3884,7 +3884,7 @@ export default function QuizPage() {
                 type="email"
                 value={quizData.email}
                 onChange={(e) => updateQuizData("email", e.target.value)}
-                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-400"
+                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500"
               />
             </div>
             <div className="flex justify-center mt-8">
