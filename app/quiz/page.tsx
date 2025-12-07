@@ -2672,7 +2672,7 @@ export default function QuizPage() {
                       <h3 className="text-lg font-bold">{area}</h3>
                       <div
                         className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                          quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-gray-400"
+                          quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-white/30"
                         }`}
                       >
                         {quizData.problemAreas.includes(area) && <CheckCircle className="h-4 w-4 text-emerald-500" />}
@@ -3884,7 +3884,7 @@ export default function QuizPage() {
                 type="email"
                 value={quizData.email}
                 onChange={(e) => updateQuizData("email", e.target.value)}
-                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500"
+                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-400"
               />
             </div>
             <div className="flex justify-center mt-8">
