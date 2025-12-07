@@ -2992,7 +2992,7 @@ export default function QuizPage() {
                   }
                 }}
                 disabled={!canProceed()}
-                className="group relative disabled:opacity-50"
+                className="group relative overflow-hidden"
               >
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
@@ -3205,13 +3205,11 @@ export default function QuizPage() {
                     <span className="text-white text-left">{option.label}</span>
                     <div
                       className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                        quizData.previousProblems.includes(option.value)
-                          ? "bg-lime-500 border-lime-500"
-                          : "border-white/30"
+                        quizData.previousProblems.includes(option.value) ? "bg-white border-white" : "border-white/30"
                       }`}
                     >
                       {quizData.previousProblems.includes(option.value) && (
-                        <CheckCircle className="h-4 w-4 text-white" />
+                        <CheckCircle className="h-4 w-4 text-emerald-500" />
                       )}
                     </div>
                   </div>
@@ -3886,7 +3884,7 @@ export default function QuizPage() {
                 type="email"
                 value={quizData.email}
                 onChange={(e) => updateQuizData("email", e.target.value)}
-                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-400"
+                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500"
               />
             </div>
             <div className="flex justify-center mt-8">
