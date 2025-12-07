@@ -2848,19 +2848,21 @@ export default function QuizPage() {
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-white">Qual é a sua idade?</h2>
             </div>
-            <div className="space-y-6">
-              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors flex flex-col items-center justify-center gap-2">
-                <span className="text-gray-400 text-lg sm:text-xl font-bold text-center">Sua Idade</span>
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  min="16"
-                  max="80"
-                  value={quizData.age === 0 ? "" : quizData.age.toString()}
-                  onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
-                  className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-32"
-                />
-              </div>
+            <div className="max-w-md mx-auto">
+              <Input
+                type="number"
+                inputMode="numeric"
+                min="16"
+                max="80"
+                placeholder="Sua idade"
+                value={quizData.age === 0 ? "" : quizData.age.toString()}
+                onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+                
+                [--muted-foreground:theme(colors.gray.500)]
+                "
+              />
             </div>
             <div className="flex justify-center mt-8">
               <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
@@ -2879,25 +2881,26 @@ export default function QuizPage() {
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-white">Qual é a sua altura?</h2>
             </div>
-            <div className="space-y-6">
-              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors flex items-center justify-center relative">
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  placeholder={`Altura em metros (ex: 1.75 ou 1,75)`}
-                  value={quizData.height}
-                  onChange={(e) => {
-                    const cleaned = e.target.value.replace(/[^\d.,]/g, "")
-                    setQuizData({ ...quizData, height: cleaned })
-                  }}
-                  onBlur={(e) => {
-                    const normalized = normalizeHeight(e.target.value)
-                    updateQuizData("height", normalized)
-                  }}
-                  className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 [&::placeholder]:text-gray-400 placeholder:text-xl flex-1"
-                />
-                <span className="text-gray-400 text-lg sm:text-xl font-bold text-center ml-4">cm</span>
-              </div>
+            <div className="max-w-md mx-auto">
+              <Input
+                type="text"
+                inputMode="decimal"
+                placeholder="Altura em metros (ex: 1.75 ou 1,75)"
+                value={quizData.height}
+                onChange={(e) => {
+                  const cleaned = e.target.value.replace(/[^\d.,]/g, "")
+                  setQuizData({ ...quizData, height: cleaned })
+                }}
+                onBlur={(e) => {
+                  const normalized = normalizeHeight(e.target.value)
+                  updateQuizData("height", normalized)
+                }}
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+                
+                [--muted-foreground:theme(colors.gray.500)]
+                "
+              />
             </div>
             <div className="flex justify-center mt-8">
               <Button onClick={nextStep} disabled={!canProceed()} className="group relative overflow-hidden">
@@ -2916,23 +2919,22 @@ export default function QuizPage() {
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-white">Qual é o seu peso atual?</h2>
             </div>
-            <div className="space-y-6">
-              <div className="relative border-2 border-white/10 rounded-2xl p-6 bg-white/5 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500 flex items-center justify-between">
-                <div className="flex-1 flex justify-center">
-                  <Input
-                    type="number"
-                    placeholder="Peso atual"
-                    value={quizData.weight}
-                    onChange={(e) => updateQuizData("weight", e.target.value)}
-                    min="1"
-                    max="500"
-                    step="0.1"
-                    inputMode="decimal"
-                    className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
-                  />
-                </div>
-                <span className="text-gray-400 text-lg sm:text-xl font-bold text-center ml-4">kg</span>
-              </div>
+            <div className="max-w-md mx-auto">
+              <Input
+                type="number"
+                placeholder="Peso atual em kg"
+                value={quizData.weight}
+                onChange={(e) => updateQuizData("weight", e.target.value)}
+                min="1"
+                max="500"
+                step="0.1"
+                inputMode="decimal"
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+                
+                [--muted-foreground:theme(colors.gray.500)]
+                "
+              />
             </div>
             <div className="flex justify-center mt-8">
               <Button onClick={nextStep} disabled={!canProceed()} className="group relative overflow-hidden">
@@ -2951,31 +2953,30 @@ export default function QuizPage() {
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
             </div>
-            <div className="space-y-6">
-              <div className="relative border-2 border-white/10 rounded-2xl p-6 bg-white/5 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500 flex items-center justify-between">
-                <div className="flex-1 flex justify-center">
-                  <Input
-                    type="number"
-                    placeholder="Meta"
-                    value={quizData.targetWeight}
-                    onChange={(e) => {
-                      updateQuizData("targetWeight", e.target.value)
-                    }}
-                    onBlur={() => {
-                      const calculatedTime = calculateTimeToGoal()
-                      if (calculatedTime) {
-                        updateQuizData("timeToGoal", calculatedTime)
-                      }
-                    }}
-                    min="1"
-                    max="500"
-                    step="0.1"
-                    inputMode="decimal"
-                    className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
-                  />
-                </div>
-                <span className="text-gray-400 text-lg sm:text-xl font-bold text-center ml-4">kg</span>
-              </div>
+            <div className="max-w-md mx-auto">
+              <Input
+                type="number"
+                placeholder="Meta de peso em kg"
+                value={quizData.targetWeight}
+                onChange={(e) => {
+                  updateQuizData("targetWeight", e.target.value)
+                }}
+                onBlur={() => {
+                  const calculatedTime = calculateTimeToGoal()
+                  if (calculatedTime) {
+                    updateQuizData("timeToGoal", calculatedTime)
+                  }
+                }}
+                min="1"
+                max="500"
+                step="0.1"
+                inputMode="decimal"
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+                
+                [--muted-foreground:theme(colors.gray.500)]
+                "
+              />
             </div>
 
             {/* Updated the continue button logic for this step */}
