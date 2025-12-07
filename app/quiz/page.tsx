@@ -3066,7 +3066,9 @@ export default function QuizPage() {
                     quizData.cardioFeeling === option.value
                       ? option.value === "avoid"
                         ? "border-red-500 bg-red-500/20"
-                        : "border-lime-500 bg-lime-500/10"
+                        : option.value === "neutral"
+                          ? "border-yellow-500 bg-yellow-500/20"
+                          : "border-lime-500 bg-lime-500/10"
                       : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
                   }`}
                 >
@@ -3102,7 +3104,9 @@ export default function QuizPage() {
                     quizData.strengthFeeling === option.value
                       ? option.value === "modify"
                         ? "border-red-500 bg-red-500/20"
-                        : "border-lime-500 bg-lime-500/10"
+                        : option.value === "neutral"
+                          ? "border-yellow-500 bg-yellow-500/20"
+                          : "border-lime-500 bg-lime-500/10"
                       : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
                   }`}
                 >
@@ -3138,7 +3142,9 @@ export default function QuizPage() {
                     quizData.stretchingFeeling === option.value
                       ? option.value === "skip"
                         ? "border-red-500 bg-red-500/20"
-                        : "border-lime-500 bg-lime-500/10"
+                        : option.value === "neutral"
+                          ? "border-yellow-500 bg-yellow-500/20"
+                          : "border-lime-500 bg-lime-500/10"
                       : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
                   }`}
                 >
@@ -3226,7 +3232,7 @@ export default function QuizPage() {
             <div className="flex justify-center mt-8">
               <Button
                 onClick={() => {
-                  console.log("[v0] Continue button clicked on case 17, currentStep:", currentStep)
+                  console.log("[v0] Case 17 continue button clicked, currentStep:", currentStep)
                   console.log("[v0] Selected problems:", quizData.previousProblems)
                   nextStep()
                 }}
@@ -3269,8 +3275,8 @@ export default function QuizPage() {
                   }
                   className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
                     quizData.additionalGoals.includes(option.value)
-                      ? "border-orange-500 bg-orange-500/10"
-                      : "border-white/10 bg-white/5 hover:border-orange-500/50"
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50"
                   }`}
                 >
                   <span className="text-2xl">{option.icon}</span>
@@ -3329,7 +3335,7 @@ export default function QuizPage() {
                   className={`w-full p-4 rounded-lg border-2 transition-all ${
                     quizData.equipment.includes(option.value)
                       ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50"
                   }`}
                 >
                   <span className="text-white">{option.label}</span>
