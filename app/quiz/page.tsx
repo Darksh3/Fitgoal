@@ -2849,8 +2849,8 @@ export default function QuizPage() {
               <h2 className="text-2xl font-bold text-white">Qual é a sua idade?</h2>
             </div>
             <div className="space-y-6">
-              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors flex items-center justify-center relative">
-                <span className="text-gray-400 text-2xl mr-4">Sua Idade</span>
+              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors flex flex-col items-center justify-center gap-2">
+                <span className="text-gray-400 text-lg sm:text-xl font-bold text-center">Sua Idade</span>
                 <Input
                   type="number"
                   inputMode="numeric"
@@ -2858,11 +2858,10 @@ export default function QuizPage() {
                   max="80"
                   value={quizData.age === 0 ? "" : quizData.age.toString()}
                   onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
-                  className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 flex-1"
+                  className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-32"
                 />
               </div>
             </div>
-            {/* </CHANGE> */}
             <div className="flex justify-center mt-8">
               <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
@@ -2897,7 +2896,7 @@ export default function QuizPage() {
                   }}
                   className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 [&::placeholder]:text-gray-400 placeholder:text-xl flex-1"
                 />
-                <span className="text-gray-400 text-2xl ml-4">cm</span>
+                <span className="text-gray-400 text-lg sm:text-xl font-bold text-center ml-4">cm</span>
               </div>
             </div>
             <div className="flex justify-center mt-8">
@@ -2932,7 +2931,7 @@ export default function QuizPage() {
                     className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
                   />
                 </div>
-                <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
+                <span className="text-gray-400 text-lg sm:text-xl font-bold text-center ml-4">kg</span>
               </div>
             </div>
             <div className="flex justify-center mt-8">
@@ -2975,11 +2974,25 @@ export default function QuizPage() {
                     className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
                   />
                 </div>
-                <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
+                <span className="text-gray-400 text-lg sm:text-xl font-bold text-center ml-4">kg</span>
               </div>
             </div>
+
+            {/* Updated the continue button logic for this step */}
             <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative overflow-hidden">
+              <Button
+                onClick={() => {
+                  const calculatedTime = calculateTimeToGoal()
+                  if (calculatedTime) {
+                    updateQuizData("timeToGoal", calculatedTime)
+                    setShowTimeCalculation(true)
+                  } else {
+                    nextStep()
+                  }
+                }}
+                disabled={!canProceed()}
+                className="group relative disabled:opacity-50"
+              >
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
