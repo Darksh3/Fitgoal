@@ -3064,7 +3064,7 @@ export default function QuizPage() {
                   }}
                   className={`p-4 rounded-lg border-2 transition-all text-left ${
                     quizData.cardioFeeling === option.value
-                      ? "border-lime-500 bg-lime-500/50"
+                      ? "border-lime-500 bg-lime-500/10"
                       : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
                   }`}
                 >
@@ -3133,7 +3133,7 @@ export default function QuizPage() {
                   className={`p-4 rounded-lg border-2 transition-all text-left ${
                     quizData.stretchingFeeling === option.value
                       ? "border-lime-500 bg-lime-500/20"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
                   }`}
                 >
                   <span className="text-white">{option.label}</span>
@@ -3606,7 +3606,7 @@ export default function QuizPage() {
             <div className="space-y-4">
               <div
                 className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 ${
-                  quizData.allergies === "sim" ? "border-lime-500 bg-lime-500/20" : "border-white/10 bg-white/5"
+                  quizData.allergies === "sim" ? "border-lime-500 bg-lime-500/10" : "border-white/10 bg-white/5"
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "sim")
