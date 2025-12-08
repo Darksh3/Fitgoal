@@ -2832,7 +2832,7 @@ export default function QuizPage() {
               {[
                 { value: "menos-2", label: "Menos de 2 copos", desc: "até 0,5 l", icon: Droplets },
                 { value: "2-6", label: "2-6 copos", desc: "0,5-1,5 l", icon: Droplets },
-                { value: "6-10", label: "6-10 copos", desc: "1,5-2,5 l", icon: Droplets },
+                { value: "6-10", label: "7-10 copos", desc: "1,5-2,5 l", icon: Droplets },
                 { value: "mais-10", label: "Mais de 10 copos", desc: "mais de 2,5 l", icon: Droplets },
               ].map((water) => {
                 const Icon = water.icon
@@ -2846,15 +2846,22 @@ export default function QuizPage() {
                     }`}
                     onClick={() => {
                       updateQuizData("waterIntake", water.value)
-                      setTimeout(() => nextStep(), 300)
+                      if (water.value === "6-10" || water.value === "mais-10") {
+                        setTimeout(() => {
+                          setShowWaterCongrats(true)
+                          setWaterFill(water.value === "6-10" ? 75 : 90)
+                        }, 300)
+                      } else {
+                        setTimeout(() => nextStep(), 300)
+                      }
                     }}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <Icon className="w-8 h-8 text-blue-400 flex-shrink-0" />
                       <div>
                         <h3 className="text-lg font-bold text-white mb-1">{water.label}</h3>
                         <p className="text-sm text-gray-400">{water.desc}</p>
                       </div>
-                      <Icon className="w-6 h-6 text-lime-400" />
                     </div>
                   </div>
                 )
@@ -3711,7 +3718,7 @@ export default function QuizPage() {
         )
 
       case 25:
-        // Training Days
+        // Now case 25 is Training Days
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
