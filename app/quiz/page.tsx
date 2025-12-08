@@ -3217,12 +3217,12 @@ export default function QuizPage() {
               ))}
               <button
                 onClick={() => {
-                  updateQuizData("previousProblems", ["no-problems"]) // Changed from "no-plan" to "no-problems"
+                  updateQuizData("previousProblems", ["no-problems"])
                   console.log("[v0] 'Não tenho' clicked, advancing to motivation page")
-                  nextStep()
+                  setTimeout(() => nextStep(), 300)
                 }}
                 className={`w-full p-4 rounded-lg border-2 transition-all ${
-                  quizData.previousProblems.includes("no-problems") // Changed from "no-plan" to "no-problems"
+                  quizData.previousProblems.includes("no-problems")
                     ? "border-red-500 bg-red-500/10"
                     : "border-white/10 bg-white/5 hover:border-red-500/50"
                 }`}
@@ -3298,7 +3298,7 @@ export default function QuizPage() {
               <button
                 onClick={() => {
                   updateQuizData("additionalGoals", ["none"])
-                  nextStep()
+                  setTimeout(() => nextStep(), 300)
                 }}
                 className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
                   quizData.additionalGoals.includes("none")
