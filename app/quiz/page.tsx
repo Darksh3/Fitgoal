@@ -3034,7 +3034,7 @@ export default function QuizPage() {
                   key={option.value}
                   onClick={() => {
                     updateQuizData("strengthTraining", option.value)
-                    nextStep()
+                    setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
                   }}
                   className={`p-4 rounded-lg border-2 transition-all ${
                     quizData.strengthTraining === option.value
@@ -3074,7 +3074,7 @@ export default function QuizPage() {
                   key={option.value}
                   onClick={() => {
                     updateQuizData("cardioFeeling", option.value)
-                    nextStep()
+                    setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
                   }}
                   className={`p-4 rounded-lg border-2 transition-all text-left ${
                     quizData.cardioFeeling === option.value
@@ -3112,7 +3112,7 @@ export default function QuizPage() {
                   key={option.value}
                   onClick={() => {
                     updateQuizData("strengthFeeling", option.value)
-                    nextStep()
+                    setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
                   }}
                   className={`p-4 rounded-lg border-2 transition-all text-left ${
                     quizData.strengthFeeling === option.value
@@ -3150,7 +3150,7 @@ export default function QuizPage() {
                   key={option.value}
                   onClick={() => {
                     updateQuizData("stretchingFeeling", option.value)
-                    nextStep()
+                    setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
                   }}
                   className={`p-4 rounded-lg border-2 transition-all text-left ${
                     quizData.stretchingFeeling === option.value
@@ -3407,7 +3407,7 @@ export default function QuizPage() {
                   key={option.value}
                   onClick={() => {
                     updateQuizData("workoutTime", option.value)
-                    nextStep()
+                    setTimeout(() => nextStep(), 300)
                   }}
                   className={`p-4 rounded-lg border-2 transition-all ${
                     quizData.workoutTime === option.value
@@ -3648,7 +3648,7 @@ export default function QuizPage() {
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
-                  setCurrentStep(24) // Skip allergy details (case 23) and go to supplement interest (case 24)
+                  setTimeout(() => setCurrentStep(24), 300) // Skip allergy details (case 23) and go to supplement interest (case 24)
                 }}
               >
                 <X
@@ -3770,7 +3770,7 @@ export default function QuizPage() {
                 onClick={() => {
                   updateQuizData("wantsSupplement", "sim")
                   updateQuizData("recommendedSupplement", supplementRecommendation.name)
-                  nextStep()
+                  setTimeout(() => nextStep(), 300)
                 }}
                 className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
                   quizData.wantsSupplement === "sim"
@@ -3803,7 +3803,7 @@ export default function QuizPage() {
                 onClick={() => {
                   updateQuizData("wantsSupplement", "nao")
                   updateQuizData("recommendedSupplement", "")
-                  nextStep()
+                  setTimeout(() => nextStep(), 300)
                 }}
                 className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
                   quizData.wantsSupplement === "nao"
