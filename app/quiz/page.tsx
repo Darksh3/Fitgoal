@@ -1275,13 +1275,11 @@ export default function QuizPage() {
   if (showMotivationMessage && currentStep === 18) {
     // Changed from 19 to 18 based on renumbering
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-start justify-center p-6 pt-16">
         <div className="max-w-2xl w-full space-y-8 text-center">
-          <h2 className="text-2xl font-bold text-white">Já percorremos metade do caminho!</h2>
-
           <div className="flex justify-center">
-            <div className="w-24 h-24 rounded-full border-4 border-orange-500 flex items-center justify-center bg-orange-900/30">
-              <svg className="w-12 h-12 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-24 h-24 rounded-full border-4 border-lime-500 flex items-center justify-center bg-lime-900/30">
+              <svg className="w-12 h-12 text-lime-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1311,7 +1309,7 @@ export default function QuizPage() {
               setShowMotivationMessage(false)
               // The renderQuestion will handle showing case 19 (additional goals) which is now case 19
             }}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition-all shadow-lg"
+            className="w-full bg-lime-500 hover:bg-lime-600 text-white rounded-lg py-4 font-semibold transition-all shadow-lg"
           >
             Entendi
           </button>
@@ -2795,7 +2793,7 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               {[
-                { value: "esporadicamente", label: "Às vezes", icon: "🍷", useImage: true },
+                { value: "esporadicamente", label: "Às vezes", icon: "🍷" },
                 { value: "com-frequencia", label: "Com frequência", icon: "🍺" },
                 { value: "todos-dias", label: "Todos os dias", icon: "🥃" },
                 { value: "nao-consumo", label: "Não consumo", icon: "🚫" },
@@ -2813,17 +2811,7 @@ export default function QuizPage() {
                   }}
                 >
                   <div className="flex items-center space-x-4">
-                    {freq.useImage ? (
-                      <div className="w-8 h-8 flex items-center justify-center">
-                        <img
-                          src="/images/wine-glass-neon.png"
-                          alt="Wine glass"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                    ) : (
-                      <span className="text-3xl">{freq.icon}</span>
-                    )}
+                    <span className="text-3xl">{freq.icon}</span>
                     <h3 className="text-lg font-bold text-white">{freq.label}</h3>
                   </div>
                 </div>
@@ -3779,6 +3767,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
+      // </CHANGE>
 
       case 26:
         const supplementRecommendation =
