@@ -91,6 +91,80 @@ export default function ResultsPage() {
     return { text: "Obesidade", color: "text-red-400" }
   }
 
+  const getCurrentBodyFatImage = () => {
+    const bodyFat = Number(data.bodyFat) || 25
+    const gender = data.gender || "male"
+
+    if (gender === "male") {
+      if (bodyFat <= 10) return "/images/mone.webp"
+      if (bodyFat <= 15) return "/images/mtwo.webp"
+      if (bodyFat <= 20) return "/images/mthree.webp"
+      if (bodyFat <= 25) return "/images/mfour.webp"
+      if (bodyFat <= 30) return "/images/mfive.webp"
+      if (bodyFat <= 35) return "/images/msix.webp"
+      if (bodyFat <= 39) return "/images/mseven.webp"
+      return "/images/meight.webp"
+    } else {
+      if (bodyFat <= 10) return "/images/bodyfat-one.webp"
+      if (bodyFat <= 15) return "/images/bodyfat-two.webp"
+      if (bodyFat <= 20) return "/images/bodyfat-three.webp"
+      if (bodyFat <= 25) return "/images/bodyfat-four.webp"
+      if (bodyFat <= 30) return "/images/bodyfat-five.webp"
+      if (bodyFat <= 35) return "/images/bodyfat-six.webp"
+      if (bodyFat <= 39) return "/images/bodyfat-seven.webp"
+      return "/images/bodyfat-eight.webp"
+    }
+  }
+
+  const getImprovedBodyFatImage = () => {
+    const bodyFat = Number(data.bodyFat) || 25
+    const gender = data.gender || "male"
+
+    if (gender === "male") {
+      if (bodyFat <= 10) return "/images/mone.webp" // Already at best
+      if (bodyFat <= 15) return "/images/mone.webp"
+      if (bodyFat <= 20) return "/images/mtwo.webp"
+      if (bodyFat <= 25) return "/images/mthree.webp"
+      if (bodyFat <= 30) return "/images/mfour.webp"
+      if (bodyFat <= 35) return "/images/mfive.webp"
+      if (bodyFat <= 39) return "/images/msix.webp"
+      return "/images/mseven.webp"
+    } else {
+      if (bodyFat <= 10) return "/images/bodyfat-one.webp" // Already at best
+      if (bodyFat <= 15) return "/images/bodyfat-one.webp"
+      if (bodyFat <= 20) return "/images/bodyfat-two.webp"
+      if (bodyFat <= 25) return "/images/bodyfat-three.webp"
+      if (bodyFat <= 30) return "/images/bodyfat-four.webp"
+      if (bodyFat <= 35) return "/images/bodyfat-five.webp"
+      if (bodyFat <= 39) return "/images/bodyfat-six.webp"
+      return "/images/bodyfat-seven.webp"
+    }
+  }
+
+  const getCurrentBodyFatRange = () => {
+    const bodyFat = Number(data.bodyFat) || 25
+    if (bodyFat <= 10) return "5-10%"
+    if (bodyFat <= 15) return "11-15%"
+    if (bodyFat <= 20) return "16-20%"
+    if (bodyFat <= 25) return "21-25%"
+    if (bodyFat <= 30) return "26-30%"
+    if (bodyFat <= 35) return "31-35%"
+    if (bodyFat <= 39) return "36-39%"
+    return "40%+"
+  }
+
+  const getImprovedBodyFatRange = () => {
+    const bodyFat = Number(data.bodyFat) || 25
+    if (bodyFat <= 10) return "5-10%"
+    if (bodyFat <= 15) return "5-10%"
+    if (bodyFat <= 20) return "11-15%"
+    if (bodyFat <= 25) return "16-20%"
+    if (bodyFat <= 30) return "21-25%"
+    if (bodyFat <= 35) return "26-30%"
+    if (bodyFat <= 39) return "31-35%"
+    return "36-39%"
+  }
+
   const handleGoToCheckout = () => {
     if (!data) return
     router.push("/checkout")
@@ -136,18 +210,30 @@ export default function ResultsPage() {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="text-center space-y-2">
               <p className="text-gray-400 text-sm uppercase tracking-wide">Agora</p>
-              <div className="text-5xl">🧍</div>
+              <div className="flex justify-center">
+                <img
+                  src={getCurrentBodyFatImage() || "/placeholder.svg"}
+                  alt="Corpo atual"
+                  className="w-40 h-64 object-contain"
+                />
+              </div>
               <div className="space-y-1">
                 <p className="text-sm text-gray-400">Gordura corporal</p>
-                <p className="text-2xl font-bold text-yellow-400">20-24%</p>
+                <p className="text-2xl font-bold text-yellow-400">{getCurrentBodyFatRange()}</p>
               </div>
             </div>
             <div className="text-center space-y-2">
               <p className="text-gray-400 text-sm uppercase tracking-wide">6 meses</p>
-              <div className="text-5xl">💪</div>
+              <div className="flex justify-center">
+                <img
+                  src={getImprovedBodyFatImage() || "/placeholder.svg"}
+                  alt="Corpo melhorado"
+                  className="w-40 h-64 object-contain"
+                />
+              </div>
               <div className="space-y-1">
                 <p className="text-sm text-gray-400">Gordura corporal</p>
-                <p className="text-2xl font-bold text-lime-400">10-12%</p>
+                <p className="text-2xl font-bold text-lime-400">{getImprovedBodyFatRange()}</p>
               </div>
             </div>
           </div>
