@@ -1262,7 +1262,7 @@ export default function QuizPage() {
               setShowCortisolMessage(false)
               // The renderQuestion will handle showing the next step correctly (case 22)
             }}
-            className="w-full py-6 px-12 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-full text-xl font-bold transition-all duration-300 shadow-lg hover:shadow-orange-500/50 transform hover:scale-105"
+            className="w-full bg-lime-500 hover:bg-lime-600 text-white rounded-lg py-4 font-semibold transition-all shadow-lg"
           >
             Entendi
           </button>
@@ -3499,7 +3499,7 @@ export default function QuizPage() {
                       className={`px-4 py-2 rounded-full border-2 transition-all ${
                         quizData.foodPreferences.vegetables.includes(item)
                           ? "border-lime-500 bg-lime-500/10 text-white"
-                          : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
                       }`}
                     >
                       {item}
@@ -3523,7 +3523,7 @@ export default function QuizPage() {
                       className={`px-4 py-2 rounded-full border-2 transition-all ${
                         quizData.foodPreferences.grains.includes(item)
                           ? "border-lime-500 bg-lime-500/10 text-white"
-                          : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
                       }`}
                     >
                       {item}
@@ -3550,7 +3550,7 @@ export default function QuizPage() {
                         className={`px-4 py-2 rounded-full border-2 transition-all ${
                           quizData.foodPreferences.ingredients.includes(item)
                             ? "border-lime-500 bg-lime-500/10 text-white"
-                            : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                            : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
                         }`}
                       >
                         {item}
@@ -3579,7 +3579,7 @@ export default function QuizPage() {
                       className={`px-4 py-2 rounded-full border-2 transition-all ${
                         quizData.foodPreferences.meats.includes(item)
                           ? "border-lime-500 bg-lime-500/10 text-white"
-                          : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
                       }`}
                     >
                       {item}
@@ -3617,7 +3617,7 @@ export default function QuizPage() {
                       className={`px-4 py-2 rounded-full border-2 transition-all ${
                         quizData.foodPreferences.fruits.includes(item)
                           ? "border-lime-500 bg-lime-500/10 text-white"
-                          : "border-orange-500 bg-transparent text-white hover:bg-orange-500/10"
+                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
                       }`}
                     >
                       {item}
