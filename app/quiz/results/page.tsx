@@ -5,15 +5,13 @@ import { useRouter } from "next/navigation"
 import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, Target, Calendar, Dumbbell, Heart, TrendingUp } from "lucide-react"
+import { CheckCircle, Heart, Target, Calendar, Activity } from "lucide-react"
 
 export default function ResultsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
 
-  // Busca primeiro localStorage, depois Firebase
   useEffect(() => {
     const fetchData = async () => {
       let stored: any = null
@@ -86,11 +84,11 @@ export default function ResultsPage() {
     }
   }
 
-  const getIMCColor = (imc: number) => {
-    if (imc < 18.5) return "text-blue-400"
-    if (imc >= 18.5 && imc < 25) return "text-lime-400"
-    if (imc >= 25 && imc < 30) return "text-yellow-400"
-    return "text-red-400"
+  const getIMCStatus = (imc: number) => {
+    if (imc < 18.5) return "Abaixo do peso"
+    if (imc >= 18.5 && imc < 25) return "Peso normal"
+    if (imc >= 25 && imc < 30) return "Sobrepeso"
+    return "Obesidade"
   }
 
   const handleGoToCheckout = () => {
@@ -100,7 +98,7 @@ export default function ResultsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center text-white bg-gradient-to-b from-black via-gray-900 to-black">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lime-500 mx-auto mb-4"></div>
           <p>Carregando seus resultados...</p>
@@ -111,7 +109,7 @@ export default function ResultsPage() {
 
   if (!data) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center text-white bg-gradient-to-b from-black via-gray-900 to-black">
         <div className="text-center">
           <p className="text-red-400 mb-4">Dados do quiz não encontrados</p>
           <Button onClick={() => router.push("/quiz")} className="bg-lime-500 hover:bg-lime-600">
@@ -123,158 +121,121 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white px-4 py-8 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-2">
             Parabéns, <span className="text-lime-400">{data.name}</span>!
           </h1>
-          <p className="text-gray-300">Seu plano personalizado está pronto</p>
+          <p className="text-gray-400 text-lg">Seu plano personalizado está pronto</p>
         </div>
 
-        <Card className="bg-gray-800 border-gray-700">
-          <CardHeader className="text-center">
-            <CardTitle className="flex items-center justify-center text-white text-xl">
-              <Heart className="h-6 w-6 text-lime-500 mr-2" />
-              Análise do seu IMC
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <div className="text-5xl md:text-6xl font-bold">
-              <span className={getIMCColor(Number(data.imc))}>{data.imc}</span>
-            </div>
-            <p className="text-lg text-gray-300">
+        {/* IMC Card */}
+        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <Heart className="h-6 w-6 text-lime-500" />
+            <h2 className="text-xl font-semibold">Análise do seu IMC</h2>
+          </div>
+          <div className="text-center space-y-4">
+            <div className="text-6xl sm:text-7xl font-bold text-lime-400">{data.imc}</div>
+            <p className="text-gray-300 text-lg">
               Calculamos o seu IMC e ele é de <span className="text-lime-400 font-bold">{data.imc}</span>
             </p>
             <p className="text-xl">
-              Você está com <span className="text-lime-400 font-bold">{data.imcClassification || "em análise"}</span>
+              Você está com <span className="text-lime-400 font-bold">{getIMCStatus(Number(data.imc))}</span>
             </p>
-          </CardContent>
-        </Card>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="flex items-center text-white">
-                <Target className="h-6 w-6 text-lime-500 mr-2" />
-                Seu Objetivo
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-lime-400">{getGoalText(data.goal)}</p>
-              <p className="text-gray-300 mt-2">Plano personalizado para atingir seus objetivos</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="flex items-center text-white">
-                <Dumbbell className="h-6 w-6 text-lime-500 mr-2" />
-                Tipo de Corpo
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-lime-400">{getBodyTypeText(data.bodyType)}</p>
-              <p className="text-gray-300 mt-2">Exercícios adaptados ao seu biotipo</p>
-            </CardContent>
-          </Card>
+          </div>
         </div>
 
+        {/* Objetivo e Tipo de Corpo Grid */}
+        <div className="grid sm:grid-cols-2 gap-6">
+          {/* Objetivo */}
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Target className="h-5 w-5 text-lime-500" />
+              <h3 className="text-lg font-semibold">Seu Objetivo</h3>
+            </div>
+            <p className="text-2xl font-bold text-lime-400 mb-2">{getGoalText(data.goal)}</p>
+            <p className="text-gray-400 text-sm">Plano personalizado para atingir seus objetivos</p>
+          </div>
+
+          {/* Tipo de Corpo */}
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Activity className="h-5 w-5 text-lime-500" />
+              <h3 className="text-lg font-semibold">Tipo de Corpo</h3>
+            </div>
+            <p className="text-2xl font-bold text-lime-400 mb-2">{getBodyTypeText(data.bodyType)}</p>
+            <p className="text-gray-400 text-sm">Exercícios adaptados ao seu biotipo</p>
+          </div>
+        </div>
+
+        {/* Data Prevista */}
         {data.timeToGoal && (
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="flex items-center text-white">
-                <Calendar className="h-6 w-6 text-lime-500 mr-2" />
-                Data Prevista para seu Objetivo
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
-              <p className="text-3xl font-bold text-lime-400 mb-2">{data.timeToGoal}</p>
-              <p className="text-gray-300">Seguindo nosso plano personalizado, você atingirá seu objetivo nesta data</p>
-            </CardContent>
-          </Card>
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <Calendar className="h-6 w-6 text-lime-500" />
+              <h2 className="text-xl font-semibold">Data Prevista para seu Objetivo</h2>
+            </div>
+            <div className="text-center space-y-3">
+              <p className="text-4xl sm:text-5xl font-bold text-lime-400">{data.timeToGoal}</p>
+              <p className="text-gray-400">Seguindo nosso plano personalizado, você atingirá seu objetivo nesta data</p>
+            </div>
+          </div>
         )}
 
-        <Card className="bg-gradient-to-r from-lime-500 to-lime-600 border-0">
-          <CardHeader>
-            <CardTitle className="flex items-center text-white">
-              <TrendingUp className="h-6 w-6 mr-2" />
-              Próximos Passos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="h-6 w-6 text-white mt-1 flex-shrink-0" />
-                <div>
-                  <h3 className="font-bold text-white">Plano de Treino Personalizado</h3>
-                  <p className="text-white/90">Exercícios específicos para seu tipo de corpo e objetivos</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="h-6 w-6 text-white mt-1 flex-shrink-0" />
-                <div>
-                  <h3 className="font-bold text-white">Orientações Nutricionais</h3>
-                  <p className="text-white/90">Dicas de alimentação baseadas no seu IMC e metas</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="h-6 w-6 text-white mt-1 flex-shrink-0" />
-                <div>
-                  <h3 className="font-bold text-white">Acompanhamento de Progresso</h3>
-                  <p className="text-white/90">Monitore sua evolução e ajuste seu plano conforme necessário</p>
-                </div>
+        {/* Próximos Passos - Card Verde */}
+        <div className="bg-lime-500 rounded-2xl p-6 sm:p-8">
+          <div className="flex items-center gap-2 mb-6">
+            <CheckCircle className="h-6 w-6 text-white" />
+            <h2 className="text-xl font-bold text-white">Próximos Passos</h2>
+          </div>
+          <div className="space-y-5">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="h-6 w-6 text-white mt-0.5 flex-shrink-0" />
+              <div>
+                <h3 className="font-bold text-white text-lg mb-1">Plano de Treino Personalizado</h3>
+                <p className="text-white/90">Exercícios específicos para seu tipo de corpo e objetivos</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex items-start gap-3">
+              <CheckCircle className="h-6 w-6 text-white mt-0.5 flex-shrink-0" />
+              <div>
+                <h3 className="font-bold text-white text-lg mb-1">Orientações Nutricionais</h3>
+                <p className="text-white/90">Dicas de alimentação baseadas no seu IMC e metas</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <CheckCircle className="h-6 w-6 text-white mt-0.5 flex-shrink-0" />
+              <div>
+                <h3 className="font-bold text-white text-lg mb-1">Acompanhamento de Progresso</h3>
+                <p className="text-white/90">Monitore sua evolução e ajuste seu plano conforme necessário</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <div className="flex flex-col md:flex-row gap-4 justify-center pt-6">
-          <button className="btn-neon-outline" onClick={handleGoToCheckout}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            <span className="font-semibold text-lg">Escolher Plano e Finalizar</span>
-          </button>
-          <button className="btn-neon-outline" onClick={() => router.push("/dashboard/assinatura")}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-              <line x1="9" y1="3" x2="9" y2="21" />
-            </svg>
-            <span className="font-semibold text-lg">Acessar Dashboard</span>
-          </button>
-          <button className="btn-neon-outline" onClick={() => router.push("/quiz")}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-            <span className="font-semibold text-lg">Refazer Quiz</span>
+        {/* Botões de Ação */}
+        <div className="flex flex-col sm:flex-row gap-4 pt-6">
+          <Button
+            onClick={handleGoToCheckout}
+            className="flex-1 bg-lime-500 hover:bg-lime-600 text-white font-semibold py-6 text-lg rounded-xl"
+          >
+            Escolher Plano e Finalizar
+          </Button>
+          <Button
+            onClick={() => router.push("/dashboard/assinatura")}
+            variant="outline"
+            className="flex-1 border-lime-500 text-lime-500 hover:bg-lime-500 hover:text-white font-semibold py-6 text-lg rounded-xl"
+          >
+            Acessar Dashboard
+          </Button>
+        </div>
+
+        <div className="text-center pt-4">
+          <button onClick={() => router.push("/quiz")} className="text-gray-400 hover:text-lime-400 underline text-sm">
+            Refazer Quiz
           </button>
         </div>
       </div>
