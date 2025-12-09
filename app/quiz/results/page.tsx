@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, Heart, Target, Calendar, Activity } from "lucide-react"
+import { Clock, MapPin, TrendingUp, Calendar, CheckCircle, Heart, Flame, Moon, TargetIcon, Zap } from "lucide-react"
 
 export default function ResultsPage() {
   const router = useRouter()
@@ -84,11 +84,11 @@ export default function ResultsPage() {
     }
   }
 
-  const getIMCStatus = (imc: number) => {
-    if (imc < 18.5) return "Abaixo do peso"
-    if (imc >= 18.5 && imc < 25) return "Peso normal"
-    if (imc >= 25 && imc < 30) return "Sobrepeso"
-    return "Obesidade"
+  const getBMICategory = (imc: number) => {
+    if (imc < 18.5) return { text: "Abaixo do peso", color: "text-blue-400" }
+    if (imc >= 18.5 && imc < 25) return { text: "Peso normal", color: "text-lime-400" }
+    if (imc >= 25 && imc < 30) return { text: "Sobrepeso", color: "text-yellow-400" }
+    return { text: "Obesidade", color: "text-red-400" }
   }
 
   const handleGoToCheckout = () => {
@@ -120,124 +120,205 @@ export default function ResultsPage() {
     )
   }
 
+  const bmiInfo = getBMICategory(Number(data.imc))
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white px-4 py-8 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-2">
-            Parabéns, <span className="text-lime-400">{data.name}</span>!
+    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white">
+      <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
+        <div className="text-center space-y-3">
+          <h1 className="text-4xl md:text-5xl font-bold">
+            Parabéns, <span className="text-lime-400">{data.name || "Íay"}</span>!
           </h1>
-          <p className="text-gray-400 text-lg">Seu plano personalizado está pronto</p>
+          <p className="text-gray-300 text-lg">Seu plano personalizado está pronto</p>
         </div>
 
-        {/* IMC Card */}
-        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <Heart className="h-6 w-6 text-lime-500" />
-            <h2 className="text-xl font-semibold">Análise do seu IMC</h2>
-          </div>
-          <div className="text-center space-y-4">
-            <div className="text-6xl sm:text-7xl font-bold text-lime-400">{data.imc}</div>
-            <p className="text-gray-300 text-lg">
-              Calculamos o seu IMC e ele é de <span className="text-lime-400 font-bold">{data.imc}</span>
-            </p>
-            <p className="text-xl">
-              Você está com <span className="text-lime-400 font-bold">{getIMCStatus(Number(data.imc))}</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Objetivo e Tipo de Corpo Grid */}
-        <div className="grid sm:grid-cols-2 gap-6">
-          {/* Objetivo */}
-          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Target className="h-5 w-5 text-lime-500" />
-              <h3 className="text-lg font-semibold">Seu Objetivo</h3>
-            </div>
-            <p className="text-2xl font-bold text-lime-400 mb-2">{getGoalText(data.goal)}</p>
-            <p className="text-gray-400 text-sm">Plano personalizado para atingir seus objetivos</p>
-          </div>
-
-          {/* Tipo de Corpo */}
-          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Activity className="h-5 w-5 text-lime-500" />
-              <h3 className="text-lg font-semibold">Tipo de Corpo</h3>
-            </div>
-            <p className="text-2xl font-bold text-lime-400 mb-2">{getBodyTypeText(data.bodyType)}</p>
-            <p className="text-gray-400 text-sm">Exercícios adaptados ao seu biotipo</p>
-          </div>
-        </div>
-
-        {/* Data Prevista */}
-        {data.timeToGoal && (
-          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <Calendar className="h-6 w-6 text-lime-500" />
-              <h2 className="text-xl font-semibold">Data Prevista para seu Objetivo</h2>
-            </div>
-            <div className="text-center space-y-3">
-              <p className="text-4xl sm:text-5xl font-bold text-lime-400">{data.timeToGoal}</p>
-              <p className="text-gray-400">Seguindo nosso plano personalizado, você atingirá seu objetivo nesta data</p>
-            </div>
-          </div>
-        )}
-
-        {/* Próximos Passos - Card Verde */}
-        <div className="bg-lime-500 rounded-2xl p-6 sm:p-8">
-          <div className="flex items-center gap-2 mb-6">
-            <CheckCircle className="h-6 w-6 text-white" />
-            <h2 className="text-xl font-bold text-white">Próximos Passos</h2>
-          </div>
-          <div className="space-y-5">
-            <div className="flex items-start gap-3">
-              <CheckCircle className="h-6 w-6 text-white mt-0.5 flex-shrink-0" />
-              <div>
-                <h3 className="font-bold text-white text-lg mb-1">Plano de Treino Personalizado</h3>
-                <p className="text-white/90">Exercícios específicos para seu tipo de corpo e objetivos</p>
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="text-center space-y-2">
+              <p className="text-gray-400 text-sm uppercase tracking-wide">Agora</p>
+              <div className="text-5xl">🧍</div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-400">Gordura corporal</p>
+                <p className="text-2xl font-bold text-yellow-400">20-24%</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle className="h-6 w-6 text-white mt-0.5 flex-shrink-0" />
-              <div>
-                <h3 className="font-bold text-white text-lg mb-1">Orientações Nutricionais</h3>
-                <p className="text-white/90">Dicas de alimentação baseadas no seu IMC e metas</p>
+            <div className="text-center space-y-2">
+              <p className="text-gray-400 text-sm uppercase tracking-wide">6 meses</p>
+              <div className="text-5xl">💪</div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-400">Gordura corporal</p>
+                <p className="text-2xl font-bold text-lime-400">10-12%</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle className="h-6 w-6 text-white mt-0.5 flex-shrink-0" />
-              <div>
-                <h3 className="font-bold text-white text-lg mb-1">Acompanhamento de Progresso</h3>
-                <p className="text-white/90">Monitore sua evolução e ajuste seu plano conforme necessário</p>
+          </div>
+          <p className="text-xs text-gray-500 text-center mt-4">
+            *A imagem não se destina a representar o usuário. Os resultados variam por pessoa e não são garantidos.
+          </p>
+        </div>
+
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-center">Resumo pessoal baseado em suas respostas</h2>
+
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Heart className="h-5 w-5 text-lime-500" />
+              <h3 className="text-xl font-semibold">IMC Atual</h3>
+            </div>
+            <div className="text-center space-y-4">
+              <div className={`text-6xl font-bold ${bmiInfo.color}`}>{data.imc}</div>
+              <div className="flex justify-center items-center gap-2 text-sm">
+                <span className="text-blue-400">Abaixo do peso</span>
+                <span className="text-lime-400 font-bold">Normal</span>
+                <span className="text-red-400">Obeso</span>
+              </div>
+              <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
+                <div
+                  className={`h-full ${Number(data.imc) < 18.5 ? "bg-blue-400" : Number(data.imc) < 25 ? "bg-lime-500" : Number(data.imc) < 30 ? "bg-yellow-400" : "bg-red-400"}`}
+                  style={{ width: `${Math.min((Number(data.imc) / 40) * 100, 100)}%` }}
+                />
+              </div>
+              <p className="text-gray-300">
+                Você está com <span className={`font-bold ${bmiInfo.color}`}>{bmiInfo.text}</span>
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Flame className="h-5 w-5 text-orange-500" />
+              <h3 className="text-xl font-semibold">Ingestão calórica diária recomendada</h3>
+            </div>
+            <div className="text-center space-y-4">
+              <div className="text-5xl font-bold text-lime-400">
+                {data.dailyCalories || "2425"} <span className="text-2xl text-gray-400">kcal</span>
+              </div>
+              <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-lime-500 to-lime-400" style={{ width: "48%" }} />
+              </div>
+              <div className="flex justify-between text-sm text-gray-400">
+                <span>0 kcal</span>
+                <span>5000 kcal</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Botões de Ação */}
-        <div className="flex flex-col sm:flex-row gap-4 pt-6">
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
+          <h2 className="text-2xl font-bold text-center mb-6">
+            Plano personalizado para {data.name || "você"} está pronto!
+          </h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="flex items-center gap-3 p-4 bg-gray-700/30 rounded-xl">
+              <Clock className="h-8 w-8 text-lime-500 flex-shrink-0" />
+              <div>
+                <p className="text-sm text-gray-400">Duração do Treino</p>
+                <p className="text-lg font-semibold">1 hora</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-4 bg-gray-700/30 rounded-xl">
+              <MapPin className="h-8 w-8 text-lime-500 flex-shrink-0" />
+              <div>
+                <p className="text-sm text-gray-400">Local do Treino</p>
+                <p className="text-lg font-semibold">Academia</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-4 bg-gray-700/30 rounded-xl">
+              <TrendingUp className="h-8 w-8 text-lime-500 flex-shrink-0" />
+              <div>
+                <p className="text-sm text-gray-400">Nível de Fitness</p>
+                <p className="text-lg font-semibold">Intermediário</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-4 bg-gray-700/30 rounded-xl">
+              <Calendar className="h-8 w-8 text-lime-500 flex-shrink-0" />
+              <div>
+                <p className="text-sm text-gray-400">Frequência do Treino</p>
+                <p className="text-lg font-semibold">3x por semana</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
+          <h3 className="text-xl font-semibold mb-4 text-center">Objetivos para o seu programa também incluem:</h3>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="flex flex-col items-center text-center gap-2">
+              <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
+                <Zap className="h-6 w-6 text-lime-400" />
+              </div>
+              <p className="text-sm">Reduzir estresse</p>
+            </div>
+            <div className="flex flex-col items-center text-center gap-2">
+              <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
+                <Heart className="h-6 w-6 text-lime-400" />
+              </div>
+              <p className="text-sm">Sentir-se mais saudável</p>
+            </div>
+            <div className="flex flex-col items-center text-center gap-2">
+              <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
+                <TargetIcon className="h-6 w-6 text-lime-400" />
+              </div>
+              <p className="text-sm">Autodisciplina</p>
+            </div>
+            <div className="flex flex-col items-center text-center gap-2">
+              <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-lime-400" />
+              </div>
+              <p className="text-sm">Formar hábito físico</p>
+            </div>
+            <div className="flex flex-col items-center text-center gap-2">
+              <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
+                <Moon className="h-6 w-6 text-lime-400" />
+              </div>
+              <p className="text-sm">Melhorar o sono</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-lime-500 to-lime-600 rounded-2xl p-6 md:p-8">
+          <h3 className="text-2xl font-bold mb-6 text-white">O que você recebe:</h3>
+          <div className="space-y-4">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="h-6 w-6 text-white flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-bold text-white">Programa de treino personalizado</h4>
+                <p className="text-white/90 text-sm">Plano de treino claro e fácil de seguir</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <CheckCircle className="h-6 w-6 text-white flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-bold text-white">Resultados visíveis após o primeiro mês</h4>
+                <p className="text-white/90 text-sm">Veja mudanças reais em seu corpo</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <CheckCircle className="h-6 w-6 text-white flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-bold text-white">Acompanhamento de progresso</h4>
+                <p className="text-white/90 text-sm">Monitore sua evolução e ajuste conforme necessário</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-4 justify-center pt-4">
           <Button
             onClick={handleGoToCheckout}
-            className="flex-1 bg-lime-500 hover:bg-lime-600 text-white font-semibold py-6 text-lg rounded-xl"
+            className="w-full md:w-auto bg-lime-500 hover:bg-lime-600 text-white px-8 py-6 text-lg font-semibold rounded-full"
           >
             Escolher Plano e Finalizar
           </Button>
           <Button
             onClick={() => router.push("/dashboard/assinatura")}
             variant="outline"
-            className="flex-1 border-lime-500 text-lime-500 hover:bg-lime-500 hover:text-white font-semibold py-6 text-lg rounded-xl"
+            className="w-full md:w-auto border-lime-500 text-lime-500 hover:bg-lime-500/10 px-8 py-6 text-lg font-semibold rounded-full"
           >
             Acessar Dashboard
           </Button>
         </div>
 
-        <div className="text-center pt-4">
-          <button onClick={() => router.push("/quiz")} className="text-gray-400 hover:text-lime-400 underline text-sm">
-            Refazer Quiz
-          </button>
-        </div>
+        <p className="text-center text-xs text-gray-500 pb-8">Baseado nos dados dos usuários do Fitgoal</p>
       </div>
     </div>
   )
