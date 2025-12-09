@@ -3701,7 +3701,11 @@ export default function QuizPage() {
                 placeholder="Ex: Alergia a amendoim, intolerância à lactose, não como carne vermelha..."
                 value={quizData.allergyDetails}
                 onChange={(e) => updateQuizData("allergyDetails", e.target.value)}
-                className="bg-white/5 backdrop-blur-sm border-white/20 text-white min-h-32"
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+                
+                [--muted-foreground:theme(colors.gray.500)]
+                "
               />
             </div>
             <div className="flex justify-center">
