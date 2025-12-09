@@ -2795,7 +2795,7 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               {[
-                { value: "esporadicamente", label: "Às vezes", icon: "🍷" },
+                { value: "esporadicamente", label: "Às vezes", icon: "🍷", useImage: true },
                 { value: "com-frequencia", label: "Com frequência", icon: "🍺" },
                 { value: "todos-dias", label: "Todos os dias", icon: "🥃" },
                 { value: "nao-consumo", label: "Não consumo", icon: "🚫" },
@@ -2813,7 +2813,17 @@ export default function QuizPage() {
                   }}
                 >
                   <div className="flex items-center space-x-4">
-                    <span className="text-3xl">{freq.icon}</span>
+                    {freq.useImage ? (
+                      <div className="w-8 h-8 flex items-center justify-center">
+                        <img
+                          src="/images/wine-glass-neon.png"
+                          alt="Wine glass"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-3xl">{freq.icon}</span>
+                    )}
                     <h3 className="text-lg font-bold text-white">{freq.label}</h3>
                   </div>
                 </div>
@@ -3769,7 +3779,6 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      // </CHANGE>
 
       case 26:
         const supplementRecommendation =
