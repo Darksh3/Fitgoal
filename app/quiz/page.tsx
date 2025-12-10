@@ -11,7 +11,7 @@ import { Slider } from "@/components/ui/slider"
 
 import { Textarea } from "@/components/ui/textarea"
 
-import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, Clock, ArrowRight } from "lucide-react"
+import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, ArrowRight } from "lucide-react"
 
 import { useRouter } from "next/navigation"
 
@@ -139,7 +139,6 @@ const initialQuizData: QuizData = {
   trainingDays: "1", // Initialize trainingDays as string, default to 1
   previousProblems: [], // Initialize previousProblems
   additionalGoals: [],
-  letMadMusclesChoose: false,
   foodPreferences: {
     vegetables: [],
     grains: [],
@@ -1757,25 +1756,25 @@ export default function QuizPage() {
             <span className="text-lime-400">81%</span> dos seus resultados são sobre nutrição
           </h2>
           <p className="text-gray-300">Para obter os maiores ganhos em massa muscular e força, você precisa:</p>
-          <div className="space-y-4 text-left">
+          <div className="bg-lime-500 rounded-lg p-6 space-y-4">
             <div className="flex items-start space-x-3">
-              <CheckCircle className="h-6 w-6 text-green-500 mt-1 flex-shrink-0" />
-              <p className="text-white">Total de calorias suficientes a cada dia.</p>
+              <CheckCircle className="h-6 w-6 text-white mt-1 flex-shrink-0" />
+              <p className="text-white text-left">Total de calorias suficientes a cada dia.</p>
             </div>
             <div className="flex items-start space-x-3">
-              <CheckCircle className="h-6 w-6 text-green-500 mt-1 flex-shrink-0" />
-              <p className="text-white">Proteína adequada para realmente reconstruir mais tecido muscular.</p>
+              <CheckCircle className="h-6 w-6 text-white mt-1 flex-shrink-0" />
+              <p className="text-white text-left">Proteína adequada para realmente reconstruir mais tecido muscular.</p>
             </div>
+            <Button
+              onClick={() => {
+                setShowNutritionInfo(false)
+                setCurrentStep(currentStep + 1)
+              }}
+              className="w-full bg-white hover:bg-gray-100 text-lime-600 rounded-lg py-4 font-semibold transition-all shadow-lg"
+            >
+              Entendi
+            </Button>
           </div>
-          <Button
-            onClick={() => {
-              setShowNutritionInfo(false)
-              setCurrentStep(currentStep + 1)
-            }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-white rounded-lg py-4 font-semibold transition-all shadow-lg"
-          >
-            Entendi
-          </Button>
         </div>
       </div>
     )
@@ -1941,64 +1940,64 @@ export default function QuizPage() {
         return quizData.goal.length > 0
       case 4:
         return quizData.bodyFat !== 0
-      case 5: // Renumbered from case 4 - Goals question
-        return quizData.weightChangeType !== "" // Checking the new weight change question
-      case 6: // Renumbered from case 5
+      case 5: // New case for weight change question
+        return quizData.weightChangeType !== ""
+      case 6: // Renumbered from case 4 - Goals question
         return quizData.problemAreas.length > 0
-      case 7: // Renumbered from case 6
+      case 7: // Renumbered from case 5
         return quizData.diet !== ""
-      case 8: // Renumbered from case 7. Sweets Frequency
+      case 8: // Renumbered from case 6. Sweets Frequency
         return quizData.sugarFrequency.length > 0
-      case 9: // Renumbered from case 8. Alcohol Frequency
+      case 9: // Renumbered from case 7. Alcohol Frequency
         return quizData.alcoholFrequency !== undefined && quizData.alcoholFrequency !== ""
-      case 10: // Renumbered from case 9. Water Intake
+      case 10: // Renumbered from case 8. Water Intake
         return quizData.waterIntake !== ""
-      case 11: // Renumbered from case 10. Age
+      case 11: // Renumbered from case 9. Age
         return quizData.age > 0
-      case 12: // Renumbered from case 11. Height
+      case 12: // Renumbered from case 10. Height
         return quizData.height !== "" && normalizeHeight(quizData.height) !== ""
-      case 13: // Renumbered from case 12. Current Weight
+      case 13: // Renumbered from case 11. Current Weight
         return quizData.weight !== ""
-      case 14: // Renumbered from case 13. Target Weight
+      case 14: // Renumbered from case 12. Target Weight
         return quizData.targetWeight !== ""
-      case 15: // Renumbered from case 14. Strength Training Experience
+      case 15: // Renumbered from case 13. Strength Training Experience
         return quizData.strengthTraining !== ""
-      case 16: // Renumbered from case 15. Cardio Feeling
+      case 16: // Renumbered from case 14. Cardio Feeling
         return quizData.cardioFeeling !== ""
-      case 17: // Renumbered from case 16. Strength Feeling
+      case 17: // Renumbered from case 15. Strength Feeling
         return quizData.strengthFeeling !== ""
-      case 18: // Renumbered from case 17. Stretching Feeling
+      case 18: // Renumbered from case 16. Stretching Feeling
         return quizData.stretchingFeeling !== ""
-      case 19: // Renumbered from case 18. Previous Problems
+      case 19: // Renumbered from case 17. Previous Problems
         // Allow proceeding even if no previous problems are selected, as user can select "Não tenho"
         return true
-      case 20: // Renumbered from case 19. Additional Goals
+      case 20: // Renumbered from case 18. Additional Goals
         return quizData.additionalGoals.length > 0
-      case 21: // Renumbered from case 20. Equipment
+      case 21: // Renumbered from case 19. Equipment
         return quizData.equipment.length > 0
-      case 22: // Renumbered from case 21. Workout Time
+      case 22: // Renumbered from case 20. Workout Time
         return quizData.workoutTime !== ""
-      case 23: // Renumbered from case 22. Food Preferences
+      case 23: // Renumbered from case 21. Food Preferences
         // Allow proceeding if "Let Mad Muscles Choose" is true or if at least one food preference is selected
         return quizData.letMadMusclesChoose || Object.values(quizData.foodPreferences).some((arr) => arr.length > 0)
-      case 24: // Renumbered from case 23. Allergies
+      case 24: // Renumbered from case 22. Allergies
         return quizData.allergies !== ""
-      case 25: // Renumbered from case 24. Allergy Details (only if allergies is 'sim')
+      case 25: // Renumbered from case 23. Allergy Details (only if allergies is 'sim')
         return (quizData.allergies === "sim" && quizData.allergyDetails !== "") || quizData.allergies === "nao"
-      case 26: // Renumbered from case 25. Supplement Interest
+      case 26: // Renumbered from case 24. Supplement Interest
         return quizData.wantsSupplement !== ""
-      case 27: // Renumbered from case 26. Supplement Type (only if wantsSupplement is 'sim')
+      case 27: // Renumbered from case 25. Supplement Type (only if wantsSupplement is 'sim')
         // This case is now for Supplement Recommendation, and we can always proceed to next step if we want to show recommendation.
         // The actual *choice* of supplement type was removed from the flow.
         return true // Always allow proceeding after seeing recommendation
       // </CHANGE>
-      case 28: // Renumbered from case 27. Name
+      case 28: // Renumbered from case 26. Name
         return quizData.name.trim() !== ""
-      case 29: // Renumbered from case 28. Email
+      case 29: // Renumbered from case 27. Email
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         return quizData.email !== "" && emailRegex.test(quizData.email)
-      case 30: // Renumbered from case 29. Training days per week
+      case 30: // Renumbered from case 28. Training days per week
         return quizData.trainingDays !== ""
       // </CHANGE>
 
@@ -2290,19 +2289,16 @@ export default function QuizPage() {
 
       case 6: // Renumbered from case 4 - Goals question
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual área você quer focar mais?</h2>
-              <p className="text-gray-300">Selecione todos que se aplicam</p>
+          <div className="relative space-y-4 sm:space-y-8">
+            <div className="relative z-10 text-center space-y-2 sm:space-y-4">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
             </div>
-            <div className="flex items-start justify-center space-x-8">
-              <div
-                className={`relative bg-transparent ${quizData.gender === "mulher" ? "w-52 h-[420px]" : "w-52 h-auto"}`}
-              >
+            <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 max-w-lg mx-auto">
+              <div className="relative flex flex-col items-center">
                 <img
                   src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
                   alt="Corpo base"
-                  className="w-full h-full object-contain relative z-10"
+                  className="w-full h-auto object-contain relative z-10"
                   style={quizData.gender === "mulher" ? { mixBlendMode: "lighten" } : {}}
                 />
 
@@ -3533,57 +3529,50 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
               <p className="text-gray-300">Quanto tempo você pode dedicar por sessão?</p>
             </div>
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                {
-                  value: "15-30",
-                  label: "15-30 minutos",
-                  desc: "Treinos rápidos e eficientes",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "30-45",
-                  label: "30-45 minutos",
-                  desc: "Tempo ideal para maioria dos treinos",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "45-60",
-                  label: "45-60 minutos",
-                  desc: "Treinos completos e detalhados",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "60+",
-                  label: "Mais de 60 minutos",
-                  desc: "Treinos extensos e avançados",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("workoutTime", option.value)
-                    setTimeout(() => nextStep(), 300)
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    quizData.workoutTime === option.value
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
-                  }`}
-                >
-                  <div className="flex items-center space-x-3 sm:space-x-4">
-                    <div className="flex-shrink-0">{option.icon}</div>
-                    <div className="text-left flex-1">
-                      <h3 className="text-white font-medium">{option.label}</h3>
-                      <p className="text-white/50 text-sm mt-1">{option.desc}</p>
-                    </div>
+
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 space-y-8">
+                {/* Value display */}
+                <div className="flex justify-center">
+                  <div className="bg-white/10 rounded-full px-8 py-3">
+                    <span className="text-xl md:text-2xl font-bold text-white">
+                      {quizData.workoutTime || "5"} {(quizData.workoutTime || "5") === "1" ? "dia" : "dias"}
+                    </span>
                   </div>
-                </button>
-              ))}
+                </div>
+
+                {/* Slider */}
+                <div className="space-y-4">
+                  <input
+                    type="range"
+                    min="1"
+                    max="7"
+                    value={quizData.trainingDays || "5"}
+                    onChange={(e) => updateQuizData("trainingDays", e.target.value)}
+                    className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 100%)`,
+                    }}
+                  />
+
+                  {/* Labels */}
+                  <div className="flex justify-between text-gray-400 text-sm">
+                    <span>1 dia</span>
+                    <span>7 dias</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-center mt-8">
+                <Button onClick={nextStep} className="group relative overflow-hidden">
+                  <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                    <span className="relative z-10">Continuar</span>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                  </div>
+                </Button>
+              </div>
             </div>
           </div>
         )
