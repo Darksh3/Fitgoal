@@ -2820,6 +2820,7 @@ export default function QuizPage() {
           </div>
         )
 
+
       case 7: // Renumbered from case 6
         return (
           <div className="space-y-8">
