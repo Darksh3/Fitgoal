@@ -1280,19 +1280,18 @@ export default function QuizPage() {
             </p>
           </div>
 
-          <Button
-            onClick={() => {
-              setShowQuickResults(false)
-              setCurrentStep(currentStep + 1) // Move to the next step after this motivational page
-            }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-black py-6 text-xl rounded-full font-bold transition-all duration-300 flex items-center justify-center gap-2"
-          >
-            Entendi
-            <ArrowRight className="w-6 h-6" />
-          </Button>
-        </div>
-      </div>
-    )
+          <div className="bg-gray-900/60 border border-gray-700 rounded-2xl p-6 backdrop-blur-sm">
+  <Button
+    onClick={() => {
+      setShowQuickResults(false)
+      setCurrentStep(currentStep + 1)
+    }}
+    className="w-full bg-lime-500 hover:bg-lime-600 text-black py-6 text-xl rounded-full font-bold transition-all duration-300 flex items-center justify-center gap-2"
+  >
+    Entendi
+    <ArrowRight className="w-6 h-6" />
+  </Button>
+</div>
   }
 
   if (showCortisolMessage && currentStep === 22) {
