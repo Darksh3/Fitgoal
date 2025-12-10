@@ -11,7 +11,7 @@ import { Slider } from "@/components/ui/slider"
 
 import { Textarea } from "@/components/ui/textarea"
 
-import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, Clock } from "lucide-react"
+import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, Clock, ArrowRight } from "lucide-react"
 
 import { useRouter } from "next/navigation"
 
@@ -84,6 +84,7 @@ interface QuizData {
   }
   alcoholFrequency?: string // Added for new step
   // </CHANGE>
+  weightChangeType: string // New field for weight change pattern
 }
 
 const initialQuizData: QuizData = {
@@ -147,6 +148,7 @@ const initialQuizData: QuizData = {
     fruits: [],
   },
   // </CHANGE>
+  weightChangeType: "", // New field for weight change pattern
 }
 
 const debugDataFlow = (stage: string, data: any) => {
@@ -269,6 +271,7 @@ export default function QuizPage() {
       fruits: [],
     },
     // </CHANGE>
+    weightChangeType: "", // New field for weight change pattern
   })
   const [showSuccess, setShowSuccess] = useState(false)
   const [showNutritionInfo, setShowNutritionInfo] = useState(false)
@@ -280,7 +283,8 @@ export default function QuizPage() {
   // </CHANGE>
   const [showIMCResult, setShowIMCResult] = useState(false)
   const [showLoading, setShowLoading] = useState(false)
-  const [totalSteps, setTotalSteps] = useState(29)
+  const [totalSteps, setTotalSteps] = useState(30) // Updated totalSteps from 29 to 30
+  const [showQuickResults, setShowQuickResults] = useState(false) // Added for quick results motivation page
 
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
@@ -792,6 +796,14 @@ export default function QuizPage() {
   const nextStep = () => {
     console.log("[v0] nextStep called, currentStep:", currentStep, "quizData:", quizData)
 
+    if (currentStep === 4) {
+      // After selecting body fat percentage, show quick results motivation page
+      console.log("[v0] Current step is 4, showing quick results.")
+      setShowQuickResults(true)
+      return
+    }
+    // </CHANGE>
+
     if (currentStep === 21) {
       setShowCortisolMessage(true)
       setCurrentStep(22) // Move to step 22, but cortisol message will show first
@@ -1210,6 +1222,79 @@ export default function QuizPage() {
   const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
   // </CHANGE>
 
+  if (showQuickResults) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white flex items-center justify-center p-6">
+        <div className="max-w-2xl w-full space-y-8">
+          <div className="text-center space-y-4">
+            <h1 className="text-3xl sm:text-4xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
+            <p className="text-gray-300 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
+          </div>
+
+          <div className="relative w-full h-[400px] bg-gray-800/50 rounded-2xl p-6 backdrop-blur-sm border border-gray-700">
+            {/* Graph Container */}
+            <div className="relative w-full h-full">
+              {/* Y-axis labels */}
+              <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-xs text-gray-400">
+                <span>Alto</span>
+                <span>Médio</span>
+                <span>Baixo</span>
+              </div>
+
+              {/* X-axis labels */}
+              <div className="absolute bottom-0 left-12 right-0 flex justify-between text-xs text-gray-400">
+                <span>Agora</span>
+                <span>1 Mês</span>
+                <span>2 Meses</span>
+                <span>3 Meses</span>
+              </div>
+
+              {/* Graph lines */}
+              <svg className="absolute left-12 top-4 right-4 bottom-8" viewBox="0 0 400 300" preserveAspectRatio="none">
+                {/* Muscle mass line (white) */}
+                <polyline points="0,250 100,200 200,150 300,100 400,80" fill="none" stroke="white" strokeWidth="3" />
+                {/* Fat percentage line (lime) */}
+                <polyline points="0,100 100,120 200,180 300,220 400,240" fill="none" stroke="#84cc16" strokeWidth="3" />
+
+                {/* Dots */}
+                <circle cx="100" cy="120" r="6" fill="#84cc16" />
+                <circle cx="400" cy="240" r="6" fill="#84cc16" />
+                <circle cx="400" cy="80" r="6" fill="white" />
+              </svg>
+
+              {/* Labels on graph */}
+              <div className="absolute top-4 right-8 text-sm font-semibold text-white">Massa muscular</div>
+              <div className="absolute bottom-12 right-8 text-sm font-semibold bg-lime-500 text-black px-3 py-1 rounded">
+                % de gordura
+              </div>
+              <div className="absolute top-[40%] left-16 bg-lime-500 text-black px-3 py-1 rounded font-semibold text-sm">
+                2ª semana 🔥
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2 text-center text-sm text-gray-400">
+            <p>*Baseado em dados de 1,3 milhões de treinos.</p>
+            <p className="text-xs">
+              *Gráfico ilustrativo baseado em dados de bem-estar auto-relatados. Resultados individuais podem variar.
+            </p>
+          </div>
+
+          <Button
+            onClick={() => {
+              setShowQuickResults(false)
+              setCurrentStep(currentStep + 1) // Move to the next step after this motivational page
+            }}
+            className="w-full bg-lime-500 hover:bg-lime-600 text-black py-6 text-xl rounded-full font-bold transition-all duration-300 flex items-center justify-center gap-2"
+          >
+            Entendi
+            <ArrowRight className="w-6 h-6" />
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   if (showCortisolMessage && currentStep === 22) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center p-6">
@@ -1321,7 +1406,7 @@ export default function QuizPage() {
 
   if (showGoalTimeline) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 relative overflow-hidden">
         <div className="text-center space-y-8 max-w-md">
           {isCalculatingGoal ? (
             <>
@@ -1771,8 +1856,6 @@ export default function QuizPage() {
             </div>
           </div>
 
-          <p className="text-gray-300 text-sm">Seu nível de hidratação está excelente — continue assim.</p>
-
           <button
             onClick={() => {
               setShowWaterCongrats(false)
@@ -1858,62 +1941,64 @@ export default function QuizPage() {
         return quizData.goal.length > 0
       case 4:
         return quizData.bodyFat !== 0
-      case 5:
+      case 5: // Renumbered from case 4 - Goals question
+        return quizData.weightChangeType !== "" // Checking the new weight change question
+      case 6: // Renumbered from case 5
         return quizData.problemAreas.length > 0
-      case 6:
+      case 7: // Renumbered from case 6
         return quizData.diet !== ""
-      case 7: // Sweets Frequency
+      case 8: // Renumbered from case 7. Sweets Frequency
         return quizData.sugarFrequency.length > 0
-      case 8: // Alcohol Frequency
+      case 9: // Renumbered from case 8. Alcohol Frequency
         return quizData.alcoholFrequency !== undefined && quizData.alcoholFrequency !== ""
-      case 9: // Water Intake
+      case 10: // Renumbered from case 9. Water Intake
         return quizData.waterIntake !== ""
-      case 10: // Age
+      case 11: // Renumbered from case 10. Age
         return quizData.age > 0
-      case 11: // Height
+      case 12: // Renumbered from case 11. Height
         return quizData.height !== "" && normalizeHeight(quizData.height) !== ""
-      case 12: // Current Weight
+      case 13: // Renumbered from case 12. Current Weight
         return quizData.weight !== ""
-      case 13: // Target Weight
+      case 14: // Renumbered from case 13. Target Weight
         return quizData.targetWeight !== ""
-      case 14: // Strength Training Experience
+      case 15: // Renumbered from case 14. Strength Training Experience
         return quizData.strengthTraining !== ""
-      case 15: // Cardio Feeling
+      case 16: // Renumbered from case 15. Cardio Feeling
         return quizData.cardioFeeling !== ""
-      case 16: // Strength Feeling
+      case 17: // Renumbered from case 16. Strength Feeling
         return quizData.strengthFeeling !== ""
-      case 17: // Stretching Feeling
+      case 18: // Renumbered from case 17. Stretching Feeling
         return quizData.stretchingFeeling !== ""
-      case 18: // Previous Problems
+      case 19: // Renumbered from case 18. Previous Problems
         // Allow proceeding even if no previous problems are selected, as user can select "Não tenho"
         return true
-      case 19: // Additional Goals
+      case 20: // Renumbered from case 19. Additional Goals
         return quizData.additionalGoals.length > 0
-      case 20: // Equipment
+      case 21: // Renumbered from case 20. Equipment
         return quizData.equipment.length > 0
-      case 21: // Workout Time
+      case 22: // Renumbered from case 21. Workout Time
         return quizData.workoutTime !== ""
-      case 22: // Food Preferences
+      case 23: // Renumbered from case 22. Food Preferences
         // Allow proceeding if "Let Mad Muscles Choose" is true or if at least one food preference is selected
         return quizData.letMadMusclesChoose || Object.values(quizData.foodPreferences).some((arr) => arr.length > 0)
-      case 23: // Allergies
+      case 24: // Renumbered from case 23. Allergies
         return quizData.allergies !== ""
-      case 24: // Allergy Details (only if allergies is 'sim')
+      case 25: // Renumbered from case 24. Allergy Details (only if allergies is 'sim')
         return (quizData.allergies === "sim" && quizData.allergyDetails !== "") || quizData.allergies === "nao"
-      case 25: // Supplement Interest
+      case 26: // Renumbered from case 25. Supplement Interest
         return quizData.wantsSupplement !== ""
-      case 26: // Supplement Type (only if wantsSupplement is 'sim')
+      case 27: // Renumbered from case 26. Supplement Type (only if wantsSupplement is 'sim')
         // This case is now for Supplement Recommendation, and we can always proceed to next step if we want to show recommendation.
         // The actual *choice* of supplement type was removed from the flow.
         return true // Always allow proceeding after seeing recommendation
       // </CHANGE>
-      case 27: // Name
+      case 28: // Renumbered from case 27. Name
         return quizData.name.trim() !== ""
-      case 28: // Email
+      case 29: // Renumbered from case 28. Email
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         return quizData.email !== "" && emailRegex.test(quizData.email)
-      case 29: // Training days per week
+      case 30: // Renumbered from case 29. Training days per week
         return quizData.trainingDays !== ""
       // </CHANGE>
 
@@ -2088,62 +2173,106 @@ export default function QuizPage() {
           </div>
         )
 
-      case 4:
+      case 4: // New case for weight change question
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu nível de gordura corporal?</h2>
+          <div className="space-y-6 sm:space-y-8">
+            <div className="text-center space-y-2 sm:space-y-4">
+              <h2 className="text-2xl sm:text-2xl md:text-3xl font-bold text-white">Como o seu peso costuma mudar?</h2>
             </div>
-            <div className="relative flex flex-col items-center">
-              {/* Body fat image */}
-              <div className="relative w-64 h-80 mb-[-80px] z-10">
-                {/* Background glow effect */}
-                <div className="absolute inset-0 bg-gradient-radial from-white/20 via-white/5 to-transparent blur-3xl" />
-
-                <img
-                  src={getBodyFatImage() || "/placeholder.svg"}
-                  alt="Body fat representation"
-                  className="relative w-full h-full object-contain transition-opacity duration-500"
-                  onError={(e) => {
-                    console.error("[v0] Image failed to load:", e.currentTarget.src)
-                    e.currentTarget.src = "/placeholder.svg"
+            <div className="space-y-3 sm:space-y-4">
+              {[
+                { value: "gain-fast-lose-slow", label: "Ganho peso rápido, mas perco devagar" },
+                { value: "gain-lose-easily", label: "Ganho e perco peso facilmente" },
+                { value: "struggle-to-gain", label: "Tenho dificuldade para ganhar peso ou músculos" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  className={`w-full backdrop-blur-sm rounded-lg p-5 sm:p-6 cursor-pointer transition-all text-left ${
+                    quizData.weightChangeType === option.value
+                      ? "border-2 border-lime-500 bg-lime-500/10"
+                      : "border border-white/10 bg-white/5 hover:bg-white/10"
+                  }`}
+                  onClick={() => {
+                    updateQuizData("weightChangeType", option.value)
+                    setTimeout(() => nextStep(), 300)
                   }}
-                />
-              </div>
-
-              {/* Slider container - now overlapping the image bottom */}
-              <div className="relative max-w-md w-full px-4 z-20">
-                <div className="bg-zinc-900/95 backdrop-blur-sm rounded-2xl px-6 py-6 space-y-4 border border-zinc-800/50">
-                  {/* Tooltip above slider thumb showing current percentage */}
-                  <div className="relative h-8">
+                >
+                  <div className="flex items-center gap-4">
                     <div
-                      className="absolute bg-zinc-800 text-white text-sm font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 -translate-x-1/2 min-w-[80px] text-center whitespace-nowrap"
-                      style={{
-                        left: `${((quizData.bodyFat - 5) / 40) * 100}%`,
-                        top: "-8px",
-                      }}
+                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        quizData.weightChangeType === option.value ? "border-lime-500 bg-lime-500" : "border-white/30"
+                      }`}
                     >
-                      {getBodyFatRange()}
-                      <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-zinc-800" />
+                      {quizData.weightChangeType === option.value && <div className="w-3 h-3 rounded-full bg-white" />}
                     </div>
+                    <span className="text-base sm:text-lg text-white">{option.label}</span>
                   </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )
 
-                  {/* Custom styled slider */}
-                  <div className="relative">
-                    <Slider
-                      value={[quizData.bodyFat]}
-                      onValueChange={(value) => updateQuizData("bodyFat", value[0])}
-                      max={45}
-                      min={5}
-                      step={1}
-                      className="w-full body-fat-slider"
-                    />
-                  </div>
+      case 5: // Renumbered from case 4 - Goals question
+        return (
+          <div className="relative space-y-4 sm:space-y-8">
+            <div className="relative z-10 text-center space-y-2 sm:space-y-4">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">
+                Qual é o seu percentual de gordura corporal?
+              </h2>
+            </div>
+            <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 max-w-lg mx-auto">
+              <div className="relative flex flex-col items-center">
+                {/* Body fat image */}
+                <div className="relative w-64 h-80 mb-[-80px] z-10">
+                  {/* Background glow effect */}
+                  <div className="absolute inset-0 bg-gradient-radial from-white/20 via-white/5 to-transparent blur-3xl" />
 
-                  {/* Min and max labels below slider */}
-                  <div className="flex justify-between text-gray-400 text-sm">
-                    <span>5-9%</span>
-                    <span>{">40%"}</span>
+                  <img
+                    src={getBodyFatImage() || "/placeholder.svg"}
+                    alt="Body fat representation"
+                    className="relative w-full h-full object-contain transition-opacity duration-500"
+                    onError={(e) => {
+                      console.error("[v0] Image failed to load:", e.currentTarget.src)
+                      e.currentTarget.src = "/placeholder.svg"
+                    }}
+                  />
+                </div>
+
+                {/* Slider container - now overlapping the image bottom */}
+                <div className="relative max-w-md w-full px-4 z-20">
+                  <div className="bg-zinc-900/95 backdrop-blur-sm rounded-2xl px-6 py-6 space-y-4 border border-zinc-800/50">
+                    {/* Tooltip above slider thumb showing current percentage */}
+                    <div className="relative h-8">
+                      <div
+                        className="absolute bg-zinc-800 text-white text-sm font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 -translate-x-1/2 min-w-[80px] text-center whitespace-nowrap"
+                        style={{
+                          left: `${((quizData.bodyFat - 5) / 40) * 100}%`,
+                          top: "-8px",
+                        }}
+                      >
+                        {getBodyFatRange()}
+                        <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-zinc-800" />
+                      </div>
+                    </div>
+
+                    {/* Custom styled slider */}
+                    <div className="relative">
+                      <Slider
+                        value={[quizData.bodyFat]}
+                        onValueChange={(value) => updateQuizData("bodyFat", value[0])}
+                        max={45}
+                        min={5}
+                        step={1}
+                        className="w-full body-fat-slider"
+                      />
+                    </div>
+
+                    {/* Min and max labels below slider */}
+                    <div className="flex justify-between text-gray-400 text-sm">
+                      <span>5-9%</span>
+                      <span>{">40%"}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2159,7 +2288,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 5:
+      case 6: // Renumbered from case 4 - Goals question
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2682,7 +2811,7 @@ export default function QuizPage() {
               </div>
             </div>
             <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative">
+              <Button onClick={() => setShowQuickResults(true)} disabled={!canProceed()} className="group relative">
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
@@ -2692,13 +2821,13 @@ export default function QuizPage() {
           </div>
         )
 
-      case 6:
+      case 7: // Renumbered from case 6
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-white">Você segue alguma dessas dietas?</h2>
             </div>
-            <div className="space-y-2 sm:space-y-4">
+            <div className="space-y-4">
               {[
                 { value: "vegetariano", label: "Vegetariano", desc: "Exclui carne", icon: "🌱" },
                 { value: "vegano", label: "Vegano", desc: "Exclui todos os produtos de origem animal", icon: "🌿" },
@@ -2754,7 +2883,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 7:
+      case 8: // Renumbered from case 7
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2789,7 +2918,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 8:
+      case 9: // Renumbered from case 8
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2825,7 +2954,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 9:
+      case 10: // Renumbered from case 9
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2873,7 +3002,7 @@ export default function QuizPage() {
           </div>
         )
 
-       case 10:
+      case 11: // Renumbered from case 10
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2906,7 +3035,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 11:
+      case 12: // Renumbered from case 11
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2944,7 +3073,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 12:
+      case 13: // Renumbered from case 12
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2978,7 +3107,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 13:
+      case 14: // Renumbered from case 13
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3034,7 +3163,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 14:
+      case 15: // Renumbered from case 14
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3086,7 +3215,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 15:
+      case 16: // Renumbered from case 15
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3124,7 +3253,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 16:
+      case 17: // Renumbered from case 16
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3162,7 +3291,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 17:
+      case 18: // Renumbered from case 17
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3200,7 +3329,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 18:
+      case 19: // Renumbered from case 18
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3290,7 +3419,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 19:
+      case 20: // Renumbered from case 19
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3352,7 +3481,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 20:
+      case 21: // Renumbered from case 20
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3400,7 +3529,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 21:
+      case 22: // Renumbered from case 21
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3459,7 +3588,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 22:
+      case 23: // Renumbered from case 22
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3652,7 +3781,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 23:
+      case 24: // Renumbered from case 23
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3679,7 +3808,7 @@ export default function QuizPage() {
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
-                  setTimeout(() => setCurrentStep(25), 300) // Skip allergy details (case 24) and go to supplement interest (case 25)
+                  setTimeout(() => setCurrentStep(26), 300) // Skip allergy details (case 25) and go to supplement interest (case 26)
                 }}
               >
                 <X
@@ -3691,7 +3820,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 24:
+      case 25: // Renumbered from case 24
         if (quizData.allergies !== "sim") {
           return null
         }
@@ -3724,8 +3853,8 @@ export default function QuizPage() {
           </div>
         )
 
-      case 25:
-        // Now case 25 is Training Days
+      case 26: // Renumbered from case 25. Now Training Days
+        // Now case 26 is Training Days
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3777,9 +3906,7 @@ export default function QuizPage() {
           </div>
         )
 
-      // </CHANGE>
-
-      case 26:
+      case 27: // Renumbered from case 26. Now Supplement Interest
         const supplementRecommendation =
           quizData.bodyType === "ectomorph" || quizData.bodyType === "magro"
             ? {
@@ -3876,8 +4003,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 27:
-        // Now case 27 is Name
+      case 28: // Renumbered from case 27. Now Name
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3907,7 +4033,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 28: // Email
+      case 29: // Renumbered from case 28. Email
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3938,7 +4064,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 29: // Training days per week
+      case 30: // Renumbered from case 29. Training days per week
         // Training days per week is now handled by the slider in case 24.
         // This case is now for the final submit.
         return (
@@ -4038,8 +4164,10 @@ export default function QuizPage() {
           !showCortisolMessage &&
           !showTimeCalculation &&
           !showAnalyzingData &&
+          !showQuickResults && // Added condition for quick results page
           ![
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+            30,
           ].includes(currentStep) && (
             <div className="mt-8 flex justify-center">
               <Button
