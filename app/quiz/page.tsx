@@ -1221,7 +1221,7 @@ export default function QuizPage() {
   const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
   // </CHANGE>
 
-  if (showQuickResults && currentStep === 4) {
+  if (showQuickResults && currentStep === 6) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white flex items-center justify-center p-6">
         <div className="max-w-2xl w-full space-y-8">
@@ -2819,7 +2819,6 @@ export default function QuizPage() {
             </div>
           </div>
         )
-
 
       case 7: // Renumbered from case 6
         return (
