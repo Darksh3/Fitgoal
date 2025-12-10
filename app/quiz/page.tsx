@@ -11,7 +11,7 @@ import { Slider } from "@/components/ui/slider"
 
 import { Textarea } from "@/components/ui/textarea"
 
-import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, Clock, ArrowRight } from "lucide-react"
+import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, ArrowRight } from "lucide-react"
 
 import { useRouter } from "next/navigation"
 
@@ -44,7 +44,7 @@ interface QuizData {
   heightUnit: string
   currentWeight: string
   targetWeight: string
-  weightUnit: string
+  weightUnit: "kg" | "lbs" // Added for consistency
   timeToGoal: string
   name: string
   workoutTime: string
@@ -139,7 +139,6 @@ const initialQuizData: QuizData = {
   trainingDays: "1", // Initialize trainingDays as string, default to 1
   previousProblems: [], // Initialize previousProblems
   additionalGoals: [],
-  letMadMusclesChoose: false,
   foodPreferences: {
     vegetables: [],
     grains: [],
@@ -1222,7 +1221,7 @@ export default function QuizPage() {
   const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
   // </CHANGE>
 
-  if (showQuickResults) {
+  if (showQuickResults && currentStep === 4) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white flex items-center justify-center p-6">
         <div className="max-w-2xl w-full space-y-8">
@@ -1283,7 +1282,7 @@ export default function QuizPage() {
           <Button
             onClick={() => {
               setShowQuickResults(false)
-              setCurrentStep(currentStep + 1) // Move to the next step after this motivational page
+              setCurrentStep(currentStep) // Move to the next step after this motivational page
             }}
             className="w-full bg-lime-500 hover:bg-lime-600 text-black py-6 text-xl rounded-full font-bold transition-all duration-300 flex items-center justify-center gap-2"
           >
@@ -1357,7 +1356,7 @@ export default function QuizPage() {
   }
   // </CHANGE>
 
-  if (showMotivationMessage && currentStep === 18) {
+  if (showMotivationMessage && currentStep === 19) {
     // Changed from 19 to 18 based on renumbering
     return (
       <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-start justify-center p-6 pt-16">
@@ -1748,7 +1747,7 @@ export default function QuizPage() {
     )
   }
 
-    if (showNutritionInfo) {
+  if (showNutritionInfo) {
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
         <div className="text-center space-y-6 max-w-md">
@@ -1941,53 +1940,53 @@ export default function QuizPage() {
         return quizData.goal.length > 0
       case 4:
         return quizData.bodyFat !== 0
-      case 5: // Renumbered from case 4 - Goals question
-        return quizData.weightChangeType !== "" // Checking the new weight change question
-      case 6: // Renumbered from case 5
+      case 5: // New case for weight change question
+        return quizData.weightChangeType !== ""
+      case 6: // Renumbered from case 4 - Goals question
         return quizData.problemAreas.length > 0
-      case 7: // Renumbered from case 6
+      case 7: // Renumbered from case 5
         return quizData.diet !== ""
-      case 8: // Renumbered from case 7. Sweets Frequency
+      case 8: // Renumbered from case 6. Sweets Frequency
         return quizData.sugarFrequency.length > 0
-      case 9: // Renumbered from case 8. Alcohol Frequency
+      case 9: // Renumbered from case 7. Alcohol Frequency
         return quizData.alcoholFrequency !== undefined && quizData.alcoholFrequency !== ""
-      case 10: // Renumbered from case 9. Water Intake
+      case 10: // Renumbered from case 8. Water Intake
         return quizData.waterIntake !== ""
-      case 11: // Renumbered from case 10. Age
+      case 11: // Renumbered from case 9. Age
         return quizData.age > 0
-      case 12: // Renumbered from case 11. Height
+      case 12: // Renumbered from case 10. Height
         return quizData.height !== "" && normalizeHeight(quizData.height) !== ""
-      case 13: // Renumbered from case 12. Current Weight
+      case 13: // Renumbered from case 11. Current Weight
         return quizData.weight !== ""
-      case 14: // Renumbered from case 13. Target Weight
+      case 14: // Renumbered from case 12. Target Weight
         return quizData.targetWeight !== ""
-      case 15: // Renumbered from case 14. Strength Training Experience
+      case 15: // Renumbered from case 13. Strength Training Experience
         return quizData.strengthTraining !== ""
-      case 16: // Renumbered from case 15. Cardio Feeling
+      case 16: // Renumbered from case 14. Cardio Feeling
         return quizData.cardioFeeling !== ""
-      case 17: // Renumbered from case 16. Strength Feeling
+      case 17: // Renumbered from case 15. Strength Feeling
         return quizData.strengthFeeling !== ""
-      case 18: // Renumbered from case 17. Stretching Feeling
+      case 18: // Renumbered from case 16. Stretching Feeling
         return quizData.stretchingFeeling !== ""
-      case 19: // Renumbered from case 18. Previous Problems
+      case 19: // Renumbered from case 17. Previous Problems
         // Allow proceeding even if no previous problems are selected, as user can select "Não tenho"
         return true
-      case 20: // Renumbered from case 19. Additional Goals
+      case 20: // Renumbered from case 18. Additional Goals
         return quizData.additionalGoals.length > 0
-      case 21: // Renumbered from case 20. Equipment
+      case 21: // Renumbered from case 19. Equipment
         return quizData.equipment.length > 0
-      case 22: // Renumbered from case 21. Workout Time
+      case 22: // Renumbered from case 20. Workout Time
         return quizData.workoutTime !== ""
-      case 23: // Renumbered from case 22. Food Preferences
+      case 23: // Renumbered from case 21. Food Preferences
         // Allow proceeding if "Let Mad Muscles Choose" is true or if at least one food preference is selected
         return quizData.letMadMusclesChoose || Object.values(quizData.foodPreferences).some((arr) => arr.length > 0)
-      case 24: // Renumbered from case 23. Allergies
+      case 24: // Renumbered from case 22. Allergies
         return quizData.allergies !== ""
-      case 25: // Renumbered from case 24. Allergy Details (only if allergies is 'sim')
+      case 25: // Renumbered from case 23. Allergy Details (only if allergies is 'sim')
         return (quizData.allergies === "sim" && quizData.allergyDetails !== "") || quizData.allergies === "nao"
-      case 26: // Renumbered from case 25. Supplement Interest
+      case 26: // Renumbered from case 24. Supplement Interest
         return quizData.wantsSupplement !== ""
-      case 27: // Renumbered from case 26. Supplement Type (only if wantsSupplement is 'sim')
+      case 27: // Renumbered from case 25. Supplement Type (only if wantsSupplement is 'sim')
         // This case is now for Supplement Recommendation, and we can always proceed to next step if we want to show recommendation.
         // The actual *choice* of supplement type was removed from the flow.
         return true // Always allow proceeding after seeing recommendation
@@ -3533,57 +3532,50 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
               <p className="text-gray-300">Quanto tempo você pode dedicar por sessão?</p>
             </div>
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                {
-                  value: "15-30",
-                  label: "15-30 minutos",
-                  desc: "Treinos rápidos e eficientes",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "30-45",
-                  label: "30-45 minutos",
-                  desc: "Tempo ideal para maioria dos treinos",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "45-60",
-                  label: "45-60 minutos",
-                  desc: "Treinos completos e detalhados",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "60+",
-                  label: "Mais de 60 minutos",
-                  desc: "Treinos extensos e avançados",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("workoutTime", option.value)
-                    setTimeout(() => nextStep(), 300)
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    quizData.workoutTime === option.value
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
-                  }`}
-                >
-                  <div className="flex items-center space-x-3 sm:space-x-4">
-                    <div className="flex-shrink-0">{option.icon}</div>
-                    <div className="text-left flex-1">
-                      <h3 className="text-white font-medium">{option.label}</h3>
-                      <p className="text-white/50 text-sm mt-1">{option.desc}</p>
-                    </div>
+
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 space-y-8">
+                {/* Value display */}
+                <div className="flex justify-center">
+                  <div className="bg-white/10 rounded-full px-8 py-3">
+                    <span className="text-xl md:text-2xl font-bold text-white">
+                      {quizData.trainingDays || "5"} {(quizData.trainingDays || "5") === "1" ? "dia" : "dias"}
+                    </span>
                   </div>
-                </button>
-              ))}
+                </div>
+
+                {/* Slider */}
+                <div className="space-y-4">
+                  <input
+                    type="range"
+                    min="1"
+                    max="7"
+                    value={quizData.trainingDays || "5"}
+                    onChange={(e) => updateQuizData("trainingDays", e.target.value)}
+                    className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 100%)`,
+                    }}
+                  />
+
+                  {/* Labels */}
+                  <div className="flex justify-between text-gray-400 text-sm">
+                    <span>1 dia</span>
+                    <span>7 dias</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-center mt-8">
+                <Button onClick={nextStep} className="group relative overflow-hidden">
+                  <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                    <span className="relative z-10">Continuar</span>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                  </div>
+                </Button>
+              </div>
             </div>
           </div>
         )
@@ -3907,16 +3899,56 @@ export default function QuizPage() {
         )
 
       case 27: // Renumbered from case 26. Now Supplement Interest
-        const supplementRecommendation =
-          quizData.bodyType === "ectomorph" || quizData.bodyType === "magro"
-            ? {
-                name: "Hipercalórico Growth",
-                description: "Ideal para ganho de massa muscular e atingir suas calorias diárias",
-              }
-            : {
-                name: "Whey Protein",
-                description: "Ideal para ganho de massa muscular e recuperação pós-treino",
-              }
+        const shouldRecommendHipercalorico = () => {
+          // Factor 1: Low IMC (underweight)
+          if (quizData.imc && quizData.imc < 18.5) {
+            return true
+          }
+
+          // Factor 2: Body type is ectomorph or "magro" (thin)
+          if (quizData.bodyType === "ectomorph" || quizData.bodyType === "magro") {
+            return true
+          }
+
+          // Factor 3: Goal is to gain weight/muscle mass
+          const hasGainGoal = quizData.goal?.some(
+            (g) =>
+              g.toLowerCase().includes("ganhar") ||
+              g.toLowerCase().includes("massa") ||
+              g.toLowerCase().includes("muscular"),
+          )
+
+          // Factor 4: Current weight is significantly lower than target weight
+          const currentWeight = Number.parseFloat(quizData.currentWeight)
+          const targetWeight = Number.parseFloat(quizData.targetWeight)
+
+          if (currentWeight && targetWeight && hasGainGoal) {
+            const weightDifference = targetWeight - currentWeight
+            // If needs to gain more than 3kg, recommend hypercaloric
+            if (weightDifference > 3) {
+              return true
+            }
+          }
+
+          // Factor 5: Difficulty gaining weight (weightChange)
+          if (quizData.weightChangeType === "struggle-gain") {
+            return true
+          }
+
+          return false
+        }
+
+        const supplementRecommendation = shouldRecommendHipercalorico()
+          ? {
+              name: "Hipercalórico Growth",
+              description: "Ideal para ganho de massa muscular e atingir suas calorias diárias",
+            }
+          : {
+              name: "Whey Protein",
+              description: "Ideal para ganho de massa muscular e recuperação pós-treino",
+            }
+
+        const supplementType = shouldRecommendHipercalorico() ? "hipercalorico" : "whey-protein"
 
         return (
           <div className="space-y-8">
@@ -3933,6 +3965,7 @@ export default function QuizPage() {
                 onClick={() => {
                   updateQuizData("wantsSupplement", "sim")
                   updateQuizData("recommendedSupplement", supplementRecommendation.name)
+                  updateQuizData("supplementType", supplementType)
                   setTimeout(() => nextStep(), 300)
                 }}
                 className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
@@ -3966,6 +3999,7 @@ export default function QuizPage() {
                 onClick={() => {
                   updateQuizData("wantsSupplement", "nao")
                   updateQuizData("recommendedSupplement", "")
+                  updateQuizData("supplementType", "")
                   setTimeout(() => nextStep(), 300)
                 }}
                 className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
