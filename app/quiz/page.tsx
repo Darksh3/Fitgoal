@@ -1282,7 +1282,7 @@ export default function QuizPage() {
           <Button
             onClick={() => {
               setShowQuickResults(false)
-              setCurrentStep(currentStep) // Move to the next step after this motivational page
+              setCurrentStep(currentStep + 1) // Move to the next step after this motivational page
             }}
             className="w-full bg-lime-500 hover:bg-lime-600 text-black py-6 text-xl rounded-full font-bold transition-all duration-300 flex items-center justify-center gap-2"
           >
