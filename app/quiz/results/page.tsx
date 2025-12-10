@@ -170,6 +170,68 @@ export default function ResultsPage() {
     router.push("/checkout")
   }
 
+  const calculateDailyCalories = () => {
+    if (!data) return 2425
+
+    const weight = Number(data.weight) || 70
+    const height = Number(data.height) || 170
+    const age = Number(data.age) || 30
+    const gender = data.gender || "male"
+
+    // Harris-Benedict equation
+    let bmr
+    if (gender === "homem") {
+      bmr = 88.362 + 13.397 * weight + 4.799 * height - 5.677 * age
+    } else {
+      bmr = 447.593 + 9.247 * weight + 3.098 * height - 4.33 * age
+    }
+
+    // Activity factor based on training days
+    const trainingDays = Number(data.trainingDaysPerWeek) || 3
+    const activityFactor = trainingDays >= 5 ? 1.725 : trainingDays >= 3 ? 1.55 : 1.375
+
+    // Goal adjustment
+    let calories = bmr * activityFactor
+    if (data.goal?.includes("perder-peso")) {
+      calories -= 500 // Deficit for weight loss
+    } else if (data.goal?.includes("ganhar-massa")) {
+      calories += 300 // Surplus for muscle gain
+    }
+
+    return Math.round(calories)
+  }
+
+  const getWorkoutLocation = () => {
+    if (!data || !data.equipment) return "Academia"
+    if (data.equipment.includes("Nenhum")) return "Casa"
+    return "Academia ou Casa"
+  }
+
+  const getFitnessLevel = () => {
+    if (!data || !data.strengthTraining) return "Intermediário"
+    if (data.strengthTraining === "sim-regularmente") return "Avançado"
+    if (data.strengthTraining === "sim-ocasionalmente") return "Intermediário"
+    return "Iniciante"
+  }
+
+  const getTrainingFrequency = () => {
+    const days = Number(data?.trainingDaysPerWeek) || 3
+    return `${days}x por semana`
+  }
+
+  const getAdditionalGoalsIcons = () => {
+    const goals = data?.additionalGoals || []
+    const iconMap = [
+      { key: "reduzir-estresse", icon: Zap, label: "Reduzir estresse" },
+      { key: "sentir-saudavel", icon: Heart, label: "Sentir-se mais saudável" },
+      { key: "autodisciplina", icon: TargetIcon, label: "Autodisciplina" },
+      { key: "formar-habito", icon: TrendingUp, label: "Formar hábito físico" },
+      { key: "melhorar-sono", icon: Moon, label: "Melhorar o sono" },
+    ]
+
+    return iconMap.filter((item) => goals.includes(item.key))
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white bg-gradient-to-b from-black via-gray-900 to-black">
@@ -207,33 +269,33 @@ export default function ResultsPage() {
         </div>
 
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div className="grid grid-cols-2 gap-4 md:gap-8 items-center">
             <div className="text-center space-y-2">
-              <p className="text-gray-400 text-sm uppercase tracking-wide">Agora</p>
+              <p className="text-gray-400 text-xs md:text-sm uppercase tracking-wide">Agora</p>
               <div className="flex justify-center">
                 <img
                   src={getCurrentBodyFatImage() || "/placeholder.svg"}
                   alt="Corpo atual"
-                  className="w-40 h-64 object-contain"
+                  className="w-32 h-48 md:w-40 md:h-64 object-contain"
                 />
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-gray-400">Gordura corporal</p>
-                <p className="text-2xl font-bold text-yellow-400">{getCurrentBodyFatRange()}</p>
+                <p className="text-xs md:text-sm text-gray-400">Gordura corporal</p>
+                <p className="text-xl md:text-2xl font-bold text-yellow-400">{getCurrentBodyFatRange()}</p>
               </div>
             </div>
             <div className="text-center space-y-2">
-              <p className="text-gray-400 text-sm uppercase tracking-wide">6 meses</p>
+              <p className="text-gray-400 text-xs md:text-sm uppercase tracking-wide">6 meses</p>
               <div className="flex justify-center">
                 <img
                   src={getImprovedBodyFatImage() || "/placeholder.svg"}
                   alt="Corpo melhorado"
-                  className="w-40 h-64 object-contain"
+                  className="w-32 h-48 md:w-40 md:h-64 object-contain"
                 />
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-gray-400">Gordura corporal</p>
-                <p className="text-2xl font-bold text-lime-400">{getImprovedBodyFatRange()}</p>
+                <p className="text-xs md:text-sm text-gray-400">Gordura corporal</p>
+                <p className="text-xl md:text-2xl font-bold text-lime-400">{getImprovedBodyFatRange()}</p>
               </div>
             </div>
           </div>
@@ -276,10 +338,13 @@ export default function ResultsPage() {
             </div>
             <div className="text-center space-y-4">
               <div className="text-5xl font-bold text-lime-400">
-                {data.dailyCalories || "2425"} <span className="text-2xl text-gray-400">kcal</span>
+                {calculateDailyCalories()} <span className="text-2xl text-gray-400">kcal</span>
               </div>
               <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-lime-500 to-lime-400" style={{ width: "48%" }} />
+                <div
+                  className="h-full bg-gradient-to-r from-lime-500 to-lime-400"
+                  style={{ width: `${(calculateDailyCalories() / 5000) * 100}%` }}
+                />
               </div>
               <div className="flex justify-between text-sm text-gray-400">
                 <span>0 kcal</span>
@@ -298,28 +363,28 @@ export default function ResultsPage() {
               <Clock className="h-8 w-8 text-lime-500 flex-shrink-0" />
               <div>
                 <p className="text-sm text-gray-400">Duração do Treino</p>
-                <p className="text-lg font-semibold">1 hora</p>
+                <p className="text-lg font-semibold">{data.workoutTime || "1 hora"}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-4 bg-gray-700/30 rounded-xl">
               <MapPin className="h-8 w-8 text-lime-500 flex-shrink-0" />
               <div>
                 <p className="text-sm text-gray-400">Local do Treino</p>
-                <p className="text-lg font-semibold">Academia</p>
+                <p className="text-lg font-semibold">{getWorkoutLocation()}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-4 bg-gray-700/30 rounded-xl">
               <TrendingUp className="h-8 w-8 text-lime-500 flex-shrink-0" />
               <div>
                 <p className="text-sm text-gray-400">Nível de Fitness</p>
-                <p className="text-lg font-semibold">Intermediário</p>
+                <p className="text-lg font-semibold">{getFitnessLevel()}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-4 bg-gray-700/30 rounded-xl">
               <Calendar className="h-8 w-8 text-lime-500 flex-shrink-0" />
               <div>
                 <p className="text-sm text-gray-400">Frequência do Treino</p>
-                <p className="text-lg font-semibold">3x por semana</p>
+                <p className="text-lg font-semibold">{getTrainingFrequency()}</p>
               </div>
             </div>
           </div>
@@ -328,36 +393,49 @@ export default function ResultsPage() {
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
           <h3 className="text-xl font-semibold mb-4 text-center">Objetivos para o seu programa também incluem:</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div className="flex flex-col items-center text-center gap-2">
-              <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
-                <Zap className="h-6 w-6 text-lime-400" />
-              </div>
-              <p className="text-sm">Reduzir estresse</p>
-            </div>
-            <div className="flex flex-col items-center text-center gap-2">
-              <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
-                <Heart className="h-6 w-6 text-lime-400" />
-              </div>
-              <p className="text-sm">Sentir-se mais saudável</p>
-            </div>
-            <div className="flex flex-col items-center text-center gap-2">
-              <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
-                <TargetIcon className="h-6 w-6 text-lime-400" />
-              </div>
-              <p className="text-sm">Autodisciplina</p>
-            </div>
-            <div className="flex flex-col items-center text-center gap-2">
-              <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-lime-400" />
-              </div>
-              <p className="text-sm">Formar hábito físico</p>
-            </div>
-            <div className="flex flex-col items-center text-center gap-2">
-              <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
-                <Moon className="h-6 w-6 text-lime-400" />
-              </div>
-              <p className="text-sm">Melhorar o sono</p>
-            </div>
+            {getAdditionalGoalsIcons().length > 0 ? (
+              getAdditionalGoalsIcons().map((goal, index) => (
+                <div key={index} className="flex flex-col items-center text-center gap-2">
+                  <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
+                    <goal.icon className="h-6 w-6 text-lime-400" />
+                  </div>
+                  <p className="text-sm">{goal.label}</p>
+                </div>
+              ))
+            ) : (
+              <>
+                <div className="flex flex-col items-center text-center gap-2">
+                  <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
+                    <Zap className="h-6 w-6 text-lime-400" />
+                  </div>
+                  <p className="text-sm">Reduzir estresse</p>
+                </div>
+                <div className="flex flex-col items-center text-center gap-2">
+                  <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
+                    <Heart className="h-6 w-6 text-lime-400" />
+                  </div>
+                  <p className="text-sm">Sentir-se mais saudável</p>
+                </div>
+                <div className="flex flex-col items-center text-center gap-2">
+                  <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
+                    <TargetIcon className="h-6 w-6 text-lime-400" />
+                  </div>
+                  <p className="text-sm">Autodisciplina</p>
+                </div>
+                <div className="flex flex-col items-center text-center gap-2">
+                  <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
+                    <TrendingUp className="h-6 w-6 text-lime-400" />
+                  </div>
+                  <p className="text-sm">Formar hábito físico</p>
+                </div>
+                <div className="flex flex-col items-center text-center gap-2">
+                  <div className="w-12 h-12 bg-lime-500/20 rounded-full flex items-center justify-center">
+                    <Moon className="h-6 w-6 text-lime-400" />
+                  </div>
+                  <p className="text-sm">Melhorar o sono</p>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
