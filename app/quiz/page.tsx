@@ -11,7 +11,7 @@ import { Slider } from "@/components/ui/slider"
 
 import { Textarea } from "@/components/ui/textarea"
 
-import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, Clock } from "lucide-react"
+import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell } from "lucide-react"
 
 import { useRouter } from "next/navigation"
 
@@ -806,7 +806,7 @@ export default function QuizPage() {
     }
     // </CHANGE>
 
-    if (currentStep === 22) {
+    if (currentStep === 22 && quizData.allergies === "nao") {
       // This case is now related to Training Days per week (step 24).
       // The original code had a condition here for allergies, which is now handled in step 22.
       // If the intention was to always advance after the cortisol message, this should be handled by the render logic.
@@ -1863,70 +1863,68 @@ export default function QuizPage() {
         return quizData.bodyType !== ""
       case 3:
         return quizData.goal.length > 0
-      // Added condition for new case 3.5
-      case 3.5:
+      case 4:
         return quizData.weightChangeType !== ""
       // </CHANGE>
-      case 4:
+      case 5: // Updated from 4
         return quizData.bodyFat !== 0
-      case 5:
+      case 6: // Updated from 5
         return quizData.problemAreas.length > 0
-      case 6:
+      case 7: // Updated from 6. Sweets Frequency
         return quizData.diet !== ""
-      case 7: // Sweets Frequency
+      case 8: // Updated from 7. Alcohol Frequency
         return quizData.sugarFrequency.length > 0
-      case 8: // Alcohol Frequency
+      case 9: // Updated from 8. Water Intake
         return quizData.alcoholFrequency !== undefined && quizData.alcoholFrequency !== ""
-      case 9: // Water Intake
+      case 10: // Updated from 9. Age
         return quizData.waterIntake !== ""
-      case 10: // Age
+      case 11: // Updated from 10. Height
         return quizData.age > 0
-      case 11: // Height
+      case 12: // Updated from 11. Current Weight
         return quizData.height !== "" && normalizeHeight(quizData.height) !== ""
-      case 12: // Current Weight
+      case 13: // Updated from 12. Target Weight
         return quizData.weight !== ""
-      case 13: // Target Weight
+      case 14: // Updated from 13. Strength Training Experience
         return quizData.targetWeight !== ""
-      case 14: // Strength Training Experience
+      case 15: // Updated from 14. Cardio Feeling
         return quizData.strengthTraining !== ""
-      case 15: // Cardio Feeling
+      case 16: // Updated from 15. Strength Feeling
         return quizData.cardioFeeling !== ""
-      case 16: // Strength Feeling
+      case 17: // Updated from 16. Stretching Feeling
         return quizData.strengthFeeling !== ""
-      case 17: // Stretching Feeling
+      case 18: // Updated from 17. Previous Problems
         return quizData.stretchingFeeling !== ""
-      case 18: // Previous Problems
+      case 19: // Updated from 18. Additional Goals
         // Allow proceeding even if no previous problems are selected, as user can select "Não tenho"
         return true
-      case 19: // Additional Goals
+      case 20: // Updated from 19. Equipment
         return quizData.additionalGoals.length > 0
-      case 20: // Equipment
+      case 21: // Updated from 20. Workout Time
         return quizData.equipment.length > 0
-      case 21: // Workout Time
+      case 22: // Updated from 21. Food Preferences
         return quizData.workoutTime !== ""
-      case 22: // Food Preferences
+      case 23: // Updated from 22. Allergies
         // Allow proceeding if "Let Mad Muscles Choose" is true or if at least one food preference is selected
         return quizData.letMadMusclesChoose || Object.values(quizData.foodPreferences).some((arr) => arr.length > 0)
-      case 23: // Allergies
+      case 24: // Updated from 23. Allergy Details (only if allergies is 'sim')
         return quizData.allergies !== ""
-      case 24: // Allergy Details (only if allergies is 'sim')
+      case 25: // Updated from 24. Supplement Interest
         return (quizData.allergies === "sim" && quizData.allergyDetails !== "") || quizData.allergies === "nao"
-      case 25: // Supplement Interest
+      case 26: // Updated from 25. Supplement Recommendation
         return quizData.wantsSupplement !== ""
-      case 26: // Supplement Type (only if wantsSupplement is 'sim')
+      case 27: // Updated from 26. Name
         // This case is now for Supplement Recommendation, and we can always proceed to next step if we want to show recommendation.
         // The actual *choice* of supplement type was removed from the flow.
         return true // Always allow proceeding after seeing recommendation
       // </CHANGE>
-      case 27: // Name
+      case 28: // Updated from 27. Email
         return quizData.name.trim() !== ""
-      case 28: // Email
+      case 29: // Updated from 28. Training days per week
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         return quizData.email !== "" && emailRegex.test(quizData.email)
-      case 29: // Training days per week
+      case 30: // Final submit
         return quizData.trainingDays !== ""
-      // </CHANGE>
 
       // </CHANGE>
       default:
@@ -2099,7 +2097,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 3.5:
+      case 4: // Renamed from 3.5
         return (
           <div className="space-y-6 sm:space-y-8">
             <div className="text-center space-y-2 sm:space-y-4">
@@ -2138,9 +2136,8 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      // </CHANGE>
 
-      case 4:
+      case 5: // Renamed from 4
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2211,7 +2208,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 5:
+      case 6: // Renamed from 5
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2744,7 +2741,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 6:
+      case 7: // Renamed from 6
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2806,7 +2803,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 7:
+      case 8: // Renamed from 7
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2841,7 +2838,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 8:
+      case 9: // Renamed from 8
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2877,7 +2874,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 9:
+      case 10: // Renamed from 9
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2925,7 +2922,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 10:
+      case 11: // Renamed from 10
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2958,7 +2955,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 11:
+      case 12: // Renamed from 11
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2996,7 +2993,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 12:
+      case 13: // Renamed from 12
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3030,7 +3027,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 13:
+      case 14: // Renamed from 13
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3086,7 +3083,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 14:
+      case 15: // Renamed from 14
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3138,7 +3135,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 15:
+      case 16: // Renamed from 15
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3176,7 +3173,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 16:
+      case 17: // Renamed from 16
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3214,7 +3211,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 17:
+      case 18: // Renamed from 17
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3252,7 +3249,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 18:
+      case 19: // Renamed from 18
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3342,7 +3339,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 19:
+      case 20: // Renamed from 19
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3404,7 +3401,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 20:
+      case 21: // Renamed from 20
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3452,66 +3449,59 @@ export default function QuizPage() {
           </div>
         )
 
-      case 21:
+      case 22: // Renamed from 21
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
               <p className="text-gray-300">Quanto tempo você pode dedicar por sessão?</p>
             </div>
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                {
-                  value: "15-30",
-                  label: "15-30 minutos",
-                  desc: "Treinos rápidos e eficientes",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "30-45",
-                  label: "30-45 minutos",
-                  desc: "Tempo ideal para maioria dos treinos",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "45-60",
-                  label: "45-60 minutos",
-                  desc: "Treinos completos e detalhados",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "60+",
-                  label: "Mais de 60 minutos",
-                  desc: "Treinos extensos e avançados",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("workoutTime", option.value)
-                    setTimeout(() => nextStep(), 300)
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    quizData.workoutTime === option.value
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
-                  }`}
-                >
-                  <div className="flex items-center space-x-3 sm:space-x-4">
-                    <div className="flex-shrink-0">{option.icon}</div>
-                    <div className="text-left flex-1">
-                      <h3 className="text-white font-medium">{option.label}</h3>
-                      <p className="text-white/50 text-sm mt-1">{option.desc}</p>
-                    </div>
+
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 space-y-8">
+                {/* Value display */}
+                <div className="flex justify-center">
+                  <div className="bg-white/10 rounded-full px-8 py-3">
+                    <span className="text-xl md:text-2xl font-bold text-white">
+                      {quizData.workoutTime || "5"} {(quizData.workoutTime || "5") === "1" ? "dia" : "dias"}
+                    </span>
                   </div>
-                </button>
-              ))}
+                </div>
+
+                {/* Slider */}
+                <div className="space-y-4">
+                  <input
+                    type="range"
+                    min="1"
+                    max="7"
+                    value={quizData.trainingDays || "5"}
+                    onChange={(e) => updateQuizData("trainingDays", e.target.value)}
+                    className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 100%)`,
+                    }}
+                  />
+
+                  {/* Labels */}
+                  <div className="flex justify-between text-gray-400 text-sm">
+                    <span>1 dia</span>
+                    <span>7 dias</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-center mt-8">
+                <Button onClick={nextStep} className="group relative overflow-hidden">
+                  <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                    <span className="relative z-10">Continuar</span>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                  </div>
+                </Button>
+              </div>
             </div>
           </div>
         )
 
-      case 22:
+      case 23: // Renamed from 22
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3704,7 +3694,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 23:
+      case 24: // Renamed from 23
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3731,7 +3721,7 @@ export default function QuizPage() {
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
-                  setTimeout(() => setCurrentStep(25), 300) // Skip allergy details (case 24) and go to supplement interest (case 25)
+                  setTimeout(() => setCurrentStep(26), 300) // Skip allergy details (case 24) and go to supplement interest (case 26)
                 }}
               >
                 <X
@@ -3743,7 +3733,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 24:
+      case 25: // Renamed from 24
         if (quizData.allergies !== "sim") {
           return null
         }
@@ -3776,8 +3766,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 25:
-        // Now case 25 is Training Days
+      case 26: // Renamed from 25. Now Training Days
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3831,7 +3820,7 @@ export default function QuizPage() {
 
       // </CHANGE>
 
-      case 26:
+      case 27: // Renamed from 26. Now Supplement Interest
         const supplementRecommendation =
           quizData.bodyType === "ectomorph" || quizData.bodyType === "magro"
             ? {
@@ -3928,8 +3917,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 27:
-        // Now case 27 is Name
+      case 28: // Renamed from 27. Now Name
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3959,7 +3947,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 28: // Email
+      case 29: // Renamed from 28. Email
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3990,7 +3978,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 29: // Training days per week
+      case 30: // Renamed from 29. Training days per week
         // Training days per week is now handled by the slider in case 24.
         // This case is now for the final submit.
         return (
@@ -4091,8 +4079,8 @@ export default function QuizPage() {
           !showTimeCalculation &&
           !showAnalyzingData &&
           ![
-            1, 2, 3, 3.5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-            29, 30,
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+            30,
           ].includes(currentStep) && (
             <div className="mt-8 flex justify-center">
               <Button
