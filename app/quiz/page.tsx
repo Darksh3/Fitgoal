@@ -1914,56 +1914,58 @@ export default function QuizPage() {
         return quizData.bodyType !== ""
       case 3:
         return quizData.goal.length > 0
-      case 4: // Now weight change type
-        return quizData.weightChangeType !== ""
-      case 5: // Renumbered from case 4 - Body Fat
+      case 4:
         return quizData.bodyFat !== 0
-      case 6: // Renumbered from case 5 - Problem Areas
+      case 5: // New case for weight change question
+        return quizData.weightChangeType !== ""
+      case 6: // Renumbered from case 4 - Goals question
         return quizData.problemAreas.length > 0
-      case 7: // Renumbered from case 6 - Diet
+      case 7: // Renumbered from case 5
         return quizData.diet !== ""
-      case 8: // Renumbered from case 7. Sweets Frequency
+      case 8: // Renumbered from case 6. Sweets Frequency
         return quizData.sugarFrequency.length > 0
-      case 9: // Renumbered from case 8. Alcohol Frequency
+      case 9: // Renumbered from case 7. Alcohol Frequency
         return quizData.alcoholFrequency !== undefined && quizData.alcoholFrequency !== ""
-      case 10: // Renumbered from case 9. Water Intake
+      case 10: // Renumbered from case 8. Water Intake
         return quizData.waterIntake !== ""
-      case 11: // Renumbered from case 10. Age
+      case 11: // Renumbered from case 9. Age
         return quizData.age > 0
-      case 12: // Renumbered from case 11. Height
+      case 12: // Renumbered from case 10. Height
         return quizData.height !== "" && normalizeHeight(quizData.height) !== ""
-      case 13: // Renumbered from case 12. Current Weight
+      case 13: // Renumbered from case 11. Current Weight
         return quizData.weight !== ""
-      case 14: // Renumbered from case 13. Target Weight
+      case 14: // Renumbered from case 12. Target Weight
         return quizData.targetWeight !== ""
-      case 15: // Renumbered from case 14. Strength Training Experience
+      case 15: // Renumbered from case 13. Strength Training Experience
         return quizData.strengthTraining !== ""
-      case 16: // Renumbered from case 15. Cardio Feeling
+      case 16: // Renumbered from case 14. Cardio Feeling
         return quizData.cardioFeeling !== ""
-      case 17: // Renumbered from case 16. Strength Feeling
+      case 17: // Renumbered from case 15. Strength Feeling
         return quizData.strengthFeeling !== ""
-      case 18: // Renumbered from case 17. Stretching Feeling
+      case 18: // Renumbered from case 16. Stretching Feeling
         return quizData.stretchingFeeling !== ""
-      case 19: // Renumbered from case 18. Previous Problems
+      case 19: // Renumbered from case 17. Previous Problems
         // Allow proceeding even if no previous problems are selected, as user can select "Não tenho"
         return true
-      case 20: // Renumbered from case 19. Additional Goals
+      case 20: // Renumbered from case 18. Additional Goals
         return quizData.additionalGoals.length > 0
-      case 21: // Renumbered from case 20. Equipment
+      case 21: // Renumbered from case 19. Equipment
         return quizData.equipment.length > 0
-      case 22: // Renumbered from case 21. Workout Time
+      case 22: // Renumbered from case 20. Workout Time
         return quizData.workoutTime !== ""
-      case 23: // Renumbered from case 22. Food Preferences
+      case 23: // Renumbered from case 21. Food Preferences
         // Allow proceeding if "Let Mad Muscles Choose" is true or if at least one food preference is selected
         return quizData.letMadMusclesChoose || Object.values(quizData.foodPreferences).some((arr) => arr.length > 0)
-      case 24: // Renumbered from case 23. Allergies
+      case 24: // Renumbered from case 22. Allergies
         return quizData.allergies !== ""
-      case 25: // Renumbered from case 24. Allergy Details (only if allergies is 'sim')
+      case 25: // Renumbered from case 23. Allergy Details (only if allergies is 'sim')
         return (quizData.allergies === "sim" && quizData.allergyDetails !== "") || quizData.allergies === "nao"
-      case 26: // Renumbered from case 25. Supplement Interest (Now Training Days)
-        return quizData.trainingDays !== ""
-      case 27: // Renumbered from case 26. Supplement Interest
+      case 26: // Renumbered from case 24. Supplement Interest
         return quizData.wantsSupplement !== ""
+      case 27: // Renumbered from case 25. Supplement Type (only if wantsSupplement is 'sim')
+        // This case is now for Supplement Recommendation, and we can always proceed to next step if we want to show recommendation.
+        // The actual *choice* of supplement type was removed from the flow.
+        return true // Always allow proceeding after seeing recommendation
       // </CHANGE>
       case 28: // Renumbered from case 27. Name
         return quizData.name.trim() !== ""
@@ -1971,8 +1973,8 @@ export default function QuizPage() {
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         return quizData.email !== "" && emailRegex.test(quizData.email)
-      case 30: // Renumbered from case 29. Training days per week (now Submit)
-        return true // Always allow proceeding to submit
+      case 30: // Renumbered from case 29. Training days per week
+        return quizData.trainingDays !== ""
       // </CHANGE>
 
       // </CHANGE>
@@ -2146,7 +2148,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 4: // Now weight change type
+      case 4: // New case for weight change question
         return (
           <div className="space-y-6 sm:space-y-8">
             <div className="text-center space-y-2 sm:space-y-4">
@@ -2186,7 +2188,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 5: // Renumbered from case 4 - Body Fat
+      case 5: // Renumbered from case 4 - Goals question
         return (
           <div className="relative space-y-4 sm:space-y-8">
             <div className="relative z-10 text-center space-y-2 sm:space-y-4">
@@ -2261,11 +2263,13 @@ export default function QuizPage() {
           </div>
         )
 
-      case 6: // Renumbered from case 5 - Problem Areas
+      case 6: // Renumbered from case 4 - Goals question
         return (
           <div className="relative space-y-4 sm:space-y-8">
             <div className="relative z-10 text-center space-y-2 sm:space-y-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">
+                Qual é o seu percentual de gordura corporal?
+              </h2>
             </div>
             <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 max-w-lg mx-auto">
               <div className="relative flex flex-col items-center">
@@ -2334,7 +2338,540 @@ export default function QuizPage() {
           </div>
         )
 
-      case 7: // Renumbered from case 6 - Diet
+      case 7: // Renumbered from case 6
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual área você quer focar mais?</h2>
+              <p className="text-gray-300">Selecione todos que se aplicam</p>
+            </div>
+            <div className="flex items-start justify-center space-x-8">
+              <div
+                className={`relative bg-transparent ${quizData.gender === "mulher" ? "w-52 h-[420px]" : "w-52 h-auto"}`}
+              >
+                <img
+                  src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
+                  alt="Corpo base"
+                  className="w-full h-full object-contain relative z-10"
+                  style={quizData.gender === "mulher" ? { mixBlendMode: "lighten" } : {}}
+                />
+
+                {/* MASCULINE PROBLEM AREAS */}
+                {quizData.gender !== "mulher" &&
+                  (quizData.problemAreas.includes("Peito") || quizData.problemAreas.includes("Tudo")) && (
+                    <>
+                      {/* Peitoral esquerdo */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_chest_left.top}%`,
+                          left: `${debugValues.m_chest_left.left}%`,
+                          width: `${debugValues.m_chest_left.width}%`,
+                          height: `${debugValues.m_chest_left.height}%`,
+                          borderRadius: "50% 50% 45% 55% / 55% 45% 60% 40%",
+                          transform: `rotate(${debugValues.m_chest_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      {/* Peitoral direito */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_chest_right.top}%`,
+                          right: `${debugValues.m_chest_right.right}%`,
+                          width: `${debugValues.m_chest_right.width}%`,
+                          height: `${debugValues.m_chest_right.height}%`,
+                          borderRadius: "50% 50% 55% 45% / 45% 55% 40% 60%",
+                          transform: `rotate(${debugValues.m_chest_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                    </>
+                  )}
+
+                {quizData.gender !== "mulher" &&
+                  (quizData.problemAreas.includes("Braços") || quizData.problemAreas.includes("Tudo")) && (
+                    <>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_arm_upper_left.top}%`,
+                          left: `${debugValues.m_arm_upper_left.left}%`,
+                          width: `${debugValues.m_arm_upper_left.width}%`,
+                          height: `${debugValues.m_arm_upper_left.height}%`,
+                          borderRadius: "45% 55% 50% 50% / 50% 50% 45% 55%",
+                          transform: `rotate(${debugValues.m_arm_upper_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.m_arm_lower_left.top}%`,
+                          left: `${debugValues.m_arm_lower_left.left}%`,
+                          width: `${debugValues.m_arm_lower_left.width}%`,
+                          height: `${debugValues.m_arm_lower_left.height}%`,
+                          borderRadius: "40% 60% 50% 50% / 60% 40% 50% 50%",
+                          transform: `rotate(${debugValues.m_arm_lower_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_arm_upper_right.top}%`,
+                          right: `${debugValues.m_arm_upper_right.right}%`,
+                          width: `${debugValues.m_arm_upper_right.width}%`,
+                          height: `${debugValues.m_arm_upper_right.height}%`,
+                          borderRadius: "55% 45% 50% 50% / 50% 50% 55% 45%",
+                          transform: `rotate(${debugValues.m_arm_upper_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.m_arm_lower_right.top}%`,
+                          right: `${debugValues.m_arm_lower_right.right}%`,
+                          width: `${debugValues.m_arm_lower_right.width}%`,
+                          height: `${debugValues.m_arm_lower_right.height}%`,
+                          borderRadius: "60% 40% 50% 50% / 40% 60% 50% 50%",
+                          transform: `rotate(${debugValues.m_arm_lower_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                    </>
+                  )}
+
+                {quizData.gender !== "mulher" &&
+                  (quizData.problemAreas.includes("Barriga") || quizData.problemAreas.includes("Tudo")) && (
+                    <>
+                      {/* Abdômen superior esquerdo */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_abs_1_left.top}%`,
+                          left: `${debugValues.m_abs_1_left.left}%`,
+                          width: `${debugValues.m_abs_1_left.width}%`,
+                          height: `${debugValues.m_abs_1_left.height}%`,
+                          borderRadius: "45% 55% 40% 60%",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      {/* Abdômen superior direito */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_abs_1_right.top}%`,
+                          right: `${debugValues.m_abs_1_right.right}%`,
+                          width: `${debugValues.m_abs_1_right.width}%`,
+                          height: `${debugValues.m_abs_1_right.height}%`,
+                          borderRadius: "55% 45% 60% 40%",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      {/* Abdômen médio esquerdo */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_abs_2_left.top}%`,
+                          left: `${debugValues.m_abs_2_left.left}%`,
+                          width: `${debugValues.m_abs_2_left.width}%`,
+                          height: `${debugValues.m_abs_2_left.height}%`,
+                          borderRadius: "40% 60% 45% 55%",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      {/* Abdômen médio direito */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_abs_2_right.top}%`,
+                          right: `${debugValues.m_abs_2_right.right}%`,
+                          width: `${debugValues.m_abs_2_right.width}%`,
+                          height: `${debugValues.m_abs_2_right.height}%`,
+                          borderRadius: "60% 40% 55% 45%",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      {/* Abdômen inferior esquerdo */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_abs_3_left.top}%`,
+                          left: `${debugValues.m_abs_3_left.left}%`,
+                          width: `${debugValues.m_abs_3_left.width}%`,
+                          height: `${debugValues.m_abs_3_left.height}%`,
+                          borderRadius: "45% 55% 50% 50%",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      {/* Abdômen inferior direito */}
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_abs_3_right.top}%`,
+                          right: `${debugValues.m_abs_3_right.right}%`,
+                          width: `${debugValues.m_abs_3_right.width}%`,
+                          height: `${debugValues.m_abs_3_right.height}%`,
+                          borderRadius: "55% 45% 50% 50%",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                    </>
+                  )}
+
+                {quizData.gender !== "mulher" &&
+                  (quizData.problemAreas.includes("Pernas") || quizData.problemAreas.includes("Tudo")) && (
+                    <>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_leg_upper_left.top}%`,
+                          left: `${debugValues.m_leg_upper_left.left}%`,
+                          width: `${debugValues.m_leg_upper_left.width}%`,
+                          height: `${debugValues.m_leg_upper_left.height}%`,
+                          borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
+                          transform: `rotate(${debugValues.m_leg_upper_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.m_leg_lower_left.top}%`,
+                          left: `${debugValues.m_leg_lower_left.left}%`,
+                          width: `${debugValues.m_leg_lower_left.width}%`,
+                          height: `${debugValues.m_leg_lower_left.height}%`,
+                          borderRadius: "50% 50% 40% 60% / 60% 60% 50% 50%",
+                          transform: `rotate(${debugValues.m_leg_lower_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.m_leg_upper_right.top}%`,
+                          right: `${debugValues.m_leg_upper_right.right}%`,
+                          width: `${debugValues.m_leg_upper_right.width}%`,
+                          height: `${debugValues.m_leg_upper_right.height}%`,
+                          borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
+                          transform: `rotate(${debugValues.m_leg_upper_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.m_leg_lower_right.top}%`,
+                          right: `${debugValues.m_leg_lower_right.right}%`,
+                          width: `${debugValues.m_leg_lower_right.width}%`,
+                          height: `${debugValues.m_leg_lower_right.height}%`,
+                          borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
+                          transform: `rotate(${debugValues.m_leg_lower_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                        }}
+                      ></div>
+                    </>
+                  )}
+
+                {/* FEMININE PROBLEM AREAS */}
+                {quizData.gender === "mulher" &&
+                  (quizData.problemAreas.includes("Peito") || quizData.problemAreas.includes("Tudo")) && (
+                    <>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
+                        style={{
+                          top: `${debugValues.chest_left.top}%`,
+                          left: `${debugValues.chest_left.left}%`,
+                          width: `${debugValues.chest_left.width}%`,
+                          height: `${debugValues.chest_left.height}%`,
+                          borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
+                          transform: `rotate(${debugValues.chest_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
+                        style={{
+                          top: `${debugValues.chest_right.top}%`,
+                          right: `${debugValues.chest_right.right}%`,
+                          width: `${debugValues.chest_right.width}%`,
+                          height: `${debugValues.chest_right.height}%`,
+                          borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
+                          transform: `rotate(${debugValues.chest_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
+                        }}
+                      ></div>
+                    </>
+                  )}
+
+                {quizData.gender === "mulher" &&
+                  (quizData.problemAreas.includes("Braços") || quizData.problemAreas.includes("Tudo")) && (
+                    <>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.arm_upper_left.top}%`,
+                          left: `${debugValues.arm_upper_left.left}%`,
+                          width: `${debugValues.arm_upper_left.width}%`,
+                          height: `${debugValues.arm_upper_left.height}%`,
+                          borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
+                          transform: `rotate(${debugValues.arm_upper_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.arm_lower_left.top}%`,
+                          left: `${debugValues.arm_lower_left.left}%`,
+                          width: `${debugValues.arm_lower_left.width}%`,
+                          height: `${debugValues.arm_lower_left.height}%`,
+                          borderRadius: "45% 55% 50% 50% / 60% 60% 40% 40%",
+                          transform: `rotate(${debugValues.arm_lower_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.arm_upper_right.top}%`,
+                          right: `${debugValues.arm_upper_right.right}%`,
+                          width: `${debugValues.arm_upper_right.width}%`,
+                          height: `${debugValues.arm_upper_right.height}%`,
+                          borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
+                          transform: `rotate(${debugValues.arm_upper_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.arm_lower_right.top}%`,
+                          right: `${debugValues.arm_lower_right.right}%`,
+                          width: `${debugValues.arm_lower_right.width}%`,
+                          height: `${debugValues.arm_lower_right.height}%`,
+                          borderRadius: "55% 45% 50% 50% / 60% 60% 40% 40%",
+                          transform: `rotate(${debugValues.arm_lower_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                    </>
+                  )}
+
+                {quizData.gender === "mulher" &&
+                  (quizData.problemAreas.includes("Barriga") || quizData.problemAreas.includes("Tudo")) && (
+                    <div
+                      className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                      style={{
+                        top: `${debugValues.belly.top}%`,
+                        left: `${debugValues.belly.left}%`,
+                        transform: `translateX(-50%) rotate(${debugValues.belly.rotate}deg)`,
+                        width: `${debugValues.belly.width}%`,
+                        height: `${debugValues.belly.height}%`,
+                        borderRadius: "45% 55% 50% 50% / 40% 40% 60% 60%",
+                        boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.4)",
+                      }}
+                    ></div>
+                  )}
+
+                {quizData.gender === "mulher" &&
+                  (quizData.problemAreas.includes("Pernas") || quizData.problemAreas.includes("Tudo")) && (
+                    <>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.leg_upper_left.top}%`,
+                          left: `${debugValues.leg_upper_left.left}%`,
+                          width: `${debugValues.leg_upper_left.width}%`,
+                          height: `${debugValues.leg_upper_left.height}%`,
+                          borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
+                          transform: `rotate(${debugValues.leg_upper_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.leg_lower_left.top}%`,
+                          left: `${debugValues.leg_lower_left.left}%`,
+                          width: `${debugValues.leg_lower_left.width}%`,
+                          height: `${debugValues.leg_lower_left.height}%`,
+                          borderRadius: "50% 50% 45% 55% / 65% 65% 35% 35%",
+                          transform: `rotate(${debugValues.leg_lower_left.rotate}deg)`,
+                          boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
+                        style={{
+                          top: `${debugValues.leg_upper_right.top}%`,
+                          right: `${debugValues.leg_upper_right.right}%`,
+                          width: `${debugValues.leg_upper_right.width}%`,
+                          height: `${debugValues.leg_upper_right.height}%`,
+                          borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
+                          transform: `rotate(${debugValues.leg_upper_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                      <div
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
+                        style={{
+                          top: `${debugValues.leg_lower_right.top}%`,
+                          right: `${debugValues.leg_lower_right.right}%`,
+                          width: `${debugValues.leg_lower_right.width}%`,
+                          height: `${debugValues.leg_lower_right.height}%`,
+                          borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
+                          transform: `rotate(${debugValues.leg_lower_right.rotate}deg)`,
+                          boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
+                        }}
+                      ></div>
+                    </>
+                  )}
+              </div>
+
+              {debugMode && (
+                <div className="w-96 max-h-[600px] overflow-y-auto bg-gray-900/95 rounded-lg p-4 space-y-4 border border-purple-500">
+                  <div className="flex justify-between items-center sticky top-0 bg-gray-900 pb-2 border-b border-purple-500">
+                    <h3 className="text-lg font-bold text-white">
+                      Ajustar Marcações ({quizData.gender === "mulher" ? "Feminino" : "Masculino"})
+                    </h3>
+                    <button
+                      onClick={copyDebugValues}
+                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm"
+                    >
+                      Copiar Valores
+                    </button>
+                  </div>
+
+                  {Object.entries(debugValues)
+                    .filter(([key]) => (quizData.gender === "mulher" ? !key.startsWith("m_") : key.startsWith("m_")))
+                    .map(([key, values]) => (
+                      <div key={key} className="space-y-2 border-b border-gray-700 pb-3">
+                        <h4 className="text-sm font-semibold text-purple-300">
+                          {key.replace(/m_/g, "").replace(/_/g, " ").toUpperCase()}
+                        </h4>
+
+                        <div className="space-y-1">
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Top: {values.top}%</span>
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={values.top}
+                              onChange={(e) => updateDebugValue(key, "top", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+
+                          {"left" in values && (
+                            <label className="text-xs text-gray-400 flex justify-between">
+                              <span>Left: {values.left}%</span>
+                              <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={values.left}
+                                onChange={(e) => updateDebugValue(key, "left", Number(e.target.value))}
+                                className="w-48"
+                              />
+                            </label>
+                          )}
+
+                          {"right" in values && (
+                            <label className="text-xs text-gray-400 flex justify-between">
+                              <span>Right: {values.right}%</span>
+                              <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={values.right}
+                                onChange={(e) => updateDebugValue(key, "right", Number(e.target.value))}
+                                className="w-48"
+                              />
+                            </label>
+                          )}
+
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Width: {values.width}%</span>
+                            <input
+                              type="range"
+                              min="1"
+                              max="50"
+                              value={values.width}
+                              onChange={(e) => updateDebugValue(key, "width", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Height: {values.height}%</span>
+                            <input
+                              type="range"
+                              min="1"
+                              max="50"
+                              value={values.height}
+                              onChange={(e) => updateDebugValue(key, "height", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+
+                          <label className="text-xs text-gray-400 flex justify-between">
+                            <span>Rotate: {values.rotate}°</span>
+                            <input
+                              type="range"
+                              min="-90"
+                              max="90"
+                              value={values.rotate}
+                              onChange={(e) => updateDebugValue(key, "rotate", Number(e.target.value))}
+                              className="w-48"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+
+              <div className="flex flex-col space-y-4 max-w-md">
+                {["Peito", "Braços", "Barriga", "Pernas", "Tudo"].map((area) => (
+                  <div
+                    key={area}
+                    className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
+                      quizData.problemAreas.includes(area)
+                        ? "bg-emerald-500 border-emerald-500 text-white"
+                        : "bg-white/5 backdrop-blur-sm border-white/10 text-white hover:border-emerald-500"
+                    }`}
+                    onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold">{area}</h3>
+                      <div
+                        className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                          quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-white/30"
+                        }`}
+                      >
+                        {quizData.problemAreas.includes(area) && <CheckCircle className="h-4 w-4 text-emerald-500" />}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-center mt-8">
+              <Button onClick={() => setShowQuickResults(true)} disabled={!canProceed()} className="group relative">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
+
+      case 8: // Renumbered from case 7
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2396,7 +2933,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 8: // Renumbered from case 7
+      case 9: // Renumbered from case 8
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2431,7 +2968,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 9: // Renumbered from case 8
+      case 10: // Renumbered from case 9
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2467,7 +3004,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 10: // Renumbered from case 9
+      case 11: // Renumbered from case 10
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2515,7 +3052,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 11: // Renumbered from case 10
+      case 12: // Renumbered from case 11
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2548,7 +3085,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 12: // Renumbered from case 11
+      case 13: // Renumbered from case 12
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2586,7 +3123,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 13: // Renumbered from case 12
+      case 14: // Renumbered from case 13
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2620,7 +3157,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 14: // Renumbered from case 13
+      case 15: // Renumbered from case 14
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2676,7 +3213,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 15: // Renumbered from case 14
+      case 16: // Renumbered from case 15
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2728,7 +3265,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 16: // Renumbered from case 15
+      case 17: // Renumbered from case 16
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2766,7 +3303,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 17: // Renumbered from case 16
+      case 18: // Renumbered from case 17
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2804,7 +3341,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 18: // Renumbered from case 17
+      case 19: // Renumbered from case 18
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2842,7 +3379,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 19: // Renumbered from case 18
+      case 20: // Renumbered from case 19
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2917,7 +3454,7 @@ export default function QuizPage() {
             <div className="flex justify-center mt-8">
               <Button
                 onClick={() => {
-                  console.log("[v0] Case 18 continue button clicked, currentStep:", currentStep)
+                  console.log("[v0] Case 20 continue button clicked, currentStep:", currentStep)
                   console.log("[v0] Selected problems:", quizData.previousProblems)
                   nextStep()
                 }}
@@ -2932,7 +3469,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 20: // Renumbered from case 19
+      case 21: // Renumbered from case 20
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2994,7 +3531,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 21: // Renumbered from case 20
+      case 22: // Renumbered from case 21
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3042,11 +3579,11 @@ export default function QuizPage() {
           </div>
         )
 
-      case 22: // Renumbered from case 21
+      case 23: // Renumbered from case 22
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
+              <h2 className="text-2xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
               <p className="text-gray-300">Quanto tempo você pode dedicar por sessão?</p>
             </div>
             <div className="grid grid-cols-1 gap-4">
@@ -3055,25 +3592,21 @@ export default function QuizPage() {
                   value: "15-30",
                   label: "15-30 minutos",
                   desc: "Treinos rápidos e eficientes",
-                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
                 },
                 {
                   value: "30-45",
                   label: "30-45 minutos",
                   desc: "Tempo ideal para maioria dos treinos",
-                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
                 },
                 {
                   value: "45-60",
                   label: "45-60 minutos",
                   desc: "Treinos completos e detalhados",
-                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
                 },
                 {
                   value: "60+",
                   label: "Mais de 60 minutos",
                   desc: "Treinos extensos e avançados",
-                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
                 },
               ].map((option) => (
                 <button
@@ -3082,17 +3615,28 @@ export default function QuizPage() {
                     updateQuizData("workoutTime", option.value)
                     setTimeout(() => nextStep(), 300)
                   }}
-                  className={`p-4 rounded-lg border-2 transition-all ${
+                  className={`p-6 rounded-xl border-2 transition-all ${
                     quizData.workoutTime === option.value
                       ? "border-lime-500 bg-lime-500/10"
                       : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
                   }`}
                 >
-                  <div className="flex items-center space-x-3 sm:space-x-4">
-                    <div className="flex-shrink-0">{option.icon}</div>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex-shrink-0">
+                      <svg
+                        className="w-12 h-12 text-lime-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                        <path d="M12 6v6l4 2" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                    </div>
                     <div className="text-left flex-1">
-                      <h3 className="text-white font-medium">{option.label}</h3>
-                      <p className="text-white/50 text-sm mt-1">{option.desc}</p>
+                      <h3 className="text-white font-semibold text-lg">{option.label}</h3>
+                      <p className="text-gray-400 text-sm mt-1">{option.desc}</p>
                     </div>
                   </div>
                 </button>
@@ -3100,8 +3644,9 @@ export default function QuizPage() {
             </div>
           </div>
         )
+      // </CHANGE>
 
-      case 23: // Renumbered from case 22
+      case 24: // Renumbered from case 23
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3278,7 +3823,7 @@ export default function QuizPage() {
             <div className="flex justify-center">
               <Button
                 onClick={() => {
-                  console.log("[v0] Case 22 continue button clicked")
+                  console.log("[v0] Case 23 continue button clicked")
                   console.log("[v0] Current step:", currentStep)
                   console.log("[v0] Food preferences:", quizData.foodPreferences)
                   nextStep()
@@ -3294,7 +3839,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 24: // Renumbered from case 23
+      case 25: // Renumbered from case 24
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3333,7 +3878,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 25: // Renumbered from case 24
+      case 26: // Renumbered from case 25
         if (quizData.allergies !== "sim") {
           return null
         }
@@ -3366,7 +3911,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 26: // Renumbered from case 25. Now Training Days
+      case 27: // Renumbered from case 26. Now Supplement Interest
         // Now case 26 is Training Days
         return (
           <div className="space-y-8">
@@ -3419,7 +3964,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 27: // Renumbered from case 26. Now Supplement Interest
+      case 28: // Renumbered from case 27. Now Supplement Interest
         const shouldRecommendHipercalorico = () => {
           // Factor 1: Low IMC (underweight)
           if (quizData.imc && quizData.imc < 18.5) {
@@ -3558,7 +4103,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 28: // Renumbered from case 27. Now Name
+      case 29: // Renumbered from case 28. Now Name
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3588,7 +4133,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 29: // Renumbered from case 28. Email
+      case 30: // Renumbered from case 29. Email
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3619,7 +4164,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 30: // Renumbered from case 29. Training days per week
+      case 31: // Renumbered from case 30. Training days per week
         // Training days per week is now handled by the slider in case 24.
         // This case is now for the final submit.
         return (
@@ -3722,7 +4267,7 @@ export default function QuizPage() {
           !showQuickResults && // Added condition for quick results page
           ![
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-            30,
+            30, 31,
           ].includes(currentStep) && (
             <div className="mt-8 flex justify-center">
               <Button
