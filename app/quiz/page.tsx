@@ -39,7 +39,7 @@ interface QuizData {
   wantsSupplement: string
   supplementType: string
   recommendedSupplement: string
-  // </CHANGE>
+  weightChangeType: string
   height: string
   heightUnit: string
   currentWeight: string
@@ -101,6 +101,9 @@ const initialQuizData: QuizData = {
   wantsSupplement: "",
   supplementType: "",
   recommendedSupplement: "",
+  // </CHANGE>
+  // Initialize weightChangeType field
+  weightChangeType: "",
   // </CHANGE>
   // </CHANGE>
   height: "",
@@ -269,6 +272,9 @@ export default function QuizPage() {
       fruits: [],
     },
     // </CHANGE>
+    // Initialize weightChangeType
+    weightChangeType: "",
+    // </CHANGE>
   })
   const [showSuccess, setShowSuccess] = useState(false)
   const [showNutritionInfo, setShowNutritionInfo] = useState(false)
@@ -280,7 +286,8 @@ export default function QuizPage() {
   // </CHANGE>
   const [showIMCResult, setShowIMCResult] = useState(false)
   const [showLoading, setShowLoading] = useState(false)
-  const [totalSteps, setTotalSteps] = useState(29)
+  const [totalSteps, setTotalSteps] = useState(30)
+  // </CHANGE>
 
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
@@ -791,79 +798,6 @@ export default function QuizPage() {
 
   const nextStep = () => {
     console.log("[v0] nextStep called, currentStep:", currentStep, "quizData:", quizData)
-
-if (showQuickResults) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white flex items-center justify-center p-6">
-        <div className="max-w-2xl w-full space-y-8">
-          <div className="text-center space-y-4">
-            <h1 className="text-3xl sm:text-4xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
-            <p className="text-gray-300 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
-          </div>
-
-          <div className="relative w-full h-[400px] bg-gray-800/50 rounded-2xl p-6 backdrop-blur-sm border border-gray-700">
-            {/* Graph Container */}
-            <div className="relative w-full h-full">
-              {/* Y-axis labels */}
-              <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-xs text-gray-400">
-                <span>Alto</span>
-                <span>Médio</span>
-                <span>Baixo</span>
-              </div>
-
-              {/* X-axis labels */}
-              <div className="absolute bottom-0 left-12 right-0 flex justify-between text-xs text-gray-400">
-                <span>Agora</span>
-                <span>1 Mês</span>
-                <span>2 Meses</span>
-                <span>3 Meses</span>
-              </div>
-
-              {/* Graph lines */}
-              <svg className="absolute left-12 top-4 right-4 bottom-8" viewBox="0 0 400 300" preserveAspectRatio="none">
-                {/* Muscle mass line (white) */}
-                <polyline points="0,250 100,200 200,150 300,100 400,80" fill="none" stroke="white" strokeWidth="3" />
-                {/* Fat percentage line (lime) */}
-                <polyline points="0,100 100,120 200,180 300,220 400,240" fill="none" stroke="#84cc16" strokeWidth="3" />
-
-                {/* Dots */}
-                <circle cx="100" cy="120" r="6" fill="#84cc16" />
-                <circle cx="400" cy="240" r="6" fill="#84cc16" />
-                <circle cx="400" cy="80" r="6" fill="white" />
-              </svg>
-
-              {/* Labels on graph */}
-              <div className="absolute top-4 right-8 text-sm font-semibold text-white">Massa muscular</div>
-              <div className="absolute bottom-12 right-8 text-sm font-semibold bg-lime-500 text-black px-3 py-1 rounded">
-                % de gordura
-              </div>
-              <div className="absolute top-[40%] left-16 bg-lime-500 text-black px-3 py-1 rounded font-semibold text-sm">
-                2ª semana 🔥
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2 text-center text-sm text-gray-400">
-            <p>*Baseado em dados de 1,3 milhões de treinos.</p>
-            <p className="text-xs">
-              *Gráfico ilustrativo baseado em dados de bem-estar auto-relatados. Resultados individuais podem variar.
-            </p>
-          </div>
-
-          <Button
-            onClick={() => {
-              setShowQuickResults(false)
-              setCurrentStep(currentStep + 1) // Move to the next step after this motivational page
-            }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-black py-6 text-xl rounded-full font-bold transition-all duration-300 flex items-center justify-center gap-2"
-          >
-            Entendi
-            <ArrowRight className="w-6 h-6" />
-          </Button>
-        </div>
-      </div>
-    )
-  }
 
     if (currentStep === 21) {
       setShowCortisolMessage(true)
@@ -1929,6 +1863,10 @@ if (showQuickResults) {
         return quizData.bodyType !== ""
       case 3:
         return quizData.goal.length > 0
+      // Added condition for new case 3.5
+      case 3.5:
+        return quizData.weightChangeType !== ""
+      // </CHANGE>
       case 4:
         return quizData.bodyFat !== 0
       case 5:
@@ -2160,6 +2098,47 @@ if (showQuickResults) {
             </div>
           </div>
         )
+
+      case 3.5:
+        return (
+          <div className="space-y-6 sm:space-y-8">
+            <div className="text-center space-y-2 sm:space-y-4">
+              <h2 className="text-2xl sm:text-2xl md:text-3xl font-bold text-white">Como o seu peso costuma mudar?</h2>
+            </div>
+            <div className="space-y-3 sm:space-y-4">
+              {[
+                { value: "gain-fast-lose-slow", label: "Ganho peso rápido, mas perco devagar" },
+                { value: "gain-lose-easily", label: "Ganho e perco peso facilmente" },
+                { value: "struggle-to-gain", label: "Tenho dificuldade para ganhar peso ou músculos" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  className={`w-full backdrop-blur-sm rounded-lg p-5 sm:p-6 cursor-pointer transition-all text-left ${
+                    quizData.weightChangeType === option.value
+                      ? "border-2 border-lime-500 bg-lime-500/10"
+                      : "border border-white/10 bg-white/5 hover:bg-white/10"
+                  }`}
+                  onClick={() => {
+                    updateQuizData("weightChangeType", option.value)
+                    setTimeout(() => nextStep(), 300)
+                  }}
+                >
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        quizData.weightChangeType === option.value ? "border-lime-500 bg-lime-500" : "border-white/30"
+                      }`}
+                    >
+                      {quizData.weightChangeType === option.value && <div className="w-3 h-3 rounded-full bg-white" />}
+                    </div>
+                    <span className="text-base sm:text-lg text-white">{option.label}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+      // </CHANGE>
 
       case 4:
         return (
@@ -2946,7 +2925,7 @@ if (showQuickResults) {
           </div>
         )
 
-       case 10:
+      case 10:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -4112,7 +4091,8 @@ if (showQuickResults) {
           !showTimeCalculation &&
           !showAnalyzingData &&
           ![
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+            1, 2, 3, 3.5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+            29, 30,
           ].includes(currentStep) && (
             <div className="mt-8 flex justify-center">
               <Button
