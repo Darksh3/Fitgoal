@@ -3508,50 +3508,57 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
+              <h2 className="text-2xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
               <p className="text-gray-300">Quanto tempo você pode dedicar por sessão?</p>
             </div>
-
-            <div className="max-w-2xl mx-auto">
-              <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 space-y-8">
-                {/* Value display */}
-                <div className="flex justify-center">
-                  <div className="bg-white/10 rounded-full px-8 py-3">
-                    <span className="text-xl md:text-2xl font-bold text-white">
-                      {quizData.trainingDays || "5"} {(quizData.trainingDays || "5") === "1" ? "dia" : "dias"}
-                    </span>
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                {
+                  value: "15-30",
+                  label: "15-30 minutos",
+                  desc: "Treinos rápidos e eficientes",
+                  icon: <Clock className="w-6 h-6 text-lime-500" />,
+                },
+                {
+                  value: "30-45",
+                  label: "30-45 minutos",
+                  desc: "Tempo ideal para maioria dos treinos",
+                  icon: <Clock className="w-6 h-6 text-lime-500" />,
+                },
+                {
+                  value: "45-60",
+                  label: "45-60 minutos",
+                  desc: "Treinos completos e detalhados",
+                  icon: <Clock className="w-6 h-6 text-lime-500" />,
+                },
+                {
+                  value: "60+",
+                  label: "Mais de 60 minutos",
+                  desc: "Treinos extensos e avançados",
+                  icon: <Clock className="w-6 h-6 text-lime-500" />,
+                },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    updateQuizData("workoutTime", option.value)
+                    setTimeout(() => nextStep(), 300)
+                  }}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    quizData.workoutTime === option.value
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
+                  }`}
+                >
+                  <div className="flex items-center space-x-3 sm:space-x-4">
+                    <div className="flex-shrink-0">{option.icon}</div>
+                    <div className="text-left flex-1">
+                      <h3 className="text-white font-medium">{option.label}</h3>
+                      <p className="text-white/50 text-sm mt-1">{option.desc}</p>
+                    </div>
                   </div>
-                </div>
-
-                {/* Slider */}
-                <div className="space-y-4">
-                  <input
-                    type="range"
-                    min="1"
-                    max="7"
-                    value={quizData.trainingDays || "5"}
-                    onChange={(e) => updateQuizData("trainingDays", e.target.value)}
-                    className="w-full h-2 rounded-full appearance-none cursor-pointer"
-                    style={{
-                      background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 100%)`,
-                    }}
-                  />
-
-                  {/* Labels */}
-                  <div className="flex justify-between text-gray-400 text-sm">
-                    <span>1 dia</span>
-                    <span>7 dias</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-center mt-8">
-                <Button onClick={nextStep} className="group relative overflow-hidden">
-                  <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                    <span className="relative z-10">Continuar</span>
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                  </div>
-                </Button>
-              </div>
+                </button>
+              ))}
             </div>
           </div>
         )
