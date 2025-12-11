@@ -2265,12 +2265,15 @@ export default function QuizPage() {
 
       case 6: // Renumbered from case 4 - Goals question
         return (
-          <div className="relative space-y-4 sm:space-y-8">
-            <div className="relative z-10 text-center space-y-2 sm:space-y-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual área você quer focar mais?</h2>
+              <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
-            <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 max-w-lg mx-auto">
-              <div className="relative flex flex-col items-center">
+            <div className="flex items-start justify-center space-x-8">
+              <div
+                className={`relative bg-transparent ${quizData.gender === "mulher" ? "w-52 h-[420px]" : "w-52 h-auto"}`}
+              >
                 <img
                   src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
                   alt="Corpo base"
