@@ -795,43 +795,19 @@ export default function QuizPage() {
   const nextStep = () => {
     console.log("[v0] nextStep called, currentStep:", currentStep, "quizData:", quizData)
 
-    if (currentStep === 4) {
-      // After selecting body fat percentage, show quick results motivation page
-      console.log("[v0] Current step is 4, showing quick results.")
-      setShowQuickResults(true)
-      return
-    }
-    // </CHANGE>
+    // </CHANGE> Removed condition that prevented auto-advance from case 4
+    // if (currentStep === 4) {
+    //   setShowQuickResults(true)
+    //   return
+    // }
 
     if (currentStep === 21) {
+      // This case is now related to exercise preferences (cardio, strength, stretching feelings).
+      // The original code had a condition for allergies here which is now handled in step 24.
+      // If the intention was to always advance after exercise preferences, this is correct.
+      // Let's assume we want to always advance from exercise preferences to previous problems.
       setShowCortisolMessage(true)
       setCurrentStep(22) // Move to step 22, but cortisol message will show first
-      return
-    }
-    // </CHANGE>
-
-    if (currentStep === 22) {
-      // This case is now related to Training Days per week (step 24).
-      // The original code had a condition here for allergies, which is now handled in step 22.
-      // If the intention was to always advance after the cortisol message, this should be handled by the render logic.
-      // For now, assuming we simply advance.
-      setCurrentStep(currentStep + 1)
-      return
-    }
-    // </CHANGE>
-
-    if (currentStep === 17) {
-      // This case 17 is now about previous problems
-      console.log("[v0] Advancing from step 17, checking for motivation message logic...")
-      if (
-        quizData.previousProblems.length === 0 ||
-        (quizData.previousProblems.length === 1 && quizData.previousProblems[0] === "no-problems")
-      ) {
-        // If user selected "Não, eu não tenho", we show motivation message directly
-        setShowMotivationMessage(true)
-        console.log("[v0] No previous problems selected, showing motivation message.")
-      }
-      setCurrentStep(currentStep + 1) // Always advance to the next step (which is now additional goals)
       return
     }
     // </CHANGE>
@@ -1976,7 +1952,7 @@ export default function QuizPage() {
       case 21: // Renumbered from case 19. Equipment
         return quizData.equipment.length > 0
       case 22: // Renumbered from case 20. Workout Time
-        return quizData.workoutTime !== ""
+        return quizData.trainingDays !== ""
       case 23: // Renumbered from case 21. Food Preferences
         // Allow proceeding if "Let Mad Muscles Choose" is true or if at least one food preference is selected
         return quizData.letMadMusclesChoose || Object.values(quizData.foodPreferences).some((arr) => arr.length > 0)
@@ -2289,15 +2265,12 @@ export default function QuizPage() {
 
       case 6: // Renumbered from case 4 - Goals question
         return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual área você quer focar mais?</h2>
-              <p className="text-gray-300">Selecione todos que se aplicam</p>
+          <div className="relative space-y-4 sm:space-y-8">
+            <div className="relative z-10 text-center space-y-2 sm:space-y-4">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual área você quer focar mais?</h2>
             </div>
-            <div className="flex items-start justify-center space-x-8">
-              <div
-                className={`relative bg-transparent ${quizData.gender === "mulher" ? "w-52 h-[420px]" : "w-52 h-auto"}`}
-              >
+            <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 max-w-lg mx-auto">
+              <div className="relative flex flex-col items-center">
                 <img
                   src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
                   alt="Corpo base"
