@@ -11,7 +11,7 @@ import { Slider } from "@/components/ui/slider"
 
 import { Textarea } from "@/components/ui/textarea"
 
-import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, Clock } from "lucide-react"
+import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, ArrowRight } from "lucide-react"
 
 import { useRouter } from "next/navigation"
 
@@ -219,6 +219,8 @@ export default function QuizPage() {
   const [showCortisolMessage, setShowCortisolMessage] = useState(false)
   // </CHANGE>
   const [currentStep, setCurrentStep] = useState(1)
+  const [showQuickResults, setShowQuickResults] = useState(false)
+
   const [quizData, setQuizData] = useState<QuizData>({
     gender: "",
     bodyType: "",
@@ -799,6 +801,11 @@ export default function QuizPage() {
   const nextStep = () => {
     console.log("[v0] nextStep called, currentStep:", currentStep, "quizData:", quizData)
 
+    if (currentStep === 5 && quizData.bodyFat !== 0) {
+      setShowQuickResults(true)
+      return
+    }
+
     if (currentStep === 21) {
       setShowCortisolMessage(true)
       setCurrentStep(22) // Move to step 22, but cortisol message will show first
@@ -1216,6 +1223,71 @@ export default function QuizPage() {
 
   const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
   // </CHANGE>
+
+  if (showQuickResults) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white flex items-center justify-center p-6">
+        <div className="max-w-2xl w-full space-y-8">
+          <div className="text-center space-y-4">
+            <h1 className="text-3xl sm:text-4xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
+            <p className="text-gray-300 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
+          </div>
+
+          <div className="relative w-full h-[400px] bg-gray-800/50 rounded-2xl p-6 backdrop-blur-sm border border-gray-700">
+            <div className="relative w-full h-full">
+              <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-xs text-gray-400">
+                <span>Alto</span>
+                <span>Médio</span>
+                <span>Baixo</span>
+              </div>
+
+              <div className="absolute bottom-0 left-12 right-0 flex justify-between text-xs text-gray-400">
+                <span>Agora</span>
+                <span>1 Mês</span>
+                <span>2 Meses</span>
+                <span>3 Meses</span>
+              </div>
+
+              <svg className="absolute left-12 top-4 right-4 bottom-8" viewBox="0 0 400 300" preserveAspectRatio="none">
+                <polyline points="0,250 100,200 200,150 300,100 400,80" fill="none" stroke="white" strokeWidth="3" />
+                <polyline points="0,100 100,120 200,180 300,220 400,240" fill="none" stroke="#84cc16" strokeWidth="3" />
+
+                <circle cx="100" cy="120" r="6" fill="#84cc16" />
+                <circle cx="400" cy="240" r="6" fill="#84cc16" />
+                <circle cx="400" cy="80" r="6" fill="white" />
+              </svg>
+
+              <div className="absolute top-4 right-8 text-sm font-semibold text-white">Massa muscular</div>
+              <div className="absolute bottom-12 right-8 text-sm font-semibold bg-lime-500 text-black px-3 py-1 rounded">
+                % de gordura
+              </div>
+              <div className="absolute top-[40%] left-16 bg-lime-500 text-black px-3 py-1 rounded font-semibold text-sm">
+                2ª semana 🔥
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2 text-center text-sm text-gray-400">
+            <p>*Baseado em dados de 1,3 milhões de treinos.</p>
+            <p className="text-xs">
+              *Gráfico ilustrativo baseado em dados de bem-estar auto-relatados. Resultados individuais podem variar.
+            </p>
+          </div>
+
+          <Button
+            onClick={() => {
+              setShowQuickResults(false)
+              setCurrentStep(currentStep + 1)
+            }}
+            className="w-full bg-lime-500 hover:bg-lime-600 text-black py-6 text-xl rounded-full font-bold transition-all duration-300 flex items-center justify-center gap-2"
+          >
+            Entendi
+            <ArrowRight className="w-6 h-6" />
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   if (showCortisolMessage && currentStep === 22) {
     return (
@@ -3365,14 +3437,24 @@ export default function QuizPage() {
                         : [...quizData.additionalGoals, option.value],
                     )
                   }
-                  className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
+                  className={`w-full p-4 rounded-lg border-2 transition-all ${
                     quizData.additionalGoals.includes(option.value)
                       ? "border-lime-500 bg-lime-500/10"
                       : "border-white/10 bg-white/5 hover:border-lime-500/50"
                   }`}
                 >
-                  <span className="text-2xl">{option.icon}</span>
-                  <span className="text-white text-left">{option.label}</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white text-left">{option.label}</span>
+                    <div
+                      className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                        quizData.additionalGoals.includes(option.value) ? "bg-white border-white" : "border-white/30"
+                      }`}
+                    >
+                      {quizData.additionalGoals.includes(option.value) && (
+                        <CheckCircle className="h-4 w-4 text-emerald-500" />
+                      )}
+                    </div>
+                  </div>
                 </button>
               ))}
               <button
@@ -3380,14 +3462,22 @@ export default function QuizPage() {
                   updateQuizData("additionalGoals", ["none"])
                   setTimeout(() => nextStep(), 300)
                 }}
-                className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
+                className={`w-full p-4 rounded-lg border-2 transition-all ${
                   quizData.additionalGoals.includes("none")
                     ? "border-red-500 bg-red-500/10"
                     : "border-white/10 bg-white/5 hover:border-red-500/50"
                 }`}
               >
-                <span className="text-2xl">❌</span>
-                <span className="text-white text-left">Nenhuma das acima</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-white text-left">Nenhuma das acima</span>
+                  <div
+                    className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                      quizData.additionalGoals.includes("none") ? "bg-red-500 border-red-500" : "border-white/30"
+                    }`}
+                  >
+                    {quizData.additionalGoals.includes("none") && <X className="h-4 w-4 text-white" />}
+                  </div>
+                </div>
               </button>
             </div>
             <div className="flex justify-center mt-8">
@@ -3453,57 +3543,50 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
               <p className="text-gray-300">Quanto tempo você pode dedicar por sessão?</p>
             </div>
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                {
-                  value: "15-30",
-                  label: "15-30 minutos",
-                  desc: "Treinos rápidos e eficientes",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "30-45",
-                  label: "30-45 minutos",
-                  desc: "Tempo ideal para maioria dos treinos",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "45-60",
-                  label: "45-60 minutos",
-                  desc: "Treinos completos e detalhados",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "60+",
-                  label: "Mais de 60 minutos",
-                  desc: "Treinos extensos e avançados",
-                  icon: <Clock className="w-6 h-6 text-lime-500" />,
-                },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("workoutTime", option.value)
-                    setTimeout(() => nextStep(), 300)
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    quizData.workoutTime === option.value
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
-                  }`}
-                >
-                  <div className="flex items-center space-x-3 sm:space-x-4">
-                    <div className="flex-shrink-0">{option.icon}</div>
-                    <div className="text-left flex-1">
-                      <h3 className="text-white font-medium">{option.label}</h3>
-                      <p className="text-white/50 text-sm mt-1">{option.desc}</p>
-                    </div>
+
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 space-y-8">
+                {/* Value display */}
+                <div className="flex justify-center">
+                  <div className="bg-white/10 rounded-full px-8 py-3">
+                    <span className="text-xl md:text-2xl font-bold text-white">
+                      {quizData.workoutTime || "5"} {(quizData.workoutTime || "5") === "1" ? "dia" : "dias"}
+                    </span>
                   </div>
-                </button>
-              ))}
+                </div>
+
+                {/* Slider */}
+                <div className="space-y-4">
+                  <input
+                    type="range"
+                    min="1"
+                    max="7"
+                    value={quizData.trainingDays || "5"}
+                    onChange={(e) => updateQuizData("trainingDays", e.target.value)}
+                    className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 100%)`,
+                    }}
+                  />
+
+                  {/* Labels */}
+                  <div className="flex justify-between text-gray-400 text-sm">
+                    <span>1 dia</span>
+                    <span>7 dias</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-center mt-8">
+                <Button onClick={nextStep} className="group relative overflow-hidden">
+                  <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                    <span className="relative z-10">Continuar</span>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                  </div>
+                </Button>
+              </div>
             </div>
           </div>
         )
@@ -3827,17 +3910,57 @@ export default function QuizPage() {
 
       // </CHANGE>
 
-      case 27: // Renamed from 26. Now Supplement Interest
-        const supplementRecommendation =
-          quizData.bodyType === "ectomorph" || quizData.bodyType === "magro"
-            ? {
-                name: "Hipercalórico Growth",
-                description: "Ideal para ganho de massa muscular e atingir suas calorias diárias",
-              }
-            : {
-                name: "Whey Protein",
-                description: "Ideal para ganho de massa muscular e recuperação pós-treino",
-              }
+      case 27: // Renumbered from case 26. Now Supplement Interest
+        const shouldRecommendHipercalorico = () => {
+          // Factor 1: Low IMC (underweight)
+          if (quizData.imc && quizData.imc < 18.5) {
+            return true
+          }
+
+          // Factor 2: Body type is ectomorph or "magro" (thin)
+          if (quizData.bodyType === "ectomorph" || quizData.bodyType === "magro") {
+            return true
+          }
+
+          // Factor 3: Goal is to gain weight/muscle mass
+          const hasGainGoal = quizData.goal?.some(
+            (g) =>
+              g.toLowerCase().includes("ganhar") ||
+              g.toLowerCase().includes("massa") ||
+              g.toLowerCase().includes("muscular"),
+          )
+
+          // Factor 4: Current weight is significantly lower than target weight
+          const currentWeight = Number.parseFloat(quizData.currentWeight)
+          const targetWeight = Number.parseFloat(quizData.targetWeight)
+
+          if (currentWeight && targetWeight && hasGainGoal) {
+            const weightDifference = targetWeight - currentWeight
+            // If needs to gain more than 3kg, recommend hypercaloric
+            if (weightDifference > 3) {
+              return true
+            }
+          }
+
+          // Factor 5: Difficulty gaining weight (weightChange)
+          if (quizData.weightChangeType === "struggle-gain") {
+            return true
+          }
+
+          return false
+        }
+
+        const supplementRecommendation = shouldRecommendHipercalorico()
+          ? {
+              name: "Hipercalórico Growth",
+              description: "Ideal para ganho de massa muscular e atingir suas calorias diárias",
+            }
+          : {
+              name: "Whey Protein",
+              description: "Ideal para ganho de massa muscular e recuperação pós-treino",
+            }
+
+        const supplementType = shouldRecommendHipercalorico() ? "hipercalorico" : "whey-protein"
 
         return (
           <div className="space-y-8">
@@ -3854,6 +3977,7 @@ export default function QuizPage() {
                 onClick={() => {
                   updateQuizData("wantsSupplement", "sim")
                   updateQuizData("recommendedSupplement", supplementRecommendation.name)
+                  updateQuizData("supplementType", supplementType)
                   setTimeout(() => nextStep(), 300)
                 }}
                 className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
@@ -3887,6 +4011,7 @@ export default function QuizPage() {
                 onClick={() => {
                   updateQuizData("wantsSupplement", "nao")
                   updateQuizData("recommendedSupplement", "")
+                  updateQuizData("supplementType", "")
                   setTimeout(() => nextStep(), 300)
                 }}
                 className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
