@@ -1248,19 +1248,33 @@ export default function QuizPage() {
               </div>
 
               <svg className="absolute left-12 top-4 right-4 bottom-8" viewBox="0 0 400 300" preserveAspectRatio="none">
-                <polyline points="0,250 100,200 200,150 300,100 400,80" fill="none" stroke="white" strokeWidth="3" />
-                <polyline points="0,100 100,120 200,180 300,220 400,240" fill="none" stroke="#84cc16" strokeWidth="3" />
+                <polyline
+                  points="0,250 100,200 200,150 300,100 400,80"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="3"
+                  className="animate-draw-line"
+                />
+                <polyline
+                  points="0,100 100,120 200,180 300,220 400,240"
+                  fill="none"
+                  stroke="#84cc16"
+                  strokeWidth="3"
+                  className="animate-draw-line-delay-1"
+                />
 
-                <circle cx="100" cy="120" r="6" fill="#84cc16" />
-                <circle cx="400" cy="240" r="6" fill="#84cc16" />
-                <circle cx="400" cy="80" r="6" fill="white" />
+                <circle cx="100" cy="120" r="6" fill="#84cc16" className="animate-fade-in-dot-delay-1" />
+                <circle cx="400" cy="240" r="6" fill="#84cc16" className="animate-fade-in-dot-delay-2" />
+                <circle cx="400" cy="80" r="6" fill="white" className="animate-fade-in-dot-delay-3" />
               </svg>
 
-              <div className="absolute top-4 right-8 text-sm font-semibold text-white">Massa muscular</div>
-              <div className="absolute bottom-12 right-8 text-sm font-semibold bg-lime-500 text-black px-3 py-1 rounded">
+              <div className="absolute top-4 right-8 text-sm font-semibold text-white animate-fade-in-delay-1">
+                Massa muscular
+              </div>
+              <div className="absolute bottom-12 right-8 text-sm font-semibold bg-lime-500 text-black px-3 py-1 rounded animate-fade-in-delay-2">
                 % de gordura
               </div>
-              <div className="absolute top-[40%] left-16 bg-lime-500 text-black px-3 py-1 rounded font-semibold text-sm">
+              <div className="absolute top-[40%] left-16 bg-lime-500 text-black px-3 py-1 rounded font-semibold text-sm animate-fade-in-delay-3">
                 2ª semana 🔥
               </div>
             </div>
