@@ -1296,6 +1296,7 @@ export default function QuizPage() {
           >
             Entendi
             <ArrowRight className="w-6 h-6" />
+            <div className="text-red-500 text-center font-bold">DEBUG: SHOW QUICK RESULTS</div>
           </Button>
         </div>
       </div>
