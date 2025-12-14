@@ -5,13 +5,9 @@ import { useState, useEffect } from "react"
 
 import { Button } from "@/components/ui/button"
 
-import { Input } from "@/components/ui/input"
-
 import { Slider } from "@/components/ui/slider"
 
-import { Textarea } from "@/components/ui/textarea"
-
-import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, ArrowRight } from "lucide-react"
+import { CheckCircle, ArrowRight } from "lucide-react"
 
 import { useRouter } from "next/navigation"
 
@@ -20,6 +16,8 @@ import { db, auth } from "@/lib/firebaseClient"
 import { doc, setDoc, getDoc } from "firebase/firestore"
 
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth"
+
+import { motion } from "framer-motion"
 
 // Moved useState to inside the component to adhere to hook rules
 // const [showMotivationMessage, setShowMotivationMessage] = useState(false)
@@ -184,7 +182,8 @@ const debugFrequencySelection = (frequency: number) => {
     const stored = localStorage.getItem("quizData")
     if (stored) {
       try {
-        const parsed = JSON.JSON.parse(stored)
+        const parsed = JSON.parse(stored)
+        // </CHANGE>
         console.log(`[QUIZ] Stored frequency: ${parsed.trainingDaysPerWeek}`)
       } catch (error) {
         console.error("[QUIZ] localStorage parse error:", error)
@@ -211,6 +210,12 @@ const normalizeHeight = (value: string): string => {
 
   // Return as-is if already in cm format or invalid
   return normalized
+}
+
+const ease = [0.22, 1, 0.36, 1] as const
+
+function buildPath(points: Array<[number, number]>) {
+  return points.map((p, i) => `${i === 0 ? "M" : "L"} ${p[0]} ${p[1]}`).join(" ")
 }
 
 export default function QuizPage() {
@@ -822,7 +827,7 @@ export default function QuizPage() {
     }
     // </CHANGE>
 
-    if (currentStep === 17) {
+    if (currentStep === 17 && quizData.previousProblems.length > 0) {
       // This case 17 is now about previous problems
       console.log("[v0] Advancing from step 17, checking for motivation message logic...")
       if (
@@ -935,7 +940,7 @@ export default function QuizPage() {
         setCurrentStep(22) // Go back to allergies question
       } else if (currentStep === 18 && quizData.additionalGoals.length === 0) {
         // If we are at the additional goals page (now case 18) and user selected none,
-        // and if we are navigating back from this page, we should go back to the previous problem page (case 17)
+        // and we are navigating back from this page, we should go back to the previous problem page (case 17)
         setShowMotivationMessage(false) // Hide motivation message if it was shown
         setCurrentStep(17)
       } else if (currentStep === 18 && showMotivationMessage) {
@@ -1221,18 +1226,61 @@ export default function QuizPage() {
   ]
 
   const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
-  // </CHANGE>
 
-  if (showQuickResults) {
+  if (showQuickResults) {\
+    const musclePts: Array<[number, number]> = [
+      [0, 250],
+      [100, 200],
+      [200, 150],
+      [300, 100],
+      [400, 80],
+    ]
+
+    const fatPts: Array<[number, number]> = [
+      [0, 100],
+      [100, 120],
+      [200, 180],
+      [300, 220],
+      [400, 240],
+    ]
+
+    const buildPath = (points: Array<[number, number]>) => {
+      return points.map((p, i) => `${i === 0 ? "M" : "L"} ${p[0]} ${p[1]}`).join(" ")
+    }
+
+    const muscleD = buildPath(musclePts)
+    const fatD = buildPath(fatPts)
+
     return (
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white flex items-center justify-center p-6">
         <div className="max-w-2xl w-full space-y-8">
           <div className="text-center space-y-4">
-            <h1 className="text-3xl sm:text-4xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
-            <p className="text-gray-300 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
+            <motion.h1
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease }}
+              className="text-3xl sm:text-4xl font-bold"
+            >
+              Apenas 2 semanas para o primeiro resultado
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.08, ease }}
+              className="text-gray-300 text-lg"
+            >
+              Prevemos que você verá melhorias até o final da 2ª semana
+            </motion.p>
           </div>
 
-          <div className="relative w-full h-[400px] bg-gray-800/50 rounded-2xl p-6 backdrop-blur-sm border border-gray-700">
+          <div className="relative w-full h-[420px] bg-gray-800/40 rounded-2xl p-6 backdrop-blur-sm border border-gray-700 overflow-hidden">
+            {/* Glow effect */}
+            <div className="pointer-events-none absolute inset-0 opacity-30">
+              <div className="absolute -top-24 -left-24 h-64 w-64 rounded-full bg-lime-500 blur-3xl" />
+              <div className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-cyan-400 blur-3xl" />
+            </div>
+
             <div className="relative w-full h-full">
               <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-xs text-gray-400">
                 <span>Alto</span>
@@ -1248,35 +1296,99 @@ export default function QuizPage() {
               </div>
 
               <svg className="absolute left-12 top-4 right-4 bottom-8" viewBox="0 0 400 300" preserveAspectRatio="none">
-                <polyline
-                  points="0,250 100,200 200,150 300,100 400,80"
+                {/* Grid lines */}
+                <g opacity="0.12">
+                  {[60, 120, 180, 240].map((y) => (
+                    <line key={y} x1="0" y1={y} x2="400" y2={y} stroke="white" strokeWidth="1" />
+                  ))}
+                </g>
+
+                {/* Muscle line (white) with pathLength animation */}
+                <motion.path
+                  d={muscleD}
                   fill="none"
                   stroke="white"
                   strokeWidth="3"
-                  className="animate-draw-line"
+                  strokeLinecap="round"
+                  initial={{ pathLength: 0, opacity: 0.9 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 1.05, ease }}
                 />
-                <polyline
-                  points="0,100 100,120 200,180 300,220 400,240"
+
+                {/* Fat line (lime) with pathLength animation and glow */}
+                <motion.path
+                  d={fatD}
                   fill="none"
                   stroke="#84cc16"
                   strokeWidth="3"
-                  className="animate-draw-line-delay-1"
+                  strokeLinecap="round"
+                  initial={{ pathLength: 0, opacity: 0.9 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 1.05, delay: 0.18, ease }}
+                  style={{
+                    filter: "drop-shadow(0 0 10px rgba(132, 204, 22, 0.35))",
+                  }}
                 />
 
-                <circle cx="100" cy="120" r="6" fill="#84cc16" className="animate-fade-in-dot-delay-1" />
-                <circle cx="400" cy="240" r="6" fill="#84cc16" className="animate-fade-in-dot-delay-2" />
-                <circle cx="400" cy="80" r="6" fill="white" className="animate-fade-in-dot-delay-3" />
+                {/* Animated dots with pulse effect */}
+                <motion.circle
+                  cx="100"
+                  cy="120"
+                  r="7"
+                  fill="#84cc16"
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity: 1, scale: [1, 1.15, 1] }}
+                  transition={{ duration: 0.6, delay: 0.55, ease }}
+                  style={{ filter: "drop-shadow(0 0 10px rgba(132, 204, 22, 0.5))" }}
+                />
+                <motion.circle
+                  cx="400"
+                  cy="240"
+                  r="7"
+                  fill="#84cc16"
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity: 1, scale: [1, 1.15, 1] }}
+                  transition={{ duration: 0.6, delay: 0.75, ease }}
+                  style={{ filter: "drop-shadow(0 0 10px rgba(132, 204, 22, 0.5))" }}
+                />
+                <motion.circle
+                  cx="400"
+                  cy="80"
+                  r="7"
+                  fill="white"
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity: 1, scale: [1, 1.12, 1] }}
+                  transition={{ duration: 0.6, delay: 0.65, ease }}
+                  style={{ filter: "drop-shadow(0 0 10px rgba(255,255,255,0.25))" }}
+                />
               </svg>
 
-              <div className="absolute top-4 right-8 text-sm font-semibold text-white animate-fade-in-delay-1">
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.35, ease }}
+                className="absolute top-4 right-8 text-sm font-semibold text-white"
+              >
                 Massa muscular
-              </div>
-              <div className="absolute bottom-12 right-8 text-sm font-semibold bg-lime-500 text-black px-3 py-1 rounded animate-fade-in-delay-2">
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.6, ease }}
+                className="absolute bottom-12 right-8 text-sm font-semibold bg-lime-500 text-black px-3 py-1 rounded"
+              >
                 % de gordura
-              </div>
-              <div className="absolute top-[40%] left-16 bg-lime-500 text-black px-3 py-1 rounded font-semibold text-sm animate-fade-in-delay-3">
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.85, x: -10 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.7, ease }}
+                className="absolute top-[40%] left-16 bg-lime-500 text-black px-3 py-1 rounded font-semibold text-sm shadow-[0_0_18px_rgba(132,204,22,0.35)]"
+              >
                 2ª semana 🔥
-              </div>
+              </motion.div>
             </div>
           </div>
 
@@ -1290,13 +1402,12 @@ export default function QuizPage() {
           <Button
             onClick={() => {
               setShowQuickResults(false)
-              setCurrentStep(currentStep + 1)
+              setCurrentStep((s) => s + 1)
             }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-black py-6 text-xl rounded-full font-bold transition-all duration-300 flex items-center justify-center gap-2"
+            className="w-full !bg-lime-500 hover:!bg-lime-600 !text-black py-6 text-xl !rounded-full font-bold transition-all duration-300 flex items-center justify-center gap-2"
           >
             Entendi
             <ArrowRight className="w-6 h-6" />
-            <div className="text-red-500 text-center font-bold">DEBUG: SHOW QUICK RESULTS</div>
           </Button>
         </div>
       </div>
@@ -1414,7 +1525,7 @@ export default function QuizPage() {
 
   if (showGoalTimeline) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 relative overflow-hidden">
         <div className="text-center space-y-8 max-w-md">
           {isCalculatingGoal ? (
             <>
@@ -1864,7 +1975,7 @@ export default function QuizPage() {
             </div>
           </div>
 
-          <p className="text-gray-300 text-sm">Seu nível de hidratação está excelente — continue assim.</p>
+          <p className="text-gray-500 text-xs">Baseado nos dados dos usuários do Fitgoal</p>
 
           <button
             onClick={() => {
@@ -1875,8 +1986,6 @@ export default function QuizPage() {
           >
             Continuar
           </button>
-
-          <p className="text-gray-500 text-xs">Baseado nos dados dos usuários do Fitgoal</p>
         </div>
       </div>
     )
@@ -1999,7 +2108,7 @@ export default function QuizPage() {
       case 26: // Updated from 25. Supplement Recommendation
         return quizData.wantsSupplement !== ""
       case 27: // Updated from 26. Name
-        // This case is now for Supplement Recommendation, and we can always proceed to next step if we want to show recommendation.
+        // This case is now for Supplement Interest, and we can always proceed to next step if we want to show recommendation.
         // The actual *choice* of supplement type was removed from the flow.
         return true // Always allow proceeding after seeing recommendation
       // </CHANGE>
@@ -2185,11 +2294,11 @@ export default function QuizPage() {
 
       case 4: // Renamed from 3.5
         return (
-          <div className="space-y-6 sm:space-y-8">
-            <div className="text-center space-y-2 sm:space-y-4">
-              <h2 className="text-2xl sm:text-2xl md:text-3xl font-bold text-white">Como o seu peso costuma mudar?</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Como o seu peso costuma mudar?</h2>
             </div>
-            <div className="space-y-3 sm:space-y-4">
+            <div className="space-y-4">
               {[
                 { value: "gain-fast-lose-slow", label: "Ganho peso rápido, mas perco devagar" },
                 { value: "gain-lose-easily", label: "Ganho e perco peso facilmente" },
@@ -2294,14 +2403,13 @@ export default function QuizPage() {
           </div>
         )
 
-      case 6: // Renamed from 5
+      case 6: // Updated from 5
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-white">Qual área você quer focar mais?</h2>
-              <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
-            <div className="flex items-start justify-center space-x-8">
+            <div className="relative flex flex-col items-center">
               <div
                 className={`relative bg-transparent ${quizData.gender === "mulher" ? "w-52 h-[420px]" : "w-52 h-auto"}`}
               >
@@ -2674,12 +2782,12 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `${debugValues.leg_lower_right.top}%`,
-                          right: `${debugValues.leg_lower_right.right}%`,
-                          width: `${debugValues.leg_lower_right.width}%`,
-                          height: `${debugValues.leg_lower_right.height}%`,
+                          top: `${debugValues.m_leg_lower_right.top}%`,
+                          right: `${debugValues.m_leg_lower_right.right}%`,
+                          width: `${debugValues.m_leg_lower_right.width}%`,
+                          height: `${debugValues.m_leg_lower_right.height}%`,
                           borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
-                          transform: `rotate(${debugValues.leg_lower_right.rotate}deg)`,
+                          transform: `rotate(${debugValues.m_leg_lower_right.rotate}deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
@@ -2705,119 +2813,28 @@ export default function QuizPage() {
                     .filter(([key]) => (quizData.gender === "mulher" ? !key.startsWith("m_") : key.startsWith("m_")))
                     .map(([key, values]) => (
                       <div key={key} className="space-y-2 border-b border-gray-700 pb-3">
-                        <h4 className="text-sm font-semibold text-purple-300">
-                          {key.replace(/m_/g, "").replace(/_/g, " ").toUpperCase()}
-                        </h4>
-
-                        <div className="space-y-1">
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Top: {values.top}%</span>
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              value={values.top}
-                              onChange={(e) => updateDebugValue(key, "top", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-
-                          {"left" in values && (
-                            <label className="text-xs text-gray-400 flex justify-between">
-                              <span>Left: {values.left}%</span>
+                        <h4 className="text-sm font-semibold text-white capitalize">{key.replace(/_/g, " ")}</h4>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                          {(Object.keys(values) as Array<keyof typeof values>).map((prop) => (
+                            <div key={prop} className="flex items-center justify-between">
+                              <label className="text-gray-300 capitalize">{prop}:</label>
                               <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                value={values.left}
-                                onChange={(e) => updateDebugValue(key, "left", Number(e.target.value))}
-                                className="w-48"
+                                type="number"
+                                className="w-20 p-1 bg-gray-800 border border-gray-700 rounded text-white text-right"
+                                value={values[prop]}
+                                onChange={(e) => updateDebugValue(key, prop, Number.parseFloat(e.target.value))}
                               />
-                            </label>
-                          )}
-
-                          {"right" in values && (
-                            <label className="text-xs text-gray-400 flex justify-between">
-                              <span>Right: {values.right}%</span>
-                              <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                value={values.right}
-                                onChange={(e) => updateDebugValue(key, "right", Number(e.target.value))}
-                                className="w-48"
-                              />
-                            </label>
-                          )}
-
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Width: {values.width}%</span>
-                            <input
-                              type="range"
-                              min="1"
-                              max="50"
-                              value={values.width}
-                              onChange={(e) => updateDebugValue(key, "width", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Height: {values.height}%</span>
-                            <input
-                              type="range"
-                              min="1"
-                              max="50"
-                              value={values.height}
-                              onChange={(e) => updateDebugValue(key, "height", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Rotate: {values.rotate}°</span>
-                            <input
-                              type="range"
-                              min="-90"
-                              max="90"
-                              value={values.rotate}
-                              onChange={(e) => updateDebugValue(key, "rotate", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     ))}
                 </div>
               )}
-
-              <div className="flex flex-col space-y-4 max-w-md">
-                {["Peito", "Braços", "Barriga", "Pernas", "Tudo"].map((area) => (
-                  <div
-                    key={area}
-                    className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
-                      quizData.problemAreas.includes(area)
-                        ? "bg-emerald-500 border-emerald-500 text-white"
-                        : "bg-white/5 backdrop-blur-sm border-white/10 text-white hover:border-emerald-500"
-                    }`}
-                    onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
-                  >
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold">{area}</h3>
-                      <div
-                        className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                          quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-white/30"
-                        }`}
-                      >
-                        {quizData.problemAreas.includes(area) && <CheckCircle className="h-4 w-4 text-emerald-500" />}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
+
             <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
@@ -2827,1423 +2844,99 @@ export default function QuizPage() {
           </div>
         )
 
-      case 7: // Renamed from 6
+      case 7: // Updated from 6
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Você segue alguma dessas dietas?</h2>
+              <h2 className="text-2xl font-bold text-white">Como é a sua dieta atual?</h2>
             </div>
-            <div className="space-y-2 sm:space-y-4">
+            <div className="space-y-4">
               {[
-                { value: "vegetariano", label: "Vegetariano", desc: "Exclui carne", icon: "🌱" },
-                { value: "vegano", label: "Vegano", desc: "Exclui todos os produtos de origem animal", icon: "🌿" },
-                { value: "keto", label: "Keto", desc: "Baixo teor de carboidratos e alto teor de gordura", icon: "🥑" },
-                {
-                  value: "mediterraneo",
-                  label: "Mediterrâneo",
-                  desc: "Rico em alimentos à base de plantas",
-                  icon: "🫒",
-                },
+                { value: "vegetariana", label: "Vegetariana" },
+                { value: "vegana", label: "Vegana" },
+                { value: "paleo", label: "Paleo" },
+                { value: "low-carb", label: "Low-Carb" },
+                { value: "jejum-intermitente", label: "Jejum Intermitente" },
+                { value: "sem-restricoes", label: "Sem restrições específicas" },
               ].map((diet) => (
-                <div
+                <button
                   key={diet.value}
-                  className={`backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
+                  className={`w-full backdrop-blur-sm rounded-lg p-5 sm:p-6 cursor-pointer transition-all text-left ${
                     quizData.diet === diet.value
                       ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10 bg-white/5"
+                      : "border border-white/10 bg-white/5 hover:bg-white/10"
                   }`}
                   onClick={() => {
                     updateQuizData("diet", diet.value)
-                    // SHOW NUTRITION INFO PAGE AFTER SELECTING A HEALTHY DIET
-                    setTimeout(() => {
-                      setShowNutritionInfo(true)
-                    }, 300)
+                    setTimeout(() => nextStep(), 300)
                   }}
                 >
-                  <span className="text-xl sm:text-2xl">{diet.icon}</span>
-                  <div>
-                    <h3 className="text-base sm:text-lg font-bold text-white">{diet.label}</h3>
-                    <p className="text-gray-400 text-xs sm:text-sm">{diet.desc}</p>
-                  </div>
-                </div>
+                  <span className="text-base sm:text-lg text-white">{diet.label}</span>
+                </button>
               ))}
-            </div>
-            <div className="border-t border-gray-700 pt-3 sm:pt-4">
-              <div
-                className={`backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                  quizData.diet === "nao-sigo"
-                    ? "border-2 border-red-500 bg-red-500/20"
-                    : "border border-white/10 bg-white/5"
-                }`}
-                onClick={() => {
-                  updateQuizData("diet", "nao-sigo")
-                  // SKIP NUTRITION INFO PAGE WHEN NOT FOLLOWING A DIET
-                  setTimeout(() => nextStep(), 300)
-                }}
-              >
-                <X className="h-5 w-5 sm:h-6 sm:w-6 text-red-500" />
-
-                <h3 className="text-base sm:text-lg font-bold text-white">Não, não sigo dieta</h3>
-              </div>
             </div>
           </div>
         )
 
-      case 8: // Renamed from 7
+      case 8: // Updated from 7
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-white">Com que frequência você consome doces?</h2>
-              <p className="text-gray-300">Selecione uma opção</p>
             </div>
             <div className="space-y-4">
               {[
-                { value: "esporadicamente", label: "Às vezes", icon: "🍭" },
-                { value: "com-frequencia", label: "Com frequência", icon: "🍰" },
-                { value: "todos-dias", label: "Todos os dias", icon: "🍫" },
-              ].map((freq) => (
-                <div
-                  key={freq.value}
-                  className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
-                    quizData.sugarFrequency.includes(freq.value)
+                { value: "daily", label: "Diariamente" },
+                { value: "few-times-a-week", label: "Algumas vezes por semana" },
+                { value: "rarely", label: "Raramente" },
+                { value: "never", label: "Nunca" },
+              ].map((frequency) => (
+                <button
+                  key={frequency.value}
+                  className={`w-full backdrop-blur-sm rounded-lg p-5 sm:p-6 cursor-pointer transition-all text-left ${
+                    quizData.sugarFrequency.includes(frequency.value)
                       ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10 bg-white/5"
+                      : "border border-white/10 bg-white/5 hover:bg-white/10"
                   }`}
-                  onClick={() => {
-                    updateQuizData("sugarFrequency", [freq.value])
-                    setTimeout(() => nextStep(), 300)
-                  }}
+                  onClick={() =>
+                    handleArrayUpdate(
+                      "sugarFrequency",
+                      frequency.value,
+                      !quizData.sugarFrequency.includes(frequency.value),
+                    )
+                  }
                 >
-                  <div className="flex items-center space-x-4">
-                    <span className="text-3xl">{freq.icon}</span>
-                    <h3 className="text-lg font-bold text-white">{freq.label}</h3>
-                  </div>
-                </div>
+                  <span className="text-base sm:text-lg text-white">{frequency.label}</span>
+                </button>
               ))}
+            </div>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
             </div>
           </div>
         )
 
-      case 9: // Renamed from 8
+      case 9: // Updated from 8
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Com que frequência você consome álcool?</h2>
-              <p className="text-gray-300">Selecione uma opção</p>
+              <h2 className="text-2xl font-bold text-white">Com que frequência você consome bebidas alcoólicas?</h2>
             </div>
             <div className="space-y-4">
               {[
-                { value: "esporadicamente", label: "Às vezes", icon: "🍷" },
-                { value: "com-frequencia", label: "Com frequência", icon: "🍺" },
-                { value: "todos-dias", label: "Todos os dias", icon: "🥃" },
-                { value: "nao-consumo", label: "Não consumo", icon: "🚫" },
-              ].map((freq) => (
-                <div
-                  key={freq.value}
-                  className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
-                    quizData.alcoholFrequency === freq.value
+                { value: "daily", label: "Diariamente" },
+                { value: "few-times-a-week", label: "Algumas vezes por semana" },
+                { value: "rarely", label: "Raramente" },
+                { value: "never", label: "Nunca" },
+              ].map((frequency) => (
+                <button
+                  key={frequency.value}
+                  className={`w-full backdrop-blur-sm rounded-lg p-5 sm:p-6 cursor-pointer transition-all text-left ${
+                    quizData.alcoholFrequency === frequency.value
                       ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10 bg-white/5"
-                  }`}
-                  onClick={() => {
-                    updateQuizData("alcoholFrequency", freq.value)
-                    setTimeout(() => nextStep(), 300)
-                  }}
-                >
-                  <div className="flex items-center space-x-4">
-                    <span className="text-3xl">{freq.icon}</span>
-                    <h3 className="text-lg font-bold text-white">{freq.label}</h3>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )
-
-      case 10: // Renamed from 9
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Quantidade diária de água</h2>
-            </div>
-            <div className="space-y-4">
-              {[
-                { value: "menos-2", label: "Menos de 2 copos", desc: "até 0,5 l", icon: Droplets },
-                { value: "2-6", label: "2-6 copos", desc: "0,5-1,5 l", icon: Droplets },
-                { value: "6-10", label: "7-10 copos", desc: "1,5-2,5 l", icon: Droplets },
-                { value: "mais-10", label: "Mais de 10 copos", desc: "mais de 2,5 l", icon: Droplets },
-              ].map((water) => {
-                const Icon = water.icon
-                return (
-                  <div
-                    key={water.value}
-                    className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
-                      quizData.waterIntake === water.value
-                        ? "border-2 border-lime-500 bg-lime-500/10"
-                        : "border border-white/10 bg-white/5"
-                    }`}
-                    onClick={() => {
-                      updateQuizData("waterIntake", water.value)
-                      if (water.value === "6-10" || water.value === "mais-10") {
-                        setTimeout(() => {
-                          setShowWaterCongrats(true)
-                          setWaterFill(water.value === "6-10" ? 75 : 90)
-                        }, 300)
-                      } else {
-                        setTimeout(() => nextStep(), 300)
-                      }
-                    }}
-                  >
-                    <div className="flex items-center gap-4">
-                      <Icon className="w-8 h-8 text-blue-400 flex-shrink-0" />
-                      <div>
-                        <h3 className="text-lg font-bold text-white mb-1">{water.label}</h3>
-                        <p className="text-sm text-gray-400">{water.desc}</p>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )
-
-      case 11: // Renamed from 10
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é a sua idade?</h2>
-            </div>
-            <div className="max-w-md mx-auto">
-              <Input
-                type="number"
-                inputMode="numeric"
-                min="16"
-                max="80"
-                placeholder="Sua idade"
-                value={quizData.age === 0 ? "" : quizData.age.toString()}
-                onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
-                className="
-                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
-                
-                [--muted-foreground:theme(colors.gray.500)]
-                "
-              />
-            </div>
-            <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      case 12: // Renamed from 11
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é a sua altura?</h2>
-            </div>
-            <div className="max-w-md mx-auto">
-              <Input
-                type="text"
-                inputMode="decimal"
-                placeholder="Altura em metros (ex: 1.75 ou 1,75)"
-                value={quizData.height}
-                onChange={(e) => {
-                  const cleaned = e.target.value.replace(/[^\d.,]/g, "")
-                  setQuizData({ ...quizData, height: cleaned })
-                }}
-                onBlur={(e) => {
-                  const normalized = normalizeHeight(e.target.value)
-                  updateQuizData("height", normalized)
-                }}
-                className="
-                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
-                
-                [--muted-foreground:theme(colors.gray.500)]
-                "
-              />
-            </div>
-            <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative overflow-hidden">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      case 13: // Renamed from 12
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu peso atual?</h2>
-            </div>
-            <div className="max-w-md mx-auto">
-              <Input
-                type="number"
-                placeholder="Peso atual em kg"
-                value={quizData.weight}
-                onChange={(e) => updateQuizData("weight", e.target.value)}
-                min="1"
-                max="500"
-                step="0.1"
-                inputMode="decimal"
-                className="
-                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
-                
-                [--muted-foreground:theme(colors.gray.500)]
-                "
-              />
-            </div>
-            <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative overflow-hidden">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      case 14: // Renamed from 13
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
-            </div>
-            <div className="max-w-md mx-auto">
-              <Input
-                type="number"
-                placeholder="Meta de peso em kg"
-                value={quizData.targetWeight}
-                onChange={(e) => {
-                  updateQuizData("targetWeight", e.target.value)
-                }}
-                onBlur={() => {
-                  const calculatedTime = calculateTimeToGoal()
-                  if (calculatedTime) {
-                    updateQuizData("timeToGoal", calculatedTime)
-                  }
-                }}
-                min="1"
-                max="500"
-                step="0.1"
-                inputMode="decimal"
-                className="
-                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
-                
-                [--muted-foreground:theme(colors.gray.500)]
-                "
-              />
-            </div>
-
-            {/* Updated the continue button logic for this step */}
-            <div className="flex justify-center mt-8">
-              <Button
-                onClick={() => {
-                  const calculatedTime = calculateTimeToGoal()
-                  if (calculatedTime) {
-                    updateQuizData("timeToGoal", calculatedTime)
-                    setShowTimeCalculation(true)
-                  } else {
-                    nextStep()
-                  }
-                }}
-                disabled={!canProceed()}
-                className="group relative overflow-hidden"
-              >
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      case 15: // Renamed from 14
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual seu nível de experiência com treinos?</h2>
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                {
-                  value: "beginner",
-                  label: "Iniciante",
-                  desc: "Menos de 6 meses de treino",
-                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "intermediate",
-                  label: "Intermediário",
-                  desc: "6 meses a 2 anos de treino",
-                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
-                },
-                {
-                  value: "advanced",
-                  label: "Avançado",
-                  desc: "Mais de 2 anos de treino",
-                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
-                },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("strengthTraining", option.value)
-                    setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    quizData.strengthTraining === option.value
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50"
-                  }`}
-                >
-                  <div className="flex items-center space-x-3 sm:space-x-4">
-                    <div className="flex-shrink-0">{option.icon}</div>
-                    <div className="text-left flex-1">
-                      <h3 className="text-white font-medium">{option.label}</h3>
-                      <p className="text-white/50 text-sm mt-1">{option.desc}</p>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )
-
-      case 16: // Renamed from 15
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Como você se sente com cardio?</h2>
-            </div>
-            <div className="flex justify-center mb-6">
-              <ExerciseIllustration type="cardio" />
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                { value: "love", label: "Gosto!" },
-                { value: "neutral", label: "Neutro!" },
-                { value: "avoid", label: "Não Gosto Muito!" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("cardioFeeling", option.value)
-                    setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
-                    quizData.cardioFeeling === option.value
-                      ? option.value === "avoid"
-                        ? "border-red-500 bg-red-500/20"
-                        : option.value === "neutral"
-                          ? "border-yellow-500 bg-yellow-500/20"
-                          : "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
-                  }`}
-                >
-                  <span className="text-white">{option.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )
-
-      case 17: // Renamed from 16
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Como você se sente com flexões?</h2>
-            </div>
-            <div className="flex justify-center mb-6">
-              <ExerciseIllustration type="pullups" />
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                { value: "love", label: "Gosto!" },
-                { value: "neutral", label: "Neutro!" },
-                { value: "modify", label: "Não Gosto Muito!" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("strengthFeeling", option.value)
-                    setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
-                    quizData.strengthFeeling === option.value
-                      ? option.value === "modify"
-                        ? "border-red-500 bg-red-500/20"
-                        : option.value === "neutral"
-                          ? "border-yellow-500 bg-yellow-500/20"
-                          : "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
-                  }`}
-                >
-                  <span className="text-white">{option.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )
-
-      case 18: // Renamed from 17
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Como você se sente com alongamentos?</h2>
-            </div>
-            <div className="flex justify-center mb-6">
-              <ExerciseIllustration type="yoga" />
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                { value: "love", label: "Gosto!" },
-                { value: "neutral", label: "Neutro!" },
-                { value: "skip", label: "Não Gosto Muito!" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("stretchingFeeling", option.value)
-                    setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
-                  }}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
-                    quizData.stretchingFeeling === option.value
-                      ? option.value === "skip"
-                        ? "border-red-500 bg-red-500/20"
-                        : option.value === "neutral"
-                          ? "border-yellow-500 bg-yellow-500/20"
-                          : "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
-                  }`}
-                >
-                  <span className="text-white">{option.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )
-
-      case 19: // Renamed from 18
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">
-                Você já enfrentou algum desses problemas em suas tentativas anteriores de entrar em forma?
-              </h2>
-              <p className="text-gray-300">Selecione todos que se aplicam</p>
-            </div>
-            <div className="space-y-4">
-              {[
-                { value: "no-motivation", label: "Falta de motivação", icon: "🎯" },
-                { value: "no-plan", label: "Não tinha um plano claro", icon: "📅" },
-                { value: "too-hard", label: "Meus treinos eram muito difíceis", icon: "🏋️" },
-                { value: "bad-training", label: "Treinamento ruim", icon: "👤" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() =>
-                    updateQuizData(
-                      "previousProblems",
-                      quizData.previousProblems.includes(option.value)
-                        ? quizData.previousProblems.filter((p) => p !== option.value)
-                        : [...quizData.previousProblems, option.value],
-                    )
-                  }
-                  className={`w-full p-4 rounded-lg border-2 transition-all ${
-                    quizData.previousProblems.includes(option.value)
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-white text-left">{option.label}</span>
-                    <div
-                      className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                        quizData.previousProblems.includes(option.value) ? "bg-white border-white" : "border-white/30"
-                      }`}
-                    >
-                      {quizData.previousProblems.includes(option.value) && (
-                        <CheckCircle className="h-4 w-4 text-emerald-500" />
-                      )}
-                    </div>
-                  </div>
-                </button>
-              ))}
-              <button
-                onClick={() => {
-                  updateQuizData("previousProblems", ["no-problems"])
-                  console.log("[v0] 'Não tenho' clicked, advancing to motivation page")
-                  setTimeout(() => nextStep(), 300)
-                }}
-                className={`w-full p-4 rounded-lg border-2 transition-all ${
-                  quizData.previousProblems.includes("no-problems")
-                    ? "border-red-500 bg-red-500/10"
-                    : "border-white/10 bg-white/5 hover:border-red-500/50"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-white text-left">Não, eu não tenho</span>
-                  <div
-                    className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                      quizData.previousProblems.includes("no-problems")
-                        ? "bg-red-500 border-red-500"
-                        : "border-white/30"
-                    }`}
-                  >
-                    {quizData.previousProblems.includes("no-problems") && <X className="h-4 w-4 text-white" />}
-                  </div>
-                </div>
-              </button>
-            </div>
-            <div className="flex justify-center mt-8">
-              <Button
-                onClick={() => {
-                  console.log("[v0] Case 18 continue button clicked, currentStep:", currentStep)
-                  console.log("[v0] Selected problems:", quizData.previousProblems)
-                  nextStep()
-                }}
-                className="group relative overflow-hidden"
-              >
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      case 20: // Renamed from 19
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Marque abaixo os seus objetivos adicionais:</h2>
-              <p className="text-gray-400 text-sm">
-                Temos certeza de que você deseja não apenas um corpo melhor, mas também melhorar seu estilo de vida.
-              </p>
-            </div>
-            <div className="space-y-4">
-              {[
-                { value: "better-sleep", label: "Melhorar o sono", icon: "😴" },
-                { value: "feel-healthier", label: "Se sentir mais saudável", icon: "➕" },
-                { value: "reduce-stress", label: "Reduzir o estresse", icon: "🧘" },
-                { value: "increase-energy", label: "Me sentir com mais energia", icon: "⚡" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() =>
-                    updateQuizData(
-                      "additionalGoals",
-                      quizData.additionalGoals.includes(option.value)
-                        ? quizData.additionalGoals.filter((g) => g !== option.value)
-                        : [...quizData.additionalGoals, option.value],
-                    )
-                  }
-                  className={`w-full p-4 rounded-lg border-2 transition-all ${
-                    quizData.additionalGoals.includes(option.value)
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-white text-left">{option.label}</span>
-                    <div
-                      className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                        quizData.additionalGoals.includes(option.value) ? "bg-white border-white" : "border-white/30"
-                      }`}
-                    >
-                      {quizData.additionalGoals.includes(option.value) && (
-                        <CheckCircle className="h-4 w-4 text-emerald-500" />
-                      )}
-                    </div>
-                  </div>
-                </button>
-              ))}
-              <button
-                onClick={() => {
-                  updateQuizData("additionalGoals", ["none"])
-                  setTimeout(() => nextStep(), 300)
-                }}
-                className={`w-full p-4 rounded-lg border-2 transition-all ${
-                  quizData.additionalGoals.includes("none")
-                    ? "border-red-500 bg-red-500/10"
-                    : "border-white/10 bg-white/5 hover:border-red-500/50"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-white text-left">Nenhuma das acima</span>
-                  <div
-                    className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                      quizData.additionalGoals.includes("none") ? "bg-red-500 border-red-500" : "border-white/30"
-                    }`}
-                  >
-                    {quizData.additionalGoals.includes("none") && <X className="h-4 w-4 text-white" />}
-                  </div>
-                </div>
-              </button>
-            </div>
-            <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} className="group relative overflow-hidden">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      case 21: // Renamed from 20
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Que equipamentos você tem acesso?</h2>
-              <p className="text-gray-300">Selecione todos que se aplicam</p>
-            </div>
-            <div className="space-y-4">
-              {[
-                { value: "gym", label: "Academia completa" },
-                { value: "dumbbells", label: "Halteres" },
-                { value: "bodyweight", label: "Apenas peso corporal" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() =>
-                    updateQuizData(
-                      "equipment",
-                      quizData.equipment.includes(option.value)
-                        ? quizData.equipment.filter((e) => e !== option.value)
-                        : [...quizData.equipment, option.value],
-                    )
-                  }
-                  className={`w-full p-4 rounded-lg border-2 transition-all ${
-                    quizData.equipment.includes(option.value)
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/50"
-                  }`}
-                >
-                  <span className="text-white">{option.label}</span>
-                </button>
-              ))}
-            </div>
-            <div className="flex justify-center mt-8">
-              <Button
-                onClick={nextStep}
-                disabled={quizData.equipment.length === 0}
-                className="group relative overflow-hidden"
-              >
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      case 22: // Renamed from 21
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
-              <p className="text-gray-300">Quanto tempo você pode dedicar por sessão?</p>
-            </div>
-
-            <div className="max-w-2xl mx-auto space-y-4">
-              <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 space-y-8">
-                {/* Value display */}
-                <div className="flex justify-center">
-                  <div className="bg-white/10 rounded-full px-8 py-3">
-                    <span className="text-xl md:text-2xl font-bold text-white">
-                      {quizData.workoutTime || "30-45"} {(quizData.workoutTime || "30-45").split("-")[0]}{" "}
-                      {(quizData.workoutTime || "30-45").split("-")[1]}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Options */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[
-                    {
-                      value: "15-30",
-                      label: "15-30 minutos",
-                      desc: "Treinos rápidos e eficientes",
-                    },
-                    {
-                      value: "30-45",
-                      label: "30-45 minutos",
-                      desc: "Tempo ideal para maioria dos treinos",
-                    },
-                    {
-                      value: "45-60",
-                      label: "45-60 minutos",
-                      desc: "Treinos completos e detalhados",
-                    },
-                    {
-                      value: "60+",
-                      label: "Mais de 60 minutos",
-                      desc: "Treinos extensos e avançados",
-                    },
-                  ].map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => {
-                        updateQuizData("workoutTime", option.value)
-                        setTimeout(() => nextStep(), 300)
-                      }}
-                      className={`p-4 rounded-lg border-2 transition-all text-left ${
-                        quizData.workoutTime === option.value
-                          ? "border-lime-500 bg-lime-500/10"
-                          : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
-                      }`}
-                    >
-                      <div className="flex flex-col justify-between h-full">
-                        <h3 className="text-white font-medium">{option.label}</h3>
-                        <p className="text-white/50 text-sm mt-1">{option.desc}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="flex justify-center mt-8">
-                <Button onClick={nextStep} className="group relative overflow-hidden">
-                  <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                    <span className="relative z-10">Continuar</span>
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                  </div>
-                </Button>
-              </div>
-            </div>
-          </div>
-        )
-
-      case 23: // Renamed from 22
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Escolha os produtos que você gosta.</h2>
-              <p className="text-gray-300 text-sm">
-                Vamos criar um plano alimentar com base nas suas preferências. Você sempre poderá ajustá-lo
-                posteriormente.
-              </p>
-            </div>
-
-            {/* Toggle switch */}
-            <div className="flex items-center justify-between bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-              <span className="text-white font-medium">Deixe que a FitGoal escolha.</span>
-              <button
-                onClick={() => updateQuizData("letMadMusclesChoose", !quizData.letMadMusclesChoose)}
-                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                  quizData.letMadMusclesChoose ? "bg-lime-500" : "bg-gray-600"
-                }`}
-              >
-                <span
-                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                    quizData.letMadMusclesChoose ? "translate-x-7" : "translate-x-1"
-                  }`}
-                />
-              </button>
-            </div>
-
-            {/* Food categories */}
-            <div className="space-y-6">
-              {/* Vegetables */}
-              <div>
-                <h3 className="text-white font-bold mb-3">Vegetais</h3>
-                <div className="flex flex-wrap gap-2">
-                  {["Brócolis", "Alface", "Cebola", "Pimentão", "Repolho", "Cenoura", "Tomate"].map((item) => (
-                    <button
-                      key={item}
-                      onClick={() => {
-                        const current = quizData.foodPreferences.vegetables
-                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
-                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, vegetables: updated })
-                      }}
-                      className={`px-4 py-2 rounded-full border-2 transition-all ${
-                        quizData.foodPreferences.vegetables.includes(item)
-                          ? "border-lime-500 bg-lime-500/10 text-white"
-                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Grains */}
-              <div>
-                <h3 className="text-white font-bold mb-3">Grão</h3>
-                <div className="flex flex-wrap gap-2">
-                  {["Arroz", "Quinoa", "Cuscuz", "Fubá", "Farinha"].map((item) => (
-                    <button
-                      key={item}
-                      onClick={() => {
-                        const current = quizData.foodPreferences.grains
-                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
-                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, grains: updated })
-                      }}
-                      className={`px-4 py-2 rounded-full border-2 transition-all ${
-                        quizData.foodPreferences.grains.includes(item)
-                          ? "border-lime-500 bg-lime-500/10 text-white"
-                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Ingredients */}
-              <div>
-                <h3 className="text-white font-bold mb-3">Ingredientes</h3>
-                <div className="flex flex-wrap gap-2">
-                  {["Abacate", "Feijões", "Ovos", "Aveia", "Granola", "Queijo", "Leite", "Leite vegetal"].map(
-                    (item) => (
-                      <button
-                        key={item}
-                        onClick={() => {
-                          const current = quizData.foodPreferences.ingredients
-                          const updated = current.includes(item)
-                            ? current.filter((i) => i !== item)
-                            : [...current, item]
-                          updateQuizData("foodPreferences", { ...quizData.foodPreferences, ingredients: updated })
-                        }}
-                        className={`px-4 py-2 rounded-full border-2 transition-all ${
-                          quizData.foodPreferences.ingredients.includes(item)
-                            ? "border-lime-500 bg-lime-500/10 text-white"
-                            : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
-                        }`}
-                      >
-                        {item}
-                      </button>
-                    ),
-                  )}
-                  {/* </CHANGE> */}
-                </div>
-              </div>
-
-              {/* Meats and Fish - Optional */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-white font-bold">Carnes e peixes</h3>
-                  <span className="text-gray-400 text-sm">Opcional</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {["Carne moida", "Carne bovina", "Frango", "Carne de porco", "Peixe"].map((item) => (
-                    <button
-                      key={item}
-                      onClick={() => {
-                        const current = quizData.foodPreferences.meats
-                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
-                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, meats: updated })
-                      }}
-                      className={`px-4 py-2 rounded-full border-2 transition-all ${
-                        quizData.foodPreferences.meats.includes(item)
-                          ? "border-lime-500 bg-lime-500/10 text-white"
-                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Fruits and Berries - Optional */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-white font-bold">Frutas e bagas</h3>
-                  <span className="text-gray-400 text-sm">Opcional</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "Maçã",
-                    "Pera",
-                    "Kiwi",
-                    "Bananas",
-                    "Caqui",
-                    "Pêssego",
-                    "Frutas vermelhas",
-                    "Uva",
-                    "Romã",
-                    "Frutas tropicais (abacaxi, mamão, pitaya)",
-                  ].map((item) => (
-                    <button
-                      key={item}
-                      onClick={() => {
-                        const current = quizData.foodPreferences.fruits
-                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
-                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, fruits: updated })
-                      }}
-                      className={`px-4 py-2 rounded-full border-2 transition-all ${
-                        quizData.foodPreferences.fruits.includes(item)
-                          ? "border-lime-500 bg-lime-500/10 text-white"
-                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Continue button */}
-            <div className="flex justify-center">
-              <Button
-                onClick={() => {
-                  console.log("[v0] Case 22 continue button clicked")
-                  console.log("[v0] Current step:", currentStep)
-                  console.log("[v0] Food preferences:", quizData.foodPreferences)
-                  nextStep()
-                }}
-                className="group relative"
-              >
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      case 24: // Renamed from 23
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Você possui alergias ou restrições alimentares?</h2>
-            </div>
-            <div className="space-y-4">
-              <div
-                className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 ${
-                  quizData.allergies === "sim" ? "border-lime-500 bg-lime-500/10" : "border-white/10 bg-white/5"
-                }`}
-                onClick={() => {
-                  updateQuizData("allergies", "sim")
-                  setTimeout(() => nextStep(), 300)
-                }}
-              >
-                <CheckCircle
-                  className={`h-6 w-6 flex-shrink-0 ${quizData.allergies === "sim" ? "text-lime-500" : "text-gray-500"}`}
-                />
-                <h3 className="text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
-              </div>
-              <div
-                className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-red-400 ${
-                  quizData.allergies === "nao" ? "border-red-500 bg-red-500/20" : "border-white/10 bg-white/5"
-                }`}
-                onClick={() => {
-                  updateQuizData("allergies", "nao")
-                  setTimeout(() => setCurrentStep(26), 300) // Skip allergy details (case 24) and go to supplement interest (case 26)
-                }}
-              >
-                <X
-                  className={`h-6 w-6 flex-shrink-0 ${quizData.allergies === "nao" ? "text-red-500" : "text-gray-500"}`}
-                />
-                <h3 className="text-lg font-bold text-white">Não possuo alergias ou restrições</h3>
-              </div>
-            </div>
-          </div>
-        )
-
-      case 25: // Renamed from 24
-        if (quizData.allergies !== "sim") {
-          return null
-        }
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Quais são suas alergias ou restrições alimentares?</h2>
-              <p className="text-gray-300">Descreva suas alergias, intolerâncias ou restrições alimentares</p>
-            </div>
-            <div className="space-y-6">
-              <Textarea
-                placeholder="Ex: Alergia a amendoim, intolerância à lactose, não como carne vermelha..."
-                value={quizData.allergyDetails}
-                onChange={(e) => updateQuizData("allergyDetails", e.target.value)}
-                className="
-                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
-                
-                [--muted-foreground:theme(colors.gray.500)]
-                "
-              />
-            </div>
-            <div className="flex justify-center">
-              <Button onClick={nextStep} className="group relative">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/10 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-400 to-lime-500 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      case 26: // Renamed from 25. Now Supplement Interest
-        const shouldRecommendHipercalorico = () => {
-          // Factor 1: Low IMC (underweight)
-          if (quizData.imc && quizData.imc < 18.5) {
-            return true
-          }
-
-          // Factor 2: Body type is ectomorph or "magro" (thin)
-          if (quizData.bodyType === "ectomorph" || quizData.bodyType === "magro") {
-            return true
-          }
-
-          // Factor 3: Goal is to gain weight/muscle mass
-          const hasGainGoal = quizData.goal?.some(
-            (g) =>
-              g.toLowerCase().includes("ganhar") ||
-              g.toLowerCase().includes("massa") ||
-              g.toLowerCase().includes("muscular"),
-          )
-
-          // Factor 4: Current weight is significantly lower than target weight
-          const currentWeight = Number.parseFloat(quizData.currentWeight)
-          const targetWeight = Number.parseFloat(quizData.targetWeight)
-
-          if (currentWeight && targetWeight && hasGainGoal) {
-            const weightDifference = targetWeight - currentWeight
-            // If needs to gain more than 3kg, recommend hypercaloric
-            if (weightDifference > 3) {
-              return true
-            }
-          }
-
-          // Factor 5: Difficulty gaining weight (weightChange)
-          if (quizData.weightChangeType === "struggle-gain") {
-            return true
-          }
-
-          return false
-        }
-
-        const supplementRecommendation = shouldRecommendHipercalorico()
-          ? {
-              name: "Hipercalórico Growth",
-              description: "Ideal para ganho de massa muscular e atingir suas calorias diárias",
-            }
-          : {
-              name: "Whey Protein",
-              description: "Ideal para ganho de massa muscular e recuperação pós-treino",
-            }
-
-        const supplementType = shouldRecommendHipercalorico() ? "hipercalorico" : "whey-protein"
-
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">
-                Podemos adicionar algum suplemento à sua dieta?
-              </h2>
-              <p className="text-gray-400">Por exemplo: Hipercalórico, Whey Protein...</p>
-            </div>
-
-            <div className="max-w-2xl mx-auto space-y-4">
-              {/* Yes option with recommendation */}
-              <button
-                onClick={() => {
-                  updateQuizData("wantsSupplement", "sim")
-                  updateQuizData("recommendedSupplement", supplementRecommendation.name)
-                  updateQuizData("supplementType", supplementType)
-                  setTimeout(() => nextStep(), 300)
-                }}
-                className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
-                  quizData.wantsSupplement === "sim"
-                    ? "border-lime-500 bg-lime-500/10"
-                    : "border-white/20 bg-white/5 hover:border-lime-500/50"
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
-                      quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500" : "border-white/30"
-                    }`}
-                  >
-                    {quizData.wantsSupplement === "sim" && (
-                      <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    )}
-                  </div>
-                  <span className="text-white font-bold text-lg">Sim, pode adicionar</span>
-                </div>
-              </button>
-
-              {/* No option */}
-              <button
-                onClick={() => {
-                  updateQuizData("wantsSupplement", "nao")
-                  updateQuizData("recommendedSupplement", "")
-                  updateQuizData("supplementType", "")
-                  setTimeout(() => nextStep(), 300)
-                }}
-                className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
-                  quizData.wantsSupplement === "nao"
-                    ? "border-red-500 bg-red-500/10"
-                    : "border-white/20 bg-white/5 hover:border-red-500/50"
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
-                      quizData.wantsSupplement === "nao" ? "border-red-500 bg-red-500/10" : "border-white/30"
-                    }`}
-                  >
-                    {quizData.wantsSupplement === "nao" && (
-                      <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          fillRule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    )}
-                  </div>
-                  <span className="text-white font-bold text-lg">Não, prefiro sem suplementos</span>
-                </div>
-              </button>
-
-              {/* Recommendation box */}
-              <div className="mt-6 p-6 rounded-xl border-2 border-lime-500/50 bg-lime-500/5">
-                <p className="text-lime-400 font-bold text-lg mb-2">Recomendamos: {supplementRecommendation.name}</p>
-                <p className="text-gray-300">{supplementRecommendation.description}</p>
-              </div>
-            </div>
-          </div>
-        )
-
-      case 27: // Renamed from 26. Now Name
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Como podemos te chamar?</h2>
-              <p className="text-gray-300">Seu nome para personalizar seu plano</p>
-            </div>
-            <div className="max-w-md mx-auto">
-              <Input
-                placeholder="Seu nome"
-                value={quizData.name}
-                onChange={(e) => updateQuizData("name", e.target.value)}
-                className="
-                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
-                
-                [--muted-foreground:theme(colors.gray.500)]
-                "
-              />
-            </div>
-            <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      case 28: // Renamed from 27. Email
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu e-mail?</h2>
-              <p className="text-gray-300">Enviaremos seu plano para este e-mail</p>
-            </div>
-            <div className="max-w-md mx-auto">
-              <Input
-                placeholder="exemplo@email.com"
-                type="email"
-                value={quizData.email}
-                onChange={(e) => updateQuizData("email", e.target.value)}
-                className="
-                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
-                
-                [--muted-foreground:theme(colors.gray.500)]
-                "
-              />
-            </div>
-            <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      case 29: // Renamed from 28. Training days per week
-        // Training days per week is now handled by the slider in case 24.
-        // This case is now for the final submit.
-        return (
-          <div className="space-y-8 text-center">
-            <h2 className="text-2xl font-bold text-white">Pronto para começar?</h2>
-            <p className="text-gray-300">
-              Revise suas informações e clique em "Finalizar Avaliação" para receber seu plano personalizado.
-            </p>
-            <div className="mt-10">
-              <Button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
-              >
-                <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10 flex items-center gap-3">
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-6 w-6 animate-spin" />
-                        Processando...
-                      </>
-                    ) : (
-                      <>
-                        Finalizar Avaliação
-                        <Dumbbell className="h-6 w-6" />
-                      </>
-                    )}
-                  </span>
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      case 30: // Renamed from 29. Final Submit
-        return (
-          <div className="space-y-8 text-center">
-            <h2 className="text-2xl font-bold text-white">Pronto para começar?</h2>
-            <p className="text-gray-300">
-              Revise suas informações e clique em "Finalizar Avaliação" para receber seu plano personalizado.
-            </p>
-            <div className="mt-10">
-              <Button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
-              >
-                <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10 flex items-center gap-3">
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-6 w-6 animate-spin" />
-                        Processando...
-                      </>
-                    ) : (
-                      <>
-                        Finalizar Avaliação
-                        <Dumbbell className="h-6 w-6" />
-                      </>
-                    )}
-                  </span>
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      // </CHANGE>
-      default:
-        return true
-    }
-  }
-
-  return (
-    <div
-      className="min-h-screen text-white p-6 relative overflow-hidden bg-[#0a0f1a]"
-      style={{
-        background: "radial-gradient(at center, #0f1419 0%, #0a0f1a 70%)",
-      }}
-    >
-      <div
-        className="absolute pointer-events-none"
-        style={{
-          width: "380px",
-          height: "380px",
-          background: "#1c3dff55",
-          filter: "blur(150px)",
-          borderRadius: "50%",
-          top: "20%",
-          right: "-10%",
-        }}
-      />
-
-      <div
-        className="absolute pointer-events-none"
-        style={{
-          width: "300px",
-          height: "300px",
-          background: "#7f3dff33",
-          filter: "blur(140px)",
-          borderRadius: "50%",
-          bottom: "10%",
-          left: "15%",
-        }}
-      />
-
-      <div className="max-w-4xl mx-auto relative z-10">
-        <div className="flex items-center justify-between mb-8">
-          <Button variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="text-white">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar
-          </Button>
-          <div className="text-center">
-            <p className="text-gray-400">
-              {currentStep} de {totalSteps}
-            </p>
-          </div>
-          <div className="w-16" />
-        </div>
-        <div className="w-full bg-white/10 backdrop-blur-sm rounded-full h-2 mb-8">
-          <div
-            className="bg-lime-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-          />
-        </div>
-        <div className="mb-8">{renderStep()}</div>
-        {/* Adjust the condition to include steps that don't need a manual next button */}
-        {!showMotivationMessage &&
-          !showCortisolMessage &&
-          !showTimeCalculation &&
-          !showAnalyzingData &&
-          ![
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-            30,
-          ].includes(currentStep) && (
-            <div className="mt-8 flex justify-center">
-              <Button
-                onClick={nextStep}
-                disabled={!canProceed()}
-                size="lg"
-                className="w-full max-w-md bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold disabled:from-gray-400 disabled:to-gray-500 disabled:text-gray-200"
-              >
-                Continuar
-              </Button>
-            </div>
-          )}
-      </div>
-    </div>
-  )
-}
+\
