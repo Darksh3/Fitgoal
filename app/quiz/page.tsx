@@ -1276,9 +1276,9 @@ export default function QuizPage() {
                   </filter>
                 </defs>
 
-                {/* Muscle mass line (going up) */}
+                {/* Muscle mass line (going up) - starts near "Baixo" */}
                 <polyline
-                  points="0,200 133,150 266,100 400,40"
+                  points="0,250 133,150 266,80 400,30"
                   fill="none"
                   stroke="url(#muscleLine)"
                   strokeWidth="4"
@@ -1292,9 +1292,9 @@ export default function QuizPage() {
                   }}
                 />
 
-                {/* Body fat line (going down) */}
+                {/* Body fat line (going down) - starts near "Alto" */}
                 <polyline
-                  points="0,100 133,150 266,200 400,260"
+                  points="0,50 133,150 266,220 400,270"
                   fill="none"
                   stroke="url(#fatLine)"
                   strokeWidth="4"
