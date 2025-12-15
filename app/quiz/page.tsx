@@ -218,6 +218,20 @@ export default function QuizPage() {
   const [showCortisolMessage, setShowCortisolMessage] = useState(false)
   // </CHANGE>
   const [currentStep, setCurrentStep] = useState(1)
+  const [debugChart, setDebugChart] = useState(false)
+  const [musclePoints, setMusclePoints] = useState([
+    { x: 0, y: 250 },
+    { x: 133, y: 150 },
+    { x: 266, y: 80 },
+    { x: 400, y: 30 },
+  ])
+  const [fatPoints, setFatPoints] = useState([
+    { x: 0, y: 50 },
+    { x: 133, y: 150 },
+    { x: 266, y: 220 },
+    { x: 400, y: 270 },
+  ])
+
   const [showQuickResults, setShowQuickResults] = useState(false)
 
   const [quizData, setQuizData] = useState<QuizData>({
@@ -1224,8 +1238,102 @@ export default function QuizPage() {
   // </CHANGE>
 
   if (showQuickResults) {
+    const musclePointsStr = musclePoints.map((p) => `${p.x},${p.y}`).join(" ")
+    const fatPointsStr = fatPoints.map((p) => `${p.x},${p.y}`).join(" ")
+
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
+        {debugChart && (
+          <div className="fixed top-4 left-4 bg-gray-900 border border-gray-700 rounded-lg p-4 max-h-96 overflow-y-auto z-50 w-80">
+            <div className="space-y-4">
+              <button
+                onClick={() => setDebugChart(false)}
+                className="w-full bg-red-600 hover:bg-red-700 py-2 rounded text-sm font-semibold"
+              >
+                Close Debug
+              </button>
+
+              <div>
+                <h3 className="font-bold text-cyan-400 mb-2">Muscle Line Points:</h3>
+                {musclePoints.map((point, idx) => (
+                  <div key={`muscle-${idx}`} className="flex gap-2 mb-2 text-xs">
+                    <input
+                      type="number"
+                      value={point.x}
+                      onChange={(e) => {
+                        const newPoints = [...musclePoints]
+                        newPoints[idx].x = Number.parseFloat(e.target.value) || 0
+                        setMusclePoints(newPoints)
+                      }}
+                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
+                      placeholder="X"
+                    />
+                    <input
+                      type="number"
+                      value={point.y}
+                      onChange={(e) => {
+                        const newPoints = [...musclePoints]
+                        newPoints[idx].y = Number.parseFloat(e.target.value) || 0
+                        setMusclePoints(newPoints)
+                      }}
+                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
+                      placeholder="Y"
+                    />
+                    <span className="text-cyan-300">
+                      ({point.x}, {point.y})
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div>
+                <h3 className="font-bold text-pink-400 mb-2">Fat Line Points:</h3>
+                {fatPoints.map((point, idx) => (
+                  <div key={`fat-${idx}`} className="flex gap-2 mb-2 text-xs">
+                    <input
+                      type="number"
+                      value={point.x}
+                      onChange={(e) => {
+                        const newPoints = [...fatPoints]
+                        newPoints[idx].x = Number.parseFloat(e.target.value) || 0
+                        setFatPoints(newPoints)
+                      }}
+                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
+                      placeholder="X"
+                    />
+                    <input
+                      type="number"
+                      value={point.y}
+                      onChange={(e) => {
+                        const newPoints = [...fatPoints]
+                        newPoints[idx].y = Number.parseFloat(e.target.value) || 0
+                        setFatPoints(newPoints)
+                      }}
+                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
+                      placeholder="Y"
+                    />
+                    <span className="text-pink-300">
+                      ({point.x}, {point.y})
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="bg-gray-800 p-2 rounded text-xs font-mono">
+                <p className="text-cyan-300">Muscle: [{musclePointsStr}]</p>
+                <p className="text-pink-300">Fat: [{fatPointsStr}]</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={() => setDebugChart(!debugChart)}
+          className="fixed top-4 right-4 bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded text-sm font-semibold z-40"
+        >
+          {debugChart ? "Hide" : "Debug"} Chart
+        </button>
+
         <div className="max-w-5xl w-full space-y-8">
           <div className="text-center space-y-4">
             <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
@@ -1266,6 +1374,29 @@ export default function QuizPage() {
                     <stop offset="100%" style={{ stopColor: "#ec4899", stopOpacity: 1 }} />
                   </linearGradient>
 
+                  <marker
+                    id="arrowMuscle"
+                    markerWidth="10"
+                    markerHeight="10"
+                    refX="9"
+                    refY="3"
+                    orient="auto"
+                    markerUnits="strokeWidth"
+                  >
+                    <path d="M0,0 L0,6 L9,3 z" fill="#84cc16" />
+                  </marker>
+                  <marker
+                    id="arrowFat"
+                    markerWidth="10"
+                    markerHeight="10"
+                    refX="9"
+                    refY="3"
+                    orient="auto"
+                    markerUnits="strokeWidth"
+                  >
+                    <path d="M0,0 L0,6 L9,3 z" fill="#ec4899" />
+                  </marker>
+
                   {/* Glow filters */}
                   <filter id="glow">
                     <feGaussianBlur stdDeviation="3" result="coloredBlur" />
@@ -1276,15 +1407,16 @@ export default function QuizPage() {
                   </filter>
                 </defs>
 
-                {/* Muscle mass line (going up) - starts near "Baixo" */}
+                {/* Muscle mass line (going up) */}
                 <polyline
-                  points="0,250 133,150 266,80 400,30"
+                  points={musclePointsStr}
                   fill="none"
                   stroke="url(#muscleLine)"
                   strokeWidth="4"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   filter="url(#glow)"
+                  markerEnd="url(#arrowMuscle)"
                   style={{
                     strokeDasharray: 500,
                     strokeDashoffset: 500,
@@ -1292,15 +1424,16 @@ export default function QuizPage() {
                   }}
                 />
 
-                {/* Body fat line (going down) - starts near "Alto" */}
+                {/* Body fat line (going down) */}
                 <polyline
-                  points="0,50 133,150 266,220 400,270"
+                  points={fatPointsStr}
                   fill="none"
                   stroke="url(#fatLine)"
                   strokeWidth="4"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   filter="url(#glow)"
+                  markerEnd="url(#arrowFat)"
                   style={{
                     strokeDasharray: 500,
                     strokeDashoffset: 500,
@@ -1308,19 +1441,33 @@ export default function QuizPage() {
                   }}
                 />
 
+                {debugChart && (
+                  <>
+                    {/* Vertical grid lines */}
+                    <line x1="100" y1="0" x2="100" y2="300" stroke="#3b82f6" strokeWidth="0.5" opacity="0.3" />
+                    <line x1="200" y1="0" x2="200" y2="300" stroke="#3b82f6" strokeWidth="0.5" opacity="0.3" />
+                    <line x1="300" y1="0" x2="300" y2="300" stroke="#3b82f6" strokeWidth="0.5" opacity="0.3" />
+
+                    {/* Horizontal grid lines */}
+                    <line x1="0" y1="100" x2="400" y2="100" stroke="#3b82f6" strokeWidth="0.5" opacity="0.3" />
+                    <line x1="0" y1="200" x2="400" y2="200" stroke="#3b82f6" strokeWidth="0.5" opacity="0.3" />
+
+                    {/* Muscle points visualization */}
+                    {musclePoints.map((point, idx) => (
+                      <circle key={`m-${idx}`} cx={point.x} cy={point.y} r="4" fill="#06b6d4" opacity="0.8" />
+                    ))}
+
+                    {/* Fat points visualization */}
+                    {fatPoints.map((point, idx) => (
+                      <circle key={`f-${idx}`} cx={point.x} cy={point.y} r="4" fill="#ec4899" opacity="0.8" />
+                    ))}
+                  </>
+                )}
+
                 {/* Horizontal grid lines */}
                 <line x1="0" y1="100" x2="400" y2="100" stroke="#ffffff" strokeWidth="0.5" opacity="0.15" />
                 <line x1="0" y1="200" x2="400" y2="200" stroke="#ffffff" strokeWidth="0.5" opacity="0.15" />
               </svg>
-
-              {/* Labels */}
-              <div className="absolute top-8 right-8 text-sm font-semibold text-white flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-lime-500" />
-                Massa muscular
-              </div>
-              <div className="absolute bottom-16 right-8 text-sm font-semibold text-white flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-blue-500 to-pink-500" />% de gordura
-              </div>
             </div>
           </div>
 
