@@ -5,19 +5,7 @@ import { useRouter } from "next/navigation"
 import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import { Button } from "@/components/ui/button"
-import {
-  Clock,
-  MapPin,
-  TrendingUp,
-  Calendar,
-  CheckCircle,
-  Heart,
-  Flame,
-  Moon,
-  TargetIcon,
-  Zap,
-  Droplets,
-} from "lucide-react"
+import { Clock, MapPin, TrendingUp, Calendar, CheckCircle, Heart, Flame, Moon, TargetIcon, Zap } from "lucide-react"
 import { Gauge } from "@/components/gauge"
 
 export default function ResultsPage() {
@@ -232,17 +220,6 @@ export default function ResultsPage() {
     return `${days}x por semana`
   }
 
-  const getWaterIntake = () => {
-    const waterMap: { [key: string]: string } = {
-      "1-2L": "1-2 litros",
-      "2-3L": "2-3 litros",
-      "3-4L": "3-4 litros",
-      "4-5L": "4-5 litros",
-      "5L+": "Mais de 5 litros",
-    }
-    return waterMap[data?.waterIntake] || "2-3 litros"
-  }
-
   const getAdditionalGoalsIcons = () => {
     const goals = data?.additionalGoals || []
     const iconMap = [
@@ -441,20 +418,6 @@ export default function ResultsPage() {
               <div>
                 <p className="text-sm text-gray-400">Frequência do Treino</p>
                 <p className="text-lg font-semibold">{getTrainingFrequency()}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-4 bg-gray-700/30 rounded-xl">
-              <Heart className="h-8 w-8 text-lime-500 flex-shrink-0" />
-              <div>
-                <p className="text-sm text-gray-400">Ingestão de Água</p>
-                <p className="text-lg font-semibold">{getWaterIntake()}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-4 bg-gray-700/30 rounded-xl">
-              <Droplets className="h-8 w-8 text-blue-500 flex-shrink-0" />
-              <div>
-                <p className="text-sm text-gray-400">Ingestão de Água</p>
-                <p className="text-lg font-semibold">{getWaterIntake()}</p>
               </div>
             </div>
           </div>
