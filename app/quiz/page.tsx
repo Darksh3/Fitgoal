@@ -1316,16 +1316,16 @@ export default function QuizPage() {
             <p>*Baseado em dados de 1,3 milhões de treinos</p>
           </div>
 
-          <Button
+          <button
             onClick={() => {
               console.log("[v0] Entendi button clicked, hiding motivation and advancing")
               setShowQuickResults(false)
               setCurrentStep(6)
             }}
-            className="w-full h-16 text-xl font-bold text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-300 rounded-xl shadow-lg transition-all duration-300 !bg-gradient-to-r !text-white border-0"
+            className="w-full h-16 text-xl font-bold text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-300 rounded-xl shadow-lg transition-all duration-300"
           >
             Continuar
-          </Button>
+          </button>
         </div>
       </div>
     )
