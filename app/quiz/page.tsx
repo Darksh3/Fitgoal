@@ -1325,13 +1325,14 @@ export default function QuizPage() {
                     }}
                   />
 
-                  <text x="680" y="20" fontSize="18" fontWeight="bold" fill="white" textAnchor="end">
+                  <text x="650" y="35" fontSize="16" fontWeight="bold" fill="white" textAnchor="start">
                     Massa muscular
                   </text>
 
-                  <text x="720" y="310" fontSize="18" fontWeight="bold" fill="white" textAnchor="end">
+                  <text x="680" y="295" fontSize="16" fontWeight="bold" fill="white" textAnchor="start">
                     % de gordura
                   </text>
+                  {/* </CHANGE> */}
 
                   {/* Y-axis labels */}
                   <text x="30" y="55" fontSize="14" fill="#9ca3af" textAnchor="end">
