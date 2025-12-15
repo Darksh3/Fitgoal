@@ -1239,236 +1239,149 @@ export default function QuizPage() {
   // </CHANGE>
 
   if (showQuickResults) {
-    const musclePointsStr = musclePoints.map((p) => `${p.x},${p.y}`).join(" ")
-    const fatPointsStr = fatPoints.map((p) => `${p.x},${p.y}`).join(" ")
-
+    // Removed debug button and panel
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
-        <div className="fixed top-4 left-4 z-50">
-          <Button onClick={() => setDebugChart(!debugChart)} className="group relative">
-            <div className="relative px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full font-bold text-gray-900 text-base shadow-lg hover:shadow-yellow-500/50 transform hover:scale-105 transition-all duration-300">
-              <span className="relative z-10">{debugChart ? "Hide" : "Debug"} Chart</span>
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-300 to-yellow-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-            </div>
-          </Button>
-        </div>
-
-        {debugChart && (
-          <div className="fixed top-4 right-4 bg-gray-900 border border-gray-700 rounded-lg p-4 max-h-[80vh] overflow-y-auto z-50 w-80">
-            <div className="space-y-4">
-              <button
-                onClick={() => setDebugChart(false)}
-                className="w-full bg-red-600 hover:bg-red-700 py-2 rounded text-sm font-semibold"
-              >
-                Close Debug
-              </button>
-
-              <div>
-                <h3 className="font-bold text-cyan-400 mb-2">Muscle Line Points:</h3>
-                {musclePoints.map((point, idx) => (
-                  <div key={`muscle-${idx}`} className="flex gap-2 mb-2 text-xs items-center">
-                    <input
-                      type="number"
-                      value={point.x}
-                      onChange={(e) => {
-                        const newPoints = [...musclePoints]
-                        newPoints[idx].x = Number.parseFloat(e.target.value) || 0
-                        setMusclePoints(newPoints)
-                      }}
-                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
-                      placeholder="X"
-                    />
-                    <input
-                      type="number"
-                      value={point.y}
-                      onChange={(e) => {
-                        const newPoints = [...musclePoints]
-                        newPoints[idx].y = Number.parseFloat(e.target.value) || 0
-                        setMusclePoints(newPoints)
-                      }}
-                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
-                      placeholder="Y"
-                    />
-                    <span className="text-cyan-300 ml-auto">
-                      ({point.x}, {point.y})
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div>
-                <h3 className="font-bold text-pink-400 mb-2">Fat Line Points:</h3>
-                {fatPoints.map((point, idx) => (
-                  <div key={`fat-${idx}`} className="flex gap-2 mb-2 text-xs items-center">
-                    <input
-                      type="number"
-                      value={point.x}
-                      onChange={(e) => {
-                        const newPoints = [...fatPoints]
-                        newPoints[idx].x = Number.parseFloat(e.target.value) || 0
-                        setFatPoints(newPoints)
-                      }}
-                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
-                      placeholder="X"
-                    />
-                    <input
-                      type="number"
-                      value={point.y}
-                      onChange={(e) => {
-                        const newPoints = [...fatPoints]
-                        newPoints[idx].y = Number.parseFloat(e.target.value) || 0
-                        setFatPoints(newPoints)
-                      }}
-                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
-                      placeholder="Y"
-                    />
-                    <span className="text-pink-300 ml-auto">
-                      ({point.x}, {point.y})
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-gray-800 p-2 rounded text-xs font-mono">
-                <p className="text-cyan-300">Muscle: [{musclePointsStr}]</p>
-                <p className="text-pink-300">Fat: [{fatPointsStr}]</p>
-              </div>
-            </div>
-          </div>
-        )}
-
         <div className="max-w-5xl w-full space-y-8">
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
-            <p className="text-gray-400 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
+          <div className="text-center space-y-3">
+            <h1 className="text-4xl font-bold text-white">Apenas 2 semanas para o primeiro resultado</h1>
+            <p className="text-gray-300 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
           </div>
 
-          <div className="relative w-full h-[323px] bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50 rounded-3xl p-8 backdrop-blur-sm border border-blue-800/40">
-            <div className="relative w-full h-full">
-              {/* Y-axis labels */}
-              <div className="absolute left-0 top-0 bottom-12 flex flex-col justify-between text-xs text-gray-400">
-                <span>Alto</span>
-                <span>Baixo</span>
+          <div className="flex justify-center">
+            <div className="relative w-full max-w-2xl">
+              <div className="border border-blue-500/30 rounded-3xl p-8 bg-gradient-to-br from-blue-950/20 to-purple-950/20 backdrop-blur">
+                <svg viewBox="0 0 800 350" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="muscleGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#00ff88" />
+                      <stop offset="100%" stopColor="#00ff00" />
+                    </linearGradient>
+                    <linearGradient id="fatGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#0088ff" />
+                      <stop offset="100%" stopColor="#ff00ff" />
+                    </linearGradient>
+                    <linearGradient id="muscleArrow" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#00ff88" />
+                      <stop offset="100%" stopColor="#00ff00" />
+                    </linearGradient>
+                    <linearGradient id="fatArrow" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#ff00ff" />
+                      <stop offset="100%" stopColor="#ff0088" />
+                    </linearGradient>
+
+                    <marker
+                      id="muscleArrowMarker"
+                      markerWidth="20"
+                      markerHeight="20"
+                      refX="10"
+                      refY="10"
+                      orient="auto"
+                      markerUnits="strokeWidth"
+                    >
+                      <polygon points="0,0 20,10 0,20" fill="url(#muscleArrow)" />
+                    </marker>
+
+                    <marker
+                      id="fatArrowMarker"
+                      markerWidth="20"
+                      markerHeight="20"
+                      refX="10"
+                      refY="10"
+                      orient="auto"
+                      markerUnits="strokeWidth"
+                    >
+                      <polygon points="0,0 20,10 0,20" fill="url(#fatArrow)" />
+                    </marker>
+                  </defs>
+
+                  <line x1="50" y1="50" x2="50" y2="290" stroke="#333" strokeWidth="1" opacity="0.3" />
+                  <line x1="750" y1="50" x2="750" y2="290" stroke="#333" strokeWidth="1" opacity="0.3" />
+                  <line x1="50" y1="50" x2="750" y2="50" stroke="#333" strokeWidth="1" opacity="0.3" />
+                  <line x1="50" y1="170" x2="750" y2="170" stroke="#333" strokeWidth="1" opacity="0.3" />
+                  <line x1="50" y1="290" x2="750" y2="290" stroke="#333" strokeWidth="1" opacity="0.3" />
+
+                  <path
+                    d="M 70,250 Q 300,100 730,40"
+                    fill="none"
+                    stroke="url(#muscleGradient)"
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                    markerEnd="url(#muscleArrowMarker)"
+                    style={{
+                      animation: "drawLine 6s ease-in-out forwards",
+                    }}
+                  />
+
+                  <path
+                    d="M 70,80 Q 300,200 730,280"
+                    fill="none"
+                    stroke="url(#fatGradient)"
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                    markerEnd="url(#fatArrowMarker)"
+                    style={{
+                      animation: "drawLine 6s ease-in-out forwards",
+                    }}
+                  />
+
+                  <text x="680" y="20" fontSize="18" fontWeight="bold" fill="white" textAnchor="end">
+                    Massa muscular
+                  </text>
+
+                  <text x="720" y="310" fontSize="18" fontWeight="bold" fill="white" textAnchor="end">
+                    % de gordura
+                  </text>
+
+                  {/* Y-axis labels */}
+                  <text x="30" y="55" fontSize="14" fill="#9ca3af" textAnchor="end">
+                    Alto
+                  </text>
+                  <text x="30" y="295" fontSize="14" fill="#9ca3af" textAnchor="end">
+                    Baixo
+                  </text>
+
+                  {/* X-axis labels */}
+                  <text x="50" y="330" fontSize="14" fill="#9ca3af" textAnchor="start">
+                    Baixo
+                  </text>
+                  <text x="280" y="330" fontSize="14" fill="#9ca3af" textAnchor="middle">
+                    1 Mês
+                  </text>
+                  <text x="400" y="330" fontSize="14" fill="#9ca3af" textAnchor="middle">
+                    2 Meses
+                  </text>
+                  <text x="600" y="330" fontSize="14" fill="#9ca3af" textAnchor="middle">
+                    3 Meses
+                  </text>
+                </svg>
+
+                <style>{`
+                  @keyframes drawLine {
+                    from {
+                      stroke-dasharray: 1000;
+                      stroke-dashoffset: 1000;
+                    }
+                    to {
+                      stroke-dasharray: 1000;
+                      stroke-dashoffset: 0;
+                    }
+                  }
+                `}</style>
               </div>
 
-              {/* X-axis labels - Adjusted sizing */}
-              <div className="absolute bottom-0 left-16 right-0 flex justify-between text-xs text-gray-400 px-4">
-                <span>Baixo</span>
-                <span>1 Mês</span>
-                <span>2 Meses</span>
-                <span>3 Meses</span>
-              </div>
-
-              <svg
-                className="absolute left-16 top-4 right-4 bottom-12"
-                viewBox="0 0 400 300"
-                preserveAspectRatio="none"
-              >
-                <defs>
-                  <linearGradient id="muscleMask" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#00d4ff" />
-                    <stop offset="100%" stopColor="#22c55e" />
-                  </linearGradient>
-                  <linearGradient id="fatMask" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#3b82f6" />
-                    <stop offset="100%" stopColor="#ec4899" />
-                  </linearGradient>
-                  <marker
-                    id="arrowMuscleBezier"
-                    markerWidth="10"
-                    markerHeight="10"
-                    refX="9"
-                    refY="3"
-                    orient="auto"
-                    markerUnits="strokeWidth"
-                  >
-                    <path d="M0,0 L0,6 L9,3 z" fill="url(#muscleMask)" />
-                  </marker>
-                  <marker
-                    id="arrowFatBezier"
-                    markerWidth="10"
-                    markerHeight="10"
-                    refX="9"
-                    refY="3"
-                    orient="auto"
-                    markerUnits="strokeWidth"
-                  >
-                    <path d="M0,0 L0,6 L9,3 z" fill="url(#fatMask)" />
-                  </marker>
-                </defs>
-
-                {/* Muscle Mass Line - Smooth Bezier Curve */}
-                <path
-                  d={`M ${musclePoints[0].x} ${musclePoints[0].y} C ${musclePoints[0].x + 80} ${musclePoints[0].y + 40}, ${musclePoints[1].x - 80} ${musclePoints[1].y - 40}, ${musclePoints[1].x} ${musclePoints[1].y}`}
-                  stroke="url(#muscleMask)"
-                  strokeWidth="5"
-                  fill="none"
-                  strokeLinecap="round"
-                  markerEnd="url(#arrowMuscleBezier)"
-                  className="animate-lineDrawBezier"
-                  style={{
-                    filter: "drop-shadow(0 0 10px rgba(0, 212, 255, 0.6))",
-                  }}
-                />
-
-                {/* Body Fat Line - Smooth Bezier Curve */}
-                <path
-                  d={`M ${fatPoints[0].x} ${fatPoints[0].y} C ${fatPoints[0].x + 80} ${fatPoints[0].y - 40}, ${fatPoints[1].x - 80} ${fatPoints[1].y + 40}, ${fatPoints[1].x} ${fatPoints[1].y}`}
-                  stroke="url(#fatMask)"
-                  strokeWidth="5"
-                  fill="none"
-                  strokeLinecap="round"
-                  markerEnd="url(#arrowFatBezier)"
-                  className="animate-lineDrawBezier"
-                  style={{
-                    filter: "drop-shadow(0 0 10px rgba(59, 130, 246, 0.6))",
-                  }}
-                />
-
-                {debugChart && (
-                  <>
-                    {/* Vertical grid lines */}
-                    <line x1="100" y1="0" x2="100" y2="300" stroke="#3b82f6" strokeWidth="0.5" opacity="0.3" />
-                    <line x1="200" y1="0" x2="200" y2="300" stroke="#3b82f6" strokeWidth="0.5" opacity="0.3" />
-                    <line x1="300" y1="0" x2="300" y2="300" stroke="#3b82f6" strokeWidth="0.5" opacity="0.3" />
-
-                    {/* Horizontal grid lines */}
-                    <line x1="0" y1="100" x2="400" y2="100" stroke="#3b82f6" strokeWidth="0.5" opacity="0.3" />
-                    <line x1="0" y1="200" x2="400" y2="200" stroke="#3b82f6" strokeWidth="0.5" opacity="0.3" />
-
-                    {/* Muscle points visualization */}
-                    {musclePoints.map((point, idx) => (
-                      <circle key={`m-${idx}`} cx={point.x} cy={point.y} r="4" fill="#06b6d4" opacity="0.8" />
-                    ))}
-
-                    {/* Fat points visualization */}
-                    {fatPoints.map((point, idx) => (
-                      <circle key={`f-${idx}`} cx={point.x} cy={point.y} r="4" fill="#ec4899" opacity="0.8" />
-                    ))}
-                  </>
-                )}
-
-                {/* Horizontal grid lines */}
-                <line x1="0" y1="100" x2="400" y2="100" stroke="#ffffff" strokeWidth="0.5" opacity="0.15" />
-                <line x1="0" y1="200" x2="400" y2="200" stroke="#ffffff" strokeWidth="0.5" opacity="0.15" />
-              </svg>
+              <p className="text-center text-sm text-gray-400 mt-4">*Baseado em dados de 1,3 milhões de treinos</p>
             </div>
           </div>
 
-          {/* Footer text */}
-          <div className="text-center text-sm text-gray-500">
-            <p>*Baseado em dados de 1,3 milhões de treinos</p>
+          <div className="flex justify-center">
+            <button
+              onClick={() => setCurrentStep(6)} // Adjusted step number
+              className="w-full max-w-md h-16 bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-xl font-bold rounded-full hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 transform hover:scale-105"
+            >
+              Continuar
+            </button>
           </div>
-
-          <button
-            onClick={() => {
-              setShowQuickResults(false)
-              setCurrentStep(6) // Adjusted step number
-            }}
-            className="w-full h-16 text-xl font-bold text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-300 rounded-xl shadow-lg transition-all duration-300"
-          >
-            Continuar
-          </button>
         </div>
       </div>
     )
@@ -2860,120 +2773,16 @@ export default function QuizPage() {
                   )}
               </div>
 
-              {debugMode && (
-                <div className="w-96 max-h-[600px] overflow-y-auto bg-gray-900/95 rounded-lg p-4 space-y-4 border border-purple-500">
-                  <div className="flex justify-between items-center sticky top-0 bg-gray-900 pb-2 border-b border-purple-500">
-                    <h3 className="text-lg font-bold text-white">
-                      Ajustar Marcações ({quizData.gender === "mulher" ? "Feminino" : "Masculino"})
-                    </h3>
-                    <button
-                      onClick={copyDebugValues}
-                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm"
-                    >
-                      Copiar Valores
-                    </button>
-                  </div>
-
-                  {Object.entries(debugValues)
-                    .filter(([key]) => (quizData.gender === "mulher" ? !key.startsWith("m_") : key.startsWith("m_")))
-                    .map(([key, values]) => (
-                      <div key={key} className="space-y-2 border-b border-gray-700 pb-3">
-                        <h4 className="text-sm font-semibold text-purple-300">
-                          {key.replace(/m_/g, "").replace(/_/g, " ").toUpperCase()}
-                        </h4>
-
-                        <div className="space-y-1">
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Top: {values.top}%</span>
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              value={values.top}
-                              onChange={(e) => updateDebugValue(key, "top", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-
-                          {"left" in values && (
-                            <label className="text-xs text-gray-400 flex justify-between">
-                              <span>Left: {values.left}%</span>
-                              <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                value={values.left}
-                                onChange={(e) => updateDebugValue(key, "left", Number(e.target.value))}
-                                className="w-48"
-                              />
-                            </label>
-                          )}
-
-                          {"right" in values && (
-                            <label className="text-xs text-gray-400 flex justify-between">
-                              <span>Right: {values.right}%</span>
-                              <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                value={values.right}
-                                onChange={(e) => updateDebugValue(key, "right", Number(e.target.value))}
-                                className="w-48"
-                              />
-                            </label>
-                          )}
-
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Width: {values.width}%</span>
-                            <input
-                              type="range"
-                              min="1"
-                              max="50"
-                              value={values.width}
-                              onChange={(e) => updateDebugValue(key, "width", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Height: {values.height}%</span>
-                            <input
-                              type="range"
-                              min="1"
-                              max="50"
-                              value={values.height}
-                              onChange={(e) => updateDebugValue(key, "height", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Rotate: {values.rotate}°</span>
-                            <input
-                              type="range"
-                              min="-90"
-                              max="90"
-                              value={values.rotate}
-                              onChange={(e) => updateDebugValue(key, "rotate", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              )}
-
               <div className="flex flex-col space-y-4 max-w-md">
                 {["Peito", "Braços", "Barriga", "Pernas", "Tudo"].map((area) => (
-                  <div
+                  <button
                     key={area}
+                    onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
                     className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
                       quizData.problemAreas.includes(area)
                         ? "bg-emerald-500 border-emerald-500 text-white"
                         : "bg-white/5 backdrop-blur-sm border-white/10 text-white hover:border-emerald-500"
                     }`}
-                    onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-bold">{area}</h3>
@@ -2985,7 +2794,7 @@ export default function QuizPage() {
                         {quizData.problemAreas.includes(area) && <CheckCircle className="h-4 w-4 text-emerald-500" />}
                       </div>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
