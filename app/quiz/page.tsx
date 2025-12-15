@@ -383,7 +383,7 @@ export default function QuizPage() {
         const timer = setTimeout(() => {
           setShowAnalyzingData(false)
           setAnalyzingStep(0)
-          setCurrentStep(25) // Move to supplement interest question
+          setCurrentStep(25) // Move to step 25 (allergies)
         }, 2500)
         return () => clearTimeout(timer)
       }
@@ -899,7 +899,8 @@ export default function QuizPage() {
       // </CHANGE>
     } else if (currentStep === 29) {
       setShowAnalyzingData(true)
-      setCurrentStep(30)
+      // The API call is now triggered in handleSubmit, not here.
+      // The UI will automatically advance to the next step after the animation is done.
       // </CHANGE>
     } else if (currentStep === 27 && quizData.name.trim() !== "") {
       // Calculate weeks to reach goal based on weight difference and goals
@@ -1243,97 +1244,6 @@ export default function QuizPage() {
 
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
-        {debugChart && (
-          <div className="fixed top-4 left-4 bg-gray-900 border border-gray-700 rounded-lg p-4 max-h-96 overflow-y-auto z-50 w-80">
-            <div className="space-y-4">
-              <button
-                onClick={() => setDebugChart(false)}
-                className="w-full bg-red-600 hover:bg-red-700 py-2 rounded text-sm font-semibold"
-              >
-                Close Debug
-              </button>
-
-              <div>
-                <h3 className="font-bold text-cyan-400 mb-2">Muscle Line Points:</h3>
-                {musclePoints.map((point, idx) => (
-                  <div key={`muscle-${idx}`} className="flex gap-2 mb-2 text-xs">
-                    <input
-                      type="number"
-                      value={point.x}
-                      onChange={(e) => {
-                        const newPoints = [...musclePoints]
-                        newPoints[idx].x = Number.parseFloat(e.target.value) || 0
-                        setMusclePoints(newPoints)
-                      }}
-                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
-                      placeholder="X"
-                    />
-                    <input
-                      type="number"
-                      value={point.y}
-                      onChange={(e) => {
-                        const newPoints = [...musclePoints]
-                        newPoints[idx].y = Number.parseFloat(e.target.value) || 0
-                        setMusclePoints(newPoints)
-                      }}
-                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
-                      placeholder="Y"
-                    />
-                    <span className="text-cyan-300">
-                      ({point.x}, {point.y})
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div>
-                <h3 className="font-bold text-pink-400 mb-2">Fat Line Points:</h3>
-                {fatPoints.map((point, idx) => (
-                  <div key={`fat-${idx}`} className="flex gap-2 mb-2 text-xs">
-                    <input
-                      type="number"
-                      value={point.x}
-                      onChange={(e) => {
-                        const newPoints = [...fatPoints]
-                        newPoints[idx].x = Number.parseFloat(e.target.value) || 0
-                        setFatPoints(newPoints)
-                      }}
-                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
-                      placeholder="X"
-                    />
-                    <input
-                      type="number"
-                      value={point.y}
-                      onChange={(e) => {
-                        const newPoints = [...fatPoints]
-                        newPoints[idx].y = Number.parseFloat(e.target.value) || 0
-                        setFatPoints(newPoints)
-                      }}
-                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
-                      placeholder="Y"
-                    />
-                    <span className="text-pink-300">
-                      ({point.x}, {point.y})
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-gray-800 p-2 rounded text-xs font-mono">
-                <p className="text-cyan-300">Muscle: [{musclePointsStr}]</p>
-                <p className="text-pink-300">Fat: [{fatPointsStr}]</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <button
-          onClick={() => setDebugChart(!debugChart)}
-          className="fixed top-4 right-4 bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded text-sm font-semibold z-40"
-        >
-          {debugChart ? "Hide" : "Debug"} Chart
-        </button>
-
         <div className="max-w-5xl w-full space-y-8">
           <div className="text-center space-y-4">
             <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
@@ -1945,32 +1855,151 @@ export default function QuizPage() {
 
   if (showNutritionInfo) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-6 max-w-md">
-          <BodyIllustration className="w-48 h-64 mx-auto" gender={quizData.gender === "mulher" ? "female" : "male"} />
-          <h2 className="text-3xl font-bold">
-            <span className="text-lime-400">81%</span> dos seus resultados são sobre nutrição
-          </h2>
-          <p className="text-gray-300">Para obter os maiores ganhos em massa muscular e força, você precisa:</p>
-          <div className="space-y-4 text-left">
-            <div className="flex items-start space-x-3">
-              <CheckCircle className="h-6 w-6 text-green-500 mt-1 flex-shrink-0" />
-              <p className="text-white">Total de calorias suficientes a cada dia.</p>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle className="h-6 w-6 text-green-500 mt-1 flex-shrink-0" />
-              <p className="text-white">Proteína adequada para realmente reconstruir mais tecido muscular.</p>
+      <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6">
+        {/* Progress Bar */}
+        <div className="w-full max-w-2xl mb-12">
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-full max-w-lg h-2 bg-gray-700 rounded-full overflow-hidden">
+              <div className="h-full w-4/5 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"></div>
             </div>
           </div>
-          <Button
+          <p className="text-center text-gray-400 text-sm">ANALISANDO SEU CORPO – 81% CONCLUÍDO</p>
+        </div>
+
+        {/* Main Content Container */}
+        <div className="w-full max-w-2xl space-y-8 text-center">
+          <div className="flex justify-center mb-8">
+            <style>{`
+            @keyframes blobFloat {
+              0%, 100% { transform: translate(0, 0) scale(1); }
+              33% { transform: translate(10px, -10px) scale(1.05); }
+              66% { transform: translate(-8px, 8px) scale(0.95); }
+            }
+            @keyframes blobPulse {
+              0%, 100% { filter: blur(40px) brightness(1); }
+              50% { filter: blur(50px) brightness(1.2); }
+            }
+            @keyframes gradientShift {
+              0% { background-position: 0% 50%; }
+              50% { background-position: 100% 50%; }
+              100% { background-position: 0% 50%; }
+            }
+            .animated-blob {
+              animation: blobFloat 6s ease-in-out infinite;
+            }
+            .blob-glow {
+              animation: blobPulse 4s ease-in-out infinite;
+            }
+            .blob-gradient {
+              animation: gradientShift 8s ease infinite;
+              background-size: 200% 200%;
+            }
+          `}</style>
+
+            <div className="relative w-56 h-56">
+              {/* Outer animated glow layer */}
+              <div
+                className="absolute inset-0 rounded-full blob-glow"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, rgba(34, 211, 238, 0.2) 40%, rgba(16, 185, 129, 0.1) 100%)",
+                }}
+              ></div>
+
+              {/* Main animated blob with gradient */}
+              <div
+                className="absolute inset-0 rounded-full animated-blob blob-gradient"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(135deg, #3b82f6 0%, #06b6d4 25%, #10b981 50%, #06b6d4 75%, #3b82f6 100%)",
+                  filter: "blur(20px)",
+                  opacity: 0.9,
+                }}
+              ></div>
+
+              {/* Inner solid blob for depth */}
+              <div
+                className="absolute inset-3 rounded-full animated-blob"
+                style={{
+                  background: "radial-gradient(circle at 30% 30%, #3b82f6 0%, #06b6d4 40%, #10b981 100%)",
+                  filter: "blur(10px)",
+                }}
+              ></div>
+
+              {/* Bright center highlight */}
+              <div
+                className="absolute inset-8 rounded-full"
+                style={{
+                  background: "radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%)",
+                }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Title */}
+          <div className="space-y-4">
+            <h2 className="text-4xl sm:text-5xl font-bold text-white leading-tight">
+              SEU MAIOR GARGALO
+              <br />
+              NÃO É O TREINO
+            </h2>
+            <p className="text-gray-300 text-lg">Nutrição influencia 81% do seu resultado</p>
+          </div>
+
+          {/* Insight Cards */}
+          <div className="space-y-4 mt-8">
+            <div className="flex items-start space-x-4 border border-gray-700/50 rounded-2xl p-6 bg-gray-800/30 backdrop-blur-sm hover:border-cyan-500/30 transition-all">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center h-8 w-8 rounded-full border-2 border-green-500">
+                  <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-white text-left text-base sm:text-lg">
+                  Seu corpo não recebe calorias suficientes para crescer
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4 border border-gray-700/50 rounded-2xl p-6 bg-gray-800/30 backdrop-blur-sm hover:border-cyan-500/30 transition-all">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center h-8 w-8 rounded-full border-2 border-green-500">
+                  <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-white text-left text-base sm:text-lg">
+                  A ingestão de proteína hoje limita sua recuperação muscular
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Button */}
+          <button
             onClick={() => {
               setShowNutritionInfo(false)
               setCurrentStep(currentStep + 1)
             }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-white rounded-lg py-4 font-semibold transition-all shadow-lg"
+            className="w-full mt-12 bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-700 hover:to-green-600 text-white font-bold text-xl sm:text-2xl py-5 sm:py-6 px-8 rounded-2xl transition-all transform hover:scale-105 shadow-lg hover:shadow-cyan-500/50 duration-300"
           >
-            Entendi
-          </Button>
+            DESTRAVAR MEUS RESULTADOS
+          </button>
+
+          {/* Footer text */}
+          <p className="text-gray-500 text-sm">Leva menos de 1 minuto</p>
         </div>
       </div>
     )
@@ -2197,7 +2226,9 @@ export default function QuizPage() {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         return quizData.email !== "" && emailRegex.test(quizData.email)
       case 30: // Final submit
-        return quizData.trainingDays !== ""
+        // Training days per week is now handled by step 24.
+        // This step is now the final submit.
+        return true
 
       // </CHANGE>
       default:
@@ -3429,7 +3460,7 @@ export default function QuizPage() {
                     updateQuizData("cardioFeeling", option.value)
                     setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
                   }}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                  className={`p-4 rounded-lg border-2 transition-all ${
                     quizData.cardioFeeling === option.value
                       ? option.value === "avoid"
                         ? "border-red-500 bg-red-500/20"
@@ -3467,7 +3498,7 @@ export default function QuizPage() {
                     updateQuizData("strengthFeeling", option.value)
                     setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
                   }}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                  className={`p-4 rounded-lg border-2 transition-all ${
                     quizData.strengthFeeling === option.value
                       ? option.value === "modify"
                         ? "border-red-500 bg-red-500/20"
@@ -3505,7 +3536,7 @@ export default function QuizPage() {
                     updateQuizData("stretchingFeeling", option.value)
                     setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
                   }}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                  className={`p-4 rounded-lg border-2 transition-all ${
                     quizData.stretchingFeeling === option.value
                       ? option.value === "skip"
                         ? "border-red-500 bg-red-500/20"
@@ -4398,6 +4429,7 @@ export default function QuizPage() {
           !showCortisolMessage &&
           !showTimeCalculation &&
           !showAnalyzingData &&
+          !showNutritionInfo && // Added condition for nutrition info page
           ![
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
             30,
