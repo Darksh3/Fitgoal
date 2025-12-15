@@ -11,7 +11,7 @@ import { Slider } from "@/components/ui/slider"
 
 import { Textarea } from "@/components/ui/textarea"
 
-import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, ArrowRight } from "lucide-react"
+import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, Clock } from "lucide-react"
 
 import { useRouter } from "next/navigation"
 
@@ -813,8 +813,8 @@ export default function QuizPage() {
     // </CHANGE>
 
     if (currentStep === 22 && quizData.allergies === "nao") {
-      // This case is now related to Training Days per week (step 24).
-      // The original code had a condition here for allergies, which is now handled in step 22.
+      // This case is now related to Supplement Interest (step 26).
+      // The original code had a condition here for allergies, which is now handled in step 24.
       // If the intention was to always advance after the cortisol message, this should be handled by the render logic.
       // For now, assuming we simply advance.
       setCurrentStep(currentStep + 1)
@@ -822,9 +822,9 @@ export default function QuizPage() {
     }
     // </CHANGE>
 
-    if (currentStep === 17) {
-      // This case 17 is now about previous problems
-      console.log("[v0] Advancing from step 17, checking for motivation message logic...")
+    if (currentStep === 18) {
+      // This case 18 is now about previous problems
+      console.log("[v0] Advancing from step 18, checking for motivation message logic...")
       if (
         quizData.previousProblems.length === 0 ||
         (quizData.previousProblems.length === 1 && quizData.previousProblems[0] === "no-problems")
@@ -838,41 +838,41 @@ export default function QuizPage() {
     }
     // </CHANGE>
 
-    if (currentStep === 22 && quizData.allergies === "nao") {
-      // This condition is now handled within the step 22 rendering logic by directly setting the next step.
+    if (currentStep === 24 && quizData.allergies === "nao") {
+      // This condition is now handled within the step 24 rendering logic by directly setting the next step.
       // If this block is reached, it means the user selected "nao" for allergies.
-      // The logic to skip to 24 is already implemented in the button's onClick handler.
+      // The logic to skip to 26 (Supplement Interest) is already implemented in the button's onClick handler.
       // So, no action needed here, just advance normally if this block is not removed.
       // However, the `nextStep` should be called from the UI handler.
       // If this block remains, it implies that `nextStep` is called regardless of the UI interaction, which is not ideal.
       // Assuming the UI handler for the 'nao' button is correct, this `if` can be removed.
       // For safety, if it's intended to be a fallback, let's advance the step.
-      // But the direct jump to 24 in the UI is preferred.
+      // But the direct jump to 26 in the UI is preferred.
       // Let's comment it out for clarity, relying on the UI handler.
       // setCurrentStep(currentStep + 1)
       // </CHANGE>
-    } else if (currentStep === 23 && quizData.allergies === "sim") {
+    } else if (currentStep === 25 && quizData.allergies === "sim") {
       // This step is for allergy details. If allergies is 'sim', we proceed to the next step.
-      // If allergies is 'nao', case 22 already jumped to case 24.
+      // If allergies is 'nao', case 24 already jumped to case 26.
       // This if block might be redundant if the UI handler manages the flow correctly.
-      // Let's assume the UI handler for the 'Continue' button at case 23 handles the progression.
+      // Let's assume the UI handler for the 'Continue' button at case 25 handles the progression.
       // If the 'Continue' button is pressed, `nextStep()` is called.
-      // The current step is 23. We want to go to case 24.
-      // This block might be intended to skip if there are no allergies, but that's handled in step 22.
-      // For now, let's assume `nextStep` will correctly advance to 24.
+      // The current step is 25. We want to go to case 26.
+      // This block might be intended to skip if there are no allergies, but that's handled in step 24.
+      // For now, let's assume `nextStep` will correctly advance to 26.
       // If the user *did* fill in allergy details, `nextStep` would normally advance to the next step.
       // If they skipped it (which shouldn't be possible if `canProceed` is correct), this might be a fallback.
       // Based on the structure, it seems the `nextStep()` call from the UI is sufficient.
-      // If this were meant to manually set the step, it should be `setCurrentStep(24)`.
+      // If this were meant to manually set the step, it should be `setCurrentStep(26)`.
       // For now, we'll let the general `nextStep` logic handle it.
-    } else if (currentStep === 25 && quizData.wantsSupplement === "nao") {
-      // Step 25 is supplement interest. If 'nao', we skip supplement details (case 25 handles this by setting currentStep to 26).
-      setCurrentStep(26) // Skip supplement recommendation and go to step 26 (name)
     } else if (currentStep === 26 && quizData.wantsSupplement === "nao") {
+      // Step 26 is supplement interest. If 'nao', we skip supplement details (case 26 handles this by setting currentStep to 27).
+      setCurrentStep(27) // Skip supplement recommendation and go to step 27 (name)
+    } else if (currentStep === 27 && quizData.wantsSupplement === "nao") {
       // </CHANGE>
-      setCurrentStep(27) // Skip supplement details and go to name (case 27)
-    } else if (currentStep === 12 && quizData.weight !== "" && quizData.targetWeight !== "") {
-      // Original was step 15, now step 13 (weight related)
+      setCurrentStep(28) // Skip supplement details and go to name (case 28)
+    } else if (currentStep === 14 && quizData.weight !== "" && quizData.targetWeight !== "") {
+      // Original was step 15, now step 14 (weight related)
       const calculatedTime = calculateTimeToGoal()
       console.log("[v0] calculatedTime:", calculatedTime)
       if (calculatedTime) {
@@ -887,7 +887,7 @@ export default function QuizPage() {
       setShowAnalyzingData(true)
       setCurrentStep(30)
       // </CHANGE>
-    } else if (currentStep === 26 && quizData.name.trim() !== "") {
+    } else if (currentStep === 27 && quizData.name.trim() !== "") {
       // Calculate weeks to reach goal based on weight difference and goals
       const current = Number.parseFloat(quizData.currentWeight)
       const target = Number.parseFloat(quizData.targetWeight)
@@ -917,34 +917,34 @@ export default function QuizPage() {
   const prevStep = () => {
     if (currentStep > 1) {
       // Adjusted step numbers to match the new flow
-      if (currentStep === 25 && quizData.allergies === "nao") {
-        // If we are at supplement interest question (case 25) and allergies was 'no' (case 22, which jumps to 24)
-        // We need to go back to the allergies question (case 22).
-        setCurrentStep(22) // Go back to allergies question
-      } else if (currentStep === 27 && quizData.wantsSupplement === "nao") {
-        // If we are at name question (case 27) and supplement interest was 'no' (case 25, which jumps to 26)
-        // We need to go back to the supplement interest question (case 25).
-        setCurrentStep(25)
-      } else if (currentStep === 26 && quizData.wantsSupplement === "sim") {
-        // If we are at supplement recommendation (case 26) and supplement interest was 'yes' (case 25)
-        // We need to go back to the supplement interest question (case 25).
-        setCurrentStep(25)
-      } else if (currentStep === 23 && quizData.allergies === "sim") {
-        // If we are at allergy details (case 23) and allergies was 'yes' (case 22)
-        // We need to go back to the allergies question (case 22).
-        setCurrentStep(22) // Go back to allergies question
-      } else if (currentStep === 18 && quizData.additionalGoals.length === 0) {
-        // If we are at the additional goals page (now case 18) and user selected none,
-        // and if we are navigating back from this page, we should go back to the previous problem page (case 17)
+      if (currentStep === 26 && quizData.allergies === "nao") {
+        // If we are at supplement interest question (case 26) and allergies was 'no' (case 24, which jumps to 26)
+        // We need to go back to the allergies question (case 24).
+        setCurrentStep(24) // Go back to allergies question
+      } else if (currentStep === 28 && quizData.wantsSupplement === "nao") {
+        // If we are at name question (case 28) and supplement interest was 'no' (case 26, which jumps to 27)
+        // We need to go back to the supplement interest question (case 26).
+        setCurrentStep(26)
+      } else if (currentStep === 27 && quizData.wantsSupplement === "sim") {
+        // If we are at supplement recommendation (case 27) and supplement interest was 'yes' (case 26)
+        // We need to go back to the supplement interest question (case 26).
+        setCurrentStep(26)
+      } else if (currentStep === 25 && quizData.allergies === "sim") {
+        // If we are at allergy details (case 25) and allergies was 'yes' (case 24)
+        // We need to go back to the allergies question (case 24).
+        setCurrentStep(24) // Go back to allergies question
+      } else if (currentStep === 19 && quizData.additionalGoals.length === 0) {
+        // If we are at the additional goals page (now case 19) and user selected none,
+        // and if we are navigating back from this page, we should go back to the previous problem page (case 18)
         setShowMotivationMessage(false) // Hide motivation message if it was shown
-        setCurrentStep(17)
-      } else if (currentStep === 18 && showMotivationMessage) {
+        setCurrentStep(18)
+      } else if (currentStep === 19 && showMotivationMessage) {
         // If motivation message was shown, go back to previous step before motivation message
         setShowMotivationMessage(false)
         // The logic to show motivation message is now tied to previousProblems being empty.
-        // So if we are at step 18 (additional goals) and motivation message was shown, it means we came from step 17
-        // where previousProblems was empty. So we should go back to step 17.
-        setCurrentStep(17)
+        // So if we are at step 19 (additional goals) and motivation message was shown, it means we came from step 18
+        // where previousProblems was empty. So we should go back to step 18.
+        setCurrentStep(18)
       } else if (currentStep === 23 && showCortisolMessage) {
         // Adding back navigation for cortisol message
         setShowCortisolMessage(false)
@@ -1228,74 +1228,103 @@ export default function QuizPage() {
       <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white flex items-center justify-center p-6">
         <div className="max-w-2xl w-full space-y-8">
           <div className="text-center space-y-4">
-            <h1 className="text-3xl sm:text-4xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
-            <p className="text-gray-300 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
+            <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
+            <p className="text-gray-300 text-xl">Prevemos que você verá melhorias até o final da 2ª semana</p>
           </div>
 
-          <div className="relative w-full h-[400px] bg-gray-800/50 rounded-2xl p-6 backdrop-blur-sm border border-gray-700">
+          <div className="relative w-full h-[420px] bg-gradient-to-br from-blue-950/40 to-purple-950/40 rounded-3xl p-8 backdrop-blur-sm border border-blue-900/30">
             <div className="relative w-full h-full">
-              <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-xs text-gray-400">
+              {/* Y-axis labels */}
+              <div className="absolute left-0 top-0 bottom-12 flex flex-col justify-between text-sm text-gray-400">
                 <span>Alto</span>
-                <span>Médio</span>
                 <span>Baixo</span>
               </div>
 
-              <div className="absolute bottom-0 left-12 right-0 flex justify-between text-xs text-gray-400">
-                <span>Agora</span>
+              {/* X-axis labels */}
+              <div className="absolute bottom-0 left-16 right-0 flex justify-between text-sm text-gray-400">
+                <span>Baixo</span>
                 <span>1 Mês</span>
                 <span>2 Meses</span>
                 <span>3 Meses</span>
               </div>
 
-              <svg className="absolute left-12 top-4 right-4 bottom-8" viewBox="0 0 400 300" preserveAspectRatio="none">
+              {/* SVG Chart with gradient lines */}
+              <svg
+                className="absolute left-16 top-4 right-4 bottom-12"
+                viewBox="0 0 400 300"
+                preserveAspectRatio="none"
+              >
+                {/* Gradient definitions */}
+                <defs>
+                  <linearGradient id="muscleLine" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style={{ stopColor: "#22d3ee", stopOpacity: 1 }} />
+                    <stop offset="100%" style={{ stopColor: "#84cc16", stopOpacity: 1 }} />
+                  </linearGradient>
+                  <linearGradient id="fatLine" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style={{ stopColor: "#8b5cf6", stopOpacity: 1 }} />
+                    <stop offset="100%" style={{ stopColor: "#ec4899", stopOpacity: 1 }} />
+                  </linearGradient>
+
+                  {/* Glow filters */}
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                    <feMerge>
+                      <feMergeNode in="coloredBlur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+
+                {/* Muscle mass line (going up) */}
                 <polyline
-                  points="0,250 100,200 200,150 300,100 400,80"
+                  points="0,200 133,150 266,100 400,40"
                   fill="none"
-                  stroke="white"
-                  strokeWidth="3"
+                  stroke="url(#muscleLine)"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  filter="url(#glow)"
                   className="animate-draw-line"
                 />
+
+                {/* Body fat line (going down) */}
                 <polyline
-                  points="0,100 100,120 200,180 300,220 400,240"
+                  points="0,100 133,150 266,200 400,260"
                   fill="none"
-                  stroke="#84cc16"
-                  strokeWidth="3"
+                  stroke="url(#fatLine)"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  filter="url(#glow)"
                   className="animate-draw-line-delay-1"
                 />
-
-                <circle cx="100" cy="120" r="6" fill="#84cc16" className="animate-fade-in-dot-delay-1" />
-                <circle cx="400" cy="240" r="6" fill="#84cc16" className="animate-fade-in-dot-delay-2" />
-                <circle cx="400" cy="80" r="6" fill="white" className="animate-fade-in-dot-delay-3" />
               </svg>
 
-              <div className="absolute top-4 right-8 text-sm font-semibold text-white animate-fade-in-delay-1">
+              {/* Labels */}
+              <div className="absolute top-8 right-8 text-base font-semibold text-white flex items-center gap-2 animate-fade-in-delay-1">
+                <div className="w-3 h-3 rounded-full bg-gradient-to-r from-cyan-400 to-lime-400" />
                 Massa muscular
               </div>
-              <div className="absolute bottom-12 right-8 text-sm font-semibold bg-lime-500 text-black px-3 py-1 rounded animate-fade-in-delay-2">
-                % de gordura
-              </div>
-              <div className="absolute top-[40%] left-16 bg-lime-500 text-black px-3 py-1 rounded font-semibold text-sm animate-fade-in-delay-3">
-                2ª semana 🔥
+              <div className="absolute bottom-16 right-8 text-base font-semibold text-white flex items-center gap-2 animate-fade-in-delay-2">
+                <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500" />% de gordura
               </div>
             </div>
           </div>
 
-          <div className="space-y-2 text-center text-sm text-gray-400">
-            <p>*Baseado em dados de 1,3 milhões de treinos.</p>
-            <p className="text-xs">
-              *Gráfico ilustrativo baseado em dados de bem-estar auto-relatados. Resultados individuais podem variar.
-            </p>
+          {/* Footer text */}
+          <div className="text-center text-sm text-gray-400">
+            <p>*Baseado em dados de 1,3 milhões de treinos</p>
           </div>
 
           <Button
             onClick={() => {
+              console.log("[v0] Entendi button clicked, hiding motivation and advancing")
               setShowQuickResults(false)
-              setCurrentStep(currentStep + 1)
+              setCurrentStep(6)
             }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-black py-6 text-xl rounded-full font-bold transition-all duration-300 flex items-center justify-center gap-2"
+            className="w-full h-16 text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 rounded-2xl shadow-lg hover:shadow-blue-500/50 transition-all duration-300"
           >
-            Entendi
-            <ArrowRight className="w-6 h-6" />
+            Continuar
           </Button>
         </div>
       </div>
@@ -1413,7 +1442,7 @@ export default function QuizPage() {
 
   if (showGoalTimeline) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 relative overflow-hidden">
         <div className="text-center space-y-8 max-w-md">
           {isCalculatingGoal ? (
             <>
@@ -1456,7 +1485,7 @@ export default function QuizPage() {
                   setShowGoalTimeline(false)
                   setIsCalculatingGoal(false)
                   setCalculatedWeeks(0)
-                  setCurrentStep(27) // Adjusted to step 27 which is Email
+                  setCurrentStep(27) // Adjusted to step 27 which is Name
                 }}
                 className="mt-8 bg-lime-500 hover:bg-lime-600 text-gray-900 font-bold py-4 px-12 rounded-full text-lg transition-colors"
               >
@@ -3409,7 +3438,7 @@ export default function QuizPage() {
             <div className="flex justify-center mt-8">
               <Button
                 onClick={() => {
-                  console.log("[v0] Case 18 continue button clicked, currentStep:", currentStep)
+                  console.log("[v0] Case 19 continue button clicked, currentStep:", currentStep)
                   console.log("[v0] Selected problems:", quizData.previousProblems)
                   nextStep()
                 }}
@@ -3788,7 +3817,7 @@ export default function QuizPage() {
             <div className="flex justify-center">
               <Button
                 onClick={() => {
-                  console.log("[v0] Case 22 continue button clicked")
+                  console.log("[v0] Case 23 continue button clicked")
                   console.log("[v0] Current step:", currentStep)
                   console.log("[v0] Food preferences:", quizData.foodPreferences)
                   nextStep()
@@ -3831,7 +3860,7 @@ export default function QuizPage() {
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
-                  setTimeout(() => setCurrentStep(26), 300) // Skip allergy details (case 24) and go to supplement interest (case 26)
+                  setTimeout(() => setCurrentStep(26), 300) // Skip allergy details (case 25) and go to supplement interest (case 26)
                 }}
               >
                 <X
@@ -3884,7 +3913,7 @@ export default function QuizPage() {
           }
 
           // Factor 2: Body type is ectomorph or "magro" (thin)
-          if (quizData.bodyType === "ectomorph" || quizData.bodyType === "magro") {
+          if (quizData.bodyType === "ectomorfo" || quizData.bodyType === "magro") {
             return true
           }
 
