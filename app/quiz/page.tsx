@@ -383,7 +383,7 @@ export default function QuizPage() {
         const timer = setTimeout(() => {
           setShowAnalyzingData(false)
           setAnalyzingStep(0)
-          setCurrentStep(25) // Move to supplement interest question
+          setCurrentStep(25) // Move to step 25 (Allergies)
         }, 2500)
         return () => clearTimeout(timer)
       }
@@ -899,7 +899,8 @@ export default function QuizPage() {
       // </CHANGE>
     } else if (currentStep === 29) {
       setShowAnalyzingData(true)
-      setCurrentStep(30)
+      // The transition to the next step (30) is handled within the setShowAnalyzingData effect
+      // setCurrentStep(30) // This line is now handled by the effect when analyzing data is complete
       // </CHANGE>
     } else if (currentStep === 27 && quizData.name.trim() !== "") {
       // Calculate weeks to reach goal based on weight difference and goals
@@ -1243,8 +1244,17 @@ export default function QuizPage() {
 
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
+        <div className="fixed top-4 left-4 z-50">
+          <Button onClick={() => setDebugChart(!debugChart)} className="group relative">
+            <div className="relative px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full font-bold text-gray-900 text-base shadow-lg hover:shadow-yellow-500/50 transform hover:scale-105 transition-all duration-300">
+              <span className="relative z-10">{debugChart ? "Hide" : "Debug"} Chart</span>
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-300 to-yellow-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+            </div>
+          </Button>
+        </div>
+
         {debugChart && (
-          <div className="fixed top-4 left-4 bg-gray-900 border border-gray-700 rounded-lg p-4 max-h-96 overflow-y-auto z-50 w-80">
+          <div className="fixed top-4 right-4 bg-gray-900 border border-gray-700 rounded-lg p-4 max-h-[80vh] overflow-y-auto z-50 w-80">
             <div className="space-y-4">
               <button
                 onClick={() => setDebugChart(false)}
@@ -1256,7 +1266,7 @@ export default function QuizPage() {
               <div>
                 <h3 className="font-bold text-cyan-400 mb-2">Muscle Line Points:</h3>
                 {musclePoints.map((point, idx) => (
-                  <div key={`muscle-${idx}`} className="flex gap-2 mb-2 text-xs">
+                  <div key={`muscle-${idx}`} className="flex gap-2 mb-2 text-xs items-center">
                     <input
                       type="number"
                       value={point.x}
@@ -1279,7 +1289,7 @@ export default function QuizPage() {
                       className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
                       placeholder="Y"
                     />
-                    <span className="text-cyan-300">
+                    <span className="text-cyan-300 ml-auto">
                       ({point.x}, {point.y})
                     </span>
                   </div>
@@ -1289,7 +1299,7 @@ export default function QuizPage() {
               <div>
                 <h3 className="font-bold text-pink-400 mb-2">Fat Line Points:</h3>
                 {fatPoints.map((point, idx) => (
-                  <div key={`fat-${idx}`} className="flex gap-2 mb-2 text-xs">
+                  <div key={`fat-${idx}`} className="flex gap-2 mb-2 text-xs items-center">
                     <input
                       type="number"
                       value={point.x}
@@ -1312,7 +1322,7 @@ export default function QuizPage() {
                       className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
                       placeholder="Y"
                     />
-                    <span className="text-pink-300">
+                    <span className="text-pink-300 ml-auto">
                       ({point.x}, {point.y})
                     </span>
                   </div>
@@ -1326,13 +1336,6 @@ export default function QuizPage() {
             </div>
           </div>
         )}
-
-        <button
-          onClick={() => setDebugChart(!debugChart)}
-          className="fixed top-4 right-4 bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded text-sm font-semibold z-40"
-        >
-          {debugChart ? "Hide" : "Debug"} Chart
-        </button>
 
         <div className="max-w-5xl w-full space-y-8">
           <div className="text-center space-y-4">
@@ -1356,26 +1359,22 @@ export default function QuizPage() {
                 <span>3 Meses</span>
               </div>
 
-              {/* SVG Chart with animated gradient lines */}
               <svg
                 className="absolute left-16 top-4 right-4 bottom-12"
                 viewBox="0 0 400 300"
                 preserveAspectRatio="none"
               >
                 <defs>
-                  <linearGradient id="muscleLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style={{ stopColor: "#06b6d4", stopOpacity: 1 }} />
-                    <stop offset="50%" style={{ stopColor: "#10b981", stopOpacity: 1 }} />
-                    <stop offset="100%" style={{ stopColor: "#84cc16", stopOpacity: 1 }} />
+                  <linearGradient id="muscleMask" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#00d4ff" />
+                    <stop offset="100%" stopColor="#22c55e" />
                   </linearGradient>
-                  <linearGradient id="fatLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style={{ stopColor: "#3b82f6", stopOpacity: 1 }} />
-                    <stop offset="50%" style={{ stopColor: "#7c3aed", stopOpacity: 1 }} />
-                    <stop offset="100%" style={{ stopColor: "#ec4899", stopOpacity: 1 }} />
+                  <linearGradient id="fatMask" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#3b82f6" />
+                    <stop offset="100%" stopColor="#ec4899" />
                   </linearGradient>
-
                   <marker
-                    id="arrowMuscle"
+                    id="arrowMuscleBezier"
                     markerWidth="10"
                     markerHeight="10"
                     refX="9"
@@ -1383,10 +1382,10 @@ export default function QuizPage() {
                     orient="auto"
                     markerUnits="strokeWidth"
                   >
-                    <path d="M0,0 L0,6 L9,3 z" fill="#84cc16" />
+                    <path d="M0,0 L0,6 L9,3 z" fill="url(#muscleMask)" />
                   </marker>
                   <marker
-                    id="arrowFat"
+                    id="arrowFatBezier"
                     markerWidth="10"
                     markerHeight="10"
                     refX="9"
@@ -1394,50 +1393,35 @@ export default function QuizPage() {
                     orient="auto"
                     markerUnits="strokeWidth"
                   >
-                    <path d="M0,0 L0,6 L9,3 z" fill="#ec4899" />
+                    <path d="M0,0 L0,6 L9,3 z" fill="url(#fatMask)" />
                   </marker>
-
-                  {/* Glow filters */}
-                  <filter id="glow">
-                    <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-                    <feMerge>
-                      <feMergeNode in="coloredBlur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
                 </defs>
 
-                {/* Muscle mass line (going up) */}
-                <polyline
-                  points={musclePointsStr}
+                {/* Muscle Mass Line - Smooth Bezier Curve */}
+                <path
+                  d={`M ${musclePoints[0].x} ${musclePoints[0].y} C ${musclePoints[0].x + 80} ${musclePoints[0].y + 40}, ${musclePoints[1].x - 80} ${musclePoints[1].y - 40}, ${musclePoints[1].x} ${musclePoints[1].y}`}
+                  stroke="url(#muscleMask)"
+                  strokeWidth="5"
                   fill="none"
-                  stroke="url(#muscleLine)"
-                  strokeWidth="4"
                   strokeLinecap="round"
-                  strokeLinejoin="round"
-                  filter="url(#glow)"
-                  markerEnd="url(#arrowMuscle)"
+                  markerEnd="url(#arrowMuscleBezier)"
+                  className="animate-lineDrawBezier"
                   style={{
-                    strokeDasharray: 500,
-                    strokeDashoffset: 500,
-                    animation: "drawLine 6s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+                    filter: "drop-shadow(0 0 10px rgba(0, 212, 255, 0.6))",
                   }}
                 />
 
-                {/* Body fat line (going down) */}
-                <polyline
-                  points={fatPointsStr}
+                {/* Body Fat Line - Smooth Bezier Curve */}
+                <path
+                  d={`M ${fatPoints[0].x} ${fatPoints[0].y} C ${fatPoints[0].x + 80} ${fatPoints[0].y - 40}, ${fatPoints[1].x - 80} ${fatPoints[1].y + 40}, ${fatPoints[1].x} ${fatPoints[1].y}`}
+                  stroke="url(#fatMask)"
+                  strokeWidth="5"
                   fill="none"
-                  stroke="url(#fatLine)"
-                  strokeWidth="4"
                   strokeLinecap="round"
-                  strokeLinejoin="round"
-                  filter="url(#glow)"
-                  markerEnd="url(#arrowFat)"
+                  markerEnd="url(#arrowFatBezier)"
+                  className="animate-lineDrawBezier"
                   style={{
-                    strokeDasharray: 500,
-                    strokeDashoffset: 500,
-                    animation: "drawLine 6s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.2s",
+                    filter: "drop-shadow(0 0 10px rgba(59, 130, 246, 0.6))",
                   }}
                 />
 
@@ -1479,7 +1463,7 @@ export default function QuizPage() {
           <button
             onClick={() => {
               setShowQuickResults(false)
-              setCurrentStep(6)
+              setCurrentStep(6) // Adjusted step number
             }}
             className="w-full h-16 text-xl font-bold text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-300 rounded-xl shadow-lg transition-all duration-300"
           >
@@ -1541,6 +1525,7 @@ export default function QuizPage() {
               console.log("[v0] Got it button clicked, continuing on step 22")
               setShowCortisolMessage(false)
               // The renderQuestion will handle showing the next step correctly (case 22)
+              setCurrentStep(23) // Move to the next step after the cortisol message
             }}
             className="w-full bg-lime-500 hover:bg-lime-600 text-white rounded-lg py-4 font-semibold transition-all shadow-lg"
           >
@@ -1588,6 +1573,7 @@ export default function QuizPage() {
               console.log("[v0] Entendi button clicked, hiding motivation and advancing")
               setShowMotivationMessage(false)
               // The renderQuestion will handle showing case 19 (additional goals) which is now case 19
+              setCurrentStep(20) // Move to the next step after motivation message
             }}
             className="w-full bg-lime-500 hover:bg-lime-600 text-white rounded-lg py-4 font-semibold transition-all shadow-lg"
           >
@@ -3429,7 +3415,7 @@ export default function QuizPage() {
                     updateQuizData("cardioFeeling", option.value)
                     setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
                   }}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                  className={`p-4 rounded-lg border-2 transition-all ${
                     quizData.cardioFeeling === option.value
                       ? option.value === "avoid"
                         ? "border-red-500 bg-red-500/20"
@@ -3467,7 +3453,7 @@ export default function QuizPage() {
                     updateQuizData("strengthFeeling", option.value)
                     setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
                   }}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                  className={`p-4 rounded-lg border-2 transition-all ${
                     quizData.strengthFeeling === option.value
                       ? option.value === "modify"
                         ? "border-red-500 bg-red-500/20"
@@ -3505,7 +3491,7 @@ export default function QuizPage() {
                     updateQuizData("stretchingFeeling", option.value)
                     setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
                   }}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                  className={`p-4 rounded-lg border-2 transition-all ${
                     quizData.stretchingFeeling === option.value
                       ? option.value === "skip"
                         ? "border-red-500 bg-red-500/20"
