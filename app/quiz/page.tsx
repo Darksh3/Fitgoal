@@ -1225,37 +1225,35 @@ export default function QuizPage() {
 
   if (showQuickResults) {
     return (
-      // Increased max-width by 15% and adjusted container styling
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
-        <div className="max-w-3xl w-full space-y-8">
+        <div className="max-w-5xl w-full space-y-8">
           <div className="text-center space-y-4">
             <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
             <p className="text-gray-400 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
           </div>
 
-          <div className="relative w-full h-[336px] bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50 rounded-3xl p-8 backdrop-blur-sm border border-blue-800/40">
+          <div className="relative w-full h-[323px] bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50 rounded-3xl p-8 backdrop-blur-sm border border-blue-800/40">
             <div className="relative w-full h-full">
               {/* Y-axis labels */}
-              <div className="absolute left-0 top-0 bottom-12 flex flex-col justify-between text-sm text-gray-400">
+              <div className="absolute left-0 top-0 bottom-12 flex flex-col justify-between text-xs text-gray-400">
                 <span>Alto</span>
                 <span>Baixo</span>
               </div>
 
-              {/* X-axis labels */}
-              <div className="absolute bottom-0 left-16 right-0 flex justify-between text-sm text-gray-400">
+              {/* X-axis labels - Adjusted sizing */}
+              <div className="absolute bottom-0 left-16 right-0 flex justify-between text-xs text-gray-400 px-4">
                 <span>Baixo</span>
                 <span>1 Mês</span>
                 <span>2 Meses</span>
                 <span>3 Meses</span>
               </div>
 
-              {/* SVG Chart with gradient lines */}
+              {/* SVG Chart with animated gradient lines */}
               <svg
                 className="absolute left-16 top-4 right-4 bottom-12"
                 viewBox="0 0 400 300"
                 preserveAspectRatio="none"
               >
-                {/* Gradient definitions */}
                 <defs>
                   <linearGradient id="muscleLine" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" style={{ stopColor: "#06b6d4", stopOpacity: 1 }} />
@@ -1263,8 +1261,8 @@ export default function QuizPage() {
                     <stop offset="100%" style={{ stopColor: "#84cc16", stopOpacity: 1 }} />
                   </linearGradient>
                   <linearGradient id="fatLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style={{ stopColor: "#7c3aed", stopOpacity: 1 }} />
-                    <stop offset="50%" style={{ stopColor: "#a855f7", stopOpacity: 1 }} />
+                    <stop offset="0%" style={{ stopColor: "#3b82f6", stopOpacity: 1 }} />
+                    <stop offset="50%" style={{ stopColor: "#7c3aed", stopOpacity: 1 }} />
                     <stop offset="100%" style={{ stopColor: "#ec4899", stopOpacity: 1 }} />
                   </linearGradient>
 
@@ -1283,10 +1281,15 @@ export default function QuizPage() {
                   points="0,200 133,150 266,100 400,40"
                   fill="none"
                   stroke="url(#muscleLine)"
-                  strokeWidth="5"
+                  strokeWidth="4"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   filter="url(#glow)"
+                  style={{
+                    strokeDasharray: 500,
+                    strokeDashoffset: 500,
+                    animation: "drawLine 6s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+                  }}
                 />
 
                 {/* Body fat line (going down) */}
@@ -1294,20 +1297,29 @@ export default function QuizPage() {
                   points="0,100 133,150 266,200 400,260"
                   fill="none"
                   stroke="url(#fatLine)"
-                  strokeWidth="5"
+                  strokeWidth="4"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   filter="url(#glow)"
+                  style={{
+                    strokeDasharray: 500,
+                    strokeDashoffset: 500,
+                    animation: "drawLine 6s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.2s",
+                  }}
                 />
+
+                {/* Horizontal grid lines */}
+                <line x1="0" y1="100" x2="400" y2="100" stroke="#ffffff" strokeWidth="0.5" opacity="0.15" />
+                <line x1="0" y1="200" x2="400" y2="200" stroke="#ffffff" strokeWidth="0.5" opacity="0.15" />
               </svg>
 
               {/* Labels */}
-              <div className="absolute top-8 right-8 text-base font-semibold text-white flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-gradient-to-r from-cyan-500 to-lime-500" />
+              <div className="absolute top-8 right-8 text-sm font-semibold text-white flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-lime-500" />
                 Massa muscular
               </div>
-              <div className="absolute bottom-16 right-8 text-base font-semibold text-white flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-500" />% de gordura
+              <div className="absolute bottom-16 right-8 text-sm font-semibold text-white flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-blue-500 to-pink-500" />% de gordura
               </div>
             </div>
           </div>
@@ -1319,7 +1331,6 @@ export default function QuizPage() {
 
           <button
             onClick={() => {
-              console.log("[v0] Entendi button clicked, hiding motivation and advancing")
               setShowQuickResults(false)
               setCurrentStep(6)
             }}
