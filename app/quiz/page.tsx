@@ -1225,14 +1225,15 @@ export default function QuizPage() {
 
   if (showQuickResults) {
     return (
+      // Increased max-width by 15% and adjusted container styling
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
-        <div className="max-w-2xl w-full space-y-8">
+        <div className="max-w-3xl w-full space-y-8">
           <div className="text-center space-y-4">
             <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
             <p className="text-gray-400 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
           </div>
 
-          <div className="relative w-full h-[420px] bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50 rounded-3xl p-8 backdrop-blur-sm border border-blue-800/40">
+          <div className="relative w-full h-[336px] bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50 rounded-3xl p-8 backdrop-blur-sm border border-blue-800/40">
             <div className="relative w-full h-full">
               {/* Y-axis labels */}
               <div className="absolute left-0 top-0 bottom-12 flex flex-col justify-between text-sm text-gray-400">

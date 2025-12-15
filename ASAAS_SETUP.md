@@ -10,9 +10,9 @@
 
 Adicione a seguinte variável de ambiente no seu projeto Vercel ou arquivo `.env.local`:
 
-\`\`\`
+```
 ASAAS_API_KEY=sua_chave_aqui
-\`\`\`
+```
 
 **Importante:** 
 - Use a chave de **sandbox** (`$aact_test_`) para testes

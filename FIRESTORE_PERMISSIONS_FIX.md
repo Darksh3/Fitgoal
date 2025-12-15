@@ -17,7 +17,7 @@ As regras do Firestore no Firebase Console não permitem acesso à subcoleção 
 ### 2. Atualize as Regras do Firestore
 Cole as seguintes regras (substituindo completamente as regras existentes):
 
-\`\`\`javascript
+```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -52,7 +52,7 @@ service cloud.firestore {
     }
   }
 }
-\`\`\`
+```
 
 ### 3. Publique as Regras
 1. Clique no botão **Publicar** (Publish) no topo da página
@@ -78,7 +78,7 @@ Se ainda houver erro, você verá:
 
 Após salvar com sucesso, a estrutura no Firestore será:
 
-\`\`\`
+```
 firestore
 └── users
     └── {userId}
@@ -97,7 +97,7 @@ firestore
                 ├── neck: "38.0"
                 ├── date: "2025-11-22"
                 └── timestamp: [Firestore Timestamp]
-\`\`\`
+```
 
 ## Dicas Adicionais
 
