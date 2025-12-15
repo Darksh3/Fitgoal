@@ -1225,14 +1225,14 @@ export default function QuizPage() {
 
   if (showQuickResults) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white flex items-center justify-center p-6">
+      <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
         <div className="max-w-2xl w-full space-y-8">
           <div className="text-center space-y-4">
             <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
-            <p className="text-gray-300 text-xl">Prevemos que você verá melhorias até o final da 2ª semana</p>
+            <p className="text-gray-400 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
           </div>
 
-          <div className="relative w-full h-[420px] bg-gradient-to-br from-blue-950/40 to-purple-950/40 rounded-3xl p-8 backdrop-blur-sm border border-blue-900/30">
+          <div className="relative w-full h-[420px] bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50 rounded-3xl p-8 backdrop-blur-sm border border-blue-800/40">
             <div className="relative w-full h-full">
               {/* Y-axis labels */}
               <div className="absolute left-0 top-0 bottom-12 flex flex-col justify-between text-sm text-gray-400">
@@ -1257,17 +1257,19 @@ export default function QuizPage() {
                 {/* Gradient definitions */}
                 <defs>
                   <linearGradient id="muscleLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style={{ stopColor: "#22d3ee", stopOpacity: 1 }} />
+                    <stop offset="0%" style={{ stopColor: "#06b6d4", stopOpacity: 1 }} />
+                    <stop offset="50%" style={{ stopColor: "#10b981", stopOpacity: 1 }} />
                     <stop offset="100%" style={{ stopColor: "#84cc16", stopOpacity: 1 }} />
                   </linearGradient>
                   <linearGradient id="fatLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style={{ stopColor: "#8b5cf6", stopOpacity: 1 }} />
+                    <stop offset="0%" style={{ stopColor: "#7c3aed", stopOpacity: 1 }} />
+                    <stop offset="50%" style={{ stopColor: "#a855f7", stopOpacity: 1 }} />
                     <stop offset="100%" style={{ stopColor: "#ec4899", stopOpacity: 1 }} />
                   </linearGradient>
 
                   {/* Glow filters */}
                   <filter id="glow">
-                    <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur" />
                     <feMerge>
                       <feMergeNode in="coloredBlur" />
                       <feMergeNode in="SourceGraphic" />
@@ -1280,11 +1282,10 @@ export default function QuizPage() {
                   points="0,200 133,150 266,100 400,40"
                   fill="none"
                   stroke="url(#muscleLine)"
-                  strokeWidth="4"
+                  strokeWidth="5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   filter="url(#glow)"
-                  className="animate-draw-line"
                 />
 
                 {/* Body fat line (going down) */}
@@ -1292,27 +1293,26 @@ export default function QuizPage() {
                   points="0,100 133,150 266,200 400,260"
                   fill="none"
                   stroke="url(#fatLine)"
-                  strokeWidth="4"
+                  strokeWidth="5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   filter="url(#glow)"
-                  className="animate-draw-line-delay-1"
                 />
               </svg>
 
               {/* Labels */}
-              <div className="absolute top-8 right-8 text-base font-semibold text-white flex items-center gap-2 animate-fade-in-delay-1">
-                <div className="w-3 h-3 rounded-full bg-gradient-to-r from-cyan-400 to-lime-400" />
+              <div className="absolute top-8 right-8 text-base font-semibold text-white flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-gradient-to-r from-cyan-500 to-lime-500" />
                 Massa muscular
               </div>
-              <div className="absolute bottom-16 right-8 text-base font-semibold text-white flex items-center gap-2 animate-fade-in-delay-2">
-                <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500" />% de gordura
+              <div className="absolute bottom-16 right-8 text-base font-semibold text-white flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-500" />% de gordura
               </div>
             </div>
           </div>
 
           {/* Footer text */}
-          <div className="text-center text-sm text-gray-400">
+          <div className="text-center text-sm text-gray-500">
             <p>*Baseado em dados de 1,3 milhões de treinos</p>
           </div>
 
@@ -1322,7 +1322,7 @@ export default function QuizPage() {
               setShowQuickResults(false)
               setCurrentStep(6)
             }}
-            className="w-full h-16 text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 rounded-2xl shadow-lg hover:shadow-blue-500/50 transition-all duration-300"
+            className="w-full h-16 text-xl font-bold text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-300 rounded-xl shadow-lg transition-all duration-300 !bg-gradient-to-r !text-white border-0"
           >
             Continuar
           </Button>
@@ -2213,11 +2213,11 @@ export default function QuizPage() {
 
       case 4: // Renamed from 3.5
         return (
-          <div className="space-y-6 sm:space-y-8">
-            <div className="text-center space-y-2 sm:space-y-4">
-              <h2 className="text-2xl sm:text-2xl md:text-3xl font-bold text-white">Como o seu peso costuma mudar?</h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Como o seu peso costuma mudar?</h2>
             </div>
-            <div className="space-y-3 sm:space-y-4">
+            <div className="space-y-4">
               {[
                 { value: "gain-fast-lose-slow", label: "Ganho peso rápido, mas perco devagar" },
                 { value: "gain-lose-easily", label: "Ganho e perco peso facilmente" },
