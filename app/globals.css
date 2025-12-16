@@ -232,6 +232,19 @@ body {
 }
 /* End of orbBreath animation */
 
+/* Added keyframes for smooth chart line drawing without easing distortion */
+@keyframes drawLineMuscle {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes drawLineFat {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 .animate-shine {
   animation: shine 1.5s ease-out;
 }
