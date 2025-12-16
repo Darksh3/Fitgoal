@@ -1349,9 +1349,8 @@ export default function QuizPage() {
                 />
               </svg>
 
-              {/* Labels dentro do card */}
-              <div className="absolute left-24 top-8 text-white font-semibold text-lg sm:text-xl">Massa muscular</div>
-              <div className="absolute right-16 bottom-12 text-white font-semibold text-lg sm:text-xl">
+              <div className="absolute left-32 top-12 text-white font-semibold text-lg sm:text-xl">Massa muscular</div>
+              <div className="absolute right-12 bottom-16 text-white font-semibold text-lg sm:text-xl">
                 % de gordura
               </div>
             </div>
@@ -2947,7 +2946,7 @@ export default function QuizPage() {
               </div>
             </div>
             <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative">
+              <Button onClick={nextStep} className="group relative overflow-hidden">
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
