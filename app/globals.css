@@ -189,10 +189,6 @@ body {
   }
 }
 
-.animate-shine {
-  animation: shine 1.5s ease-out;
-}
-
 /* adding line draw and dot animations for the quick results chart */
 @keyframes drawLine {
   0% {
@@ -221,6 +217,22 @@ body {
   100% {
     opacity: 1;
   }
+}
+
+/* Add orbBreath animation for AI Orb component */
+@keyframes orbBreath {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+/* End of orbBreath animation */
+
+.animate-shine {
+  animation: shine 1.5s ease-out;
 }
 
 .animate-draw-line {

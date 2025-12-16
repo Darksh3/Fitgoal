@@ -13,6 +13,8 @@ import { Textarea } from "@/components/ui/textarea"
 
 import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, Clock } from "lucide-react"
 
+import { AiOrb } from "@/components/ai-orb"
+
 import { useRouter } from "next/navigation"
 
 import { db, auth } from "@/lib/firebaseClient"
@@ -1244,97 +1246,6 @@ export default function QuizPage() {
 
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
-        {debugChart && (
-          <div className="fixed top-4 left-4 bg-gray-900 border border-gray-700 rounded-lg p-4 max-h-96 overflow-y-auto z-50 w-80">
-            <div className="space-y-4">
-              <button
-                onClick={() => setDebugChart(false)}
-                className="w-full bg-red-600 hover:bg-red-700 py-2 rounded text-sm font-semibold"
-              >
-                Close Debug
-              </button>
-
-              <div>
-                <h3 className="font-bold text-cyan-400 mb-2">Muscle Line Points:</h3>
-                {musclePoints.map((point, idx) => (
-                  <div key={`muscle-${idx}`} className="flex gap-2 mb-2 text-xs">
-                    <input
-                      type="number"
-                      value={point.x}
-                      onChange={(e) => {
-                        const newPoints = [...musclePoints]
-                        newPoints[idx].x = Number.parseFloat(e.target.value) || 0
-                        setMusclePoints(newPoints)
-                      }}
-                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
-                      placeholder="X"
-                    />
-                    <input
-                      type="number"
-                      value={point.y}
-                      onChange={(e) => {
-                        const newPoints = [...musclePoints]
-                        newPoints[idx].y = Number.parseFloat(e.target.value) || 0
-                        setMusclePoints(newPoints)
-                      }}
-                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
-                      placeholder="Y"
-                    />
-                    <span className="text-cyan-300">
-                      ({point.x}, {point.y})
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div>
-                <h3 className="font-bold text-pink-400 mb-2">Fat Line Points:</h3>
-                {fatPoints.map((point, idx) => (
-                  <div key={`fat-${idx}`} className="flex gap-2 mb-2 text-xs">
-                    <input
-                      type="number"
-                      value={point.x}
-                      onChange={(e) => {
-                        const newPoints = [...fatPoints]
-                        newPoints[idx].x = Number.parseFloat(e.target.value) || 0
-                        setFatPoints(newPoints)
-                      }}
-                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
-                      placeholder="X"
-                    />
-                    <input
-                      type="number"
-                      value={point.y}
-                      onChange={(e) => {
-                        const newPoints = [...fatPoints]
-                        newPoints[idx].y = Number.parseFloat(e.target.value) || 0
-                        setFatPoints(newPoints)
-                      }}
-                      className="w-16 bg-gray-800 border border-gray-600 rounded px-1 py-1"
-                      placeholder="Y"
-                    />
-                    <span className="text-pink-300">
-                      ({point.x}, {point.y})
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-gray-800 p-2 rounded text-xs font-mono">
-                <p className="text-cyan-300">Muscle: [{musclePointsStr}]</p>
-                <p className="text-pink-300">Fat: [{fatPointsStr}]</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <button
-          onClick={() => setDebugChart(!debugChart)}
-          className="fixed top-4 right-4 bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded text-sm font-semibold z-40"
-        >
-          {debugChart ? "Hide" : "Debug"} Chart
-        </button>
-
         <div className="max-w-5xl w-full space-y-8">
           <div className="text-center space-y-4">
             <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
@@ -1961,14 +1872,7 @@ export default function QuizPage() {
         <div className="w-full max-w-2xl space-y-8 text-center">
           {/* Glowing Gradient Circle */}
           <div className="flex justify-center mb-8">
-            <div className="relative w-48 h-48">
-              {/* Outer glow */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500/30 via-cyan-400/20 to-green-400/30 blur-3xl"></div>
-              {/* Main circle with gradient */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500 via-cyan-400 to-green-400 opacity-90 blur-sm"></div>
-              {/* Inner circle for depth */}
-              <div className="absolute inset-2 rounded-full bg-gradient-to-br from-blue-600 via-cyan-500 to-green-500 opacity-80"></div>
-            </div>
+            <AiOrb size={190} />
           </div>
 
           {/* Title */}
@@ -2450,15 +2354,15 @@ export default function QuizPage() {
               ].map((option) => (
                 <button
                   key={option.value}
+                  onClick={() => {
+                    updateQuizData("weightChangeType", option.value)
+                    setTimeout(() => nextStep(), 300)
+                  }}
                   className={`w-full backdrop-blur-sm rounded-lg p-5 sm:p-6 cursor-pointer transition-all text-left ${
                     quizData.weightChangeType === option.value
                       ? "border-2 border-lime-500 bg-lime-500/10"
                       : "border border-white/10 bg-white/5 hover:bg-white/10"
                   }`}
-                  onClick={() => {
-                    updateQuizData("weightChangeType", option.value)
-                    setTimeout(() => nextStep(), 300)
-                  }}
                 >
                   <div className="flex items-center gap-4">
                     <div
