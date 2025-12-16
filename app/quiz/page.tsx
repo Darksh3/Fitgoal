@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react" // Added useRef
 // import Image from "next/image" // Import Image component
 
 import { Button } from "@/components/ui/button"
@@ -235,6 +235,18 @@ export default function QuizPage() {
   ])
 
   const [showQuickResults, setShowQuickResults] = useState(false)
+
+  const musclePathRef = useRef<SVGPathElement>(null)
+  const fatPathRef = useRef<SVGPathElement>(null)
+  const [pathLengths, setPathLengths] = useState({ muscle: 0, fat: 0 })
+
+  useEffect(() => {
+    if (showQuickResults) {
+      const muscleLen = musclePathRef.current?.getTotalLength() ?? 0
+      const fatLen = fatPathRef.current?.getTotalLength() ?? 0
+      setPathLengths({ muscle: muscleLen, fat: fatLen })
+    }
+  }, [showQuickResults])
 
   const [quizData, setQuizData] = useState<QuizData>({
     gender: "",
@@ -1269,7 +1281,7 @@ export default function QuizPage() {
               <svg
                 className="absolute left-16 top-3 right-4 bottom-10"
                 viewBox="0 0 400 260"
-                preserveAspectRatio="none"
+                preserveAspectRatio="xMidYMid meet" // Changed preserveAspectRatio to xMidYMid meet
               >
                 <defs>
                   {/* Gradientes */}
@@ -1310,11 +1322,8 @@ export default function QuizPage() {
 
                 {/* Massa muscular */}
                 <path
-                  d="
-                    M 0 105
-                    C 120 150, 170 190, 200 195
-                    S 310 150, 400 55
-                  "
+                  ref={musclePathRef}
+                  d="M 0 120 C 130 175, 190 205, 220 200 S 330 140, 400 55" // Adjusted path data for better visual
                   fill="none"
                   stroke="url(#muscleLine)"
                   strokeWidth="4"
@@ -1322,19 +1331,24 @@ export default function QuizPage() {
                   filter="url(#glow)"
                   markerEnd="url(#arrowMuscle)"
                   style={{
-                    strokeDasharray: 800,
-                    strokeDashoffset: 800,
-                    animation: "drawLineMuscle 1.8s linear forwards",
+                    strokeDasharray: pathLengths.muscle,
+                    strokeDashoffset: pathLengths.muscle,
                   }}
-                />
+                >
+                  <animate
+                    attributeName="stroke-dashoffset"
+                    from={pathLengths.muscle}
+                    to="0"
+                    dur="1.8s"
+                    begin="0s"
+                    fill="freeze"
+                  />
+                </path>
 
                 {/* Gordura */}
                 <path
-                  d="
-                    M 0 220
-                    C 120 190, 170 150, 200 140
-                    S 310 185, 400 235
-                  "
+                  ref={fatPathRef}
+                  d="M 0 210 C 130 170, 190 135, 220 140 S 330 200, 400 235" // Adjusted path data for better visual
                   fill="none"
                   stroke="url(#fatLine)"
                   strokeWidth="4"
@@ -1342,11 +1356,19 @@ export default function QuizPage() {
                   filter="url(#glow)"
                   markerEnd="url(#arrowFat)"
                   style={{
-                    strokeDasharray: 800,
-                    strokeDashoffset: 800,
-                    animation: "drawLineFat 1.8s linear forwards .15s",
+                    strokeDasharray: pathLengths.fat,
+                    strokeDashoffset: pathLengths.fat,
                   }}
-                />
+                >
+                  <animate
+                    attributeName="stroke-dashoffset"
+                    from={pathLengths.fat}
+                    to="0"
+                    dur="1.8s"
+                    begin="0.15s"
+                    fill="freeze"
+                  />
+                </path>
               </svg>
 
               <div className="absolute left-32 top-12 text-white font-semibold text-lg sm:text-xl">Massa muscular</div>
