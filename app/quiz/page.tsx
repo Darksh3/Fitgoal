@@ -1245,155 +1245,139 @@ export default function QuizPage() {
     const fatPointsStr = fatPoints.map((p) => `${p.x},${p.y}`).join(" ")
 
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
-        <div className="max-w-5xl w-full space-y-8">
-          <div className="text-center space-y-4">
+      <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-10">
+        {/* Largura maior */}
+        <div className="max-w-6xl w-full space-y-7">
+          <div className="text-center space-y-3">
             <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
             <p className="text-gray-400 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
           </div>
 
-          <div className="relative w-full h-[323px] bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50 rounded-3xl p-8 backdrop-blur-sm border border-blue-800/40">
+          {/* Card MAIS LARGO e MENOR */}
+          <div className="relative w-full h-[245px] sm:h-[260px] bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50 rounded-3xl px-6 sm:px-8 py-6 backdrop-blur-sm border border-blue-800/40">
             <div className="relative w-full h-full">
               {/* Y-axis labels */}
-              <div className="absolute left-0 top-0 bottom-12 flex flex-col justify-between text-xs text-gray-400">
+              <div className="absolute left-0 top-2 bottom-10 flex flex-col justify-between text-xs text-gray-400">
                 <span>Alto</span>
                 <span>Baixo</span>
               </div>
 
-              {/* X-axis labels - Adjusted sizing */}
-              <div className="absolute bottom-0 left-16 right-0 flex justify-between text-xs text-gray-400 px-4">
+              {/* X-axis labels */}
+              <div className="absolute bottom-1 left-16 right-0 flex justify-between text-xs text-gray-400 px-4">
                 <span>Baixo</span>
                 <span>1 Mês</span>
                 <span>2 Meses</span>
                 <span>3 Meses</span>
               </div>
 
-              {/* SVG Chart with animated gradient lines */}
+              {/* SVG */}
               <svg
-                className="absolute left-16 top-4 right-4 bottom-12"
-                viewBox="0 0 400 300"
+                className="absolute left-16 top-3 right-4 bottom-10"
+                viewBox="0 0 400 260"
                 preserveAspectRatio="none"
               >
                 <defs>
+                  {/* Gradientes */}
                   <linearGradient id="muscleLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style={{ stopColor: "#06b6d4", stopOpacity: 1 }} />
-                    <stop offset="50%" style={{ stopColor: "#10b981", stopOpacity: 1 }} />
-                    <stop offset="100%" style={{ stopColor: "#84cc16", stopOpacity: 1 }} />
+                    <stop offset="0%" stopColor="#06b6d4" stopOpacity="1" />
+                    <stop offset="55%" stopColor="#10b981" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#84cc16" stopOpacity="1" />
                   </linearGradient>
+
                   <linearGradient id="fatLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style={{ stopColor: "#3b82f6", stopOpacity: 1 }} />
-                    <stop offset="50%" style={{ stopColor: "#7c3aed", stopOpacity: 1 }} />
-                    <stop offset="100%" style={{ stopColor: "#ec4899", stopOpacity: 1 }} />
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="1" />
+                    <stop offset="55%" stopColor="#7c3aed" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#ec4899" stopOpacity="1" />
                   </linearGradient>
 
-                  <marker
-                    id="arrowMuscle"
-                    markerWidth="10"
-                    markerHeight="10"
-                    refX="9"
-                    refY="3"
-                    orient="auto"
-                    markerUnits="strokeWidth"
-                  >
-                    <path d="M0,0 L0,6 L9,3 z" fill="#84cc16" />
-                  </marker>
-                  <marker
-                    id="arrowFat"
-                    markerWidth="10"
-                    markerHeight="10"
-                    refX="9"
-                    refY="3"
-                    orient="auto"
-                    markerUnits="strokeWidth"
-                  >
-                    <path d="M0,0 L0,6 L9,3 z" fill="#ec4899" />
+                  {/* Setas */}
+                  <marker id="arrowMuscle" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+                    <path d="M0,0 L0,12 L12,6 z" fill="#84cc16" />
                   </marker>
 
-                  {/* Glow filters */}
-                  <filter id="glow">
-                    <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                  <marker id="arrowFat" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+                    <path d="M0,0 L0,12 L12,6 z" fill="#ec4899" />
+                  </marker>
+
+                  {/* Glow */}
+                  <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
                     <feMerge>
-                      <feMergeNode in="coloredBlur" />
+                      <feMergeNode in="blur" />
                       <feMergeNode in="SourceGraphic" />
                     </feMerge>
                   </filter>
                 </defs>
 
-                {/* Muscle mass line (going up) */}
-                <polyline
-                  points={musclePointsStr}
+                {/* Grid horizontal (proporcional ao viewBox 260) */}
+                <line x1="0" y1="85" x2="400" y2="85" stroke="#fff" strokeWidth="0.5" opacity="0.12" />
+                <line x1="0" y1="175" x2="400" y2="175" stroke="#fff" strokeWidth="0.5" opacity="0.12" />
+
+                {/* ===== LINHAS CURVADAS (Bezier) ===== */}
+
+                {/* Massa muscular: desce um pouco e sobe forte */}
+                <path
+                  d="
+                          M 0 105
+                          C 120 150, 170 190, 200 195
+                          S 310 150, 400 55
+                        "
                   fill="none"
                   stroke="url(#muscleLine)"
                   strokeWidth="4"
                   strokeLinecap="round"
-                  strokeLinejoin="round"
                   filter="url(#glow)"
                   markerEnd="url(#arrowMuscle)"
+                  pathLength="1"
                   style={{
-                    strokeDasharray: 500,
-                    strokeDashoffset: 500,
-                    animation: "drawLine 6s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+                    strokeDasharray: 1,
+                    strokeDashoffset: 1,
+                    animation: "drawLine 2.2s ease-out forwards",
                   }}
                 />
 
-                {/* Body fat line (going down) */}
-                <polyline
-                  points={fatPointsStr}
+                {/* Gordura: sobe um pouco e cai forte */}
+                <path
+                  d="
+                          M 0 220
+                          C 120 190, 170 150, 200 140
+                          S 310 185, 400 235
+                        "
                   fill="none"
                   stroke="url(#fatLine)"
                   strokeWidth="4"
                   strokeLinecap="round"
-                  strokeLinejoin="round"
                   filter="url(#glow)"
                   markerEnd="url(#arrowFat)"
+                  pathLength="1"
                   style={{
-                    strokeDasharray: 500,
-                    strokeDashoffset: 500,
-                    animation: "drawLine 6s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.2s",
+                    strokeDasharray: 1,
+                    strokeDashoffset: 1,
+                    animation: "drawLine 2.2s ease-out forwards .1s",
                   }}
                 />
-
-                {debugChart && (
-                  <>
-                    {/* Vertical grid lines */}
-                    <line x1="100" y1="0" x2="100" y2="300" stroke="#3b82f6" strokeWidth="0.5" opacity="0.3" />
-                    <line x1="200" y1="0" x2="200" y2="300" stroke="#3b82f6" strokeWidth="0.5" opacity="0.3" />
-                    <line x1="300" y1="0" x2="300" y2="300" stroke="#3b82f6" strokeWidth="0.5" opacity="0.3" />
-
-                    {/* Horizontal grid lines */}
-                    <line x1="0" y1="100" x2="400" y2="100" stroke="#3b82f6" strokeWidth="0.5" opacity="0.3" />
-                    <line x1="0" y1="200" x2="400" y2="200" stroke="#3b82f6" strokeWidth="0.5" opacity="0.3" />
-
-                    {/* Muscle points visualization */}
-                    {musclePoints.map((point, idx) => (
-                      <circle key={`m-${idx}`} cx={point.x} cy={point.y} r="4" fill="#06b6d4" opacity="0.8" />
-                    ))}
-
-                    {/* Fat points visualization */}
-                    {fatPoints.map((point, idx) => (
-                      <circle key={`f-${idx}`} cx={point.x} cy={point.y} r="4" fill="#ec4899" opacity="0.8" />
-                    ))}
-                  </>
-                )}
-
-                {/* Horizontal grid lines */}
-                <line x1="0" y1="100" x2="400" y2="100" stroke="#ffffff" strokeWidth="0.5" opacity="0.15" />
-                <line x1="0" y1="200" x2="400" y2="200" stroke="#ffffff" strokeWidth="0.5" opacity="0.15" />
               </svg>
+
+              {/* Labels dentro do card (como na imagem) */}
+              <div className="absolute left-24 top-8 text-white font-semibold text-lg sm:text-xl">Massa muscular</div>
+              <div className="absolute right-16 bottom-12 text-white font-semibold text-lg sm:text-xl">
+                % de gordura
+              </div>
             </div>
           </div>
 
-          {/* Footer text */}
+          {/* Footer */}
           <div className="text-center text-sm text-gray-500">
             <p>*Baseado em dados de 1,3 milhões de treinos</p>
           </div>
 
+          {/* CTA */}
           <button
             onClick={() => {
               setShowQuickResults(false)
               setCurrentStep(6)
             }}
-            className="w-full h-16 text-xl font-bold text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-300 rounded-xl shadow-lg transition-all duration-300"
+            className="w-full h-16 text-xl font-bold text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-300 rounded-2xl shadow-lg transition-all duration-300"
           >
             Continuar
           </button>

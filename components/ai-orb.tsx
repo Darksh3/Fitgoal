@@ -1,7 +1,7 @@
 export function AiOrb({ size = 192 }: { size?: number }) {
   return (
     <div
-      className="relative mx-auto animate-[orbBreath_5.5s_ease-in-out_infinite]"
+      className="relative mx-auto animate-[orbBreath_10s_ease-in-out_infinite]"
       style={{ width: size, height: size }}
       aria-hidden="true"
     >
@@ -74,7 +74,7 @@ export function AiOrb({ size = 192 }: { size?: number }) {
               type="rotate"
               from="0 100 100"
               to="360 100 100"
-              dur="10s"
+              dur="6s"
               repeatCount="indefinite"
             />
           </rect>

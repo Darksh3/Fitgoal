@@ -220,6 +220,7 @@ body {
 }
 
 /* Add orbBreath animation for AI Orb component */
+/* Reduced animation duration from 10s to 6s for faster pulsing motion */
 @keyframes orbBreath {
   0%,
   100% {
