@@ -244,6 +244,7 @@ export default function QuizPage() {
     if (showQuickResults) {
       const muscleLen = musclePathRef.current?.getTotalLength() ?? 0
       const fatLen = fatPathRef.current?.getTotalLength() ?? 0
+      console.log("[v0] Path lengths - muscle:", muscleLen, "fat:", fatLen)
       setPathLengths({ muscle: muscleLen, fat: fatLen })
     }
   }, [showQuickResults])
@@ -1323,7 +1324,7 @@ export default function QuizPage() {
                 {/* Massa muscular */}
                 <path
                   ref={musclePathRef}
-                  d="M 0 120 C 130 175, 190 205, 220 200 S 330 140, 400 55" // Adjusted path data for better visual
+                  d="M 0 105 C 120 150, 170 190, 200 195 S 310 150, 400 55"
                   fill="none"
                   stroke="url(#muscleLine)"
                   strokeWidth="4"
@@ -1348,7 +1349,7 @@ export default function QuizPage() {
                 {/* Gordura */}
                 <path
                   ref={fatPathRef}
-                  d="M 0 210 C 130 170, 190 135, 220 140 S 330 200, 400 235" // Adjusted path data for better visual
+                  d="M 0 220 C 120 190, 170 150, 200 140 S 310 185, 400 235"
                   fill="none"
                   stroke="url(#fatLine)"
                   strokeWidth="4"
