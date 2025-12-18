@@ -245,7 +245,6 @@ export default function QuizPage() {
     if (showQuickResults) {
       const muscleLen = musclePathRef.current?.getTotalLength() ?? 0
       const fatLen = fatPathRef.current?.getTotalLength() ?? 0
-      console.log("[v0] Path lengths - muscle:", muscleLen, "fat:", fatLen)
       setPathLengths({ muscle: muscleLen, fat: fatLen })
     }
   }, [showQuickResults])
@@ -837,8 +836,6 @@ export default function QuizPage() {
   }
 
   const nextStep = () => {
-    console.log("[v0] nextStep called, currentStep:", currentStep, "quizData:", quizData)
-
     if (currentStep === 5 && quizData.bodyFat !== 0) {
       setShowQuickResults(true)
       return
@@ -863,14 +860,12 @@ export default function QuizPage() {
 
     if (currentStep === 18) {
       // This case 18 is now about previous problems
-      console.log("[v0] Advancing from step 18, checking for motivation message logic...")
       if (
         quizData.previousProblems.length === 0 ||
         (quizData.previousProblems.length === 1 && quizData.previousProblems[0] === "no-problems")
       ) {
         // If user selected "Não, eu não tenho", we show motivation message directly
         setShowMotivationMessage(true)
-        console.log("[v0] No previous problems selected, showing motivation message.")
       }
       setCurrentStep(currentStep + 1) // Always advance to the next step (which is now additional goals)
       return
@@ -913,7 +908,6 @@ export default function QuizPage() {
     } else if (currentStep === 14 && quizData.weight !== "" && quizData.targetWeight !== "") {
       // Original was step 15, now step 14 (weight related)
       const calculatedTime = calculateTimeToGoal()
-      console.log("[v0] calculatedTime:", calculatedTime)
       if (calculatedTime) {
         updateQuizData("timeToGoal", calculatedTime)
         setShowTimeCalculation(true)
@@ -997,7 +991,6 @@ export default function QuizPage() {
   }
 
   const handleSubmit = async () => {
-    console.log("handleSubmit: Iniciando...")
     setIsSubmitting(true) // Set isSubmitting to true
     if (!currentUser || !currentUser.uid) {
       console.error("handleSubmit: No user ID available. Cannot save quiz data or generate plans.")
@@ -1010,12 +1003,7 @@ export default function QuizPage() {
       const weightForIMC = Number.parseFloat(quizData.weight || "0") // Use quizData.weight for IMC
       const heightForIMC = Number.parseFloat(quizData.height || "0")
 
-      console.log("[v0] IMC Calculation - Weight:", weightForIMC, "Height:", heightForIMC)
-
       const { imc, classification, status } = calculateIMC(weightForIMC, heightForIMC)
-
-      console.log("[v0] IMC Result:", { imc, classification, status })
-      // </CHANGE>
 
       const updatedQuizData = {
         ...quizData,
@@ -1034,12 +1022,8 @@ export default function QuizPage() {
       }
       setQuizData(updatedQuizData) // Atualiza o estado local
 
-      console.log("[QUIZ] Form submitted with frequency:", updatedQuizData.trainingDaysPerWeek)
-      debugDataFlow("QUIZ_SUBMIT", updatedQuizData)
-
       try {
         localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
-        console.log("handleSubmit: Quiz data saved to localStorage")
         debugDataFlow("QUIZ_LOCALSTORAGE_SAVE", updatedQuizData)
       } catch (error) {
         console.error("[QUIZ] Storage failed:", error)
@@ -1070,8 +1054,6 @@ export default function QuizPage() {
         { merge: true },
       )
 
-      console.log("handleSubmit: Quiz data saved to Firestore (users and leads collections) successfully")
-
       if (imc > 0) {
         setShowIMCResult(true)
       } else {
@@ -1081,7 +1063,6 @@ export default function QuizPage() {
       console.error("handleSubmit: Erro no handleSubmit:", error)
       alert("Erro inesperado. Tente novamente.")
     } finally {
-      console.log("handleSubmit: Finalizando, definindo isSubmitting para false.")
       setIsSubmitting(false) // Reset isSubmitting
     }
   }
@@ -1264,12 +1245,6 @@ export default function QuizPage() {
   // </CHANGE>
 
   if (showQuickResults) {
-    console.log("[v0] Muscle curve (exponential): Start LOW (0,200) → gradual rise → accelerated END HIGH (400,50)")
-    console.log("[v0] Muscle path: M 0 200 C 120 180, 200 120, 400 40")
-    console.log("[v0] Fat curve (inverse): Start HIGH (0,60) → gradual decline → accelerated END LOW (400,210)")
-    console.log("[v0] Fat path: M 0 60 C 120 100, 200 160, 400 210")
-    console.log("[v0] Path lengths - muscle:", pathLengths.muscle, "fat:", pathLengths.fat)
-
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-10">
         <div className="max-w-6xl w-full space-y-7">
@@ -1321,7 +1296,6 @@ export default function QuizPage() {
                   <marker id="arrowFat" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
                     <path d="M0,0 L0,8 L8,4 z" fill="#ec4899" />
                   </marker>
-                  {/* </CHANGE> */}
 
                   {/* Glow */}
                   <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
@@ -1364,15 +1338,6 @@ export default function QuizPage() {
                     transition: "stroke-dashoffset 1.8s linear",
                   }}
                 />
-                <circle cx="0" cy="235" r="3" fill="#ff0000" opacity="0.5" />
-                <circle cx="100" cy="215" r="2" fill="#ffff00" opacity="0.5" />
-                <circle cx="180" cy="120" r="2" fill="#ffff00" opacity="0.5" />
-                <circle cx="400" cy="20" r="3" fill="#ff0000" opacity="0.5" />
-
-                <circle cx="0" cy="15" r="3" fill="#0000ff" opacity="0.5" />
-                <circle cx="100" cy="45" r="2" fill="#00ff00" opacity="0.5" />
-                <circle cx="180" cy="180" r="2" fill="#00ff00" opacity="0.5" />
-                <circle cx="400" cy="240" r="3" fill="#0000ff" opacity="0.5" />
               </svg>
 
               {/* Repositioned labels: "Massa muscular" above green arrow (top-8), "% de gordura" below pink arrow (bottom-8), reduced size from lg to sm */}
@@ -1451,7 +1416,6 @@ export default function QuizPage() {
 
           <button
             onClick={() => {
-              console.log("[v0] Got it button clicked, continuing on step 22")
               setShowCortisolMessage(false)
               // The renderQuestion will handle showing the next step correctly (case 22)
             }}
@@ -1463,10 +1427,8 @@ export default function QuizPage() {
       </div>
     )
   }
-  // </CHANGE>
 
   if (showMotivationMessage && currentStep === 19) {
-    // Changed from 19 to 18 based on renumbering
     return (
       <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-start justify-center p-6 pt-16">
         <div className="max-w-2xl w-full space-y-8 text-center">
@@ -1498,7 +1460,6 @@ export default function QuizPage() {
 
           <button
             onClick={() => {
-              console.log("[v0] Entendi button clicked, hiding motivation and advancing")
               setShowMotivationMessage(false)
               // The renderQuestion will handle showing case 19 (additional goals) which is now case 19
             }}
@@ -1510,7 +1471,6 @@ export default function QuizPage() {
       </div>
     )
   }
-  // </CHANGE>
 
   if (showGoalTimeline) {
     return (
@@ -1586,7 +1546,6 @@ export default function QuizPage() {
       </div>
     )
   }
-  // </CHANGE>
 
   if (showTimeCalculation) {
     const current = Number.parseFloat(quizData.weight)
@@ -1610,7 +1569,6 @@ export default function QuizPage() {
             />
           ))}
         </div>
-        {/* </CHANGE> */}
 
         <div className="text-center space-y-4 max-w-2xl relative z-10">
           <h2 className="text-xl md:text-3xl font-bold leading-tight">
@@ -1691,7 +1649,6 @@ export default function QuizPage() {
                   <circle key={i} cx={cx} cy={cy} r="6" fill="#84cc16" filter="url(#limeGlow)" />
                 ))}
               </svg>
-              {/* </CHANGE> */}
 
               {/* Side bars */}
               <div className="absolute left-0 top-5 bottom-5 w-[4px] bg-lime-500/15 rounded-full overflow-hidden">
@@ -2039,16 +1996,6 @@ export default function QuizPage() {
   const getBodyFatImage = () => {
     const isMale = quizData.gender === "homem"
 
-    console.log(
-      "[v0] getBodyFatImage called, gender:",
-      quizData.gender,
-      "isMale:",
-      isMale,
-      "bodyFat:",
-      quizData.bodyFat,
-    )
-    // </CHANGE>
-
     if (isMale) {
       // Male images: mone.webp to meight.webp
       if (quizData.bodyFat <= 10) return "/images/mone.webp"
@@ -2078,9 +2025,7 @@ export default function QuizPage() {
                       ? "/images/bodyfat-seven.webp"
                       : "/images/bodyfat-eight.webp"
 
-      console.log("[v0] Female image path:", imagePath)
       return imagePath
-      // </CHANGE>
     }
   }
 
@@ -2254,7 +2199,6 @@ export default function QuizPage() {
                         : "border border-white/10 bg-white/5"
                     }`}
                   onClick={() => {
-                    console.log("CLICADO:", type.value)
                     updateQuizData("bodyType", type.value)
                     setTimeout(() => nextStep(), 300)
                   }}
@@ -2396,7 +2340,6 @@ export default function QuizPage() {
                   alt="Body fat representation"
                   className="relative w-full h-full object-contain transition-opacity duration-500"
                   onError={(e) => {
-                    console.error("[v0] Image failed to load:", e.currentTarget.src)
                     e.currentTarget.src = "/placeholder.svg"
                   }}
                 />
@@ -3540,7 +3483,6 @@ export default function QuizPage() {
               <button
                 onClick={() => {
                   updateQuizData("previousProblems", ["no-problems"])
-                  console.log("[v0] 'Não tenho' clicked, advancing to motivation page")
                   setTimeout(() => nextStep(), 300)
                 }}
                 className={`w-full p-4 rounded-lg border-2 transition-all ${
@@ -3566,8 +3508,6 @@ export default function QuizPage() {
             <div className="flex justify-center mt-8">
               <Button
                 onClick={() => {
-                  console.log("[v0] Case 19 continue button clicked, currentStep:", currentStep)
-                  console.log("[v0] Selected problems:", quizData.previousProblems)
                   nextStep()
                 }}
                 className="group relative overflow-hidden"
@@ -3945,9 +3885,6 @@ export default function QuizPage() {
             <div className="flex justify-center">
               <Button
                 onClick={() => {
-                  console.log("[v0] Case 23 continue button clicked")
-                  console.log("[v0] Current step:", currentStep)
-                  console.log("[v0] Food preferences:", quizData.foodPreferences)
                   nextStep()
                 }}
                 className="group relative"
