@@ -1260,7 +1260,7 @@ export default function QuizPage() {
   if (showQuickResults) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-10">
-        <div className="max-w-6xl w-full space-y-7">
+        <div className="max-w-2xl w-full space-y-7">
           <div className="text-center space-y-3">
             <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
             <p className="text-gray-400 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
@@ -1352,13 +1352,14 @@ export default function QuizPage() {
                     transition: "stroke-dashoffset 3s linear",
                   }}
                 />
-              </svg>
+                <text x="340" y="-5" fontSize="14" fontWeight="600" fill="white" textAnchor="end">
+                  Massa muscular
+                </text>
 
-              {/* Repositioned labels: "Massa muscular" above green arrow (top-8), "% de gordura" below pink arrow (bottom-8), reduced size from lg to sm */}
-              <div className="absolute right-8 top-2 text-white font-semibold text-sm sm:text-base">Massa muscular</div>
-              <div className="absolute right-8 bottom-8 text-white font-semibold text-sm sm:text-base">
-                % de gordura
-              </div>
+                <text x="340" y="260" fontSize="14" fontWeight="600" fill="white" textAnchor="end">
+                  % de gordura
+                </text>
+              </svg>
             </div>
           </div>
           {/* </CHANGE> */}
