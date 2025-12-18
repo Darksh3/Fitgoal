@@ -1278,7 +1278,7 @@ export default function QuizPage() {
             <p className="text-gray-400 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
           </div>
 
-          <div className="relative w-full h-[300px] sm:h-[320px] bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50 rounded-3xl px-6 sm:px-8 py-6 backdrop-blur-sm border border-blue-800/40">
+          <div className="relative w-full h-[320px] sm:h-[340px] bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50 rounded-3xl px-6 sm:px-8 py-6 backdrop-blur-sm border border-blue-800/40">
             <div className="relative w-full h-full">
               {/* Y-axis labels */}
               <div className="absolute left-0 top-2 bottom-10 flex flex-col justify-between text-xs text-gray-400">
@@ -1375,8 +1375,9 @@ export default function QuizPage() {
                 <circle cx="400" cy="240" r="3" fill="#0000ff" opacity="0.5" />
               </svg>
 
-              <div className="absolute left-32 top-12 text-white font-semibold text-lg sm:text-xl">Massa muscular</div>
-              <div className="absolute right-12 bottom-16 text-white font-semibold text-lg sm:text-xl">
+              {/* Repositioned labels: "Massa muscular" above green arrow (top-8), "% de gordura" below pink arrow (bottom-8), reduced size from lg to sm */}
+              <div className="absolute right-8 top-8 text-white font-semibold text-sm sm:text-base">Massa muscular</div>
+              <div className="absolute right-8 bottom-8 text-white font-semibold text-sm sm:text-base">
                 % de gordura
               </div>
             </div>
