@@ -1264,6 +1264,11 @@ export default function QuizPage() {
   // </CHANGE>
 
   if (showQuickResults) {
+    console.log("[v0] Muscle path curve: M 0 180 C 80 200, 120 210, 200 100 C 280 210, 320 200, 400 50")
+    console.log("[v0] Fat path curve: M 0 50 C 80 40, 120 50, 200 140 C 280 50, 320 40, 400 200")
+    console.log("[v0] SVG viewBox: 0 0 400 260")
+    console.log("[v0] Path lengths - muscle:", pathLengths.muscle, "fat:", pathLengths.fat)
+
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-10">
         <div className="max-w-6xl w-full space-y-7">
@@ -1292,7 +1297,7 @@ export default function QuizPage() {
               <svg
                 className="absolute left-16 top-3 right-4 bottom-10"
                 viewBox="0 0 400 260"
-                preserveAspectRatio="xMidYMid meet" // Changed preserveAspectRatio to xMidYMid meet
+                preserveAspectRatio="xMidYMid meet"
               >
                 <defs>
                   {/* Gradientes */}
@@ -1326,6 +1331,24 @@ export default function QuizPage() {
                     </feMerge>
                   </filter>
                 </defs>
+
+                {/* Muscle curve debug points */}
+                <circle cx="0" cy="180" r="3" fill="#ff0000" opacity="0.5" />
+                <circle cx="80" cy="200" r="2" fill="#ffff00" opacity="0.5" />
+                <circle cx="120" cy="210" r="2" fill="#ffff00" opacity="0.5" />
+                <circle cx="200" cy="100" r="3" fill="#ff0000" opacity="0.5" />
+                <circle cx="280" cy="210" r="2" fill="#ffff00" opacity="0.5" />
+                <circle cx="320" cy="200" r="2" fill="#ffff00" opacity="0.5" />
+                <circle cx="400" cy="50" r="3" fill="#ff0000" opacity="0.5" />
+
+                {/* Fat curve debug points */}
+                <circle cx="0" cy="50" r="3" fill="#0000ff" opacity="0.5" />
+                <circle cx="80" cy="40" r="2" fill="#00ff00" opacity="0.5" />
+                <circle cx="120" cy="50" r="2" fill="#00ff00" opacity="0.5" />
+                <circle cx="200" cy="140" r="3" fill="#0000ff" opacity="0.5" />
+                <circle cx="280" cy="50" r="2" fill="#00ff00" opacity="0.5" />
+                <circle cx="320" cy="40" r="2" fill="#00ff00" opacity="0.5" />
+                <circle cx="400" cy="200" r="3" fill="#0000ff" opacity="0.5" />
 
                 {/* Grid horizontal */}
                 <line x1="0" y1="85" x2="400" y2="85" stroke="#fff" strokeWidth="0.5" opacity="0.12" />
