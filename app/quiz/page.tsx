@@ -1264,9 +1264,10 @@ export default function QuizPage() {
   // </CHANGE>
 
   if (showQuickResults) {
-    console.log("[v0] Muscle path curve: M 0 180 C 80 200, 120 210, 200 100 C 280 210, 320 200, 400 50")
-    console.log("[v0] Fat path curve: M 0 50 C 80 40, 120 50, 200 140 C 280 50, 320 40, 400 200")
-    console.log("[v0] SVG viewBox: 0 0 400 260")
+    console.log("[v0] Muscle curve (exponential): Start LOW (0,200) → gradual rise → accelerated END HIGH (400,50)")
+    console.log("[v0] Muscle path: M 0 200 C 120 180, 200 120, 400 40")
+    console.log("[v0] Fat curve (inverse): Start HIGH (0,60) → gradual decline → accelerated END LOW (400,210)")
+    console.log("[v0] Fat path: M 0 60 C 120 100, 200 160, 400 210")
     console.log("[v0] Path lengths - muscle:", pathLengths.muscle, "fat:", pathLengths.fat)
 
     return (
@@ -1332,32 +1333,23 @@ export default function QuizPage() {
                   </filter>
                 </defs>
 
-                {/* Muscle curve debug points */}
-                <circle cx="0" cy="180" r="3" fill="#ff0000" opacity="0.5" />
-                <circle cx="80" cy="200" r="2" fill="#ffff00" opacity="0.5" />
-                <circle cx="120" cy="210" r="2" fill="#ffff00" opacity="0.5" />
-                <circle cx="200" cy="100" r="3" fill="#ff0000" opacity="0.5" />
-                <circle cx="280" cy="210" r="2" fill="#ffff00" opacity="0.5" />
-                <circle cx="320" cy="200" r="2" fill="#ffff00" opacity="0.5" />
-                <circle cx="400" cy="50" r="3" fill="#ff0000" opacity="0.5" />
+                <circle cx="0" cy="200" r="3" fill="#ff0000" opacity="0.5" />
+                <circle cx="120" cy="180" r="2" fill="#ffff00" opacity="0.5" />
+                <circle cx="200" cy="120" r="2" fill="#ffff00" opacity="0.5" />
+                <circle cx="400" cy="40" r="3" fill="#ff0000" opacity="0.5" />
 
-                {/* Fat curve debug points */}
-                <circle cx="0" cy="50" r="3" fill="#0000ff" opacity="0.5" />
-                <circle cx="80" cy="40" r="2" fill="#00ff00" opacity="0.5" />
-                <circle cx="120" cy="50" r="2" fill="#00ff00" opacity="0.5" />
-                <circle cx="200" cy="140" r="3" fill="#0000ff" opacity="0.5" />
-                <circle cx="280" cy="50" r="2" fill="#00ff00" opacity="0.5" />
-                <circle cx="320" cy="40" r="2" fill="#00ff00" opacity="0.5" />
-                <circle cx="400" cy="200" r="3" fill="#0000ff" opacity="0.5" />
+                <circle cx="0" cy="60" r="3" fill="#0000ff" opacity="0.5" />
+                <circle cx="120" cy="100" r="2" fill="#00ff00" opacity="0.5" />
+                <circle cx="200" cy="160" r="2" fill="#00ff00" opacity="0.5" />
+                <circle cx="400" cy="210" r="3" fill="#0000ff" opacity="0.5" />
 
                 {/* Grid horizontal */}
                 <line x1="0" y1="85" x2="400" y2="85" stroke="#fff" strokeWidth="0.5" opacity="0.12" />
                 <line x1="0" y1="175" x2="400" y2="175" stroke="#fff" strokeWidth="0.5" opacity="0.12" />
 
-                {/* Massa muscular */}
                 <path
                   ref={musclePathRef}
-                  d="M 0 180 C 80 200, 120 210, 200 100 C 280 210, 320 200, 400 50"
+                  d="M 0 200 C 120 180, 200 120, 400 40"
                   fill="none"
                   stroke="url(#muscleLine)"
                   strokeWidth="4"
@@ -1371,10 +1363,9 @@ export default function QuizPage() {
                   }}
                 />
 
-                {/* Gordura */}
                 <path
                   ref={fatPathRef}
-                  d="M 0 50 C 80 40, 120 50, 200 140 C 280 50, 320 40, 400 200"
+                  d="M 0 60 C 120 100, 200 160, 400 210"
                   fill="none"
                   stroke="url(#fatLine)"
                   strokeWidth="4"
