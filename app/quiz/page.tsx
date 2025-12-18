@@ -252,6 +252,7 @@ export default function QuizPage() {
   useEffect(() => {
     if (pathLengths.muscle > 0 && pathLengths.fat > 0) {
       // Set a small delay to ensure paths are fully rendered
+      console.log("[v0] Triggering animation with pathLengths:", pathLengths)
       setTimeout(() => {
         setAnimateChart(true)
       }, 100)
@@ -1023,7 +1024,7 @@ export default function QuizPage() {
       setQuizData(updatedQuizData) // Atualiza o estado local
 
       try {
-        localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
+        localStorage.setItem("quizData", JSON.JSON.stringify(updatedQuizData))
         debugDataFlow("QUIZ_LOCALSTORAGE_SAVE", updatedQuizData)
       } catch (error) {
         console.error("[QUIZ] Storage failed:", error)
