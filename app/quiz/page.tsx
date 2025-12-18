@@ -235,6 +235,7 @@ export default function QuizPage() {
   ])
 
   const [showQuickResults, setShowQuickResults] = useState(false)
+  const [animateChart, setAnimateChart] = useState(false)
 
   const musclePathRef = useRef<SVGPathElement>(null)
   const fatPathRef = useRef<SVGPathElement>(null)
@@ -248,6 +249,15 @@ export default function QuizPage() {
       setPathLengths({ muscle: muscleLen, fat: fatLen })
     }
   }, [showQuickResults])
+
+  useEffect(() => {
+    if (pathLengths.muscle > 0 && pathLengths.fat > 0) {
+      // Set a small delay to ensure paths are fully rendered
+      setTimeout(() => {
+        setAnimateChart(true)
+      }, 100)
+    }
+  }, [pathLengths])
 
   const [quizData, setQuizData] = useState<QuizData>({
     gender: "",
@@ -1333,18 +1343,10 @@ export default function QuizPage() {
                   markerEnd="url(#arrowMuscle)"
                   style={{
                     strokeDasharray: pathLengths.muscle,
-                    strokeDashoffset: pathLengths.muscle,
+                    strokeDashoffset: animateChart ? 0 : pathLengths.muscle,
+                    transition: "stroke-dashoffset 1.8s linear",
                   }}
-                >
-                  <animate
-                    attributeName="stroke-dashoffset"
-                    from={pathLengths.muscle}
-                    to="0"
-                    dur="1.8s"
-                    begin="0s"
-                    fill="freeze"
-                  />
-                </path>
+                />
 
                 {/* Gordura */}
                 <path
@@ -1358,18 +1360,10 @@ export default function QuizPage() {
                   markerEnd="url(#arrowFat)"
                   style={{
                     strokeDasharray: pathLengths.fat,
-                    strokeDashoffset: pathLengths.fat,
+                    strokeDashoffset: animateChart ? 0 : pathLengths.fat,
+                    transition: "stroke-dashoffset 1.8s linear",
                   }}
-                >
-                  <animate
-                    attributeName="stroke-dashoffset"
-                    from={pathLengths.fat}
-                    to="0"
-                    dur="1.8s"
-                    begin="0.15s"
-                    fill="freeze"
-                  />
-                </path>
+                />
               </svg>
 
               <div className="absolute left-32 top-12 text-white font-semibold text-lg sm:text-xl">Massa muscular</div>
