@@ -245,17 +245,29 @@ export default function QuizPage() {
     if (showQuickResults) {
       const muscleLen = musclePathRef.current?.getTotalLength() ?? 0
       const fatLen = fatPathRef.current?.getTotalLength() ?? 0
-      setPathLengths({ muscle: muscleLen, fat: fatLen })
+
+      console.log("[v0] Initial pathLengths - muscle:", muscleLen, "fat:", fatLen)
+
+      // If getTotalLength returns 0, retry after a small delay
+      if (muscleLen === 0 || fatLen === 0) {
+        setTimeout(() => {
+          const retryMuscleLen = musclePathRef.current?.getTotalLength() ?? 468
+          const retryFatLen = fatPathRef.current?.getTotalLength() ?? 440
+          console.log("[v0] Retry pathLengths - muscle:", retryMuscleLen, "fat:", retryFatLen)
+          setPathLengths({ muscle: retryMuscleLen, fat: retryFatLen })
+        }, 100)
+      } else {
+        setPathLengths({ muscle: muscleLen, fat: fatLen })
+      }
     }
   }, [showQuickResults])
 
   useEffect(() => {
     if (pathLengths.muscle > 0 && pathLengths.fat > 0) {
-      // Set a small delay to ensure paths are fully rendered
-      console.log("[v0] Triggering animation with pathLengths:", pathLengths)
       setTimeout(() => {
+        console.log("[v0] Animation triggered with pathLengths:", pathLengths)
         setAnimateChart(true)
-      }, 100)
+      }, 200)
     }
   }, [pathLengths])
 
@@ -1320,7 +1332,7 @@ export default function QuizPage() {
                   style={{
                     strokeDasharray: pathLengths.muscle,
                     strokeDashoffset: animateChart ? 0 : pathLengths.muscle,
-                    transition: "stroke-dashoffset 1.8s linear",
+                    transition: "stroke-dashoffset 3s linear",
                   }}
                 />
 
@@ -1336,7 +1348,7 @@ export default function QuizPage() {
                   style={{
                     strokeDasharray: pathLengths.fat,
                     strokeDashoffset: animateChart ? 0 : pathLengths.fat,
-                    transition: "stroke-dashoffset 1.8s linear",
+                    transition: "stroke-dashoffset 3s linear",
                   }}
                 />
               </svg>
