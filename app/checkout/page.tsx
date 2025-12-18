@@ -86,22 +86,17 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   const availableInstallments = paymentMethod === "card" ? calculateMaxInstallments() : 1
   const installmentOptions = Array.from({ length: availableInstallments }, (_, i) => i + 1)
 
-  const handleAsaasPayment = async () => {
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+
+    if (!userEmail || !clientUid || !currentPlan) {
+      onError("Dados essenciais ausentes. Por favor, refaça o quiz.")
+      return
+    }
+
+    setProcessing(true)
+
     try {
-      setProcessing(true)
-      const setError = onError // Declare setError here
-
-      console.log("[v0] Dados sendo enviados para Asaas:", {
-        email: userEmail,
-        name: formData.name,
-        cpf: formData.cpf,
-        phone: formData.phone,
-        planType: currentPlan.key,
-        paymentMethod,
-        installments: paymentMethod === "card" ? installments : undefined,
-        clientUid,
-      })
-
       // 1. Criar cobrança no Asaas
       const paymentResponse = await fetch("/api/create-asaas-payment", {
         method: "POST",
@@ -118,16 +113,12 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         }),
       })
 
-      console.log("[v0] Resposta do servidor - status:", paymentResponse.status)
-
       if (!paymentResponse.ok) {
         const errorData = await paymentResponse.json()
-        console.log("[v0] Erro do servidor:", errorData)
         throw new Error(errorData.error || "Erro ao criar cobrança")
       }
 
       const paymentResult = await paymentResponse.json()
-      console.log("[v0] Resultado do pagamento:", paymentResult)
 
       // 2. Se for Pix, mostrar QR Code
       if (paymentMethod === "pix") {
@@ -268,7 +259,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   // Formulário de cartão
   if (paymentMethod === "card") {
     return (
-      <form onSubmit={handleAsaasPayment} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
@@ -431,7 +422,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   // Botão para Pix e Boleto
   return (
     <button
-      onClick={handleAsaasPayment}
+      onClick={handleSubmit}
       disabled={processing}
       className={`w-full py-4 text-lg font-bold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-all ${
         processing ? "opacity-75 cursor-not-allowed" : ""
