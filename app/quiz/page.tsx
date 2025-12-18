@@ -1314,13 +1314,14 @@ export default function QuizPage() {
                   </linearGradient>
 
                   {/* Setas */}
-                  <marker id="arrowMuscle" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
-                    <path d="M0,0 L0,12 L12,6 z" fill="#84cc16" />
+                  <marker id="arrowMuscle" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+                    <path d="M0,0 L0,8 L8,4 z" fill="#84cc16" />
                   </marker>
 
-                  <marker id="arrowFat" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
-                    <path d="M0,0 L0,12 L12,6 z" fill="#ec4899" />
+                  <marker id="arrowFat" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+                    <path d="M0,0 L0,8 L8,4 z" fill="#ec4899" />
                   </marker>
+                  {/* </CHANGE> */}
 
                   {/* Glow */}
                   <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
