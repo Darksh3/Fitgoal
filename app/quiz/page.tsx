@@ -1333,6 +1333,39 @@ export default function QuizPage() {
                   </filter>
                 </defs>
 
+                <path
+                  ref={musclePathRef}
+                  d="M 0 200 C 100 190, 180 100, 400 35"
+                  fill="none"
+                  stroke="url(#muscleLine)"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  filter="url(#glow)"
+                  markerEnd="url(#arrowMuscle)"
+                  style={{
+                    strokeDasharray: pathLengths.muscle,
+                    strokeDashoffset: animateChart ? 0 : pathLengths.muscle,
+                    transition: "stroke-dashoffset 1.8s linear",
+                  }}
+                />
+
+                <path
+                  ref={fatPathRef}
+                  d="M 0 60 C 100 80, 180 180, 400 215"
+                  fill="none"
+                  stroke="url(#fatLine)"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  filter="url(#glow)"
+                  markerEnd="url(#arrowFat)"
+                  style={{
+                    strokeDasharray: pathLengths.fat,
+                    strokeDashoffset: animateChart ? 0 : pathLengths.fat,
+                    transition: "stroke-dashoffset 1.8s linear",
+                  }}
+                />
+                {/* ... existing code ... */}
+
                 <circle cx="0" cy="200" r="3" fill="#ff0000" opacity="0.5" />
                 <circle cx="120" cy="180" r="2" fill="#ffff00" opacity="0.5" />
                 <circle cx="200" cy="120" r="2" fill="#ffff00" opacity="0.5" />
@@ -1347,7 +1380,8 @@ export default function QuizPage() {
                 <line x1="0" y1="85" x2="400" y2="85" stroke="#fff" strokeWidth="0.5" opacity="0.12" />
                 <line x1="0" y1="175" x2="400" y2="175" stroke="#fff" strokeWidth="0.5" opacity="0.12" />
 
-                <path
+                {/* Original paths */}
+                {/* <path
                   ref={musclePathRef}
                   d="M 0 200 C 120 180, 200 120, 400 40"
                   fill="none"
@@ -1377,7 +1411,7 @@ export default function QuizPage() {
                     strokeDashoffset: animateChart ? 0 : pathLengths.fat,
                     transition: "stroke-dashoffset 1.8s linear",
                   }}
-                />
+                /> */}
               </svg>
 
               <div className="absolute left-32 top-12 text-white font-semibold text-lg sm:text-xl">Massa muscular</div>
