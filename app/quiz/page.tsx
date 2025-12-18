@@ -4186,38 +4186,54 @@ export default function QuizPage() {
           </div>
         )
 
-      case 29: // Renamed from 28. Training days per week
-        // Training days per week is now handled by the slider in case 24.
-        // This case is now for the final submit.
+      case 29:
         return (
-          <div className="space-y-8 text-center">
-            <h2 className="text-2xl font-bold text-white">Pronto para começar?</h2>
-            <p className="text-gray-300">
-              Revise suas informações e clique em "Finalizar Avaliação" para receber seu plano personalizado.
-            </p>
-            <div className="mt-10">
-              <Button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
-              >
-                <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10 flex items-center gap-3">
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-6 w-6 animate-spin" />
-                        Processando...
-                      </>
-                    ) : (
-                      <>
-                        Finalizar Avaliação
-                        <Dumbbell className="h-6 w-6" />
-                      </>
-                    )}
-                  </span>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
+              <p className="text-gray-300">Selecione de 1 a 7 dias</p>
+            </div>
+
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 space-y-8">
+                {/* Value display */}
+                <div className="flex justify-center">
+                  <div className="bg-white/10 rounded-full px-8 py-3">
+                    <span className="text-xl md:text-2xl font-bold text-white">
+                      {quizData.trainingDays || "5"} {(quizData.trainingDays || "5") === "1" ? "dia" : "dias"}
+                    </span>
+                  </div>
                 </div>
-              </Button>
+
+                {/* Slider */}
+                <div className="space-y-4">
+                  <input
+                    type="range"
+                    min="1"
+                    max="7"
+                    value={quizData.trainingDays || "5"}
+                    onChange={(e) => updateQuizData("trainingDays", e.target.value)}
+                    className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 100%)`,
+                    }}
+                  />
+
+                  {/* Labels */}
+                  <div className="flex justify-between text-gray-400 text-sm">
+                    <span>1 dia</span>
+                    <span>7 dias</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-center mt-8">
+                <Button onClick={nextStep} className="group relative overflow-hidden">
+                  <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                    <span className="relative z-10">Continuar</span>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                  </div>
+                </Button>
+              </div>
             </div>
           </div>
         )
