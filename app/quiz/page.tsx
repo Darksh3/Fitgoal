@@ -1334,7 +1334,7 @@ export default function QuizPage() {
                 {/* Massa muscular */}
                 <path
                   ref={musclePathRef}
-                  d="M 0 105 C 120 150, 170 190, 200 195 S 310 150, 400 55"
+                  d="M 0 180 C 80 200, 120 210, 200 100 C 280 210, 320 200, 400 50"
                   fill="none"
                   stroke="url(#muscleLine)"
                   strokeWidth="4"
@@ -1351,7 +1351,7 @@ export default function QuizPage() {
                 {/* Gordura */}
                 <path
                   ref={fatPathRef}
-                  d="M 0 220 C 120 190, 170 150, 200 140 S 310 185, 400 235"
+                  d="M 0 50 C 80 40, 120 50, 200 140 C 280 50, 320 40, 400 200"
                   fill="none"
                   stroke="url(#fatLine)"
                   strokeWidth="4"
