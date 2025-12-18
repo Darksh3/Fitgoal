@@ -1335,7 +1335,7 @@ export default function QuizPage() {
 
                 <path
                   ref={musclePathRef}
-                  d="M 0 200 C 100 190, 180 100, 400 35"
+                  d="M 0 235 C 100 215, 180 120, 400 20"
                   fill="none"
                   stroke="url(#muscleLine)"
                   strokeWidth="4"
@@ -1351,7 +1351,7 @@ export default function QuizPage() {
 
                 <path
                   ref={fatPathRef}
-                  d="M 0 60 C 100 80, 180 180, 400 215"
+                  d="M 0 15 C 100 45, 180 180, 400 240"
                   fill="none"
                   stroke="url(#fatLine)"
                   strokeWidth="4"
@@ -1364,54 +1364,15 @@ export default function QuizPage() {
                     transition: "stroke-dashoffset 1.8s linear",
                   }}
                 />
-                {/* ... existing code ... */}
+                <circle cx="0" cy="235" r="3" fill="#ff0000" opacity="0.5" />
+                <circle cx="100" cy="215" r="2" fill="#ffff00" opacity="0.5" />
+                <circle cx="180" cy="120" r="2" fill="#ffff00" opacity="0.5" />
+                <circle cx="400" cy="20" r="3" fill="#ff0000" opacity="0.5" />
 
-                <circle cx="0" cy="200" r="3" fill="#ff0000" opacity="0.5" />
-                <circle cx="120" cy="180" r="2" fill="#ffff00" opacity="0.5" />
-                <circle cx="200" cy="120" r="2" fill="#ffff00" opacity="0.5" />
-                <circle cx="400" cy="40" r="3" fill="#ff0000" opacity="0.5" />
-
-                <circle cx="0" cy="60" r="3" fill="#0000ff" opacity="0.5" />
-                <circle cx="120" cy="100" r="2" fill="#00ff00" opacity="0.5" />
-                <circle cx="200" cy="160" r="2" fill="#00ff00" opacity="0.5" />
-                <circle cx="400" cy="210" r="3" fill="#0000ff" opacity="0.5" />
-
-                {/* Grid horizontal */}
-                <line x1="0" y1="85" x2="400" y2="85" stroke="#fff" strokeWidth="0.5" opacity="0.12" />
-                <line x1="0" y1="175" x2="400" y2="175" stroke="#fff" strokeWidth="0.5" opacity="0.12" />
-
-                {/* Original paths */}
-                {/* <path
-                  ref={musclePathRef}
-                  d="M 0 200 C 120 180, 200 120, 400 40"
-                  fill="none"
-                  stroke="url(#muscleLine)"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  filter="url(#glow)"
-                  markerEnd="url(#arrowMuscle)"
-                  style={{
-                    strokeDasharray: pathLengths.muscle,
-                    strokeDashoffset: animateChart ? 0 : pathLengths.muscle,
-                    transition: "stroke-dashoffset 1.8s linear",
-                  }}
-                />
-
-                <path
-                  ref={fatPathRef}
-                  d="M 0 60 C 120 100, 200 160, 400 210"
-                  fill="none"
-                  stroke="url(#fatLine)"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  filter="url(#glow)"
-                  markerEnd="url(#arrowFat)"
-                  style={{
-                    strokeDasharray: pathLengths.fat,
-                    strokeDashoffset: animateChart ? 0 : pathLengths.fat,
-                    transition: "stroke-dashoffset 1.8s linear",
-                  }}
-                /> */}
+                <circle cx="0" cy="15" r="3" fill="#0000ff" opacity="0.5" />
+                <circle cx="100" cy="45" r="2" fill="#00ff00" opacity="0.5" />
+                <circle cx="180" cy="180" r="2" fill="#00ff00" opacity="0.5" />
+                <circle cx="400" cy="240" r="3" fill="#0000ff" opacity="0.5" />
               </svg>
 
               <div className="absolute left-32 top-12 text-white font-semibold text-lg sm:text-xl">Massa muscular</div>
@@ -2992,7 +2953,7 @@ export default function QuizPage() {
                     className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
                       quizData.problemAreas.includes(area)
                         ? "bg-emerald-500 border-emerald-500 text-white"
-                        : "bg-white/5 backdrop-blur-sm border-white/10 text-white hover:border-emerald-500"
+                        : "bg-white/5 backdrop-blur-sm border-white/10 hover:border-emerald-500"
                     }`}
                     onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
                   >
