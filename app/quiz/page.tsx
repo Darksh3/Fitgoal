@@ -1278,7 +1278,7 @@ export default function QuizPage() {
             <p className="text-gray-400 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
           </div>
 
-          <div className="relative w-full h-[245px] sm:h-[260px] bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50 rounded-3xl px-6 sm:px-8 py-6 backdrop-blur-sm border border-blue-800/40">
+          <div className="relative w-full h-[300px] sm:h-[320px] bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50 rounded-3xl px-6 sm:px-8 py-6 backdrop-blur-sm border border-blue-800/40">
             <div className="relative w-full h-full">
               {/* Y-axis labels */}
               <div className="absolute left-0 top-2 bottom-10 flex flex-col justify-between text-xs text-gray-400">
@@ -1288,7 +1288,6 @@ export default function QuizPage() {
 
               {/* X-axis labels */}
               <div className="absolute bottom-1 left-16 right-0 flex justify-between text-xs text-gray-400 px-4">
-                <span>Baixo</span>
                 <span>1 Mês</span>
                 <span>2 Meses</span>
                 <span>3 Meses</span>
