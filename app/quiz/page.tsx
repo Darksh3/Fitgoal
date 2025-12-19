@@ -1,21 +1,19 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react" // Added useRef
 // import Image from "next/image" // Import Image component
 
 import { Button } from "@/components/ui/button"
 
-import { Label } from "@/components/ui/label"
-
 import { Input } from "@/components/ui/input"
-
-import { Checkbox } from "@/components/ui/checkbox"
 
 import { Slider } from "@/components/ui/slider"
 
 import { Textarea } from "@/components/ui/textarea"
 
-import { ArrowLeft, CheckCircle, Droplets, X, ThumbsUp, ThumbsDown, Meh, Loader2, Dumbbell } from "lucide-react"
+import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, Clock } from "lucide-react"
+
+import { AiOrb } from "@/components/ai-orb"
 
 import { useRouter } from "next/navigation"
 
@@ -24,6 +22,9 @@ import { db, auth } from "@/lib/firebaseClient"
 import { doc, setDoc, getDoc } from "firebase/firestore"
 
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth"
+
+// Moved useState to inside the component to adhere to hook rules
+// const [showMotivationMessage, setShowMotivationMessage] = useState(false)
 
 interface QuizData {
   gender: string
@@ -39,6 +40,8 @@ interface QuizData {
   allergyDetails: string
   wantsSupplement: string
   supplementType: string
+  recommendedSupplement: string
+  weightChangeType: string
   height: string
   heightUnit: string
   currentWeight: string
@@ -63,6 +66,26 @@ interface QuizData {
   strengthTraining?: string // Added this field
   // </CHANGE> Added weight field
   weight: string
+  // </CHANGE>
+  healthConditions: string[] // Added for step 13
+  supplement: string // Added for step 14
+  sweetsFrequency: string[] // Renamed from sugarFrequency to be more specific
+  cardioFeeling: string // Added for step 19
+  strengthFeeling: string // Added for step 20
+  stretchingFeeling: string // Added for step 21
+  trainingDays: string // Renamed from trainingDaysPerWeek to string for consistency in canProceed
+  previousProblems: string[] // Added for new step 18
+  additionalGoals: string[]
+  letMadMusclesChoose: boolean
+  foodPreferences: {
+    vegetables: string[]
+    grains: string[]
+    ingredients: string[]
+    meats: string[]
+    fruits: string[]
+  }
+  alcoholFrequency?: string // Added for new step
+  // </CHANGE>
 }
 
 const initialQuizData: QuizData = {
@@ -73,12 +96,17 @@ const initialQuizData: QuizData = {
   bodyFat: 15,
   problemAreas: [],
   diet: "",
-  sugarFrequency: [],
+  sugarFrequency: [], // This will be renamed to sweetsFrequency
   waterIntake: "",
   allergies: "",
   allergyDetails: "",
   wantsSupplement: "",
   supplementType: "",
+  recommendedSupplement: "",
+  // </CHANGE>
+  // Initialize weightChangeType field
+  weightChangeType: "",
+  // </CHANGE>
   // </CHANGE>
   height: "",
   heightUnit: "cm",
@@ -96,7 +124,7 @@ const initialQuizData: QuizData = {
     pullups: "",
     yoga: "",
   },
-  trainingDaysPerWeek: 0,
+  trainingDaysPerWeek: 0, // This will be renamed to trainingDays
   email: "",
   imc: 0,
   imcClassification: "",
@@ -105,6 +133,24 @@ const initialQuizData: QuizData = {
   strengthTraining: "", // Initialize strengthTraining
   // </CHANGE> Initialize weight field
   weight: "",
+  // </CHANGE>
+  healthConditions: [], // Initialize healthConditions
+  supplement: "", // Initialize supplement
+  sweetsFrequency: [], // Initialize sweetsFrequency (renamed from sugarFrequency)
+  cardioFeeling: "", // Initialize cardioFeeling
+  strengthFeeling: "", // Initialize strengthFeeling
+  stretchingFeeling: "", // Initialize stretchingFeeling
+  trainingDays: "1", // Initialize trainingDays as string, default to 1
+  previousProblems: [], // Initialize previousProblems
+  additionalGoals: [],
+  foodPreferences: {
+    vegetables: [],
+    grains: [],
+    ingredients: [],
+    meats: [],
+    fruits: [],
+  },
+  // </CHANGE>
 }
 
 const debugDataFlow = (stage: string, data: any) => {
@@ -170,15 +216,131 @@ const normalizeHeight = (value: string): string => {
 }
 
 export default function QuizPage() {
+  const [showMotivationMessage, setShowMotivationMessage] = useState(false)
+  const [showCortisolMessage, setShowCortisolMessage] = useState(false)
+  // </CHANGE>
   const [currentStep, setCurrentStep] = useState(1)
-  const [quizData, setQuizData] = useState<QuizData>(initialQuizData)
+  const [debugChart, setDebugChart] = useState(false)
+  const [musclePoints, setMusclePoints] = useState([
+    { x: 0, y: 250 },
+    { x: 133, y: 150 },
+    { x: 266, y: 80 },
+    { x: 400, y: 30 },
+  ])
+  const [fatPoints, setFatPoints] = useState([
+    { x: 0, y: 50 },
+    { x: 133, y: 150 },
+    { x: 266, y: 220 },
+    { x: 400, y: 270 },
+  ])
+
+  const [showQuickResults, setShowQuickResults] = useState(false)
+  const [animateChart, setAnimateChart] = useState(false)
+
+  const musclePathRef = useRef<SVGPathElement>(null)
+  const fatPathRef = useRef<SVGPathElement>(null)
+  const [pathLengths, setPathLengths] = useState({ muscle: 0, fat: 0 })
+
+  useEffect(() => {
+    if (showQuickResults) {
+      const muscleLen = musclePathRef.current?.getTotalLength() ?? 0
+      const fatLen = fatPathRef.current?.getTotalLength() ?? 0
+
+      console.log("[v0] Initial pathLengths - muscle:", muscleLen, "fat:", fatLen)
+
+      // If getTotalLength returns 0, retry after a small delay
+      if (muscleLen === 0 || fatLen === 0) {
+        setTimeout(() => {
+          const retryMuscleLen = musclePathRef.current?.getTotalLength() ?? 468
+          const retryFatLen = fatPathRef.current?.getTotalLength() ?? 440
+          console.log("[v0] Retry pathLengths - muscle:", retryMuscleLen, "fat:", retryFatLen)
+          setPathLengths({ muscle: retryMuscleLen, fat: retryFatLen })
+        }, 100)
+      } else {
+        setPathLengths({ muscle: muscleLen, fat: fatLen })
+      }
+    }
+  }, [showQuickResults])
+
+  useEffect(() => {
+    if (pathLengths.muscle > 0 && pathLengths.fat > 0) {
+      setTimeout(() => {
+        console.log("[v0] Animation triggered with pathLengths:", pathLengths)
+        setAnimateChart(true)
+      }, 200)
+    }
+  }, [pathLengths])
+
+  const [quizData, setQuizData] = useState<QuizData>({
+    gender: "",
+    bodyType: "",
+    goal: [],
+    subGoal: "",
+    bodyFat: 15,
+    problemAreas: [],
+    diet: "",
+    sugarFrequency: [],
+    waterIntake: "",
+    allergies: "",
+    allergyDetails: "",
+    wantsSupplement: "",
+    supplementType: "",
+    height: "",
+    heightUnit: "cm",
+    currentWeight: "",
+    targetWeight: "",
+    weightUnit: "kg",
+    timeToGoal: "",
+    name: "",
+    workoutTime: "",
+    experience: "",
+    equipment: [],
+    exercisePreferences: {
+      cardio: "",
+      pullups: "",
+      yoga: "",
+    },
+    trainingDaysPerWeek: 3,
+    email: "",
+    imc: 0,
+    imcClassification: "",
+    imcStatus: "",
+    age: 0,
+    weight: "",
+    healthConditions: [],
+    supplement: "",
+    sweetsFrequency: [],
+    cardioFeeling: "",
+    strengthFeeling: "",
+    stretchingFeeling: "",
+    trainingDays: "",
+    previousProblems: [],
+    additionalGoals: [],
+    foodPreferences: {
+      vegetables: [],
+      grains: [],
+      ingredients: [],
+      meats: [],
+      fruits: [],
+    },
+    // </CHANGE>
+    // Initialize weightChangeType
+    weightChangeType: "",
+    // </CHANGE>
+  })
   const [showSuccess, setShowSuccess] = useState(false)
   const [showNutritionInfo, setShowNutritionInfo] = useState(false)
   const [showWaterCongrats, setShowWaterCongrats] = useState(false)
   const [showTimeCalculation, setShowTimeCalculation] = useState(false)
+  const [showGoalTimeline, setShowGoalTimeline] = useState(false)
+  const [calculatedWeeks, setCalculatedWeeks] = useState(0)
+  const [isCalculatingGoal, setIsCalculatingGoal] = useState(false)
+  // </CHANGE>
   const [showIMCResult, setShowIMCResult] = useState(false)
   const [showLoading, setShowLoading] = useState(false)
-  const [totalSteps, setTotalSteps] = useState(24)
+  const [totalSteps, setTotalSteps] = useState(30)
+  // </CHANGE>
+
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false) // Add isSubmitting state
@@ -258,12 +420,33 @@ export default function QuizPage() {
         const timer = setTimeout(() => {
           setShowAnalyzingData(false)
           setAnalyzingStep(0)
-          setCurrentStep(24) // Move to email question
+          setCurrentStep(25) // Move to step 25 (allergies)
         }, 2500)
         return () => clearTimeout(timer)
       }
     }
   }, [showAnalyzingData, analyzingStep])
+  // </CHANGE>
+
+  useEffect(() => {
+    if (showGoalTimeline) {
+      setIsCalculatingGoal(true)
+
+      // Calculate weeks
+      const current = Number.parseFloat(quizData.weight)
+      const target = Number.parseFloat(quizData.targetWeight)
+      if (!isNaN(current) && !isNaN(target) && current > 0 && target > 0) {
+        const weightDifference = Math.abs(current - target)
+        const weeks = Math.ceil(weightDifference / 0.75)
+
+        // Show loading animation for 2 seconds, then reveal result
+        setTimeout(() => {
+          setCalculatedWeeks(weeks)
+          setIsCalculatingGoal(false)
+        }, 2000)
+      }
+    }
+  }, [showGoalTimeline, quizData.weight, quizData.targetWeight])
   // </CHANGE>
 
   useEffect(() => {
@@ -408,27 +591,28 @@ export default function QuizPage() {
   }
 
   const updateQuizData = (key: keyof QuizData, value: any) => {
-    const normalizedValue = key === "height" ? normalizeHeight(value) : value
-    const newData = { ...quizData, [key]: normalizedValue }
+    setQuizData((prev) => {
+      const normalizedValue = key === "height" ? normalizeHeight(value) : value
+      const updated = { ...prev, [key]: normalizedValue }
 
-    // </CHANGE> Used quizData.weight for IMC calculation
-    if (key === "currentWeight" || key === "height" || key === "weight") {
-      const weight = Number.parseFloat(
-        key === "currentWeight"
-          ? normalizedValue
-          : quizData.currentWeight || (key === "weight" ? normalizedValue : "0"),
-      )
-      const height = Number.parseFloat(key === "height" ? normalizedValue : quizData.height || "0")
+      // Recalcular IMC se necessário
+      if (key === "currentWeight" || key === "height" || key === "weight") {
+        const weight = Number.parseFloat(
+          key === "currentWeight" ? normalizedValue : prev.currentWeight || (key === "weight" ? normalizedValue : "0"),
+        )
 
-      if (weight > 0 && height > 0) {
-        const imcData = calculateIMC(weight, height)
-        newData.imc = imcData.imc
-        newData.imcClassification = imcData.classification
-        newData.imcStatus = imcData.status
+        const height = Number.parseFloat(key === "height" ? normalizedValue : prev.height || "0")
+
+        if (weight > 0 && height > 0) {
+          const imcData = calculateIMC(weight, height)
+          updated.imc = imcData.imc
+          updated.imcClassification = imcData.classification
+          updated.imcStatus = imcData.status
+        }
       }
-    }
 
-    setQuizData(newData)
+      return updated
+    })
   }
 
   const updateExercisePreference = (exercise: string, preference: string) => {
@@ -556,7 +740,7 @@ export default function QuizPage() {
 
       if (response.ok) {
         const result = await response.json()
-        console.log("generateAndSavePlan: API /api/generate-plans-on-demand response:", result)
+        console.log("generateAndSavePlan: API /api-generate-plans-on-demand response:", result)
         // A API agora é responsável por salvar dietPlan e workoutPlan no Firestore
         // Não é necessário salvá-los aqui novamente.
       } else {
@@ -665,25 +849,78 @@ export default function QuizPage() {
   }
 
   const nextStep = () => {
-    console.log("[v0] nextStep called, currentStep:", currentStep)
-    console.log("[v0] quizData.targetWeight:", quizData.targetWeight)
-    console.log("[v0] quizData.timeToGoal:", quizData.timeToGoal)
+    if (currentStep === 5 && quizData.bodyFat !== 0) {
+      setShowQuickResults(true)
+      return
+    }
+
+    if (currentStep === 21) {
+      setShowCortisolMessage(true)
+      setCurrentStep(22) // Move to step 22, but cortisol message will show first
+      return
+    }
     // </CHANGE>
 
-    if (currentStep === 8 && quizData.diet !== "nao-sigo") {
-      // Updated from step 7 to 8
-      setShowNutritionInfo(true)
-    } else if (currentStep === 9 && (quizData.waterIntake === "7-10" || quizData.waterIntake === "mais-10")) {
-      // Updated from step 8 to 9
-      setShowWaterCongrats(true)
-    } else if (currentStep === 11 && quizData.allergies === "nao") {
-      setCurrentStep(13)
+    if (currentStep === 22 && quizData.allergies === "nao") {
+      // This case is now related to Supplement Interest (step 26).
+      // The original code had a condition here for allergies, which is now handled in step 24.
+      // If the intention was to always advance after the cortisol message, this should be handled by the render logic.
+      // For now, assuming we simply advance.
+      setCurrentStep(currentStep + 1)
+      return
+    }
+    // </CHANGE>
+
+    if (currentStep === 18) {
+      // This case 18 is now about previous problems
+      if (
+        quizData.previousProblems.length === 0 ||
+        (quizData.previousProblems.length === 1 && quizData.previousProblems[0] === "no-problems")
+      ) {
+        // If user selected "Não, eu não tenho", we show motivation message directly
+        setShowMotivationMessage(true)
+      }
+      setCurrentStep(currentStep + 1) // Always advance to the next step (which is now additional goals)
+      return
+    }
+    // </CHANGE>
+
+    if (currentStep === 24 && quizData.allergies === "nao") {
+      // This condition is now handled within the step 24 rendering logic by directly setting the next step.
+      // If this block is reached, it means the user selected "nao" for allergies.
+      // The logic to skip to 26 (Supplement Interest) is already implemented in the button's onClick handler.
+      // So, no action needed here, just advance normally if this block is not removed.
+      // However, the `nextStep` should be called from the UI handler.
+      // If this block remains, it implies that `nextStep` is called regardless of the UI interaction, which is not ideal.
+      // Assuming the UI handler for the 'nao' button is correct, this `if` can be removed.
+      // For safety, if it's intended to be a fallback, let's advance the step.
+      // But the direct jump to 26 in the UI is preferred.
+      // Let's comment it out for clarity, relying on the UI handler.
+      // setCurrentStep(currentStep + 1)
       // </CHANGE>
-    } else if (currentStep === 13 && quizData.wantsSupplement === "nao") {
-      setCurrentStep(14)
-    } else if (currentStep === 15 && quizData.weight !== "" && quizData.targetWeight !== "") {
+    } else if (currentStep === 25 && quizData.allergies === "sim") {
+      // This step is for allergy details. If allergies is 'sim', we proceed to the next step.
+      // If allergies is 'nao', case 24 already jumped to case 26.
+      // This if block might be redundant if the UI handler manages the flow correctly.
+      // Let's assume the UI handler for the 'Continue' button at case 25 handles the progression.
+      // If the 'Continue' button is pressed, `nextStep()` is called.
+      // The current step is 25. We want to go to case 26.
+      // This block might be intended to skip if there are no allergies, but that's handled in step 24.
+      // For now, let's assume `nextStep` will correctly advance to 26.
+      // If the user *did* fill in allergy details, `nextStep` would normally advance to the next step.
+      // If they skipped it (which shouldn't be possible if `canProceed` is correct), this might be a fallback.
+      // Based on the structure, it seems the `nextStep()` call from the UI is sufficient.
+      // If this were meant to manually set the step, it should be `setCurrentStep(26)`.
+      // For now, we'll let the general `nextStep` logic handle it.
+    } else if (currentStep === 26 && quizData.wantsSupplement === "nao") {
+      // Step 26 is supplement interest. If 'nao', we skip supplement details (case 26 handles this by setting currentStep to 27).
+      setCurrentStep(27) // Skip supplement recommendation and go to step 27 (name)
+    } else if (currentStep === 27 && quizData.wantsSupplement === "nao") {
+      // </CHANGE>
+      setCurrentStep(28) // Skip supplement details and go to name (case 28)
+    } else if (currentStep === 14 && quizData.weight !== "" && quizData.targetWeight !== "") {
+      // Original was step 15, now step 14 (weight related)
       const calculatedTime = calculateTimeToGoal()
-      console.log("[v0] calculatedTime:", calculatedTime)
       if (calculatedTime) {
         updateQuizData("timeToGoal", calculatedTime)
         setShowTimeCalculation(true)
@@ -692,21 +929,74 @@ export default function QuizPage() {
         setCurrentStep(currentStep + 1)
       }
       // </CHANGE>
-    } else if (currentStep === 23) {
+    } else if (currentStep === 29) {
       setShowAnalyzingData(true)
+      // The API call is now triggered in handleSubmit, not here.
+      // The UI will automatically advance to the next step after the animation is done.
       // </CHANGE>
+    } else if (currentStep === 27 && quizData.name.trim() !== "") {
+      // Calculate weeks to reach goal based on weight difference and goals
+      const current = Number.parseFloat(quizData.currentWeight)
+      const target = Number.parseFloat(quizData.targetWeight)
+      const diff = Math.abs(target - current)
+
+      // Basic calculation: 0.5-1kg per week is healthy
+      // For weight loss: 8-16 weeks, for muscle gain: 12-20 weeks
+      let weeks = 11 // default
+
+      if (quizData.goal.includes("perder-peso")) {
+        weeks = Math.ceil(diff / 0.5) // 0.5kg per week for weight loss
+        weeks = Math.max(8, Math.min(weeks, 16)) // Between 8-16 weeks
+      } else if (quizData.goal.includes("ganhar-massa")) {
+        weeks = Math.ceil(diff / 0.3) // 0.3kg per week for muscle gain
+        weeks = Math.max(12, Math.min(weeks, 20)) // Between 12-20 weeks
+      }
+
+      setCalculatedWeeks(weeks)
+      setShowGoalTimeline(true)
+      return
     } else if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1)
+      const nextStepNumber = currentStep + 1
+      setCurrentStep(nextStepNumber)
     }
   }
 
   const prevStep = () => {
     if (currentStep > 1) {
-      if (currentStep === 13 && quizData.allergies === "nao") {
-        // Updated from step 12 to 13
-        setCurrentStep(11) // Updated from 10 to 11
-      } else if (currentStep === 14 && quizData.wantsSupplement === "nao") {
-        setCurrentStep(13)
+      // Adjusted step numbers to match the new flow
+      if (currentStep === 26 && quizData.allergies === "nao") {
+        // If we are at supplement interest question (case 26) and allergies was 'no' (case 24, which jumps to 26)
+        // We need to go back to the allergies question (case 24).
+        setCurrentStep(24) // Go back to allergies question
+      } else if (currentStep === 28 && quizData.wantsSupplement === "nao") {
+        // If we are at name question (case 28) and supplement interest was 'no' (case 26, which jumps to 27)
+        // We need to go back to the supplement interest question (case 26).
+        setCurrentStep(26)
+      } else if (currentStep === 27 && quizData.wantsSupplement === "sim") {
+        // If we are at supplement recommendation (case 27) and supplement interest was 'yes' (case 26)
+        // We need to go back to the supplement interest question (case 26).
+        setCurrentStep(26)
+      } else if (currentStep === 25 && quizData.allergies === "sim") {
+        // If we are at allergy details (case 25) and allergies was 'yes' (case 24)
+        // We need to go back to the allergies question (case 24).
+        setCurrentStep(24) // Go back to allergies question
+      } else if (currentStep === 19 && quizData.additionalGoals.length === 0) {
+        // If we are at the additional goals page (now case 19) and user selected none,
+        // and if we are navigating back from this page, we should go back to the previous problem page (case 18)
+        setShowMotivationMessage(false) // Hide motivation message if it was shown
+        setCurrentStep(18)
+      } else if (currentStep === 19 && showMotivationMessage) {
+        // If motivation message was shown, go back to previous step before motivation message
+        setShowMotivationMessage(false)
+        // The logic to show motivation message is now tied to previousProblems being empty.
+        // So if we are at step 19 (additional goals) and motivation message was shown, it means we came from step 18
+        // where previousProblems was empty. So we should go back to step 18.
+        setCurrentStep(18)
+      } else if (currentStep === 23 && showCortisolMessage) {
+        // Adding back navigation for cortisol message
+        setShowCortisolMessage(false)
+        setCurrentStep(22)
+        // </CHANGE>
       } else {
         setCurrentStep(currentStep - 1)
       }
@@ -714,7 +1004,6 @@ export default function QuizPage() {
   }
 
   const handleSubmit = async () => {
-    console.log("handleSubmit: Iniciando...")
     setIsSubmitting(true) // Set isSubmitting to true
     if (!currentUser || !currentUser.uid) {
       console.error("handleSubmit: No user ID available. Cannot save quiz data or generate plans.")
@@ -724,24 +1013,30 @@ export default function QuizPage() {
     }
 
     try {
-      const { imc, classification, status } = calculateIMC(
-        Number.parseFloat(quizData.currentWeight),
-        Number.parseFloat(quizData.height),
-      )
+      const weightForIMC = Number.parseFloat(quizData.weight || "0") // Use quizData.weight for IMC
+      const heightForIMC = Number.parseFloat(quizData.height || "0")
+
+      const { imc, classification, status } = calculateIMC(weightForIMC, heightForIMC)
+
       const updatedQuizData = {
         ...quizData,
         imc: imc,
         imcClassification: classification,
         imcStatus: status,
+        // </CHANGE> Renaming fields for consistency with the canProceed updates
+        sweetsFrequency: quizData.sugarFrequency, // Use sweetsFrequency
+        trainingDays: quizData.trainingDaysPerWeek.toString(), // Use trainingDays as string
+        cardioFeeling: quizData.exercisePreferences.cardio,
+        strengthFeeling: quizData.exercisePreferences.pullups,
+        stretchingFeeling: quizData.exercisePreferences.yoga,
+        healthConditions: quizData.allergyDetails.length > 0 ? [quizData.allergyDetails] : [], // Convert allergyDetails to healthConditions array
+        supplement: quizData.wantsSupplement, // Use supplement field
+        previousProblems: quizData.previousProblems, // Include previousProblems
       }
       setQuizData(updatedQuizData) // Atualiza o estado local
 
-      console.log("[QUIZ] Form submitted with frequency:", updatedQuizData.trainingDaysPerWeek)
-      debugDataFlow("QUIZ_SUBMIT", updatedQuizData)
-
       try {
-        localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
-        console.log("handleSubmit: Quiz data saved to localStorage")
+        localStorage.setItem("quizData", JSON.JSON.stringify(updatedQuizData))
         debugDataFlow("QUIZ_LOCALSTORAGE_SAVE", updatedQuizData)
       } catch (error) {
         console.error("[QUIZ] Storage failed:", error)
@@ -772,8 +1067,6 @@ export default function QuizPage() {
         { merge: true },
       )
 
-      console.log("handleSubmit: Quiz data saved to Firestore (users and leads collections) successfully")
-
       if (imc > 0) {
         setShowIMCResult(true)
       } else {
@@ -783,7 +1076,6 @@ export default function QuizPage() {
       console.error("handleSubmit: Erro no handleSubmit:", error)
       alert("Erro inesperado. Tente novamente.")
     } finally {
-      console.log("handleSubmit: Finalizando, definindo isSubmitting para false.")
       setIsSubmitting(false) // Reset isSubmitting
     }
   }
@@ -956,96 +1248,316 @@ export default function QuizPage() {
     )
   }
 
-  if (showAnalyzingData) {
-    const messages = [
-      "Estamos analisando seus dados...",
-      "Calculando suas necessidades fisiológicas...",
-      "Ajustando seu plano ideal...",
-    ]
+  const messages = [
+    "Estamos analisando seus dados...",
+    "Calculando suas necessidades fisiológicas...",
+    "Ajustando seu plano ideal...",
+  ]
 
-    const current = Number.parseFloat(quizData.weight)
-    const target = Number.parseFloat(quizData.targetWeight)
-    const weightDifference = Math.abs(current - target)
-    const weeksNeeded = Math.ceil(weightDifference / 0.75)
-
-    return (
-      <main className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-        <style jsx>{`
-          .neon-loader {
-            width: 90px;
-            height: 90px;
-            border: 6px solid rgba(0, 255, 255, 0.15);
-            border-top-color: #00e1ff;
-            border-radius: 50%;
-            animation: spin 1.2s linear infinite, glow 1.5s ease-in-out infinite;
-          }
-          
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
-          
-          @keyframes glow {
-            0% { box-shadow: 0 0 6px #00e1ff; }
-            50% { box-shadow: 0 0 16px #00e1ff; }
-            100% { box-shadow: 0 0 6px #00e1ff; }
-          }
-          
-          .animate-fade-text {
-            animation: fadeText 1.8s ease-in-out;
-          }
-          
-          @keyframes fadeText {
-            0% { opacity: 0; }
-            20% { opacity: 1; }
-            80% { opacity: 1; }
-            100% { opacity: 0; }
-          }
-        `}</style>
-
-        <div className="flex flex-col items-center justify-center space-y-10 animate-in fade-in duration-800">
-          <div className="neon-loader" />
-
-          {analyzingStep < messages.length ? (
-            <p className="text-xl text-center font-medium text-white animate-fade-text max-w-md">
-              {messages[analyzingStep]}
-            </p>
-          ) : (
-            <div className="text-center space-y-2 animate-in fade-in duration-500">
-              <p className="text-lg text-white/90 max-w-md">Baseado no seu perfil, você pode atingir seu objetivo em</p>
-              <div className="flex items-baseline justify-center gap-2">
-                <span className="text-8xl font-bold text-lime-400">{weeksNeeded}</span>
-                <span className="text-3xl font-medium text-lime-400">semanas</span>
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-    )
-  }
+  const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
   // </CHANGE>
 
-  if (showLoading) {
+  if (showQuickResults) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-6 max-w-md">
-          <div className="w-32 h-32 mx-auto relative">
-            <svg className="w-full h-full animate-spin" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="40" stroke="#374151" strokeWidth="8" fill="none" />
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                stroke="#84CC16"
-                strokeWidth="8"
-                fill="none"
-                strokeDasharray="251.2"
-                strokeDashoffset="188.4"
-                strokeLinecap="round"
-              />
-            </svg>
+      <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-10">
+        <div className="max-w-2xl w-full space-y-7">
+          <div className="text-center space-y-3">
+            <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
+            <p className="text-gray-400 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
           </div>
-          <h2 className="text-2xl font-bold">Analisando suas respostas...</h2>
-          <p className="text-gray-300">Criando seu plano personalizado</p>
+
+          {/* Adjusted height of the graph container and repositioned labels */}
+          <div className="relative w-full h-[360px] sm:h-[380px] bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50 rounded-3xl px-6 sm:px-8 py-6 backdrop-blur-sm border border-blue-800/40">
+            <div className="relative w-full h-full">
+              {/* Y-axis labels */}
+              <div className="absolute left-0 top-2 bottom-10 flex flex-col justify-between text-xs text-gray-400">
+                <span>Alto</span>
+                <span>Baixo</span>
+              </div>
+
+              {/* X-axis labels */}
+              <div className="absolute bottom-1 left-16 right-0 flex justify-between text-xs text-gray-400 px-4">
+                <span>1 Mês</span>
+                <span>2 Meses</span>
+                <span>3 Meses</span>
+              </div>
+
+              {/* SVG */}
+              <svg
+                className="absolute left-16 top-3 right-4 bottom-10"
+                viewBox="0 0 400 260"
+                preserveAspectRatio="xMidYMid meet"
+              >
+                <defs>
+                  {/* Gradientes */}
+                  <linearGradient id="muscleLine" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#06b6d4" stopOpacity="1" />
+                    <stop offset="55%" stopColor="#10b981" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#84cc16" stopOpacity="1" />
+                  </linearGradient>
+
+                  <linearGradient id="fatLine" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="1" />
+                    <stop offset="55%" stopColor="#7c3aed" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#ec4899" stopOpacity="1" />
+                  </linearGradient>
+
+                  {/* Setas */}
+                  <marker id="arrowMuscle" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+                    <path d="M0,0 L0,8 L8,4 z" fill="#84cc16" />
+                  </marker>
+
+                  <marker id="arrowFat" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+                    <path d="M0,0 L0,8 L8,4 z" fill="#ec4899" />
+                  </marker>
+
+                  {/* Glow */}
+                  <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+
+                <path
+                  ref={musclePathRef}
+                  d="M 0 235 C 100 215, 180 120, 400 20"
+                  fill="none"
+                  stroke="url(#muscleLine)"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  filter="url(#glow)"
+                  markerEnd="url(#arrowMuscle)"
+                  style={{
+                    strokeDasharray: pathLengths.muscle,
+                    strokeDashoffset: animateChart ? 0 : pathLengths.muscle,
+                    transition: "stroke-dashoffset 3s linear",
+                  }}
+                />
+
+                <path
+                  ref={fatPathRef}
+                  d="M 0 15 C 100 45, 180 180, 400 240"
+                  fill="none"
+                  stroke="url(#fatLine)"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  filter="url(#glow)"
+                  markerEnd="url(#arrowFat)"
+                  style={{
+                    strokeDasharray: pathLengths.fat,
+                    strokeDashoffset: animateChart ? 0 : pathLengths.fat,
+                    transition: "stroke-dashoffset 3s linear",
+                  }}
+                />
+                <text x="340" y="-5" fontSize="14" fontWeight="600" fill="white" textAnchor="end">
+                  Massa muscular
+                </text>
+
+                <text x="340" y="260" fontSize="14" fontWeight="600" fill="white" textAnchor="end">
+                  % de gordura
+                </text>
+              </svg>
+            </div>
+          </div>
+          {/* </CHANGE> */}
+
+          {/* Footer */}
+          <div className="text-center text-sm text-gray-500">
+            <p>*Baseado em dados de 1,3 milhões de treinos</p>
+          </div>
+
+          {/* CTA */}
+          <button
+            onClick={() => {
+              setShowQuickResults(false)
+              setCurrentStep(6)
+            }}
+            className="w-full h-16 text-xl font-bold text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-300 rounded-2xl shadow-lg transition-all duration-300"
+          >
+            Continuar
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (showCortisolMessage && currentStep === 22) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center p-6">
+        <div className="max-w-2xl w-full space-y-8">
+          <h2 className="text-3xl font-bold text-white text-center">Não é necessário se esforçar ao limite!</h2>
+
+          <div className="relative bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+            {/* Graph visualization */}
+            <div className="relative h-64 mb-6">
+              <svg className="w-full h-full" viewBox="0 0 400 200" preserveAspectRatio="none">
+                {/* Cortisol line (white) going down */}
+                <path
+                  d="M 0,60 Q 100,50 200,80 Q 300,110 400,150"
+                  stroke="white"
+                  strokeWidth="3"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+                {/* Testosterone line (orange) going up */}
+                <path
+                  d="M 0,120 Q 100,130 200,100 Q 300,70 400,40"
+                  stroke="#f97316"
+                  strokeWidth="3"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+                {/* End point indicators */}
+                <circle cx="400" cy="150" r="6" fill="white" />
+                <circle cx="400" cy="40" r="6" fill="#f97316" />
+              </svg>
+              {/* Labels */}
+              <div className="absolute top-12 left-4 text-white text-sm font-semibold">Cortisol</div>
+              <div className="absolute top-24 left-4 text-orange-500 text-sm font-semibold">Testosterona</div>
+              <div className="absolute bottom-2 left-4 text-gray-400 text-xs">Agora</div>
+              <div className="absolute bottom-2 right-4 text-gray-400 text-xs">6 meses</div>
+            </div>
+
+            <div className="space-y-4 text-center">
+              <p className="text-gray-300 text-lg leading-relaxed">
+                Exercícios muito intensos podem aumentar seus níveis de cortisol e dificultar o ganho de massa muscular.
+                Nosso programa personaliza seu plano para ajudá-lo a atingir seus objetivos sem exagerar.
+              </p>
+              <p className="text-gray-400 text-sm italic">*Baseado em dados de 1.3m treinos.</p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              setShowCortisolMessage(false)
+              // The renderQuestion will handle showing the next step correctly (case 22)
+            }}
+            className="w-full bg-lime-500 hover:bg-lime-600 text-white rounded-lg py-4 font-semibold transition-all shadow-lg"
+          >
+            Entendi
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (showMotivationMessage && currentStep === 19) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-start justify-center p-6 pt-16">
+        <div className="max-w-2xl w-full space-y-8 text-center">
+          <div className="flex justify-center">
+            <div className="w-24 h-24 rounded-full border-4 border-lime-500 flex items-center justify-center bg-lime-900/30">
+              <svg className="w-12 h-12 text-lime-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <h3 className="text-3xl font-bold text-white">Por que as pessoas desistem de se exercitar?</h3>
+
+          <div className="space-y-6 text-lg text-gray-300">
+            <p className="font-semibold text-white">O principal motivo é começar grande demais muito rapidamente.</p>
+
+            <p>Você vai alcançar muito mais do que apenas algumas semanas de exercícios.</p>
+
+            <p>
+              Não prometemos resultados rápidos. O principal objetivo do nosso programa é mudar seu estilo de vida para
+              melhor.
+            </p>
+          </div>
+
+          <button
+            onClick={() => {
+              setShowMotivationMessage(false)
+              // The renderQuestion will handle showing case 19 (additional goals) which is now case 19
+            }}
+            className="w-full bg-lime-500 hover:bg-lime-600 text-white rounded-lg py-4 font-semibold transition-all shadow-lg"
+          >
+            Entendi
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (showGoalTimeline) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="text-center space-y-8 max-w-md">
+          {isCalculatingGoal ? (
+            <>
+              {/* Loading state with animated spinner */}
+              <div className="relative w-48 h-48 mx-auto">
+                <svg className="w-full h-full" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#1e3a4f" strokeWidth="8" />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    fill="none"
+                    stroke="#06b6d4"
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeDasharray="251.2"
+                    strokeDashoffset="62.8"
+                    style={{
+                      animation: "spinCircle 1.5s ease-in-out infinite",
+                      filter: "drop-shadow(0 0 10px #06b6d4)",
+                    }}
+                  />
+                </svg>
+              </div>
+              <p className="text-gray-300 text-lg">Baseado no seu perfil, você pode atingir seu objetivo em</p>
+            </>
+          ) : (
+            <>
+              {/* Result state */}
+              <p className="text-gray-300 text-lg">Baseado no seu perfil, você pode atingir seu objetivo em</p>
+              <div className="relative inline-block">
+                <div className="absolute inset-0 bg-lime-400/20 blur-3xl rounded-full" />
+                <div className="relative">
+                  <div className="text-8xl font-bold text-lime-400">{calculatedWeeks}</div>
+                  <div className="text-3xl font-semibold text-lime-400 mt-2">semanas</div>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowGoalTimeline(false)
+                  setIsCalculatingGoal(false)
+                  setCalculatedWeeks(0)
+                  setCurrentStep(27) // Adjusted to step 27 which is Name
+                }}
+                className="mt-8 bg-lime-500 hover:bg-lime-600 text-gray-900 font-bold py-4 px-12 rounded-full text-lg transition-colors"
+              >
+                Continuar
+              </button>
+            </>
+          )}
+
+          <style>{`
+            @keyframes spinCircle {
+              0% {
+                stroke-dashoffset: 251.2;
+                transform: rotate(0deg);
+              }
+              50% {
+                stroke-dashoffset: 62.8;
+                transform: rotate(180deg);
+              }
+              100% {
+                stroke-dashoffset: 251.2;
+                transform: rotate(360deg);
+              }
+            }
+          `}</style>
         </div>
       </div>
     )
@@ -1073,7 +1585,6 @@ export default function QuizPage() {
             />
           ))}
         </div>
-        {/* </CHANGE> */}
 
         <div className="text-center space-y-4 max-w-2xl relative z-10">
           <h2 className="text-xl md:text-3xl font-bold leading-tight">
@@ -1154,7 +1665,6 @@ export default function QuizPage() {
                   <circle key={i} cx={cx} cy={cy} r="6" fill="#84cc16" filter="url(#limeGlow)" />
                 ))}
               </svg>
-              {/* </CHANGE> */}
 
               {/* Side bars */}
               <div className="absolute left-0 top-5 bottom-5 w-[4px] bg-lime-500/15 rounded-full overflow-hidden">
@@ -1226,7 +1736,7 @@ export default function QuizPage() {
 
   if (showIMCResult) {
     const { imc, classification, status } = calculateIMC(
-      Number.parseFloat(quizData.currentWeight),
+      Number.parseFloat(quizData.weight), // Use quizData.weight for IMC calculation
       Number.parseFloat(quizData.height),
     )
 
@@ -1283,7 +1793,7 @@ export default function QuizPage() {
               <span className="relative z-10">Continuar</span>
 
               {/* Efeito de brilho animado */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
             </div>
           </Button>
         </div>
@@ -1321,32 +1831,88 @@ export default function QuizPage() {
 
   if (showNutritionInfo) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-6 max-w-md">
-          <BodyIllustration className="w-48 h-64 mx-auto" gender={quizData.gender === "mulher" ? "female" : "male"} />
-          <h2 className="text-3xl font-bold">
-            <span className="text-lime-400">81%</span> dos seus resultados são sobre nutrição
-          </h2>
-          <p className="text-gray-300">Para obter os maiores ganhos em massa muscular e força, você precisa:</p>
-          <div className="space-y-4 text-left">
-            <div className="flex items-start space-x-3">
-              <CheckCircle className="h-6 w-6 text-green-500 mt-1 flex-shrink-0" />
-              <p className="text-white">Total de calorias suficientes a cada dia.</p>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle className="h-6 w-6 text-green-500 mt-1 flex-shrink-0" />
-              <p className="text-white">Proteína adequada para realmente reconstruir mais tecido muscular.</p>
+      <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6">
+        {/* Progress Bar */}
+        <div className="w-full max-w-2xl mb-12">
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-full max-w-lg h-2 bg-gray-700 rounded-full overflow-hidden">
+              <div className="h-full w-4/5 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"></div>
             </div>
           </div>
-          <Button
+          <p className="text-center text-gray-400 text-sm">ANALISANDO SEU CORPO – 81% CONCLUÍDO</p>
+        </div>
+
+        {/* Main Content Container */}
+        <div className="w-full max-w-2xl space-y-8 text-center">
+          {/* Glowing Gradient Circle */}
+          <div className="flex justify-center mb-8">
+            <AiOrb size={190} />
+          </div>
+
+          {/* Title */}
+          <div className="space-y-4">
+            <h2 className="text-4xl sm:text-5xl font-bold text-white leading-tight">
+              SEU MAIOR GARGALO
+              <br />
+              NÃO É O TREINO
+            </h2>
+            <p className="text-gray-300 text-lg">Nutrição influencia 81% do seu resultado</p>
+          </div>
+
+          {/* Insight Cards */}
+          <div className="space-y-4 mt-8">
+            <div className="flex items-start space-x-4 border border-gray-700/50 rounded-2xl p-6 bg-gray-800/30 backdrop-blur-sm hover:border-cyan-500/30 transition-all">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center h-8 w-8 rounded-full border-2 border-green-500">
+                  <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-white text-left text-base sm:text-lg">
+                  Seu corpo não recebe calorias suficientes para crescer
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4 border border-gray-700/50 rounded-2xl p-6 bg-gray-800/30 backdrop-blur-sm hover:border-cyan-500/30 transition-all">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center h-8 w-8 rounded-full border-2 border-green-500">
+                  <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-white text-left text-base sm:text-lg">
+                  A ingestão de proteína hoje limita sua recuperação muscular
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Button */}
+          <button
             onClick={() => {
               setShowNutritionInfo(false)
               setCurrentStep(currentStep + 1)
             }}
-            className="w-full bg-lime-500 hover:bg-lime-600 text-white py-4 text-lg rounded-full"
+            className="w-full mt-12 bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-700 hover:to-green-600 text-white font-bold text-xl sm:text-2xl py-5 sm:py-6 px-8 rounded-2xl transition-all transform hover:scale-105 shadow-lg hover:shadow-cyan-500/50 duration-300"
           >
-            Entendi
-          </Button>
+            DESTRAVAR MEUS RESULTADOS
+          </button>
+
+          {/* Footer text */}
+          <p className="text-gray-500 text-sm">Leva menos de 1 minuto</p>
         </div>
       </div>
     )
@@ -1427,8 +1993,6 @@ export default function QuizPage() {
             </div>
           </div>
 
-          <p className="text-gray-300 text-sm">Seu nível de hidratação está excelente — continue assim.</p>
-
           <button
             onClick={() => {
               setShowWaterCongrats(false)
@@ -1447,16 +2011,6 @@ export default function QuizPage() {
 
   const getBodyFatImage = () => {
     const isMale = quizData.gender === "homem"
-
-    console.log(
-      "[v0] getBodyFatImage called, gender:",
-      quizData.gender,
-      "isMale:",
-      isMale,
-      "bodyFat:",
-      quizData.bodyFat,
-    )
-    // </CHANGE>
 
     if (isMale) {
       // Male images: mone.webp to meight.webp
@@ -1487,9 +2041,7 @@ export default function QuizPage() {
                       ? "/images/bodyfat-seven.webp"
                       : "/images/bodyfat-eight.webp"
 
-      console.log("[v0] Female image path:", imagePath)
       return imagePath
-      // </CHANGE>
     }
   }
 
@@ -1502,6 +2054,85 @@ export default function QuizPage() {
     if (quizData.bodyFat <= 35) return "31-35%"
     if (quizData.bodyFat <= 39) return "36-39%"
     return ">40%"
+  }
+
+  const canProceed = () => {
+    switch (currentStep) {
+      case 1:
+        return quizData.gender !== ""
+      case 2:
+        return quizData.bodyType !== ""
+      case 3:
+        return quizData.goal.length > 0
+      case 4:
+        return quizData.weightChangeType !== ""
+      // </CHANGE>
+      case 5: // Updated from 4
+        return quizData.bodyFat !== 0
+      case 6: // Updated from 5
+        return quizData.problemAreas.length > 0
+      case 7: // Updated from 6. Sweets Frequency
+        return quizData.diet !== ""
+      case 8: // Updated from 7. Alcohol Frequency
+        return quizData.sugarFrequency.length > 0
+      case 9: // Updated from 8. Water Intake
+        return quizData.alcoholFrequency !== undefined && quizData.alcoholFrequency !== ""
+      case 10: // Updated from 9. Age
+        return quizData.waterIntake !== ""
+      case 11: // Updated from 10. Height
+        return quizData.age > 0
+      case 12: // Updated from 11. Current Weight
+        return quizData.height !== "" && normalizeHeight(quizData.height) !== ""
+      case 13: // Updated from 12. Target Weight
+        return quizData.weight !== ""
+      case 14: // Updated from 13. Strength Training Experience
+        return quizData.targetWeight !== ""
+      case 15: // Updated from 14. Cardio Feeling
+        return quizData.strengthTraining !== ""
+      case 16: // Updated from 15. Strength Feeling
+        return quizData.cardioFeeling !== ""
+      case 17: // Updated from 16. Stretching Feeling
+        return quizData.strengthFeeling !== ""
+      case 18: // Updated from 17. Previous Problems
+        return quizData.stretchingFeeling !== ""
+      case 19: // Updated from 18. Additional Goals
+        // Allow proceeding even if no previous problems are selected, as user can select "Não tenho"
+        return true
+      case 20: // Updated from 19. Equipment
+        return quizData.additionalGoals.length > 0
+      case 21: // Updated from 20. Workout Time
+        return quizData.equipment.length > 0
+      case 22: // Updated from 21. Food Preferences
+        return quizData.workoutTime !== ""
+      case 23: // Updated from 22. Allergies
+        // Allow proceeding if "Let Mad Muscles Choose" is true or if at least one food preference is selected
+        return quizData.letMadMusclesChoose || Object.values(quizData.foodPreferences).some((arr) => arr.length > 0)
+      case 24: // Updated from 23. Allergy Details (only if allergies is 'sim')
+        return quizData.allergies !== ""
+      case 25: // Updated from 24. Supplement Interest
+        return (quizData.allergies === "sim" && quizData.allergyDetails !== "") || quizData.allergies === "nao"
+      case 26: // Updated from 25. Supplement Recommendation
+        return quizData.wantsSupplement !== ""
+      case 27: // Updated from 26. Name
+        // This case is now for Supplement Recommendation, and we can always proceed to next step if we want to show recommendation.
+        // The actual *choice* of supplement type was removed from the flow.
+        return true // Always allow proceeding after seeing recommendation
+      // </CHANGE>
+      case 28: // Updated from 27. Email
+        return quizData.name.trim() !== ""
+      case 29: // Updated from 28. Training days per week
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        return quizData.email !== "" && emailRegex.test(quizData.email)
+      case 30: // Final submit
+        // Training days per week is now handled by step 24.
+        // This step is now the final submit.
+        return true
+
+      // </CHANGE>
+      default:
+        return true
+    }
   }
 
   const renderStep = () => {
@@ -1531,11 +2162,12 @@ export default function QuizPage() {
                     updateQuizData("gender", gender.value)
                     setTimeout(() => nextStep(), 300)
                   }}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-6 transition-all cursor-pointer flex flex-col items-center justify-center gap-3 sm:gap-4 ${
-                    quizData.gender === gender.value
-                      ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10"
-                  }`}
+                  className={`backdrop-blur-sm rounded-lg p-4 sm:p-6 transition-all cursor-pointer flex flex-col items-center justify-center gap-3 sm:gap-4
+                    ${
+                      quizData.gender === gender.value
+                        ? "border-2 border-lime-500 bg-lime-500/10"
+                        : "border border-white/10 bg-white/5"
+                    }`}
                 >
                   <img
                     src={gender.icon || "/placeholder.svg"}
@@ -1548,26 +2180,8 @@ export default function QuizPage() {
             </div>
           </div>
         )
+
       case 2:
-        return (
-          <div className="space-y-4 sm:space-y-8">
-            <div className="text-center space-y-2 sm:space-y-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual é sua idade?</h2>
-            </div>
-            <div className="max-w-md mx-auto">
-              <input
-                type="number"
-                min="16"
-                max="80"
-                value={quizData.age || ""}
-                onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
-                className="w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white focus:border-lime-500 focus:outline-none"
-                placeholder="Digite sua idade"
-              />
-            </div>
-          </div>
-        )
-      case 3:
         const getBodyTypeImage = (type: string) => {
           const isWoman = quizData.gender === "mulher"
           switch (type) {
@@ -1594,11 +2208,12 @@ export default function QuizPage() {
               ].map((type) => (
                 <div
                   key={type.value}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between ${
-                    quizData.bodyType === type.value
-                      ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10"
-                  }`}
+                  className={`backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between gap-3 sm:gap-4
+                    ${
+                      quizData.bodyType === type.value
+                        ? "border-2 border-lime-500 bg-lime-500/10"
+                        : "border border-white/10 bg-white/5"
+                    }`}
                   onClick={() => {
                     updateQuizData("bodyType", type.value)
                     setTimeout(() => nextStep(), 300)
@@ -1623,7 +2238,8 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 4:
+
+      case 3:
         const getGoalIcon = (goalValue: string) => {
           switch (goalValue) {
             case "perder-peso":
@@ -1653,10 +2269,10 @@ export default function QuizPage() {
               ].map((goal) => (
                 <div
                   key={goal.value}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center gap-4 ${
+                  className={`backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center gap-4 ${
                     quizData.goal.includes(goal.value)
                       ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10"
+                      : "border border-white/10 bg-white/5"
                   }`}
                   onClick={() => handleArrayUpdate("goal", goal.value, !quizData.goal.includes(goal.value))}
                 >
@@ -1672,15 +2288,62 @@ export default function QuizPage() {
                 </div>
               ))}
             </div>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
           </div>
         )
-      case 5:
+
+      case 4: // Renamed from 3.5
         return (
-          <div className="space-y-5 sm:space-y-8">
-            <div className="text-center space-y-2 sm:space-y-4">
-              <h2 className="text-2xl sm:text-2xl md:text-3xl font-bold text-white">
-                Escolha o seu nível de gordura corporal
-              </h2>
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Como o seu peso costuma mudar?</h2>
+            </div>
+            <div className="space-y-4">
+              {[
+                { value: "gain-fast-lose-slow", label: "Ganho peso rápido, mas perco devagar" },
+                { value: "gain-lose-easily", label: "Ganho e perco peso facilmente" },
+                { value: "struggle-to-gain", label: "Tenho dificuldade para ganhar peso ou músculos" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    updateQuizData("weightChangeType", option.value)
+                    setTimeout(() => nextStep(), 300)
+                  }}
+                  className={`w-full backdrop-blur-sm rounded-lg p-5 sm:p-6 cursor-pointer transition-all text-left ${
+                    quizData.weightChangeType === option.value
+                      ? "border-2 border-lime-500 bg-lime-500/10"
+                      : "border border-white/10 bg-white/5 hover:bg-white/10"
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        quizData.weightChangeType === option.value ? "border-lime-500 bg-lime-500" : "border-white/30"
+                      }`}
+                    >
+                      {quizData.weightChangeType === option.value && <div className="w-3 h-3 rounded-full bg-white" />}
+                    </div>
+                    <span className="text-base sm:text-lg text-white">{option.label}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+
+      case 5: // Renamed from 4
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual é o seu nível de gordura corporal?</h2>
             </div>
             <div className="relative flex flex-col items-center">
               {/* Body fat image */}
@@ -1693,9 +2356,7 @@ export default function QuizPage() {
                   alt="Body fat representation"
                   className="relative w-full h-full object-contain transition-opacity duration-500"
                   onError={(e) => {
-                    console.error("[v0] Image failed to load:", e.currentTarget.src)
                     e.currentTarget.src = "/placeholder.svg"
-                    // </CHANGE>
                   }}
                 />
               </div>
@@ -1737,9 +2398,18 @@ export default function QuizPage() {
                 </div>
               </div>
             </div>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
           </div>
         )
-      case 6:
+
+      case 6: // Renamed from 5
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -1748,7 +2418,7 @@ export default function QuizPage() {
             </div>
             <div className="flex items-start justify-center space-x-8">
               <div
-                className={`relative bg-transparent ${quizData.gender === "mulher" ? "w-48 h-[400px]" : "w-64 h-auto"}`}
+                className={`relative bg-transparent ${quizData.gender === "mulher" ? "w-52 h-[420px]" : "w-52 h-auto"}`}
               >
                 <img
                   src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
@@ -2243,7 +2913,7 @@ export default function QuizPage() {
                     className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
                       quizData.problemAreas.includes(area)
                         ? "bg-emerald-500 border-emerald-500 text-white"
-                        : "bg-white/5 backdrop-blur-sm border-white/10 text-white hover:border-emerald-500"
+                        : "bg-white/5 backdrop-blur-sm border-white/10 hover:border-emerald-500"
                     }`}
                     onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
                   >
@@ -2251,7 +2921,7 @@ export default function QuizPage() {
                       <h3 className="text-lg font-bold">{area}</h3>
                       <div
                         className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                          quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-gray-400"
+                          quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-white/30"
                         }`}
                       >
                         {quizData.problemAreas.includes(area) && <CheckCircle className="h-4 w-4 text-emerald-500" />}
@@ -2261,9 +2931,18 @@ export default function QuizPage() {
                 ))}
               </div>
             </div>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} className="group relative overflow-hidden">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
           </div>
         )
-      case 7:
+
+      case 7: // Renamed from 6
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2283,12 +2962,17 @@ export default function QuizPage() {
               ].map((diet) => (
                 <div
                   key={diet.value}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                    quizData.diet === diet.value ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
+                  className={`backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
+                    quizData.diet === diet.value
+                      ? "border-2 border-lime-500 bg-lime-500/10"
+                      : "border border-white/10 bg-white/5"
                   }`}
                   onClick={() => {
                     updateQuizData("diet", diet.value)
-                    setTimeout(() => nextStep(), 300)
+                    // SHOW NUTRITION INFO PAGE AFTER SELECTING A HEALTHY DIET
+                    setTimeout(() => {
+                      setShowNutritionInfo(true)
+                    }, 300)
                   }}
                 >
                   <span className="text-xl sm:text-2xl">{diet.icon}</span>
@@ -2301,53 +2985,97 @@ export default function QuizPage() {
             </div>
             <div className="border-t border-gray-700 pt-3 sm:pt-4">
               <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                  quizData.diet === "nao-sigo" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
+                className={`backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
+                  quizData.diet === "nao-sigo"
+                    ? "border-2 border-red-500 bg-red-500/20"
+                    : "border border-white/10 bg-white/5"
                 }`}
                 onClick={() => {
                   updateQuizData("diet", "nao-sigo")
+                  // SKIP NUTRITION INFO PAGE WHEN NOT FOLLOWING A DIET
                   setTimeout(() => nextStep(), 300)
                 }}
               >
                 <X className="h-5 w-5 sm:h-6 sm:w-6 text-red-500" />
+
                 <h3 className="text-base sm:text-lg font-bold text-white">Não, não sigo dieta</h3>
               </div>
             </div>
           </div>
         )
-      case 8:
+
+      case 8: // Renamed from 7
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">
-                Com que frequência você consome doces ou bebidas alcoólicas?
-              </h2>
-              <p className="text-gray-300">Selecione todas que se aplicam</p>
+              <h2 className="text-2xl font-bold text-white">Com que frequência você consome doces?</h2>
+              <p className="text-gray-300">Selecione uma opção</p>
             </div>
             <div className="space-y-4">
               {[
-                { value: "esporadicamente", label: "Esporadicamente", icon: "🍷" },
-                { value: "com-frequencia", label: "Com frequência", icon: "🍭" },
-                { value: "todos-dias", label: "Todos os dias", icon: "🍰" },
-                { value: "nao-consumo-alcool", label: "Não consumo álcool", icon: "🚫" },
-                { value: "nao-consumo-doces", label: "Não consumo doces", icon: "❌" },
+                { value: "esporadicamente", label: "Às vezes", icon: "🍭" },
+                { value: "com-frequencia", label: "Com frequência", icon: "🍰" },
+                { value: "todos-dias", label: "Todos os dias", icon: "🍫" },
               ].map((freq) => (
-                <div key={freq.value} className="flex items-center space-x-3">
-                  <Checkbox
-                    id={freq.value}
-                    checked={quizData.sugarFrequency.includes(freq.value)}
-                    onCheckedChange={(checked) => handleArrayUpdate("sugarFrequency", freq.value, checked as boolean)}
-                  />
-                  <Label htmlFor={freq.value} className="text-white text-lg flex items-center space-x-2">
-                    <span className="text-xl">{freq.icon}</span>
-                    <span>{freq.label}</span>
-                  </Label>
+                <div
+                  key={freq.value}
+                  className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
+                    quizData.sugarFrequency.includes(freq.value)
+                      ? "border-2 border-lime-500 bg-lime-500/10"
+                      : "border border-white/10 bg-white/5"
+                  }`}
+                  onClick={() => {
+                    updateQuizData("sugarFrequency", [freq.value])
+                    setTimeout(() => nextStep(), 300)
+                  }}
+                >
+                  <div className="flex items-center space-x-4">
+                    <span className="text-3xl">{freq.icon}</span>
+                    <h3 className="text-lg font-bold text-white">{freq.label}</h3>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         )
-      case 9:
+
+      case 9: // Renamed from 8
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Com que frequência você consome álcool?</h2>
+              <p className="text-gray-300">Selecione uma opção</p>
+            </div>
+            <div className="space-y-4">
+              {[
+                { value: "esporadicamente", label: "Às vezes", icon: "🍷" },
+                { value: "com-frequencia", label: "Com frequência", icon: "🍺" },
+                { value: "todos-dias", label: "Todos os dias", icon: "🥃" },
+                { value: "nao-consumo", label: "Não consumo", icon: "🚫" },
+              ].map((freq) => (
+                <div
+                  key={freq.value}
+                  className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
+                    quizData.alcoholFrequency === freq.value
+                      ? "border-2 border-lime-500 bg-lime-500/10"
+                      : "border border-white/10 bg-white/5"
+                  }`}
+                  onClick={() => {
+                    updateQuizData("alcoholFrequency", freq.value)
+                    setTimeout(() => nextStep(), 300)
+                  }}
+                >
+                  <div className="flex items-center space-x-4">
+                    <span className="text-3xl">{freq.icon}</span>
+                    <h3 className="text-lg font-bold text-white">{freq.label}</h3>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+
+      case 10: // Renamed from 9
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2357,76 +3085,845 @@ export default function QuizPage() {
               {[
                 { value: "menos-2", label: "Menos de 2 copos", desc: "até 0,5 l", icon: Droplets },
                 { value: "2-6", label: "2-6 copos", desc: "0,5-1,5 l", icon: Droplets },
-                { value: "7-10", label: "7-10 copos", desc: "1,5-2,5 l", icon: Droplets },
+                { value: "6-10", label: "7-10 copos", desc: "1,5-2,5 l", icon: Droplets },
                 { value: "mais-10", label: "Mais de 10 copos", desc: "mais de 2,5 l", icon: Droplets },
-              ].map((water) => (
-                <div
-                  key={water.value}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
-                    quizData.waterIntake === water.value
-                      ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10"
-                  }`}
-                  onClick={() => {
-                    updateQuizData("waterIntake", water.value)
-                    setTimeout(() => {
-                      if (water.value === "7-10" || water.value === "mais-10") {
-                        setShowWaterCongrats(true)
+              ].map((water) => {
+                const Icon = water.icon
+                return (
+                  <div
+                    key={water.value}
+                    className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all border ${
+                      quizData.waterIntake === water.value
+                        ? "border-2 border-lime-500 bg-lime-500/10"
+                        : "border border-white/10 bg-white/5"
+                    }`}
+                    onClick={() => {
+                      updateQuizData("waterIntake", water.value)
+                      if (water.value === "6-10" || water.value === "mais-10") {
+                        setTimeout(() => {
+                          setShowWaterCongrats(true)
+                          setWaterFill(water.value === "6-10" ? 75 : 90)
+                        }, 300)
                       } else {
-                        nextStep()
+                        setTimeout(() => nextStep(), 300)
                       }
-                    }, 300)
-                  }}
-                >
-                  <div className="flex items-center space-x-4">
-                    <water.icon className="h-6 w-6 text-blue-400" />
-                    <div>
-                      <h3 className="text-lg font-bold text-white">{water.label}</h3>
-                      <p className="text-gray-400 text-sm">{water.desc}</p>
+                    }}
+                  >
+                    <div className="flex items-center gap-4">
+                      <Icon className="w-8 h-8 text-blue-400 flex-shrink-0" />
+                      <div>
+                        <h3 className="text-lg font-bold text-white mb-1">{water.label}</h3>
+                        <p className="text-sm text-gray-400">{water.desc}</p>
+                      </div>
                     </div>
                   </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+
+      case 11: // Renamed from 10
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual é a sua idade?</h2>
+            </div>
+            <div className="max-w-md mx-auto">
+              <Input
+                type="number"
+                inputMode="numeric"
+                min="16"
+                max="80"
+                placeholder="Sua idade"
+                value={quizData.age === 0 ? "" : quizData.age.toString()}
+                onChange={(e) => updateQuizData("age", Number.parseInt(e.target.value) || 0)}
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+                
+                [--muted-foreground:theme(colors.gray.500)]
+                "
+              />
+            </div>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
                 </div>
+              </Button>
+            </div>
+          </div>
+        )
+
+      case 12: // Renamed from 11
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual é a sua altura?</h2>
+            </div>
+            <div className="max-w-md mx-auto">
+              <Input
+                type="text"
+                inputMode="decimal"
+                placeholder="Altura em metros (ex: 1.75 ou 1,75)"
+                value={quizData.height}
+                onChange={(e) => {
+                  const cleaned = e.target.value.replace(/[^\d.,]/g, "")
+                  setQuizData({ ...quizData, height: cleaned })
+                }}
+                onBlur={(e) => {
+                  const normalized = normalizeHeight(e.target.value)
+                  updateQuizData("height", normalized)
+                }}
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+                
+                [--muted-foreground:theme(colors.gray.500)]
+                "
+              />
+            </div>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative overflow-hidden">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
+
+      case 13: // Renamed from 12
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual é o seu peso atual?</h2>
+            </div>
+            <div className="max-w-md mx-auto">
+              <Input
+                type="number"
+                placeholder="Peso atual em kg"
+                value={quizData.weight}
+                onChange={(e) => updateQuizData("weight", e.target.value)}
+                min="1"
+                max="500"
+                step="0.1"
+                inputMode="decimal"
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+                
+                [--muted-foreground:theme(colors.gray.500)]
+                "
+              />
+            </div>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative overflow-hidden">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
+
+      case 14: // Renamed from 13
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
+            </div>
+            <div className="max-w-md mx-auto">
+              <Input
+                type="number"
+                placeholder="Meta de peso em kg"
+                value={quizData.targetWeight}
+                onChange={(e) => {
+                  updateQuizData("targetWeight", e.target.value)
+                }}
+                onBlur={() => {
+                  const calculatedTime = calculateTimeToGoal()
+                  if (calculatedTime) {
+                    updateQuizData("timeToGoal", calculatedTime)
+                  }
+                }}
+                min="1"
+                max="500"
+                step="0.1"
+                inputMode="decimal"
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+                
+                [--muted-foreground:theme(colors.gray.500)]
+                "
+              />
+            </div>
+
+            {/* Updated the continue button logic for this step */}
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={() => {
+                  const calculatedTime = calculateTimeToGoal()
+                  if (calculatedTime) {
+                    updateQuizData("timeToGoal", calculatedTime)
+                    setShowTimeCalculation(true)
+                  } else {
+                    nextStep()
+                  }
+                }}
+                disabled={!canProceed()}
+                className="group relative overflow-hidden"
+              >
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
+
+      case 15: // Renamed from 14
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual seu nível de experiência com treinos?</h2>
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                {
+                  value: "beginner",
+                  label: "Iniciante",
+                  desc: "Menos de 6 meses de treino",
+                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
+                },
+                {
+                  value: "intermediate",
+                  label: "Intermediário",
+                  desc: "6 meses a 2 anos de treino",
+                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
+                },
+                {
+                  value: "advanced",
+                  label: "Avançado",
+                  desc: "Mais de 2 anos de treino",
+                  icon: <Dumbbell className="w-6 h-6 text-lime-500" />,
+                },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    updateQuizData("strengthTraining", option.value)
+                    setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
+                  }}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    quizData.strengthTraining === option.value
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50"
+                  }`}
+                >
+                  <div className="flex items-center space-x-3 sm:space-x-4">
+                    <div className="flex-shrink-0">{option.icon}</div>
+                    <div className="text-left flex-1">
+                      <h3 className="text-white font-medium">{option.label}</h3>
+                      <p className="text-white/50 text-sm mt-1">{option.desc}</p>
+                    </div>
+                  </div>
+                </button>
               ))}
             </div>
           </div>
         )
-      case 10:
+
+      case 16: // Renamed from 15
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é sua altura?</h2>
+              <h2 className="text-2xl font-bold text-white">Como você se sente com cardio?</h2>
             </div>
-            <div className="space-y-6">
-              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors flex items-center justify-center relative">
-                <Input
-                  type="text"
-                  placeholder={`Altura em metros (ex: 1.75 ou 1,75)`}
-                  value={quizData.height}
-                  onChange={(e) => {
-                    const cleaned = e.target.value.replace(/[^\d.,]/g, "")
-                    setQuizData({ ...quizData, height: cleaned })
+            <div className="flex justify-center mb-6">
+              <ExerciseIllustration type="cardio" />
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                { value: "love", label: "Gosto!" },
+                { value: "neutral", label: "Neutro!" },
+                { value: "avoid", label: "Não Gosto Muito!" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    updateQuizData("cardioFeeling", option.value)
+                    setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
                   }}
-                  onBlur={(e) => {
-                    const normalized = normalizeHeight(e.target.value)
-                    updateQuizData("height", normalized)
-                  }}
-                  className="bg-transparent border-0 text-white text-center text-6xl focus:outline-none focus:ring-0 [&::placeholder]:text-gray-400 placeholder:text-xl flex-1"
-                />
-                <span className="text-gray-400 text-2xl ml-4">cm</span>
-              </div>
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    quizData.cardioFeeling === option.value
+                      ? option.value === "avoid"
+                        ? "border-red-500 bg-red-500/20"
+                        : option.value === "neutral"
+                          ? "border-yellow-500 bg-yellow-500/20"
+                          : "border-lime-500 bg-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
+                  }`}
+                >
+                  <span className="text-white">{option.label}</span>
+                </button>
+              ))}
             </div>
           </div>
         )
-      case 11:
+
+      case 17: // Renamed from 16
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Possui alergias ou restrições alimentares?</h2>
+              <h2 className="text-2xl font-bold text-white">Como você se sente com flexões?</h2>
+            </div>
+            <div className="flex justify-center mb-6">
+              <ExerciseIllustration type="pullups" />
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                { value: "love", label: "Gosto!" },
+                { value: "neutral", label: "Neutro!" },
+                { value: "modify", label: "Não Gosto Muito!" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    updateQuizData("strengthFeeling", option.value)
+                    setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
+                  }}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    quizData.strengthFeeling === option.value
+                      ? option.value === "modify"
+                        ? "border-red-500 bg-red-500/20"
+                        : option.value === "neutral"
+                          ? "border-yellow-500 bg-yellow-500/20"
+                          : "border-lime-500 bg-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
+                  }`}
+                >
+                  <span className="text-white">{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+
+      case 18: // Renamed from 17
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Como você se sente com alongamentos?</h2>
+            </div>
+            <div className="flex justify-center mb-6">
+              <ExerciseIllustration type="yoga" />
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                { value: "love", label: "Gosto!" },
+                { value: "neutral", label: "Neutro!" },
+                { value: "skip", label: "Não Gosto Muito!" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    updateQuizData("stretchingFeeling", option.value)
+                    setTimeout(() => nextStep(), 300) // Added setTimeout for smooth transition
+                  }}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    quizData.stretchingFeeling === option.value
+                      ? option.value === "skip"
+                        ? "border-red-500 bg-red-500/20"
+                        : option.value === "neutral"
+                          ? "border-yellow-500 bg-yellow-500/20"
+                          : "border-lime-500 bg-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
+                  }`}
+                >
+                  <span className="text-white">{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+
+      case 19: // Renamed from 18
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">
+                Você já enfrentou algum desses problemas em suas tentativas anteriores de entrar em forma?
+              </h2>
+              <p className="text-gray-300">Selecione todos que se aplicam</p>
+            </div>
+            <div className="space-y-4">
+              {[
+                { value: "no-motivation", label: "Falta de motivação", icon: "🎯" },
+                { value: "no-plan", label: "Não tinha um plano claro", icon: "📅" },
+                { value: "too-hard", label: "Meus treinos eram muito difíceis", icon: "🏋️" },
+                { value: "bad-training", label: "Treinamento ruim", icon: "👤" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() =>
+                    updateQuizData(
+                      "previousProblems",
+                      quizData.previousProblems.includes(option.value)
+                        ? quizData.previousProblems.filter((p) => p !== option.value)
+                        : [...quizData.previousProblems, option.value],
+                    )
+                  }
+                  className={`w-full p-4 rounded-lg border-2 transition-all ${
+                    quizData.previousProblems.includes(option.value)
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-white text-left">{option.label}</span>
+                    <div
+                      className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                        quizData.previousProblems.includes(option.value) ? "bg-white border-white" : "border-white/30"
+                      }`}
+                    >
+                      {quizData.previousProblems.includes(option.value) && (
+                        <CheckCircle className="h-4 w-4 text-emerald-500" />
+                      )}
+                    </div>
+                  </div>
+                </button>
+              ))}
+              <button
+                onClick={() => {
+                  updateQuizData("previousProblems", ["no-problems"])
+                  setTimeout(() => nextStep(), 300)
+                }}
+                className={`w-full p-4 rounded-lg border-2 transition-all ${
+                  quizData.previousProblems.includes("no-problems")
+                    ? "border-red-500 bg-red-500/10"
+                    : "border-white/10 bg-white/5 hover:border-red-500/50"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-white text-left">Não, eu não tenho</span>
+                  <div
+                    className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                      quizData.previousProblems.includes("no-problems")
+                        ? "bg-red-500 border-red-500"
+                        : "border-white/30"
+                    }`}
+                  >
+                    {quizData.previousProblems.includes("no-problems") && <X className="h-4 w-4 text-white" />}
+                  </div>
+                </div>
+              </button>
+            </div>
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={() => {
+                  nextStep()
+                }}
+                className="group relative overflow-hidden"
+              >
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
+
+      case 20: // Renamed from 19
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Marque abaixo os seus objetivos adicionais:</h2>
+              <p className="text-gray-400 text-sm">
+                Temos certeza de que você deseja não apenas um corpo melhor, mas também melhorar seu estilo de vida.
+              </p>
+            </div>
+            <div className="space-y-4">
+              {[
+                { value: "better-sleep", label: "Melhorar o sono", icon: "😴" },
+                { value: "feel-healthier", label: "Se sentir mais saudável", icon: "➕" },
+                { value: "reduce-stress", label: "Reduzir o estresse", icon: "🧘" },
+                { value: "increase-energy", label: "Me sentir com mais energia", icon: "⚡" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() =>
+                    updateQuizData(
+                      "additionalGoals",
+                      quizData.additionalGoals.includes(option.value)
+                        ? quizData.additionalGoals.filter((g) => g !== option.value)
+                        : [...quizData.additionalGoals, option.value],
+                    )
+                  }
+                  className={`w-full p-4 rounded-lg border-2 transition-all ${
+                    quizData.additionalGoals.includes(option.value)
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-white text-left">{option.label}</span>
+                    <div
+                      className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                        quizData.additionalGoals.includes(option.value) ? "bg-white border-white" : "border-white/30"
+                      }`}
+                    >
+                      {quizData.additionalGoals.includes(option.value) && (
+                        <CheckCircle className="h-4 w-4 text-emerald-500" />
+                      )}
+                    </div>
+                  </div>
+                </button>
+              ))}
+              <button
+                onClick={() => {
+                  updateQuizData("additionalGoals", ["none"])
+                  setTimeout(() => nextStep(), 300)
+                }}
+                className={`w-full p-4 rounded-lg border-2 transition-all ${
+                  quizData.additionalGoals.includes("none")
+                    ? "border-red-500 bg-red-500/10"
+                    : "border-white/10 bg-white/5 hover:border-red-500/50"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-white text-left">Nenhuma das acima</span>
+                  <div
+                    className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                      quizData.additionalGoals.includes("none") ? "bg-red-500 border-red-500" : "border-white/30"
+                    }`}
+                  >
+                    {quizData.additionalGoals.includes("none") && <X className="h-4 w-4 text-white" />}
+                  </div>
+                </div>
+              </button>
+            </div>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} className="group relative overflow-hidden">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
+
+      case 21: // Renamed from 20
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Que equipamentos você tem acesso?</h2>
+              <p className="text-gray-300">Selecione todos que se aplicam</p>
+            </div>
+            <div className="space-y-4">
+              {[
+                { value: "gym", label: "Academia completa" },
+                { value: "dumbbells", label: "Halteres" },
+                { value: "bodyweight", label: "Apenas peso corporal" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() =>
+                    updateQuizData(
+                      "equipment",
+                      quizData.equipment.includes(option.value)
+                        ? quizData.equipment.filter((e) => e !== option.value)
+                        : [...quizData.equipment, option.value],
+                    )
+                  }
+                  className={`w-full p-4 rounded-lg border-2 transition-all ${
+                    quizData.equipment.includes(option.value)
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50"
+                  }`}
+                >
+                  <span className="text-white">{option.label}</span>
+                </button>
+              ))}
+            </div>
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={nextStep}
+                disabled={quizData.equipment.length === 0}
+                className="group relative overflow-hidden"
+              >
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
+
+      case 22: // Renamed from 21
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
+              <p className="text-gray-300">Quanto tempo você pode dedicar por sessão?</p>
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                {
+                  value: "15-30",
+                  label: "15-30 minutos",
+                  desc: "Treinos rápidos e eficientes",
+                  icon: <Clock className="w-6 h-6 text-lime-500" />,
+                },
+                {
+                  value: "30-45",
+                  label: "30-45 minutos",
+                  desc: "Tempo ideal para maioria dos treinos",
+                  icon: <Clock className="w-6 h-6 text-lime-500" />,
+                },
+                {
+                  value: "45-60",
+                  label: "45-60 minutos",
+                  desc: "Treinos completos e detalhados",
+                  icon: <Clock className="w-6 h-6 text-lime-500" />,
+                },
+                {
+                  value: "60+",
+                  label: "Mais de 60 minutos",
+                  desc: "Treinos extensos e avançados",
+                  icon: <Clock className="w-6 h-6 text-lime-500" />,
+                },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    updateQuizData("workoutTime", option.value)
+                    setTimeout(() => nextStep(), 300)
+                  }}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    quizData.workoutTime === option.value
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/50 backdrop-blur-sm"
+                  }`}
+                >
+                  <div className="flex items-center space-x-3 sm:space-x-4">
+                    <div className="flex-shrink-0">{option.icon}</div>
+                    <div className="text-left flex-1">
+                      <h3 className="text-white font-medium">{option.label}</h3>
+                      <p className="text-white/50 text-sm mt-1">{option.desc}</p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+
+      case 23: // Renamed from 22
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Escolha os produtos que você gosta.</h2>
+              <p className="text-gray-300 text-sm">
+                Vamos criar um plano alimentar com base nas suas preferências. Você sempre poderá ajustá-lo
+                posteriormente.
+              </p>
+            </div>
+
+            {/* Toggle switch */}
+            <div className="flex items-center justify-between bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
+              <span className="text-white font-medium">Deixe que a FitGoal escolha.</span>
+              <button
+                onClick={() => updateQuizData("letMadMusclesChoose", !quizData.letMadMusclesChoose)}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                  quizData.letMadMusclesChoose ? "bg-lime-500" : "bg-gray-600"
+                }`}
+              >
+                <span
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                    quizData.letMadMusclesChoose ? "translate-x-7" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Food categories */}
+            <div className="space-y-6">
+              {/* Vegetables */}
+              <div>
+                <h3 className="text-white font-bold mb-3">Vegetais</h3>
+                <div className="flex flex-wrap gap-2">
+                  {["Brócolis", "Alface", "Cebola", "Pimentão", "Repolho", "Cenoura", "Tomate"].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        const current = quizData.foodPreferences.vegetables
+                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
+                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, vegetables: updated })
+                      }}
+                      className={`px-4 py-2 rounded-full border-2 transition-all ${
+                        quizData.foodPreferences.vegetables.includes(item)
+                          ? "border-lime-500 bg-lime-500/10 text-white"
+                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Grains */}
+              <div>
+                <h3 className="text-white font-bold mb-3">Grão</h3>
+                <div className="flex flex-wrap gap-2">
+                  {["Arroz", "Quinoa", "Cuscuz", "Fubá", "Farinha"].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        const current = quizData.foodPreferences.grains
+                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
+                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, grains: updated })
+                      }}
+                      className={`px-4 py-2 rounded-full border-2 transition-all ${
+                        quizData.foodPreferences.grains.includes(item)
+                          ? "border-lime-500 bg-lime-500/10 text-white"
+                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Ingredients */}
+              <div>
+                <h3 className="text-white font-bold mb-3">Ingredientes</h3>
+                <div className="flex flex-wrap gap-2">
+                  {["Abacate", "Feijões", "Ovos", "Aveia", "Granola", "Queijo", "Leite", "Leite vegetal"].map(
+                    (item) => (
+                      <button
+                        key={item}
+                        onClick={() => {
+                          const current = quizData.foodPreferences.ingredients
+                          const updated = current.includes(item)
+                            ? current.filter((i) => i !== item)
+                            : [...current, item]
+                          updateQuizData("foodPreferences", { ...quizData.foodPreferences, ingredients: updated })
+                        }}
+                        className={`px-4 py-2 rounded-full border-2 transition-all ${
+                          quizData.foodPreferences.ingredients.includes(item)
+                            ? "border-lime-500 bg-lime-500/10 text-white"
+                            : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    ),
+                  )}
+                  {/* </CHANGE> */}
+                </div>
+              </div>
+
+              {/* Meats and Fish - Optional */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-white font-bold">Carnes e peixes</h3>
+                  <span className="text-gray-400 text-sm">Opcional</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {["Carne moida", "Carne bovina", "Frango", "Carne de porco", "Peixe"].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        const current = quizData.foodPreferences.meats
+                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
+                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, meats: updated })
+                      }}
+                      className={`px-4 py-2 rounded-full border-2 transition-all ${
+                        quizData.foodPreferences.meats.includes(item)
+                          ? "border-lime-500 bg-lime-500/10 text-white"
+                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Fruits and Berries - Optional */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-white font-bold">Frutas e bagas</h3>
+                  <span className="text-gray-400 text-sm">Opcional</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Maçã",
+                    "Pera",
+                    "Kiwi",
+                    "Bananas",
+                    "Caqui",
+                    "Pêssego",
+                    "Frutas vermelhas",
+                    "Uva",
+                    "Romã",
+                    "Frutas tropicais (abacaxi, mamão, pitaya)",
+                  ].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        const current = quizData.foodPreferences.fruits
+                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
+                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, fruits: updated })
+                      }}
+                      className={`px-4 py-2 rounded-full border-2 transition-all ${
+                        quizData.foodPreferences.fruits.includes(item)
+                          ? "border-lime-500 bg-lime-500/10 text-white"
+                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Continue button */}
+            <div className="flex justify-center">
+              <Button
+                onClick={() => {
+                  nextStep()
+                }}
+                className="group relative"
+              >
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
+
+      case 24: // Renamed from 23
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Você possui alergias ou restrições alimentares?</h2>
             </div>
             <div className="space-y-4">
               <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                  quizData.allergies === "sim" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
+                className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 ${
+                  quizData.allergies === "sim" ? "border-lime-500 bg-lime-500/10" : "border-white/10 bg-white/5"
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "sim")
@@ -2439,12 +3936,12 @@ export default function QuizPage() {
                 <h3 className="text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
               </div>
               <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                  quizData.allergies === "nao" ? "border-2 border-lime-500 bg-lime-500/10" : "border border-white/10"
+                className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-red-400 ${
+                  quizData.allergies === "nao" ? "border-red-500 bg-red-500/20" : "border-white/10 bg-white/5"
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
-                  setCurrentStep(13)
+                  setTimeout(() => setCurrentStep(26), 300) // Skip allergy details (case 25) and go to supplement interest (case 26)
                 }}
               >
                 <X
@@ -2455,7 +3952,8 @@ export default function QuizPage() {
             </div>
           </div>
         )
-      case 12:
+
+      case 25: // Renamed from 24
         if (quizData.allergies !== "sim") {
           return null
         }
@@ -2470,486 +3968,314 @@ export default function QuizPage() {
                 placeholder="Ex: Alergia a amendoim, intolerância à lactose, não como carne vermelha..."
                 value={quizData.allergyDetails}
                 onChange={(e) => updateQuizData("allergyDetails", e.target.value)}
-                className="bg-white/5 backdrop-blur-sm border-white/20 text-white placeholder-gray-400 min-h-32"
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+                
+                [--muted-foreground:theme(colors.gray.500)]
+                "
               />
             </div>
+            <div className="flex justify-center">
+              <Button onClick={nextStep} className="group relative">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/10 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-400 to-lime-500 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
           </div>
         )
 
-      case 13:
+      case 26: // Renamed from 25. Now Supplement Interest
+        const shouldRecommendHipercalorico = () => {
+          // Factor 1: Low IMC (underweight)
+          if (quizData.imc && quizData.imc < 18.5) {
+            return true
+          }
+
+          // Factor 2: Body type is ectomorph or "magro" (thin)
+          if (quizData.bodyType === "ectomorfo" || quizData.bodyType === "magro") {
+            return true
+          }
+
+          // Factor 3: Goal is to gain weight/muscle mass
+          const hasGainGoal = quizData.goal?.some(
+            (g) =>
+              g.toLowerCase().includes("ganhar") ||
+              g.toLowerCase().includes("massa") ||
+              g.toLowerCase().includes("muscular"),
+          )
+
+          // Factor 4: Current weight is significantly lower than target weight
+          const currentWeight = Number.parseFloat(quizData.currentWeight)
+          const targetWeight = Number.parseFloat(quizData.targetWeight)
+
+          if (currentWeight && targetWeight && hasGainGoal) {
+            const weightDifference = targetWeight - currentWeight
+            // If needs to gain more than 3kg, recommend hypercaloric
+            if (weightDifference > 3) {
+              return true
+            }
+          }
+
+          // Factor 5: Difficulty gaining weight (weightChange)
+          if (quizData.weightChangeType === "struggle-gain") {
+            return true
+          }
+
+          return false
+        }
+
+        const supplementRecommendation = shouldRecommendHipercalorico()
+          ? {
+              name: "Hipercalórico Growth",
+              description: "Ideal para ganho de massa muscular e atingir suas calorias diárias",
+            }
+          : {
+              name: "Whey Protein",
+              description: "Ideal para ganho de massa muscular e recuperação pós-treino",
+            }
+
+        const supplementType = shouldRecommendHipercalorico() ? "hipercalorico" : "whey-protein"
+
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Podemos adicionar algum suplemento à sua dieta?</h2>
-              <p className="text-gray-300">Por exemplo: Hipercalórico, Whey Protein...</p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">
+                Podemos adicionar algum suplemento à sua dieta?
+              </h2>
+              <p className="text-gray-400">Por exemplo: Hipercalórico, Whey Protein...</p>
             </div>
-            <div className="space-y-4">
+
+            <div className="max-w-2xl mx-auto space-y-4">
+              {/* Yes option with recommendation */}
               <button
-                type="button"
-                className={`w-full bg-white/5 backdrop-blur-sm rounded-lg p-6 transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 cursor-pointer ${
-                  quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
-                }`}
                 onClick={() => {
-                  console.log("[v0] Sim button clicked")
-                  console.log("[v0] Current wantsSupplement:", quizData.wantsSupplement)
-
-                  const isEctomorph = quizData.bodyType === "ectomorfo"
-                  const hasHighBodyFat = quizData.gender === "mulher" ? quizData.bodyFat > 30 : quizData.bodyFat > 20
-                  const hasBellyProblem = quizData.problemAreas.includes("Barriga")
-
-                  let supplementType = "whey-protein"
-                  if (isEctomorph && !hasHighBodyFat && !hasBellyProblem) {
-                    supplementType = "hipercalorico"
-                  }
-
-                  setQuizData((prev) => ({
-                    ...prev,
-                    wantsSupplement: "sim",
-                    supplementType: supplementType,
-                  }))
-
-                  console.log("[v0] Updated wantsSupplement to: sim")
-                  console.log("[v0] Updated supplementType to:", supplementType)
-
+                  updateQuizData("wantsSupplement", "sim")
+                  updateQuizData("recommendedSupplement", supplementRecommendation.name)
+                  updateQuizData("supplementType", supplementType)
                   setTimeout(() => nextStep(), 300)
                 }}
-              >
-                <CheckCircle
-                  className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "sim" ? "text-lime-500" : "text-gray-500"}`}
-                />
-                <h3 className="text-lg font-bold text-white">Sim, pode adicionar</h3>
-              </button>
-              <button
-                type="button"
-                className={`w-full bg-white/5 backdrop-blur-sm rounded-lg p-6 transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 cursor-pointer ${
-                  quizData.wantsSupplement === "nao" ? "border-lime-500 bg-lime-500/10" : "border-white/10"
+                className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
+                  quizData.wantsSupplement === "sim"
+                    ? "border-lime-500 bg-lime-500/10"
+                    : "border-white/20 bg-white/5 hover:border-lime-500/50"
                 }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
+                      quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500" : "border-white/30"
+                    }`}
+                  >
+                    {quizData.wantsSupplement === "sim" && (
+                      <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-white font-bold text-lg">Sim, pode adicionar</span>
+                </div>
+              </button>
+
+              {/* No option */}
+              <button
                 onClick={() => {
-                  console.log("[v0] Não button clicked")
                   updateQuizData("wantsSupplement", "nao")
+                  updateQuizData("recommendedSupplement", "")
+                  updateQuizData("supplementType", "")
                   setTimeout(() => nextStep(), 300)
                 }}
+                className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
+                  quizData.wantsSupplement === "nao"
+                    ? "border-red-500 bg-red-500/10"
+                    : "border-white/20 bg-white/5 hover:border-red-500/50"
+                }`}
               >
-                <X
-                  className={`h-6 w-6 flex-shrink-0 ${quizData.wantsSupplement === "nao" ? "text-red-500" : "text-gray-500"}`}
-                />
-                <h3 className="text-lg font-bold text-white">Não, prefiro sem suplementos</h3>
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
+                      quizData.wantsSupplement === "nao" ? "border-red-500 bg-red-500/10" : "border-white/30"
+                    }`}
+                  >
+                    {quizData.wantsSupplement === "nao" && (
+                      <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-white font-bold text-lg">Não, prefiro sem suplementos</span>
+                </div>
               </button>
-            </div>
-            {/* </CHANGE> */}
-            {quizData.wantsSupplement === "sim" && quizData.supplementType && (
-              <div className="bg-lime-500/10 border border-lime-500 rounded-lg p-4 text-center">
-                <p className="text-lime-400 font-semibold">
-                  Recomendamos:{" "}
-                  {quizData.supplementType === "hipercalorico" ? "Hipercalórico Growth" : "Whey Protein Growth"}
-                </p>
-                <p className="text-gray-300 text-sm mt-2">
-                  {quizData.supplementType === "hipercalorico"
-                    ? "Ideal para ganho de massa muscular e atingir suas calorias diárias"
-                    : "Ideal para atingir suas metas de proteína e manter a massa muscular"}
-                </p>
+
+              {/* Recommendation box */}
+              <div className="mt-6 p-6 rounded-xl border-2 border-lime-500/50 bg-lime-500/5">
+                <p className="text-lime-400 font-bold text-lg mb-2">Recomendamos: {supplementRecommendation.name}</p>
+                <p className="text-gray-300">{supplementRecommendation.description}</p>
               </div>
-            )}
+            </div>
           </div>
         )
-      case 14:
+
+      case 27: // Renamed from 26. Now Name
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu peso atual?</h2>
+              <h2 className="text-2xl font-bold text-white">Como podemos te chamar?</h2>
+              <p className="text-gray-300">Seu nome para personalizar seu plano</p>
             </div>
-            <div className="space-y-6">
-              <div className="relative border-2 border-white/10 rounded-2xl p-6 bg-white/5 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500 flex items-center justify-between">
-                <div className="flex-1 flex justify-center">
-                  <Input
-                    type="number"
-                    placeholder="80"
-                    value={quizData.weight}
-                    onChange={(e) => updateQuizData("weight", e.target.value)}
-                    min="1"
-                    max="500"
-                    step="0.1"
-                    className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
-                  />
+            <div className="max-w-md mx-auto">
+              <Input
+                placeholder="Seu nome"
+                value={quizData.name}
+                onChange={(e) => updateQuizData("name", e.target.value)}
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+                
+                [--muted-foreground:theme(colors.gray.500)]
+                "
+              />
+            </div>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
                 </div>
-                <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
-              </div>
+              </Button>
             </div>
           </div>
         )
-      case 15:
+
+      case 28: // Renamed from 27. Email
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu objetivo de peso?</h2>
+              <h2 className="text-2xl font-bold text-white">Qual é o seu e-mail?</h2>
+              <p className="text-gray-300">Enviaremos seu plano para este e-mail</p>
             </div>
-            <div className="space-y-6">
-              <div className="relative border-2 border-white/10 rounded-2xl p-6 bg-white/5 backdrop-blur-sm transition-all duration-300 focus-within:border-lime-500 flex items-center justify-between">
-                <div className="flex-1 flex justify-center">
-                  <Input
-                    type="number"
-                    placeholder="75"
-                    value={quizData.targetWeight}
-                    onChange={(e) => {
-                      updateQuizData("targetWeight", e.target.value)
-                    }}
-                    onBlur={() => {
-                      // Calcula o tempo ao sair do campo
-                      const calculatedTime = calculateTimeToGoal()
-                      if (calculatedTime) {
-                        updateQuizData("timeToGoal", calculatedTime)
-                      }
-                    }}
-                    min="1"
-                    max="500"
-                    step="0.1"
-                    className="bg-transparent border-0 text-white text-center text-6xl font-bold focus:outline-none focus:ring-0 w-auto max-w-[200px] [&::placeholder]:text-gray-400"
-                  />
+            <div className="max-w-md mx-auto">
+              <Input
+                placeholder="exemplo@email.com"
+                type="email"
+                value={quizData.email}
+                onChange={(e) => updateQuizData("email", e.target.value)}
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+                
+                [--muted-foreground:theme(colors.gray.500)]
+                "
+              />
+            </div>
+            <div className="flex justify-center mt-8">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
                 </div>
-                <span className="text-gray-400 text-2xl font-bold ml-4">kg</span>
-              </div>
+              </Button>
             </div>
           </div>
         )
-      case 16:
+
+      case 29:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu nome?</h2>
-            </div>
-            <div className="space-y-6">
-              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors flex items-center justify-center relative">
-                <Input
-                  type="text"
-                  placeholder="Digite seu nome"
-                  value={quizData.name}
-                  onChange={(e) => updateQuizData("name", e.target.value)}
-                  className="bg-transparent border-0 text-white text-center text-xl focus:outline-none [&::placeholder]:text-gray-400"
-                />
-              </div>
-            </div>
-          </div>
-        )
-      case 17:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu tempo de treino?</h2>
-            </div>
-            <div className="space-y-4 max-w-2xl mx-auto">
-              {[
-                { value: "30min", label: "30 minutos" },
-                { value: "45min", label: "45 minutos" },
-                { value: "1hora", label: "1 hora" },
-                { value: "mais-1h", label: "Mais de 1 hora" },
-              ].map((time) => (
-                <div
-                  key={time.value}
-                  className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center justify-center ${
-                    quizData.workoutTime === time.value
-                      ? "border-2 border-lime-500 bg-lime-500/10"
-                      : "border border-white/10 hover:border-gray-500"
-                  }`}
-                  onClick={() => {
-                    updateQuizData("workoutTime", time.value)
-                    setTimeout(() => nextStep(), 300)
-                  }}
-                >
-                  <h3 className="text-lg font-medium text-white text-center">{time.label}</h3>
-                </div>
-              ))}
-            </div>
-          </div>
-        )
-      case 18:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Tem experiência com treinamento de força?</h2>
-            </div>
-            <div className="space-y-4">
-              <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                  quizData.strengthTraining === "sim"
-                    ? "border-2 border-lime-500 bg-lime-500/10"
-                    : "border border-white/10"
-                }`}
-                onClick={() => {
-                  updateQuizData("strengthTraining", "sim")
-                  setTimeout(() => nextStep(), 300)
-                }}
-              >
-                <CheckCircle
-                  className={`h-6 w-6 flex-shrink-0 ${quizData.strengthTraining === "sim" ? "text-lime-500" : "text-gray-500"}`}
-                />
-                <h3 className="text-lg font-bold text-white">Sim, treino regularmente</h3>
-              </div>
-              <div
-                className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
-                  quizData.strengthTraining === "nao"
-                    ? "border-2 border-lime-500 bg-lime-500/10"
-                    : "border border-white/10"
-                }`}
-                onClick={() => {
-                  updateQuizData("strengthTraining", "nao")
-                  setTimeout(() => nextStep(), 300)
-                }}
-              >
-                <X
-                  className={`h-6 w-6 flex-shrink-0 ${quizData.strengthTraining === "nao" ? "text-red-500" : "text-gray-500"}`}
-                />
-                <h3 className="text-lg font-bold text-white">Não, sou iniciante</h3>
-              </div>
-            </div>
-          </div>
-        )
-      case 19:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Que equipamentos você tem acesso?</h2>
-              <p className="text-gray-300">Selecione todos que se aplicam</p>
-            </div>
-            <div className="space-y-3">
-              {[
-                { value: "academia", label: "Academia completa", icon: "🏋️" },
-                { value: "halteres", label: "Halteres", icon: "🏋️‍♀️" },
-                { value: "nenhum", label: "Apenas peso corporal", icon: "🤲" },
-              ].map((equipment) => (
-                <div key={equipment.value} className="flex items-center space-x-3">
-                  <Checkbox
-                    id={equipment.value}
-                    checked={quizData.equipment.includes(equipment.value)}
-                    onCheckedChange={(checked) => handleArrayUpdate("equipment", equipment.value, checked as boolean)}
-                  />
-                  <Label htmlFor={equipment.value} className="text-white text-lg flex items-center space-x-2">
-                    <span className="text-xl">{equipment.icon}</span>
-                    <span>{equipment.label}</span>
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-        )
-      case 20:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Como você se sente sobre exercícios de cardio?</h2>
-            </div>
-            <div className="flex items-center justify-center space-x-8">
-              <ExerciseIllustration type="cardio" className="w-64 h-64" />
-              <div className="space-y-4 flex-1 max-w-sm">
-                {[
-                  { value: "gosto", label: "Gosto!", icon: ThumbsUp, color: "text-green-500" },
-                  { value: "neutro", label: "Neutro", icon: Meh, color: "text-yellow-500" },
-                  { value: "odeio", label: "Prefiro evitar", icon: ThumbsDown, color: "text-red-500" },
-                ].map((pref) => (
-                  <div
-                    key={pref.value}
-                    className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
-                      quizData.exercisePreferences.cardio === pref.value
-                        ? "border-2 border-lime-500 bg-lime-500/10"
-                        : "border border-white/10"
-                    }`}
-                    onClick={() => {
-                      updateExercisePreference("cardio", pref.value)
-                      setTimeout(() => nextStep(), 300)
-                    }}
-                  >
-                    <pref.icon className={`h-6 w-6 ${pref.color}`} />
-                    <h3 className="text-lg font-bold text-white">{pref.label}</h3>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )
-      case 21:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Como você se sente sobre flexões e exercícios de força?</h2>
-            </div>
-            <div className="flex items-center justify-center space-x-8">
-              <ExerciseIllustration type="pullups" className="w-64 h-64" />
-              <div className="space-y-4 flex-1 max-w-sm">
-                {[
-                  { value: "gosto", label: "Gosto!", icon: ThumbsUp, color: "text-green-500" },
-                  { value: "neutro", label: "Neutro", icon: Meh, color: "text-yellow-500" },
-                  { value: "odeio", label: "Prefiro evitar", icon: ThumbsDown, color: "text-red-500" },
-                ].map((pref) => (
-                  <div
-                    key={pref.value}
-                    className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
-                      quizData.exercisePreferences.pullups === pref.value
-                        ? "border-2 border-lime-500 bg-lime-500/10"
-                        : "border border-white/10"
-                    }`}
-                    onClick={() => {
-                      updateExercisePreference("pullups", pref.value)
-                      setTimeout(() => nextStep(), 300)
-                    }}
-                  >
-                    <pref.icon className={`h-6 w-6 ${pref.color}`} />
-                    <h3 className="text-lg font-bold text-white">{pref.label}</h3>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )
-      case 22:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Como você se sente sobre alongamentos?</h2>
-            </div>
-            <div className="flex items-center justify-center space-x-8">
-              <ExerciseIllustration type="yoga" className="w-64 h-64" />
-              <div className="space-y-4 flex-1 max-w-sm">
-                {[
-                  { value: "gosto", label: "Gosto!", icon: ThumbsUp, color: "text-green-500" },
-                  { value: "neutro", label: "Neutro", icon: Meh, color: "text-yellow-500" },
-                  { value: "odeio", label: "Prefiro evitar", icon: ThumbsDown, color: "text-red-500" },
-                ].map((pref) => (
-                  <div
-                    key={pref.value}
-                    className={`bg-white/5 backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-4 ${
-                      quizData.exercisePreferences.yoga === pref.value
-                        ? "border-2 border-lime-500 bg-lime-500/10"
-                        : "border border-white/10"
-                    }`}
-                    onClick={() => {
-                      updateExercisePreference("yoga", pref.value)
-                      setTimeout(() => nextStep(), 300)
-                    }}
-                  >
-                    <pref.icon className={`h-6 w-6 ${pref.color}`} />
-                    <h3 className="text-lg font-bold text-white">{pref.label}</h3>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )
-      case 23:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
               <p className="text-gray-300">Selecione de 1 a 7 dias</p>
             </div>
-            <div className="text-center space-y-8">
-              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
-                <div className="space-y-4">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 inline-block">
-                    <span className="text-white font-bold">{quizData.trainingDaysPerWeek} dias</span>
+
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 space-y-8">
+                {/* Value display */}
+                <div className="flex justify-center">
+                  <div className="bg-white/10 rounded-full px-8 py-3">
+                    <span className="text-xl md:text-2xl font-bold text-white">
+                      {quizData.trainingDays || "5"} {(quizData.trainingDays || "5") === "1" ? "dia" : "dias"}
+                    </span>
                   </div>
-                  <div className="px-4">
-                    <Slider
-                      value={[quizData.trainingDaysPerWeek]}
-                      onValueChange={(value) => updateQuizData("trainingDaysPerWeek", value[0])}
-                      max={7}
-                      min={1}
-                      step={1}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-gray-400 text-sm mt-2">
-                      <span>1 dia</span>
-                      <span>7 dias</span>
-                    </div>
+                </div>
+
+                {/* Slider */}
+                <div className="space-y-4">
+                  <input
+                    type="range"
+                    min="1"
+                    max="7"
+                    value={quizData.trainingDays || "5"}
+                    onChange={(e) => updateQuizData("trainingDays", e.target.value)}
+                    className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 100%)`,
+                    }}
+                  />
+
+                  {/* Labels */}
+                  <div className="flex justify-between text-gray-400 text-sm">
+                    <span>1 dia</span>
+                    <span>7 dias</span>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )
-      case 24:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Digite o seu e-mail</h2>
-              {/* Changed placeholder to gray */}
-              <p className="text-gray-400">Para receber seu plano personalizado</p>
-            </div>
-            <div className="space-y-6">
-              <div className="border-2 border-white/10 rounded-lg p-4 bg-white/5 backdrop-blur-sm focus-within:border-lime-500 transition-colors">
-                <Input
-                  type="email"
-                  placeholder="seu@email.com"
-                  value={quizData.email}
-                  onChange={(e) => updateQuizData("email", e.target.value)}
-                  className="bg-transparent border-0 text-white text-center text-xl focus:outline-none [&::placeholder]:text-gray-400"
-                />
+              <div className="flex justify-center mt-8">
+                <Button onClick={nextStep} className="group relative overflow-hidden">
+                  <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                    <span className="relative z-10">Continuar</span>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                  </div>
+                </Button>
               </div>
             </div>
           </div>
         )
-      default:
-        return <div>Passo não encontrado</div>
-    }
-  }
 
-  const isStepValid = (step: number): boolean => {
-    switch (step) {
-      case 1:
-        return quizData.gender !== ""
-      case 2:
-        return quizData.age > 0 && quizData.age >= 16 && quizData.age <= 80
-      case 3:
-        return quizData.bodyType !== ""
-      case 4:
-        return quizData.goal.length > 0
-      case 5:
-        return quizData.bodyFat > 0
-      case 6:
-        return quizData.problemAreas.length > 0
-      case 7:
-        return quizData.diet !== ""
-      case 8:
-        return quizData.sugarFrequency.length > 0
-      case 9:
-        return quizData.waterIntake !== ""
-      case 10:
-        return quizData.height !== "" && Number.parseFloat(quizData.height) > 0
-      case 11:
-        return quizData.allergies !== ""
-      case 12:
-        // If user has allergies, they must provide details. If not, this step is skipped.
-        return quizData.allergies === "nao" || (quizData.allergies === "sim" && quizData.allergyDetails.trim() !== "")
-      case 13:
-        return quizData.wantsSupplement !== ""
-      case 14:
-        // </CHANGE> Check quizData.weight instead of currentWeight
-        return quizData.weight !== "" && Number.parseFloat(quizData.weight) > 0
-      case 15:
-        return quizData.targetWeight !== "" && Number.parseFloat(quizData.targetWeight) > 0
-      case 16:
-        return quizData.name.trim() !== ""
-      case 17:
-        return quizData.workoutTime !== ""
-      case 18:
-        return quizData.strengthTraining !== "" // Check strengthTraining
-      case 19:
-        return quizData.equipment.length > 0
-      case 20:
-        return quizData.exercisePreferences.cardio !== ""
-      case 21:
-        return quizData.exercisePreferences.pullups !== ""
-      case 22:
-        return quizData.exercisePreferences.yoga !== ""
-      case 23:
-        return quizData.trainingDaysPerWeek >= 1 && quizData.trainingDaysPerWeek <= 7
-      case 24:
-        return quizData.email.trim() !== "" && quizData.email.includes("@")
+      case 30: // Renamed from 29. Final Submit
+        return (
+          <div className="space-y-8 text-center">
+            <h2 className="text-2xl font-bold text-white">Pronto para começar?</h2>
+            <p className="text-gray-300">
+              Revise suas informações e clique em "Finalizar Avaliação" para receber seu plano personalizado.
+            </p>
+            <div className="mt-10">
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
+              >
+                <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10 flex items-center gap-3">
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                        Processando...
+                      </>
+                    ) : (
+                      <>
+                        Finalizar Avaliação
+                        <Dumbbell className="h-6 w-6" />
+                      </>
+                    )}
+                  </span>
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
+
+      // </CHANGE>
       default:
         return true
     }
-  }
-
-  const canProceed = () => {
-    return isStepValid(currentStep)
   }
 
   return (
@@ -3005,43 +4331,27 @@ export default function QuizPage() {
           />
         </div>
         <div className="mb-8">{renderStep()}</div>
-        {![1, 3, 7, 9, 11, 13, 17, 18, 20, 21, 22].includes(currentStep) && (
-          <div className="flex justify-center">
-            {currentStep === totalSteps ? (
+        {/* Adjust the condition to include steps that don't need a manual next button */}
+        {!showMotivationMessage &&
+          !showCortisolMessage &&
+          !showTimeCalculation &&
+          !showAnalyzingData &&
+          !showNutritionInfo && // Added condition for nutrition info page
+          ![
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+            30,
+          ].includes(currentStep) && (
+            <div className="mt-8 flex justify-center">
               <Button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl font-bold rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
+                onClick={nextStep}
+                disabled={!canProceed()}
+                size="lg"
+                className="w-full max-w-md bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold disabled:from-gray-400 disabled:to-gray-500 disabled:text-gray-200"
               >
-                <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10 flex items-center gap-3">
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-6 w-6 animate-spin" />
-                        Processando...
-                      </>
-                    ) : (
-                      <>
-                        Finalizar Avaliação
-                        <Dumbbell className="h-6 w-6" />
-                      </>
-                    )}
-                  </span>
-                </div>
+                Continuar
               </Button>
-            ) : (
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-
-                  {/* Efeito de brilho animado */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:animate-shine opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </Button>
-            )}
-          </div>
-        )}
+            </div>
+          )}
       </div>
     </div>
   )
