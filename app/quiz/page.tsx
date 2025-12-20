@@ -130,18 +130,15 @@ const initialQuizData: QuizData = {
   imcClassification: "",
   imcStatus: "",
   age: 0,
-  strengthTraining: "", // Initialize strengthTraining
-  // </CHANGE> Initialize weight field
   weight: "",
-  // </CHANGE>
-  healthConditions: [], // Initialize healthConditions
-  supplement: "", // Initialize supplement
-  sweetsFrequency: [], // Initialize sweetsFrequency (renamed from sugarFrequency)
-  cardioFeeling: "", // Initialize cardioFeeling
-  strengthFeeling: "", // Initialize strengthFeeling
-  stretchingFeeling: "", // Initialize stretchingFeeling
-  trainingDays: "1", // Initialize trainingDays as string, default to 1
-  previousProblems: [], // Initialize previousProblems
+  healthConditions: [],
+  supplement: "",
+  sweetsFrequency: [],
+  cardioFeeling: "",
+  strengthFeeling: "",
+  stretchingFeeling: "",
+  trainingDays: "",
+  previousProblems: [],
   additionalGoals: [],
   foodPreferences: {
     vegetables: [],
