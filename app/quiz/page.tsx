@@ -130,15 +130,18 @@ const initialQuizData: QuizData = {
   imcClassification: "",
   imcStatus: "",
   age: 0,
+  strengthTraining: "", // Initialize strengthTraining
+  // </CHANGE> Initialize weight field
   weight: "",
-  healthConditions: [],
-  supplement: "",
-  sweetsFrequency: [],
-  cardioFeeling: "",
-  strengthFeeling: "",
-  stretchingFeeling: "",
-  trainingDays: "",
-  previousProblems: [],
+  // </CHANGE>
+  healthConditions: [], // Initialize healthConditions
+  supplement: "", // Initialize supplement
+  sweetsFrequency: [], // Initialize sweetsFrequency (renamed from sugarFrequency)
+  cardioFeeling: "", // Initialize cardioFeeling
+  strengthFeeling: "", // Initialize strengthFeeling
+  stretchingFeeling: "", // Initialize stretchingFeeling
+  trainingDays: "1", // Initialize trainingDays as string, default to 1
+  previousProblems: [], // Initialize previousProblems
   additionalGoals: [],
   foodPreferences: {
     vegetables: [],
@@ -398,52 +401,6 @@ export default function QuizPage() {
       setWaterFill(0)
     }
   }, [showWaterCongrats])
-  // </CHANGE>
-
-  useEffect(() => {
-    if (showAnalyzingData) {
-      const messages = [
-        "Estamos analisando seus dados...",
-        "Calculando suas necessidades fisiológicas...",
-        "Ajustando seu plano ideal...",
-      ]
-
-      if (analyzingStep < messages.length) {
-        const timer = setTimeout(() => {
-          setAnalyzingStep((prev) => prev + 1)
-        }, 1800)
-        return () => clearTimeout(timer)
-      } else if (analyzingStep === messages.length) {
-        const timer = setTimeout(() => {
-          setShowAnalyzingData(false)
-          setAnalyzingStep(0)
-          setCurrentStep(25) // Move to step 25 (allergies)
-        }, 2500)
-        return () => clearTimeout(timer)
-      }
-    }
-  }, [showAnalyzingData, analyzingStep])
-  // </CHANGE>
-
-  useEffect(() => {
-    if (showGoalTimeline) {
-      setIsCalculatingGoal(true)
-
-      // Calculate weeks
-      const current = Number.parseFloat(quizData.weight)
-      const target = Number.parseFloat(quizData.targetWeight)
-      if (!isNaN(current) && !isNaN(target) && current > 0 && target > 0) {
-        const weightDifference = Math.abs(current - target)
-        const weeks = Math.ceil(weightDifference / 0.75)
-
-        // Show loading animation for 2 seconds, then reveal result
-        setTimeout(() => {
-          setCalculatedWeeks(weeks)
-          setIsCalculatingGoal(false)
-        }, 2000)
-      }
-    }
-  }, [showGoalTimeline, quizData.weight, quizData.targetWeight])
   // </CHANGE>
 
   useEffect(() => {
@@ -846,111 +803,17 @@ export default function QuizPage() {
   }
 
   const nextStep = () => {
-    if (currentStep === 5 && quizData.bodyFat !== 0) {
+    // Handle specific step logic
+    if (currentStep === 5) {
+      // Show quick results after case 5
       setShowQuickResults(true)
       return
-    }
-
-    if (currentStep === 21) {
-      setShowCortisolMessage(true)
-      setCurrentStep(22) // Move to step 22, but cortisol message will show first
+    } else if (currentStep === 7) {
+      // Show nutrition info after case 7
+      setShowNutritionInfo(true)
       return
-    }
-    // </CHANGE>
-
-    if (currentStep === 22 && quizData.allergies === "nao") {
-      // This case is now related to Supplement Interest (step 26).
-      // The original code had a condition here for allergies, which is now handled in step 24.
-      // If the intention was to always advance after the cortisol message, this should be handled by the render logic.
-      // For now, assuming we simply advance.
-      setCurrentStep(currentStep + 1)
-      return
-    }
-    // </CHANGE>
-
-    if (currentStep === 18) {
-      // This case 18 is now about previous problems
-      if (
-        quizData.previousProblems.length === 0 ||
-        (quizData.previousProblems.length === 1 && quizData.previousProblems[0] === "no-problems")
-      ) {
-        // If user selected "Não, eu não tenho", we show motivation message directly
-        setShowMotivationMessage(true)
-      }
-      setCurrentStep(currentStep + 1) // Always advance to the next step (which is now additional goals)
-      return
-    }
-    // </CHANGE>
-
-    if (currentStep === 24 && quizData.allergies === "nao") {
-      // This condition is now handled within the step 24 rendering logic by directly setting the next step.
-      // If this block is reached, it means the user selected "nao" for allergies.
-      // The logic to skip to 26 (Supplement Interest) is already implemented in the button's onClick handler.
-      // So, no action needed here, just advance normally if this block is not removed.
-      // However, the `nextStep` should be called from the UI handler.
-      // If this block remains, it implies that `nextStep` is called regardless of the UI interaction, which is not ideal.
-      // Assuming the UI handler for the 'nao' button is correct, this `if` can be removed.
-      // For safety, if it's intended to be a fallback, let's advance the step.
-      // But the direct jump to 26 in the UI is preferred.
-      // Let's comment it out for clarity, relying on the UI handler.
-      // setCurrentStep(currentStep + 1)
-      // </CHANGE>
-    } else if (currentStep === 25 && quizData.allergies === "sim") {
-      // This step is for allergy details. If allergies is 'sim', we proceed to the next step.
-      // If allergies is 'nao', case 24 already jumped to case 26.
-      // This if block might be redundant if the UI handler manages the flow correctly.
-      // Let's assume the UI handler for the 'Continue' button at case 25 handles the progression.
-      // If the 'Continue' button is pressed, `nextStep()` is called.
-      // The current step is 25. We want to go to case 26.
-      // This block might be intended to skip if there are no allergies, but that's handled in step 24.
-      // For now, let's assume `nextStep` will correctly advance to 26.
-      // If the user *did* fill in allergy details, `nextStep` would normally advance to the next step.
-      // If they skipped it (which shouldn't be possible if `canProceed` is correct), this might be a fallback.
-      // Based on the structure, it seems the `nextStep()` call from the UI is sufficient.
-      // If this were meant to manually set the step, it should be `setCurrentStep(26)`.
-      // For now, we'll let the general `nextStep` logic handle it.
-    } else if (currentStep === 26 && quizData.wantsSupplement === "nao") {
-      // Step 26 is supplement interest. If 'nao', we skip supplement details (case 26 handles this by setting currentStep to 27).
-      setCurrentStep(27) // Skip supplement recommendation and go to step 27 (name)
-    } else if (currentStep === 27 && quizData.wantsSupplement === "nao") {
-      // </CHANGE>
-      setCurrentStep(28) // Skip supplement details and go to name (case 28)
-    } else if (currentStep === 14 && quizData.weight !== "" && quizData.targetWeight !== "") {
-      // Original was step 15, now step 14 (weight related)
-      const calculatedTime = calculateTimeToGoal()
-      if (calculatedTime) {
-        updateQuizData("timeToGoal", calculatedTime)
-        setShowTimeCalculation(true)
-      } else {
-        // If calculation fails, just move to next step
-        setCurrentStep(currentStep + 1)
-      }
-      // </CHANGE>
-    } else if (currentStep === 29) {
-      setShowAnalyzingData(true)
-      // The API call is now triggered in handleSubmit, not here.
-      // The UI will automatically advance to the next step after the animation is done.
-      // </CHANGE>
-    } else if (currentStep === 27 && quizData.name.trim() !== "") {
-      // Calculate weeks to reach goal based on weight difference and goals
-      const current = Number.parseFloat(quizData.currentWeight)
-      const target = Number.parseFloat(quizData.targetWeight)
-      const diff = Math.abs(target - current)
-
-      // Basic calculation: 0.5-1kg per week is healthy
-      // For weight loss: 8-16 weeks, for muscle gain: 12-20 weeks
-      let weeks = 11 // default
-
-      if (quizData.goal.includes("perder-peso")) {
-        weeks = Math.ceil(diff / 0.5) // 0.5kg per week for weight loss
-        weeks = Math.max(8, Math.min(weeks, 16)) // Between 8-16 weeks
-      } else if (quizData.goal.includes("ganhar-massa")) {
-        weeks = Math.ceil(diff / 0.3) // 0.3kg per week for muscle gain
-        weeks = Math.max(12, Math.min(weeks, 20)) // Between 12-20 weeks
-      }
-
-      setCalculatedWeeks(weeks)
-      setShowGoalTimeline(true)
+    } else if (currentStep === 27) {
+      setCurrentStep(28)
       return
     } else if (currentStep < totalSteps) {
       const nextStepNumber = currentStep + 1
@@ -3666,8 +3529,8 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
-              <p className="text-gray-300">Quanto tempo você pode dedicar por sessão?</p>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
+              <p className="text-gray-300">Selecione de 1 a 7 dias</p>
             </div>
 
             <div className="max-w-2xl mx-auto">
@@ -3676,7 +3539,7 @@ export default function QuizPage() {
                 <div className="flex justify-center">
                   <div className="bg-white/10 rounded-full px-8 py-3">
                     <span className="text-xl md:text-2xl font-bold text-white">
-                      {quizData.workoutTime || "5"} {(quizData.workoutTime || "5") === "1" ? "dia" : "dias"}
+                      {quizData.trainingDays || "5"} {(quizData.trainingDays || "5") === "1" ? "dia" : "dias"}
                     </span>
                   </div>
                 </div>
@@ -3687,11 +3550,11 @@ export default function QuizPage() {
                     type="range"
                     min="1"
                     max="7"
-                    value={quizData.workoutTime || "5"}
-                    onChange={(e) => updateQuizData("workoutTime", e.target.value)}
+                    value={quizData.trainingDays || "5"}
+                    onChange={(e) => updateQuizData("trainingDays", e.target.value)}
                     className="w-full h-2 rounded-full appearance-none cursor-pointer"
                     style={{
-                      background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.workoutTime || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.workoutTime || "5") - 1) / 6) * 100}%, #374151 100%)`,
+                      background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 100%)`,
                     }}
                   />
 
