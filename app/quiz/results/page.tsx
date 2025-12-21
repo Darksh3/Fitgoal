@@ -188,7 +188,7 @@ export default function ResultsPage() {
     }
 
     // Activity factor based on training days
-    const trainingDays = Number(data.trainingDaysPerWeek) || 3
+    const trainingDays = Number(data.trainingDays) || 3
     const activityFactor = trainingDays >= 5 ? 1.725 : trainingDays >= 3 ? 1.55 : 1.375
 
     // Goal adjustment
@@ -203,8 +203,9 @@ export default function ResultsPage() {
   }
 
   const getWorkoutLocation = () => {
-    if (!data || !data.equipment) return "Academia"
-    if (data.equipment.includes("Nenhum")) return "Casa"
+    if (!data || !data.equipment || data.equipment.length === 0) return "Não definido"
+    if (data.equipment.includes("gym")) return "Academia"
+    if (data.equipment.includes("bodyweight") && data.equipment.length === 1) return "Casa"
     return "Academia ou Casa"
   }
 
@@ -216,7 +217,7 @@ export default function ResultsPage() {
   }
 
   const getTrainingFrequency = () => {
-    const days = Number(data?.trainingDaysPerWeek) || 3
+    const days = Number(data?.trainingDays) || 3
     return `${days}x por semana`
   }
 
