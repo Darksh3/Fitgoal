@@ -55,6 +55,7 @@ export default function ResultsPage() {
       }
 
       console.log("Dados finais encontrados:", stored)
+      console.log("[v0] IMC value from stored data:", stored?.imc, "Type:", typeof stored?.imc)
       setData(stored)
       setLoading(false)
     }
@@ -261,19 +262,12 @@ export default function ResultsPage() {
   }
 
   if (!data) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-white bg-gradient-to-b from-black via-gray-900 to-black">
-        <div className="text-center">
-          <p className="text-red-400 mb-4">Dados do quiz não encontrados</p>
-          <Button onClick={() => router.push("/quiz")} className="bg-lime-500 hover:bg-lime-600">
-            Refazer Quiz
-          </Button>
-        </div>
-      </div>
-    )
+    return <div className="min-h-screen bg-black text-white flex items-center justify-center">Carregando...</div>
   }
 
-  const bmiInfo = getBMICategory(Number(data.imc))
+  const imcValue = data?.imc ? Number(data.imc) : null
+  console.log("[v0] Final IMC value to display:", imcValue)
+  const bmiInfo = imcValue ? getBMICategory(imcValue) : null
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white">
@@ -327,15 +321,26 @@ export default function ResultsPage() {
               <Heart className="h-5 w-5 text-lime-500" />
               <h3 className="text-xl font-semibold">Análise do seu IMC</h3>
             </div>
-            <Gauge
-              value={Number(data.imc)}
-              maxValue={40}
-              label={`Calculamos o seu IMC e ele é de ${data.imc}`}
-              showPercentage={false}
-            />
-            <p className="text-center text-gray-300 mt-4">
-              Você está com <span className={`font-bold ${bmiInfo.color}`}>{bmiInfo.text}</span>
-            </p>
+            {imcValue ? (
+              <>
+                <Gauge
+                  value={imcValue}
+                  maxValue={40}
+                  label={`Calculamos o seu IMC e ele é de ${imcValue}`}
+                  showPercentage={false}
+                />
+                <p className="text-center text-gray-300 mt-4">
+                  Você está com <span className={`font-bold ${bmiInfo?.color}`}>{bmiInfo?.text}</span>
+                </p>
+              </>
+            ) : (
+              <div className="text-center">
+                <p className="text-gray-400">Calculamos o seu IMC e ele é de undefined</p>
+                <p className="text-center text-gray-300 mt-4">
+                  Você está com <span className="font-bold text-gray-400">Dados indisponíveis</span>
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
@@ -362,7 +367,7 @@ export default function ResultsPage() {
               <h3 className="text-xl font-semibold">IMC Atual</h3>
             </div>
             <div className="text-center space-y-4">
-              <div className={`text-6xl font-bold ${bmiInfo.color}`}>{data.imc}</div>
+              <div className={`text-6xl font-bold ${bmiInfo?.color}`}>{imcValue}</div>
               <div className="flex justify-center items-center gap-2 text-sm">
                 <span className="text-blue-400">Abaixo do peso</span>
                 <span className="text-lime-400 font-bold">Normal</span>
@@ -370,12 +375,12 @@ export default function ResultsPage() {
               </div>
               <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
                 <div
-                  className={`h-full ${Number(data.imc) < 18.5 ? "bg-blue-400" : Number(data.imc) < 25 ? "bg-lime-500" : Number(data.imc) < 30 ? "bg-yellow-400" : "bg-red-400"}`}
-                  style={{ width: `${Math.min((Number(data.imc) / 40) * 100, 100)}%` }}
+                  className={`h-full ${imcValue < 18.5 ? "bg-blue-400" : imcValue < 25 ? "bg-lime-500" : imcValue < 30 ? "bg-yellow-400" : "bg-red-400"}`}
+                  style={{ width: `${Math.min((imcValue / 40) * 100, 100)}%` }}
                 />
               </div>
               <p className="text-gray-300">
-                Você está com <span className={`font-bold ${bmiInfo.color}`}>{bmiInfo.text}</span>
+                Você está com <span className={`font-bold ${bmiInfo?.color}`}>{bmiInfo?.text}</span>
               </p>
             </div>
           </div>
