@@ -203,9 +203,17 @@ export default function ResultsPage() {
   }
 
   const getWorkoutLocation = () => {
-    if (!data || !data.equipment || data.equipment.length === 0) return "Não definido"
-    if (data.equipment.includes("gym")) return "Academia"
-    if (data.equipment.includes("bodyweight") && data.equipment.length === 1) return "Casa"
+    if (!data || !data.equipment) return "Não definido"
+
+    // Handle both array and string formats
+    const equipmentArray = Array.isArray(data.equipment) ? data.equipment : [data.equipment]
+
+    if (equipmentArray.length === 0 || (equipmentArray.length === 1 && equipmentArray[0] === "")) {
+      return "Não definido"
+    }
+
+    if (equipmentArray.includes("gym")) return "Academia"
+    if (equipmentArray.includes("bodyweight") && equipmentArray.length === 1) return "Casa"
     return "Academia ou Casa"
   }
 
@@ -217,7 +225,14 @@ export default function ResultsPage() {
   }
 
   const getTrainingFrequency = () => {
-    const days = Number(data?.trainingDays) || 3
+    const daysString = String(data?.trainingDays || "3").trim()
+    const days = Number.parseInt(daysString, 10)
+
+    if (isNaN(days)) {
+      console.log("[v0] Invalid trainingDays value:", data?.trainingDays)
+      return "3x por semana" // fallback
+    }
+
     return `${days}x por semana`
   }
 
