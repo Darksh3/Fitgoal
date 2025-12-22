@@ -204,20 +204,32 @@ export default function ResultsPage() {
 
   const getWorkoutLocation = () => {
     if (!data || !data.equipment || data.equipment.length === 0) return "Não definido"
-    if (data.equipment.includes("gym")) return "Academia"
-    if (data.equipment.includes("bodyweight") && data.equipment.length === 1) return "Casa"
-    return "Academia ou Casa"
+
+    const equipmentSet = new Set(data.equipment)
+
+    if (equipmentSet.has("gym") && equipmentSet.size === 1) return "Academia"
+    if (equipmentSet.has("bodyweight") && equipmentSet.size === 1) return "Apenas peso corporal"
+    if (equipmentSet.has("dumbbells") && equipmentSet.size === 1) return "Halteres"
+
+    // Multiple equipment options
+    if (equipmentSet.size > 1) {
+      if (equipmentSet.has("gym")) return "Academia completa"
+      return "Múltiplas opções"
+    }
+
+    return "Não definido"
   }
 
   const getFitnessLevel = () => {
     if (!data || !data.strengthTraining) return "Intermediário"
     if (data.strengthTraining === "sim-regularmente") return "Avançado"
     if (data.strengthTraining === "sim-ocasionalmente") return "Intermediário"
-    return "Iniciante"
+    if (data.strengthTraining === "nao") return "Iniciante"
+    return "Intermediário"
   }
 
   const getTrainingFrequency = () => {
-    const days = Number(data?.trainingDays) || 3
+    const days = Number.parseInt(data?.trainingDays, 10) || 5
     return `${days}x por semana`
   }
 
