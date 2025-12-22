@@ -73,7 +73,7 @@ export function Gauge({ value, max, size = 200, label, unit, color }: GaugeProps
       </svg>
 
       {/* Value display */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/4 text-center">
         <div className="text-3xl font-bold text-white">
           {animatedValue.toFixed(1)}
           {unit && <span className="text-xl ml-1">{unit}</span>}
