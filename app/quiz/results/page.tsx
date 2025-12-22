@@ -66,6 +66,12 @@ export default function ResultsPage() {
     console.log("[v0] Data state updated:", data)
   }, [data])
 
+  const getDataValue = (key: string) => {
+    if (data?.[key] !== undefined) return data[key]
+    if (data?.quizData?.[key] !== undefined) return data.quizData[key]
+    return undefined
+  }
+
   const getGoalText = (goals: string[]) => {
     const goalMap: { [key: string]: string } = {
       "perder-peso": "Perder Peso",
@@ -208,25 +214,19 @@ export default function ResultsPage() {
 
   const getWorkoutLocation = () => {
     console.log("[v0] getWorkoutLocation - data:", data)
-    console.log("[v0] getWorkoutLocation - equipment:", data?.equipment)
+    console.log("[v0] getWorkoutLocation - equipment:", getDataValue("equipment"))
 
-    if (!data || !data.equipment || data.equipment.length === 0) {
+    const equipment = getDataValue("equipment")
+    if (!equipment || (Array.isArray(equipment) && equipment.length === 0)) {
       console.log("[v0] Returning 'Não definido' - data or equipment is missing")
       return "Não definido"
     }
 
-    const equipmentSet = new Set(data.equipment)
-    console.log("[v0] equipmentSet:", Array.from(equipmentSet))
+    const equipmentArray = Array.isArray(equipment) ? equipment : [equipment]
 
-    if (equipmentSet.has("gym") && equipmentSet.size === 1) return "Academia"
-    if (equipmentSet.has("bodyweight") && equipmentSet.size === 1) return "Apenas peso corporal"
-    if (equipmentSet.has("dumbbells") && equipmentSet.size === 1) return "Halteres"
-
-    // Multiple equipment options
-    if (equipmentSet.size > 1) {
-      if (equipmentSet.has("gym")) return "Academia completa"
-      return "Múltiplas opções"
-    }
+    if (equipmentArray.includes("gym")) return "Academia"
+    if (equipmentArray.includes("bodyweight")) return "Apenas peso corporal"
+    if (equipmentArray.includes("dumbbells")) return "Halteres"
 
     return "Não definido"
   }
@@ -246,24 +246,21 @@ export default function ResultsPage() {
 
   const getWorkoutDuration = () => {
     console.log("[v0] getWorkoutDuration - data:", data)
-    console.log("[v0] getWorkoutDuration - workoutTime:", data?.workoutTime)
+    console.log("[v0] getWorkoutDuration - workoutTime:", getDataValue("workoutTime"))
 
-    if (!data || !data.workoutTime) {
-      console.log("[v0] Returning 'Não definido' - data or workoutTime is missing")
+    const workoutTime = getDataValue("workoutTime")
+    if (!workoutTime) {
       return "Não definido"
     }
 
-    const durationMap: { [key: string]: string } = {
+    const durationMap: Record<string, string> = {
+      "15-30": "15-30 minutos",
       "30-45": "30-45 minutos",
       "45-60": "45-60 minutos",
-      "60-90": "60-90 minutos",
-      "90-120": "90-120 minutos",
-      "120+": "120+ minutos",
+      "60+": "60+ minutos",
     }
 
-    const result = durationMap[data.workoutTime] || data.workoutTime
-    console.log("[v0] getWorkoutDuration result:", result)
-    return result
+    return durationMap[workoutTime] || workoutTime
   }
 
   const getAdditionalGoalsIcons = () => {
