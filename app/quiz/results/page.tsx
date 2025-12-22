@@ -229,8 +229,22 @@ export default function ResultsPage() {
   }
 
   const getTrainingFrequency = () => {
-    const days = Number.parseInt(data?.trainingDays, 10) || 5
+    const days = Number.parseInt(String(data?.trainingDays || "3"), 10) || 3
     return `${days}x por semana`
+  }
+
+  const getWorkoutDuration = () => {
+    if (!data || !data.workoutTime) return "Não definido"
+
+    const durationMap: { [key: string]: string } = {
+      "30-45": "30-45 minutos",
+      "45-60": "45-60 minutos",
+      "60-90": "60-90 minutos",
+      "90-120": "90-120 minutos",
+      "120+": "120+ minutos",
+    }
+
+    return durationMap[data.workoutTime] || data.workoutTime
   }
 
   const getAdditionalGoalsIcons = () => {
@@ -409,7 +423,7 @@ export default function ResultsPage() {
               <Clock className="h-8 w-8 text-lime-500 flex-shrink-0" />
               <div>
                 <p className="text-sm text-gray-400">Duração do Treino</p>
-                <p className="text-lg font-semibold">{data.workoutTime || "1 hora"}</p>
+                <p className="text-lg font-semibold">{getWorkoutDuration()}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-4 bg-gray-700/30 rounded-xl">
