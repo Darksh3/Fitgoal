@@ -207,9 +207,16 @@ export default function ResultsPage() {
   }
 
   const getWorkoutLocation = () => {
-    if (!data || !data.equipment || data.equipment.length === 0) return "Não definido"
+    console.log("[v0] getWorkoutLocation - data:", data)
+    console.log("[v0] getWorkoutLocation - equipment:", data?.equipment)
+
+    if (!data || !data.equipment || data.equipment.length === 0) {
+      console.log("[v0] Returning 'Não definido' - data or equipment is missing")
+      return "Não definido"
+    }
 
     const equipmentSet = new Set(data.equipment)
+    console.log("[v0] equipmentSet:", Array.from(equipmentSet))
 
     if (equipmentSet.has("gym") && equipmentSet.size === 1) return "Academia"
     if (equipmentSet.has("bodyweight") && equipmentSet.size === 1) return "Apenas peso corporal"
@@ -238,7 +245,13 @@ export default function ResultsPage() {
   }
 
   const getWorkoutDuration = () => {
-    if (!data || !data.workoutTime) return "Não definido"
+    console.log("[v0] getWorkoutDuration - data:", data)
+    console.log("[v0] getWorkoutDuration - workoutTime:", data?.workoutTime)
+
+    if (!data || !data.workoutTime) {
+      console.log("[v0] Returning 'Não definido' - data or workoutTime is missing")
+      return "Não definido"
+    }
 
     const durationMap: { [key: string]: string } = {
       "30-45": "30-45 minutos",
@@ -248,7 +261,9 @@ export default function ResultsPage() {
       "120+": "120+ minutos",
     }
 
-    return durationMap[data.workoutTime] || data.workoutTime
+    const result = durationMap[data.workoutTime] || data.workoutTime
+    console.log("[v0] getWorkoutDuration result:", result)
+    return result
   }
 
   const getAdditionalGoalsIcons = () => {
