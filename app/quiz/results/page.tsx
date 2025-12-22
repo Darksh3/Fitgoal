@@ -62,6 +62,10 @@ export default function ResultsPage() {
     fetchData()
   }, [router])
 
+  useEffect(() => {
+    console.log("[v0] Data state updated:", data)
+  }, [data])
+
   const getGoalText = (goals: string[]) => {
     const goalMap: { [key: string]: string } = {
       "perder-peso": "Perder Peso",
