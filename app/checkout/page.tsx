@@ -128,36 +128,13 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
 
       const paymentResult = await paymentResponse.json()
       console.log("[v0] Resultado do pagamento:", paymentResult)
-      console.log("[v0] pixQrCode value:", paymentResult.pixQrCode)
-      console.log("[v0] pixQrCode type:", typeof paymentResult.pixQrCode)
-      console.log("[v0] pixQrCode length:", paymentResult.pixQrCode?.length)
-      console.log("[v0] pixCopyPaste value:", paymentResult.pixCopyPaste)
 
-      // 2. Se for Pix, buscar QR Code
+      // 2. Se for Pix, mostrar QR Code
       if (paymentMethod === "pix") {
-        console.log("[v0] Buscando QR code para paymentId:", paymentResult.paymentId)
-
-        const qrCodeResponse = await fetch(`/api/get-pix-qrcode?paymentId=${paymentResult.paymentId}`)
-
-        if (qrCodeResponse.ok) {
-          const qrCodeResult = await qrCodeResponse.json()
-          console.log("[v0] QR Code obtido:", qrCodeResult)
-          console.log("[v0] encodedImage:", qrCodeResult.encodedImage)
-          console.log("[v0] payload:", qrCodeResult.payload)
-
-          setPixData({
-            qrCode: qrCodeResult.encodedImage || qrCodeResult.qrCode,
-            copyPaste: qrCodeResult.payload,
-          })
-        } else {
-          const errorData = await qrCodeResponse.json()
-          console.error("[v0] Erro ao buscar QR code:", errorData)
-          setPixData({
-            qrCode: paymentResult.pixQrCode,
-            copyPaste: paymentResult.pixCopyPaste,
-          })
-        }
-
+        setPixData({
+          qrCode: paymentResult.pixQrCode,
+          copyPaste: paymentResult.pixCopyPaste,
+        })
         setProcessing(false)
         return
       }
@@ -224,15 +201,9 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         <CardContent className="space-y-4">
           <div className="text-center">
             <p className="text-gray-300 mb-4">Escaneie o QR Code ou copie o código abaixo:</p>
-            {pixData.qrCode ? (
-              <div className="bg-white p-4 rounded-lg inline-block mb-4">
-                <img src={`data:image/png;base64,${pixData.qrCode}`} alt="QR Code Pix" className="w-64 h-64" />
-              </div>
-            ) : (
-              <div className="bg-gray-700 p-4 rounded-lg inline-block mb-4 text-red-400">
-                <p>Erro ao gerar QR Code. Por favor, tente novamente.</p>
-              </div>
-            )}
+            <div className="bg-white p-4 rounded-lg inline-block mb-4">
+              <img src={`data:image/png;base64,${pixData.qrCode}`} alt="QR Code Pix" className="w-64 h-64" />
+            </div>
             <div className="bg-gray-700 p-3 rounded-lg mb-4">
               <p className="text-xs text-gray-300 break-all font-mono">{pixData.copyPaste}</p>
             </div>
