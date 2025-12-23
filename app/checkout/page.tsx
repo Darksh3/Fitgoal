@@ -133,12 +133,31 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
       console.log("[v0] pixQrCode length:", paymentResult.pixQrCode?.length)
       console.log("[v0] pixCopyPaste value:", paymentResult.pixCopyPaste)
 
-      // 2. Se for Pix, mostrar QR Code
+      // 2. Se for Pix, buscar QR Code
       if (paymentMethod === "pix") {
-        setPixData({
-          qrCode: paymentResult.pixQrCode,
-          copyPaste: paymentResult.pixCopyPaste,
-        })
+        console.log("[v0] Buscando QR code para paymentId:", paymentResult.paymentId)
+
+        const qrCodeResponse = await fetch(`/api/get-pix-qrcode?paymentId=${paymentResult.paymentId}`)
+
+        if (qrCodeResponse.ok) {
+          const qrCodeResult = await qrCodeResponse.json()
+          console.log("[v0] QR Code obtido:", qrCodeResult)
+          console.log("[v0] encodedImage:", qrCodeResult.encodedImage)
+          console.log("[v0] payload:", qrCodeResult.payload)
+
+          setPixData({
+            qrCode: qrCodeResult.encodedImage || qrCodeResult.qrCode,
+            copyPaste: qrCodeResult.payload,
+          })
+        } else {
+          const errorData = await qrCodeResponse.json()
+          console.error("[v0] Erro ao buscar QR code:", errorData)
+          setPixData({
+            qrCode: paymentResult.pixQrCode,
+            copyPaste: paymentResult.pixCopyPaste,
+          })
+        }
+
         setProcessing(false)
         return
       }
