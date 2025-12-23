@@ -38,13 +38,18 @@ export async function GET(req: Request) {
     }
 
     const response = {
-      encodedImage: pixResult.encodedImage,
-      qrCode: pixResult.qrCode,
+      encodedImage: pixResult.encodedImage || pixResult.dict?.qrCode,
+      qrCode: pixResult.qrCode || pixResult.dict?.url,
       dict: pixResult.dict,
-      payload: pixResult.payload,
+      payload: pixResult.payload || pixResult.dict?.payload,
       pixQrCode: pixResult.pixQrCode,
       allFields: pixResult,
+      // Log para debug
+      dictKeys: pixResult.dict ? Object.keys(pixResult.dict) : null,
     }
+
+    console.log("[v0] Response fields:", Object.keys(response))
+    console.log("[v0] Dict data:", pixResult.dict)
 
     return NextResponse.json(response)
   } catch (error: any) {
