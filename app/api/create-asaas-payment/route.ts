@@ -28,6 +28,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Erro de configuração do servidor" }, { status: 500 })
     }
 
+    console.log("[v0] create-asaas-payment - API Key verificação:", {
+      keyExists: !!ASAAS_API_KEY,
+      keyLength: ASAAS_API_KEY?.length || 0,
+      keyFirstChars: ASAAS_API_KEY?.substring(0, 5) + "***" || "N/A",
+    })
+
     // Mapeamento de planos para valores
     const planPrices: Record<string, number> = {
       mensal: 79.9,
@@ -70,13 +76,23 @@ export async function POST(req: Request) {
       body: JSON.stringify(customerData),
     })
 
+    console.log("[v0] create-asaas-payment - Requisição enviada:", {
+      url: `${ASAAS_API_URL}/customers`,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        access_token: ASAAS_API_KEY ? `${ASAAS_API_KEY.substring(0, 10)}...` : "N/A",
+      },
+    })
+
     const customerResult = await customerResponse.json()
 
-    console.log("[v0] create-asaas-payment - Resposta do Asaas:", {
-      status: customerResponse.status,
-      ok: customerResponse.ok,
-      result: customerResult,
-    })
+    console.log("[v0] create-asaas-payment - Status da resposta:", customerResponse.status)
+    console.log(
+      "[v0] create-asaas-payment - Headers da resposta:",
+      Object.fromEntries(customerResponse.headers.entries()),
+    )
+    console.log("[v0] create-asaas-payment - Corpo da resposta completo:", JSON.stringify(customerResult, null, 2))
 
     let customerId = null
 
