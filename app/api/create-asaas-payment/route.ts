@@ -179,7 +179,16 @@ export async function POST(req: Request) {
     }
 
     if (billingType === "PIX") {
-      response.pixQrCode = paymentResult.encodedImage
+      console.log("[v0] PaymentResult fields:", Object.keys(paymentResult))
+      console.log("[v0] PaymentResult full:", JSON.stringify(paymentResult, null, 2))
+      console.log("[v0] encodedImage value:", paymentResult.encodedImage)
+      console.log("[v0] qrCode value:", paymentResult.qrCode)
+      console.log("[v0] dict value:", paymentResult.dict)
+
+      // Try multiple field names that Asaas might use
+      const qrCodeImage = paymentResult.encodedImage || paymentResult.qrCode || paymentResult.dict
+
+      response.pixQrCode = qrCodeImage
       response.pixCopyPaste = paymentResult.payload
     } else if (billingType === "BOLETO") {
       response.boletoUrl = paymentResult.bankSlipUrl
