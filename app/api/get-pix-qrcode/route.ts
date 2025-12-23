@@ -17,7 +17,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Erro de configuração do servidor" }, { status: 500 })
     }
 
-    const pixResponse = await fetch(`${ASAAS_API_URL}/payments/${paymentId}/pix/qrcode`, {
+    const pixResponse = await fetch(`${ASAAS_API_URL}/payments/${paymentId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -25,17 +25,16 @@ export async function GET(req: Request) {
       },
     })
 
-    console.log("[v0] get-pix-qrcode - Status:", pixResponse.status)
-    console.log("[v0] get-pix-qrcode - Headers:", Object.fromEntries(pixResponse.headers.entries()))
+    console.log("[v0] get-pix-qrcode - Status do pagamento:", pixResponse.status)
 
     const pixResult = await pixResponse.json()
 
-    console.log("[v0] get-pix-qrcode - Resposta completa:", JSON.stringify(pixResult, null, 2))
-    console.log("[v0] get-pix-qrcode - Campos disponíveis:", Object.keys(pixResult))
+    console.log("[v0] get-pix-qrcode - Resposta do pagamento:", JSON.stringify(pixResult, null, 2))
+    console.log("[v0] get-pix-qrcode - Campos do pagamento:", Object.keys(pixResult))
 
     if (!pixResponse.ok) {
-      console.error("[v0] get-pix-qrcode - Erro:", pixResult)
-      return NextResponse.json({ error: "Erro ao buscar QR code" }, { status: 400 })
+      console.error("[v0] get-pix-qrcode - Erro ao buscar pagamento:", pixResult)
+      return NextResponse.json({ error: "Erro ao buscar pagamento" }, { status: 400 })
     }
 
     const response = {
@@ -43,7 +42,7 @@ export async function GET(req: Request) {
       qrCode: pixResult.qrCode,
       dict: pixResult.dict,
       payload: pixResult.payload,
-      // Retornar todos os campos para debug
+      pixQrCode: pixResult.pixQrCode,
       allFields: pixResult,
     }
 
