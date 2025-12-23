@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY
-const ASAAS_API_URL = "https://api.asaas.com/v3"
+const ASAAS_API_URL =
+  process.env.NODE_ENV === "production" ? "https://api.asaas.com/v3" : "https://sandbox.asaas.com/v3"
 
 export async function POST(req: Request) {
   try {
@@ -16,6 +17,7 @@ export async function POST(req: Request) {
       paymentMethod,
       clientUid,
     })
+    console.log("[v0] create-asaas-payment - Environment:", { env: process.env.NODE_ENV, apiUrl: ASAAS_API_URL })
 
     if (!email || !name || !cpf || !planType || !paymentMethod || !clientUid) {
       return NextResponse.json({ error: "Dados obrigatórios ausentes" }, { status: 400 })
