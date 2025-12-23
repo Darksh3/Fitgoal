@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
 
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY
-const ASAAS_API_URL =
-  process.env.NODE_ENV === "production" ? "https://api.asaas.com/v3" : "https://sandbox.asaas.com/v3"
+const ASAAS_ENVIRONMENT = process.env.ASAAS_ENVIRONMENT || "production"
+const ASAAS_API_URL = ASAAS_ENVIRONMENT === "sandbox" ? "https://sandbox.asaas.com/v3" : "https://api.asaas.com/v3"
 
 export async function GET(req: Request) {
   try {
