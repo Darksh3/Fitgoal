@@ -128,6 +128,10 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
 
       const paymentResult = await paymentResponse.json()
       console.log("[v0] Resultado do pagamento:", paymentResult)
+      console.log("[v0] pixQrCode value:", paymentResult.pixQrCode)
+      console.log("[v0] pixQrCode type:", typeof paymentResult.pixQrCode)
+      console.log("[v0] pixQrCode length:", paymentResult.pixQrCode?.length)
+      console.log("[v0] pixCopyPaste value:", paymentResult.pixCopyPaste)
 
       // 2. Se for Pix, mostrar QR Code
       if (paymentMethod === "pix") {
