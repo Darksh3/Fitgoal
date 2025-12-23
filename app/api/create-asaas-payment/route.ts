@@ -179,6 +179,8 @@ export async function POST(req: Request) {
     }
 
     if (billingType === "PIX") {
+      console.log("[v0] PaymentResult fields:", Object.keys(paymentResult))
+      console.log("[v0] encodedImage value:", paymentResult.encodedImage)
       response.pixQrCode = paymentResult.encodedImage
       response.pixCopyPaste = paymentResult.payload
     } else if (billingType === "BOLETO") {

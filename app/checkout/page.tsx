@@ -201,9 +201,15 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         <CardContent className="space-y-4">
           <div className="text-center">
             <p className="text-gray-300 mb-4">Escaneie o QR Code ou copie o código abaixo:</p>
-            <div className="bg-white p-4 rounded-lg inline-block mb-4">
-              <img src={`data:image/png;base64,${pixData.qrCode}`} alt="QR Code Pix" className="w-64 h-64" />
-            </div>
+            {pixData.qrCode ? (
+              <div className="bg-white p-4 rounded-lg inline-block mb-4">
+                <img src={`data:image/png;base64,${pixData.qrCode}`} alt="QR Code Pix" className="w-64 h-64" />
+              </div>
+            ) : (
+              <div className="bg-gray-700 p-4 rounded-lg inline-block mb-4 text-red-400">
+                <p>Erro ao gerar QR Code. Por favor, tente novamente.</p>
+              </div>
+            )}
             <div className="bg-gray-700 p-3 rounded-lg mb-4">
               <p className="text-xs text-gray-300 break-all font-mono">{pixData.copyPaste}</p>
             </div>
