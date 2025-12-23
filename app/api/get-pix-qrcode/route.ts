@@ -17,7 +17,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Erro de configuração do servidor" }, { status: 500 })
     }
 
-    const pixResponse = await fetch(`${ASAAS_API_URL}/payments/${paymentId}`, {
+    const pixResponse = await fetch(`${ASAAS_API_URL}/payments/${paymentId}/pixQrCode`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -25,31 +25,26 @@ export async function GET(req: Request) {
       },
     })
 
-    console.log("[v0] get-pix-qrcode - Status do pagamento:", pixResponse.status)
+    console.log("[v0] get-pix-qrcode - Status da resposta:", pixResponse.status)
 
     const pixResult = await pixResponse.json()
 
-    console.log("[v0] get-pix-qrcode - Resposta do pagamento:", JSON.stringify(pixResult, null, 2))
-    console.log("[v0] get-pix-qrcode - Campos do pagamento:", Object.keys(pixResult))
+    console.log("[v0] get-pix-qrcode - Resposta do QR code:", JSON.stringify(pixResult, null, 2))
 
     if (!pixResponse.ok) {
-      console.error("[v0] get-pix-qrcode - Erro ao buscar pagamento:", pixResult)
-      return NextResponse.json({ error: "Erro ao buscar pagamento" }, { status: 400 })
+      console.error("[v0] get-pix-qrcode - Erro ao buscar QR code:", pixResult)
+      return NextResponse.json({ error: "Erro ao buscar QR code" }, { status: 400 })
     }
 
     const response = {
-      encodedImage: pixResult.encodedImage || pixResult.dict?.qrCode,
-      qrCode: pixResult.qrCode || pixResult.dict?.url,
-      dict: pixResult.dict,
-      payload: pixResult.payload || pixResult.dict?.payload,
-      pixQrCode: pixResult.pixQrCode,
+      encodedImage: pixResult.encodedImage,
+      payload: pixResult.payload,
+      qrCodeUrl: pixResult.qrCodeUrl,
       allFields: pixResult,
-      // Log para debug
-      dictKeys: pixResult.dict ? Object.keys(pixResult.dict) : null,
     }
 
-    console.log("[v0] Response fields:", Object.keys(response))
-    console.log("[v0] Dict data:", pixResult.dict)
+    console.log("[v0] QR Code obtido com sucesso - encodedImage:", !!pixResult.encodedImage)
+    console.log("[v0] Payload:", pixResult.payload?.substring(0, 50) + "...")
 
     return NextResponse.json(response)
   } catch (error: any) {
