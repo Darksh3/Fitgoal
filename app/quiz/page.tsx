@@ -2859,9 +2859,9 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               {[
-                { value: "esporadicamente", label: "Às vezes", icon: "🍭" },
-                { value: "com-frequencia", label: "Com frequência", icon: "🍰" },
-                { value: "todos-dias", label: "Todos os dias", icon: "🍫" },
+                { value: "esporadicamente", label: "Às vezes"},
+                { value: "com-frequencia", label: "Com frequência"},
+                { value: "todos-dias", label: "Todos os dias"},
               ].map((freq) => (
                 <div
                   key={freq.value}
@@ -2894,10 +2894,10 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               {[
-                { value: "esporadicamente", label: "Às vezes", icon: "🍷" },
-                { value: "com-frequencia", label: "Com frequência", icon: "🍺" },
-                { value: "todos-dias", label: "Todos os dias", icon: "🥃" },
-                { value: "nao-consumo", label: "Não consumo", icon: "🚫" },
+                { value: "esporadicamente", label: "Às vezes"},
+                { value: "com-frequencia", label: "Com frequência"},
+                { value: "todos-dias", label: "Todos os dias"},
+                { value: "nao-consumo", label: "Não consumo"},
               ].map((freq) => (
                 <div
                   key={freq.value}
