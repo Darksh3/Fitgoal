@@ -1105,109 +1105,150 @@ export default function QuizPage() {
   const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
   // </CHANGE>
 
-  if (showQuickResults) {
+ if (showQuickResults) {
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-10">
+    <motion.div
+      className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-10"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
       <div className="max-w-2xl w-full space-y-8">
 
         {/* Header */}
-        <div className="text-center space-y-3">
+        <motion.div
+          className="text-center space-y-3"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
+        >
           <h1 className="text-4xl sm:text-5xl font-bold">
             Apenas 2 semanas para sentir os primeiros sinais
           </h1>
           <p className="text-gray-400 text-lg">
             Com base no seu perfil, estes são os resultados iniciais mais comuns
           </p>
-        </div>
+        </motion.div>
 
         {/* Status box */}
-        <div className="bg-gradient-to-br from-zinc-900 via-zinc-900 to-black
-                        border border-zinc-800 rounded-3xl px-6 py-6 space-y-5">
+        <motion.div
+          className="bg-gradient-to-br from-zinc-900 via-zinc-900 to-black
+                     border border-zinc-800 rounded-3xl px-6 py-6 space-y-5"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+        >
 
-          {/* Item */}
-          <div className="flex items-center justify-between">
+          {/* Item 1 */}
+          <motion.div
+            className="flex items-center justify-between"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+          >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
                 <span className="text-green-400 text-lg">✓</span>
               </div>
               <span className="text-lg">Energia diária</span>
             </div>
-            <div className="flex items-center gap-1 text-green-400 font-medium">
-              <span>↑</span>
-              <span>Estável</span>
-            </div>
-          </div>
+            <div className="text-green-400 font-medium">↑ Estável</div>
+          </motion.div>
 
           <div className="h-px bg-zinc-800" />
 
-          {/* Item */}
-          <div className="flex items-center justify-between">
+          {/* Item 2 */}
+          <motion.div
+            className="flex items-center justify-between"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.45 }}
+          >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center">
                 <span className="text-red-400 text-lg">✓</span>
               </div>
               <span className="text-lg">Gordura corporal</span>
             </div>
-            <div className="flex items-center gap-1 text-red-400 font-medium">
-              <span>↓</span>
-              <span>Em queda</span>
-            </div>
-          </div>
+            <div className="text-red-400 font-medium">↓ Em queda</div>
+          </motion.div>
 
           <div className="h-px bg-zinc-800" />
 
-          {/* Item */}
-          <div className="flex items-center justify-between">
+          {/* Item 3 */}
+          <motion.div
+            className="flex items-center justify-between"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 }}
+          >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
                 <span className="text-blue-400 text-lg">✓</span>
               </div>
               <span className="text-lg">Corpo mais firme</span>
             </div>
-            <div className="flex items-center gap-1 text-blue-400 font-medium">
-              <span>↑</span>
-              <span>Ativando</span>
-            </div>
-          </div>
-        </div>
+            <div className="text-blue-400 font-medium">↑ Ativando</div>
+          </motion.div>
+        </motion.div>
 
         {/* Timeline */}
-        <div className="text-center space-y-2">
-          <div className="flex items-center justify-between text-sm text-gray-400 px-2">
+        <motion.div
+          className="text-center space-y-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+        >
+          <div className="flex justify-between text-sm text-gray-400 px-2">
             <span>Agora</span>
             <span>7 dias</span>
             <span className="text-white font-medium">14 dias</span>
           </div>
 
-          <div className="relative h-1 bg-zinc-800 rounded-full">
-            <div className="absolute left-0 top-0 h-1 w-2/3 bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full" />
+          <div className="relative h-1 bg-zinc-800 rounded-full overflow-hidden">
+            <motion.div
+              className="absolute left-0 top-0 h-1 bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: "66%" }}
+              transition={{ delay: 0.9, duration: 0.6, ease: "easeOut" }}
+            />
           </div>
 
           <p className="text-sm text-gray-400">
             ▲ primeiros sinais perceptíveis
           </p>
-        </div>
+        </motion.div>
 
         {/* Proof */}
-        <p className="text-center text-sm text-gray-500">
+        <motion.p
+          className="text-center text-sm text-gray-500"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+        >
           *Estimativa baseada em mais de 1,3 milhão de treinos analisados
-        </p>
+        </motion.p>
 
         {/* CTA */}
-        <button
+        <motion.button
           onClick={() => {
             setShowQuickResults(false)
             setCurrentStep(6)
           }}
           className="w-full h-16 text-xl font-bold text-white
                      bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400
-                     hover:from-blue-500 hover:via-blue-400 hover:to-cyan-300
-                     rounded-2xl shadow-lg transition-all duration-300"
+                     rounded-2xl shadow-lg"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.1 }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
         >
           Continuar
-        </button>
+        </motion.button>
+
       </div>
-    </div>
+    </motion.div>
   )
 }
 
