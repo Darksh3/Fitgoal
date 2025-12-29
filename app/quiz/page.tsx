@@ -811,26 +811,26 @@ export default function QuizPage() {
     if (currentStep > 1) {
       // Adjusted step numbers to match the new flow
       if (currentStep === 26 && quizData.allergies === "nao") {
-        // If we are at supplement interest question (case 26) and allergies was 'no' (case 24, which jumps to 26)
-        // We need to go back to the allergies question (case 24).
-        setCurrentStep(24) // Go back to allergies question
+        // If we are at supplement interest question (case 27) and allergies was 'no' (case 25)
+        // We need to go back to the allergies question (case 25).
+        setCurrentStep(25) // Go back to allergies question
       } else if (currentStep === 28 && quizData.wantsSupplement === "nao") {
-        // If we are at name question (case 28) and supplement interest was 'no' (case 26, which jumps to 27)
-        // We need to go back to the supplement interest question (case 26).
-        setCurrentStep(26)
+        // If we are at name question (case 29) and supplement interest was 'no' (case 27)
+        // We need to go back to the supplement interest question (case 27).
+        setCurrentStep(27)
       } else if (currentStep === 27 && quizData.wantsSupplement === "sim") {
-        // If we are at supplement recommendation (case 27) and supplement interest was 'yes' (case 26)
-        // We need to go back to the supplement interest question (case 26).
-        setCurrentStep(26)
-      } else if (currentStep === 25 && quizData.allergies === "sim") {
-        // If we are at allergy details (case 25) and allergies was 'yes' (case 24)
-        // We need to go back to the allergies question (case 24).
-        setCurrentStep(24) // Go back to allergies question
+        // If we are at supplement recommendation (case 28) and supplement interest was 'yes' (case 27)
+        // We need to go back to the supplement interest question (case 27).
+        setCurrentStep(27)
+      } else if (currentStep === 26 && quizData.allergies === "sim") {
+        // If we are at allergy details (case 26) and allergies was 'yes' (case 25)
+        // We need to go back to the allergies question (case 25).
+        setCurrentStep(25) // Go back to allergies question
       } else if (currentStep === 19 && quizData.additionalGoals.length === 0) {
-        // If we are at the additional goals page (now case 19) and user selected none,
-        // and if we are navigating back from this page, we should go back to the previous problem page (case 18)
+        // If we are at the additional goals page (now case 20) and user selected none,
+        // and if we are navigating back from this page, we should go back to the previous problem page (case 19)
         setShowMotivationMessage(false) // Hide motivation message if it was shown
-        setCurrentStep(18)
+        setCurrentStep(19)
       } else if (currentStep === 19 && showMotivationMessage) {
         // If motivation message was shown, go back to previous step before motivation message
         setShowMotivationMessage(false)
@@ -838,10 +838,10 @@ export default function QuizPage() {
         // So if we are at step 19 (additional goals) and motivation message was shown, it means we came from step 18
         // where previousProblems was empty. So we should go back to step 18.
         setCurrentStep(18)
-      } else if (currentStep === 23 && showCortisolMessage) {
+      } else if (currentStep === 22 && showCortisolMessage) {
         // Adding back navigation for cortisol message
         setShowCortisolMessage(false)
-        setCurrentStep(22)
+        setCurrentStep(21)
         // </CHANGE>
       } else {
         setCurrentStep(currentStep - 1)
@@ -1971,7 +1971,7 @@ export default function QuizPage() {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         return quizData.email !== "" && emailRegex.test(quizData.email)
       case 30: // Final submit
-        // Training days per week is now handled by step 24.
+        // Training days per week is now handled by step 23.
         // This step is now the final submit.
         return true
 
@@ -2859,9 +2859,9 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               {[
-                { value: "esporadicamente", label: "Às vezes"},
-                { value: "com-frequencia", label: "Com frequência"},
-                { value: "todos-dias", label: "Todos os dias"},
+                { value: "esporadicamente", label: "Às vezes", icon: "🍬" },
+                { value: "com-frequencia", label: "Com frequência", icon: "🍭" },
+                { value: "todos-dias", label: "Todos os dias", icon: "🍫" },
               ].map((freq) => (
                 <div
                   key={freq.value}
@@ -2894,10 +2894,10 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               {[
-                { value: "esporadicamente", label: "Às vezes"},
-                { value: "com-frequencia", label: "Com frequência"},
-                { value: "todos-dias", label: "Todos os dias"},
-                { value: "nao-consumo", label: "Não consumo"},
+                { value: "esporadicamente", label: "Às vezes", icon: "🍻" },
+                { value: "com-frequencia", label: "Com frequência", icon: "🥂" },
+                { value: "todos-dias", label: "Todos os dias", icon: "🍷" },
+                { value: "nao-consumo", label: "Não consumo", icon: "🚫" },
               ].map((freq) => (
                 <div
                   key={freq.value}
@@ -3571,7 +3571,7 @@ export default function QuizPage() {
           </div>
         )
 
-     case 23:
+      case 23:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3840,7 +3840,7 @@ export default function QuizPage() {
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
-                  setTimeout(() => setCurrentStep(26), 300) // Skip allergy details (case 25) and go to supplement interest (case 26)
+                  setTimeout(() => setCurrentStep(27), 300)
                 }}
               >
                 <X
@@ -3987,7 +3987,7 @@ export default function QuizPage() {
                   updateQuizData("wantsSupplement", "nao")
                   updateQuizData("recommendedSupplement", "")
                   updateQuizData("supplementType", "")
-                  setTimeout(() => nextStep(), 300)
+                  setTimeout(() => setCurrentStep(29), 300)
                 }}
                 className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
                   quizData.wantsSupplement === "nao"
