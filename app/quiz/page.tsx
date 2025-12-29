@@ -3377,12 +3377,7 @@ export default function QuizPage() {
               </button>
             </div>
             <div className="flex justify-center mt-8">
-              <Button
-                onClick={() => {
-                  nextStep()
-                }}
-                className="group relative overflow-hidden"
-              >
+              <Button onClick={nextStep} className="group relative overflow-hidden">
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
@@ -3849,7 +3844,7 @@ export default function QuizPage() {
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
-                  setTimeout(() => setCurrentStep(26), 300) // Skip allergy details (case 26) and go to supplement interest (case 27)
+                  setTimeout(() => setCurrentStep(27), 300) // Skip allergy details (case 26) and go to supplement interest (case 27)
                 }}
               >
                 <X
@@ -3884,7 +3879,7 @@ export default function QuizPage() {
               />
             </div>
             <div className="flex justify-center">
-              <Button onClick={nextStep} className="group relative">
+              <Button onClick={() => setCurrentStep(27)} className="group relative">
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/10 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-400 to-lime-500 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
@@ -3952,7 +3947,7 @@ export default function QuizPage() {
               <h2 className="text-2xl sm:text-3xl font-bold text-white">
                 Podemos adicionar algum suplemento à sua dieta?
               </h2>
-              <p className="text-gray-400">Por exemplo: Hipercalórico, Whey Protein...</p>
+              <p className="text-gray-300">Por exemplo: Hipercalórico, Whey Protein...</p>
             </div>
 
             <div className="max-w-2xl mx-auto space-y-4">
@@ -4033,7 +4028,35 @@ export default function QuizPage() {
           </div>
         )
 
-      case 28: // Name (Antigo 27)
+      case 28: // Supplement Recommendation (Novo Case para mostrar a recomendação)
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Recomendação Personalizada</h2>
+              <p className="text-gray-300">Com base no seu perfil, recomendamos:</p>
+            </div>
+            <div className="bg-lime-500/10 border-2 border-lime-500 rounded-lg p-6 text-center">
+              <h3 className="text-2xl font-bold text-lime-500 mb-2">
+                {quizData.recommendedSupplement || "Suplemento Ideal"}
+              </h3>
+              <p className="text-gray-300 italic">
+                {quizData.recommendedSupplement === "Hipercalórico Growth"
+                  ? "Ideal para auxiliar no ganho de peso e massa muscular."
+                  : "Ideal para auxiliar na recuperação e manutenção muscular."}
+              </p>
+            </div>
+            <div className="flex justify-center">
+              <Button onClick={() => setCurrentStep(29)} className="group relative">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
+
+      case 29: // Name (Antigo 26)
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -4063,7 +4086,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 29: // Email (Antigo 28)
+      case 30: // Email (Antigo 28)
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -4094,41 +4117,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 30: // Final submit (Antigo 29)
-        return (
-          <div className="space-y-8 text-center">
-            <h2 className="text-2xl font-bold text-white">Pronto para começar?</h2>
-            <p className="text-gray-300">
-              Revise suas informações e clique em "Finalizar Avaliação" para receber seu plano personalizado.
-            </p>
-            <div className="mt-10">
-              <Button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
-              >
-                <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10 flex items-center gap-3">
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-6 w-6 animate-spin" />
-                        Processando...
-                      </>
-                    ) : (
-                      <>
-                        Finalizar Avaliação
-                        <Dumbbell className="h-6 w-6" />
-                      </>
-                    )}
-                  </span>
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
-
-      case 31: // Final Submit - this is the actual final step
+      case 31: // Final submit (Antigo 29)
         return (
           <div className="space-y-8 text-center">
             <h2 className="text-2xl font-bold text-white">Pronto para começar?</h2>
