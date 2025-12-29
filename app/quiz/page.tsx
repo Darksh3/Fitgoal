@@ -2894,6 +2894,7 @@ export default function QuizPage() {
                 { value: "esporadicamente", label: "Às vezes", icon: "🍬" },
                 { value: "com-frequencia", label: "Com frequência", icon: "🍭" },
                 { value: "todos-dias", label: "Todos os dias", icon: "🍫" },
+                { value: "nao-consumo", label: "Não consumo", icon: "🚫" },
               ].map((freq) => (
                 <div
                   key={freq.value}
