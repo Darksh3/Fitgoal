@@ -1104,131 +1104,110 @@ export default function QuizPage() {
   // </CHANGE>
 
   if (showQuickResults) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-10">
-        <div className="max-w-2xl w-full space-y-7">
-          <div className="text-center space-y-3">
-            <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para o primeiro resultado</h1>
-            <p className="text-gray-400 text-lg">Prevemos que você verá melhorias até o final da 2ª semana</p>
-          </div>
+  return (
+    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-10">
+      <div className="max-w-2xl w-full space-y-8">
 
-          {/* Adjusted height of the graph container and repositioned labels */}
-          <div className="relative w-full h-[360px] sm:h-[380px] bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50 rounded-3xl px-6 sm:px-8 py-6 backdrop-blur-sm border border-blue-800/40">
-            <div className="relative w-full h-full">
-              {/* Y-axis labels */}
-              <div className="absolute left-0 top-2 bottom-10 flex flex-col justify-between text-xs text-gray-400">
-                <span>Alto</span>
-                <span>Baixo</span>
+        {/* Header */}
+        <div className="text-center space-y-3">
+          <h1 className="text-4xl sm:text-5xl font-bold">
+            Apenas 2 semanas para sentir os primeiros sinais
+          </h1>
+          <p className="text-gray-400 text-lg">
+            Com base no seu perfil, estes são os resultados iniciais mais comuns
+          </p>
+        </div>
+
+        {/* Status box */}
+        <div className="bg-gradient-to-br from-zinc-900 via-zinc-900 to-black
+                        border border-zinc-800 rounded-3xl px-6 py-6 space-y-5">
+
+          {/* Item */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                <span className="text-green-400 text-lg">✓</span>
               </div>
-
-              {/* X-axis labels */}
-              <div className="absolute bottom-1 left-16 right-0 flex justify-between text-xs text-gray-400 px-4">
-                <span>1 Mês</span>
-                <span>2 Meses</span>
-                <span>3 Meses</span>
-              </div>
-
-              {/* SVG */}
-              <svg
-                className="absolute left-16 top-3 right-4 bottom-10"
-                viewBox="0 0 400 260"
-                preserveAspectRatio="xMidYMid meet"
-              >
-                <defs>
-                  {/* Gradientes */}
-                  <linearGradient id="muscleLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#06b6d4" stopOpacity="1" />
-                    <stop offset="55%" stopColor="#10b981" stopOpacity="1" />
-                    <stop offset="100%" stopColor="#84cc16" stopOpacity="1" />
-                  </linearGradient>
-
-                  <linearGradient id="fatLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="1" />
-                    <stop offset="55%" stopColor="#7c3aed" stopOpacity="1" />
-                    <stop offset="100%" stopColor="#ec4899" stopOpacity="1" />
-                  </linearGradient>
-
-                  {/* Setas */}
-                  <marker id="arrowMuscle" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
-                    <path d="M0,0 L0,8 L8,4 z" fill="#84cc16" />
-                  </marker>
-
-                  <marker id="arrowFat" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
-                    <path d="M0,0 L0,8 L8,4 z" fill="#ec4899" />
-                  </marker>
-
-                  {/* Glow */}
-                  <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
-                    <feGaussianBlur stdDeviation="3" result="blur" />
-                    <feMerge>
-                      <feMergeNode in="blur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
-                </defs>
-
-                <path
-                  ref={musclePathRef}
-                  d="M 0 235 C 100 215, 180 120, 400 20"
-                  fill="none"
-                  stroke="url(#muscleLine)"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  filter="url(#glow)"
-                  markerEnd="url(#arrowMuscle)"
-                  style={{
-                    strokeDasharray: pathLengths.muscle,
-                    strokeDashoffset: animateChart ? 0 : pathLengths.muscle,
-                    transition: "stroke-dashoffset 3s linear",
-                  }}
-                />
-
-                <path
-                  ref={fatPathRef}
-                  d="M 0 15 C 100 45, 180 180, 400 240"
-                  fill="none"
-                  stroke="url(#fatLine)"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  filter="url(#glow)"
-                  markerEnd="url(#arrowFat)"
-                  style={{
-                    strokeDasharray: pathLengths.fat,
-                    strokeDashoffset: animateChart ? 0 : pathLengths.fat,
-                    transition: "stroke-dashoffset 3s linear",
-                  }}
-                />
-                <text x="340" y="-5" fontSize="14" fontWeight="600" fill="white" textAnchor="end">
-                  Massa muscular
-                </text>
-
-                <text x="340" y="260" fontSize="14" fontWeight="600" fill="white" textAnchor="end">
-                  % de gordura
-                </text>
-              </svg>
+              <span className="text-lg">Energia diária</span>
+            </div>
+            <div className="flex items-center gap-1 text-green-400 font-medium">
+              <span>↑</span>
+              <span>Estável</span>
             </div>
           </div>
-          {/* </CHANGE> */}
 
-          {/* Footer */}
-          <div className="text-center text-sm text-gray-500">
-            <p>*Baseado em dados de 1,3 milhões de treinos</p>
+          <div className="h-px bg-zinc-800" />
+
+          {/* Item */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center">
+                <span className="text-red-400 text-lg">✓</span>
+              </div>
+              <span className="text-lg">Gordura corporal</span>
+            </div>
+            <div className="flex items-center gap-1 text-red-400 font-medium">
+              <span>↓</span>
+              <span>Em queda</span>
+            </div>
           </div>
 
-          {/* CTA */}
-          <button
-            onClick={() => {
-              setShowQuickResults(false)
-              setCurrentStep(6)
-            }}
-            className="w-full h-16 text-xl font-bold text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-300 rounded-2xl shadow-lg transition-all duration-300"
-          >
-            Continuar
-          </button>
+          <div className="h-px bg-zinc-800" />
+
+          {/* Item */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                <span className="text-blue-400 text-lg">✓</span>
+              </div>
+              <span className="text-lg">Corpo mais firme</span>
+            </div>
+            <div className="flex items-center gap-1 text-blue-400 font-medium">
+              <span>↑</span>
+              <span>Ativando</span>
+            </div>
+          </div>
         </div>
+
+        {/* Timeline */}
+        <div className="text-center space-y-2">
+          <div className="flex items-center justify-between text-sm text-gray-400 px-2">
+            <span>Agora</span>
+            <span>7 dias</span>
+            <span className="text-white font-medium">14 dias</span>
+          </div>
+
+          <div className="relative h-1 bg-zinc-800 rounded-full">
+            <div className="absolute left-0 top-0 h-1 w-2/3 bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full" />
+          </div>
+
+          <p className="text-sm text-gray-400">
+            ▲ primeiros sinais perceptíveis
+          </p>
+        </div>
+
+        {/* Proof */}
+        <p className="text-center text-sm text-gray-500">
+          *Estimativa baseada em mais de 1,3 milhão de treinos analisados
+        </p>
+
+        {/* CTA */}
+        <button
+          onClick={() => {
+            setShowQuickResults(false)
+            setCurrentStep(6)
+          }}
+          className="w-full h-16 text-xl font-bold text-white
+                     bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400
+                     hover:from-blue-500 hover:via-blue-400 hover:to-cyan-300
+                     rounded-2xl shadow-lg transition-all duration-300"
+        >
+          Continuar
+        </button>
       </div>
-    )
-  }
+    </div>
+  )
+}
 
   if (showCortisolMessage && currentStep === 22) {
     return (
