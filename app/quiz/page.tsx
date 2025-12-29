@@ -324,7 +324,7 @@ export default function QuizPage() {
   // </CHANGE>
   const [showIMCResult, setShowIMCResult] = useState(false)
   const [showLoading, setShowLoading] = useState(false)
-  const [totalSteps, setTotalSteps] = useState(30)
+  const [totalSteps, setTotalSteps] = useState(30) // Initialize totalSteps here
   // </CHANGE>
 
   const router = useRouter()
@@ -799,8 +799,10 @@ export default function QuizPage() {
       setShowNutritionInfo(true)
       return
     } else if (currentStep === 27) {
-      setCurrentStep(28)
-      return
+      // If we are on the supplement interest page (step 27) and user selects "yes", go to supplement recommendation (step 28)
+      // If user selects "no", go to name (step 29)
+      // This logic is handled within the renderStep function for case 27.
+      return // Do not increment step here, handled by renderStep logic
     } else if (currentStep < totalSteps) {
       const nextStepNumber = currentStep + 1
       setCurrentStep(nextStepNumber)
@@ -811,23 +813,23 @@ export default function QuizPage() {
     if (currentStep > 1) {
       // Adjusted step numbers to match the new flow
       if (currentStep === 26 && quizData.allergies === "nao") {
-        // If we are at supplement interest question (case 26) and allergies was 'no' (case 24, which jumps to 26)
-        // We need to go back to the allergies question (case 24).
-        setCurrentStep(24) // Go back to allergies question
-      } else if (currentStep === 28 && quizData.wantsSupplement === "nao") {
-        // If we are at name question (case 28) and supplement interest was 'no' (case 26, which jumps to 27)
-        // We need to go back to the supplement interest question (case 26).
-        setCurrentStep(26)
-      } else if (currentStep === 27 && quizData.wantsSupplement === "sim") {
-        // If we are at supplement recommendation (case 27) and supplement interest was 'yes' (case 26)
-        // We need to go back to the supplement interest question (case 26).
-        setCurrentStep(26)
-      } else if (currentStep === 25 && quizData.allergies === "sim") {
-        // If we are at allergy details (case 25) and allergies was 'yes' (case 24)
-        // We need to go back to the allergies question (case 24).
-        setCurrentStep(24) // Go back to allergies question
+        // If we are at supplement interest question (case 27) and allergies was 'no' (case 25, which jumps to 27)
+        // We need to go back to the allergies question (case 25).
+        setCurrentStep(25) // Go back to allergies question
+      } else if (currentStep === 29 && quizData.wantsSupplement === "nao") {
+        // If we are at name question (case 29) and supplement interest was 'no' (case 27, which jumps to 29)
+        // We need to go back to the supplement interest question (case 27).
+        setCurrentStep(27)
+      } else if (currentStep === 28 && quizData.wantsSupplement === "sim") {
+        // If we are at supplement recommendation (case 28) and supplement interest was 'yes' (case 27)
+        // We need to go back to the supplement interest question (case 27).
+        setCurrentStep(27)
+      } else if (currentStep === 26 && quizData.allergies === "sim") {
+        // If we are at allergy details (case 26) and allergies was 'yes' (case 25)
+        // We need to go back to the allergies question (case 25).
+        setCurrentStep(25) // Go back to allergies question
       } else if (currentStep === 19 && quizData.additionalGoals.length === 0) {
-        // If we are at the additional goals page (now case 19) and user selected none,
+        // If we are at the additional goals page (now case 20) and user selected none,
         // and if we are navigating back from this page, we should go back to the previous problem page (case 18)
         setShowMotivationMessage(false) // Hide motivation message if it was shown
         setCurrentStep(18)
@@ -838,10 +840,10 @@ export default function QuizPage() {
         // So if we are at step 19 (additional goals) and motivation message was shown, it means we came from step 18
         // where previousProblems was empty. So we should go back to step 18.
         setCurrentStep(18)
-      } else if (currentStep === 23 && showCortisolMessage) {
+      } else if (currentStep === 22 && showCortisolMessage) {
         // Adding back navigation for cortisol message
         setShowCortisolMessage(false)
-        setCurrentStep(22)
+        setCurrentStep(21) // Assuming cortisol message is shown after step 21 (Workout Time)
         // </CHANGE>
       } else {
         setCurrentStep(currentStep - 1)
@@ -1219,7 +1221,7 @@ export default function QuizPage() {
           <button
             onClick={() => {
               setShowQuickResults(false)
-              setCurrentStep(6)
+              setCurrentStep(6) // Adjusted to step 6
             }}
             className="w-full h-16 text-xl font-bold text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-300 rounded-2xl shadow-lg transition-all duration-300"
           >
@@ -1323,7 +1325,8 @@ export default function QuizPage() {
           <button
             onClick={() => {
               setShowMotivationMessage(false)
-              // The renderQuestion will handle showing case 19 (additional goals) which is now case 19
+              // The renderQuestion will handle showing case 19 (additional goals) which is now case 20
+              setCurrentStep(20)
             }}
             className="w-full bg-lime-500 hover:bg-lime-600 text-white rounded-lg py-4 font-semibold transition-all shadow-lg"
           >
@@ -1335,6 +1338,11 @@ export default function QuizPage() {
   }
 
   if (showGoalTimeline) {
+    const current = Number.parseFloat(quizData.weight)
+    const target = Number.parseFloat(quizData.targetWeight)
+    const weightDifference = Math.abs(current - target)
+    const weeksNeeded = Math.ceil(weightDifference / 0.75) // Assuming 0.75kg per week is a healthy goal
+
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 relative overflow-hidden">
         <div className="text-center space-y-8 max-w-md">
@@ -1370,7 +1378,7 @@ export default function QuizPage() {
               <div className="relative inline-block">
                 <div className="absolute inset-0 bg-lime-400/20 blur-3xl rounded-full" />
                 <div className="relative">
-                  <div className="text-8xl font-bold text-lime-400">{calculatedWeeks}</div>
+                  <div className="text-8xl font-bold text-lime-400">{weeksNeeded}</div>
                   <div className="text-3xl font-semibold text-lime-400 mt-2">semanas</div>
                 </div>
               </div>
@@ -1379,7 +1387,7 @@ export default function QuizPage() {
                   setShowGoalTimeline(false)
                   setIsCalculatingGoal(false)
                   setCalculatedWeeks(0)
-                  setCurrentStep(27) // Adjusted to step 27 which is Name
+                  setCurrentStep(28) // Adjusted to step 28 which is Name
                 }}
                 className="mt-8 bg-lime-500 hover:bg-lime-600 text-gray-900 font-bold py-4 px-12 rounded-full text-lg transition-colors"
               >
@@ -1970,11 +1978,12 @@ export default function QuizPage() {
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         return quizData.email !== "" && emailRegex.test(quizData.email)
-      case 30: // Final submit
-        // Training days per week is now handled by step 24.
+      case 30: // Updated from 29. Final submit
+        // Training days per week is now handled by step 23.
         // This step is now the final submit.
         return true
-
+      case 31: // Updated from 30. Final submit
+        return true
       // </CHANGE>
       default:
         return true
@@ -2859,9 +2868,9 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               {[
-                { value: "esporadicamente", label: "Às vezes"},
-                { value: "com-frequencia", label: "Com frequência"},
-                { value: "todos-dias", label: "Todos os dias"},
+                { value: "esporadicamente", label: "Às vezes" },
+                { value: "com-frequencia", label: "Com frequência" },
+                { value: "todos-dias", label: "Todos os dias" },
               ].map((freq) => (
                 <div
                   key={freq.value}
@@ -2894,10 +2903,10 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               {[
-                { value: "esporadicamente", label: "Às vezes"},
-                { value: "com-frequencia", label: "Com frequência"},
-                { value: "todos-dias", label: "Todos os dias"},
-                { value: "nao-consumo", label: "Não consumo"},
+                { value: "esporadicamente", label: "Às vezes" },
+                { value: "com-frequencia", label: "Com frequência" },
+                { value: "todos-dias", label: "Todos os dias" },
+                { value: "nao-consumo", label: "Não consumo" },
               ].map((freq) => (
                 <div
                   key={freq.value}
@@ -3571,7 +3580,59 @@ export default function QuizPage() {
           </div>
         )
 
-      case 23: // Renamed from 22
+      case 23:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
+              <p className="text-gray-300">Selecione de 1 a 7 dias</p>
+            </div>
+
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 space-y-8">
+                {/* Value display */}
+                <div className="flex justify-center">
+                  <div className="bg-white/10 rounded-full px-8 py-3">
+                    <span className="text-xl md:text-2xl font-bold text-white">
+                      {quizData.trainingDays || "5"} {(quizData.trainingDays || "5") === "1" ? "dia" : "dias"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Slider */}
+                <div className="space-y-4">
+                  <input
+                    type="range"
+                    min="1"
+                    max="7"
+                    value={quizData.trainingDays || "5"}
+                    onChange={(e) => updateQuizData("trainingDays", e.target.value)}
+                    className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 100%)`,
+                    }}
+                  />
+
+                  {/* Labels */}
+                  <div className="flex justify-between text-gray-400 text-sm">
+                    <span>1 dia</span>
+                    <span>7 dias</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-center mt-8">
+                <Button onClick={nextStep} className="group relative overflow-hidden">
+                  <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                    <span className="relative z-10">Continuar</span>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                  </div>
+                </Button>
+              </div>
+            </div>
+          </div>
+        )
+
+      case 24: // Food Preferences (Antigo 22)
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3761,7 +3822,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 24: // Renamed from 23
+      case 25: // Allergies (Antigo 23)
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3788,7 +3849,7 @@ export default function QuizPage() {
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
-                  setTimeout(() => setCurrentStep(26), 300) // Skip allergy details (case 25) and go to supplement interest (case 26)
+                  setTimeout(() => setCurrentStep(26), 300) // Skip allergy details (case 26) and go to supplement interest (case 27)
                 }}
               >
                 <X
@@ -3800,7 +3861,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 25: // Renamed from 24
+      case 26: // Allergy Details (Antigo 24)
         if (quizData.allergies !== "sim") {
           return null
         }
@@ -3833,7 +3894,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 26: // Renamed from 25. Now Supplement Interest
+      case 27: // Supplement Interest (Antigo 25)
         const shouldRecommendHipercalorico = () => {
           // Factor 1: Low IMC (underweight)
           if (quizData.imc && quizData.imc < 18.5) {
@@ -3972,7 +4033,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 27: // Renamed from 26. Now Name
+      case 28: // Name (Antigo 27)
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -4002,7 +4063,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 28: // Renamed from 27. Email
+      case 29: // Email (Antigo 28)
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -4033,59 +4094,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 29:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
-              <p className="text-gray-300">Selecione de 1 a 7 dias</p>
-            </div>
-
-            <div className="max-w-2xl mx-auto">
-              <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 space-y-8">
-                {/* Value display */}
-                <div className="flex justify-center">
-                  <div className="bg-white/10 rounded-full px-8 py-3">
-                    <span className="text-xl md:text-2xl font-bold text-white">
-                      {quizData.trainingDays || "5"} {(quizData.trainingDays || "5") === "1" ? "dia" : "dias"}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Slider */}
-                <div className="space-y-4">
-                  <input
-                    type="range"
-                    min="1"
-                    max="7"
-                    value={quizData.trainingDays || "5"}
-                    onChange={(e) => updateQuizData("trainingDays", e.target.value)}
-                    className="w-full h-2 rounded-full appearance-none cursor-pointer"
-                    style={{
-                      background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 100%)`,
-                    }}
-                  />
-
-                  {/* Labels */}
-                  <div className="flex justify-between text-gray-400 text-sm">
-                    <span>1 dia</span>
-                    <span>7 dias</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-center mt-8">
-                <Button onClick={nextStep} className="group relative overflow-hidden">
-                  <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                    <span className="relative z-10">Continuar</span>
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                  </div>
-                </Button>
-              </div>
-            </div>
-          </div>
-        )
-
-      case 30: // Renamed from 29. Final Submit
+      case 30: // Final submit (Antigo 29)
         return (
           <div className="space-y-8 text-center">
             <h2 className="text-2xl font-bold text-white">Pronto para começar?</h2>
@@ -4119,6 +4128,39 @@ export default function QuizPage() {
           </div>
         )
 
+      case 31: // Final Submit - this is the actual final step
+        return (
+          <div className="space-y-8 text-center">
+            <h2 className="text-2xl font-bold text-white">Pronto para começar?</h2>
+            <p className="text-gray-300">
+              Revise suas informações e clique em "Finalizar Avaliação" para receber seu plano personalizado.
+            </p>
+            <div className="mt-10">
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
+              >
+                <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10 flex items-center gap-3">
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                        Processando...
+                      </>
+                    ) : (
+                      <>
+                        Finalizar Avaliação
+                        <Dumbbell className="h-6 w-6" />
+                      </>
+                    )}
+                  </span>
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
       // </CHANGE>
       default:
         return true
@@ -4184,9 +4226,43 @@ export default function QuizPage() {
           !showTimeCalculation &&
           !showAnalyzingData &&
           !showNutritionInfo && // Added condition for nutrition info page
+          !showWaterCongrats && // Added condition for water congrats page
+          !showQuickResults && // Added condition for quick results page
+          !showGoalTimeline && // Added condition for goal timeline page
+          !showIMCResult && // Added condition for IMC result page
+          !isSubmitting && // Prevent showing continue button while submitting
           ![
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
             30,
+            31, // Include all steps that have their own navigation logic or are final steps
           ].includes(currentStep) && (
             <div className="mt-8 flex justify-center">
               <Button
