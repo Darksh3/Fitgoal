@@ -22,6 +22,8 @@ import { doc, setDoc, getDoc } from "firebase/firestore"
 
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth"
 
+import { motion } from "framer-motion"
+
 interface QuizData {
   gender: string
   bodyType: string
