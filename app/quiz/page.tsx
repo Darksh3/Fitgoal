@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input"
 
 import { Slider } from "@/components/ui/slider"
 
+import { Textarea } from "@/components/ui/textarea"
+
 import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, Clock } from "lucide-react"
 
 import { AiOrb } from "@/components/ai-orb"
@@ -812,11 +814,11 @@ export default function QuizPage() {
         // If we are at supplement interest question (case 26) and allergies was 'no' (case 24, which jumps to 26)
         // We need to go back to the allergies question (case 24).
         setCurrentStep(24) // Go back to allergies question
-      } else if (currentStep === 29 && quizData.wantsSupplement === "nao") {
-        // If we are at name question (case 28 -> now 29) and supplement interest was 'no' (case 26, which jumps to 29)
+      } else if (currentStep === 28 && quizData.wantsSupplement === "nao") {
+        // If we are at name question (case 28) and supplement interest was 'no' (case 26, which jumps to 27)
         // We need to go back to the supplement interest question (case 26).
         setCurrentStep(26)
-      } else if (currentStep === 28 && quizData.wantsSupplement === "sim") {
+      } else if (currentStep === 27 && quizData.wantsSupplement === "sim") {
         // If we are at supplement recommendation (case 27) and supplement interest was 'yes' (case 26)
         // We need to go back to the supplement interest question (case 26).
         setCurrentStep(26)
@@ -836,10 +838,10 @@ export default function QuizPage() {
         // So if we are at step 19 (additional goals) and motivation message was shown, it means we came from step 18
         // where previousProblems was empty. So we should go back to step 18.
         setCurrentStep(18)
-      } else if (currentStep === 22 && showCortisolMessage) {
+      } else if (currentStep === 23 && showCortisolMessage) {
         // Adding back navigation for cortisol message
         setShowCortisolMessage(false)
-        setCurrentStep(21) // Now case 22 is workout time, so we go back to workout time.
+        setCurrentStep(22)
         // </CHANGE>
       } else {
         setCurrentStep(currentStep - 1)
@@ -1933,11 +1935,11 @@ export default function QuizPage() {
         return quizData.targetWeight !== ""
       case 15: // Updated from 14. Cardio Feeling
         return quizData.strengthTraining !== ""
-      case 16: // Updated from 15
+      case 16: // Updated from 15. Strength Feeling
         return quizData.cardioFeeling !== ""
-      case 17: // Updated from 16
+      case 17: // Updated from 16. Stretching Feeling
         return quizData.strengthFeeling !== ""
-      case 18: // Updated from 17
+      case 18: // Updated from 17. Previous Problems
         return quizData.stretchingFeeling !== ""
       case 19: // Updated from 18. Additional Goals
         // Allow proceeding even if no previous problems are selected, as user can select "Não tenho"
@@ -1965,12 +1967,11 @@ export default function QuizPage() {
       case 28: // Updated from 27. Email
         return quizData.name.trim() !== ""
       case 29: // Updated from 28. Training days per week
-        // Now step 29 validates the email
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         return quizData.email !== "" && emailRegex.test(quizData.email)
       case 30: // Final submit
-        // Training days per week is now handled by step 23.
+        // Training days per week is now handled by step 24.
         // This step is now the final submit.
         return true
 
@@ -2858,9 +2859,9 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               {[
-                { value: "esporadicamente", label: "Às vezes" },
-                { value: "com-frequencia", label: "Com frequência" },
-                { value: "todos-dias", label: "Todos os dias" },
+                { value: "esporadicamente", label: "Às vezes"},
+                { value: "com-frequencia", label: "Com frequência"},
+                { value: "todos-dias", label: "Todos os dias"},
               ].map((freq) => (
                 <div
                   key={freq.value}
@@ -2893,10 +2894,10 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               {[
-                { value: "esporadicamente", label: "Às vezes" },
-                { value: "com-frequencia", label: "Com frequência" },
-                { value: "todos-dias", label: "Todos os dias" },
-                { value: "nao-consumo", label: "Não consumo" },
+                { value: "esporadicamente", label: "Às vezes"},
+                { value: "com-frequencia", label: "Com frequência"},
+                { value: "todos-dias", label: "Todos os dias"},
+                { value: "nao-consumo", label: "Não consumo"},
               ].map((freq) => (
                 <div
                   key={freq.value}
@@ -3570,7 +3571,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 23:
+     case 23:
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3622,67 +3623,186 @@ export default function QuizPage() {
           </div>
         )
 
-      case 24:
+      case 24: // Renamed from 22
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">
-                Você tem alguma alergia ou intolerância alimentar?
-              </h2>
+              <h2 className="text-2xl font-bold text-white">Escolha os produtos que você gosta.</h2>
+              <p className="text-gray-300 text-sm">
+                Vamos criar um plano alimentar com base nas suas preferências. Você sempre poderá ajustá-lo
+                posteriormente.
+              </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-lg mx-auto">
-              {[
-                { value: "sim", label: "Sim", icon: "/images/allergy-icon.webp" },
-                { value: "nao", label: "Não", icon: "/images/no-allergy-icon.webp" },
-              ].map((option) => (
-                <div
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("allergies", option.value)
-                    if (option.value === "nao") {
-                      setTimeout(() => setCurrentStep(26), 300)
-                    } else {
-                      setTimeout(() => nextStep(), 300)
-                    }
-                  }}
-                  className={`backdrop-blur-sm rounded-lg p-6 transition-all cursor-pointer flex flex-col items-center justify-center gap-4
-                    ${
-                      quizData.allergies === option.value
-                        ? "border-2 border-lime-500 bg-lime-500/10"
-                        : "border border-white/10 bg-white/5"
-                    }`}
-                >
-                  <img
-                    src={option.icon || "/placeholder.svg"}
-                    alt={option.label}
-                    className="w-16 h-16 object-contain"
-                  />
-                  <h3 className="text-xl font-bold text-white">{option.label}</h3>
-                </div>
-              ))}
-            </div>
-          </div>
-        )
 
-      case 25:
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Quais são suas alergias ou intolerâncias?</h2>
+            {/* Toggle switch */}
+            <div className="flex items-center justify-between bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
+              <span className="text-white font-medium">Deixe que a FitGoal escolha.</span>
+              <button
+                onClick={() => updateQuizData("letMadMusclesChoose", !quizData.letMadMusclesChoose)}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                  quizData.letMadMusclesChoose ? "bg-lime-500" : "bg-gray-600"
+                }`}
+              >
+                <span
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                    quizData.letMadMusclesChoose ? "translate-x-7" : "translate-x-1"
+                  }`}
+                />
+              </button>
             </div>
-            <div className="max-w-md mx-auto">
-              <Input
-                placeholder="Ex: Lactose, Amendoim, Glúten..."
-                value={quizData.allergyDetails}
-                onChange={(e) => updateQuizData("allergyDetails", e.target.value)}
-                className="w-full p-4 bg-white/5 border border-white/10 rounded-lg text-white"
-              />
+
+            {/* Food categories */}
+            <div className="space-y-6">
+              {/* Vegetables */}
+              <div>
+                <h3 className="text-white font-bold mb-3">Vegetais</h3>
+                <div className="flex flex-wrap gap-2">
+                  {["Brócolis", "Alface", "Cebola", "Pimentão", "Repolho", "Cenoura", "Tomate"].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        const current = quizData.foodPreferences.vegetables
+                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
+                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, vegetables: updated })
+                      }}
+                      className={`px-4 py-2 rounded-full border-2 transition-all ${
+                        quizData.foodPreferences.vegetables.includes(item)
+                          ? "border-lime-500 bg-lime-500/10 text-white"
+                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Grains */}
+              <div>
+                <h3 className="text-white font-bold mb-3">Grão</h3>
+                <div className="flex flex-wrap gap-2">
+                  {["Arroz", "Quinoa", "Cuscuz", "Fubá", "Farinha"].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        const current = quizData.foodPreferences.grains
+                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
+                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, grains: updated })
+                      }}
+                      className={`px-4 py-2 rounded-full border-2 transition-all ${
+                        quizData.foodPreferences.grains.includes(item)
+                          ? "border-lime-500 bg-lime-500/10 text-white"
+                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Ingredients */}
+              <div>
+                <h3 className="text-white font-bold mb-3">Ingredientes</h3>
+                <div className="flex flex-wrap gap-2">
+                  {["Abacate", "Feijões", "Ovos", "Aveia", "Granola", "Queijo", "Leite", "Leite vegetal"].map(
+                    (item) => (
+                      <button
+                        key={item}
+                        onClick={() => {
+                          const current = quizData.foodPreferences.ingredients
+                          const updated = current.includes(item)
+                            ? current.filter((i) => i !== item)
+                            : [...current, item]
+                          updateQuizData("foodPreferences", { ...quizData.foodPreferences, ingredients: updated })
+                        }}
+                        className={`px-4 py-2 rounded-full border-2 transition-all ${
+                          quizData.foodPreferences.ingredients.includes(item)
+                            ? "border-lime-500 bg-lime-500/10 text-white"
+                            : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    ),
+                  )}
+                  {/* </CHANGE> */}
+                </div>
+              </div>
+
+              {/* Meats and Fish - Optional */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-white font-bold">Carnes e peixes</h3>
+                  <span className="text-gray-400 text-sm">Opcional</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {["Carne moida", "Carne bovina", "Frango", "Carne de porco", "Peixe"].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        const current = quizData.foodPreferences.meats
+                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
+                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, meats: updated })
+                      }}
+                      className={`px-4 py-2 rounded-full border-2 transition-all ${
+                        quizData.foodPreferences.meats.includes(item)
+                          ? "border-lime-500 bg-lime-500/10 text-white"
+                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Fruits and Berries - Optional */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-white font-bold">Frutas e bagas</h3>
+                  <span className="text-gray-400 text-sm">Opcional</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Maçã",
+                    "Pera",
+                    "Kiwi",
+                    "Bananas",
+                    "Caqui",
+                    "Pêssego",
+                    "Frutas vermelhas",
+                    "Uva",
+                    "Romã",
+                    "Frutas tropicais (abacaxi, mamão, pitaya)",
+                  ].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        const current = quizData.foodPreferences.fruits
+                        const updated = current.includes(item) ? current.filter((i) => i !== item) : [...current, item]
+                        updateQuizData("foodPreferences", { ...quizData.foodPreferences, fruits: updated })
+                      }}
+                      className={`px-4 py-2 rounded-full border-2 transition-all ${
+                        quizData.foodPreferences.fruits.includes(item)
+                          ? "border-lime-500 bg-lime-500/10 text-white"
+                          : "border-gray-300 bg-transparent text-white hover:bg-gray-300/10"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className="flex justify-center mt-8">
+
+            {/* Continue button */}
+            <div className="flex justify-center">
               <Button
-                onClick={nextStep}
-                disabled={!quizData.allergyDetails}
-                className="group relative disabled:opacity-50"
+                onClick={() => {
+                  nextStep()
+                }}
+                className="group relative"
               >
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
@@ -3693,151 +3813,238 @@ export default function QuizPage() {
           </div>
         )
 
-      case 26:
+      case 25: // Renamed from 23
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">
-                Você gostaria de recomendações de suplementos?
-              </h2>
-              <p className="text-gray-300">Ajudaremos você a escolher os melhores suplementos para seu objetivo.</p>
+              <h2 className="text-2xl font-bold text-white">Você possui alergias ou restrições alimentares?</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-lg mx-auto">
-              {[
-                { value: "sim", label: "Sim", icon: "/images/supplements-icon.webp" },
-                { value: "nao", label: "Não", icon: "/images/no-supplements-icon.webp" },
-              ].map((option) => (
-                <div
-                  key={option.value}
-                  onClick={() => {
-                    updateQuizData("wantsSupplement", option.value)
-                    if (option.value === "nao") {
-                      setTimeout(() => setCurrentStep(29), 300)
-                    } else {
-                      setTimeout(() => nextStep(), 300)
-                    }
-                  }}
-                  className={`backdrop-blur-sm rounded-lg p-6 transition-all cursor-pointer flex flex-col items-center justify-center gap-4
-                    ${
-                      quizData.wantsSupplement === option.value
-                        ? "border-2 border-lime-500 bg-lime-500/10"
-                        : "border border-white/10 bg-white/5"
-                    }`}
-                >
-                  <img
-                    src={option.icon || "/placeholder.svg"}
-                    alt={option.label}
-                    className="w-16 h-16 object-contain"
-                  />
-                  <h3 className="text-xl font-bold text-white">{option.label}</h3>
-                </div>
-              ))}
+            <div className="space-y-4">
+              <div
+                className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-lime-400 ${
+                  quizData.allergies === "sim" ? "border-lime-500 bg-lime-500/10" : "border-white/10 bg-white/5"
+                }`}
+                onClick={() => {
+                  updateQuizData("allergies", "sim")
+                  setTimeout(() => nextStep(), 300)
+                }}
+              >
+                <CheckCircle
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.allergies === "sim" ? "text-lime-500" : "text-gray-500"}`}
+                />
+                <h3 className="text-lg font-bold text-white">Sim, possuo alergias ou restrições</h3>
+              </div>
+              <div
+                className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-red-400 ${
+                  quizData.allergies === "nao" ? "border-red-500 bg-red-500/20" : "border-white/10 bg-white/5"
+                }`}
+                onClick={() => {
+                  updateQuizData("allergies", "nao")
+                  setTimeout(() => setCurrentStep(26), 300) // Skip allergy details (case 25) and go to supplement interest (case 26)
+                }}
+              >
+                <X
+                  className={`h-6 w-6 flex-shrink-0 ${quizData.allergies === "nao" ? "text-red-500" : "text-gray-500"}`}
+                />
+                <h3 className="text-lg font-bold text-white">Não possuo alergias ou restrições</h3>
+              </div>
             </div>
           </div>
         )
 
-      case 27:
-        // New step for Supplement Recommendation based on goal
-        const getSupplementInfo = () => {
-          switch (quizData.goal) {
-            case "perder-peso":
-              return {
-                name: "Termogênico + Whey Protein Isolate",
-                desc: "Auxilia na queima de gordura e preservação da massa magra.",
-                image: "/images/weight-loss-supp.webp",
-              }
-            case "ganhar-massa":
-              return {
-                name: "Creatina + Whey Protein Concentrado",
-                desc: "Aumenta a força e fornece proteína para hipertrofia.",
-                image: "/images/muscle-gain-supp.webp",
-              }
-            case "melhorar-saude":
-              return {
-                name: "Multivitamínico + Ômega 3",
-                desc: "Melhora a imunidade e saúde cardiovascular.",
-                image: "/images/health-supp.webp",
-              }
-            case "aumentar-resistencia":
-              return {
-                name: "Beta-Alanina + BCAA",
-                desc: "Reduz a fadiga muscular e auxilia na recuperação.",
-                image: "/images/endurance-supp.webp",
-              }
-            default:
-              return {
-                name: "Creatina + Whey Protein",
-                desc: "O combo básico e eficiente para qualquer objetivo.",
-                image: "/images/muscle-gain-supp.webp",
-              }
-          }
+      case 26: // Renamed from 24
+        if (quizData.allergies !== "sim") {
+          return null
         }
-
-        const supp = getSupplementInfo()
-
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-white text-balance">
-                Recomendação Personalizada de Suplementos
-              </h2>
-              <p className="text-gray-300">Com base no seu objetivo de {quizData.goal.replace("-", " ")}</p>
+              <h2 className="text-2xl font-bold text-white">Quais são suas alergias ou restrições alimentares?</h2>
+              <p className="text-gray-300">Descreva suas alergias, intolerâncias ou restrições alimentares</p>
             </div>
-
-            <div className="max-w-md mx-auto bg-white/5 border border-white/10 rounded-2xl p-6 text-center space-y-6 backdrop-blur-sm">
-              <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-lime-500 to-lime-400 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-                <div className="relative bg-black rounded-xl p-4 overflow-hidden">
-                  <img
-                    src={supp.image || "/placeholder.svg"}
-                    alt={supp.name}
-                    className="w-full h-48 object-contain transform group-hover:scale-110 transition duration-500"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-lime-400">{supp.name}</h3>
-                <p className="text-gray-400">{supp.desc}</p>
-              </div>
-
-              <div className="pt-4 border-t border-white/10 text-xs text-gray-500 uppercase tracking-widest font-bold italic">
-                Recomendação v0.AI
-              </div>
+            <div className="space-y-6">
+              <Textarea
+                placeholder="Ex: Alergia a amendoim, intolerância à lactose, não como carne vermelha..."
+                value={quizData.allergyDetails}
+                onChange={(e) => updateQuizData("allergyDetails", e.target.value)}
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+                
+                [--muted-foreground:theme(colors.gray.500)]
+                "
+              />
             </div>
-
-            <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} className="group relative overflow-hidden">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+            <div className="flex justify-center">
+              <Button onClick={nextStep} className="group relative">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/10 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-400 to-lime-500 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
                 </div>
               </Button>
             </div>
           </div>
         )
 
-      case 28:
+      case 27: // Renamed from 25. Now Supplement Interest
+        const shouldRecommendHipercalorico = () => {
+          // Factor 1: Low IMC (underweight)
+          if (quizData.imc && quizData.imc < 18.5) {
+            return true
+          }
+
+          // Factor 2: Body type is ectomorph or "magro" (thin)
+          if (quizData.bodyType === "ectomorfo" || quizData.bodyType === "magro") {
+            return true
+          }
+
+          // Factor 3: Goal is to gain weight/muscle mass
+          const hasGainGoal = quizData.goal?.some(
+            (g) =>
+              g.toLowerCase().includes("ganhar") ||
+              g.toLowerCase().includes("massa") ||
+              g.toLowerCase().includes("muscular"),
+          )
+
+          // Factor 4: Current weight is significantly lower than target weight
+          const currentWeight = Number.parseFloat(quizData.currentWeight)
+          const targetWeight = Number.parseFloat(quizData.targetWeight)
+
+          if (currentWeight && targetWeight && hasGainGoal) {
+            const weightDifference = targetWeight - currentWeight
+            // If needs to gain more than 3kg, recommend hypercaloric
+            if (weightDifference > 3) {
+              return true
+            }
+          }
+
+          // Factor 5: Difficulty gaining weight (weightChange)
+          if (quizData.weightChangeType === "struggle-gain") {
+            return true
+          }
+
+          return false
+        }
+
+        const supplementRecommendation = shouldRecommendHipercalorico()
+          ? {
+              name: "Hipercalórico Growth",
+              description: "Ideal para ganho de massa muscular e atingir suas calorias diárias",
+            }
+          : {
+              name: "Whey Protein",
+              description: "Ideal para ganho de massa muscular e recuperação pós-treino",
+            }
+
+        const supplementType = shouldRecommendHipercalorico() ? "hipercalorico" : "whey-protein"
+
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu nome?</h2>
-              <p className="text-gray-300">Personalizaremos seu plano para você</p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">
+                Podemos adicionar algum suplemento à sua dieta?
+              </h2>
+              <p className="text-gray-400">Por exemplo: Hipercalórico, Whey Protein...</p>
+            </div>
+
+            <div className="max-w-2xl mx-auto space-y-4">
+              {/* Yes option with recommendation */}
+              <button
+                onClick={() => {
+                  updateQuizData("wantsSupplement", "sim")
+                  updateQuizData("recommendedSupplement", supplementRecommendation.name)
+                  updateQuizData("supplementType", supplementType)
+                  setTimeout(() => nextStep(), 300)
+                }}
+                className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
+                  quizData.wantsSupplement === "sim"
+                    ? "border-lime-500 bg-lime-500/10"
+                    : "border-white/20 bg-white/5 hover:border-lime-500/50"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
+                      quizData.wantsSupplement === "sim" ? "border-lime-500 bg-lime-500" : "border-white/30"
+                    }`}
+                  >
+                    {quizData.wantsSupplement === "sim" && (
+                      <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-white font-bold text-lg">Sim, pode adicionar</span>
+                </div>
+              </button>
+
+              {/* No option */}
+              <button
+                onClick={() => {
+                  updateQuizData("wantsSupplement", "nao")
+                  updateQuizData("recommendedSupplement", "")
+                  updateQuizData("supplementType", "")
+                  setTimeout(() => nextStep(), 300)
+                }}
+                className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
+                  quizData.wantsSupplement === "nao"
+                    ? "border-red-500 bg-red-500/10"
+                    : "border-white/20 bg-white/5 hover:border-red-500/50"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
+                      quizData.wantsSupplement === "nao" ? "border-red-500 bg-red-500/10" : "border-white/30"
+                    }`}
+                  >
+                    {quizData.wantsSupplement === "nao" && (
+                      <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-white font-bold text-lg">Não, prefiro sem suplementos</span>
+                </div>
+              </button>
+
+              {/* Recommendation box */}
+              <div className="mt-6 p-6 rounded-xl border-2 border-lime-500/50 bg-lime-500/5">
+                <p className="text-lime-400 font-bold text-lg mb-2">Recomendamos: {supplementRecommendation.name}</p>
+                <p className="text-gray-300">{supplementRecommendation.description}</p>
+              </div>
+            </div>
+          </div>
+        )
+
+      case 28: // Renamed from 26. Now Name
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Como podemos te chamar?</h2>
+              <p className="text-gray-300">Seu nome para personalizar seu plano</p>
             </div>
             <div className="max-w-md mx-auto">
               <Input
                 placeholder="Seu nome"
                 value={quizData.name}
                 onChange={(e) => updateQuizData("name", e.target.value)}
-                className="w-full p-4 text-xl text-center bg-white/5 border border-white/10 rounded-lg text-white"
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+                
+                [--muted-foreground:theme(colors.gray.500)]
+                "
               />
             </div>
             <div className="flex justify-center mt-8">
-              <Button
-                onClick={nextStep}
-                disabled={!quizData.name.trim()}
-                className="group relative disabled:opacity-50"
-              >
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
@@ -3847,7 +4054,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 29: // Agora é o email
+      case 29: // Renamed from 27. Email
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
