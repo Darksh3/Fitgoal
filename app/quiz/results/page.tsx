@@ -6,7 +6,6 @@ import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import { Button } from "@/components/ui/button"
 import { Clock, MapPin, TrendingUp, Calendar, CheckCircle, Heart, Flame, Moon, TargetIcon, Zap } from "lucide-react"
-import { Gauge } from "@/components/gauge"
 
 export default function ResultsPage() {
   const router = useRouter()
@@ -106,7 +105,7 @@ export default function ResultsPage() {
 
   const getCurrentBodyFatImage = () => {
     const bodyFat = Number(data.bodyFat) || 25
-    const gender = data.gender || "male"
+    const gender = getDataValue("gender") || data.gender || "male"
 
     if (gender === "male") {
       if (bodyFat <= 10) return "/images/mone.webp"
@@ -131,7 +130,7 @@ export default function ResultsPage() {
 
   const getImprovedBodyFatImage = () => {
     const bodyFat = Number(data.bodyFat) || 25
-    const gender = data.gender || "male"
+    const gender = getDataValue("gender") || data.gender || "male"
 
     if (gender === "male") {
       if (bodyFat <= 10) return "/images/mone.webp" // Already at best
