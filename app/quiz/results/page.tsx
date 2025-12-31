@@ -350,38 +350,6 @@ export default function ResultsPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <Heart className="h-5 w-5 text-lime-500" />
-              <h3 className="text-xl font-semibold">Análise do seu IMC</h3>
-            </div>
-            <Gauge
-              value={Number(data.imc)}
-              maxValue={40}
-              label={`Calculamos o seu IMC e ele é de ${data.imc}`}
-              showPercentage={false}
-            />
-            <p className="text-center text-gray-300 mt-4">
-              Você está com <span className={`font-bold ${bmiInfo.color}`}>{bmiInfo.text}</span>
-            </p>
-          </div>
-
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <Flame className="h-5 w-5 text-orange-500" />
-              <h3 className="text-xl font-semibold">Ingestão calórica diária</h3>
-            </div>
-            <Gauge
-              value={calculateDailyCalories()}
-              maxValue={5000}
-              unit="kcal"
-              label={`Ingestão de calorias do seu perfil`}
-              showPercentage={false}
-            />
-          </div>
-        </div>
-
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-center">Resumo pessoal baseado em suas respostas</h2>
 
