@@ -13,17 +13,9 @@ interface PricingSectionProps {
 
 const plans = [
   {
-    id: "trial",
-    name: "PLANO SEMANAL (TESTE)",
-    originalPrice: 29.9, // updated base price for trial
-    period: "por dia",
-    tag: null,
-    key: "mensal",
-  },
-  {
     id: "monthly",
     name: "PLANO MENSAL",
-    originalPrice: 79.9,
+    targetPrice: 79.9,
     period: "por dia",
     tag: null,
     key: "mensal",
@@ -31,7 +23,7 @@ const plans = [
   {
     id: "quarterly",
     name: "PLANO TRIMESTRAL",
-    originalPrice: 194.7,
+    targetPrice: 159.9,
     period: "por dia (méd.)",
     tag: "MAIS POPULAR",
     off: "62% OFF",
@@ -40,7 +32,7 @@ const plans = [
   {
     id: "semiannual",
     name: "PLANO SEMESTRAL",
-    originalPrice: 299.4,
+    targetPrice: 239.9,
     period: "por dia (méd.)",
     tag: "MELHOR VALOR",
     off: "67% OFF",
@@ -72,18 +64,16 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
   }
 
   const getCharacterImage = () => {
-    // Usando as mesmas imagens de bodyfat que definimos anteriormente para manter consistência
     return gender === "male" ? "/images/mseven.webp" : "/images/bodyfat-seven.webp"
   }
 
-  const getDiscountedPrice = (original: number) => {
-    const discountAmount = original * (discount / 100)
-    return Math.max(original - discountAmount, 9.9) // Minimum price safeguard
+  const calculateOriginalPrice = (target: number) => {
+    const factor = discount > 0 ? 1 - discount / 100 : 0.6
+    return target / factor
   }
 
   return (
     <div className="w-full max-w-md mx-auto bg-black text-white p-4 space-y-6">
-      {/* Header com Timer */}
       <div className="bg-zinc-900 flex justify-between items-center p-3 rounded-md border border-zinc-800">
         <span className="font-bold text-sm">O desconto expira em:</span>
         <div className="flex items-center gap-2 text-orange-500 font-bold text-xl">
@@ -92,7 +82,6 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
         </div>
       </div>
 
-      {/* Imagem do Personagem */}
       <div className="relative w-full aspect-[4/5] max-h-80 mx-auto flex justify-center">
         <Image
           src={getCharacterImage() || "/placeholder.svg"}
@@ -103,7 +92,6 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
         />
       </div>
 
-      {/* Prova Social */}
       <div className="text-center space-y-3">
         <p className="font-bold text-sm px-4">1103 pessoas compraram planos de treino na última hora</p>
         <div className="flex justify-center gap-2 overflow-hidden">
@@ -116,7 +104,6 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
         </div>
       </div>
 
-      {/* Banner de Parabéns */}
       <div className="relative overflow-hidden bg-gradient-to-r from-orange-600/20 to-orange-400/20 border-2 border-orange-500 rounded-xl p-4 text-center">
         <div className="absolute top-0 right-0 p-2 opacity-20">
           <Flame className="w-8 h-8 text-orange-500" />
@@ -127,12 +114,13 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
 
       <h2 className="text-2xl font-bold text-center pt-2">Escolha o melhor plano para você</h2>
 
-      {/* Seleção de Planos */}
       <div className="space-y-3">
         {plans.map((plan) => {
-          const discountedTotal = getDiscountedPrice(plan.originalPrice)
-          const days = plan.id === "trial" ? 7 : plan.id === "monthly" ? 30 : plan.id === "quarterly" ? 90 : 180
-          const dailyPrice = discountedTotal / days
+          const shownOriginalPrice = calculateOriginalPrice(plan.targetPrice)
+          const finalPrice = plan.targetPrice
+
+          const days = plan.id === "monthly" ? 30 : plan.id === "quarterly" ? 90 : 180
+          const dailyPrice = finalPrice / days
 
           return (
             <div
@@ -155,8 +143,8 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
                     <div>
                       <h4 className="font-bold text-sm tracking-tight">{plan.name}</h4>
                       <div className="flex items-center gap-2">
-                        <span className="text-zinc-500 line-through text-xs">R$ {plan.originalPrice.toFixed(2)}</span>
-                        <span className="text-orange-500 font-bold text-xs">R$ {discountedTotal.toFixed(2)}</span>
+                        <span className="text-zinc-500 line-through text-xs">R$ {shownOriginalPrice.toFixed(2)}</span>
+                        <span className="text-orange-500 font-bold text-xs">R$ {finalPrice.toFixed(2)}</span>
                       </div>
                     </div>
                     <div className="text-right">
@@ -182,7 +170,6 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
         })}
       </div>
 
-      {/* Texto Comparativo */}
       <div className="flex items-start gap-3 p-2 text-[11px] text-zinc-400">
         <Flame className="w-5 h-5 text-orange-500 shrink-0" />
         <div className="space-y-1">
@@ -193,7 +180,6 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
         </div>
       </div>
 
-      {/* Botão Continuar */}
       <Button
         onClick={() => {
           const planKey = plans.find((p) => p.id === selectedPlan)?.key || "mensal"

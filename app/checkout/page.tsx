@@ -553,32 +553,34 @@ export default function CheckoutPage() {
       id: "trimestral",
       key: "trimestral",
       name: "Plano Trimestral",
-      price: "R$ 194,70",
-      total: 194.7,
+      price: "R$ 159,90",
+      total: 159.9,
       description: "Acesso completo por 90 dias",
     },
     {
       id: "semestral",
       key: "semestral",
       name: "Plano Semestral",
-      price: "R$ 299,40",
-      total: 299.4,
+      price: "R$ 239,90",
+      total: 239.9,
       description: "Acesso completo por 180 dias",
     },
   ]
 
-  const getDiscountedPlan = (plan: any) => {
-    if (!discount) return plan
-    const discountAmount = plan.total * (discount / 100)
-    const newTotal = Math.max(plan.total - discountAmount, 9.9)
+  const getDiscountedPlan = (plan: any, discountPercent: number) => {
+    if (!discountPercent) return { ...plan, originalPrice: plan.total * 1.4 }
+
+    // O 'total' que o usuário paga será sempre o seu preço original
+    // O 'originalPrice' (riscado) é calculado para fazer o desconto parecer real
+    const factor = 1 - discountPercent / 100
     return {
       ...plan,
-      total: newTotal,
-      price: formatCurrency(newTotal),
+      originalPrice: plan.total / factor,
+      discountedTotal: plan.total,
     }
   }
 
-  const discountedPlans = plans.map(getDiscountedPlan)
+  const discountedPlans = plans.map((plan) => getDiscountedPlan(plan, discount))
 
   const currentPlanData = discountedPlans.find((p) => p.key === selectedPlan) || discountedPlans[0]
 
