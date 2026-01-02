@@ -557,6 +557,14 @@ export default function CheckoutPage() {
       total: 194.7,
       description: "Acesso completo por 90 dias",
     },
+    {
+      id: "semestral",
+      key: "semestral",
+      name: "Plano Semestral",
+      price: "R$ 299,40",
+      total: 299.4,
+      description: "Acesso completo por 180 dias",
+    },
   ]
 
   const getDiscountedPlan = (plan: any) => {

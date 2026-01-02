@@ -23,33 +23,41 @@ const plans = [
   {
     id: "monthly",
     name: "PLANO MENSAL",
-    originalPrice: 129.9, // updated base price for monthly
+    originalPrice: 79.9,
     period: "por dia",
-    tag: "MAIS POPULAR",
-    off: "62% OFF",
+    tag: null,
     key: "mensal",
   },
   {
     id: "quarterly",
     name: "PLANO TRIMESTRAL",
-    originalPrice: 249.9, // updated base price for quarterly
+    originalPrice: 194.7,
+    period: "por dia (méd.)",
+    tag: "MAIS POPULAR",
+    off: "62% OFF",
+    key: "trimestral",
+  },
+  {
+    id: "semiannual",
+    name: "PLANO SEMESTRAL",
+    originalPrice: 299.4,
     period: "por dia (méd.)",
     tag: "MELHOR VALOR",
     off: "67% OFF",
-    key: "trimestral",
+    key: "semestral",
   },
 ]
 
 const recentBuyers = [
   { name: "lucas***", plan: "1 month plan" },
-  { name: "jeremy***", plan: "1 month plan" },
-  { name: "pedro***", plan: "3 month plan" },
+  { name: "jeremy***", plan: "3 month plan" },
+  { name: "pedro***", plan: "6 month plan" },
 ]
 
 export function PricingSection({ gender, discount }: PricingSectionProps) {
   const router = useRouter()
   const [timeLeft, setTimeLeft] = useState(600) // 10 minutes
-  const [selectedPlan, setSelectedPlan] = useState("monthly")
+  const [selectedPlan, setSelectedPlan] = useState("quarterly")
 
   useEffect(() => {
     if (timeLeft <= 0) return
@@ -101,7 +109,8 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
         <div className="flex justify-center gap-2 overflow-hidden">
           {recentBuyers.map((buyer, i) => (
             <div key={i} className="bg-zinc-800 text-[10px] px-3 py-1 rounded-full whitespace-nowrap text-zinc-400">
-              {buyer.name} • plano de {buyer.plan === "1 month plan" ? "1 mês" : "3 meses"}
+              {buyer.name} • plano de{" "}
+              {buyer.plan === "1 month plan" ? "1 mês" : buyer.plan === "3 month plan" ? "3 meses" : "6 meses"}
             </div>
           ))}
         </div>
@@ -122,7 +131,7 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
       <div className="space-y-3">
         {plans.map((plan) => {
           const discountedTotal = getDiscountedPrice(plan.originalPrice)
-          const days = plan.id === "trial" ? 7 : plan.id === "monthly" ? 30 : 90
+          const days = plan.id === "trial" ? 7 : plan.id === "monthly" ? 30 : plan.id === "quarterly" ? 90 : 180
           const dailyPrice = discountedTotal / days
 
           return (
