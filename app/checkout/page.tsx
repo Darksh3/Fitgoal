@@ -519,15 +519,60 @@ function ProgressIndicator({ currentStep }: { currentStep: number }) {
 export default function CheckoutPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
+  const discountParam = searchParams.get("discount")
+  const discount = discountParam ? Number.parseInt(discountParam) : 0
 
+  const [currentStep, setCurrentStep] = useState(1)
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", cpf: "" })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [quizAnswers, setQuizAnswers] = useState<any>(null)
   const [clientUid, setClientUid] = useState<string | null>(null)
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
+
+  useEffect(() => {
+    const planFromUrl = searchParams.get("plan")
+    if (planFromUrl) {
+      setSelectedPlan(planFromUrl)
+      setCurrentStep(2)
+    }
+  }, [searchParams])
+
+  const plans = [
+    {
+      id: "mensal",
+      key: "mensal",
+      name: "Plano Mensal",
+      price: "R$ 79,90",
+      total: 79.9,
+      description: "Acesso completo por 30 dias",
+    },
+    {
+      id: "trimestral",
+      key: "trimestral",
+      name: "Plano Trimestral",
+      price: "R$ 194,70",
+      total: 194.7,
+      description: "Acesso completo por 90 dias",
+    },
+  ]
+
+  const getDiscountedPlan = (plan: any) => {
+    if (!discount) return plan
+    const discountAmount = plan.total * (discount / 100)
+    const newTotal = Math.max(plan.total - discountAmount, 9.9)
+    return {
+      ...plan,
+      total: newTotal,
+      price: formatCurrency(newTotal),
+    }
+  }
+
+  const discountedPlans = plans.map(getDiscountedPlan)
+
+  const currentPlanData = discountedPlans.find((p) => p.key === selectedPlan) || discountedPlans[0]
 
   useEffect(() => {
     const fetchData = async () => {
@@ -579,42 +624,6 @@ export default function CheckoutPage() {
     fetchData()
   }, [])
 
-  const plans = {
-    mensal: {
-      key: "mensal",
-      name: "Plano Mensal",
-      price: 79.9,
-      total: 79.9,
-      duration: "1 mês",
-      description: "Para experimentar, sem compromisso.",
-    },
-    trimestral: {
-      key: "trimestral",
-      name: "Plano Trimestral",
-      price: 64.9,
-      total: 194.7,
-      duration: "3 meses",
-      description: "Melhor custo-benefício. Perfeito para ver resultados reais.",
-      recommended: true,
-    },
-    semestral: {
-      key: "semestral",
-      name: "Plano Semestral",
-      price: 49.9,
-      total: 299.4,
-      duration: "6 meses",
-      description: "Para quem quer mudar o corpo de verdade e economizar.",
-    },
-  }
-
-  const currentPlan = selectedPlan ? plans[selectedPlan as keyof typeof plans] : null
-
-  const getCurrentStep = () => {
-    if (!selectedPlan) return 1
-    if (!formData.phone || !formData.cpf) return 2
-    return 3
-  }
-
   const handlePaymentSuccess = () => router.push("/success?embedded=true")
   const handlePaymentError = (msg: string) => setError(msg)
 
@@ -626,19 +635,19 @@ export default function CheckoutPage() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-white text-center mb-8">Escolha seu Plano</h1>
 
-        <ProgressIndicator currentStep={getCurrentStep()} />
+        <ProgressIndicator currentStep={currentStep} />
 
         {/* Grid de Planos */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {Object.entries(plans).map(([key, plan]) => (
+          {discountedPlans.map((plan) => (
             <Card
-              key={key}
+              key={plan.id}
               className={`cursor-pointer transition-all duration-200 relative ${
-                selectedPlan === key
+                selectedPlan === plan.key
                   ? "bg-gray-700 border-2 border-lime-500 ring-2 ring-lime-500/20 transform scale-105"
                   : "bg-gray-800 border-gray-700 hover:bg-gray-750 hover:border-gray-600"
               }`}
-              onClick={() => setSelectedPlan(key)}
+              onClick={() => setSelectedPlan(plan.key)}
             >
               {plan.recommended && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
@@ -648,19 +657,15 @@ export default function CheckoutPage() {
               <CardHeader className="text-center pb-2">
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-white text-lg">{plan.name}</CardTitle>
-                  {selectedPlan === key && <Check className="h-5 w-5 text-lime-500" />}
+                  {selectedPlan === plan.key && <Check className="h-5 w-5 text-lime-500" />}
                 </div>
-                <p className="text-gray-400 text-sm">{plan.duration}</p>
+                <p className="text-gray-400 text-sm">{plan.description}</p>
               </CardHeader>
               <CardContent className="text-center">
                 <div className="mb-2">
-                  <span className="text-2xl font-bold text-white">{formatCurrency(plan.price)}</span>
-                  <span className="text-gray-400 text-sm">/mês</span>
+                  <span className="text-2xl font-bold text-white">{plan.price}</span>
                 </div>
-                <div className="mb-4">
-                  <span className="text-lg font-semibold text-white">Total: {formatCurrency(plan.total)}</span>
-                </div>
-                <p className="text-sm text-gray-400 italic">{plan.description}</p>
+                <p className="text-gray-300">Continue preenchendo os dados abaixo</p>
               </CardContent>
             </Card>
           ))}
@@ -671,9 +676,11 @@ export default function CheckoutPage() {
           <div className="text-center mb-8 p-6 bg-gray-800 rounded-lg border border-lime-500">
             <div className="flex items-center justify-center mb-4">
               <Check className="h-6 w-6 text-lime-500 mr-2" />
-              <p className="text-lime-400 font-semibold">Plano Selecionado: {currentPlan?.name}</p>
+              <p className="text-lime-400 font-semibold">Plano Selecionado: {currentPlanData?.name}</p>
             </div>
-            <div className="text-3xl font-bold text-white mb-2">Total: {formatCurrency(currentPlan?.total || 0)}</div>
+            <div className="text-3xl font-bold text-white mb-2">
+              Total: {formatCurrency(currentPlanData?.total || 0)}
+            </div>
             <p className="text-gray-300">Continue preenchendo os dados abaixo</p>
           </div>
         ) : (
@@ -745,7 +752,7 @@ export default function CheckoutPage() {
                 {paymentMethod && (
                   <AsaasPaymentForm
                     formData={formData}
-                    currentPlan={currentPlan}
+                    currentPlan={currentPlanData}
                     userEmail={userEmail}
                     clientUid={clientUid}
                     paymentMethod={paymentMethod}
