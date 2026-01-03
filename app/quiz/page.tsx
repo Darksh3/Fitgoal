@@ -892,7 +892,7 @@ export default function QuizPage() {
       setQuizData(updatedQuizData) // Atualiza o estado local
 
       try {
-        localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
+        localStorage.setItem("quizData", JSON.JSON.stringify(updatedQuizData))
         debugDataFlow("QUIZ_LOCALSTORAGE_SAVE", updatedQuizData)
       } catch (error) {
         console.error("[QUIZ] Storage failed:", error)
