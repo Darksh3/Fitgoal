@@ -569,16 +569,32 @@ export default function ResultsPage() {
             <h3 className="text-2xl font-bold mb-4">Gire e ganhe desconto</h3>
 
             <div
-              className={`w-64 h-64 rounded-full mx-auto mb-6 transition-transform duration-[4000ms] ease-out border-8 border-zinc-800 shadow-[0_0_50px_rgba(249,115,22,0.2)] relative`}
+              className={`w-64 h-64 rounded-full mx-auto mb-6 transition-transform duration-[4000ms] ease-out border-8 border-zinc-800 shadow-[0_0_50px_rgba(220,38,38,0.2)] relative`}
               style={{
                 transform: discount ? `rotate(${1440 + discount * 10}deg)` : "rotate(0deg)",
-                background: "conic-gradient(#f97316, #fb923c, #fdba74, #f97316)",
+                background:
+                  "conic-gradient(#ef4444, #ffffff, #ef4444, #ffffff, #ef4444, #ffffff, #ef4444, #ffffff, #ef4444, #ffffff, #ef4444, #ffffff)",
               }}
             >
+              {[10, 15, 20, 30, 40, 50].map((value, i) => (
+                <div
+                  key={i}
+                  className="absolute flex items-center justify-center font-black text-sm w-8 h-8 rounded-full left-1/2 -ml-4 origin-[0_124px] text-zinc-900"
+                  style={{
+                    transform: `rotate(${i * 60}deg) translateY(-112px)`,
+                    backgroundColor: i % 2 === 0 ? "#ffffff" : "#ef4444",
+                    color: i % 2 === 0 ? "#ef4444" : "#ffffff",
+                  }}
+                >
+                  {value}%
+                </div>
+              ))}
+
+              {/* Decorative dots around the wheel */}
               {[...Array(12)].map((_, i) => (
                 <div
                   key={i}
-                  className="absolute w-2 h-2 bg-white rounded-full left-1/2 -ml-1 origin-[0_124px]"
+                  className="absolute w-2 h-2 bg-zinc-400 rounded-full left-1/2 -ml-1 origin-[0_124px]"
                   style={{ transform: `rotate(${i * 30}deg)` }}
                 />
               ))}
@@ -590,7 +606,7 @@ export default function ResultsPage() {
                   const prizes = [10, 15, 20, 30, 40, 50]
                   setDiscount(prizes[Math.floor(Math.random() * prizes.length)])
                 }}
-                className="w-full bg-orange-500 hover:bg-orange-600 h-16 rounded-2xl text-xl font-black shadow-lg shadow-orange-500/20"
+                className="w-full bg-red-600 hover:bg-red-700 h-16 rounded-2xl text-xl font-black shadow-lg shadow-red-600/20"
               >
                 GIRAR E GANHAR!
               </Button>
