@@ -81,6 +81,7 @@ interface QuizData {
     fruits: string[]
   }
   alcoholFrequency?: string
+  trainingDays?: string // Added for slider in case 23
 }
 // </CHANGE>
 
@@ -139,6 +140,7 @@ const initialQuizData: QuizData = {
     fruits: [],
   },
   alcoholFrequency: "",
+  trainingDays: "5", // Default value for the new slider
 }
 
 const debugDataFlow = (stage: string, data: any) => {
@@ -315,6 +317,7 @@ export default function QuizPage() {
     // Initialize weightChangeType
     weightChangeType: "",
     // </CHANGE>
+    trainingDays: "5", // Default value for the new slider
   })
   const [showSuccess, setShowSuccess] = useState(false)
   const [showNutritionInfo, setShowNutritionInfo] = useState(false)
@@ -2214,7 +2217,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 5: // Renamed from 4
+      case 5: // Updated from 4
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2273,18 +2276,17 @@ export default function QuizPage() {
                 </div>
               </div>
             </div>
-            <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
+            <button
+              onClick={nextStep}
+              disabled={!canProceed()}
+              className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Continuar
+            </button>
           </div>
         )
 
-      case 6: // Renamed from 5
+      case 6: // Updated from 5
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2817,7 +2819,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 7: // Renamed from 5
+      case 7: // Updated from 5
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2879,7 +2881,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 8: // Renamed from 7
+      case 8: // Updated from 7
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2915,7 +2917,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 9: // Renamed from 8
+      case 9: // Updated from 8
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2951,7 +2953,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 10: // Renamed from 9
+      case 10: // Updated from 9
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2999,7 +3001,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 11: // Renamed from 10
+      case 11: // Updated from 10
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3032,7 +3034,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 12: // Renamed from 11
+      case 12: // Updated from 11
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3070,7 +3072,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 13: // Renamed from 12
+      case 13: // Updated from 12
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3104,7 +3106,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 14: // Renamed from 13
+      case 14: // Updated from 13
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3160,7 +3162,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 15: // Renamed from 14
+      case 15: // Updated from 14
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3212,7 +3214,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 16: // Renamed from 15
+      case 16: // Updated from 15
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3250,7 +3252,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 17: // Renamed from 16
+      case 17: // Updated from 16
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3288,7 +3290,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 18: // Renamed from 17
+      case 18: // Updated from 17
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3326,7 +3328,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 19: // Renamed from 18
+      case 19: // Updated from 18
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3413,7 +3415,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 20: // Renamed from 19
+      case 20: // Updated from 19
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3493,7 +3495,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 21: // Renamed from 20
+      case 21: // Updated from 20
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3541,7 +3543,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 22: // Renamed from 21
+      case 22: // Updated from 21
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3653,7 +3655,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 24: // Renamed from 22
+      case 24: // Updated from 22
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3843,7 +3845,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 25: // Renamed from 23
+      case 25: // Updated from 23
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3882,7 +3884,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 26: // Renamed from 24
+      case 26: // Updated from 24
         if (quizData.allergies !== "sim") {
           return null
         }
@@ -3915,7 +3917,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 27: // Renamed from 25. Now Supplement Interest
+      case 27: // Updated from 25. Now Supplement Interest
         const shouldRecommendHipercalorico = () => {
           // Factor 1: Low IMC (underweight)
           if (quizData.imc && quizData.imc < 18.5) {
@@ -4054,7 +4056,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 28: // Renamed from 26. Now Name
+      case 28: // Updated from 26. Now Name
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -4084,7 +4086,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 29: // Renamed from 27. Email
+      case 29: // Updated from 27. Email
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -4107,7 +4109,10 @@ export default function QuizPage() {
             <div className="flex justify-center mt-8">
               <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Destravar meus resultados</span>
+                  <span className="relative z-10 flex items-center gap-3">
+                    Destravar meus resultados
+                    <Dumbbell className="h-6 w-6" />
+                  </span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
                 </div>
               </Button>
@@ -4115,7 +4120,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 30: // Renamed from 29. Final Submit
+      case 30: // Updated from 29. Final Submit
         return (
           <div className="space-y-8 text-center">
             <h2 className="text-2xl font-bold text-white">Pronto para começar?</h2>
