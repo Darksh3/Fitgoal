@@ -2164,7 +2164,11 @@ export default function QuizPage() {
               <Button
                 onClick={nextStep}
                 disabled={!canProceed()}
-                className="w-full sm:w-auto px-12 md:px-24 py-8 bg-white text-black font-bold text-xl md:text-2xl rounded-full shadow-2xl hover:bg-gray-100 transition-all duration-300"
+                className="
+            w-full h-16 text-xl font-bold text-black
+            bg-white
+            rounded-full shadow-lg
+          "
               >
                 Continuar
               </Button>
