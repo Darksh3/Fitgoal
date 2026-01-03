@@ -2673,7 +2673,7 @@ export default function QuizPage() {
                           width: `${debugValues.leg_lower_right.width}%`,
                           height: `${debugValues.leg_lower_right.height}%`,
                           borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
-                          transform: `rotate(${debugValues.leg_lower_right.rotate}deg)`,
+                          transform: `rotate(${debugValues.m_leg_lower_right.rotate}deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
@@ -3146,7 +3146,7 @@ export default function QuizPage() {
 
             {/* Updated the continue button logic for this step */}
             <div className="flex justify-center mt-8">
-              <Button
+              <button
                 onClick={() => {
                   const calculatedTime = calculateTimeToGoal()
                   if (calculatedTime) {
@@ -3157,18 +3157,10 @@ export default function QuizPage() {
                   }
                 }}
                 disabled={!canProceed()}
-                className="group relative overflow-hidden"
+                className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <div className="flex justify-center mt-8">
-                  <button
-                    onClick={nextStep}
-                    disabled={!canProceed()}
-                    className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Continuar
-                  </button>
-                </div>
-              </Button>
+                Continuar
+              </button>
             </div>
           </div>
         )
@@ -3179,6 +3171,7 @@ export default function QuizPage() {
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-white">Qual seu nível de experiência com treinos?</h2>
             </div>
+
             <div className="grid grid-cols-1 gap-4">
               {[
                 {
