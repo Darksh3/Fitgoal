@@ -3827,22 +3827,13 @@ export default function QuizPage() {
 
             {/* Continue button */}
             <div className="flex justify-center">
-              <Button
-                onClick={() => {
-                  nextStep()
-                }}
-                className="group relative"
+              <button
+                onClick={nextStep}
+                disabled={!canProceed()}
+                className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <div className="flex justify-center mt-8">
-                  <button
-                    onClick={nextStep}
-                    disabled={!canProceed()}
-                    className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Continuar
-                  </button>
-                </div>
-              </Button>
+                Continuar
+              </button>
             </div>
           </div>
         )
