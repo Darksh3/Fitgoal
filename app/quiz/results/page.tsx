@@ -568,12 +568,7 @@ export default function ResultsPage() {
           <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 w-full max-w-sm text-center space-y-8 relative overflow-hidden">
             <h3 className="text-2xl font-bold mb-4">Gire e ganhe desconto</h3>
 
-            <div
-              className={`w-64 h-64 rounded-full mx-auto mb-6 transition-transform duration-[4000ms] ease-out relative overflow-hidden`}
-              style={{
-                transform: discount ? `rotate(${1440 + discount * 10}deg)` : "rotate(0deg)",
-              }}
-            >
+            <div className={`w-64 h-64 rounded-full mx-auto mb-6 relative overflow-visible`}>
               <img
                 src="/images/roleta.jpg"
                 alt="Roleta de desconto"
@@ -596,6 +591,28 @@ export default function ResultsPage() {
 
               {/* Decorative center point */}
               <div className="absolute left-1/2 top-1/2 -ml-2 -mt-2 w-4 h-4 bg-yellow-400 rounded-full shadow-lg" />
+
+              <div
+                className={`absolute w-1 h-24 bg-gradient-to-b from-red-600 to-red-700 shadow-lg transition-transform duration-[4000ms] ease-out`}
+                style={{
+                  left: "50%",
+                  top: "-20px",
+                  marginLeft: "-2px",
+                  transformOrigin: "center 128px",
+                  transform: discount ? `rotate(${1440 + discount * 60}deg)` : "rotate(0deg)",
+                }}
+              />
+
+              {/* Pin triangle pointer at top */}
+              <div
+                className="absolute left-1/2 -top-4 -ml-2 w-0 h-0"
+                style={{
+                  borderLeft: "8px solid transparent",
+                  borderRight: "8px solid transparent",
+                  borderTop: "12px solid #dc2626",
+                  filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
+                }}
+              />
             </div>
 
             {!discount ? (
