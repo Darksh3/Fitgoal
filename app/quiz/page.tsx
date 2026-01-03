@@ -41,10 +41,10 @@ interface QuizData {
   recommendedSupplement: string
   weightChangeType: string
   height: string
-  heightUnit: string
+  heightUnit: "cm"
   currentWeight: string
   targetWeight: string
-  weightUnit: string
+  weightUnit: "kg"
   timeToGoal: string
   name: string
   workoutTime: string
@@ -1985,7 +1985,7 @@ export default function QuizPage() {
       case 26: // Updated from 25. Supplement Recommendation
         return quizData.wantsSupplement !== ""
       case 27: // Updated from 26. Name
-        // This case is now for Supplement Recommendation, and we can always proceed to next step if we want to show recommendation.
+        // This case is now for Supplement Interest, and we can always proceed to next step if we want to show recommendation.
         // The actual *choice* of supplement type was removed from the flow.
         return true // Always allow proceeding after seeing recommendation
       // </CHANGE>
@@ -2159,18 +2159,26 @@ export default function QuizPage() {
                 </div>
               ))}
             </div>
-            <div className="flex justify-center mt-8">
-              {/* Updated button for case 3 */}
-              <Button
-                onClick={nextStep}
-                disabled={!canProceed()}
-                className="
-            w-full h-16 text-xl font-bold text-black
-            bg-white
-            rounded-full shadow-lg
-          "
-              >
-                Continuar
+            <div className="fixed bottom-0 left-0 w-full p-4 z-50">
+              <Button onClick={nextStep} disabled={!canProceed()} className="w-full">
+                <div
+                  className="
+        w-full
+        py-5
+        bg-white
+        text-black
+        font-bold
+        text-xl
+        rounded-full
+        shadow-2xl
+        transition-all
+        duration-300
+        active:scale-95
+        disabled:opacity-40
+      "
+                >
+                  Continuar
+                </div>
               </Button>
             </div>
           </div>
@@ -2855,7 +2863,7 @@ export default function QuizPage() {
                   <span className="text-xl sm:text-2xl">{diet.icon}</span>
                   <div>
                     <h3 className="text-base sm:text-lg font-bold text-white">{diet.label}</h3>
-                    <p className="text-gray-400 text-sm sm:text-sm">{diet.desc}</p>
+                    <p className="text-gray-400 text-xs sm:text-sm">{diet.desc}</p>
                   </div>
                 </div>
               ))}
@@ -4225,7 +4233,7 @@ export default function QuizPage() {
                 onClick={nextStep}
                 disabled={!canProceed()}
                 size="lg"
-                className="w-full max-w-md bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl rounded-full disabled:from-gray-400 disabled:to-gray-500 disabled:text-gray-200"
+                className="w-full max-w-md bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold disabled:from-gray-400 disabled:to-gray-500 disabled:text-gray-200"
               >
                 Continuar
               </Button>
