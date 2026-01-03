@@ -2161,27 +2161,29 @@ export default function QuizPage() {
             </div>
             <div className="fixed bottom-0 left-0 w-full p-4 z-50">
               <Button onClick={nextStep} disabled={!canProceed()} className="w-full">
-                <div
-                  className="
-        w-full
-        py-5
-        bg-white
-        text-black
-        font-bold
-        text-xl
-        rounded-full
-        shadow-2xl
-        transition-all
-        duration-300
-        active:scale-95
-        disabled:opacity-40
-      "
-                >
-                  Continuar
-                </div>
-              </Button>
-            </div>
-          </div>
+               <div className="fixed bottom-0 left-0 w-full px-4 pb-6 z-50 flex justify-center">
+  <Button
+    onClick={nextStep}
+    disabled={!canProceed()}
+    className="
+      w-full
+      max-w-md
+      py-5
+      bg-white
+      text-black
+      font-bold
+      text-xl
+      rounded-full
+      shadow-2xl
+      transition-all
+      duration-300
+      active:scale-95
+      disabled:opacity-40
+    "
+  >
+    Continuar
+  </Button>
+</div> 
         )
 
       case 4: // Renamed from 3.5
