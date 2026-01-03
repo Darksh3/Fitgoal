@@ -2160,28 +2160,15 @@ export default function QuizPage() {
               ))}
             </div>
             <div className="flex justify-center mt-8">
-              <Button <motion.button
-            onClick={() => {
-              setShowQuickResults(false)
-              setCurrentStep(6)
-            }}
-            className="
-            w-full h-16 text-xl font-bold text-black
-            bg-white
-            rounded-full shadow-lg
-          "
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.5, duration: 0.6 }}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Continuar
-          </motion.button>
-        </div>
-      </motion.div>
-    )
-  }
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
+              </Button>
+            </div>
+          </div>
+        )
 
       case 4: // Renamed from 3.5
         return (
