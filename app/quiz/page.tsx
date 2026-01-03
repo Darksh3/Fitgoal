@@ -889,7 +889,7 @@ export default function QuizPage() {
       setQuizData(updatedQuizData) // Atualiza o estado local
 
       try {
-        localStorage.setItem("quizData", JSON.JSON.stringify(updatedQuizData))
+        localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
         debugDataFlow("QUIZ_LOCALSTORAGE_SAVE", updatedQuizData)
       } catch (error) {
         console.error("[QUIZ] Storage failed:", error)
@@ -2164,14 +2164,13 @@ export default function QuizPage() {
                 </div>
               ))}
             </div>
-            <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative overflow-hidden">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
+            <button
+              onClick={nextStep}
+              disabled={!canProceed()}
+              className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Continuar
+            </button>
           </div>
         )
 
@@ -2275,12 +2274,11 @@ export default function QuizPage() {
               </div>
             </div>
             <div className="flex justify-center mt-8">
-              <Button
-                onClick={nextStep}
-                disabled={!canProceed()}
-                className="w-full h-16 text-xl font-bold text-black bg-white rounded-full disabled:opacity-50 hover:bg-gray-100 transition-colors"
-              >
-                Continuar
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
+                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Continuar</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                </div>
               </Button>
             </div>
           </div>
@@ -3024,7 +3022,7 @@ export default function QuizPage() {
               />
             </div>
             <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative overflow-hidden">
+              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
@@ -3400,7 +3398,12 @@ export default function QuizPage() {
               </button>
             </div>
             <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} className="group relative overflow-hidden">
+              <Button
+                onClick={() => {
+                  nextStep()
+                }}
+                className="group relative overflow-hidden"
+              >
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
@@ -4104,10 +4107,7 @@ export default function QuizPage() {
             <div className="flex justify-center mt-8">
               <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10 flex items-center gap-3">
-                    Destravar meus resultados
-                    <Dumbbell className="h-6 w-6" />
-                  </span>
+                  <span className="relative z-10">Destravar meus resultados</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
                 </div>
               </Button>
@@ -4218,16 +4218,15 @@ export default function QuizPage() {
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
             30,
           ].includes(currentStep) && (
-            <div className="flex justify-center mt-8">
-              <div className="max-w-2xl w-full px-4">
-                <Button
-                  onClick={nextStep}
-                  disabled={!canProceed()}
-                  className="w-full h-16 text-xl font-bold text-black bg-white rounded-full disabled:opacity-50 hover:bg-gray-100 transition-colors"
-                >
-                  Continuar
-                </Button>
-              </div>
+            <div className="mt-8 flex justify-center">
+              <Button
+                onClick={nextStep}
+                disabled={!canProceed()}
+                size="lg"
+                className="w-full max-w-md bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold disabled:from-gray-400 disabled:to-gray-500 disabled:text-gray-200"
+              >
+                Continuar
+              </Button>
             </div>
           )}
       </div>
