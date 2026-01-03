@@ -41,10 +41,10 @@ interface QuizData {
   recommendedSupplement: string
   weightChangeType: string
   height: string
-  heightUnit: string
+  heightUnit: "cm" | "inches" // Added specific type for heightUnit
   currentWeight: string
   targetWeight: string
-  weightUnit: string
+  weightUnit: "kg" | "lbs" // Added specific type for weightUnit
   timeToGoal: string
   name: string
   workoutTime: string
@@ -62,14 +62,14 @@ interface QuizData {
   imcStatus: string
   age: number
   strengthTraining?: string
-  weight: string
+  weight: string // This seems redundant with currentWeight. Consider unifying.
   healthConditions: string[]
-  supplement: string
+  supplement: string // This seems redundant with wantsSupplement. Consider unifying.
   sweetsFrequency: string[]
   cardioFeeling: string
   strengthFeeling: string
   stretchingFeeling: string
-  trainingDays: string
+  trainingDays: string // This seems redundant with trainingDaysPerWeek. Consider unifying.
   previousProblems: string[]
   additionalGoals: string[]
   letMadMusclesChoose: boolean
@@ -121,14 +121,14 @@ const initialQuizData: QuizData = {
   imcClassification: "",
   imcStatus: "",
   age: 0,
-  weight: "",
-  healthConditions: [],
-  supplement: "",
-  sweetsFrequency: [],
+  weight: "", // Redundant, consider removing or unifying with currentWeight
+  healthConditions: [], // Redundant with allergyDetails, consider unifying.
+  supplement: "", // Redundant, consider unifying with wantsSupplement.
+  sweetsFrequency: [], // This is likely meant to be sugarFrequency.
   cardioFeeling: "",
   strengthFeeling: "",
   stretchingFeeling: "",
-  trainingDays: "",
+  trainingDays: "", // Redundant, consider unifying with trainingDaysPerWeek.
   previousProblems: [],
   additionalGoals: [],
   foodPreferences: {
@@ -174,7 +174,7 @@ const debugFrequencySelection = (frequency: number) => {
     const stored = localStorage.getItem("quizData")
     if (stored) {
       try {
-        const parsed = JSON.parse(stored)
+        const parsed = JSON.JSON.parse(stored)
         console.log(`[QUIZ] Stored frequency: ${parsed.trainingDaysPerWeek}`)
       } catch (error) {
         console.error("[QUIZ] localStorage parse error:", error)
@@ -294,14 +294,14 @@ export default function QuizPage() {
     imcClassification: "",
     imcStatus: "",
     age: 0,
-    weight: "",
-    healthConditions: [],
-    supplement: "",
-    sweetsFrequency: [],
+    weight: "", // Redundant, consider removing or unifying with currentWeight
+    healthConditions: [], // Redundant with allergyDetails, consider unifying.
+    supplement: "", // Redundant, consider unifying with wantsSupplement.
+    sweetsFrequency: [], // This is likely meant to be sugarFrequency.
     cardioFeeling: "",
     strengthFeeling: "",
     stretchingFeeling: "",
-    trainingDays: "",
+    trainingDays: "", // Redundant, consider unifying with trainingDaysPerWeek.
     previousProblems: [],
     additionalGoals: [],
     foodPreferences: {
@@ -801,7 +801,14 @@ export default function QuizPage() {
       setShowNutritionInfo(true)
       return
     } else if (currentStep === 27) {
-      setCurrentStep(28)
+      // Adjusted logic for supplement interest step
+      if (quizData.wantsSupplement === "sim") {
+        // If user wants supplement, proceed to the next step (Name)
+        setCurrentStep(28)
+      } else {
+        // If user doesn't want supplement, skip to the Name step (which is now 28)
+        setCurrentStep(28)
+      }
       return
     } else if (currentStep < totalSteps) {
       const nextStepNumber = currentStep + 1
@@ -811,28 +818,24 @@ export default function QuizPage() {
 
   const prevStep = () => {
     if (currentStep > 1) {
-      // Adjusted step numbers to match the new flow
+      // Handle specific step back navigation
       if (currentStep === 26 && quizData.allergies === "nao") {
-        // If we are at supplement interest question (case 27) and allergies was 'no' (case 25)
-        // We need to go back to the allergies question (case 25).
+        // If we are at allergy details (case 26) and allergies was 'no' (case 25)
+        // we should go back to the supplement interest question (case 27, which follows this)
+        // effectively skipping the allergy details step.
         setCurrentStep(25) // Go back to allergies question
       } else if (currentStep === 28 && quizData.wantsSupplement === "nao") {
-        // If we are at name question (case 29) and supplement interest was 'no' (case 27)
-        // We need to go back to the supplement interest question (case 27).
+        // If we are at name question (case 28) and supplement interest was 'no' (case 27)
+        // we need to go back to the supplement interest question (case 27).
         setCurrentStep(27)
       } else if (currentStep === 27 && quizData.wantsSupplement === "sim") {
-        // If we are at supplement recommendation (case 28) and supplement interest was 'yes' (case 27)
-        // We need to go back to the supplement interest question (case 27).
-        setCurrentStep(27)
-      } else if (currentStep === 26 && quizData.allergies === "sim") {
-        // If we are at allergy details (case 26) and allergies was 'yes' (case 25)
-        // We need to go back to the allergies question (case 25).
-        setCurrentStep(25) // Go back to allergies question
-      } else if (currentStep === 19 && quizData.additionalGoals.length === 0) {
-        // If we are at the additional goals page (now case 20) and user selected none,
-        // and if we are navigating back from this page, we should go back to the previous problem page (case 19)
-        setShowMotivationMessage(false) // Hide motivation message if it was shown
-        setCurrentStep(19)
+        // If we are at supplement interest (case 27) and wantsSupplement was 'yes', we should go back to case 26 (allergy details) if allergies were 'yes'
+        // or back to case 25 (allergies) if allergies were 'no'
+        if (quizData.allergies === "sim") {
+          setCurrentStep(26) // Go back to allergy details
+        } else {
+          setCurrentStep(25) // Go back to allergies question
+        }
       } else if (currentStep === 19 && showMotivationMessage) {
         // If motivation message was shown, go back to previous step before motivation message
         setShowMotivationMessage(false)
@@ -861,11 +864,13 @@ export default function QuizPage() {
     }
 
     try {
-      const weightForIMC = Number.parseFloat(quizData.weight || "0") // Use quizData.weight for IMC
+      // Use quizData.weight for IMC calculation as it's the most current weight input.
+      const weightForIMC = Number.parseFloat(quizData.weight || "0")
       const heightForIMC = Number.parseFloat(quizData.height || "0")
 
       const { imc, classification, status } = calculateIMC(weightForIMC, heightForIMC)
 
+      // Prepare updated quiz data before saving
       const updatedQuizData = {
         ...quizData,
         imc: imc,
@@ -1985,7 +1990,7 @@ export default function QuizPage() {
       case 26: // Updated from 25. Supplement Recommendation
         return quizData.wantsSupplement !== ""
       case 27: // Updated from 26. Name
-        // This case is now for Supplement Recommendation, and we can always proceed to next step if we want to show recommendation.
+        // This case is now for Supplement Interest, and we can always proceed to next step if we want to show recommendation.
         // The actual *choice* of supplement type was removed from the flow.
         return true // Always allow proceeding after seeing recommendation
       // </CHANGE>
@@ -2159,13 +2164,13 @@ export default function QuizPage() {
                 </div>
               ))}
             </div>
-            <Button
+            <button
               onClick={nextStep}
               disabled={!canProceed()}
-              className="w-full bg-white hover:bg-gray-100 text-black rounded-full font-bold text-lg py-4 transition-colors"
+              className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Continuar
-            </Button>
+            </button>
           </div>
         )
 
