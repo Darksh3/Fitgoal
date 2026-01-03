@@ -506,7 +506,9 @@ export default function ResultsPage() {
                 <CheckCircle className="h-6 w-6 text-white flex-shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-bold text-white">Dieta 100% personalizada em você</h4>
-                  <p className="text-white/90 text-sm">Plano de dieta claro, personalizado apenas para você, barato e fácil de seguir</p>
+                  <p className="text-white/90 text-sm">
+                    Plano de dieta claro, personalizado apenas para você, barato e fácil de seguir
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -522,9 +524,12 @@ export default function ResultsPage() {
                   <h4 className="font-bold text-white">Resultados visíveis após o primeiro mês</h4>
                   <p className="text-white/90 text-sm">Veja mudanças reais em seu corpo</p>
                 </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-6 w-6 text-white flex-shrink-0 mt-0.5" />
+                <div>
                   <h4 className="font-bold text-white">Acompanhamento de progresso</h4>
                   <p className="text-white/90 text-sm">Monitore sua evolução e ajuste conforme necessário</p>
-                </div>
                 </div>
               </div>
             </div>
