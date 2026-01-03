@@ -810,7 +810,7 @@ export default function QuizPage() {
         setCurrentStep(28)
       } else {
         // If user doesn't want supplement, skip to the Name step (which is now 28)
-        setCurrentStep(29)
+        setCurrentStep(28)
       }
       return
     } else if (currentStep < totalSteps) {
@@ -827,7 +827,7 @@ export default function QuizPage() {
         // we should go back to the supplement interest question (case 27, which follows this)
         // effectively skipping the allergy details step.
         setCurrentStep(25) // Go back to allergies question
-      } else if (currentStep === 29 && quizData.wantsSupplement === "nao") {
+      } else if (currentStep === 28 && quizData.wantsSupplement === "nao") {
         // If we are at name question (case 28) and supplement interest was 'no' (case 27)
         // we need to go back to the supplement interest question (case 27).
         setCurrentStep(27)
@@ -892,7 +892,7 @@ export default function QuizPage() {
       setQuizData(updatedQuizData) // Atualiza o estado local
 
       try {
-        localStorage.setItem("quizData", JSON.JSON.stringify(updatedQuizData))
+        localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
         debugDataFlow("QUIZ_LOCALSTORAGE_SAVE", updatedQuizData)
       } catch (error) {
         console.error("[QUIZ] Storage failed:", error)
@@ -2809,13 +2809,14 @@ export default function QuizPage() {
               </div>
             </div>
             <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} className="group relative overflow-hidden">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
-              </Button>
-            </div>
+              <button
+              onClick={nextStep}
+              disabled={!canProceed()}
+              className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Continuar
+            </button>
+          </div>
           </div>
         )
 
@@ -3868,7 +3869,7 @@ export default function QuizPage() {
               </div>
               <div
                 className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-red-400 ${
-                  quizData.allergies === "nao" ? "border-red-500 bg-red-500/10" : "border-white/10 bg-white/5"
+                  quizData.allergies === "nao" ? "border-red-500 bg-red-500/20" : "border-white/10 bg-white/5"
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
