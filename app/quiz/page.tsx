@@ -810,7 +810,7 @@ export default function QuizPage() {
         setCurrentStep(28)
       } else {
         // If user doesn't want supplement, skip to the Name step (which is now 28)
-        setCurrentStep(28)
+        setCurrentStep(29)
       }
       return
     } else if (currentStep < totalSteps) {
@@ -827,7 +827,7 @@ export default function QuizPage() {
         // we should go back to the supplement interest question (case 27, which follows this)
         // effectively skipping the allergy details step.
         setCurrentStep(25) // Go back to allergies question
-      } else if (currentStep === 28 && quizData.wantsSupplement === "nao") {
+      } else if (currentStep === 29 && quizData.wantsSupplement === "nao") {
         // If we are at name question (case 28) and supplement interest was 'no' (case 27)
         // we need to go back to the supplement interest question (case 27).
         setCurrentStep(27)
@@ -3868,7 +3868,7 @@ export default function QuizPage() {
               </div>
               <div
                 className={`backdrop-blur-sm rounded-lg p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border-2 hover:border-red-400 ${
-                  quizData.allergies === "nao" ? "border-red-500 bg-red-500/20" : "border-white/10 bg-white/5"
+                  quizData.allergies === "nao" ? "border-red-500 bg-red-500/10" : "border-white/10 bg-white/5"
                 }`}
                 onClick={() => {
                   updateQuizData("allergies", "nao")
