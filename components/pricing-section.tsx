@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Clock, Flame, ArrowRight } from "lucide-react"
+import { Clock, Flame } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface PricingSectionProps {
@@ -185,10 +185,9 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
           const planKey = plans.find((p) => p.id === selectedPlan)?.key || "mensal"
           router.push(`/checkout?plan=${planKey}&discount=${discount}`)
         }}
-        className="w-full bg-orange-500 hover:bg-orange-600 h-14 text-lg font-bold flex items-center justify-center gap-2 transition-transform active:scale-95"
+        className="w-full bg-white hover:bg-zinc-100 text-black h-14 text-lg font-bold rounded-full flex items-center justify-center gap-2 shadow-[0_4px_0_rgb(160,160,160)] hover:shadow-[0_2px_0_rgb(160,160,160)] hover:translate-y-[2px] active:translate-y-[4px] active:shadow-none transition-all duration-150 border-none"
       >
-        Continuar
-        <ArrowRight className="w-5 h-5" />
+        Continue
       </Button>
     </div>
   )
