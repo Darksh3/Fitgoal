@@ -2160,11 +2160,13 @@ export default function QuizPage() {
               ))}
             </div>
             <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
+              {/* Updated button for case 3 */}
+              <Button
+                onClick={nextStep}
+                disabled={!canProceed()}
+                className="w-full sm:w-auto px-12 md:px-24 py-8 bg-white text-black font-bold text-xl md:text-2xl rounded-full shadow-2xl hover:bg-gray-100 transition-all duration-300"
+              >
+                Continuar
               </Button>
             </div>
           </div>
@@ -2849,7 +2851,7 @@ export default function QuizPage() {
                   <span className="text-xl sm:text-2xl">{diet.icon}</span>
                   <div>
                     <h3 className="text-base sm:text-lg font-bold text-white">{diet.label}</h3>
-                    <p className="text-gray-400 text-xs sm:text-sm">{diet.desc}</p>
+                    <p className="text-gray-400 text-sm sm:text-sm">{diet.desc}</p>
                   </div>
                 </div>
               ))}
@@ -4219,7 +4221,7 @@ export default function QuizPage() {
                 onClick={nextStep}
                 disabled={!canProceed()}
                 size="lg"
-                className="w-full max-w-md bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold disabled:from-gray-400 disabled:to-gray-500 disabled:text-gray-200"
+                className="w-full max-w-md bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl rounded-full disabled:from-gray-400 disabled:to-gray-500 disabled:text-gray-200"
               >
                 Continuar
               </Button>
