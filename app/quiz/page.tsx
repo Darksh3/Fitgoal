@@ -892,7 +892,7 @@ export default function QuizPage() {
       setQuizData(updatedQuizData) // Atualiza o estado local
 
       try {
-        localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
+        localStorage.setItem("quizData", JSON.JSON.stringify(updatedQuizData))
         debugDataFlow("QUIZ_LOCALSTORAGE_SAVE", updatedQuizData)
       } catch (error) {
         console.error("[QUIZ] Storage failed:", error)
@@ -3160,14 +3160,16 @@ export default function QuizPage() {
                 className="group relative overflow-hidden"
               >
                 <div className="flex justify-center mt-8">
-              <button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Continuar
-            </button>
-          </div>
+                  <button
+                    onClick={nextStep}
+                    disabled={!canProceed()}
+                    className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Continuar
+                  </button>
+                </div>
+              </Button>
+            </div>
           </div>
         )
 
@@ -3541,14 +3543,16 @@ export default function QuizPage() {
                 className="group relative overflow-hidden"
               >
                 <div className="flex justify-center mt-8">
-              <button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Continuar
-            </button>
-          </div>
+                  <button
+                    onClick={nextStep}
+                    disabled={!canProceed()}
+                    className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Continuar
+                  </button>
+                </div>
+              </Button>
+            </div>
           </div>
         )
 
@@ -3847,14 +3851,16 @@ export default function QuizPage() {
                 className="group relative"
               >
                 <div className="flex justify-center mt-8">
-              <button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Continuar
-            </button>
-          </div>
+                  <button
+                    onClick={nextStep}
+                    disabled={!canProceed()}
+                    className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Continuar
+                  </button>
+                </div>
+              </Button>
+            </div>
           </div>
         )
 
@@ -4091,13 +4097,13 @@ export default function QuizPage() {
             </div>
             <div className="flex justify-center mt-8">
               <button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Continuar
-            </button>
-          </div>
+                onClick={nextStep}
+                disabled={!canProceed()}
+                className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Continuar
+              </button>
+            </div>
           </div>
         )
 
@@ -4123,13 +4129,13 @@ export default function QuizPage() {
             </div>
             <div className="flex justify-center mt-8">
               <button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Destravar meus resultados
-            </button>
-          </div>
+                onClick={nextStep}
+                disabled={!canProceed()}
+                className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Destravar meus resultados
+              </button>
+            </div>
           </div>
         )
 
