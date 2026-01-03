@@ -41,10 +41,10 @@ interface QuizData {
   recommendedSupplement: string
   weightChangeType: string
   height: string
-  heightUnit: "cm"
+  heightUnit: string
   currentWeight: string
   targetWeight: string
-  weightUnit: "kg"
+  weightUnit: string
   timeToGoal: string
   name: string
   workoutTime: string
@@ -1985,7 +1985,7 @@ export default function QuizPage() {
       case 26: // Updated from 25. Supplement Recommendation
         return quizData.wantsSupplement !== ""
       case 27: // Updated from 26. Name
-        // This case is now for Supplement Interest, and we can always proceed to next step if we want to show recommendation.
+        // This case is now for Supplement Recommendation, and we can always proceed to next step if we want to show recommendation.
         // The actual *choice* of supplement type was removed from the flow.
         return true // Always allow proceeding after seeing recommendation
       // </CHANGE>
@@ -2159,21 +2159,29 @@ export default function QuizPage() {
                 </div>
               ))}
             </div>
-            <div className="fixed bottom-0 left-0 w-full p-4 z-50">
-              <Button onClick={nextStep} disabled={!canProceed()} className="w-full">
-                <div
-                  className="
-       w-full h-16 text-xl font-bold text-black
+            <div className="flex justify-center mt-8">
+              <Button <motion.button
+            onClick={() => {
+              setShowQuickResults(false)
+              setCurrentStep(6)
+            }}
+            className="
+            w-full h-16 text-xl font-bold text-black
             bg-white
             rounded-full shadow-lg
           "
-                >
-                  Continuar
-                </div>
-              </Button>
-            </div>
-          </div>
-        )
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.5, duration: 0.6 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Continuar
+          </motion.button>
+        </div>
+      </motion.div>
+    )
+  }
 
       case 4: // Renamed from 3.5
         return (
