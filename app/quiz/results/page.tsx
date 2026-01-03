@@ -609,7 +609,7 @@ export default function ResultsPage() {
                 style={{
                   borderLeft: "8px solid transparent",
                   borderRight: "8px solid transparent",
-                  borderTop: "12px solid #dc2626",
+                  borderTop: "12px solid #fbbf24",
                   filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
                 }}
               />
