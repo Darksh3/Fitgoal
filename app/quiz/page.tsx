@@ -2842,7 +2842,7 @@ export default function QuizPage() {
               ].map((diet) => (
                 <div
                   key={diet.value}
-                  className={`backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
+                  className={`backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border ${
                     quizData.diet === diet.value
                       ? "border-2 border-lime-500 bg-lime-500/10"
                       : "border border-white/10 bg-white/5"
@@ -2865,7 +2865,7 @@ export default function QuizPage() {
             </div>
             <div className="border-t border-gray-700 pt-3 sm:pt-4">
               <div
-                className={`backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 ${
+                className={`backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center space-x-3 sm:space-x-4 border ${
                   quizData.diet === "nao-sigo"
                     ? "border-2 border-red-500 bg-red-500/20"
                     : "border border-white/10 bg-white/5"
@@ -3530,21 +3530,13 @@ export default function QuizPage() {
               ))}
             </div>
             <div className="flex justify-center mt-8">
-              <Button
+              <button
                 onClick={nextStep}
-                disabled={quizData.equipment.length === 0}
-                className="group relative overflow-hidden"
+                disabled={!canProceed()}
+                className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <div className="flex justify-center mt-8">
-                  <button
-                    onClick={nextStep}
-                    disabled={!canProceed()}
-                    className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Continuar
-                  </button>
-                </div>
-              </Button>
+                Continuar
+              </button>
             </div>
           </div>
         )
@@ -3553,7 +3545,7 @@ export default function QuizPage() {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Qual é o seu tempo disponível para treino?</h2>
               <p className="text-gray-300">Quanto tempo você pode dedicar por sessão?</p>
             </div>
 
@@ -4240,7 +4232,7 @@ export default function QuizPage() {
                 onClick={nextStep}
                 disabled={!canProceed()}
                 size="lg"
-                className="w-full max-w-md bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold disabled:from-gray-400 disabled:to-gray-500 disabled:text-gray-200"
+                className="w-full max-w-md bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl rounded-full disabled:from-gray-400 disabled:to-gray-500 disabled:text-gray-200"
               >
                 Continuar
               </Button>
