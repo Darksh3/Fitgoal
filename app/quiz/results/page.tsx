@@ -542,13 +542,6 @@ export default function ResultsPage() {
             >
               Escolher Plano e Finalizar
             </Button>
-            <Button
-              onClick={() => router.push("/dashboard/assinatura")}
-              variant="outline"
-              className="w-full md:w-auto border-lime-500 text-lime-500 hover:bg-lime-500/10 px-8 py-6 text-lg font-semibold rounded-full"
-            >
-              Acessar Dashboard
-            </Button>
           </div>
 
           <p className="text-center text-xs text-gray-500 pb-8">Baseado nos dados dos usuários do Fitgoal</p>
