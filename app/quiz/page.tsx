@@ -1571,17 +1571,15 @@ export default function QuizPage() {
             <span>{quizData.timeToGoal}</span>
           </div>
 
-          <div className="bg-lime-500 hover:bg-lime-600 transition-colors rounded-full p-1 max-w-md mx-auto">
-            <button
-              onClick={() => {
-                setShowTimeCalculation(false)
-                setCurrentStep(currentStep + 1)
-              }}
-              className="w-full max-w-md mx-auto block bg-lime-500 hover:bg-lime-600 text-white py-3 px-8 text-lg font-semibold rounded-full transition-colors"
-            >
-              Entendi
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              setShowTimeCalculation(false)
+              setCurrentStep(currentStep + 1)
+            }}
+            className="w-full h-16 bg-white text-black text-xl font-bold rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Entendi
+          </button>
 
           <style>{`
             @keyframes madDraw {
@@ -1877,7 +1875,7 @@ export default function QuizPage() {
               setShowWaterCongrats(false)
               setCurrentStep(currentStep + 1)
             }}
-            className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3 px-8 rounded-2xl transition-colors text-base"
+            className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Continuar
           </button>
@@ -2295,7 +2293,7 @@ export default function QuizPage() {
               <h2 className="text-2xl font-bold text-white">Qual área você quer focar mais?</h2>
               <p className="text-gray-300">Selecione todos que se aplicam</p>
             </div>
-            <div className="flex items-start justify-center space-x-8">
+            <div className="relative flex items-start justify-center space-x-8">
               <div
                 className={`relative bg-transparent ${quizData.gender === "mulher" ? "w-52 h-[420px]" : "w-52 h-auto"}`}
               >
@@ -2668,10 +2666,10 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `${debugValues.leg_lower_right.top}%`,
-                          right: `${debugValues.leg_lower_right.right}%`,
-                          width: `${debugValues.leg_lower_right.width}%`,
-                          height: `${debugValues.leg_lower_right.height}%`,
+                          top: `${debugValues.m_leg_lower_right.top}%`,
+                          right: `${debugValues.m_leg_lower_right.right}%`,
+                          width: `${debugValues.m_leg_lower_right.width}%`,
+                          height: `${debugValues.m_leg_lower_right.height}%`,
                           borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
                           transform: `rotate(${debugValues.m_leg_lower_right.rotate}deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
