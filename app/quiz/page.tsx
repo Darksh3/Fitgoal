@@ -1105,162 +1105,155 @@ export default function QuizPage() {
   const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
   // </CHANGE>
 
- if (showQuickResults) {
-  return (
-    <motion.div
-      className="
+  if (showQuickResults) {
+    return (
+      <motion.div
+        className="
         min-h-screen text-white flex items-center justify-center px-4 py-10
         bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50
       "
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
-    >
-      <div className="max-w-2xl w-full space-y-8">
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="max-w-2xl w-full space-y-8">
+          {/* Header */}
+          <motion.div
+            className="text-center space-y-3"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.7 }}
+          >
+            <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para sentir os primeiros sinais</h1>
+            <p className="text-gray-300 text-lg">
+              Com base no seu perfil, estes são os resultados iniciais mais comuns
+            </p>
+          </motion.div>
 
-        {/* Header */}
-        <motion.div
-          className="text-center space-y-3"
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.7 }}
-        >
-          <h1 className="text-4xl sm:text-5xl font-bold">
-            Apenas 2 semanas para sentir os primeiros sinais
-          </h1>
-          <p className="text-gray-300 text-lg">
-            Com base no seu perfil, estes são os resultados iniciais mais comuns
-          </p>
-        </motion.div>
-
-        {/* Status Box */}
-        <motion.div
-          className="
+          {/* Status Box */}
+          <motion.div
+            className="
             bg-gradient-to-br from-blue-950/40 via-purple-950/30 to-blue-950/40
             border border-blue-800/40
             rounded-3xl px-6 py-6 space-y-5 backdrop-blur-sm
           "
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.7 }}
-        >
-
-          {/* Item 1 */}
-          <motion.div
-            className="flex items-center justify-between"
-            initial={{ opacity: 0, x: -24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.45, duration: 0.6 }}
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.7 }}
           >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-green-500/15 flex items-center justify-center">
-                <span className="text-green-400 text-lg">✓</span>
-              </div>
-              <span className="text-lg">Energia diária</span>
-            </div>
-            <span className="text-green-400 font-medium">↑ Estável</span>
-          </motion.div>
-
-          <div className="h-px bg-blue-800/30" />
-
-          {/* Item 2 */}
-          <motion.div
-            className="flex items-center justify-between"
-            initial={{ opacity: 0, x: -24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.65, duration: 0.6 }}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-red-500/15 flex items-center justify-center">
-                <span className="text-red-400 text-lg">✓</span>
-              </div>
-              <span className="text-lg">Gordura corporal</span>
-            </div>
-            <span className="text-red-400 font-medium">↓ Em queda</span>
-          </motion.div>
-
-          <div className="h-px bg-blue-800/30" />
-
-          {/* Item 3 */}
-          <motion.div
-            className="flex items-center justify-between"
-            initial={{ opacity: 0, x: -24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.85, duration: 0.6 }}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-cyan-500/15 flex items-center justify-center">
-                <span className="text-cyan-400 text-lg">✓</span>
-              </div>
-              <span className="text-lg">Corpo mais firme</span>
-            </div>
-            <span className="text-cyan-400 font-medium">↑ Ativando</span>
-          </motion.div>
-        </motion.div>
-
-        {/* Timeline */}
-        <motion.div
-          className="text-center space-y-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.05, duration: 0.6 }}
-        >
-          <div className="flex justify-between text-sm text-gray-300 px-2">
-            <span>Agora</span>
-            <span>7 dias</span>
-            <span className="text-white font-medium">14 dias</span>
-          </div>
-
-          <div className="relative h-1 bg-blue-900/40 rounded-full overflow-hidden">
+            {/* Item 1 */}
             <motion.div
-              className="absolute left-0 top-0 h-1
+              className="flex items-center justify-between"
+              initial={{ opacity: 0, x: -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.45, duration: 0.6 }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-green-500/15 flex items-center justify-center">
+                  <span className="text-green-400 text-lg">✓</span>
+                </div>
+                <span className="text-lg">Energia diária</span>
+              </div>
+              <span className="text-green-400 font-medium">↑ Estável</span>
+            </motion.div>
+
+            <div className="h-px bg-blue-800/30" />
+
+            {/* Item 2 */}
+            <motion.div
+              className="flex items-center justify-between"
+              initial={{ opacity: 0, x: -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.65, duration: 0.6 }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-red-500/15 flex items-center justify-center">
+                  <span className="text-red-400 text-lg">✓</span>
+                </div>
+                <span className="text-lg">Gordura corporal</span>
+              </div>
+              <span className="text-red-400 font-medium">↓ Em queda</span>
+            </motion.div>
+
+            <div className="h-px bg-blue-800/30" />
+
+            {/* Item 3 */}
+            <motion.div
+              className="flex items-center justify-between"
+              initial={{ opacity: 0, x: -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.85, duration: 0.6 }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-cyan-500/15 flex items-center justify-center">
+                  <span className="text-cyan-400 text-lg">✓</span>
+                </div>
+                <span className="text-lg">Corpo mais firme</span>
+              </div>
+              <span className="text-cyan-400 font-medium">↑ Ativando</span>
+            </motion.div>
+          </motion.div>
+
+          {/* Timeline */}
+          <motion.div
+            className="text-center space-y-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.05, duration: 0.6 }}
+          >
+            <div className="flex justify-between text-sm text-gray-300 px-2">
+              <span>Agora</span>
+              <span>7 dias</span>
+              <span className="text-white font-medium">14 dias</span>
+            </div>
+
+            <div className="relative h-1 bg-blue-900/40 rounded-full overflow-hidden">
+              <motion.div
+                className="absolute left-0 top-0 h-1
                          bg-gradient-to-r from-blue-600 to-cyan-400
                          rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: "66%" }}
-              transition={{ delay: 1.15, duration: 0.9, ease: "easeOut" }}
-            />
-          </div>
+                initial={{ width: 0 }}
+                animate={{ width: "66%" }}
+                transition={{ delay: 1.15, duration: 0.9, ease: "easeOut" }}
+              />
+            </div>
 
-          <p className="text-sm text-gray-300">
-            ▲ primeiros sinais perceptíveis
-          </p>
-        </motion.div>
+            <p className="text-sm text-gray-300">▲ primeiros sinais perceptíveis</p>
+          </motion.div>
 
-        {/* Proof */}
-        <motion.p
-          className="text-center text-sm text-gray-400"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.35, duration: 0.5 }}
-        >
-          *Estimativa baseada em mais de 1,3 milhão de treinos analisados
-        </motion.p>
+          {/* Proof */}
+          <motion.p
+            className="text-center text-sm text-gray-400"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.35, duration: 0.5 }}
+          >
+            *Estimativa baseada em mais de 1,3 milhão de treinos analisados
+          </motion.p>
 
-        {/* CTA */}
-        <motion.button
-          onClick={() => {
-            setShowQuickResults(false)
-            setCurrentStep(6)
-          }}
-          className="
+          {/* CTA */}
+          <motion.button
+            onClick={() => {
+              setShowQuickResults(false)
+              setCurrentStep(6)
+            }}
+            className="
             w-full h-16 text-xl font-bold text-white
             bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400
             rounded-2xl shadow-lg
           "
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5, duration: 0.6 }}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          Continuar
-        </motion.button>
-
-      </div>
-    </motion.div>
-  )
-}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.5, duration: 0.6 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Continuar
+          </motion.button>
+        </div>
+      </motion.div>
+    )
+  }
 
   if (showCortisolMessage && currentStep === 22) {
     return (
@@ -2287,516 +2280,45 @@ export default function QuizPage() {
           </div>
         )
 
-      case 6: // Renamed from 5
+      case 6: // Updated from 5. Now refers to Area Focus
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Qual área você quer focar mais?</h2>
-              <p className="text-gray-300">Selecione todos que se aplicam</p>
+              <h2 className="text-2xl font-bold text-white">Quais áreas você quer focar?</h2>
+              <p className="text-gray-300">Selecione todas as que desejar</p>
             </div>
-            <div className="flex items-start justify-center space-x-8">
-              <div
-                className={`relative bg-transparent ${quizData.gender === "mulher" ? "w-52 h-[420px]" : "w-52 h-auto"}`}
-              >
-                <img
-                  src={quizData.gender === "mulher" ? "/images/wbody.webp" : "/images/body.webp"}
-                  alt="Corpo base"
-                  className="w-full h-full object-contain relative z-10"
-                  style={quizData.gender === "mulher" ? { mixBlendMode: "lighten" } : {}}
-                />
-
-                {/* MASCULINE PROBLEM AREAS */}
-                {quizData.gender !== "mulher" &&
-                  (quizData.problemAreas.includes("Peito") || quizData.problemAreas.includes("Tudo")) && (
-                    <>
-                      {/* Peitoral esquerdo */}
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.m_chest_left.top}%`,
-                          left: `${debugValues.m_chest_left.left}%`,
-                          width: `${debugValues.m_chest_left.width}%`,
-                          height: `${debugValues.m_chest_left.height}%`,
-                          borderRadius: "50% 50% 45% 55% / 55% 45% 60% 40%",
-                          transform: `rotate(${debugValues.m_chest_left.rotate}deg)`,
-                          boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                      {/* Peitoral direito */}
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.m_chest_right.top}%`,
-                          right: `${debugValues.m_chest_right.right}%`,
-                          width: `${debugValues.m_chest_right.width}%`,
-                          height: `${debugValues.m_chest_right.height}%`,
-                          borderRadius: "50% 50% 55% 45% / 45% 55% 40% 60%",
-                          transform: `rotate(${debugValues.m_chest_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                    </>
-                  )}
-
-                {quizData.gender !== "mulher" &&
-                  (quizData.problemAreas.includes("Braços") || quizData.problemAreas.includes("Tudo")) && (
-                    <>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.m_arm_upper_left.top}%`,
-                          left: `${debugValues.m_arm_upper_left.left}%`,
-                          width: `${debugValues.m_arm_upper_left.width}%`,
-                          height: `${debugValues.m_arm_upper_left.height}%`,
-                          borderRadius: "45% 55% 50% 50% / 50% 50% 45% 55%",
-                          transform: `rotate(${debugValues.m_arm_upper_left.rotate}deg)`,
-                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
-                        style={{
-                          top: `${debugValues.m_arm_lower_left.top}%`,
-                          left: `${debugValues.m_arm_lower_left.left}%`,
-                          width: `${debugValues.m_arm_lower_left.width}%`,
-                          height: `${debugValues.m_arm_lower_left.height}%`,
-                          borderRadius: "40% 60% 50% 50% / 60% 40% 50% 50%",
-                          transform: `rotate(${debugValues.m_arm_lower_left.rotate}deg)`,
-                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.m_arm_upper_right.top}%`,
-                          right: `${debugValues.m_arm_upper_right.right}%`,
-                          width: `${debugValues.m_arm_upper_right.width}%`,
-                          height: `${debugValues.m_arm_upper_right.height}%`,
-                          borderRadius: "55% 45% 50% 50% / 50% 50% 55% 45%",
-                          transform: `rotate(${debugValues.m_arm_upper_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
-                        style={{
-                          top: `${debugValues.m_arm_lower_right.top}%`,
-                          right: `${debugValues.m_arm_lower_right.right}%`,
-                          width: `${debugValues.m_arm_lower_right.width}%`,
-                          height: `${debugValues.m_arm_lower_right.height}%`,
-                          borderRadius: "60% 40% 50% 50% / 40% 60% 50% 50%",
-                          transform: `rotate(${debugValues.m_arm_lower_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                    </>
-                  )}
-
-                {quizData.gender !== "mulher" &&
-                  (quizData.problemAreas.includes("Barriga") || quizData.problemAreas.includes("Tudo")) && (
-                    <>
-                      {/* Abdômen superior esquerdo */}
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.m_abs_1_left.top}%`,
-                          left: `${debugValues.m_abs_1_left.left}%`,
-                          width: `${debugValues.m_abs_1_left.width}%`,
-                          height: `${debugValues.m_abs_1_left.height}%`,
-                          borderRadius: "45% 55% 40% 60%",
-                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                      {/* Abdômen superior direito */}
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.m_abs_1_right.top}%`,
-                          right: `${debugValues.m_abs_1_right.right}%`,
-                          width: `${debugValues.m_abs_1_right.width}%`,
-                          height: `${debugValues.m_abs_1_right.height}%`,
-                          borderRadius: "55% 45% 60% 40%",
-                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                      {/* Abdômen médio esquerdo */}
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.m_abs_2_left.top}%`,
-                          left: `${debugValues.m_abs_2_left.left}%`,
-                          width: `${debugValues.m_abs_2_left.width}%`,
-                          height: `${debugValues.m_abs_2_left.height}%`,
-                          borderRadius: "40% 60% 45% 55%",
-                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                      {/* Abdômen médio direito */}
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.m_abs_2_right.top}%`,
-                          right: `${debugValues.m_abs_2_right.right}%`,
-                          width: `${debugValues.m_abs_2_right.width}%`,
-                          height: `${debugValues.m_abs_2_right.height}%`,
-                          borderRadius: "60% 40% 55% 45%",
-                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                      {/* Abdômen inferior esquerdo */}
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.m_abs_3_left.top}%`,
-                          left: `${debugValues.m_abs_3_left.left}%`,
-                          width: `${debugValues.m_abs_3_left.width}%`,
-                          height: `${debugValues.m_abs_3_left.height}%`,
-                          borderRadius: "45% 55% 50% 50%",
-                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                      {/* Abdômen inferior direito */}
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.m_abs_3_right.top}%`,
-                          right: `${debugValues.m_abs_3_right.right}%`,
-                          width: `${debugValues.m_abs_3_right.width}%`,
-                          height: `${debugValues.m_abs_3_right.height}%`,
-                          borderRadius: "55% 45% 50% 50%",
-                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                    </>
-                  )}
-
-                {quizData.gender !== "mulher" &&
-                  (quizData.problemAreas.includes("Pernas") || quizData.problemAreas.includes("Tudo")) && (
-                    <>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.m_leg_upper_left.top}%`,
-                          left: `${debugValues.m_leg_upper_left.left}%`,
-                          width: `${debugValues.m_leg_upper_left.width}%`,
-                          height: `${debugValues.m_leg_upper_left.height}%`,
-                          borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
-                          transform: `rotate(${debugValues.m_leg_upper_left.rotate}deg)`,
-                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
-                        style={{
-                          top: `${debugValues.m_leg_lower_left.top}%`,
-                          left: `${debugValues.m_leg_lower_left.left}%`,
-                          width: `${debugValues.m_leg_lower_left.width}%`,
-                          height: `${debugValues.m_leg_lower_left.height}%`,
-                          borderRadius: "50% 50% 40% 60% / 60% 60% 50% 50%",
-                          transform: `rotate(${debugValues.m_leg_lower_left.rotate}deg)`,
-                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.m_leg_upper_right.top}%`,
-                          right: `${debugValues.m_leg_upper_right.right}%`,
-                          width: `${debugValues.m_leg_upper_right.width}%`,
-                          height: `${debugValues.m_leg_upper_right.height}%`,
-                          borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
-                          transform: `rotate(${debugValues.m_leg_upper_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
-                        style={{
-                          top: `${debugValues.m_leg_lower_right.top}%`,
-                          right: `${debugValues.m_leg_lower_right.right}%`,
-                          width: `${debugValues.m_leg_lower_right.width}%`,
-                          height: `${debugValues.m_leg_lower_right.height}%`,
-                          borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
-                          transform: `rotate(${debugValues.m_leg_lower_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
-                        }}
-                      ></div>
-                    </>
-                  )}
-
-                {/* FEMININE PROBLEM AREAS */}
-                {quizData.gender === "mulher" &&
-                  (quizData.problemAreas.includes("Peito") || quizData.problemAreas.includes("Tudo")) && (
-                    <>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
-                        style={{
-                          top: `${debugValues.chest_left.top}%`,
-                          left: `${debugValues.chest_left.left}%`,
-                          width: `${debugValues.chest_left.width}%`,
-                          height: `${debugValues.chest_left.height}%`,
-                          borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
-                          transform: `rotate(${debugValues.chest_left.rotate}deg)`,
-                          boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/90 animate-pulse"
-                        style={{
-                          top: `${debugValues.chest_right.top}%`,
-                          right: `${debugValues.chest_right.right}%`,
-                          width: `${debugValues.chest_right.width}%`,
-                          height: `${debugValues.chest_right.height}%`,
-                          borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
-                          transform: `rotate(${debugValues.chest_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 200, 200, 0.3)",
-                        }}
-                      ></div>
-                    </>
-                  )}
-
-                {quizData.gender === "mulher" &&
-                  (quizData.problemAreas.includes("Braços") || quizData.problemAreas.includes("Tudo")) && (
-                    <>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.arm_upper_left.top}%`,
-                          left: `${debugValues.arm_upper_left.left}%`,
-                          width: `${debugValues.arm_upper_left.width}%`,
-                          height: `${debugValues.arm_upper_left.height}%`,
-                          borderRadius: "50% 50% 45% 55% / 55% 55% 45% 45%",
-                          transform: `rotate(${debugValues.arm_upper_left.rotate}deg)`,
-                          boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
-                        style={{
-                          top: `${debugValues.arm_lower_left.top}%`,
-                          left: `${debugValues.arm_lower_left.left}%`,
-                          width: `${debugValues.arm_lower_left.width}%`,
-                          height: `${debugValues.arm_lower_left.height}%`,
-                          borderRadius: "45% 55% 50% 50% / 60% 60% 40% 40%",
-                          transform: `rotate(${debugValues.arm_lower_left.rotate}deg)`,
-                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.arm_upper_right.top}%`,
-                          right: `${debugValues.arm_upper_right.right}%`,
-                          width: `${debugValues.arm_upper_right.width}%`,
-                          height: `${debugValues.arm_upper_right.height}%`,
-                          borderRadius: "50% 50% 55% 45% / 55% 55% 45% 45%",
-                          transform: `rotate(${debugValues.arm_upper_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
-                        style={{
-                          top: `${debugValues.arm_lower_right.top}%`,
-                          right: `${debugValues.arm_lower_right.right}%`,
-                          width: `${debugValues.arm_lower_right.width}%`,
-                          height: `${debugValues.arm_lower_right.height}%`,
-                          borderRadius: "55% 45% 50% 50% / 60% 60% 40% 40%",
-                          transform: `rotate(${debugValues.arm_lower_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.4)",
-                        }}
-                      ></div>
-                    </>
-                  )}
-
-                {quizData.gender === "mulher" &&
-                  (quizData.problemAreas.includes("Barriga") || quizData.problemAreas.includes("Tudo")) && (
-                    <div
-                      className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                      style={{
-                        top: `${debugValues.belly.top}%`,
-                        left: `${debugValues.belly.left}%`,
-                        transform: `translateX(-50%) rotate(${debugValues.belly.rotate}deg)`,
-                        width: `${debugValues.belly.width}%`,
-                        height: `${debugValues.belly.height}%`,
-                        borderRadius: "45% 55% 50% 50% / 40% 40% 60% 60%",
-                        boxShadow: "inset 0 0 25px rgba(0, 255, 255, 0.4)",
-                      }}
-                    ></div>
-                  )}
-
-                {quizData.gender === "mulher" &&
-                  (quizData.problemAreas.includes("Pernas") || quizData.problemAreas.includes("Tudo")) && (
-                    <>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.leg_upper_left.top}%`,
-                          left: `${debugValues.leg_upper_left.left}%`,
-                          width: `${debugValues.leg_upper_left.width}%`,
-                          height: `${debugValues.leg_upper_left.height}%`,
-                          borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
-                          transform: `rotate(${debugValues.leg_upper_left.rotate}deg)`,
-                          boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
-                        style={{
-                          top: `${debugValues.leg_lower_left.top}%`,
-                          left: `${debugValues.leg_lower_left.left}%`,
-                          width: `${debugValues.leg_lower_left.width}%`,
-                          height: `${debugValues.leg_lower_left.height}%`,
-                          borderRadius: "50% 50% 45% 55% / 65% 65% 35% 35%",
-                          transform: `rotate(${debugValues.leg_lower_left.rotate}deg)`,
-                          boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
-                        style={{
-                          top: `${debugValues.leg_upper_right.top}%`,
-                          right: `${debugValues.leg_upper_right.right}%`,
-                          width: `${debugValues.leg_upper_right.width}%`,
-                          height: `${debugValues.leg_upper_right.height}%`,
-                          borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
-                          transform: `rotate(${debugValues.leg_upper_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.4)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
-                        style={{
-                          top: `${debugValues.leg_lower_right.top}%`,
-                          right: `${debugValues.leg_lower_right.right}%`,
-                          width: `${debugValues.leg_lower_right.width}%`,
-                          height: `${debugValues.leg_lower_right.height}%`,
-                          borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
-                          transform: `rotate(${debugValues.leg_lower_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
-                        }}
-                      ></div>
-                    </>
-                  )}
-              </div>
-
-              {debugMode && (
-                <div className="w-96 max-h-[600px] overflow-y-auto bg-gray-900/95 rounded-lg p-4 space-y-4 border border-purple-500">
-                  <div className="flex justify-between items-center sticky top-0 bg-gray-900 pb-2 border-b border-purple-500">
-                    <h3 className="text-lg font-bold text-white">
-                      Ajustar Marcações ({quizData.gender === "mulher" ? "Feminino" : "Masculino"})
-                    </h3>
-                    <button
-                      onClick={copyDebugValues}
-                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm"
-                    >
-                      Copiar Valores
-                    </button>
-                  </div>
-
-                  {Object.entries(debugValues)
-                    .filter(([key]) => (quizData.gender === "mulher" ? !key.startsWith("m_") : key.startsWith("m_")))
-                    .map(([key, values]) => (
-                      <div key={key} className="space-y-2 border-b border-gray-700 pb-3">
-                        <h4 className="text-sm font-semibold text-purple-300">
-                          {key.replace(/m_/g, "").replace(/_/g, " ").toUpperCase()}
-                        </h4>
-
-                        <div className="space-y-1">
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Top: {values.top}%</span>
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              value={values.top}
-                              onChange={(e) => updateDebugValue(key, "top", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-
-                          {"left" in values && (
-                            <label className="text-xs text-gray-400 flex justify-between">
-                              <span>Left: {values.left}%</span>
-                              <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                value={values.left}
-                                onChange={(e) => updateDebugValue(key, "left", Number(e.target.value))}
-                                className="w-48"
-                              />
-                            </label>
-                          )}
-
-                          {"right" in values && (
-                            <label className="text-xs text-gray-400 flex justify-between">
-                              <span>Right: {values.right}%</span>
-                              <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                value={values.right}
-                                onChange={(e) => updateDebugValue(key, "right", Number(e.target.value))}
-                                className="w-48"
-                              />
-                            </label>
-                          )}
-
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Width: {values.width}%</span>
-                            <input
-                              type="range"
-                              min="1"
-                              max="50"
-                              value={values.width}
-                              onChange={(e) => updateDebugValue(key, "width", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Height: {values.height}%</span>
-                            <input
-                              type="range"
-                              min="1"
-                              max="50"
-                              value={values.height}
-                              onChange={(e) => updateDebugValue(key, "height", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Rotate: {values.rotate}°</span>
-                            <input
-                              type="range"
-                              min="-90"
-                              max="90"
-                              value={values.rotate}
-                              onChange={(e) => updateDebugValue(key, "rotate", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              )}
-
-              <div className="flex flex-col space-y-4 max-w-md">
-                {["Peito", "Braços", "Barriga", "Pernas", "Tudo"].map((area) => (
+            <div className="max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                {[
+                  "Peito",
+                  "Costas",
+                  "Braços",
+                  "Ombros",
+                  "Pernas",
+                  "Glúteos",
+                  "Abdômen",
+                  "Corpo Inteiro",
+                  "Core",
+                  "Panturrilhas",
+                  "Trapézio",
+                  "Antebraço",
+                ].map((area) => (
                   <div
                     key={area}
-                    className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
+                    className={`backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 cursor-pointer transition-all border ${
                       quizData.problemAreas.includes(area)
-                        ? "bg-emerald-500 border-emerald-500 text-white"
-                        : "bg-white/5 backdrop-blur-sm border-white/10 hover:border-emerald-500"
+                        ? "border-2 border-lime-500 bg-lime-500/10"
+                        : "border border-white/10 bg-white/5"
                     }`}
-                    onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
+                    onClick={() => {
+                      const areas = quizData.problemAreas.includes(area)
+                        ? quizData.problemAreas.filter((a) => a !== area)
+                        : [...quizData.problemAreas, area]
+                      updateQuizData("problemAreas", areas)
+                    }}
                   >
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold">{area}</h3>
+                      <h3 className="text-base sm:text-lg font-bold text-white">{area}</h3>
                       <div
                         className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
                           quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-white/30"
@@ -2810,17 +2332,17 @@ export default function QuizPage() {
               </div>
             </div>
             <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} className="group relative overflow-hidden">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
+              <Button
+                onClick={nextStep}
+                className="w-full max-w-md py-6 bg-white hover:bg-gray-100 text-black font-bold text-xl rounded-full transition-all duration-300 shadow-lg"
+              >
+                Continuar
               </Button>
             </div>
           </div>
         )
 
-      case 7: // Renamed from 6
+      case 7: // Updated from 6. Now refers to Diet
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2882,7 +2404,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 8: // Renamed from 7
+      case 8: // Updated from 7. Now refers to Sugar Frequency
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2918,7 +2440,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 9: // Renamed from 8
+      case 9: // Updated from 8. Now refers to Alcohol Frequency
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -2954,7 +2476,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 10: // Renamed from 9
+      case 10: // Updated from 9. Now refers to Water Intake
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3002,7 +2524,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 11: // Renamed from 10
+      case 11: // Updated from 10. Now refers to Age
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3025,17 +2547,18 @@ export default function QuizPage() {
               />
             </div>
             <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative disabled:opacity-50">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
+              <Button
+                onClick={nextStep}
+                disabled={!canProceed()}
+                className="w-full max-w-md py-6 bg-white hover:bg-gray-100 text-black font-bold text-xl rounded-full transition-all duration-300 shadow-lg disabled:opacity-50"
+              >
+                Continuar
               </Button>
             </div>
           </div>
         )
 
-      case 12: // Renamed from 11
+      case 12: // Updated from 11. Now refers to Height
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3063,17 +2586,18 @@ export default function QuizPage() {
               />
             </div>
             <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative overflow-hidden">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
+              <Button
+                onClick={nextStep}
+                disabled={!canProceed()}
+                className="w-full max-w-md py-6 bg-white hover:bg-gray-100 text-black font-bold text-xl rounded-full transition-all duration-300 shadow-lg disabled:opacity-50"
+              >
+                Continuar
               </Button>
             </div>
           </div>
         )
 
-      case 13: // Renamed from 12
+      case 13: // Updated from 12. Now refers to Current Weight
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3097,17 +2621,18 @@ export default function QuizPage() {
               />
             </div>
             <div className="flex justify-center mt-8">
-              <Button onClick={nextStep} disabled={!canProceed()} className="group relative overflow-hidden">
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
+              <Button
+                onClick={nextStep}
+                disabled={!canProceed()}
+                className="w-full max-w-md py-6 bg-white hover:bg-gray-100 text-black font-bold text-xl rounded-full transition-all duration-300 shadow-lg disabled:opacity-50"
+              >
+                Continuar
               </Button>
             </div>
           </div>
         )
 
-      case 14: // Renamed from 13
+      case 14: // Updated from 13. Now refers to Target Weight
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3152,18 +2677,15 @@ export default function QuizPage() {
                   }
                 }}
                 disabled={!canProceed()}
-                className="group relative overflow-hidden"
+                className="w-full max-w-md py-6 bg-white hover:bg-gray-100 text-black font-bold text-xl rounded-full transition-all duration-300 shadow-lg disabled:opacity-50"
               >
-                <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10">Continuar</span>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                </div>
+                Continuar
               </Button>
             </div>
           </div>
         )
 
-      case 15: // Renamed from 14
+      case 15: // Updated from 14. Now refers to Strength Training Experience
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3215,7 +2737,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 16: // Renamed from 15
+      case 16: // Updated from 15. Now refers to Cardio Feeling
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3253,7 +2775,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 17: // Renamed from 16
+      case 17: // Updated from 16. Now refers to Strength Feeling
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3291,7 +2813,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 18: // Renamed from 17
+      case 18: // Updated from 17. Now refers to Stretching Feeling
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3329,7 +2851,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 19: // Renamed from 18
+      case 19: // Updated from 18. Now refers to Previous Problems
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3401,12 +2923,7 @@ export default function QuizPage() {
               </button>
             </div>
             <div className="flex justify-center mt-8">
-              <Button
-                onClick={() => {
-                  nextStep()
-                }}
-                className="group relative overflow-hidden"
-              >
+              <Button onClick={nextStep} className="group relative overflow-hidden">
                 <div className="relative px-8 md:px-16 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
                   <span className="relative z-10">Continuar</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
@@ -3416,7 +2933,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 20: // Renamed from 19
+      case 20: // Updated from 19. Now refers to Additional Goals
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3496,7 +3013,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 21: // Renamed from 20
+      case 21: // Updated from 20. Now refers to Equipment
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3544,7 +3061,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 22: // Renamed from 21
+      case 22: // Updated from 21. Now refers to Workout Time
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3604,7 +3121,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 23:
+      case 23: // Updated from 22. Now refers to Training Days Per Week
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3656,7 +3173,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 24: // Renamed from 22
+      case 24: // Updated from 22. Now refers to Food Preferences
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3846,7 +3363,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 25: // Renamed from 23
+      case 25: // Updated from 23. Now refers to Allergies
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3885,7 +3402,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 26: // Renamed from 24
+      case 26: // Updated from 24. Now refers to Allergy Details
         if (quizData.allergies !== "sim") {
           return null
         }
@@ -3918,7 +3435,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 27: // Renamed from 25. Now Supplement Interest
+      case 27: // Updated from 25. Now refers to Supplement Interest
         const shouldRecommendHipercalorico = () => {
           // Factor 1: Low IMC (underweight)
           if (quizData.imc && quizData.imc < 18.5) {
@@ -4057,7 +3574,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 28: // Renamed from 26. Now Name
+      case 28: // Updated from 26. Now refers to Name
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -4087,7 +3604,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 29: // Renamed from 27. Email
+      case 29: // Updated from 27. Now refers to Email
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -4118,7 +3635,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 30: // Renamed from 29. Final Submit
+      case 30: // Updated from 29. Now refers to Final Submit
         return (
           <div className="space-y-8 text-center">
             <h2 className="text-2xl font-bold text-white">Pronto para começar?</h2>
@@ -4226,7 +3743,7 @@ export default function QuizPage() {
                 onClick={nextStep}
                 disabled={!canProceed()}
                 size="lg"
-                className="w-full max-w-md bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold disabled:from-gray-400 disabled:to-gray-500 disabled:text-gray-200"
+                className="w-full max-w-md bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl rounded-full disabled:from-gray-400 disabled:to-gray-500 disabled:text-gray-200"
               >
                 Continuar
               </Button>
