@@ -25,7 +25,7 @@ import { onAuthStateChanged, signInAnonymously } from "firebase/auth"
 import { motion } from "framer-motion"
 
 // Helper component for AnimatedPercentage
-const AnimatedPercentage = ({ targetPercentage = 100, duration = 4 }) => {
+const AnimatedPercentage = ({ targetPercentage = 100, duration = 8, onPercentageChange }) => {
   const [percentage, setPercentage] = useState(0)
 
   useEffect(() => {
@@ -34,19 +34,35 @@ const AnimatedPercentage = ({ targetPercentage = 100, duration = 4 }) => {
       const elapsed = Date.now() - startTime
       const progress = Math.min(elapsed / (duration * 1000), 1)
 
-      // easeOutQuad: começa rápido e desacelera no final
-      const eased = 1 - Math.pow(1 - progress, 2)
+      let eased
+      if (progress < 0.83) {
+        // Até 83%: easeOutQuad normal
+        eased = 1 - Math.pow(1 - progress / 0.83, 2)
+        eased = eased * 0.83
+      } else {
+        // De 83% a 100%: easeOutCubic mais lento
+        const remainingProgress = (progress - 0.83) / 0.17
+        eased = 0.83 + (1 - Math.pow(1 - remainingProgress, 3)) * 0.17
+      }
 
-      setPercentage(Math.floor(eased * targetPercentage))
+      const currentPercentage = Math.floor(eased * targetPercentage)
+      setPercentage(currentPercentage)
+
+      if (onPercentageChange) {
+        onPercentageChange(currentPercentage)
+      }
 
       if (progress >= 1) {
         clearInterval(interval)
         setPercentage(targetPercentage)
+        if (onPercentageChange) {
+          onPercentageChange(targetPercentage)
+        }
       }
     }, 16)
 
     return () => clearInterval(interval)
-  }, [targetPercentage, duration])
+  }, [targetPercentage, duration, onPercentageChange])
 
   return <>{percentage}%</>
 }
@@ -363,6 +379,28 @@ export default function QuizPage() {
       setWaterFill(0)
     }
   }, [showWaterCongrats])
+  // </CHANGE>
+
+  const [animatedPercentage, setAnimatedPercentage] = useState(0)
+
+  const statuses = [
+    { label: "Atributos Físicos", threshold: 20 },
+    { label: "Nível de Fitness", threshold: 65 },
+    { label: "Análise de Potencial", threshold: 78 },
+    { label: "Geração de Dieta", threshold: 86 },
+    { label: "Geração de Treino", threshold: 100 },
+  ]
+
+  const getStatusMessage = () => {
+    if (animatedPercentage < 30) return "[Analisando seus dados...]"
+    if (animatedPercentage < 60) return "[Avaliando seu potencial...]"
+    if (animatedPercentage < 80) return "[Processando plano personalizado...]"
+    if (animatedPercentage < 95) return "[Finalizando sua dieta...]"
+    return "[Montando seu treino...]"
+  }
+
+  const isComplete = animatedPercentage === 100
+
   // </CHANGE>
 
   useEffect(() => {
@@ -4086,41 +4124,45 @@ export default function QuizPage() {
         )
 
       case 30: // Updated from 29. Final Submit - Loading page with animated percentage
-        const statuses = [
-          { label: "Atributos Físicos", threshold: 20 },
-          { label: "Nível de Fitness", threshold: 40 },
-          { label: "Análise de Potência", threshold: 60 },
-          { label: "Calibração de Rank", threshold: 80 },
-          { label: "Geração de Treino", threshold: 100 },
-        ]
+        // const [animatedPercentage, setAnimatedPercentage] = useState(0) // Already declared at the top level
 
-        // This percentage value is derived from the AnimatedPercentage component's state
-        // For the purpose of rendering, we can assume it's available here.
-        // If AnimatedPercentage's state isn't directly accessible, a similar state variable
-        // would need to be managed here. Let's simulate it for rendering purposes.
-        const percentage = 100 // This should ideally come from the AnimatedPercentage component's state or a shared state.
+        // const statuses = [
+        //   { label: "Atributos Físicos", threshold: 20 },
+        //   { label: "Nível de Fitness", threshold: 65 },
+        //   { label: "Análise de Potencial", threshold: 78 },
+        //   { label: "Geração de Dieta", threshold: 86 },
+        //   { label: "Geração de Treino", threshold: 100 },
+        // ]
 
-        const isComplete = percentage === 100
+        // // Textos que aparecem conforme o percentual avança
+        // const getStatusMessage = () => {
+        //   if (animatedPercentage < 30) return "[Analisando seus dados...]"
+        //   if (animatedPercentage < 60) return "[Avaliando seu potencial...]"
+        //   if (animatedPercentage < 80) return "[Processando plano personalizado...]"
+        //   if (animatedPercentage < 95) return "[Finalizando sua dieta...]"
+        //   return "[Montando seu treino...]"
+        // }
+
+        // const isComplete = animatedPercentage === 100
+        // </CHANGE>
 
         return (
           <div className="flex flex-col items-center justify-center min-h-screen gap-6 md:gap-8">
             {/* Percentage */}
-            {/* We need to render AnimatedPercentage here and potentially manage its state or access it */}
-            {/* For now, rendering a placeholder or assuming it works */}
             <div className="text-7xl md:text-8xl font-bold text-white mb-4">
-              <AnimatedPercentage targetPercentage={100} duration={4} />
+              <AnimatedPercentage targetPercentage={100} duration={8} onPercentageChange={setAnimatedPercentage} />
             </div>
 
             {/* Progress bar */}
             <div className="w-full max-w-xs bg-gray-800 rounded-full h-3 overflow-hidden">
               <div
                 className="bg-blue-500 h-3 rounded-full transition-all duration-100"
-                style={{ width: `${percentage}%` }}
+                style={{ width: `${animatedPercentage}%` }}
               />
             </div>
 
             {/* Status text */}
-            <p className="text-gray-400 text-sm md:text-base">[Avaliando seu potencial...]</p>
+            <p className="text-gray-400 text-sm md:text-base">{getStatusMessage()}</p>
 
             {/* Status box */}
             <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6 md:p-8 max-w-md mx-auto">
@@ -4128,10 +4170,10 @@ export default function QuizPage() {
               <div className="space-y-4">
                 {statuses.map((status, index) => (
                   <div key={index} className="flex items-center justify-between">
-                    <span className={percentage >= status.threshold ? "text-white" : "text-gray-400"}>
+                    <span className={animatedPercentage >= status.threshold ? "text-white" : "text-gray-400"}>
                       {status.label}
                     </span>
-                    {percentage >= status.threshold && <span className="text-green-500 text-xl">✓</span>}
+                    {animatedPercentage >= status.threshold && <span className="text-green-500 text-xl">✓</span>}
                   </div>
                 ))}
               </div>
