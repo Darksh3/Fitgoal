@@ -194,9 +194,18 @@ export default function DepoimentosPage() {
       <header className="p-6 flex justify-between items-center border-b border-gray-800">
         <div className="flex items-center">
           <img
-            src="/images/fitgoal-logo.png"
+            src="/images/fitgoal-logo-black.webp"
             alt="FitGoal Logo"
-            className="h-8 w-auto"
+            className="h-8 w-auto dark:hidden"
+            onError={(e) => {
+              e.currentTarget.style.display = "none"
+              e.currentTarget.nextElementSibling.style.display = "flex"
+            }}
+          />
+          <img
+            src="/images/fitgoal-logo.webp"
+            alt="FitGoal Logo"
+            className="h-8 w-auto hidden dark:block"
             onError={(e) => {
               e.currentTarget.style.display = "none"
               e.currentTarget.nextElementSibling.style.display = "flex"
@@ -263,9 +272,18 @@ export default function DepoimentosPage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
             <img
-              src="/images/fitgoal-logo.png"
+              src="/images/fitgoal-logo-black.webp"
               alt="FitGoal Logo"
-              className="h-16 w-auto"
+              className="h-16 w-auto dark:hidden"
+              onError={(e) => {
+                e.currentTarget.style.display = "none"
+                e.currentTarget.nextElementSibling.style.display = "flex"
+              }}
+            />
+            <img
+              src="/images/fitgoal-logo.webp"
+              alt="FitGoal Logo"
+              className="h-16 w-auto hidden dark:block"
               onError={(e) => {
                 e.currentTarget.style.display = "none"
                 e.currentTarget.nextElementSibling.style.display = "flex"

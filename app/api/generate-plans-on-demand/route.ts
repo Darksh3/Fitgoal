@@ -14,7 +14,7 @@ function getExerciseCountRange(workoutTime: string) {
       return { min: 4, max: 4, description: "4 exercícios (treino rápido)" }
     case "45min":
       return { min: 5, max: 5, description: "5 exercícios (treino moderado)" }
-    case "1hora":
+    case "1h": // Changed "1hora" to "1h" for consistency
       return { min: 6, max: 7, description: "6-7 exercícios (treino completo)" }
     case "mais-1h":
       return { min: 7, max: 8, description: "7-8 exercícios (treino longo)" }
@@ -394,7 +394,13 @@ export async function POST(req: Request) {
     })
 
     const mainLogic = async () => {
-      const { userId, quizData: providedQuizData, forceRegenerate } = await req.json()
+      // Replacing the original JSON parsing with specific checks
+      const body = await req.json()
+      const userId = body.userId
+      const providedQuizData = body.quizData
+      const forceRegenerate = body.forceRegenerate
+
+      console.log("🔍 [DEBUG] Starting plan generation for userId:", userId)
 
       if (!userId) {
         return new Response(JSON.stringify({ error: "userId is required." }), {
@@ -403,18 +409,35 @@ export async function POST(req: Request) {
         })
       }
 
+      const userDocRef = adminDb.collection("users").doc(userId)
+      const userDoc = await userDocRef.get()
+
+      if (!userDoc.exists) {
+        return new Response(JSON.JSON.stringify({ error: "User not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        })
+      }
+
+      const userData = userDoc.data()
       let quizData = providedQuizData
       if (!quizData) {
-        const userDocRef = adminDb.collection("users").doc(userId)
-        const docSnap = await userDocRef.get()
-        if (!docSnap.exists || !docSnap.data()?.quizData) {
+        if (!userData?.quizData) {
           return new Response(JSON.stringify({ error: "Quiz data not found." }), {
             status: 404,
             headers: { "Content-Type": "application/json" },
           })
         }
-        quizData = docSnap.data()?.quizData
+        quizData = userData.quizData
       }
+
+      console.log("📋 [DEBUG] Full quizData received:", JSON.stringify(quizData, null, 2))
+      console.log("💊 [DEBUG] wantsSupplement value:", quizData.wantsSupplement)
+      console.log("💊 [DEBUG] wantsSupplement type:", typeof quizData.wantsSupplement)
+      console.log("💊 [DEBUG] supplementType value:", quizData.supplementType)
+      console.log("💊 [DEBUG] supplementType type:", typeof quizData.supplementType)
+      console.log("💊 [DEBUG] Condition check (wantsSupplement === 'sim'):", quizData.wantsSupplement === "sim")
+      console.log("💊 [DEBUG] Condition check (supplementType exists):", !!quizData.supplementType)
 
       const requestedDays = quizData.trainingDaysPerWeek || 5
       console.log(`🎯 [CRITICAL] User ${userId} requested EXACTLY ${requestedDays} training days`)
@@ -437,7 +460,6 @@ export async function POST(req: Request) {
       })
 
       // Save scientific calculations to Firebase before AI generation
-      const userDocRef = adminDb.collection("users").doc(userId)
       await userDocRef.set(
         {
           scientificCalculations: {
@@ -463,38 +485,127 @@ export async function POST(req: Request) {
       const exerciseRange = getExerciseCountRange(quizData.workoutTime || "45-60min")
       console.log(`🏋️ [EXERCISE COUNT] ${exerciseRange.description} para tempo: ${quizData.workoutTime}`)
 
+      // Moved supplement macro calculation here for clarity and better use in prompts
+      // This block is handled within calculateScientificCalories now, and savedCalcs will contain these values.
+
+      // Use savedCalcs directly for supplement info
+      const supplementMacros = {
+        calories: savedCalcs.supplementCalories || 0,
+        protein: savedCalcs.supplementProtein || 0,
+        carbs: savedCalcs.supplementCarbs || 0,
+        fats: savedCalcs.supplementFats || 0,
+      }
+
+      console.log("💊 [DEBUG] Supplement macros from savedCalcs:", supplementMacros)
+      console.log("💊 [DEBUG] Will subtract from totals:", supplementMacros.calories > 0)
+
+      // Use savedCalcs.finalCalories which is the scientifically calculated total (including supplements if any)
+      const caloriesForMeals = savedCalcs.finalCalories - supplementMacros.calories
+      const proteinForMeals = savedCalcs.protein - supplementMacros.protein
+      const carbsForMeals = savedCalcs.carbs - supplementMacros.carbs
+      const fatsForMeals = savedCalcs.fats - supplementMacros.fats
+
+      console.log(`🔍 [SUPPLEMENT ADJUSTMENT] Suplemento: ${supplementMacros.calories} kcal`)
+      console.log(`🔍 [SUPPLEMENT ADJUSTMENT] Calorias para refeições: ${caloriesForMeals} kcal`)
+      console.log(
+        `🔍 [SUPPLEMENT ADJUSTMENT] Total final: ${caloriesForMeals} + ${supplementMacros.calories} = ${savedCalcs.finalCalories} kcal`,
+      )
+      console.log("🤖 [DEBUG] Values being sent to AI prompt:")
+      console.log("   - Calories for meals:", caloriesForMeals)
+      console.log("   - Protein for meals:", proteinForMeals)
+      console.log("   - Carbs for meals:", carbsForMeals)
+      console.log("   - Fats for meals:", fatsForMeals)
+
       const dietPrompt = `
-Você é um nutricionista experiente. Crie uma dieta de ${savedCalcs.finalCalories} kcal EXATAS para ${quizData.gender}, ${quizData.age} anos.
+Você é um nutricionista especializado em criar planos alimentares personalizados.
 
-ALVO OBRIGATÓRIO: ${savedCalcs.finalCalories} kcal
-Proteína: ${savedCalcs.protein}g | Carboidratos: ${savedCalcs.carbs}g | Gorduras: ${savedCalcs.fats}g
+IMPORTANTE - CÁLCULO DE CALORIAS E MACROS:
+${
+  quizData.wantsSupplement === "sim" && quizData.supplementType
+    ? `
+⚠️ O CLIENTE ACEITOU SUPLEMENTAÇÃO!
+- Valor científico TOTAL: ${savedCalcs.finalCalories} kcal
+- Suplemento (${quizData.supplementType}): ${savedCalcs.supplementCalories} kcal (${savedCalcs.supplementProtein}g proteína, ${savedCalcs.supplementCarbs}g carboidratos, ${savedCalcs.supplementFats}g gorduras)
+- VOCÊ DEVE CRIAR AS REFEIÇÕES COM: ${caloriesForMeals} kcal
+- O suplemento será adicionado DEPOIS, totalizando ${savedCalcs.finalCalories} kcal
 
-CLIENTE: ${quizData.currentWeight}kg, objetivo: ${quizData.goal?.join(", ")}, biotipo: ${quizData.bodyType}
+NÃO adicione o suplemento nas refeições! Ele será incluído automaticamente.
+`
+    : `
+- Valor científico TOTAL: ${savedCalcs.finalCalories} kcal
+- Sem suplementação
+- VOCÊ DEVE CRIAR AS REFEIÇÕES COM: ${savedCalcs.finalCalories} kcal
+`
+}
+
+CLIENTE: ${quizData.gender}, ${quizData.age} anos, ${quizData.currentWeight}kg, objetivo: ${quizData.goal?.join(", ")}, biotipo: ${quizData.bodyType}
 ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
+${
+  quizData.diet
+    ? `
+⚠️ PREFERÊNCIA ALIMENTAR CRÍTICA: ${quizData.diet.toUpperCase()}
+${
+  quizData.diet === "vegetariano"
+    ? "- NÃO INCLUA: Carne bovina, frango, porco, peixe, frutos do mar\n- PERMITIDO: Ovos, laticínios, leguminosas, tofu, proteína vegetal"
+    : quizData.diet === "vegano"
+      ? "- NÃO INCLUA: Qualquer produto de origem animal (carne, frango, peixe, ovos, laticínios, mel)\n- USE: Proteínas vegetais (leguminosas, tofu, tempeh, seitan), leites vegetais"
+      : quizData.diet === "keto"
+        ? "- FOCO: Baixo carboidrato (máx 50g/dia), alto teor de gorduras saudáveis\n- EVITE: Arroz, pão, massas, açúcar, frutas ricas em açúcar"
+        : quizData.diet === "mediterraneo"
+          ? "- FOCO: Azeite, peixes, vegetais, grãos integrais, frutas\n- LIMITE: Carne vermelha, alimentos processados"
+          : ""
+}
+`
+    : ""
+}
 
 REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
 
-REFERÊNCIA NUTRICIONAL OBRIGATÓRIA:
-- Use EXCLUSIVAMENTE dados das tabelas USDA (United States Department of Agriculture) e TACO (Tabela Brasileira de Composição de Alimentos)
-- Para alimentos brasileiros: priorize TACO
-- Para alimentos internacionais: use USDA
-- NUNCA invente valores nutricionais - use apenas dados oficiais dessas bases
+INSTRUÇÕES CRÍTICAS - DISTRIBUIÇÃO DE MACROS:
+⚠️ VOCÊ DEVE SEGUIR EXATAMENTE ESTES VALORES CALCULADOS CIENTIFICAMENTE:
 
-EXEMPLOS DE VALORES OFICIAIS TACO/USDA:
-- Arroz branco cozido: 128 kcal/100g (TACO)
-- Feijão carioca cozido: 76 kcal/100g (TACO)
-- Peito de frango grelhado: 165 kcal/100g (USDA)
-- Banana prata: 89 kcal/100g (TACO)
-- Aveia em flocos: 394 kcal/100g (USDA)
-- Ovo de galinha inteiro: 155 kcal/100g (TACO)
+${
+  quizData.wantsSupplement === "sim" && quizData.supplementType
+    ? `
+MACROS PARA AS REFEIÇÕES (sem suplemento):
+- Calorias: ${Math.round(caloriesForMeals)} kcal
+- Proteínas: ${Math.round(proteinForMeals)}g (${(((proteinForMeals * 4) / caloriesForMeals) * 100).toFixed(1)}%)
+- Carboidratos: ${Math.round(carbsForMeals)}g (${(((carbsForMeals * 4) / caloriesForMeals) * 100).toFixed(1)}%)
+- Gorduras: ${Math.round(fatsForMeals)}g (${(((fatsForMeals * 9) / caloriesForMeals) * 100).toFixed(1)}%)
 
-INSTRUÇÕES CRÍTICAS:
+MACROS TOTAIS (refeições + suplemento):
+- Calorias: ${savedCalcs.finalCalories} kcal
+- Proteínas: ${savedCalcs.protein}g
+- Carboidratos: ${savedCalcs.carbs}g
+- Gorduras: ${savedCalcs.fats}g
+`
+    : `
+MACROS TOTAIS:
+- Calorias: ${savedCalcs.finalCalories} kcal
+- Proteínas: ${savedCalcs.protein}g (${(((savedCalcs.protein * 4) / savedCalcs.finalCalories) * 100).toFixed(1)}%)
+- Carboidratos: ${savedCalcs.carbs}g (${(((savedCalcs.carbs * 4) / savedCalcs.finalCalories) * 100).toFixed(1)}%)
+- Gorduras: ${savedCalcs.fats}g (${(((savedCalcs.fats * 9) / savedCalcs.finalCalories) * 100).toFixed(1)}%)
+`
+}
+
+🎯 REGRAS OBRIGATÓRIAS:
+1. A soma das REFEIÇÕES deve atingir EXATAMENTE os valores acima
+2. NÃO faça sua própria distribuição de macros - use os valores fornecidos
+3. Distribua os macros proporcionalmente entre as ${mealConfig.count} refeições
+4. Cada refeição deve contribuir para atingir os totais especificados
+5. Priorize alimentos brasileiros comuns e acessíveis (arroz, feijão, frango, ovos, batata, etc.)
+6. Evite alimentos caros ou incomuns no Brasil (salmão, quinoa, aspargos, etc.)
+${
+  quizData.diet
+    ? `7. ⚠️ RESPEITE RIGOROSAMENTE A PREFERÊNCIA ALIMENTAR: ${quizData.diet.toUpperCase()} - Não inclua alimentos proibidos!`
+    : ""
+}
+
+FONTES DE DADOS NUTRICIONAIS:
 1. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO
 2. Cite a fonte (USDA ou TACO) para cada alimento quando possível
 3. Use valores por 100g das tabelas oficiais e calcule proporcionalmente
-4. A soma TOTAL deve ser EXATAMENTE ${savedCalcs.finalCalories} kcal
-5. Seja preciso com as quantidades baseadas nos valores oficiais
-6. Prefira alimentos com dados bem documentados nas tabelas
+4. Seja preciso com as quantidades baseadas nos valores oficiais
 
 EXEMPLO DE FORMATO OBRIGATÓRIO:
 {
@@ -510,11 +621,11 @@ JSON OBRIGATÓRIO:
 {
   "totalDailyCalories": "${savedCalcs.finalCalories} kcal",
   "totalProtein": "${savedCalcs.protein}g",
-  "totalCarbs": "${savedCalcs.carbs}g", 
+  "totalCarbs": "${savedCalcs.carbs}g",
   "totalFats": "${savedCalcs.fats}g",
   "meals": [${mealConfig.names
     .map((name, i) => {
-      const targetCals = Math.round(savedCalcs.finalCalories * mealConfig.distribution[i])
+      const targetCals = Math.round(caloriesForMeals * mealConfig.distribution[i])
       return `{
         "name": "${name}",
         "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}",
@@ -531,7 +642,19 @@ JSON OBRIGATÓRIO:
         ]
       }`
     })
-    .join(",")}]
+    .join(",")}],
+  "supplements": ${
+    quizData.wantsSupplement === "sim" && quizData.supplementType
+      ? `[{
+    "name": "${quizData.supplementType === "hipercalorico" ? "Hipercalórico Growth" : "Whey Protein Growth"}",
+    "quantity": "${quizData.supplementType === "hipercalorico" ? "170g (12 dosadores)" : "30g (2 dosadores)"}",
+    "calories": ${quizData.supplementType === "hipercalorico" ? 615 : 119},
+    "protein": ${quizData.supplementType === "hipercalorico" ? 37 : 24},
+    "carbs": ${quizData.supplementType === "hipercalorico" ? 108 : 2.3},
+    "fats": ${quizData.supplementType === "hipercalorico" ? 3.7 : 1.5}
+  }]`
+      : "[]"
+  }
 }`
 
       const workoutPrompt = `
@@ -558,7 +681,7 @@ DIVISÃO DE TREINO VS ÁREAS DE FOCO - REGRAS CRÍTICAS:
 
 2. ÁREAS PROBLEMÁTICAS (apenas para dar ÊNFASE EXTRA):
    - "Peito" = treino normal + mais séries/exercícios para peitoral
-   - "Braços" = treino normal + mais séries/exercícios para bíceps e tríceps  
+   - "Braços" = treino normal + mais séries/exercícios para bíceps e tríceps
    - "Pernas" = treino normal + mais séries/exercícios para membros inferiores
    - "Corpo inteiro" = desenvolvimento equilibrado, SEM foco específico
 
@@ -661,10 +784,10 @@ JSON OBRIGATÓRIO:
                 return total + meal.foods.reduce((mealTotal, food) => mealTotal + (food.calories || 0), 0)
               }, 0)
 
-              console.log(`[DIET] Target: ${savedCalcs.finalCalories} kcal, AI Generated: ${realTotal} kcal`)
+              console.log(`[DIET] Target for meals: ${caloriesForMeals} kcal, AI Generated: ${realTotal} kcal`)
 
               // Check if difference is significant and adjust if needed
-              const difference = savedCalcs.finalCalories - realTotal
+              const difference = caloriesForMeals - realTotal
               if (Math.abs(difference) > 50) {
                 console.log(`[DIET] Adjusting foods by ${difference} kcal`)
                 const adjustmentPerMeal = Math.round(difference / parsed.meals.length)
@@ -680,17 +803,24 @@ JSON OBRIGATÓRIO:
                 })
               }
 
-              parsed.totalDailyCalories = `${savedCalcs.finalCalories} kcal`
-              parsed.totalProtein = `${savedCalcs.protein}g`
-              parsed.totalCarbs = `${savedCalcs.carbs}g`
-              parsed.totalFats = `${savedCalcs.fats}g`
+              // Update totals to reflect meal-only values for the diet plan structure
+              parsed.totalDailyCalories = `${caloriesForMeals} kcal`
+              parsed.totalProtein = `${proteinForMeals}g`
+              parsed.totalCarbs = `${carbsForMeals}g`
+              parsed.totalFats = `${fatsForMeals}g`
 
               dietPlan = parsed
-              console.log("✅ [DIET SUCCESS] Generated and corrected")
+              console.log("✅ [DIET SUCCESS] Generated and corrected for meals")
+            } else {
+              console.log(
+                `[DIET] Meal count mismatch. Expected ${mealConfig.count}, got ${parsed.meals?.length || "undefined"}`,
+              )
             }
           } catch (e) {
             console.log("⚠️ [DIET] Parse error:", e)
           }
+        } else if (dietResponse.status === "rejected") {
+          console.error("❌ [DIET] Generation failed:", dietResponse.reason)
         }
 
         // Process workout response
@@ -700,18 +830,24 @@ JSON OBRIGATÓRIO:
             if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === requestedDays) {
               workoutPlan = parsed
               console.log("✅ [WORKOUT SUCCESS] Generated successfully")
+            } else {
+              console.log(
+                `[WORKOUT] Days count mismatch. Expected ${requestedDays}, got ${parsed.days?.length || "undefined"}`,
+              )
             }
           } catch (e) {
             console.log("⚠️ [WORKOUT] Parse error, using fallback")
           }
+        } else if (workoutResponse.status === "rejected") {
+          console.error("❌ [WORKOUT] Generation failed:", workoutResponse.reason)
         }
       } catch (error) {
         console.log("⚠️ [PARALLEL] Generation failed, using fallbacks")
       }
 
       if (!dietPlan) {
-        console.log("❌ [NO FALLBACK] AI must provide all nutritional data")
-
+        console.log("❌ [NO DIET PLAN] AI must provide all nutritional data. Using placeholder and returning error.")
+        // Return an error if diet plan generation failed and no fallback is appropriate
         return new Response(
           JSON.stringify({
             error: "Failed to generate diet plan. AI must provide all nutritional data.",
@@ -738,10 +874,11 @@ JSON OBRIGATÓRIO:
       console.log(JSON.stringify(dietPlan, null, 2))
       console.log("=".repeat(80))
       console.log(`📊 [DIET SUMMARY]`)
-      console.log(`   Total Daily Calories: ${dietPlan?.totalDailyCalories}`)
-      console.log(`   Total Protein: ${dietPlan?.totalProtein}`)
-      console.log(`   Total Carbs: ${dietPlan?.totalCarbs}`)
-      console.log(`   Total Fats: ${dietPlan?.totalFats}`)
+      // Displaying meal-only totals here as dietPlan reflects that
+      console.log(`   Total Daily Calories (Meals Only): ${dietPlan?.totalDailyCalories}`)
+      console.log(`   Total Protein (Meals Only): ${dietPlan?.totalProtein}`)
+      console.log(`   Total Carbs (Meals Only): ${dietPlan?.totalCarbs}`)
+      console.log(`   Total Fats (Meals Only): ${dietPlan?.totalFats}`)
       console.log(`   Number of Meals: ${dietPlan?.meals?.length || 0}`)
       if (dietPlan?.meals) {
         dietPlan.meals.forEach((meal: any, index: number) => {
@@ -749,6 +886,8 @@ JSON OBRIGATÓRIO:
           console.log(`   Meal ${index + 1} (${meal.name}): ${mealTotal} kcal (${meal.foods?.length || 0} foods)`)
         })
       }
+      console.log(`   Total Calories (Scientific Target): ${savedCalcs.finalCalories} kcal`)
+      console.log(`   Total Calories from Supplement: ${savedCalcs.supplementCalories} kcal`)
       console.log("=".repeat(80))
 
       try {
@@ -759,8 +898,11 @@ JSON OBRIGATÓRIO:
             workoutPlan,
             finalResults: {
               scientificTarget: savedCalcs.finalCalories,
-              actualGenerated: dietPlan?.totalDailyCalories,
-              valuesMatch: dietPlan?.totalDailyCalories === `${savedCalcs.finalCalories} kcal`,
+              // The actual generated calories here will be the sum of meal calories and supplement calories
+              actualGenerated: `${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
+              valuesMatch:
+                `${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal` ===
+                `${savedCalcs.finalCalories} kcal`,
               generatedAt: admin.firestore.FieldValue.serverTimestamp(),
             },
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -768,7 +910,7 @@ JSON OBRIGATÓRIO:
           { merge: true },
         )
         console.log(
-          `✅ Plans saved - Scientific: ${savedCalcs.finalCalories} kcal, Saved: ${dietPlan?.totalDailyCalories}`,
+          `✅ Plans saved - Scientific: ${savedCalcs.finalCalories} kcal, Saved: ${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
         )
       } catch (firestoreError) {
         console.error("⚠️ Firestore error:", firestoreError)
@@ -1007,8 +1149,7 @@ function calculateScientificCalories(data: any) {
     }
   }
 
-  const finalCalories = Math.round(tdee + dailyCalorieAdjustment)
-  let safeCalories = finalCalories
+  const safeCalories = Math.round(tdee + dailyCalorieAdjustment)
 
   // ============================================
   // 5. LIMITES DE SEGURANÇA POR GÊNERO
@@ -1017,96 +1158,137 @@ function calculateScientificCalories(data: any) {
   const minCaloriesMen = trainingDaysPerWeek >= 4 ? 1600 : 1400
   const absoluteMinimum = isFemale ? minCaloriesWomen : minCaloriesMen
 
-  if (safeCalories < absoluteMinimum) {
-    console.log(`⚠️ [SAFETY] Calories too low (${safeCalories}), adjusting to minimum safe level (${absoluteMinimum})`)
-    safeCalories = absoluteMinimum
-    dailyCalorieAdjustment = safeCalories - tdee
+  let finalSafeCalories = safeCalories
+  if (finalSafeCalories < absoluteMinimum) {
+    console.log(
+      `⚠️ [SAFETY] Calories too low (${finalSafeCalories}), adjusting to minimum safe level (${absoluteMinimum})`,
+    )
+    finalSafeCalories = absoluteMinimum
   }
 
   // Nunca abaixo de 110% do TMB
-  if (safeCalories < tmb * 1.1) {
+  if (finalSafeCalories < tmb * 1.1) {
     console.log(`⚠️ [SAFETY] Calories below 110% of TMB (${Math.round(tmb * 1.1)}), adjusting for metabolic safety`)
-    safeCalories = Math.round(tmb * 1.1)
-    dailyCalorieAdjustment = safeCalories - tdee
+    finalSafeCalories = Math.round(tmb * 1.1)
   }
 
   // ============================================
-  // 6. MACRONUTRIENTES AJUSTADOS
+  // 6. AJUSTE PARA SUPLEMENTAÇÃO
   // ============================================
-  let proteinPerKg = 1.6
-  let fatsPerKg = 1.0
+  let supplementCalories = 0
+  let supplementProtein = 0
+  let supplementCarbs = 0
+  let supplementFats = 0
+
+  console.log(
+    `[v0] Checking supplement data: wantsSupplement=${data.wantsSupplement}, supplementType=${data.supplementType}`,
+  )
+
+  if (data.wantsSupplement === "sim" && data.supplementType) {
+    if (data.supplementType === "hipercalorico") {
+      // Hipercalórico Growth (170g)
+      supplementCalories = 615
+      supplementProtein = 37
+      supplementCarbs = 108
+      supplementFats = 3.7
+    } else if (data.supplementType === "whey-protein") {
+      // Whey Protein Growth (30g)
+      supplementCalories = 119
+      supplementProtein = 24
+      supplementCarbs = 2.3
+      supplementFats = 1.5
+    }
+
+    console.log(
+      `💊 [SUPPLEMENT] Detected ${data.supplementType}: ${supplementCalories} kcal, ${supplementProtein}g protein, ${supplementCarbs}g carbs, ${supplementFats}g fats`,
+    )
+  } else {
+    console.log(`[v0] No supplement detected or not accepted`)
+  }
+
+  // Proteína base e gordura base antes de adicionar suplemento
+  let proteinBase = 1.6
+  let fatsBase = 1.0
+
+  // ============================================
+  // 7. MACRONUTRIENTES AJUSTADOS
+  // ============================================
 
   // PROTEÍNA baseada em objetivo + somatótipo + gênero
   if (weightDifference < -0.5) {
     // PERDA DE PESO - mais proteína para preservar massa
     if (bodyType.toLowerCase() === "ectomorfo") {
-      proteinPerKg = isFemale ? 2.0 : 2.2 // Preserva massa facilmente
+      proteinBase = isFemale ? 2.0 : 2.2 // Preserva massa facilmente
     } else if (bodyType.toLowerCase() === "mesomorfo") {
-      proteinPerKg = isFemale ? 2.2 : 2.4
+      proteinBase = isFemale ? 2.2 : 2.4
     } else if (bodyType.toLowerCase() === "endomorfo") {
-      proteinPerKg = isFemale ? 2.4 : 2.6 // Precisa mais para preservar
+      proteinBase = isFemale ? 2.4 : 2.6 // Precisa mais para preservar
     } else {
-      proteinPerKg = isFemale ? 2.0 : 2.2
+      proteinBase = isFemale ? 2.0 : 2.2
     }
   } else if (weightDifference > 0.5) {
     // GANHO DE PESO - proteína para construção
     if (bodyType.toLowerCase() === "ectomorfo") {
-      proteinPerKg = isFemale ? 2.3 : 2.5 // Mais difícil ganhar
+      proteinBase = isFemale ? 2.3 : 2.5 // Mais difícil ganhar
     } else if (bodyType.toLowerCase() === "mesomorfo") {
-      proteinPerKg = isFemale ? 2.0 : 2.2 // Responde bem
+      proteinBase = isFemale ? 2.0 : 2.2 // Responde bem
     } else if (bodyType.toLowerCase() === "endomorfo") {
-      proteinPerKg = isFemale ? 1.9 : 2.0 // Ganha mais fácil
+      proteinBase = isFemale ? 1.9 : 2.0 // Ganha mais fácil
     } else {
-      proteinPerKg = isFemale ? 2.0 : 2.2
+      proteinBase = isFemale ? 2.0 : 2.2
     }
   } else {
     // MANUTENÇÃO/RECOMPOSIÇÃO
-    proteinPerKg = isFemale ? 1.8 : 2.0
+    proteinBase = isFemale ? 1.8 : 2.0
   }
 
   // GORDURAS baseadas em objetivo + somatótipo + gênero
-  if (weightDifference < -0.5) {
-    // PERDA DE PESO - menos gorduras
-    if (bodyType.toLowerCase() === "ectomorfo") {
-      fatsPerKg = isFemale ? 1.0 : 0.9 // Mulheres precisam mais gordura
-    } else if (bodyType.toLowerCase() === "mesomorfo") {
-      fatsPerKg = isFemale ? 0.9 : 0.8
-    } else if (bodyType.toLowerCase() === "endomorfo") {
-      fatsPerKg = isFemale ? 0.8 : 0.7
-    } else {
-      fatsPerKg = isFemale ? 0.9 : 0.8
-    }
+  if (bodyType.toLowerCase() === "ectomorfo") {
+    fatsBase = isFemale ? 1.3 : 1.2 // Tolera bem
+  } else if (bodyType.toLowerCase() === "mesomorfo") {
+    fatsBase = isFemale ? 1.1 : 1.0
+  } else if (bodyType.toLowerCase() === "endomorfo") {
+    fatsBase = isFemale ? 1.0 : 0.9 // Controlar um pouco
   } else {
-    // GANHO/MANUTENÇÃO - gorduras normais/maiores
-    if (bodyType.toLowerCase() === "ectomorfo") {
-      fatsPerKg = isFemale ? 1.3 : 1.2 // Tolera bem
-    } else if (bodyType.toLowerCase() === "mesomorfo") {
-      fatsPerKg = isFemale ? 1.1 : 1.0
-    } else if (bodyType.toLowerCase() === "endomorfo") {
-      fatsPerKg = isFemale ? 1.0 : 0.9 // Controlar um pouco
-    } else {
-      fatsPerKg = isFemale ? 1.1 : 1.0
-    }
+    fatsBase = isFemale ? 1.1 : 1.0
   }
 
   // ATENÇÃO: Mulheres precisam mínimo de gordura para função hormonal
-  if (isFemale && fatsPerKg < 0.8) {
-    fatsPerKg = 0.8 // Mínimo absoluto para mulheres
+  if (isFemale && fatsBase < 0.8) {
+    fatsBase = 0.8 // Mínimo absoluto para mulheres
     console.log(`⚠️ [FEMALE SAFETY] Fat intake adjusted to minimum safe level (0.8g/kg)`)
   }
 
-  const protein = Math.round(weight * proteinPerKg)
-  const fats = Math.round(weight * fatsPerKg)
+  const protein = Math.round(weight * proteinBase)
+  const fats = Math.round(weight * fatsBase)
 
   // Proteína mínima (mais baixa para mulheres)
   const minProtein = Math.round(weight * (isFemale ? 1.6 : 1.8))
   const finalProtein = Math.max(protein, minProtein)
 
-  // Carboidratos = calorias restantes
-  const carbs = Math.round((safeCalories - finalProtein * 4 - fats * 9) / 4)
+  // O valor científico (finalSafeCalories) NÃO deve incluir o suplemento
+  // Subtraímos o suplemento para calcular apenas as calorias das refeições
+  const caloriesForMeals = finalSafeCalories - supplementCalories
+
+  console.log(`[v0] Scientific calculation: ${finalSafeCalories} kcal`)
+  console.log(`[v0] Supplement calories: ${supplementCalories} kcal`)
+  console.log(`[v0] Calories for meals only: ${caloriesForMeals} kcal`)
+
+  // Carboidratos = calorias restantes (APENAS DAS REFEIÇÕES)
+  const carbs = Math.round((caloriesForMeals - finalProtein * 4 - fats * 9) / 4)
+
+  // Ensure carbs are not negative and have a minimum value
+  const finalCarbs = Math.max(carbs, 50) // Minimum 50g of carbs
+
+  const finalTotalCalories = Math.round(finalProtein * 4 + finalCarbs * 4 + fats * 9)
+  const finalTotalWithSupplement = finalTotalCalories + supplementCalories
+
+  console.log(`[v0] Meals total: ${finalTotalCalories} kcal`)
+  console.log(`[v0] Final total with supplement: ${finalTotalWithSupplement} kcal`)
+  console.log(`[v0] Should match scientific value: ${finalSafeCalories} kcal`)
 
   // ============================================
-  // 7. LOGS DETALHADOS
+  // 8. LOGS DETALHADOS
   // ============================================
   console.log(`
 ╔═══════════════════════════════════════════════════════════╗
@@ -1117,7 +1299,7 @@ function calculateScientificCalories(data: any) {
    Gênero: ${isFemale ? "Feminino" : "Masculino"}
    Somatótipo: ${bodyType || "Não especificado"}
    Peso: ${weight}kg → ${targetWeight}kg (${weightDifference > 0 ? "+" : ""}${weightDifference.toFixed(1)}kg)
-   
+
 🧮 CÁLCULOS BASE:
    TMB: ${Math.round(tmb)} kcal
    Fator Atividade (base): ${baseActivityMultiplier}
@@ -1125,30 +1307,47 @@ function calculateScientificCalories(data: any) {
    TDEE (inicial): ${Math.round(tmb * activityMultiplier)} kcal
    Ajuste Metabólico: ${(metabolicAdjustment * 100).toFixed(1)}%
    TDEE (final): ${Math.round(tdee)} kcal
-   
+
 🎯 OBJETIVO:
    Ajuste Diário: ${dailyCalorieAdjustment > 0 ? "+" : ""}${dailyCalorieAdjustment} kcal
    Modo: ${weightDifference < -0.5 ? "PERDA DE PESO" : weightDifference > 0.5 ? "GANHO DE PESO" : "MANUTENÇÃO"}
-   
+
 📊 RESULTADO FINAL:
-   Calorias: ${safeCalories} kcal
-   Proteína: ${finalProtein}g (${proteinPerKg.toFixed(1)}g/kg)
-   Gorduras: ${fats}g (fatsPerKg.toFixed(1)}g/kg)
-   Carboidratos: ${Math.max(carbs, 50)}g
+   Calorias (alimentos): ${finalTotalCalories} kcal
+   Calorias (suplemento): ${supplementCalories} kcal
+   TOTAL FINAL: ${finalTotalWithSupplement} kcal
+   Proteína: ${finalProtein}g (${proteinBase.toFixed(1)}g/kg)
+   Gorduras: ${fats}g (${fatsBase.toFixed(1)}g/kg)
+   Carboidratos: ${finalCarbs}g
+
+💊 SUPLEMENTAÇÃO:
+   ${supplementCalories > 0 ? `Suplemento: ${data.supplementType}\n   Calorias do Suplemento: ${supplementCalories} kcal\n   Calorias das Refeições: ${caloriesForMeals} kcal` : "Sem suplementação"}
+
+📊 MACROS FINAIS (REFEIÇÕES APENAS):
+   Calorias: ${finalTotalCalories} kcal
+   Proteína: ${finalProtein}g (${(((finalProtein * 4) / finalTotalCalories) * 100).toFixed(1)}%)
+   Carboidratos: ${finalCarbs}g (${(((finalCarbs * 4) / finalTotalCalories) * 100).toFixed(1)}%)
+   Gorduras: ${fats}g (${(((fats * 9) / finalTotalCalories) * 100).toFixed(1)}%)
+
+📊 TOTAL COM SUPLEMENTO:
+   Calorias Totais: ${finalTotalWithSupplement} kcal
+   (Deve ser ≈ ${finalSafeCalories} kcal)
   `)
 
   return {
-    tmb: Math.round(tmb),
-    tdee: Math.round(tdee),
-    finalCalories: safeCalories,
+    finalCalories: finalSafeCalories,
     protein: finalProtein,
-    carbs: Math.max(carbs, 50),
-    fats,
+    carbs: finalCarbs,
+    fats: fats,
+    tdee: Math.round(tdee),
+    tmb: Math.round(tmb),
     dailyCalorieAdjustment,
     weeksToGoal: timeToGoal ? calculateWeeksToGoal(timeToGoal) : 0,
-    realGoal: weightDifference < -0.5 ? "fat-loss" : weightDifference > 0.5 ? "weight-gain" : "body-recomposition",
-    metabolicAdjustment: metabolicAdjustment,
-    activityMultiplier: activityMultiplier,
+    metabolicAdjustment: Math.round(metabolicAdjustment * 100),
+    supplementCalories,
+    supplementProtein,
+    supplementCarbs,
+    supplementFats,
   }
 }
 
