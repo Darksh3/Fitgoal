@@ -11,6 +11,7 @@ import {
   Heart,
   Trophy,
   User,
+  LogIn,
   Star,
   Clock,
   Target,
@@ -18,6 +19,7 @@ import {
   Users,
   Award,
   TrendingUp,
+  Crown,
   ChevronDown,
   ChevronUp,
 } from "lucide-react"
@@ -230,17 +232,15 @@ const testimonials = [
   },
 ]
 
-// Modified HomePage to Home as per updates
-export default function Home() {
+export default function HomePage() {
   const router = useRouter()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [activePlan, setActivePlan] = useState<"mensal" | "trimestral" | "semestral">("trimestral")
   const [loading, setLoading] = useState(false)
-  const [showAllTestimonials, setShowAllTestimonials] = useState(false)
 
   const goToAuth = (mode: "login" | "register") => {
     router.push(`/auth?mode=${mode}`)
   }
+
+  const [showAllTestimonials, setShowAllTestimonials] = useState(false)
 
   const startQuiz = () => {
     setLoading(true)
@@ -261,73 +261,62 @@ export default function Home() {
   const plans = {
     mensal: {
       name: "Plano Mensal",
-      originalPrice: 147.9,
+      originalPrice: 99.9, // Ajustado para um valor base para cálculo de economia
       price: 79.9,
       period: "mês",
       total: 79.9,
-      savings: 68.0,
-      savePercentage: "46%",
+      savings: 20.0, // 99.90 - 79.90
+      savePercentage: "20%", // (20.00 / 99.90) * 100
       color: "lime",
-      description: "Para experimentar, sem compromisso.",
-      features: ["Treino 100% personalizado", "Dieta adaptada ao seu biotipo", "Suporte via chat"],
+      features: ["Treino personalizado", "Dieta personalizada", "Suporte via chat"],
     },
     trimestral: {
       name: "Plano Trimestral",
-      originalPrice: 239.7,
-      price: 194.7,
+      originalPrice: 99.9,
+      price: 57.9,
       period: "mês",
-      total: 194.7,
-      savings: 44.9,
-      savePercentage: "19%",
+      total: 57.9 * 3, // Total para 3 meses
+      savings: 99.9 - 57.9, // Economia por mês
+      savePercentage: "42%", // (42.00 / 99.90) * 100
       color: "orange",
       popular: true,
-      description: "Melhor custo-benefício. Perfeito para ver resultados reais.",
-      features: [
-        "Tudo do plano mensal",
-        "Ajustes mensais personalizados",
-        "Acompanhamento de progresso",
-        "Relatórios detalhados",
-      ],
+      features: ["Tudo do plano mensal", "Ajustes mensais do plano", "Relatórios de progresso"],
     },
     semestral: {
       name: "Plano Semestral",
-      originalPrice: 479.4,
-      price: 299.4,
+      originalPrice: 99.9,
+      price: 64.9,
       period: "mês",
-      total: 299.4,
-      savings: 179.9,
-      savePercentage: "38%",
+      total: 64.9 * 6, // Total para 6 meses
+      savings: 99.9 - 64.9, // Economia por mês
+      savePercentage: "35%", // (35.00 / 99.90) * 100
       color: "purple",
       bestValue: true,
-      description: "Para quem quer mudar o corpo de verdade e economizar.",
-      features: [
-        "Tudo dos planos anteriores",
-        "Consultoria nutricional completa",
-        "Suporte prioritário 24/7",
-        "Planos de treino avançados",
-      ],
+      features: ["Tudo dos planos anteriores", "Consultoria nutricional", "Suporte prioritário"],
+    },
+    anual: {
+      name: "Plano Anual",
+      originalPrice: 99.9,
+      price: 49.9,
+      period: "mês",
+      total: 49.9 * 12, // Total para 12 meses
+      savings: 99.9 - 49.9, // Economia por mês
+      savePercentage: "50%", // (50.00 / 99.90) * 100
+      color: "yellow",
+      premium: true,
+      features: ["Tudo dos planos anteriores", "Acompanhamento pessoal", "Acesso vitalício"],
     },
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#1a1a2e] via-[#16213e] to-[#0f1419] text-white font-['Inter',sans-serif]">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white font-['Inter',sans-serif]">
       {/* Header */}
       <header className="p-2 flex justify-between items-center">
         <div className="flex items-center">
-          {/* Theme-aware logo switching */}
           <img
-            src="/images/fitgoal-logo-black.webp"
+            src="/images/fitgoal-logo.png"
             alt="FitGoal Logo"
-            className="h-24 w-auto dark:hidden"
-            onError={(e) => {
-              e.currentTarget.style.display = "none"
-              e.currentTarget.nextElementSibling.style.display = "flex"
-            }}
-          />
-          <img
-            src="/images/fitgoal-logo.webp"
-            alt="FitGoal Logo"
-            className="h-24 w-auto hidden dark:block"
+            className="h-24 w-auto"
             onError={(e) => {
               e.currentTarget.style.display = "none"
               e.currentTarget.nextElementSibling.style.display = "flex"
@@ -341,23 +330,22 @@ export default function Home() {
           {/* Botão Login */}
           <Button
             onClick={() => goToAuth("login")}
-            className="btn-neon bg-[#0A1C3A] border-2 border-[#3CA3FF] text-white px-8 py-4 rounded-full flex items-center gap-3 text-xl font-semibold"
+            className="relative px-6 py-2.5 bg-transparent border-2 border-lime-400 text-lime-400 rounded-full font-semibold hover:bg-lime-400 hover:text-gray-900 transition-all duration-300 flex items-center gap-2"
           >
-            <div className="btn-neon-content flex items-center gap-3">
-              <ArrowRight className="h-6 w-6 text-blue-300" />
-              Entrar
-            </div>
+            <LogIn className="h-4 w-4" />
+            <span>Entrar</span>
           </Button>
 
           {/* Botão Registrar */}
           <Button
             onClick={() => goToAuth("register")}
-            className="btn-neon bg-[#0F5CFF] border-2 border-[#5FA8FF] text-white px-10 py-5 rounded-full flex items-center gap-3 text-xl font-bold"
+            className="relative px-6 py-2.5 bg-gradient-to-r from-lime-400 to-lime-500 text-gray-900 rounded-full font-bold shadow-lg hover:shadow-lime-400/50 hover:scale-105 transition-all duration-300 flex items-center gap-2 overflow-hidden group"
           >
-            <div className="btn-neon-content flex items-center gap-3">
-              <User className="h-7 w-7 text-white" />
-              Começar Agora
-            </div>
+            <User className="h-4 w-4" />
+            <span>Começar Agora</span>
+
+            {/* Efeito de onda */}
+            <span className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
           </Button>
         </div>
       </header>
@@ -423,7 +411,7 @@ export default function Home() {
               {/* Botão Principal - Quiz */}
               <button onClick={startQuiz} disabled={loading} className="group relative">
                 {/* Glow de fundo */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full blur-lg group-hover:blur-xl transition-all duration-300 opacity-50 group-hover:opacity-70" />
+                <div className="absolute -inset-1 bg-gradient-to-r from-lime-400 to-green-400 rounded-full blur-lg group-hover:blur-xl transition-all duration-300 opacity-50 group-hover:opacity-70" />
 
                 {/* Botão principal */}
                 <div className="relative px-6 py-3 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg flex items-center gap-3 shadow-xl hover:shadow-lime-500/40 transform hover:scale-105 transition-all duration-300">
@@ -464,7 +452,7 @@ export default function Home() {
 
           <div className="relative">
             <img
-              src="/images/fitness-couple-new.webp"
+              src="/images/fitness-couple-new.png"
               alt="Casal fitness"
               className="object-contain h-auto w-full"
               onError={(e) => {
@@ -482,7 +470,7 @@ export default function Home() {
       </section>
 
       {/* Estatísticas */}
-      <section className="px-6 py-16">
+      <section className="px-6 py-16 bg-gray-800/50">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
@@ -519,131 +507,116 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="bg-gray-800 border-gray-700 p-8 text-center">
-              <CardContent className="p-0">
-                <div className="bg-lime-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <User className="h-8 w-8" />
-                </div>
-                <h3 className="text-2xl font-bold mb-4 text-white">1. Quiz Personalizado</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  Analisamos seu biotipo, objetivos, preferências alimentares, equipamentos disponíveis, experiência e
-                  muito mais
-                </p>
-              </CardContent>
+              <div className="bg-lime-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <User className="h-8 w-8" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4 text-white">1. Quiz Personalizado</h3>
+              <p className="text-gray-300 leading-relaxed">
+                Analisamos seu biotipo, objetivos, preferências alimentares, equipamentos disponíveis, experiência e
+                muito mais
+              </p>
             </Card>
 
             <Card className="bg-gray-800 border-gray-700 p-8 text-center">
-              <CardContent className="p-0">
-                <div className="bg-lime-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Zap className="h-8 w-8" />
-                </div>
-                <h3 className="text-2xl font-bold mb-4 text-white">2. IA Personalizada</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  Nossa inteligência artificial cria treinos e dietas únicos, considerando sua rotina e limitações
-                  específicas
-                </p>
-              </CardContent>
+              <div className="bg-lime-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Zap className="h-8 w-8" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4 text-white">2. IA Personalizada</h3>
+              <p className="text-gray-300 leading-relaxed">
+                Nossa inteligência artificial cria treinos e dietas únicos, considerando sua rotina e limitações
+                específicas
+              </p>
             </Card>
 
             <Card className="bg-gray-800 border-gray-700 p-8 text-center">
-              <CardContent className="p-0">
-                <div className="bg-lime-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Target className="h-8 w-8" />
-                </div>
-                <h3 className="text-2xl font-bold mb-4 text-white">3. Resultados Garantidos</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  Receba seu plano otimizado e acompanhe sua evolução com métricas precisas e ajustes automáticos
-                </p>
-              </CardContent>
+              <div className="bg-lime-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Target className="h-8 w-8" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4 text-white">3. Resultados Garantidos</h3>
+              <p className="text-gray-300 leading-relaxed">
+                Receba seu plano otimizado e acompanhe sua evolução com métricas precisas e ajustes automáticos
+              </p>
             </Card>
           </div>
         </div>
       </section>
 
       {/* Planos e Preços */}
-      <section className="px-6 py-20">
+      <section className="px-6 py-20 bg-gray-800">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">ESCOLHA SEU PLANO IDEAL</h2>
-
-            <p className="text-lg md:text-xl text-gray-400">
+            <h2 className="text-4xl font-bold mb-6">
+              Escolha Seu <span className="text-lime-400">Plano Ideal</span>
+            </h2>
+            <p className="text-xl text-gray-300">
               Transforme seu corpo com nossos planos personalizados. Quanto mais tempo, maior o desconto!
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto items-center">
+          <div className="grid md:grid-cols-4 gap-6">
             {/* Plano Mensal */}
-            <Card
-              className={`bg-slate-800/50 border-2 p-8 text-center relative cursor-pointer transition-all duration-500 ease-in-out ${
-                activePlan === "mensal"
-                  ? "border-lime-400 md:scale-105 shadow-2xl shadow-lime-500/30"
-                  : "border-slate-700 md:scale-95 hover:border-lime-500/50"
-              }`}
-              onMouseEnter={() => setActivePlan("mensal")}
-              onClick={() => setActivePlan("mensal")}
-            >
+            <Card className="bg-gray-700 border-gray-600 p-6 text-center relative">
               <CardContent className="p-0">
-                <h3 className="text-3xl font-bold text-white mb-3">Mensal</h3>
-                <p className="text-gray-400 text-sm mb-6 min-h-[60px]">{plans.mensal.description}</p>
+                <h3 className="text-2xl font-bold text-white mb-4">Mensal</h3>
                 <div className="mb-6">
-                  <div className="text-gray-500 line-through text-lg mb-1">R$ 147,00</div>
-                  <div className="text-4xl md:text-6xl font-bold text-lime-400 mb-2">R$ 79,90</div>
-                  <div className="text-gray-400 text-sm">por mês</div>
+                  <div className="text-gray-400 line-through text-lg">R$ 147,90</div>
+                  <div className="text-4xl font-bold text-lime-400">R$ 79,90</div>
+                  <div className="text-gray-300 text-sm">por mês</div>
                 </div>
-                <div className="bg-lime-500/20 text-lime-400 px-4 py-2 rounded-full text-xs font-bold inline-block mb-8">
-                  ECONOMIZE 46%
-                </div>
-                <ul className="space-y-4 mb-8 text-left">
-                  {plans.mensal.features.map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      <CheckCircle className="h-6 w-6 text-lime-400 mr-3 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-gray-300">{feature}</span>
-                    </li>
-                  ))}
+                <div className="text-lime-400 text-xs font-bold">ECONOMIZE 46%</div>
+                <ul className="space-y-3 mb-8 text-left">
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Treino personalizado</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Dieta personalizada</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Suporte via chat</span>
+                  </li>
                 </ul>
                 <Button
                   onClick={() => goToCheckout("mensal")}
-                  className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-all border-2 border-lime-400 hover:border-lime-300 hover:shadow-lg hover:shadow-lime-400/30"
+                  className="w-full bg-lime-500 hover:bg-lime-600 text-white"
                 >
                   Escolher Plano
                 </Button>
               </CardContent>
             </Card>
 
-            {/* Plano Trimestral - RECOMENDADO */}
-            <Card
-              className={`bg-gradient-to-b from-orange-500 to-orange-600 border-2 p-8 text-center relative cursor-pointer transition-all duration-500 ease-in-out ${
-                activePlan === "trimestral"
-                  ? "border-orange-400 md:scale-105 shadow-2xl shadow-orange-500/30"
-                  : "border-orange-400 md:scale-95"
-              }`}
-              onMouseEnter={() => setActivePlan("trimestral")}
-              onClick={() => setActivePlan("trimestral")}
-            >
+            {/* Plano Trimestral */}
+            <Card className="bg-gray-700 border-gray-600 p-6 text-center relative">
               <CardContent className="p-0">
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-white text-orange-600 px-6 py-2 rounded-full text-sm font-bold shadow-lg">
-                  RECOMENDADO
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                  POPULAR
                 </div>
-                <h3 className="text-3xl font-bold text-white mb-3 mt-2">Trimestral</h3>
-                <p className="text-orange-100 text-sm mb-6 min-h-[60px]">{plans.trimestral.description}</p>
+                <h3 className="text-2xl font-bold text-white mb-4">Trimestral</h3>
                 <div className="mb-6">
-                  <div className="text-orange-200 line-through text-lg mb-1">R$ 249,90</div>
-                  <div className="text-4xl md:text-6xl font-bold text-white mb-2">R$194,70</div>
-                  <div className="text-orange-100 text-sm">R$ 64,90/mês</div>
+                  <div className="text-gray-400 line-through text-lg">R$ 97,90/mês</div>
+                  <div className="text-4xl font-bold text-lime-400">R$ 57,90</div>
+                  <div className="text-gray-300 text-sm">por mês</div>
+                  <div className="text-orange-400 text-xs font-bold">ECONOMIZE 41%</div>
                 </div>
-                <div className="bg-white/90 text-orange-600 px-4 py-2 rounded-full text-xs font-bold inline-block mb-8">
-                  ECONOMIZE 19%
-                </div>
-                <ul className="space-y-4 mb-8 text-left">
-                  {plans.trimestral.features.map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      <CheckCircle className="h-6 w-6 text-orange-200 mr-3 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-white">{feature}</span>
-                    </li>
-                  ))}
+                <ul className="space-y-3 mb-8 text-left">
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Tudo do plano mensal</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Ajustes mensais do plano</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Relatórios de progresso</span>
+                  </li>
                 </ul>
                 <Button
                   onClick={() => goToCheckout("trimestral")}
-                  className="w-full bg-white text-orange-600 hover:bg-orange-50 font-bold py-3 rounded-lg shadow-lg transition-all border-2 border-orange-600 hover:border-orange-500 hover:shadow-xl"
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white"
                 >
                   Escolher Plano
                 </Button>
@@ -651,42 +624,75 @@ export default function Home() {
             </Card>
 
             {/* Plano Semestral */}
-            <Card
-              className={`bg-slate-800/50 border-2 p-8 text-center relative cursor-pointer transition-all duration-500 ease-in-out ${
-                activePlan === "semestral"
-                  ? "border-purple-400 md:scale-105 shadow-2xl shadow-purple-500/30"
-                  : "border-purple-700 md:scale-95 hover:border-purple-500/50"
-              }`}
-              onMouseEnter={() => setActivePlan("semestral")}
-              onClick={() => setActivePlan("semestral")}
-            >
+            <Card className="bg-gray-700 border-gray-600 p-6 text-center relative">
               <CardContent className="p-0">
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-purple-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
-                  MELHOR VALOR
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                  MELHOR CUSTO
                 </div>
-                <h3 className="text-3xl font-bold text-white mb-3">Semestral</h3>
-                <p className="text-gray-400 text-sm mb-6 min-h-[60px]">{plans.semestral.description}</p>
+                <h3 className="text-2xl font-bold text-white mb-4">Semestral</h3>
                 <div className="mb-6">
-                  <div className="text-gray-500 line-through text-lg mb-1">R$ 479,40</div>
-                  <div className="text-4xl md:text-6xl font-bold text-purple-400 mb-2">R$ 299,40</div>
-                  <div className="text-gray-400 text-sm">R$ 49,90/mês</div>
+                  <div className="text-gray-400 line-through text-lg">R$ 77,90/mês</div>
+                  <div className="text-4xl font-bold text-lime-400">R$ 64,90</div>
+                  <div className="text-gray-300 text-sm">por mês</div>
+                  <div className="text-purple-400 text-xs font-bold">ECONOMIZE 17%</div>
                 </div>
-                <div className="bg-purple-500/20 text-purple-400 px-4 py-2 rounded-full text-xs font-bold inline-block mb-8">
-                  ECONOMIZE 38%
-                </div>
-                <ul className="space-y-4 mb-8 text-left">
-                  {plans.semestral.features.map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      <CheckCircle className="h-6 w-6 text-purple-400 mr-3 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-gray-300">{feature}</span>
-                    </li>
-                  ))}
+                <ul className="space-y-3 mb-8 text-left">
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Tudo dos planos anteriores</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Consultoria nutricional</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-lime-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Suporte prioritário</span>
+                  </li>
                 </ul>
                 <Button
                   onClick={() => goToCheckout("semestral")}
-                  className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-all border-2 border-purple-400 hover:border-purple-300 hover:shadow-lg hover:shadow-purple-400/30"
+                  className="w-full bg-purple-500 hover:bg-purple-600 text-white"
                 >
                   Escolher Plano
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Plano Anual */}
+            <Card className="bg-gradient-to-b from-yellow-500/20 to-yellow-600/20 border-yellow-500 p-6 text-center relative">
+              <CardContent className="p-0">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black px-3 py-1 rounded-full text-xs font-bold flex items-center">
+                  <Crown className="h-3 w-3 mr-1" />
+                  PREMIUM
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4">Anual</h3>
+                <div className="mb-6">
+                  <div className="text-gray-400 line-through text-lg">R$ 67,90/mês</div>
+                  <div className="text-4xl font-bold text-yellow-400">R$ 49,90</div>
+                  <div className="text-gray-300 text-sm">por mês</div>
+                  <div className="text-yellow-400 text-xs font-bold">ECONOMIZE 26%</div>
+                </div>
+                <ul className="space-y-3 mb-8 text-left">
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-yellow-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Tudo dos planos anteriores</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-yellow-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Acompanhamento pessoal</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-yellow-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm">Acesso vitalício</span>
+                  </li>
+                </ul>
+                <Button
+                  onClick={() => goToCheckout("anual")}
+                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold"
+                >
+                  <Crown className="h-4 w-4 mr-2" />
+                  Escolher Premium
                 </Button>
               </CardContent>
             </Card>
@@ -694,7 +700,7 @@ export default function Home() {
 
           <div className="text-center mt-12">
             <p className="text-gray-400 text-sm">
-              Garantia de 30 dias • Pagamento 100% seguro • Resultados comprovados
+              ✅ Garantia de 30 dias • 🔒 Pagamento 100% seguro • 🎯 Resultados comprovados
             </p>
           </div>
         </div>
@@ -777,7 +783,7 @@ export default function Home() {
       </section>
 
       {/* Depoimentos */}
-      <section className="px-6 py-20 overflow-hidden">
+      <section className="px-6 py-20 bg-gray-800 overflow-hidden">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-16">
             O Que Nossos <span className="text-lime-400">Usuários Dizem</span>
@@ -810,9 +816,10 @@ export default function Home() {
 
           {/* Botão Ver Mais */}
           <div className="text-center mb-8">
-            <button
+            <Button
               onClick={() => setShowAllTestimonials(!showAllTestimonials)}
-              className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold text-base transition-all duration-200 border-2 border-lime-500 text-lime-500 hover:bg-lime-500 hover:text-white dark:border-lime-400 dark:text-lime-400 dark:hover:bg-lime-400 dark:hover:text-gray-900"
+              variant="outline"
+              className="border-lime-500 text-lime-500 hover:bg-lime-500 hover:text-white"
             >
               {showAllTestimonials ? (
                 <>
@@ -825,7 +832,7 @@ export default function Home() {
                   Ver mais depoimentos
                 </>
               )}
-            </button>
+            </Button>
           </div>
 
           {/* Depoimentos adicionais - visíveis apenas quando showAllTestimonials é true */}
@@ -858,51 +865,51 @@ export default function Home() {
       </section>
 
       {/* Garantia e Urgência */}
-      <section className="px-6 py-16 border-t border-lime-500/30">
+      <section className="px-6 py-16 bg-gradient-to-r from-lime-500 to-lime-600">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-lime-500/10 backdrop-blur-sm rounded-2xl p-8 border border-lime-500/30">
-            <Award className="h-16 w-16 mx-auto mb-6 text-lime-400" />
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8">
+            <Award className="h-16 w-16 mx-auto mb-6" />
             <h2 className="text-4xl font-bold mb-6">Garantia de Resultados em 30 Dias</h2>
-            <p className="text-xl mb-8 text-gray-300">
+            <p className="text-xl mb-8 text-white/90">
               Se você não ver resultados em 30 dias seguindo nosso plano personalizado, devolvemos 100% do seu
               investimento. Sem perguntas, sem complicações.
             </p>
             <div className="grid md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-lime-500/10 rounded-lg p-4 border border-lime-500/30">
-                <Users className="h-8 w-8 mx-auto mb-2 text-lime-400" />
+              <div className="bg-white/10 rounded-lg p-4">
+                <Users className="h-8 w-8 mx-auto mb-2" />
                 <p className="font-bold">18.948 Pessoas</p>
-                <p className="text-sm text-gray-300">Já transformaram seus corpos</p>
+                <p className="text-sm text-white/80">Já transformaram seus corpos</p>
               </div>
-              <div className="bg-lime-500/10 rounded-lg p-4 border border-lime-500/30">
-                <CheckCircle className="h-8 w-8 mx-auto mb-2 text-lime-400" />
+              <div className="bg-white/10 rounded-lg p-4">
+                <CheckCircle className="h-8 w-8 mx-auto mb-2" />
                 <p className="font-bold">94% de Sucesso</p>
-                <p className="text-sm text-gray-300">Taxa de satisfação comprovada</p>
+                <p className="text-sm text-white/80">Taxa de satisfação comprovada</p>
               </div>
-              <div className="bg-lime-500/10 rounded-lg p-4 border border-lime-500/30">
-                <Clock className="h-8 w-8 mx-auto mb-2 text-lime-400" />
+              <div className="bg-white/10 rounded-lg p-4">
+                <Clock className="h-8 w-8 mx-auto mb-2" />
                 <p className="font-bold">Resultados em 4 Semanas</p>
-                <p className="text-sm text-gray-300">Tempo médio para ver mudanças</p>
+                <p className="text-sm text-white/80">Tempo médio para ver mudanças</p>
               </div>
             </div>
-            <button onClick={startQuiz} className="group relative">
+            <button onClick={startQuiz} disabled={loading} className="group relative">
               {/* Glow de fundo */}
               <div className="absolute -inset-1 bg-gradient-to-r from-white/20 to-lime-200/20 rounded-full blur-lg group-hover:blur-xl transition-all duration-300 opacity-50 group-hover:opacity-70" />
 
               {/* Botão principal */}
-              <div className="relative px-12 py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-2xl shadow-xl transform hover:scale-105 transition-all duration-300">
+              <div className="relative px-12 py-6 bg-gradient-to-r from-white to-lime-100 rounded-full font-bold text-gray-900 text-2xl shadow-xl transform hover:scale-105 transition-all duration-300">
                 <span className="flex items-center gap-3">
-                  Começar Agora - É Grátis!
-                  <ArrowRight className="inline-block ml-2 h-6 w-6" />
+                  Fazer Quiz e Ver Planos
+                  <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
                 </span>
               </div>
             </button>
-            <p className="text-sm text-gray-300 mt-4">⚡ Mais de 200 pessoas criaram seu plano hoje</p>
+            <p className="text-sm text-white/80 mt-4">⚡ Mais de 200 pessoas criaram seu plano hoje</p>
           </div>
         </div>
       </section>
 
       {/* FAQ Rápido */}
-      <section className="px-6 py-16">
+      <section className="px-6 py-16 bg-gray-800">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">Perguntas Frequentes</h2>
           <div className="grid md:grid-cols-2 gap-8">
@@ -935,22 +942,13 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="px-6 py-8 border-t border-gray-700">
+      <footer className="px-6 py-8 bg-gray-900">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
             <img
-              src="/images/fitgoal-logo-black.webp"
+              src="/images/fitgoal-logo.png"
               alt="FitGoal Logo"
-              className="h-16 w-auto dark:hidden"
-              onError={(e) => {
-                e.currentTarget.style.display = "none"
-                e.currentTarget.nextElementSibling.style.display = "flex"
-              }}
-            />
-            <img
-              src="/images/fitgoal-logo.webp"
-              alt="FitGoal Logo"
-              className="h-16 w-auto hidden dark:block"
+              className="h-16 w-auto"
               onError={(e) => {
                 e.currentTarget.style.display = "none"
                 e.currentTarget.nextElementSibling.style.display = "flex"

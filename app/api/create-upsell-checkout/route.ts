@@ -41,13 +41,6 @@ export async function POST(req: Request) {
         },
       ],
       mode: "payment", // Para uma compra única (não assinatura)
-      payment_method_options: {
-        card: {
-          installments: {
-            enabled: true,
-          },
-        },
-      },
       success_url: `${process.env.NEXT_PUBLIC_URL}/success-upsell?session_id={CHECKOUT_SESSION_ID}`, // Crie uma página de sucesso para o upsell se necessário
       cancel_url: `${process.env.NEXT_PUBLIC_URL}/success`, // Volta para a página de sucesso principal se cancelar
       metadata: {
