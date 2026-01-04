@@ -392,11 +392,11 @@ export default function QuizPage() {
   ]
 
   const getStatusMessage = () => {
-    if (animatedPercentage < 30) return "[Analisando seus dados...]"
-    if (animatedPercentage < 60) return "[Avaliando seu potencial...]"
-    if (animatedPercentage < 80) return "[Processando plano personalizado...]"
-    if (animatedPercentage < 95) return "[Finalizando sua dieta...]"
-    return "[Montando seu treino...]"
+    if (animatedPercentage < 20) return "[Estamos analisando seus dados...]"
+    if (animatedPercentage < 50) return "[Estamos criando sua dieta...]"
+    if (animatedPercentage < 80) return "[Estamos criando seu treino...]"
+    if (animatedPercentage < 98) return "[Estamos criando um plano personalizado...]"
+    return "[Plano de mudança completo!]"
   }
 
   const isComplete = animatedPercentage === 100
@@ -2799,7 +2799,7 @@ export default function QuizPage() {
                     key={area}
                     className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
                       quizData.problemAreas.includes(area)
-                        ? "bg-lime-500 border-lime-500 text-white"
+                        ? "border-lime-500 bg-lime-500/10 text-white"
                         : "bg-white/5 backdrop-blur-sm border-white/10 hover:border-lime-500"
                     }`}
                     onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
