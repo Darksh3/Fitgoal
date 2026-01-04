@@ -16,6 +16,7 @@ export default function ResultsPage() {
   const [showPricing, setShowPricing] = useState(false)
   const [discount, setDiscount] = useState<number | null>(null)
   const [currentIMC, setCurrentIMC] = useState<number | null>(null)
+  const [isBmiAnimationDone, setIsBmiAnimationDone] = React.useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -379,7 +380,7 @@ export default function ResultsPage() {
               </div>
               <div className="text-center space-y-4">
                 <div className={`text-6xl font-bold ${bmiInfo.color}`}>
-                  <AnimatedCounter targetValue={currentIMC} />
+                  <AnimatedCounter targetValue={currentIMC} onComplete={() => setIsBmiAnimationDone(true)} />
                 </div>
                 <div className="flex justify-center items-center gap-2 text-sm">
                   <span className="text-blue-400">Abaixo do peso</span>
@@ -411,7 +412,11 @@ export default function ResultsPage() {
               </div>
               <div className="text-center space-y-4">
                 <div className="text-5xl font-bold text-lime-400">
-                  <AnimatedCounter targetValue={calculateDailyCalories()} suffix=" " delay={3000} />
+                  <AnimatedCounter
+                    targetValue={calculateDailyCalories()}
+                    suffix=" "
+                    delay={isBmiAnimationDone ? 0 : 99999}
+                  />
                   <span className="text-2xl text-gray-400">kcal</span>
                 </div>
                 <AnimatedProgressBar
@@ -688,31 +693,44 @@ const AnimatedCounter = ({
   suffix = "",
   prefix = "",
   delay = 0,
-}: { targetValue: number; suffix?: string; prefix?: string; delay?: number }) => {
+  onComplete,
+}: { targetValue: number; suffix?: string; prefix?: string; delay?: number; onComplete?: () => void }) => {
   const [displayValue, setDisplayValue] = React.useState(0)
+  const [hasStarted, setHasStarted] = React.useState(false)
 
   React.useEffect(() => {
-    const duration = 3000 // aumentado de 2000 para 3000ms (3 segundos)
-    const startTime = Date.now() + delay
+    const delayTimer = setTimeout(() => {
+      setHasStarted(true)
+    }, delay)
+
+    return () => clearTimeout(delayTimer)
+  }, [delay])
+
+  React.useEffect(() => {
+    if (!hasStarted) return
+
+    const duration = 3000
+    const startTime = Date.now()
 
     const updateCounter = () => {
       const elapsed = Date.now() - startTime
       const progress = Math.min(elapsed / duration, 1)
 
       const easeProgress = 1 - Math.pow(1 - progress, 3)
-      const currentValue = (targetValue * easeProgress).toFixed(1)
+      const currentValue = targetValue * easeProgress
 
-      setDisplayValue(Number.parseFloat(currentValue))
+      setDisplayValue(Number.parseFloat(currentValue.toFixed(1)))
 
       if (progress < 1) {
         requestAnimationFrame(updateCounter)
       } else {
         setDisplayValue(Number(targetValue.toFixed(1)))
+        onComplete?.()
       }
     }
 
     requestAnimationFrame(updateCounter)
-  }, [targetValue, delay])
+  }, [hasStarted, targetValue, onComplete])
 
   return (
     <span>
