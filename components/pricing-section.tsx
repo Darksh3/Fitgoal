@@ -64,7 +64,7 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
     const particleInterval = setInterval(() => {
       const newParticle = {
         id: particleId,
-        tx: `${(Math.random() - 0.5) * 100}px`, // reduced particle spread from 200px to 100px for more compact glow
+        tx: `${(Math.random() - 0.5) * 60}px`, // reduced spread from 100px to 60px for more compact glow, increased frequency
         ty: `${-Math.random() * 100 - 30}px`,
       }
       setParticles((prev) => [...prev, newParticle])
@@ -73,7 +73,7 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
       setTimeout(() => {
         setParticles((prev) => prev.filter((p) => p.id !== newParticle.id))
       }, 2000)
-    }, 300)
+    }, 150) // increased frequency from 300ms to 150ms for more particles
 
     return () => clearInterval(particleInterval)
   }, [particleId])
@@ -117,14 +117,14 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
         {particles.map((particle) => (
           <div
             key={particle.id}
-            className="absolute w-2 h-2 bg-orange-500 rounded-full animate-float-particle"
+            className="absolute w-3 h-3 bg-orange-500 rounded-full animate-float-particle"
             style={
               {
                 "--tx": particle.tx,
                 "--ty": particle.ty,
                 left: "50%",
                 top: "50%",
-                opacity: 0.8,
+                opacity: 0.95,
               } as React.CSSProperties
             }
           />
