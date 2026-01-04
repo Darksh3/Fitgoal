@@ -7,6 +7,7 @@ import { doc, getDoc } from "firebase/firestore"
 import { Button } from "@/components/ui/button"
 import { PricingSection } from "@/components/pricing-section"
 import { Clock, MapPin, TrendingUp, Calendar, CheckCircle, Heart, Flame, Moon, TargetIcon, Zap } from "lucide-react"
+import React from "react"
 
 export default function ResultsPage() {
   const router = useRouter()
@@ -376,18 +377,26 @@ export default function ResultsPage() {
                 <h3 className="text-xl font-semibold">IMC Atual</h3>
               </div>
               <div className="text-center space-y-4">
-                <div className={`text-6xl font-bold ${bmiInfo.color}`}>{data.imc}</div>
+                <div className={`text-6xl font-bold ${bmiInfo.color}`}>
+                  <AnimatedCounter targetValue={Number(data.imc)} suffix=".0" />
+                </div>
                 <div className="flex justify-center items-center gap-2 text-sm">
                   <span className="text-blue-400">Abaixo do peso</span>
                   <span className="text-lime-400 font-bold">Normal</span>
                   <span className="text-red-400">Obeso</span>
                 </div>
-                <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full ${Number(data.imc) < 18.5 ? "bg-blue-400" : Number(data.imc) < 25 ? "bg-lime-500" : Number(data.imc) < 30 ? "bg-yellow-400" : "bg-red-400"}`}
-                    style={{ width: `${Math.min((Number(data.imc) / 40) * 100, 100)}%` }}
-                  />
-                </div>
+                <AnimatedProgressBar
+                  percentage={Math.min((Number(data.imc) / 40) * 100, 100)}
+                  color={
+                    Number(data.imc) < 18.5
+                      ? "bg-blue-400"
+                      : Number(data.imc) < 25
+                        ? "bg-lime-500"
+                        : Number(data.imc) < 30
+                          ? "bg-yellow-400"
+                          : "bg-red-400"
+                  }
+                />
                 <p className="text-gray-300">
                   Você está com <span className={`font-bold ${bmiInfo.color}`}>{bmiInfo.text}</span>
                 </p>
@@ -401,14 +410,13 @@ export default function ResultsPage() {
               </div>
               <div className="text-center space-y-4">
                 <div className="text-5xl font-bold text-lime-400">
-                  {calculateDailyCalories()} <span className="text-2xl text-gray-400">kcal</span>
+                  <AnimatedCounter targetValue={calculateDailyCalories()} suffix=" " />
+                  <span className="text-2xl text-gray-400">kcal</span>
                 </div>
-                <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-lime-500 to-lime-400"
-                    style={{ width: `${(calculateDailyCalories() / 5000) * 100}%` }}
-                  />
-                </div>
+                <AnimatedProgressBar
+                  percentage={(calculateDailyCalories() / 5000) * 100}
+                  color="bg-gradient-to-r from-lime-500 to-lime-400"
+                />
                 <div className="flex justify-between text-sm text-gray-400">
                   <span>0 kcal</span>
                   <span>5000 kcal</span>
@@ -619,15 +627,17 @@ export default function ResultsPage() {
             </div>
 
             {!discount ? (
-              <Button
-                onClick={() => {
-                  const prizes = [10, 15, 20, 30, 40, 50]
-                  setDiscount(prizes[Math.floor(Math.random() * prizes.length)])
-                }}
-                className="w-full bg-red-600 hover:bg-red-700 h-16 rounded-2xl text-xl font-black shadow-lg shadow-red-600/20"
-              >
-                GIRAR E GANHAR!
-              </Button>
+              <div className="flex justify-center px-4">
+                <button
+                  onClick={() => {
+                    const prizes = [10, 15, 20, 30, 40, 50]
+                    setDiscount(prizes[Math.floor(Math.random() * prizes.length)])
+                  }}
+                  className="w-full max-w-md bg-red-600 hover:bg-red-700 h-16 rounded-2xl text-xl font-black shadow-lg shadow-red-600/20 text-white transition-colors"
+                >
+                  GIRAR E GANHAR!
+                </button>
+              </div>
             ) : (
               <div className="space-y-4 animate-in fade-in zoom-in duration-500">
                 <div className="text-4xl font-black text-lime-400">🎉 {discount}% OFF!</div>
@@ -666,6 +676,80 @@ function Benefit({ text }: { text: string }) {
     <div className="flex items-center gap-3">
       <CheckCircle className="text-lime-400" />
       <p>{text}</p>
+    </div>
+  )
+}
+
+const AnimatedCounter = ({
+  targetValue,
+  suffix = "",
+  prefix = "",
+}: { targetValue: number; suffix?: string; prefix?: string }) => {
+  const [displayValue, setDisplayValue] = React.useState(0)
+
+  React.useEffect(() => {
+    const duration = 2000 // 2 seconds
+    const startTime = Date.now()
+
+    const updateCounter = () => {
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(elapsed / duration, 1)
+
+      // Ease out cubic for smoother animation
+      const easeProgress = 1 - Math.pow(1 - progress, 3)
+      const currentValue = Math.floor(targetValue * easeProgress)
+
+      setDisplayValue(currentValue)
+
+      if (progress < 1) {
+        requestAnimationFrame(updateCounter)
+      } else {
+        setDisplayValue(targetValue)
+      }
+    }
+
+    requestAnimationFrame(updateCounter)
+  }, [targetValue])
+
+  return (
+    <span>
+      {prefix}
+      {displayValue}
+      {suffix}
+    </span>
+  )
+}
+
+const AnimatedProgressBar = ({ percentage, color }: { percentage: number; color: string }) => {
+  const [displayPercentage, setDisplayPercentage] = React.useState(0)
+
+  React.useEffect(() => {
+    const duration = 1500 // 1.5 seconds
+    const startTime = Date.now()
+
+    const updateProgress = () => {
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(elapsed / duration, 1)
+
+      // Ease out cubic
+      const easeProgress = 1 - Math.pow(1 - progress, 3)
+      const currentPercentage = percentage * easeProgress
+
+      setDisplayPercentage(currentPercentage)
+
+      if (progress < 1) {
+        requestAnimationFrame(updateProgress)
+      } else {
+        setDisplayPercentage(percentage)
+      }
+    }
+
+    requestAnimationFrame(updateProgress)
+  }, [percentage])
+
+  return (
+    <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
+      <div className={`h-full transition-all ${color}`} style={{ width: `${displayPercentage}%` }} />
     </div>
   )
 }
