@@ -103,21 +103,29 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
         </div>
       </div>
 
-      <div className="relative w-full aspect-[4/5] max-h-80 mx-auto flex justify-center items-center">
-        <div className="absolute inset-0 rounded-full glow-orange pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-orange-600/30 via-transparent to-orange-500/20 rounded-full pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-radial pointer-events-none opacity-20" />
-        <Image
-          src={getCharacterImage() || "/placeholder.svg"}
-          alt="Character"
-          fill
-          className="object-contain relative z-10"
-          priority
+      <div
+        className="relative w-full mx-auto flex justify-center items-center"
+        style={{ aspectRatio: "4/5", maxHeight: "32rem", perspective: "1000px" }}
+      >
+        <div
+          className="absolute inset-0 w-full h-full rounded-full glow-orange pointer-events-none opacity-100"
+          style={{ filter: "blur(0px)" }}
         />
+        <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-orange-600/30 via-transparent to-orange-500/20 rounded-full pointer-events-none" />
+        <div className="absolute inset-0 w-full h-full bg-gradient-radial pointer-events-none opacity-20" />
+        <div className="relative w-full h-full flex items-center justify-center z-10">
+          <Image
+            src={getCharacterImage() || "/placeholder.svg"}
+            alt="Character"
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
         {particles.map((particle) => (
           <div
             key={particle.id}
-            className="absolute w-3 h-3 bg-orange-500 rounded-full animate-float-particle"
+            className="absolute w-3 h-3 bg-orange-500 rounded-full animate-float-particle pointer-events-none"
             style={
               {
                 "--tx": particle.tx,
@@ -125,6 +133,7 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
                 left: "50%",
                 top: "50%",
                 opacity: 0.95,
+                zIndex: 50,
               } as React.CSSProperties
             }
           />
