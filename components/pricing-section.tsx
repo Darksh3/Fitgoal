@@ -146,7 +146,7 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
       </div>
 
       <div className="text-center space-y-3">
-        <p className="font-bold text-sm px-4">1103 pessoas compraram planos de treino na última hora</p>
+        <p className="font-bold text-sm px-4">156 pessoas compraram os planos de treino na última hora</p>
         <div className="flex justify-center gap-2 overflow-hidden">
           {recentBuyers.map((buyer, i) => (
             <div key={i} className="bg-zinc-800 text-[10px] px-3 py-1 rounded-full whitespace-nowrap text-zinc-400">

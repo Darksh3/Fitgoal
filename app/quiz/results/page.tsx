@@ -591,7 +591,7 @@ export default function ResultsPage() {
           <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 w-full max-w-sm text-center space-y-8 relative overflow-hidden">
             <h3 className="text-2xl font-bold mb-4">Gire e ganhe desconto</h3>
 
-            <div className={`w-64 h-64 rounded-full mx-auto mb-6 relative overflow-visible`}>
+            <div className={`w-64 h-64 rounded-full mx-auto mb-6 relative`}>
               <img
                 src="/images/roleta.jpg"
                 alt="Roleta de desconto"
