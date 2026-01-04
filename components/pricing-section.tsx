@@ -64,7 +64,7 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
   }
 
   const getCharacterImage = () => {
-    return gender === "male" ? "/images/mseven.webp" : "/images/bodyfat-seven.webp"
+    return gender === "male" ? "/images/homemfinal.webp" : "/images/mulherfinal.webp"
   }
 
   const calculateOriginalPrice = (target: number) => {
