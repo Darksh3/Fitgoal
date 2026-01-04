@@ -538,7 +538,7 @@ export default function ResultsPage() {
           <div className="flex flex-col md:flex-row gap-4 justify-center pt-4">
             <Button
               onClick={handleGoToCheckout}
-              className="w-full md:w-auto bg-lime-500 hover:bg-lime-600 text-white px-8 py-6 text-lg font-semibold rounded-full"
+              className="w-full md:w-auto bg-white hover:bg-gray-100 text-black px-8 py-6 text-lg font-semibold rounded-full shadow-lg"
             >
               Escolher Plano e Finalizar
             </Button>
