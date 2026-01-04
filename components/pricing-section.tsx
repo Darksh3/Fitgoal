@@ -105,7 +105,7 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
 
       <div
         className="relative w-full mx-auto flex justify-center items-center"
-        style={{ aspectRatio: "4/5", maxHeight: "32rem", perspective: "1000px" }}
+        style={{ aspectRatio: "4/5", maxHeight: "20rem", perspective: "1000px" }}
       >
         <div
           className="absolute inset-0 w-full h-full rounded-full glow-orange pointer-events-none opacity-100"
@@ -113,15 +113,7 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
         />
         <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-orange-600/30 via-transparent to-orange-500/20 rounded-full pointer-events-none" />
         <div className="absolute inset-0 w-full h-full bg-gradient-radial pointer-events-none opacity-20" />
-        <div className="relative w-full h-full flex items-center justify-center z-10">
-          <Image
-            src={getCharacterImage() || "/placeholder.svg"}
-            alt="Character"
-            fill
-            className="object-contain"
-            priority
-          />
-        </div>
+
         {particles.map((particle) => (
           <div
             key={particle.id}
@@ -133,11 +125,21 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
                 left: "50%",
                 top: "50%",
                 opacity: 0.95,
-                zIndex: 50,
+                zIndex: 20,
               } as React.CSSProperties
             }
           />
         ))}
+
+        <div className="relative w-full h-full flex items-center justify-center z-30">
+          <Image
+            src={getCharacterImage() || "/placeholder.svg"}
+            alt="Character"
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
       </div>
 
       <div className="text-center space-y-3">
