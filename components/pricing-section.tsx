@@ -6,7 +6,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Clock, Flame, ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
 
 interface PricingSectionProps {
   gender: string
@@ -220,16 +219,16 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
         </div>
       </div>
 
-      <Button
+      <button
         onClick={() => {
           const planKey = plans.find((p) => p.id === selectedPlan)?.key || "mensal"
           router.push(`/checkout?plan=${planKey}&discount=${discount}`)
         }}
-        className="w-full bg-white text-black font-bold h-16 text-xl flex items-center justify-center gap-2 transition-colors hover:bg-gray-100 rounded-full shadow-lg"
+        className="w-full bg-white rounded-full h-16 text-xl font-bold text-black flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors shadow-lg"
       >
         Continuar
         <ArrowRight className="w-5 h-5" />
-      </Button>
+      </button>
     </div>
   )
 }
