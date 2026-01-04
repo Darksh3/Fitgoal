@@ -422,6 +422,7 @@ export default function ResultsPage() {
                 <AnimatedProgressBar
                   percentage={(calculateDailyCalories() / 5000) * 100}
                   color="bg-gradient-to-r from-lime-500 to-lime-400"
+                  delay={isBmiAnimationDone ? 0 : 99999}
                 />
                 <div className="flex justify-between text-sm text-gray-400">
                   <span>0 kcal</span>
@@ -607,31 +608,6 @@ export default function ResultsPage() {
                   {value}%
                 </div>
               ))}
-
-              {/* Decorative center point */}
-              <div className="absolute left-1/2 top-1/2 -ml-2 -mt-2 w-4 h-4 bg-yellow-400 rounded-full shadow-lg" />
-
-              <div
-                className={`absolute w-1 h-24 bg-gradient-to-b from-red-600 to-red-700 shadow-lg transition-transform duration-[4000ms] ease-out`}
-                style={{
-                  left: "50%",
-                  top: "-20px",
-                  marginLeft: "-2px",
-                  transformOrigin: "center 128px",
-                  transform: discount ? `rotate(${1440 + discount * 60}deg)` : "rotate(0deg)",
-                }}
-              />
-
-              {/* Pin triangle pointer at top */}
-              <div
-                className="absolute left-1/2 -top-4 -ml-2 w-0 h-0"
-                style={{
-                  borderLeft: "8px solid transparent",
-                  borderRight: "8px solid transparent",
-                  borderTop: "12px solid #fbbf24",
-                  filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
-                }}
-              />
             </div>
 
             {!discount ? (
@@ -749,10 +725,25 @@ const AnimatedCounter = ({
   )
 }
 
-const AnimatedProgressBar = ({ percentage, color }: { percentage: number; color: string }) => {
+const AnimatedProgressBar = ({
+  percentage,
+  color,
+  delay = 0,
+}: { percentage: number; color: string; delay?: number }) => {
   const [displayPercentage, setDisplayPercentage] = React.useState(0)
+  const [hasStarted, setHasStarted] = React.useState(false)
 
   React.useEffect(() => {
+    const delayTimer = setTimeout(() => {
+      setHasStarted(true)
+    }, delay)
+
+    return () => clearTimeout(delayTimer)
+  }, [delay])
+
+  React.useEffect(() => {
+    if (!hasStarted) return
+
     const duration = 1500 // 1.5 seconds
     const startTime = Date.now()
 
@@ -774,7 +765,7 @@ const AnimatedProgressBar = ({ percentage, color }: { percentage: number; color:
     }
 
     requestAnimationFrame(updateProgress)
-  }, [percentage])
+  }, [percentage, hasStarted])
 
   return (
     <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
