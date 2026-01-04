@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
-import { Button } from "@/components/ui/button"
 import { PricingSection } from "@/components/pricing-section"
 import { Clock, MapPin, TrendingUp, Calendar, CheckCircle, Heart, Flame, Moon, TargetIcon, Zap } from "lucide-react"
 import React from "react"
@@ -16,6 +15,7 @@ export default function ResultsPage() {
   const [showWheel, setShowWheel] = useState(false)
   const [showPricing, setShowPricing] = useState(false)
   const [discount, setDiscount] = useState<number | null>(null)
+  const [currentIMC, setCurrentIMC] = useState<number | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,6 +61,7 @@ export default function ResultsPage() {
       console.log("Dados finais encontrados:", stored)
       setData(stored)
       setLoading(false)
+      setCurrentIMC(Number(stored.imc))
     }
 
     fetchData()
@@ -378,7 +379,7 @@ export default function ResultsPage() {
               </div>
               <div className="text-center space-y-4">
                 <div className={`text-6xl font-bold ${bmiInfo.color}`}>
-                  <AnimatedCounter targetValue={Number(data.imc)} suffix=".0" />
+                  <AnimatedCounter targetValue={currentIMC} />
                 </div>
                 <div className="flex justify-center items-center gap-2 text-sm">
                   <span className="text-blue-400">Abaixo do peso</span>
@@ -410,7 +411,7 @@ export default function ResultsPage() {
               </div>
               <div className="text-center space-y-4">
                 <div className="text-5xl font-bold text-lime-400">
-                  <AnimatedCounter targetValue={calculateDailyCalories()} suffix=" " />
+                  <AnimatedCounter targetValue={calculateDailyCalories()} suffix=" " delay={3000} />
                   <span className="text-2xl text-gray-400">kcal</span>
                 </div>
                 <AnimatedProgressBar
@@ -563,12 +564,14 @@ export default function ResultsPage() {
             <p className="text-gray-400 text-lg">
               Parabéns por chegar até aqui! Gire a roleta para ganhar um desconto exclusivo no seu plano personalizado.
             </p>
-            <Button
-              onClick={() => setShowWheel(true)}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-12 py-8 rounded-2xl text-2xl font-black shadow-[0_0_30px_rgba(249,115,22,0.3)] transition-all hover:scale-105 active:scale-95"
-            >
-              GIRAR ROLETA
-            </Button>
+            <div className="flex justify-center px-4">
+              <button
+                onClick={() => setShowWheel(true)}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-12 py-8 rounded-2xl text-2xl font-black shadow-lg shadow-[0_0_30px_rgba(249,115,22,0.3)] transition-all hover:scale-105 active:scale-95"
+              >
+                GIRAR ROLETA
+              </button>
+            </div>
           </section>
         </div>
       )}
@@ -684,32 +687,32 @@ const AnimatedCounter = ({
   targetValue,
   suffix = "",
   prefix = "",
-}: { targetValue: number; suffix?: string; prefix?: string }) => {
+  delay = 0,
+}: { targetValue: number; suffix?: string; prefix?: string; delay?: number }) => {
   const [displayValue, setDisplayValue] = React.useState(0)
 
   React.useEffect(() => {
-    const duration = 2000 // 2 seconds
-    const startTime = Date.now()
+    const duration = 3000 // aumentado de 2000 para 3000ms (3 segundos)
+    const startTime = Date.now() + delay
 
     const updateCounter = () => {
       const elapsed = Date.now() - startTime
       const progress = Math.min(elapsed / duration, 1)
 
-      // Ease out cubic for smoother animation
       const easeProgress = 1 - Math.pow(1 - progress, 3)
-      const currentValue = Math.floor(targetValue * easeProgress)
+      const currentValue = (targetValue * easeProgress).toFixed(1)
 
-      setDisplayValue(currentValue)
+      setDisplayValue(Number.parseFloat(currentValue))
 
       if (progress < 1) {
         requestAnimationFrame(updateCounter)
       } else {
-        setDisplayValue(targetValue)
+        setDisplayValue(Number(targetValue.toFixed(1)))
       }
     }
 
     requestAnimationFrame(updateCounter)
-  }, [targetValue])
+  }, [targetValue, delay])
 
   return (
     <span>
