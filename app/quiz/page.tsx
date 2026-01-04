@@ -1,7 +1,5 @@
 "use client"
 
-import React from "react"
-
 import { useState, useEffect, useRef } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -27,30 +25,29 @@ import { onAuthStateChanged, signInAnonymously } from "firebase/auth"
 import { motion } from "framer-motion"
 
 // Helper component for AnimatedPercentage
-const AnimatedPercentage = ({ targetPercentage }: { targetPercentage: number }) => {
-  const [percentage, setPercentage] = React.useState(0)
+const AnimatedPercentage = ({ targetPercentage = 100, duration = 4 }) => {
+  const [percentage, setPercentage] = useState(0)
 
-  React.useEffect(() => {
-    let currentPercentage = 0
+  useEffect(() => {
+    const startTime = Date.now()
     const interval = setInterval(() => {
-      // Fast acceleration in the beginning, slower at the end
-      const progress = currentPercentage / targetPercentage
-      const increment = (1 - progress) * (1 - progress) * 2 // Ease-out effect
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(elapsed / (duration * 1000), 1)
 
-      currentPercentage += increment
+      // Quadratic easing out for faster start, slower end
+      const eased = progress < 0.7 ? 1 - Math.pow(1 - progress / 0.7, 2) * 0.7 : 0.7 + (progress - 0.7) * 0.3
 
-      if (currentPercentage >= targetPercentage) {
-        currentPercentage = targetPercentage
+      setPercentage(Math.floor(eased * targetPercentage))
+
+      if (progress >= 1) {
         clearInterval(interval)
       }
-
-      setPercentage(Math.floor(currentPercentage))
-    }, 50)
+    }, 16)
 
     return () => clearInterval(interval)
-  }, [targetPercentage])
+  }, [targetPercentage, duration])
 
-  return <span>{percentage}%</span>
+  return <>{percentage}%</>
 }
 
 interface QuizData {
@@ -4148,15 +4145,16 @@ export default function QuizPage() {
             {/* Animated percentage display */}
             <div className="mt-8">
               <div className="text-7xl md:text-8xl font-bold text-white mb-4">
-                <AnimatedPercentage targetPercentage={100} />
+                <AnimatedPercentage targetPercentage={100} duration={4} />
               </div>
             </div>
 
             {/* Main message */}
             <div className="space-y-4 mb-8">
               <h2 className="text-3xl md:text-4xl font-bold text-white">
-                We're creating a<br />
-                personal plan for you
+                Estamos criando um
+                <br />
+                plano personalizado para você
               </h2>
             </div>
 
@@ -4166,35 +4164,35 @@ export default function QuizPage() {
                 <motion.div
                   initial={{ width: "0%" }}
                   animate={{ width: "100%" }}
-                  transition={{ duration: 8, ease: "easeInOut" }}
+                  transition={{ duration: 4, ease: "easeInOut" }}
                   className="h-full bg-blue-500 rounded-full"
                 />
               </div>
             </div>
 
             {/* Status text */}
-            <p className="text-gray-400 text-sm md:text-base">[Assessing your potential...]</p>
+            <p className="text-gray-400 text-sm md:text-base">[Avaliando seu potencial...]</p>
 
             {/* Status box */}
             <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6 md:p-8 max-w-md mx-auto">
               <h3 className="text-xl font-bold text-white mb-6">Status</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Physical Attributes</span>
+                  <span className="text-gray-300">Atributos Físicos</span>
                   <span className="text-green-500 text-xl">✓</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Fitness Level</span>
+                  <span className="text-gray-300">Nível de Fitness</span>
                   <span className="text-green-500 text-xl">✓</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Power Analysis</span>
+                  <span className="text-gray-400">Análise de Potência</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Rank Calibration</span>
+                  <span className="text-gray-400">Calibração de Rank</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Workout Generation</span>
+                  <span className="text-gray-400">Geração de Treino</span>
                 </div>
               </div>
             </div>
