@@ -65,8 +65,8 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
     const particleInterval = setInterval(() => {
       const newParticle = {
         id: particleId,
-        tx: `${(Math.random() - 0.5) * 200}px`,
-        ty: `${-Math.random() * 150 - 50}px`,
+        tx: `${(Math.random() - 0.5) * 100}px`, // reduced particle spread from 200px to 100px for more compact glow
+        ty: `${-Math.random() * 100 - 30}px`,
       }
       setParticles((prev) => [...prev, newParticle])
       setParticleId((prev) => prev + 1)
@@ -225,7 +225,7 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
           const planKey = plans.find((p) => p.id === selectedPlan)?.key || "mensal"
           router.push(`/checkout?plan=${planKey}&discount=${discount}`)
         }}
-        className="w-full bg-orange-500 hover:bg-orange-600 h-14 text-lg font-bold flex items-center justify-center gap-2 transition-transform active:scale-95"
+        className="w-full bg-white text-black font-bold h-16 text-xl flex items-center justify-center gap-2 transition-colors hover:bg-gray-100 rounded-full shadow-lg"
       >
         Continuar
         <ArrowRight className="w-5 h-5" />
