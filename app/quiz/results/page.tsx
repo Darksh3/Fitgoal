@@ -578,12 +578,11 @@ export default function ResultsPage() {
               {[10, 15, 20, 30, 40, 50].map((value, i) => (
                 <div
                   key={i}
-                  className="absolute flex items-center justify-center font-black text-lg w-12 h-12 rounded-full left-1/2 -ml-6 origin-[0_130px]"
+                  className="absolute flex items-center justify-center font-black text-sm w-8 h-8 rounded-full left-1/2 -ml-4 origin-[0_124px]"
                   style={{
-                    transform: `rotate(${i * 60}deg) translateY(-105px)`,
+                    transform: `rotate(${i * 60}deg) translateY(-112px)`,
                     backgroundColor: i % 2 === 0 ? "#ffffff" : "#ef4444",
                     color: i % 2 === 0 ? "#ef4444" : "#ffffff",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
                   }}
                 >
                   {value}%

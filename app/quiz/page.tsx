@@ -1,5 +1,7 @@
 "use client"
 
+import React from "react"
+
 import { useState, useEffect, useRef } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -10,7 +12,7 @@ import { Slider } from "@/components/ui/slider"
 
 import { Textarea } from "@/components/ui/textarea"
 
-import { ArrowLeft, CheckCircle, Droplets, X, Loader2, Dumbbell, Clock } from "lucide-react"
+import { ArrowLeft, CheckCircle, Droplets, X, Dumbbell, Clock } from "lucide-react"
 
 import { AiOrb } from "@/components/ai-orb"
 
@@ -23,6 +25,33 @@ import { doc, setDoc, getDoc } from "firebase/firestore"
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth"
 
 import { motion } from "framer-motion"
+
+// Helper component for AnimatedPercentage
+const AnimatedPercentage = ({ targetPercentage }: { targetPercentage: number }) => {
+  const [percentage, setPercentage] = React.useState(0)
+
+  React.useEffect(() => {
+    let currentPercentage = 0
+    const interval = setInterval(() => {
+      // Fast acceleration in the beginning, slower at the end
+      const progress = currentPercentage / targetPercentage
+      const increment = (1 - progress) * (1 - progress) * 2 // Ease-out effect
+
+      currentPercentage += increment
+
+      if (currentPercentage >= targetPercentage) {
+        currentPercentage = targetPercentage
+        clearInterval(interval)
+      }
+
+      setPercentage(Math.floor(currentPercentage))
+    }, 50)
+
+    return () => clearInterval(interval)
+  }, [targetPercentage])
+
+  return <span>{percentage}%</span>
+}
 
 interface QuizData {
   gender: string
@@ -4113,36 +4142,67 @@ export default function QuizPage() {
           </div>
         )
 
-      case 30: // Updated from 29. Final Submit
+      case 30: // Updated from 29. Final Submit - Loading page with animated percentage
         return (
-          <div className="space-y-8 text-center">
-            <h2 className="text-2xl font-bold text-white">Pronto para começar?</h2>
-            <p className="text-gray-300">
-              Revise suas informações e clique em "Finalizar Avaliação" para receber seu plano personalizado.
-            </p>
-            <div className="mt-10">
-              <Button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl rounded-full disabled:opacity-50 shadow-2xl shadow-lime-500/50 transform hover:scale-105 transition-all duration-300 border-2 border-lime-400"
-              >
-                <div className="relative px-12 md:px-20 py-4 md:py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-lg md:text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10 flex items-center gap-3">
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-6 w-6 animate-spin" />
-                        Processando...
-                      </>
-                    ) : (
-                      <>
-                        Finalizar Avaliação
-                        <Dumbbell className="h-6 w-6" />
-                      </>
-                    )}
-                  </span>
+          <div className="space-y-8 text-center py-12">
+            {/* Animated percentage display */}
+            <div className="mt-8">
+              <div className="text-7xl md:text-8xl font-bold text-white mb-4">
+                <AnimatedPercentage targetPercentage={100} />
+              </div>
+            </div>
+
+            {/* Main message */}
+            <div className="space-y-4 mb-8">
+              <h2 className="text-3xl md:text-4xl font-bold text-white">
+                We're creating a<br />
+                personal plan for you
+              </h2>
+            </div>
+
+            {/* Progress bar */}
+            <div className="w-full max-w-md mx-auto mb-6">
+              <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 8, ease: "easeInOut" }}
+                  className="h-full bg-blue-500 rounded-full"
+                />
+              </div>
+            </div>
+
+            {/* Status text */}
+            <p className="text-gray-400 text-sm md:text-base">[Assessing your potential...]</p>
+
+            {/* Status box */}
+            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6 md:p-8 max-w-md mx-auto">
+              <h3 className="text-xl font-bold text-white mb-6">Status</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Physical Attributes</span>
+                  <span className="text-green-500 text-xl">✓</span>
                 </div>
-              </Button>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Fitness Level</span>
+                  <span className="text-green-500 text-xl">✓</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400">Power Analysis</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400">Rank Calibration</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400">Workout Generation</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer text */}
+            <div className="mt-12 text-gray-500 text-sm">
+              <p>Over 100,000+</p>
+              <p>Programs Generated</p>
             </div>
           </div>
         )
