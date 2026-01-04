@@ -104,16 +104,9 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
       </div>
 
       <div
-        className="relative w-full mx-auto flex justify-center items-center"
+        className="relative w-full mx-auto flex justify-center items-center overflow-visible"
         style={{ aspectRatio: "4/5", maxHeight: "20rem", perspective: "1000px" }}
       >
-        <div
-          className="absolute inset-0 w-full h-full rounded-full glow-orange pointer-events-none opacity-100"
-          style={{ filter: "blur(0px)" }}
-        />
-        <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-orange-600/30 via-transparent to-orange-500/20 rounded-full pointer-events-none" />
-        <div className="absolute inset-0 w-full h-full bg-gradient-radial pointer-events-none opacity-20" />
-
         {particles.map((particle) => (
           <div
             key={particle.id}
@@ -125,11 +118,21 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
                 left: "50%",
                 top: "50%",
                 opacity: 0.95,
-                zIndex: 20,
+                zIndex: 5,
+                willChange: "transform",
+                marginLeft: "-6px",
+                marginTop: "-6px",
               } as React.CSSProperties
             }
           />
         ))}
+
+        <div
+          className="absolute inset-0 w-full h-full rounded-full glow-orange pointer-events-none opacity-100"
+          style={{ filter: "blur(0px)" }}
+        />
+        <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-orange-600/30 via-transparent to-orange-500/20 rounded-full pointer-events-none" />
+        <div className="absolute inset-0 w-full h-full bg-gradient-radial pointer-events-none opacity-20" />
 
         <div className="relative w-full h-full flex items-center justify-center z-30">
           <Image
