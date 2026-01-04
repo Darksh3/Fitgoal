@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
@@ -50,12 +52,32 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
   const router = useRouter()
   const [timeLeft, setTimeLeft] = useState(600) // 10 minutes
   const [selectedPlan, setSelectedPlan] = useState("quarterly")
+  const [particles, setParticles] = useState<Array<{ id: number; tx: string; ty: string }>>([])
+  const [particleId, setParticleId] = useState(0)
 
   useEffect(() => {
     if (timeLeft <= 0) return
     const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000)
     return () => clearInterval(timer)
   }, [timeLeft])
+
+  useEffect(() => {
+    const particleInterval = setInterval(() => {
+      const newParticle = {
+        id: particleId,
+        tx: `${(Math.random() - 0.5) * 200}px`,
+        ty: `${-Math.random() * 150 - 50}px`,
+      }
+      setParticles((prev) => [...prev, newParticle])
+      setParticleId((prev) => prev + 1)
+
+      setTimeout(() => {
+        setParticles((prev) => prev.filter((p) => p.id !== newParticle.id))
+      }, 2000)
+    }, 300)
+
+    return () => clearInterval(particleInterval)
+  }, [particleId])
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
@@ -82,14 +104,32 @@ export function PricingSection({ gender, discount }: PricingSectionProps) {
         </div>
       </div>
 
-      <div className="relative w-full aspect-[4/5] max-h-80 mx-auto flex justify-center">
+      <div className="relative w-full aspect-[4/5] max-h-80 mx-auto flex justify-center items-center">
+        <div className="absolute inset-0 rounded-full glow-orange pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-orange-600/30 via-transparent to-orange-500/20 rounded-full pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-radial pointer-events-none opacity-20" />
         <Image
           src={getCharacterImage() || "/placeholder.svg"}
           alt="Character"
           fill
-          className="object-contain"
+          className="object-contain relative z-10"
           priority
         />
+        {particles.map((particle) => (
+          <div
+            key={particle.id}
+            className="absolute w-2 h-2 bg-orange-500 rounded-full animate-float-particle"
+            style={
+              {
+                "--tx": particle.tx,
+                "--ty": particle.ty,
+                left: "50%",
+                top: "50%",
+                opacity: 0.8,
+              } as React.CSSProperties
+            }
+          />
+        ))}
       </div>
 
       <div className="text-center space-y-3">

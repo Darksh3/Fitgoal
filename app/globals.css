@@ -245,6 +245,28 @@ body {
   }
 }
 
+/* Add orange glow and particle animations */
+@keyframes floatParticle {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(255, 140, 0, 0.3), 0 0 40px rgba(255, 140, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 140, 0, 0.5), 0 0 60px rgba(255, 140, 0, 0.2);
+  }
+}
+
 .animate-shine {
   animation: shine 1.5s ease-out;
 }
@@ -294,6 +316,14 @@ body {
 
 .animate-fade-in-delay-3 {
   animation: fadeIn 0.8s ease-out forwards 3.6s;
+}
+
+.animate-float-particle {
+  animation: floatParticle 2s ease-out forwards;
+}
+
+.glow-orange {
+  animation: glowPulse 3s ease-in-out infinite;
 }
 
 /* Custom slider styles for weight tracker */
