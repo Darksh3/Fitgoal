@@ -7,6 +7,8 @@ import { doc, getDoc } from "firebase/firestore"
 import { PricingSection } from "@/components/pricing-section"
 import { Clock, MapPin, TrendingUp, Calendar, CheckCircle, Heart, Flame, Moon, TargetIcon, Zap } from "lucide-react"
 import React from "react"
+import { AnimatedCounter } from "@/components/animated-counter"
+import { AnimatedProgressBar } from "@/components/animated-progress-bar"
 
 export default function ResultsPage() {
   const router = useRouter()
@@ -573,7 +575,7 @@ export default function ResultsPage() {
             <div className="flex justify-center px-4">
               <button
                 onClick={() => setShowWheel(true)}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-12 py-8 rounded-2xl text-2xl font-black shadow-lg shadow-[0_0_30px_rgba(249,115,22,0.3)] transition-all hover:scale-105 active:scale-95"
+                className="bg-white hover:bg-gray-100 text-black px-8 py-4 rounded-full text-lg font-bold shadow-lg transition-all hover:scale-105 active:scale-95"
               >
                 GIRAR ROLETA
               </button>
@@ -660,116 +662,6 @@ function Benefit({ text }: { text: string }) {
     <div className="flex items-center gap-3">
       <CheckCircle className="text-lime-400" />
       <p>{text}</p>
-    </div>
-  )
-}
-
-const AnimatedCounter = ({
-  targetValue,
-  suffix = "",
-  prefix = "",
-  delay = 0,
-  onComplete,
-}: { targetValue: number; suffix?: string; prefix?: string; delay?: number; onComplete?: () => void }) => {
-  const [displayValue, setDisplayValue] = React.useState(0)
-  const [hasStarted, setHasStarted] = React.useState(false)
-  const onCompleteRef = React.useRef(onComplete)
-
-  React.useEffect(() => {
-    onCompleteRef.current = onComplete
-  }, [onComplete])
-
-  React.useEffect(() => {
-    const delayTimer = setTimeout(() => {
-      setHasStarted(true)
-    }, delay)
-
-    return () => clearTimeout(delayTimer)
-  }, [delay])
-
-  React.useEffect(() => {
-    if (!hasStarted) return
-
-    const duration = 3000
-    const startTime = Date.now()
-    let animationId: number
-
-    const updateCounter = () => {
-      const elapsed = Date.now() - startTime
-      const progress = Math.min(elapsed / duration, 1)
-
-      const easeProgress = 1 - Math.pow(1 - progress, 3)
-      const currentValue = targetValue * easeProgress
-
-      setDisplayValue(Number.parseFloat(currentValue.toFixed(1)))
-
-      if (progress < 1) {
-        animationId = requestAnimationFrame(updateCounter)
-      } else {
-        setDisplayValue(Number(targetValue.toFixed(1)))
-        onCompleteRef.current?.()
-      }
-    }
-
-    animationId = requestAnimationFrame(updateCounter)
-
-    return () => cancelAnimationFrame(animationId)
-  }, [hasStarted, targetValue])
-
-  return (
-    <span>
-      {prefix}
-      {displayValue}
-      {suffix}
-    </span>
-  )
-}
-
-const AnimatedProgressBar = ({
-  percentage,
-  color,
-  delay = 0,
-}: { percentage: number; color: string; delay?: number }) => {
-  const [displayPercentage, setDisplayPercentage] = React.useState(0)
-  const [hasStarted, setHasStarted] = React.useState(false)
-
-  React.useEffect(() => {
-    const delayTimer = setTimeout(() => {
-      setHasStarted(true)
-    }, delay)
-
-    return () => clearTimeout(delayTimer)
-  }, [delay])
-
-  React.useEffect(() => {
-    if (!hasStarted) return
-
-    const duration = 1500 // 1.5 seconds
-    const startTime = Date.now()
-
-    const updateProgress = () => {
-      const elapsed = Date.now() - startTime
-      const progress = Math.min(elapsed / duration, 1)
-
-      // Ease out cubic
-      const easeProgress = 1 - Math.pow(1 - progress, 3)
-      const currentPercentage = percentage * easeProgress
-
-      setDisplayPercentage(currentPercentage)
-
-      if (progress < 1) {
-        requestAnimationFrame(updateProgress)
-      } else {
-        setDisplayPercentage(percentage)
-      }
-    }
-
-    requestAnimationFrame(updateProgress)
-  }, [percentage, hasStarted])
-
-  return (
-    <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
-      <div className={`h-full transition-all ${color}`} style={{ width: `${displayPercentage}%` }} />
     </div>
   )
 }
