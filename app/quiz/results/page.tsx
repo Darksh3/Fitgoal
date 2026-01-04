@@ -697,6 +697,11 @@ const AnimatedCounter = ({
 }: { targetValue: number; suffix?: string; prefix?: string; delay?: number; onComplete?: () => void }) => {
   const [displayValue, setDisplayValue] = React.useState(0)
   const [hasStarted, setHasStarted] = React.useState(false)
+  const onCompleteRef = React.useRef(onComplete)
+
+  React.useEffect(() => {
+    onCompleteRef.current = onComplete
+  }, [onComplete])
 
   React.useEffect(() => {
     const delayTimer = setTimeout(() => {
@@ -711,6 +716,7 @@ const AnimatedCounter = ({
 
     const duration = 3000
     const startTime = Date.now()
+    let animationId: number
 
     const updateCounter = () => {
       const elapsed = Date.now() - startTime
@@ -722,15 +728,17 @@ const AnimatedCounter = ({
       setDisplayValue(Number.parseFloat(currentValue.toFixed(1)))
 
       if (progress < 1) {
-        requestAnimationFrame(updateCounter)
+        animationId = requestAnimationFrame(updateCounter)
       } else {
         setDisplayValue(Number(targetValue.toFixed(1)))
-        onComplete?.()
+        onCompleteRef.current?.()
       }
     }
 
-    requestAnimationFrame(updateCounter)
-  }, [hasStarted, targetValue, onComplete])
+    animationId = requestAnimationFrame(updateCounter)
+
+    return () => cancelAnimationFrame(animationId)
+  }, [hasStarted, targetValue])
 
   return (
     <span>
