@@ -391,6 +391,15 @@ export default function QuizPage() {
     { label: "Geração de Treino", threshold: 100 },
   ]
 
+  const getMainTitle = () => {
+    if (animatedPercentage < 30) return "Estamos\nanalisando\nseus dados"
+    if (animatedPercentage < 60) return "Estamos\ncrando sua\ndieta"
+    if (animatedPercentage < 80) return "Estamos\ncrando seu\ntreino"
+    if (animatedPercentage < 95) return "Estamos\ncrando um plano\npersonalizado"
+    return "Plano de\nmudança\ncompleto!"
+  }
+  // </CHANGE>
+
   const getStatusMessage = () => {
     if (animatedPercentage < 20) return "[Estamos analisando seus dados...]"
     if (animatedPercentage < 50) return "[Estamos criando sua dieta...]"
@@ -4124,24 +4133,6 @@ export default function QuizPage() {
         )
 
       case 30: // Final Submit - Loading page with animated percentage
-        // const [animatedPercentage, setAnimatedPercentage] = useState(0) // Already declared at the top level
-        // const statuses = [
-        //   { label: "Atributos Físicos", threshold: 20 },
-        //   { label: "Nível de Fitness", threshold: 65 },
-        //   { label: "Análise de Potencial", threshold: 78 },
-        //   { label: "Geração de Dieta", threshold: 86 },
-        //   { label: "Geração de Treino", threshold: 100 },
-        // ]
-        // // Textos que aparecem conforme o percentual avança
-        // const getStatusMessage = () => {
-        //   if (animatedPercentage < 30) return "[Analisando seus dados...]"
-        //   if (animatedPercentage < 60) return "[Avaliando seu potencial...]"
-        //   if (animatedPercentage < 80) return "[Processando plano personalizado...]"
-        //   if (animatedPercentage < 95) return "[Finalizando sua dieta...]"
-        //   return "[Montando seu treino...]"
-        // }
-        // const isComplete = animatedPercentage === 100
-        // </CHANGE>
         return (
           <div className="min-h-screen flex flex-col items-center justify-center px-4 pb-20">
             {/* Main percentage display */}
@@ -4150,12 +4141,10 @@ export default function QuizPage() {
                 <AnimatedPercentage targetPercentage={100} duration={8} onPercentageChange={setAnimatedPercentage} />
               </div>
 
-              {/* Title */}
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 leading-tight">
-                Estamos criando um
-                <br />
-                plano personalizado para você
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 leading-tight whitespace-pre-wrap">
+                {getMainTitle()}
               </h2>
+              {/* </CHANGE> */}
 
               {/* Progress bar */}
               <div className="w-full max-w-md bg-gray-800/50 rounded-full h-2.5 overflow-hidden mx-auto mb-4">
