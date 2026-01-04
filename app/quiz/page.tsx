@@ -34,13 +34,14 @@ const AnimatedPercentage = ({ targetPercentage = 100, duration = 4 }) => {
       const elapsed = Date.now() - startTime
       const progress = Math.min(elapsed / (duration * 1000), 1)
 
-      // Quadratic easing out for faster start, slower end
-      const eased = progress < 0.7 ? 1 - Math.pow(1 - progress / 0.7, 2) * 0.7 : 0.7 + (progress - 0.7) * 0.3
+      // easeOutQuad: começa rápido e desacelera no final
+      const eased = 1 - Math.pow(1 - progress, 2)
 
       setPercentage(Math.floor(eased * targetPercentage))
 
       if (progress >= 1) {
         clearInterval(interval)
+        setPercentage(targetPercentage)
       }
     }, 16)
 
@@ -98,7 +99,6 @@ interface QuizData {
   trainingDays: string // This seems redundant with trainingDaysPerWeek. Consider unifying.
   previousProblems: string[]
   additionalGoals: string[]
-  letMadMusclesChoose: boolean
   foodPreferences: {
     vegetables: string[]
     grains: string[]
@@ -108,6 +108,7 @@ interface QuizData {
   }
   alcoholFrequency?: string
   trainingDays?: string // Added for slider in case 23
+  letMadMusclesChoose?: boolean // Added for food preference step
 }
 // </CHANGE>
 
@@ -167,6 +168,7 @@ const initialQuizData: QuizData = {
   },
   alcoholFrequency: "",
   trainingDays: "5", // Default value for the new slider
+  letMadMusclesChoose: false, // Default value for the new toggle
 }
 
 const debugDataFlow = (stage: string, data: any) => {
@@ -287,64 +289,7 @@ export default function QuizPage() {
     }
   }, [pathLengths])
 
-  const [quizData, setQuizData] = useState<QuizData>({
-    gender: "",
-    bodyType: "",
-    goal: [],
-    subGoal: "",
-    bodyFat: 15,
-    problemAreas: [],
-    diet: "",
-    sugarFrequency: [],
-    waterIntake: "",
-    allergies: "",
-    allergyDetails: "",
-    wantsSupplement: "",
-    supplementType: "",
-    height: "",
-    heightUnit: "cm",
-    currentWeight: "",
-    targetWeight: "",
-    weightUnit: "kg",
-    timeToGoal: "",
-    name: "",
-    workoutTime: "",
-    experience: "",
-    equipment: [],
-    exercisePreferences: {
-      cardio: "",
-      pullups: "",
-      yoga: "",
-    },
-    trainingDaysPerWeek: 3,
-    email: "",
-    imc: 0,
-    imcClassification: "",
-    imcStatus: "",
-    age: 0,
-    weight: "", // Redundant, consider removing or unifying with currentWeight
-    healthConditions: [], // Redundant with allergyDetails, consider unifying.
-    supplement: "", // Redundant, consider unifying with wantsSupplement.
-    sweetsFrequency: [], // This is likely meant to be sugarFrequency.
-    cardioFeeling: "",
-    strengthFeeling: "",
-    stretchingFeeling: "",
-    trainingDays: "", // Redundant, consider unifying with trainingDaysPerWeek.
-    previousProblems: [],
-    additionalGoals: [],
-    foodPreferences: {
-      vegetables: [],
-      grains: [],
-      ingredients: [],
-      meats: [],
-      fruits: [],
-    },
-    // </CHANGE>
-    // Initialize weightChangeType
-    weightChangeType: "",
-    // </CHANGE>
-    trainingDays: "5", // Default value for the new slider
-  })
+  const [quizData, setQuizData] = useState<QuizData>(initialQuizData) // Use initialQuizData
   const [showSuccess, setShowSuccess] = useState(false)
   const [showNutritionInfo, setShowNutritionInfo] = useState(false)
   const [showWaterCongrats, setShowWaterCongrats] = useState(false)
@@ -680,7 +625,7 @@ export default function QuizPage() {
           waterIntake: data.waterIntake,
           workoutTime: data.workoutTime,
           equipment: data.equipment,
-          trainingDaysPerWeek: data.trainingDaysPerWeek,
+          trainingDaysPerWeek: Number.parseInt(data.trainingDays || "3"), // Ensure it's a number
           lastActivity: new Date().toISOString(),
           createdAt: new Date().toISOString(),
         },
@@ -914,6 +859,7 @@ export default function QuizPage() {
         healthConditions: quizData.allergyDetails.length > 0 ? [quizData.allergyDetails] : [], // Convert allergyDetails to healthConditions array
         supplement: quizData.wantsSupplement, // Use supplement field
         previousProblems: quizData.previousProblems, // Include previousProblems
+        letMadMusclesChoose: quizData.letMadMusclesChoose, // Include letMadMusclesChoose
       }
       setQuizData(updatedQuizData) // Atualiza o estado local
 
@@ -3308,7 +3254,7 @@ export default function QuizPage() {
                         : option.value === "neutral"
                           ? "border-yellow-500 bg-yellow-500/20"
                           : "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-sm"
                   }`}
                 >
                   <span className="text-white">{option.label}</span>
