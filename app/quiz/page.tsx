@@ -2095,7 +2095,7 @@ export default function QuizPage() {
               ].map((type) => (
                 <div
                   key={type.value}
-                  className={`backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center gap-4
+                  className={`backdrop-blur-sm rounded-lg p-4 sm:p-4 md:p-6 cursor-pointer transition-all flex items-center justify-between gap-3 sm:gap-4
                     ${
                       quizData.bodyType === type.value
                         ? "border-2 border-lime-500 bg-lime-500/10"
@@ -2320,7 +2320,7 @@ export default function QuizPage() {
                     <>
                       {/* Peitoral esquerdo */}
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/95 animate-pulse"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
                           top: `${debugValues.m_chest_left.top}%`,
                           left: `${debugValues.m_chest_left.left}%`,
@@ -2328,12 +2328,12 @@ export default function QuizPage() {
                           height: `${debugValues.m_chest_left.height}%`,
                           borderRadius: "50% 50% 45% 55% / 55% 45% 60% 40%",
                           transform: `rotate(${debugValues.m_chest_left.rotate}deg)`,
-                          boxShadow: "inset 0 0 20px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       {/* Peitoral direito */}
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/95 animate-pulse"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
                           top: `${debugValues.m_chest_right.top}%`,
                           right: `${debugValues.m_chest_right.right}%`,
@@ -2341,7 +2341,7 @@ export default function QuizPage() {
                           height: `${debugValues.m_chest_right.height}%`,
                           borderRadius: "50% 50% 55% 45% / 45% 55% 40% 60%",
                           transform: `rotate(${debugValues.m_chest_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 20px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 20px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                     </>
@@ -2351,7 +2351,7 @@ export default function QuizPage() {
                   (quizData.problemAreas.includes("Braços") || quizData.problemAreas.includes("Tudo")) && (
                     <>
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/95 animate-pulse"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
                           top: `${debugValues.m_arm_upper_left.top}%`,
                           left: `${debugValues.m_arm_upper_left.left}%`,
@@ -2359,11 +2359,11 @@ export default function QuizPage() {
                           height: `${debugValues.m_arm_upper_left.height}%`,
                           borderRadius: "45% 55% 50% 50% / 50% 50% 45% 55%",
                           transform: `rotate(${debugValues.m_arm_upper_left.rotate}deg)`,
-                          boxShadow: "inset 0 0 15px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/90"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
                           top: `${debugValues.m_arm_lower_left.top}%`,
                           left: `${debugValues.m_arm_lower_left.left}%`,
@@ -2371,11 +2371,11 @@ export default function QuizPage() {
                           height: `${debugValues.m_arm_lower_left.height}%`,
                           borderRadius: "40% 60% 50% 50% / 60% 40% 50% 50%",
                           transform: `rotate(${debugValues.m_arm_lower_left.rotate}deg)`,
-                          boxShadow: "inset 0 0 12px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/95 animate-pulse"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
                           top: `${debugValues.m_arm_upper_right.top}%`,
                           right: `${debugValues.m_arm_upper_right.right}%`,
@@ -2383,11 +2383,11 @@ export default function QuizPage() {
                           height: `${debugValues.m_arm_upper_right.height}%`,
                           borderRadius: "55% 45% 50% 50% / 50% 50% 55% 45%",
                           transform: `rotate(${debugValues.m_arm_upper_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 15px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/90"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
                           top: `${debugValues.m_arm_lower_right.top}%`,
                           right: `${debugValues.m_arm_lower_right.right}%`,
@@ -2395,7 +2395,7 @@ export default function QuizPage() {
                           height: `${debugValues.m_arm_lower_right.height}%`,
                           borderRadius: "60% 40% 50% 50% / 40% 60% 50% 50%",
                           transform: `rotate(${debugValues.m_arm_lower_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 12px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                     </>
@@ -2406,74 +2406,74 @@ export default function QuizPage() {
                     <>
                       {/* Abdômen superior esquerdo */}
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/95 animate-pulse"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
                           top: `${debugValues.m_abs_1_left.top}%`,
                           left: `${debugValues.m_abs_1_left.left}%`,
                           width: `${debugValues.m_abs_1_left.width}%`,
                           height: `${debugValues.m_abs_1_left.height}%`,
                           borderRadius: "45% 55% 40% 60%",
-                          boxShadow: "inset 0 0 10px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       {/* Abdômen superior direito */}
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/95 animate-pulse"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
                           top: `${debugValues.m_abs_1_right.top}%`,
                           right: `${debugValues.m_abs_1_right.right}%`,
                           width: `${debugValues.m_abs_1_right.width}%`,
                           height: `${debugValues.m_abs_1_right.height}%`,
                           borderRadius: "55% 45% 60% 40%",
-                          boxShadow: "inset 0 0 10px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       {/* Abdômen médio esquerdo */}
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/95 animate-pulse"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
                           top: `${debugValues.m_abs_2_left.top}%`,
                           left: `${debugValues.m_abs_2_left.left}%`,
                           width: `${debugValues.m_abs_2_left.width}%`,
                           height: `${debugValues.m_abs_2_left.height}%`,
                           borderRadius: "40% 60% 45% 55%",
-                          boxShadow: "inset 0 0 10px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       {/* Abdômen médio direito */}
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/95 animate-pulse"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
                           top: `${debugValues.m_abs_2_right.top}%`,
                           right: `${debugValues.m_abs_2_right.right}%`,
                           width: `${debugValues.m_abs_2_right.width}%`,
                           height: `${debugValues.m_abs_2_right.height}%`,
                           borderRadius: "60% 40% 55% 45%",
-                          boxShadow: "inset 0 0 10px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       {/* Abdômen inferior esquerdo */}
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/95 animate-pulse"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
                           top: `${debugValues.m_abs_3_left.top}%`,
                           left: `${debugValues.m_abs_3_left.left}%`,
                           width: `${debugValues.m_abs_3_left.width}%`,
                           height: `${debugValues.m_abs_3_left.height}%`,
                           borderRadius: "45% 55% 50% 50%",
-                          boxShadow: "inset 0 0 10px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       {/* Abdômen inferior direito */}
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/95 animate-pulse"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
                           top: `${debugValues.m_abs_3_right.top}%`,
                           right: `${debugValues.m_abs_3_right.right}%`,
                           width: `${debugValues.m_abs_3_right.width}%`,
                           height: `${debugValues.m_abs_3_right.height}%`,
                           borderRadius: "55% 45% 50% 50%",
-                          boxShadow: "inset 0 0 10px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 10px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                     </>
@@ -2483,7 +2483,7 @@ export default function QuizPage() {
                   (quizData.problemAreas.includes("Pernas") || quizData.problemAreas.includes("Tudo")) && (
                     <>
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/95 animate-pulse"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
                           top: `${debugValues.m_leg_upper_left.top}%`,
                           left: `${debugValues.m_leg_upper_left.left}%`,
@@ -2491,11 +2491,11 @@ export default function QuizPage() {
                           height: `${debugValues.m_leg_upper_left.height}%`,
                           borderRadius: "50% 50% 45% 55% / 60% 60% 40% 40%",
                           transform: `rotate(${debugValues.m_leg_upper_left.rotate}deg)`,
-                          boxShadow: "inset 0 0 15px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/90"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
                           top: `${debugValues.m_leg_lower_left.top}%`,
                           left: `${debugValues.m_leg_lower_left.left}%`,
@@ -2503,11 +2503,11 @@ export default function QuizPage() {
                           height: `${debugValues.m_leg_lower_left.height}%`,
                           borderRadius: "50% 50% 40% 60% / 60% 60% 50% 50%",
                           transform: `rotate(${debugValues.m_leg_lower_left.rotate}deg)`,
-                          boxShadow: "inset 0 0 12px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/95 animate-pulse"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/95 animate-pulse"
                         style={{
                           top: `${debugValues.m_leg_upper_right.top}%`,
                           right: `${debugValues.m_leg_upper_right.right}%`,
@@ -2515,11 +2515,11 @@ export default function QuizPage() {
                           height: `${debugValues.m_leg_upper_right.height}%`,
                           borderRadius: "50% 50% 55% 45% / 60% 60% 40% 40%",
                           transform: `rotate(${debugValues.m_leg_upper_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 15px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 15px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                       <div
-                        className="absolute pointer-events-none z-20 bg-lime-500/90"
+                        className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
                           top: `${debugValues.m_leg_lower_right.top}%`,
                           right: `${debugValues.m_leg_lower_right.right}%`,
@@ -2527,7 +2527,7 @@ export default function QuizPage() {
                           height: `${debugValues.m_leg_lower_right.height}%`,
                           borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
                           transform: `rotate(${debugValues.m_leg_lower_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 12px rgba(132, 204, 22, 0.3)",
+                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
                     </>
@@ -2799,8 +2799,8 @@ export default function QuizPage() {
                     key={area}
                     className={`rounded-lg p-6 cursor-pointer transition-all border-2 ${
                       quizData.problemAreas.includes(area)
-                        ? "bg-emerald-500 border-emerald-500 text-white"
-                        : "bg-white/5 backdrop-blur-sm border-white/10 hover:border-emerald-500"
+                        ? "bg-lime-500 border-lime-500 text-white"
+                        : "bg-white/5 backdrop-blur-sm border-white/10 hover:border-lime-500"
                     }`}
                     onClick={() => handleArrayUpdate("problemAreas", area, !quizData.problemAreas.includes(area))}
                   >
@@ -2811,7 +2811,7 @@ export default function QuizPage() {
                           quizData.problemAreas.includes(area) ? "bg-white border-white" : "border-white/30"
                         }`}
                       >
-                        {quizData.problemAreas.includes(area) && <CheckCircle className="h-4 w-4 text-emerald-500" />}
+                        {quizData.problemAreas.includes(area) && <CheckCircle className="h-4 w-4 text-lime-500" />}
                       </div>
                     </div>
                   </div>
