@@ -566,8 +566,12 @@ export default function ResultsPage() {
           <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 w-full max-w-sm text-center space-y-8 relative overflow-hidden">
             <h3 className="text-2xl font-bold mb-4">Gire e ganhe desconto</h3>
 
-            <div className={`w-64 h-64 mx-auto mb-6 relative flex items-center justify-center`}>
-              <img src="/images/roleta.webp" alt="Roleta de desconto" className="w-full h-full object-contain" />
+            <div className={`mx-auto mb-6 relative flex items-center justify-center`}>
+              <img
+                src="/images/roleta.webp"
+                alt="Roleta de desconto"
+                className="w-80 h-80 object-contain bg-transparent"
+              />
 
               {[10, 15, 20, 30, 40, 50].map((value, i) => (
                 <div
