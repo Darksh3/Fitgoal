@@ -27,59 +27,50 @@ export async function POST(request: NextRequest) {
     console.log("[v0] API: User data fetched successfully")
 
     const analysisPrompt = `
-    Você é um PERSONAL TRAINER e NUTRICIONISTA ESPORTIVO certificado com 15 anos de experiência em análise de composição corporal e transformação física.
+    Você é um personal trainer e nutricionista especialista em análise corporal. Analise esta foto de progresso fitness e forneça um feedback detalhado e motivacional.
 
     Tipo de foto: ${photoType === "front" ? "Frente" : photoType === "back" ? "Costas" : "Lateral"}
     
-    DADOS DO CLIENTE:
+    Dados do usuário:
     - Objetivo: ${userQuizData?.goal || "Não informado"}
     - Biotipo: ${userQuizData?.bodyType || "Não informado"}
     - Experiência: ${userQuizData?.experience || "Não informado"}
     - Peso atual: ${userQuizData?.currentWeight || "Não informado"}kg
     - Meta de peso: ${userQuizData?.goalWeight || "Não informado"}kg
 
-    PROTOCOLO ATUAL:
-    - Calorias diárias: ${currentPlans?.dietPlan?.totalDailyCalories || "Não informado"} kcal
-    - Proteína diária: ${currentPlans?.dietPlan?.totalProtein || "Não informado"}g
-    - Frequência de treino: ${currentPlans?.workoutPlan?.days?.length || "Não informado"}x/semana
+    PLANOS ATUAIS DO USUÁRIO:
+    - Calorias atuais: ${currentPlans?.dietPlan?.totalDailyCalories || "Não informado"}
+    - Dias de treino: ${currentPlans?.workoutPlan?.days?.length || "Não informado"}
+    - Proteína atual: ${currentPlans?.dietPlan?.totalProtein || "Não informado"}
 
-    INSTRUÇÕES PARA ANÁLISE PROFISSIONAL:
+    IMPORTANTE: Responda APENAS com um JSON válido, sem texto adicional antes ou depois. Analise a foto real e forneça feedback específico baseado no que você vê.
 
-    1. Analise a composição corporal REAL visível na foto com olhar técnico
-    2. Identifique percentual de gordura estimado, desenvolvimento muscular por grupo, simetria e proporções
-    3. Seja CRÍTICO e HONESTO - aponte o que precisa melhorar sem rodeios
-    4. Use terminologia técnica quando apropriado (hipertrofia, déficit calórico, superávit, periodização, etc)
-    5. Compare o físico atual com o objetivo declarado e avalie a distância
-    6. Avalie se o protocolo atual (calorias/proteína/treino) está adequado para o físico observado
-    7. Se necessário, sugira ajustes ESPECÍFICOS e QUANTIFICADOS (ex: "aumentar 200kcal", "adicionar 30g proteína", "incluir 2x treino de pernas")
-
-    IMPORTANTE: Responda APENAS com JSON válido. Seja direto, técnico e profissional.
-
+    Estrutura JSON obrigatória:
     {
-      "pontosForts": ["observação técnica específica do físico", "segundo ponto forte observado", "terceiro aspecto positivo"],
-      "areasParaMelhorar": ["área crítica que precisa atenção URGENTE", "segunda área deficiente", "terceira área para desenvolvimento"],
-      "dicasEspecificas": ["ação concreta e mensurável", "segunda ação específica", "terceira recomendação prática"],
-      "motivacao": "feedback profissional direto sobre o estado atual e potencial de evolução",
-      "focoPrincipal": "área prioritária que terá maior impacto nos resultados",
-      "progressoGeral": "avaliação técnica do percentual de gordura estimado, massa muscular e condicionamento geral",
-      "recomendacoesTreino": ["ajuste específico no treino com justificativa", "segunda recomendação técnica"],
-      "recomendacoesDieta": ["ajuste nutricional quantificado", "segunda recomendação dietética"],
-      "otimizacaoNecessaria": true ou false,
+      "pontosForts": ["observação específica da foto", "outro ponto forte visual", "terceiro ponto"],
+      "areasParaMelhorar": ["área específica vista na foto", "segunda área", "terceira área"],
+      "dicasEspecificas": ["dica baseada na análise visual", "segunda dica específica", "terceira dica"],
+      "motivacao": "mensagem motivacional personalizada baseada no que vê na foto",
+      "focoPrincipal": "principal área que precisa de atenção baseada na análise visual",
+      "progressoGeral": "avaliação específica do físico atual visto na foto",
+      "recomendacoesTreino": ["recomendação específica baseada na foto", "segunda recomendação"],
+      "recomendacoesDieta": ["recomendação nutricional específica", "segunda recomendação"],
+      "otimizacaoNecessaria": true,
       "otimizacoesSugeridas": {
         "dieta": {
-          "necessaria": true ou false,
-          "mudancas": ["mudança ESPECÍFICA e QUANTIFICADA (ex: aumentar 200kcal)", "segunda mudança concreta"],
-          "justificativa": "Justificativa técnica baseada na composição corporal observada e objetivo"
+          "necessaria": true,
+          "mudancas": ["mudança específica baseada na análise", "segunda mudança"],
+          "justificativa": "Justificativa baseada no que vê na foto"
         },
         "treino": {
-          "necessaria": true ou false,
-          "mudancas": ["mudança ESPECÍFICA no protocolo de treino", "segunda alteração concreta"],
-          "justificativa": "Justificativa técnica baseada no desenvolvimento muscular observado"
+          "necessaria": true,
+          "mudancas": ["mudança específica no treino", "segunda mudança"],
+          "justificativa": "Justificativa baseada na composição corporal vista"
         }
       }
     }
 
-    Seja CRÍTICO, TÉCNICO e DIRETO. Não use linguagem motivacional genérica. Foque em dados observáveis e ações concretas.
+    Analise a foto real e seja específico sobre o que consegue observar visualmente.
     `
 
     console.log("[v0] API: Starting AI analysis")

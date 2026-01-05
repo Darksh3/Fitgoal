@@ -6,8 +6,8 @@ export async function POST(request: Request) {
       price_amount: amount,
       price_currency: currency,
       pay_currency: "", // Deixar vazio para mostrar todas as opções
-      order_id: `fitgoal_${userId}_${Date.now()}`,
-      order_description: `Fitgoal ${planType} Plan Subscription`,
+      order_id: `athlix_${userId}_${Date.now()}`,
+      order_description: `ATHLIX ${planType} Plan Subscription`,
       success_url: `${process.env.NEXT_PUBLIC_URL}/dashboard?success=true&payment=crypto`,
       cancel_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/assinatura?canceled=true`,
     }

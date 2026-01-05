@@ -37,51 +37,20 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { sessionId, subscription_id, customer_id, client_uid, payment_intent_id, plan_duration, price_id } = body
+    const { sessionId, subscription_id, customer_id, client_uid } = body
 
-    if (!sessionId && !subscription_id && !payment_intent_id) {
-      return NextResponse.json({ error: "sessionId, subscription_id ou payment_intent_id ausente." }, { status: 400 })
+    if (!sessionId && !subscription_id) {
+      return NextResponse.json({ error: "sessionId ou subscription_id ausente." }, { status: 400 })
     }
 
     let userEmail: string | null = null
     let userName: string | null = null
     let quizAnswersFromMetadata: any = {}
-    let planType: string | null = price_id || null
+    let planType: string | null = null
     let clientUidFromSource: string | null = client_uid || null
     let stripeCustomerId: string | null = customer_id || null
-    let subscriptionDuration: number = plan_duration || 30 // padrão 30 dias
 
-    if (payment_intent_id) {
-      const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id, {
-        expand: ["customer"],
-      })
-
-      if (!paymentIntent) {
-        return NextResponse.json({ error: "Payment Intent do Stripe não encontrado." }, { status: 404 })
-      }
-
-      const customer = paymentIntent.customer as Stripe.Customer
-      userEmail = customer.email
-      userName = customer.name
-      planType = paymentIntent.metadata?.priceId || price_id
-      clientUidFromSource = paymentIntent.metadata?.clientUid || client_uid
-      stripeCustomerId = customer.id
-      subscriptionDuration = Number.parseInt(paymentIntent.metadata?.planDuration || "30")
-
-      // Buscar dados do quiz no Firestore
-      if (clientUidFromSource) {
-        try {
-          const clientDocRef = adminDb.collection("users").doc(clientUidFromSource)
-          const clientDocSnap = await clientDocRef.get()
-          if (clientDocSnap.exists()) {
-            const clientData = clientDocSnap.data()
-            quizAnswersFromMetadata = clientData?.quizData || clientData?.quizAnswers || {}
-          }
-        } catch (error) {
-          console.warn("Não foi possível recuperar dados do quiz do Firestore:", error)
-        }
-      }
-    } else if (sessionId) {
+    if (sessionId) {
       const session = await stripe.checkout.sessions.retrieve(sessionId, {
         expand: ["customer"],
       })
@@ -129,9 +98,9 @@ export async function POST(req: Request) {
 
     const planNames: { [key: string]: string } = {
       price_1RajatPRgKqdJdqNnb9HQe17: "Plano Premium Mensal",
-      price_1SPrzGPRgKqdJdqNNLfhAYNo: "Plano Semestral",
+      price_1RajgKPRgKqdJdqNTnkZb2zD: "Plano Semestral",
       price_1RajgKPRgKqdJdqNnhxim8dd: "Plano Premium Anual",
-      price_1SPs2cPRgKqdJdqNbiXZYLhI: "Plano Trimestral",
+      price_1RajgKPRgKqdJdqNPqgehqnX: "Plano Trimestral",
       price_1RdpDTPRgKqdJdqNrvZccKxj: "Plano Anual Teste",
     }
 
@@ -246,49 +215,6 @@ export async function POST(req: Request) {
 
     let dietPlan = existingUserData.dietPlan
     let workoutPlan = existingUserData.workoutPlan
-
-    let plansAlreadyGenerated = false
-    if (clientUidFromSource) {
-      try {
-        const userDocRef = adminDb.collection("users").doc(clientUidFromSource)
-        const userDoc = await userDocRef.get()
-        if (userDoc.exists()) {
-          const userData = userDoc.data()
-          // Verificar se os planos existem e foram gerados recentemente (últimos 10 minutos)
-          if (userData?.dietPlan && userData?.workoutPlan) {
-            const dietTimestamp = userData.dietPlan.createdAt
-            const now = Date.now()
-            const tenMinutesAgo = now - 10 * 60 * 1000
-
-            if (dietTimestamp && new Date(dietTimestamp).getTime() > tenMinutesAgo) {
-              plansAlreadyGenerated = true
-              console.log("[v0] Planos já foram gerados durante o checkout, pulando geração")
-            }
-          }
-        }
-      } catch (error) {
-        console.error("[v0] Erro ao verificar planos existentes:", error)
-      }
-    }
-
-    if (!plansAlreadyGenerated && clientUidFromSource) {
-      console.log("[v0] Gerando planos pois não foram encontrados planos recentes...")
-      try {
-        const generateResponse = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/generate-plans-on-demand`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: clientUidFromSource }),
-        })
-
-        if (!generateResponse.ok) {
-          console.error("[v0] Erro ao gerar planos após pagamento")
-        } else {
-          console.log("[v0] Planos gerados com sucesso após pagamento")
-        }
-      } catch (error) {
-        console.error("[v0] Erro na chamada de geração de planos:", error)
-      }
-    }
 
     if (!dietPlan || !workoutPlan) {
       console.log("DEBUG: Gerando novos planos (diet/workout) para o usuário:", finalUserUid)
@@ -468,56 +394,6 @@ export async function POST(req: Request) {
 
       const nutrition = calculateNutrition(quizAnswersFromMetadata)
 
-      const supplementsData = {
-        hipercalorico: {
-          name: "Hipercalórico Growth",
-          portion: "170g (12 dosadores)",
-          calories: 615,
-          carbs: 108,
-          protein: 37,
-          fat: 3.7,
-          fiber: 1.9,
-          sodium: 268,
-        },
-        "whey-protein": {
-          name: "Whey Protein Concentrado 80% Growth",
-          portion: "30g (2 dosadores)",
-          calories: 119,
-          carbs: 2.3,
-          protein: 24,
-          fat: 1.5, // Calculated from remaining calories
-          fiber: 0,
-          sodium: 50,
-        },
-      }
-
-      let supplementName = ""
-      let supplementInfo = null
-      if (quizAnswersFromMetadata.supplementType === "hipercalorico") {
-        supplementName = "Hipercalórico Growth"
-        supplementInfo = supplementsData.hipercalorico
-      } else if (quizAnswersFromMetadata.supplementType === "whey-protein") {
-        supplementName = "Whey Protein Growth"
-        supplementInfo = supplementsData["whey-protein"]
-      }
-
-      console.log("[v0] Quiz data retrieved:", JSON.stringify(quizAnswersFromMetadata, null, 2))
-      console.log("[v0] ===== SUPPLEMENT DEBUG =====")
-      console.log("[v0] wantsSupplement value:", quizAnswersFromMetadata.wantsSupplement)
-      console.log("[v0] wantsSupplement type:", typeof quizAnswersFromMetadata.wantsSupplement)
-      console.log("[v0] supplementType value:", quizAnswersFromMetadata.supplementType)
-      console.log("[v0] supplementType type:", typeof quizAnswersFromMetadata.supplementType)
-      console.log(
-        "[v0] Condition check (wantsSupplement === 'sim'):",
-        quizAnswersFromMetadata.wantsSupplement === "sim",
-      )
-      console.log("[v0] supplementInfo:", supplementInfo)
-      console.log(
-        "[v0] Will include supplements in prompt:",
-        quizAnswersFromMetadata.wantsSupplement === "sim" && supplementInfo,
-      )
-      console.log("[v0] ===========================")
-
       const dietPrompt = `
         Crie um plano alimentar personalizado em português brasileiro usando EXATAMENTE estes valores calculados:
 
@@ -532,31 +408,12 @@ export async function POST(req: Request) {
         - Objetivo: ${quizAnswersFromMetadata.goal || "Ganho de massa muscular"}
         - Restrições: ${quizAnswersFromMetadata.allergyDetails || "Nenhuma"}
         - Preferências: ${quizAnswersFromMetadata.diet || "Sem restrições"}
-        ${
-          quizAnswersFromMetadata.wantsSupplement === "sim" && supplementInfo
-            ? `- Suplementação: O usuário QUER suplementação. Suplemento recomendado: ${supplementInfo.name}
-        
-        VALORES NUTRICIONAIS OFICIAIS DO ${supplementInfo.name.toUpperCase()} (USE EXATAMENTE ESTES VALORES):
-        - Porção: ${supplementInfo.portion}
-        - Calorias: ${supplementInfo.calories} kcal
-        - Carboidratos: ${supplementInfo.carbs}g
-        - Proteínas: ${supplementInfo.protein}g
-        - Gorduras: ${supplementInfo.fat}g
-        - Fibras: ${supplementInfo.fiber}g
-        - Sódio: ${supplementInfo.sodium}mg`
-            : ""
-        }
 
         INSTRUÇÕES:
         - Crie 5-6 refeições que SOMEM exatamente os valores calculados
         - Use alimentos brasileiros comuns
         - Respeite todas as restrições alimentares
         - Distribua os macros proporcionalmente entre as refeições
-        ${
-          quizAnswersFromMetadata.wantsSupplement === "sim" && supplementInfo
-            ? `- IMPORTANTE: Inclua uma seção de suplementos recomendados. OBRIGATORIAMENTE inclua o ${supplementInfo.name} com os valores nutricionais EXATOS fornecidos acima (${supplementInfo.portion}: ${supplementInfo.calories} kcal, ${supplementInfo.carbs}g carbs, ${supplementInfo.protein}g proteína, ${supplementInfo.fat}g gordura). Especifique o horário ideal de consumo baseado no objetivo do usuário. Você pode adicionar outros suplementos complementares se achar necessário (como Creatina, BCAA, Ômega 3, etc).`
-            : ""
-        }
 
         Responda APENAS com JSON válido:
         {
@@ -576,7 +433,7 @@ export async function POST(req: Request) {
                 {
                   "name": "[nome do alimento]",
                   "quantity": "[quantidade]",
-                  "calories": "[calorias]",
+                  "calories": "[calorias calculadas pela IA]",
                   "protein": "[proteína em gramas]",
                   "carbs": "[carboidratos em gramas]",
                   "fat": "[gordura em gramas]"
@@ -588,24 +445,6 @@ export async function POST(req: Request) {
               "totalFat": 20
             }
           ],
-          ${
-            quizAnswersFromMetadata.wantsSupplement === "sim" && supplementInfo
-              ? `"supplements": [
-            {
-              "name": "${supplementInfo.name}",
-              "portion": "${supplementInfo.portion}",
-              "calories": ${supplementInfo.calories},
-              "protein": ${supplementInfo.protein},
-              "carbs": ${supplementInfo.carbs},
-              "fat": ${supplementInfo.fat},
-              "fiber": ${supplementInfo.fiber},
-              "sodium": ${supplementInfo.sodium},
-              "timing": "Horário ideal baseado no objetivo (ex: Pós-treino para ganho de massa, Entre refeições para hipercalórico)",
-              "benefits": "Benefícios específicos para o objetivo do usuário"
-            }
-          ],`
-              : ""
-          }
           "totalDailyCalories": ${nutrition.targetCalories},
           "macros": {
             "protein": ${nutrition.proteinGrams},
@@ -624,7 +463,6 @@ export async function POST(req: Request) {
             "Consuma ${nutrition.proteinGrams}g de proteína diariamente",
             "Beba pelo menos ${Math.round((Number.parseFloat(quizAnswersFromMetadata.currentWeight) || 70) * 35)}ml de água por dia",
             "Faça refeições a cada 3-4 horas"
-            ${quizAnswersFromMetadata.wantsSupplement === "sim" && supplementInfo ? `, "Siga a suplementação recomendada nos horários indicados para melhores resultados"` : ""}
           ]
         }
       `
@@ -654,8 +492,8 @@ export async function POST(req: Request) {
       `
 
       const [dietResult, workoutResult] = await Promise.all([
-        generateText({ model: openai("gpt-5.1"), prompt: dietPrompt, response_format: { type: "json_object" } }),
-        generateText({ model: openai("gpt-5.1"), prompt: workoutPrompt, response_format: { type: "json_object" } }),
+        generateText({ model: openai("gpt-4o"), prompt: dietPrompt, response_format: { type: "json_object" } }),
+        generateText({ model: openai("gpt-4o"), prompt: workoutPrompt, response_format: { type: "json_object" } }),
       ])
 
       dietPlan = extractJson(dietResult.text)
@@ -685,23 +523,36 @@ export async function POST(req: Request) {
       ...existingUserData,
       name: userName,
       email: userEmail,
-      quizAnswers: { ...existingUserData.quizAnswers, ...quizAnswersFromMetadata },
-      quizData: { ...existingUserData.quizData, ...quizAnswersFromMetadata },
-      personalData: existingUserData.personalData || {},
+      quizData: {
+        age: quizAnswersFromMetadata.age,
+        bodyType: quizAnswersFromMetadata.bodyType,
+        createdAt: quizAnswersFromMetadata.createdAt,
+        completedAt: quizAnswersFromMetadata.completedAt,
+        dietPreferences: quizAnswersFromMetadata.dietPreferences,
+        trainingDaysPerWeek: quizAnswersFromMetadata.trainingDaysPerWeek, // 🔥 Critical field for workout frequency
+        gender: quizAnswersFromMetadata.gender,
+        currentWeight: quizAnswersFromMetadata.currentWeight,
+        height: quizAnswersFromMetadata.height,
+        goal: quizAnswersFromMetadata.goal,
+        allergyDetails: quizAnswersFromMetadata.allergyDetails,
+        diet: quizAnswersFromMetadata.diet,
+        experience: quizAnswersFromMetadata.experience,
+        workoutTime: quizAnswersFromMetadata.workoutTime,
+        waterIntake: quizAnswersFromMetadata.waterIntake,
+        targetWeight: quizAnswersFromMetadata.targetWeight,
+        timeToGoal: quizAnswersFromMetadata.timeToGoal,
+        // Include any other fields that might exist
+        ...quizAnswersFromMetadata,
+      },
+      dietPlan: dietPlan,
+      workoutPlan: workoutPlan,
+      planType: planType,
+      stripeCustomerId: stripeCustomerId,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       createdAt: existingUserData.createdAt || admin.firestore.FieldValue.serverTimestamp(),
       isSetupComplete: true,
       hasGeneratedPlans: !!(dietPlan && workoutPlan),
       subscriptionStatus: "active",
-      // Calculando data de expiração baseada na duração do plano
-      subscriptionExpiresAt: admin.firestore.Timestamp.fromDate(
-        new Date(Date.now() + subscriptionDuration * 24 * 60 * 60 * 1000),
-      ),
-      planName: planNames[planType] || "Plano Premium",
-      stripeCustomerId: stripeCustomerId,
-      planType: planType,
-      isPremium: true,
-      role: "client",
     }
 
     try {
