@@ -9,6 +9,7 @@ import { Clock, MapPin, TrendingUp, Calendar, CheckCircle, Heart, Flame, Moon, T
 import React from "react"
 import { AnimatedCounter } from "@/components/animated-counter"
 import { AnimatedProgressBar } from "@/components/animated-progress-bar"
+import { RouletteWheel } from "@/components/roulette-wheel"
 
 export default function ResultsPage() {
   const router = useRouter()
@@ -18,6 +19,8 @@ export default function ResultsPage() {
   const [discount, setDiscount] = useState<number | null>(null)
   const [currentIMC, setCurrentIMC] = useState<number | null>(null)
   const [isBmiAnimationDone, setIsBmiAnimationDone] = React.useState(false)
+  const [showWheel, setShowWheel] = useState(false)
+  const [wheelDiscount, setWheelDiscount] = useState<number | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -283,6 +286,11 @@ export default function ResultsPage() {
     return iconMap.filter((item) => goals.includes(item.key))
   }
 
+  const handleWheelSpinComplete = (discount: number) => {
+    setWheelDiscount(discount)
+    // Optionally apply discount or show result
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white bg-gradient-to-b from-black via-gray-900 to-black">
@@ -535,16 +543,28 @@ export default function ResultsPage() {
           <section className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center space-y-6">
             <h2 className="text-3xl font-bold">Ganhe um Presente Especial!</h2>
             <p className="text-gray-400 text-lg">
-              Parabéns por chegar até aqui! Clique no botão para descobrir sua oferta exclusiva.
+              Parabéns por chegar até aqui! Gire a roleta para descobrir sua oferta exclusiva.
             </p>
-            <div className="flex justify-center px-4">
-              <button
-                onClick={() => setShowPricing(true)}
-                className="bg-white hover:bg-gray-100 text-black px-8 py-4 rounded-full text-lg font-bold shadow-lg transition-all hover:scale-105 active:scale-95"
-              >
-                DESCUBRA SUA OFERTA
-              </button>
-            </div>
+
+            {!showWheel ? (
+              <div className="flex justify-center px-4">
+                <button
+                  onClick={() => setShowWheel(true)}
+                  className="bg-white hover:bg-gray-100 text-black px-8 py-4 rounded-full text-lg font-bold shadow-lg transition-all hover:scale-105 active:scale-95"
+                >
+                  DESCUBRA SUA OFERTA
+                </button>
+              </div>
+            ) : (
+              <div className="py-6">
+                <RouletteWheel onSpinComplete={handleWheelSpinComplete} />
+                {wheelDiscount && (
+                  <div className="mt-6 text-xl font-bold text-yellow-400">
+                    🎉 Você ganhou {wheelDiscount}% de desconto!
+                  </div>
+                )}
+              </div>
+            )}
           </section>
         </div>
       )}
