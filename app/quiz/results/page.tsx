@@ -592,7 +592,7 @@ export default function ResultsPage() {
             <h3 className="text-2xl font-bold mb-4">Gire e ganhe desconto</h3>
 
             <div className={`w-64 h-64 mx-auto mb-6 relative`}>
-              <img src="/images/roleta.jpg" alt="Roleta de desconto" className="w-full h-full object-cover" />
+              <img src="/images/roleta.webp" alt="Roleta de desconto" className="w-full h-full object-cover" />
 
               {[10, 15, 20, 30, 40, 50].map((value, i) => (
                 <div
