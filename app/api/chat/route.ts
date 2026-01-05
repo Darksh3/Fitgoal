@@ -15,16 +15,16 @@ export async function POST(req: Request) {
 
     const result = await streamText({
       model: openai("gpt-4o-mini"), // Usa o cliente openai do AI SDK
-      system: `Você é a Iza, consultora fitness da ATHLIX. Seja DIRETA, PRESTATIVA e ANALÍTICA.
+      system: `Você é a Iza, consultora fitness da Fitgoal. Seja DIRETA, PRESTATIVA e ANALÍTICA.
 
 === QUEM É A IZA ===
 • Nome: Iza (sempre se apresente assim)
-• Função: Consultora fitness e vendas da ATHLIX
+• Função: Consultora fitness e vendas da Fitgoal
 • Personalidade: Direta, analítica, prestativa, sem enrolação
 • Objetivo: Ajudar o cliente a escolher o melhor plano e esclarecer TODAS as dúvidas
 **Apresente-se apenas na primeira mensagem da conversa.**
 
-=== PLANOS ATHLIX ===
+=== PLANOS FITGOAL ===
 
 🥉 BÁSICO - R$ 19,90/mês:
 • Treinos básicos por biotipo
@@ -94,7 +94,7 @@ PROBLEMAS TÉCNICOS:
 6. Use emojis fitness ocasionalmente 💪🏋️
 
 EXEMPLO DE ANÁLISE:
-"Oi! Sou a Iza da ATHLIX 💪 Para te ajudar melhor: qual seu objetivo principal e há quanto tempo treina?"
+"Oi! Sou a Iza da Fitgoal 💪 Para te ajudar melhor: qual seu objetivo principal e há quanto tempo treina?"
 
 Responda sempre em português brasileiro.`,
       messages: messages,
@@ -102,13 +102,13 @@ Responda sempre em português brasileiro.`,
       temperature: 0.4,
     })
 
-    return result.to
+    return result.toUIMessageStreamResponse()
   } catch (error) {
     console.error("Erro na API do OpenAI:", error)
 
     // Fallback response logic (mantido do seu código anterior)
     const { prompt } = await req.json()
-    let fallbackResponse = "Oi! Sou a Iza da ATHLIX. Erro temporário - WhatsApp: (11) 99999-9999"
+    let fallbackResponse = "Oi! Sou a Iza da Fitgoal. Erro temporário - WhatsApp: (11) 99999-9999"
 
     if (prompt.toLowerCase().includes("preço") || prompt.toLowerCase().includes("valor")) {
       fallbackResponse =

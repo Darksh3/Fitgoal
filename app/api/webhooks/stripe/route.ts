@@ -23,6 +23,7 @@ export async function POST(request: Request) {
           planType: planType,
           customerId: session.customer,
           subscriptionId: session.subscription,
+          mode: session.mode, // Log do modo de pagamento
         })
 
         // Ativar assinatura do usuário (se necessário, você pode ter uma função para isso)
@@ -54,6 +55,15 @@ export async function POST(request: Request) {
         }
         // *** FIM DO NOVO ***
 
+        break
+
+      case "payment_intent.succeeded":
+        const paymentIntent = event.data.object as Stripe.PaymentIntent
+        console.log("Pagamento único confirmado:", {
+          paymentIntentId: paymentIntent.id,
+          amount: paymentIntent.amount,
+          customer: paymentIntent.customer,
+        })
         break
 
       case "customer.subscription.deleted":

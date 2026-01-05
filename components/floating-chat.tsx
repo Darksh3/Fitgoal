@@ -119,7 +119,7 @@ export default function FloatingChat() {
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <Sparkles className="h-4 w-4" />
-                <CardTitle className="text-sm font-medium">Iza - Consultora ATHLIX</CardTitle>
+                <CardTitle className="text-sm font-medium">Iza - Consultora Fitgoal</CardTitle>
               </div>
               <div className="flex space-x-1">
                 <Button
@@ -153,7 +153,7 @@ export default function FloatingChat() {
                         <Sparkles className="h-6 w-6 text-white" />
                       </div>
                       <div className="font-medium">Oi! Sou a Iza 💪</div>
-                      <div className="text-xs text-gray-500">Consultora fitness da ATHLIX</div>
+                      <div className="text-xs text-gray-500">Consultora fitness da Fitgoal</div>
                     </div>
                     <div className="space-y-2">
                       {quickQuestions.map((question, index) => (

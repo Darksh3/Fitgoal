@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { StyledButton } from "@/components/ui/styled-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -196,22 +197,24 @@ export default function ResumoPage() {
 
   if (loadingQuizData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center text-gray-700">Carregando suas informações...</div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center text-gray-700 dark:text-gray-300">Carregando suas informações...</div>
       </div>
     )
   }
 
   if (!quizData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center text-gray-700">Nenhum dado do quiz encontrado. Redirecionando para o quiz...</div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center text-gray-700 dark:text-gray-300">
+          Nenhum dado do quiz encontrado. Redirecionando para o quiz...
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center mb-6">
@@ -220,8 +223,8 @@ export default function ResumoPage() {
             Voltar
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Resumo Completo</h1>
-            <p className="text-gray-600">Suas informações e progresso detalhado</p>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Resumo Completo</h1>
+            <p className="text-gray-600 dark:text-gray-400">Suas informações e progresso detalhado</p>
           </div>
         </div>
 
@@ -236,32 +239,36 @@ export default function ResumoPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm text-gray-600">Nome</Label>
-                    <p className="font-medium">{quizData?.name || "Não informado"}</p>
+                    <Label className="text-sm text-gray-600 dark:text-gray-400">Nome</Label>
+                    <p className="font-medium text-gray-900 dark:text-white">{quizData?.name || "Não informado"}</p>
                   </div>
                   <div>
-                    <Label className="text-sm text-gray-600">Gênero</Label>
-                    <p className="font-medium capitalize">{quizData?.gender || "Não informado"}</p>
+                    <Label className="text-sm text-gray-600 dark:text-gray-400">Gênero</Label>
+                    <p className="font-medium capitalize text-gray-900 dark:text-white">
+                      {quizData?.gender || "Não informado"}
+                    </p>
                   </div>
                   <div>
-                    <Label className="text-sm text-gray-600">Peso Atual</Label>
-                    <p className="font-medium">{quizData?.currentWeight} kg</p>
+                    <Label className="text-sm text-gray-600 dark:text-gray-400">Peso Atual</Label>
+                    <p className="font-medium text-gray-900 dark:text-white">{quizData?.currentWeight} kg</p>
                   </div>
                   <div>
-                    <Label className="text-sm text-gray-600">Peso Meta</Label>
-                    <p className="font-medium">{quizData?.targetWeight} kg</p>
+                    <Label className="text-sm text-gray-600 dark:text-gray-400">Peso Meta</Label>
+                    <p className="font-medium text-gray-900 dark:text-white">{quizData?.targetWeight} kg</p>
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-sm text-gray-600">Tipo Corporal</Label>
-                  <p className="font-medium">{getBodyTypeText(quizData?.bodyType || "")}</p>
+                  <Label className="text-sm text-gray-600 dark:text-gray-400">Tipo Corporal</Label>
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {getBodyTypeText(quizData?.bodyType || "")}
+                  </p>
                 </div>
 
                 <div>
-                  <Label className="text-sm text-gray-600">Experiência</Label>
+                  <Label className="text-sm text-gray-600 dark:text-gray-400">Experiência</Label>
                   <Badge variant="outline" className="capitalize">
                     {quizData?.experience || "Não informado"}
                   </Badge>
@@ -278,18 +285,22 @@ export default function ResumoPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label className="text-sm text-gray-600">Metas Principais</Label>
-                  <p className="font-medium">{getGoalText(quizData?.goal || [])}</p>
+                  <Label className="text-sm text-gray-600 dark:text-gray-400">Metas Principais</Label>
+                  <p className="font-medium text-gray-900 dark:text-white">{getGoalText(quizData?.goal || [])}</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm text-gray-600">Prazo</Label>
-                    <p className="font-medium">{quizData?.timeToGoal || "Não definido"}</p>
+                    <Label className="text-sm text-gray-600 dark:text-gray-400">Prazo</Label>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      {quizData?.timeToGoal || "Não definido"}
+                    </p>
                   </div>
                   <div>
-                    <Label className="text-sm text-gray-600">Tempo de Treino</Label>
-                    <p className="font-medium">{quizData?.workoutTime || "Não definido"}</p>
+                    <Label className="text-sm text-gray-600 dark:text-gray-400">Tempo de Treino</Label>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      {quizData?.workoutTime || "Não definido"}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -330,7 +341,7 @@ export default function ResumoPage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="height">Altura (cm)</Label>
                     <Input
@@ -394,15 +405,15 @@ export default function ResumoPage() {
                 </div>
 
                 {isEditing && (
-                  <Button onClick={handleSaveMeasurements} className="w-full">
+                  <StyledButton onClick={handleSaveMeasurements} className="w-full">
                     <Save className="h-4 w-4 mr-2" />
                     Salvar Medidas
-                  </Button>
+                  </StyledButton>
                 )}
 
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                  <h4 className="font-medium text-blue-800 mb-2">💡 Por que adicionar medidas?</h4>
-                  <ul className="text-sm text-blue-700 space-y-1">
+                <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-2">💡 Por que adicionar medidas?</h4>
+                  <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-1">
                     <li>• Acompanhar progresso além do peso</li>
                     <li>• Dietas e treinos mais precisos</li>
                     <li>• Análise corporal detalhada</li>
@@ -425,27 +436,27 @@ export default function ResumoPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="text-center">
                 <div className="text-3xl font-bold text-blue-600 mb-2">{progressData.consecutiveDays}</div>
-                <div className="text-sm text-gray-600">Dias Consecutivos</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Dias Consecutivos</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-green-600 mb-2">{progressData.completedWorkouts}</div>
-                <div className="text-sm text-gray-600">Treinos Completos</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Treinos Completos</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-orange-600 mb-2">{progressData.dietAdherence}%</div>
-                <div className="text-sm text-gray-600">Aderência à Dieta</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Aderência à Dieta</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-purple-600 mb-2">
                   {progressData.weightProgress.toFixed(1)}kg
                 </div>
-                <div className="text-sm text-gray-600">Progresso</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Progresso</div>
               </div>
             </div>
             {progressData.consecutiveDays === 0 && progressData.completedWorkouts === 0 && (
-              <div className="mt-4 p-4 bg-green-50 rounded-lg text-center">
-                <p className="text-green-800 font-medium">🎯 Bem-vindo ao seu programa!</p>
-                <p className="text-green-700 text-sm mt-1">
+              <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg text-center">
+                <p className="text-green-800 dark:text-green-300 font-medium">🎯 Bem-vindo ao seu programa!</p>
+                <p className="text-green-700 dark:text-green-400 text-sm mt-1">
                   Seus dados de progresso serão atualizados conforme você completa treinos e segue sua dieta.
                 </p>
               </div>

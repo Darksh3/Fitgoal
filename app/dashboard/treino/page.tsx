@@ -1,14 +1,19 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { auth, db } from "@/lib/firebaseClient"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw } from "lucide-react"
-import ProtectedRoute from "@/components/protected-route"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import ProtectedRoute from "@/components/protected-route"
+import dynamic from "next/dynamic"
+import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download, AlertCircle, ArrowLeft } from "lucide-react"
+import React from "react"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+
+const html2pdf = dynamic(() => import("html2pdf.js"), { ssr: false })
 
 interface Exercise {
   name: string
@@ -37,74 +42,34 @@ interface UserData {
   quizData?: any
 }
 
-const ExerciseSubstituteButton = ({
+function ExerciseSubstituteButton({
   exercise,
   dayIndex,
   exerciseIndex,
   onSubstitute,
 }: {
-  exercise: Exercise
+  exercise: any
   dayIndex: number
   exerciseIndex: number
-  onSubstitute: (dayIndex: number, exerciseIndex: number, newExercise: Exercise) => void
-}) => {
-  const [user] = useAuthState(auth)
-  const [isSubstituting, setIsSubstituting] = useState(false)
+  onSubstitute: (dayIndex: number, exerciseIndex: number, exercise: any) => void
+}) {
+  const [isSubstituting, setIsSubstituting] = React.useState(false)
 
   const handleSubstitute = async () => {
-    if (!user) return
-
     setIsSubstituting(true)
-    try {
-      console.log("[SUBSTITUTE] Starting exercise substitution...")
-
-      const response = await fetch("/api/substitute-exercise", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: user.uid,
-          dayIndex,
-          exerciseIndex,
-          currentExercise: exercise,
-          userPreferences: {
-            experience: "intermediário", // Could be fetched from quiz data
-            equipment: "academia completa",
-            limitations: null,
-          },
-        }),
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        if (result.success && result.substitution) {
-          console.log("[SUBSTITUTE] Exercise substituted successfully:", result.substitution)
-          onSubstitute(dayIndex, exerciseIndex, result.substitution)
-        } else {
-          console.error("[SUBSTITUTE] API returned unsuccessful result")
-        }
-      } else {
-        console.error("[SUBSTITUTE] API request failed:", response.status)
-      }
-    } catch (error) {
-      console.error("[SUBSTITUTE] Error substituting exercise:", error)
-    } finally {
-      setIsSubstituting(false)
-    }
+    await onSubstitute(dayIndex, exerciseIndex, exercise)
+    setIsSubstituting(false)
   }
 
   return (
-    <Button
-      variant="outline"
-      size="sm"
+    <button
       onClick={handleSubstitute}
       disabled={isSubstituting}
-      className="ml-2 h-6 px-2 text-xs bg-transparent"
+      className="px-3 py-1.5 text-xs font-medium rounded-md border-2 border-lime-400 dark:border-lime-500 bg-transparent text-lime-600 dark:text-lime-400 hover:bg-lime-400/10 dark:hover:bg-lime-500/10 transition-all duration-200 shadow-[0_0_10px_rgba(163,230,53,0.3)] hover:shadow-[0_0_15px_rgba(163,230,53,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
     >
       {isSubstituting ? <RefreshCw className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
       {isSubstituting ? "Substituindo..." : "Substituir"}
-    </Button>
+    </button>
   )
 }
 
@@ -128,12 +93,13 @@ const debugDataFlow = (stage: string, data: any) => {
   }
 }
 
-export default function WorkoutPage() {
+export default function TreinoPage() {
   const [user, loading] = useAuthState(auth)
   const [userData, setUserData] = useState<UserData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [actualTrainingFrequency, setActualTrainingFrequency] = useState<string>("Carregando...")
   const [isRegenerating, setIsRegenerating] = useState(false)
+  const router = useRouter()
 
   const detectAndCleanInconsistentData = async (data: any, currentUserEmail: string) => {
     const hasInconsistentData =
@@ -282,6 +248,140 @@ export default function WorkoutPage() {
     }
   }
 
+  const downloadWorkoutPDF = async () => {
+    if (!userData?.workoutPlan) return
+
+    try {
+      const workoutPlan = userData.workoutPlan
+
+      // Create PDF content as HTML string
+      const pdfContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Plano de Treino Personalizado</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3b82f6; padding-bottom: 20px; }
+            .header h1 { color: #3b82f6; margin: 0; font-size: 28px; }
+            .header p { color: #666; margin: 5px 0; }
+            .workout-day { margin: 20px 0; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; page-break-inside: avoid; }
+            .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
+            .day-title { font-size: 20px; font-weight: bold; color: #1e293b; }
+            .day-focus { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+            .day-duration { color: #666; font-size: 14px; margin-top: 5px; }
+            .exercise { padding: 15px; margin: 10px 0; background: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 4px; }
+            .exercise-name { font-weight: bold; font-size: 16px; color: #1e293b; margin-bottom: 8px; }
+            .exercise-details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 8px 0; }
+            .detail { font-size: 14px; color: #475569; }
+            .detail-label { font-weight: 600; color: #3b82f6; }
+            .exercise-description { font-size: 14px; color: #666; margin-top: 8px; line-height: 1.5; }
+            .tips { margin-top: 30px; page-break-before: always; }
+            .tips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+            .tip { padding: 15px; border-radius: 8px; }
+            .tip-1 { background: #dbeafe; border-left: 4px solid #3b82f6; }
+            .tip-2 { background: #dcfce7; border-left: 4px solid #059669; }
+            .tip-3 { background: #fef3c7; border-left: 4px solid #d97706; }
+            .tip-4 { background: #fee2e2; border-left: 4px solid #dc2626; }
+            .tip-title { font-weight: bold; margin-bottom: 5px; }
+            .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Plano de Treino Personalizado</h1>
+            <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
+            <p>${workoutPlan.weeklySchedule || "Plano semanal personalizado"}</p>
+          </div>
+
+          ${workoutPlan.days
+            .map(
+              (day) => `
+            <div class="workout-day">
+              <div class="day-header">
+                <div class="day-title">${day.day} - ${day.title}</div>
+                <div class="day-focus">${day.focus}</div>
+                <div class="day-duration">Duração: ${day.duration}</div>
+              </div>
+              
+              ${day.exercises
+                .map(
+                  (exercise) => `
+                <div class="exercise">
+                  <div class="exercise-name">${exercise.name}</div>
+                  <div class="exercise-details">
+                    <div class="detail"><span class="detail-label">Séries:</span> ${exercise.sets}</div>
+                    <div class="detail"><span class="detail-label">Repetições:</span> ${exercise.reps}</div>
+                    <div class="detail"><span class="detail-label">Descanso:</span> ${exercise.rest}</div>
+                  </div>
+                  <div class="exercise-description">${exercise.description}</div>
+                </div>
+              `,
+                )
+                .join("")}
+            </div>
+          `,
+            )
+            .join("")}
+
+          ${
+            workoutPlan.tips && Array.isArray(workoutPlan.tips) && workoutPlan.tips.length > 0
+              ? `
+            <div class="tips">
+              <h2 style="color: #1e293b; margin-bottom: 10px;">Dicas Importantes</h2>
+              <div class="tips-grid">
+                ${workoutPlan.tips
+                  .map(
+                    (tip, index) => `
+                  <div class="tip tip-${(index % 4) + 1}">
+                    <div class="tip-title">Dica ${index + 1}</div>
+                    <div>${tip}</div>
+                  </div>
+                `,
+                  )
+                  .join("")}
+              </div>
+            </div>
+          `
+              : ""
+          }
+
+          <div class="footer">
+            <p><strong>FitGoal</strong> - Seu plano de treino personalizado</p>
+            <p>Este plano foi criado especificamente para você com base em seus objetivos e experiência.</p>
+          </div>
+        </body>
+        </html>
+      `
+
+      // Create a temporary div to hold the HTML content
+      const tempDiv = document.createElement("div")
+      tempDiv.innerHTML = pdfContent
+      tempDiv.style.position = "absolute"
+      tempDiv.style.left = "-9999px"
+      document.body.appendChild(tempDiv)
+
+      // Configure PDF options
+      const options = {
+        margin: 10,
+        filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      }
+
+      // Generate and download PDF
+      await html2pdf().set(options).from(tempDiv).save()
+
+      // Clean up
+      document.body.removeChild(tempDiv)
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error)
+      alert("Erro ao gerar PDF. Tente novamente.")
+    }
+  }
+
   useEffect(() => {
     const fetchUserData = async () => {
       if (user) {
@@ -418,9 +518,11 @@ export default function WorkoutPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
             <Dumbbell className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Plano de Treino Não Encontrado</h2>
-            <p className="text-gray-600 mb-6">Parece que você ainda não tem um plano de treino personalizado.</p>
-            <Button onClick={() => (window.location.href = "/quiz")} className="mt-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Plano de Treino Não Encontrado</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Parece que você ainda não tem um plano de treino personalizado.
+            </p>
+            <Button onClick={() => router.push("/quiz")} className="mt-4">
               Fazer Quiz Gratuito
             </Button>
           </div>
@@ -431,29 +533,45 @@ export default function WorkoutPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white dark:bg-gray-900">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Seu Plano de Treino</h1>
-            <p className="text-gray-600">Plano personalizado para atingir seus objetivos</p>
+            <button
+              onClick={() => window.history.back()}
+              className="mb-4 px-4 py-2 text-sm font-medium rounded-md border-2 border-blue-400 dark:border-blue-500 bg-transparent text-blue-600 dark:text-blue-400 hover:bg-blue-400/10 dark:hover:bg-blue-500/10 transition-all duration-200 shadow-[0_0_10px_rgba(59,130,246,0.3)] hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Voltar
+            </button>
+            <div className="flex items-center justify-between mb-2">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Seu Plano de Treino</h1>
+              <button
+                onClick={downloadWorkoutPDF}
+                className="px-4 py-2 text-sm font-medium rounded-md border-2 border-blue-400 dark:border-blue-500 bg-transparent text-blue-600 dark:text-blue-400 hover:bg-blue-400/10 dark:hover:bg-blue-500/10 transition-all duration-200 shadow-[0_0_10px_rgba(59,130,246,0.3)] hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] flex items-center gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Baixar PDF
+              </button>
+            </div>
+            <p className="text-gray-600 dark:text-gray-400">Plano personalizado para atingir seus objetivos</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center">
-                  <Calendar className="h-8 w-8 text-blue-600 mr-3" />
+                  <Calendar className="h-8 w-8 text-blue-600 dark:text-blue-400 mr-3" />
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Programação Semanal</p>
-                    <p className="text-lg font-bold text-gray-900">{actualTrainingFrequency}</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Programação Semanal</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">{actualTrainingFrequency}</p>
                     {process.env.NODE_ENV === "development" && (
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Quiz: {(userData as any)?.quizData?.trainingDaysPerWeek || "N/A"} | Plan:{" "}
                         {workoutPlan?.days?.length || "N/A"} dias
                         <br />
                         User: {(userData as any)?.quizData?.name || "N/A"}
                         {workoutPlan?.days?.length !== (userData as any)?.quizData?.trainingDaysPerWeek && (
-                          <span className="text-orange-500"> (Discrepância detectada)</span>
+                          <span className="text-orange-500 dark:text-orange-400"> (Discrepância detectada)</span>
                         )}
                       </p>
                     )}
@@ -464,10 +582,10 @@ export default function WorkoutPage() {
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center">
-                  <Target className="h-8 w-8 text-green-600 mr-3" />
+                  <Target className="h-8 w-8 text-green-600 dark:text-green-400 mr-3" />
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Duração Média por Treino</p>
-                    <p className="text-lg font-bold text-gray-900">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Duração Média por Treino</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">
                       {workoutPlan.days[0]?.duration || "Não especificado"}
                     </p>
                   </div>
@@ -477,77 +595,106 @@ export default function WorkoutPage() {
           </div>
 
           {workoutPlan?.days?.length !== (userData as any)?.quizData?.trainingDaysPerWeek && (
-            <Card className="mb-6 border-orange-200 bg-orange-50">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
+            <div className="mb-6 rounded-lg border border-orange-200 dark:border-orange-800/50 bg-orange-50/50 dark:bg-orange-900/10 p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <h3 className="font-semibold text-orange-800">Discrepância Detectada</h3>
-                    <p className="text-sm text-orange-700">
+                    <h3 className="font-semibold text-sm text-orange-800 dark:text-orange-300 mb-1">
+                      Discrepância Detectada
+                    </h3>
+                    <p className="text-xs text-orange-700 dark:text-orange-400">
                       Seu plano tem {workoutPlan?.days?.length || 0} dias, mas você selecionou{" "}
                       {(userData as any)?.quizData?.trainingDaysPerWeek || 0} dias no quiz.
                     </p>
                   </div>
-                  <Button
-                    onClick={generatePlans}
-                    disabled={isRegenerating}
-                    variant="outline"
-                    className="border-orange-300 text-orange-700 hover:bg-orange-100 bg-transparent"
-                  >
-                    {isRegenerating ? "Regenerando..." : "Regenerar Plano"}
-                  </Button>
                 </div>
-              </CardContent>
-            </Card>
+                <button
+                  onClick={generatePlans}
+                  disabled={isRegenerating}
+                  className="px-4 py-2 text-sm font-medium rounded-md border-2 border-orange-400 dark:border-orange-500 bg-transparent text-orange-600 dark:text-orange-400 hover:bg-orange-400/10 dark:hover:bg-orange-500/10 transition-all duration-200 shadow-[0_0_8px_rgba(251,146,60,0.3)] hover:shadow-[0_0_12px_rgba(251,146,60,0.5)] disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  {isRegenerating ? "Regenerando..." : "Regenerar Plano"}
+                </button>
+              </div>
+            </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {workoutPlan.days.map((day, dayIndex) => (
-              <Card key={dayIndex}>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Dumbbell className="h-5 w-5 mr-2 text-blue-600" />
-                    {day.title || day.day} - {day.focus}
-                  </CardTitle>
-                  <CardDescription>Duração: {day.duration}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {day.exercises && day.exercises.length > 0 ? (
-                      day.exercises.map((exercise, exerciseIndex) => (
-                        <div key={exerciseIndex} className="border-b pb-3 last:border-b-0 last:pb-0">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h4 className="font-bold text-lg">{exercise.name}</h4>
-                              <div className="flex flex-wrap gap-2 text-sm text-gray-600 mb-1">
-                                <Badge variant="secondary">Séries: {exercise.sets}</Badge>
-                                <Badge variant="secondary">Repetições: {exercise.reps}</Badge>
-                                <Badge variant="secondary">Descanso: {exercise.rest}</Badge>
-                              </div>
-                              <p className="text-gray-700 text-sm">{exercise.description}</p>
+          <div className="space-y-4 mb-8">
+            <Accordion type="multiple">
+              {workoutPlan.days.map((day, dayIndex) => (
+                <AccordionItem
+                  key={dayIndex}
+                  value={`day-${dayIndex}`}
+                  className="bg-white dark:bg-gray-800/50 border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors">
+                    <div className="flex items-center gap-3 text-left w-full">
+                      <div className="p-2.5 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 shadow-md">
+                        <Dumbbell className="h-6 w-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                          {day.title || day.day} - {day.focus}
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                          {day.exercises?.length || 0} exercícios
+                        </p>
+                      </div>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-6 pb-6 pt-2">
+                    <div className="space-y-6">
+                      {day.exercises && day.exercises.length > 0 ? (
+                        day.exercises.map((exercise, exerciseIndex) => (
+                          <div
+                            key={exerciseIndex}
+                            className="bg-gray-50 dark:bg-gray-800/30 rounded-lg p-4 border border-gray-200 dark:border-gray-700/50 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
+                          >
+                            <div className="flex items-start justify-between gap-3 mb-3">
+                              <h4 className="font-bold text-lg text-gray-900 dark:text-white flex-1">
+                                {exercise.name}
+                              </h4>
+                              <ExerciseSubstituteButton
+                                exercise={exercise}
+                                dayIndex={dayIndex}
+                                exerciseIndex={exerciseIndex}
+                                onSubstitute={handleExerciseSubstitution}
+                              />
                             </div>
-                            <ExerciseSubstituteButton
-                              exercise={exercise}
-                              dayIndex={dayIndex}
-                              exerciseIndex={exerciseIndex}
-                              onSubstitute={handleExerciseSubstitution}
-                            />
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                Séries: {exercise.sets}
+                              </span>
+                              <span className="px-3 py-1 text-xs font-medium rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                                Repetições: {exercise.reps}
+                              </span>
+                              <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800">
+                                Descanso: {exercise.rest}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                              {exercise.description}
+                            </p>
                           </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-gray-500 text-sm">Nenhum exercício especificado para este dia.</p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                        ))
+                      ) : (
+                        <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
+                          Nenhum exercício especificado para este dia.
+                        </p>
+                      )}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
 
           {workoutPlan.tips && workoutPlan.tips.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Lightbulb className="h-5 w-5 mr-2 text-yellow-600" />
+                  <Lightbulb className="h-5 w-5 mr-2 text-yellow-600 dark:text-yellow-400" />
                   Dicas de Treino
                 </CardTitle>
               </CardHeader>
@@ -555,8 +702,8 @@ export default function WorkoutPage() {
                 <ul className="space-y-2">
                   {workoutPlan.tips.map((tip, index) => (
                     <li key={index} className="flex items-start">
-                      <span className="text-blue-600 mr-2">•</span>
-                      <span className="text-gray-700">{tip}</span>
+                      <span className="text-blue-600 dark:text-blue-400 mr-2">•</span>
+                      <span className="text-gray-700 dark:text-gray-400">{tip}</span>
                     </li>
                   ))}
                 </ul>

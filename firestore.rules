@@ -1,21 +1,36 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Regras para a coleção 'users'
     match /users/{userId} {
-      // Permite que um usuário leia e escreva APENAS seu próprio documento
-      allow read, write: if request.auth.uid == userId;
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      match /measurements/{measurementId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
 
-    // Regras para a coleção 'leads' (se você estiver usando para leads do quiz, por exemplo)
+    match /progressPhotos/{photoId} {
+      // Permitir leitura de suas próprias fotos (corrigida para suportar queries)
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      
+      // Permitir listar suas próprias fotos via query
+      allow list: if request.auth != null;
+      
+      // Permitir criar suas próprias fotos
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      
+      // Permitir atualizar suas próprias fotos
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId;
+      
+      // Permitir deletar suas próprias fotos
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
     match /leads/{leadId} {
-      // Permite que um usuário leia e escreva APENAS seu próprio documento de lead
-      // Se leads não forem específicos do usuário, você pode precisar de uma regra diferente aqui,
-      // mas para dados de quiz vinculados ao usuário, esta é a mais segura.
-      allow read, write: if request.auth.uid == leadId;
+      allow read, write: if request.auth.uid == leadId || (request.auth.token.admin == true);
     }
 
-    // Regra padrão para negar acesso a todas as outras coleções não explicitamente definidas
+    // Regra padrão para negar acesso a todas as outras coleções
     match /{document=**} {
       allow read, write: if false;
     }

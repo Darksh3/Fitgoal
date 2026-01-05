@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -37,6 +36,18 @@ interface PersonalData {
   allergies: string
 }
 
+interface Measurements {
+  weight: string
+  height: string
+  chest: string
+  waist: string
+  thigh: string
+  leftArm: string
+  rightArm: string
+  leftLeg: string
+  rightLeg: string
+}
+
 export default function DadosPage() {
   const router = useRouter()
   const [quizData, setQuizData] = useState<QuizData | null>(null)
@@ -50,6 +61,17 @@ export default function DadosPage() {
     medicalConditions: "",
     allergies: "",
   })
+  const [measurements, setMeasurements] = useState<Measurements>({
+    weight: "",
+    height: "",
+    chest: "",
+    waist: "",
+    thigh: "",
+    leftArm: "",
+    rightArm: "",
+    leftLeg: "",
+    rightLeg: "",
+  })
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isSyncing, setIsSyncing] = useState(false)
@@ -58,44 +80,41 @@ export default function DadosPage() {
 
   useEffect(() => {
     const loadAndSyncData = async () => {
-      console.log("[v0] Loading user data...")
       setIsLoading(true)
 
       let localQuizData = null
       let localPersonalData = null
+      let localMeasurements = null
 
       const savedQuizData = localStorage.getItem("quizData")
       const savedPersonalData = localStorage.getItem("personalData")
+      const savedMeasurements = localStorage.getItem("measurements")
 
       if (savedQuizData) {
         localQuizData = JSON.parse(savedQuizData)
-        console.log("[v0] Local quiz data found:", localQuizData?.name)
       }
 
       if (savedPersonalData) {
         localPersonalData = JSON.parse(savedPersonalData)
       }
 
+      if (savedMeasurements) {
+        localMeasurements = JSON.parse(savedMeasurements)
+      }
+
       if (auth.currentUser) {
         try {
-          console.log("[v0] Fetching data from Firestore leads collection for user:", auth.currentUser.uid)
           const leadsDoc = await getDoc(doc(db, "leads", auth.currentUser.uid))
 
           if (leadsDoc.exists()) {
             const firestoreData = leadsDoc.data()
-            console.log("[v0] Firestore leads data found:", firestoreData)
 
             const currentUserEmail = auth.currentUser.email
             if (firestoreData?.email && currentUserEmail && firestoreData.email !== currentUserEmail) {
-              console.log("[v0] Detected old user data:", firestoreData.email, "vs current:", currentUserEmail)
               setHasOldData(true)
             }
 
-            console.log("[v0] Firestore quiz data name:", firestoreData?.name)
-            console.log("[v0] Firestore training frequency:", firestoreData?.trainingDaysPerWeek)
-
             if (firestoreData?.name && firestoreData.name !== localQuizData?.name) {
-              console.log("[v0] Syncing name from Firestore:", firestoreData.name)
               const updatedQuizData = { ...localQuizData, ...firestoreData }
               setQuizData(updatedQuizData)
               localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
@@ -113,7 +132,6 @@ export default function DadosPage() {
                   setPersonalData(mergedPersonalData)
                   localStorage.setItem("personalData", JSON.stringify(mergedPersonalData))
                 } else {
-                  // Pre-fill from quiz data if available
                   const preFilledData = {
                     ...localPersonalData,
                     age: userData.quizData?.age || localQuizData?.age || localPersonalData?.age || "",
@@ -122,17 +140,36 @@ export default function DadosPage() {
                   }
                   setPersonalData(preFilledData)
                 }
+
+                if (userData.measurements) {
+                  const mergedMeasurements = { ...localMeasurements, ...userData.measurements }
+                  setMeasurements(mergedMeasurements)
+                  localStorage.setItem("measurements", JSON.stringify(mergedMeasurements))
+                } else {
+                  const preFilledMeasurements = {
+                    ...localMeasurements,
+                    weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
+                    height: localQuizData?.height || localMeasurements?.height || "",
+                  }
+                  setMeasurements(preFilledMeasurements)
+                }
               } else {
                 const preFilledData = {
                   ...localPersonalData,
                   age: localQuizData?.age || localPersonalData?.age || "",
                   height: localQuizData?.height || localPersonalData?.height || "",
-                  email: auth.currentUser.email || localPersonalData?.email || "",
+                  email: auth.currentUser?.email || localPersonalData?.email || "",
                 }
                 setPersonalData(preFilledData)
+
+                const preFilledMeasurements = {
+                  ...localMeasurements,
+                  weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
+                  height: localQuizData?.height || localMeasurements?.height || "",
+                }
+                setMeasurements(preFilledMeasurements)
               }
             } catch (error) {
-              console.log("[v0] No personal data in users collection, using localStorage")
               const preFilledData = {
                 ...localPersonalData,
                 age: localQuizData?.age || localPersonalData?.age || "",
@@ -140,9 +177,15 @@ export default function DadosPage() {
                 email: auth.currentUser.email || localPersonalData?.email || "",
               }
               setPersonalData(preFilledData)
+
+              const preFilledMeasurements = {
+                ...localMeasurements,
+                weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
+                height: localQuizData?.height || localMeasurements?.height || "",
+              }
+              setMeasurements(preFilledMeasurements)
             }
           } else {
-            console.log("[v0] No Firestore leads data found, using localStorage")
             setQuizData(localQuizData)
             const preFilledData = {
               ...localPersonalData,
@@ -151,6 +194,13 @@ export default function DadosPage() {
               email: auth.currentUser?.email || localPersonalData?.email || "",
             }
             setPersonalData(preFilledData)
+
+            const preFilledMeasurements = {
+              ...localMeasurements,
+              weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
+              height: localQuizData?.height || localMeasurements?.height || "",
+            }
+            setMeasurements(preFilledMeasurements)
           }
         } catch (error) {
           console.error("[v0] Error fetching from Firestore:", error)
@@ -159,12 +209,18 @@ export default function DadosPage() {
             ...localPersonalData,
             age: localQuizData?.age || localPersonalData?.age || "",
             height: localQuizData?.height || localPersonalData?.height || "",
-            email: auth.currentUser?.email || localPersonalData?.email || "",
+            email: auth.currentUser.email || localPersonalData?.email || "",
           }
           setPersonalData(preFilledData)
+
+          const preFilledMeasurements = {
+            ...localMeasurements,
+            weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
+            height: localQuizData?.height || localMeasurements?.height || "",
+          }
+          setMeasurements(preFilledMeasurements)
         }
       } else {
-        console.log("[v0] No authenticated user, using localStorage only")
         setQuizData(localQuizData)
         const preFilledData = {
           ...localPersonalData,
@@ -172,6 +228,13 @@ export default function DadosPage() {
           height: localQuizData?.height || localPersonalData?.height || "",
         }
         setPersonalData(preFilledData)
+
+        const preFilledMeasurements = {
+          ...localMeasurements,
+          weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
+          height: localQuizData?.height || localMeasurements?.height || "",
+        }
+        setMeasurements(preFilledMeasurements)
       }
 
       setIsLoading(false)
@@ -184,19 +247,19 @@ export default function DadosPage() {
     setIsSyncing(true)
 
     localStorage.setItem("personalData", JSON.stringify(personalData))
+    localStorage.setItem("measurements", JSON.stringify(measurements))
 
     if (auth.currentUser) {
       try {
-        console.log("[v0] Saving personal data to Firestore")
         await setDoc(
           doc(db, "users", auth.currentUser.uid),
           {
             personalData: personalData,
+            measurements: measurements,
             updatedAt: new Date().toISOString(),
           },
           { merge: true },
         )
-        console.log("[v0] Personal data saved to Firestore successfully")
       } catch (error) {
         console.error("[v0] Error saving to Firestore:", error)
       }
@@ -211,12 +274,10 @@ export default function DadosPage() {
 
     setIsSyncing(true)
     try {
-      console.log("[v0] Manual sync requested")
       const leadsDoc = await getDoc(doc(db, "leads", auth.currentUser.uid))
 
       if (leadsDoc.exists()) {
         const firestoreData = leadsDoc.data()
-        console.log("[v0] Syncing with latest Firestore leads data:", firestoreData?.name)
 
         if (firestoreData?.name) {
           const updatedQuizData = { ...quizData, ...firestoreData }
@@ -230,9 +291,12 @@ export default function DadosPage() {
             setPersonalData(userDoc.data().personalData)
             localStorage.setItem("personalData", JSON.stringify(userDoc.data().personalData))
           }
-        } catch (error) {
-          console.log("[v0] No personal data in users collection")
-        }
+
+          if (userDoc.exists() && userDoc.data().measurements) {
+            setMeasurements(userDoc.data().measurements)
+            localStorage.setItem("measurements", JSON.stringify(userDoc.data().measurements))
+          }
+        } catch (error) {}
       }
     } catch (error) {
       console.error("[v0] Error during manual sync:", error)
@@ -245,8 +309,6 @@ export default function DadosPage() {
 
     setIsCleaningUp(true)
     try {
-      console.log("[v0] Starting cleanup for email:", auth.currentUser.email)
-
       const response = await fetch("/api/cleanup-user", {
         method: "POST",
         headers: {
@@ -260,10 +322,9 @@ export default function DadosPage() {
       const result = await response.json()
 
       if (result.success) {
-        console.log("[v0] Cleanup successful:", result)
-
         localStorage.removeItem("quizData")
         localStorage.removeItem("personalData")
+        localStorage.removeItem("measurements")
 
         setQuizData(null)
         setPersonalData({
@@ -275,6 +336,17 @@ export default function DadosPage() {
           emergencyContact: "",
           medicalConditions: "",
           allergies: "",
+        })
+        setMeasurements({
+          weight: "",
+          height: "",
+          chest: "",
+          waist: "",
+          thigh: "",
+          leftArm: "",
+          rightArm: "",
+          leftLeg: "",
+          rightLeg: "",
         })
         setHasOldData(false)
 
@@ -302,255 +374,442 @@ export default function DadosPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-blue-900 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando seus dados...</p>
+          <p className="text-gray-700 dark:text-gray-300">Carregando seus dados...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        {hasOldData && (
-          <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="h-5 w-5 text-orange-500" />
-              <div className="flex-1">
-                <h3 className="font-medium text-orange-800">Dados de usuário anterior detectados</h3>
-                <p className="text-sm text-orange-700">
-                  Foram encontrados dados de um usuário anterior. Recomendamos fazer uma limpeza completa antes de
-                  continuar.
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCleanup}
-                disabled={isCleaningUp}
-                className="border-orange-300 text-orange-700 hover:bg-orange-100 bg-transparent"
-              >
-                <Trash2 className={`h-4 w-4 mr-2 ${isCleaningUp ? "animate-spin" : ""}`} />
-                {isCleaningUp ? "Limpando..." : "Limpar Dados"}
-              </Button>
+    <div className="min-h-screen bg-gray-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-blue-900 dark:to-gray-900 p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.back()}
+              className="px-5 py-2 text-sm font-semibold rounded-full transition-all border-2 bg-white/5 backdrop-blur-md hover:bg-white/10 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-white/10"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2 inline" />
+              Voltar
+            </button>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Meus Dados</h1>
+              <p className="text-gray-600 dark:text-gray-400">Gerencie suas informações pessoais</p>
             </div>
           </div>
-        )}
-
-        <div className="flex items-center mb-6">
-          <Button variant="ghost" onClick={() => router.back()} className="mr-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-800">Meus Dados</h1>
-            <p className="text-gray-600">Gerencie suas informações pessoais</p>
-          </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleSync} disabled={isSyncing}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${isSyncing ? "animate-spin" : ""}`} />
+            {hasOldData && (
+              <button
+                onClick={handleCleanup}
+                disabled={isCleaningUp}
+                className="px-5 py-2 text-sm font-semibold rounded-full transition-all border-2 bg-red-600/80 hover:bg-red-700 text-white border-red-500/50 disabled:opacity-50"
+              >
+                <Trash2 className={`h-4 w-4 mr-2 inline ${isCleaningUp ? "animate-spin" : ""}`} />
+                {isCleaningUp ? "Limpando..." : "Limpar Dados"}
+              </button>
+            )}
+            <button
+              onClick={handleSync}
+              disabled={isSyncing}
+              className="px-5 py-2 text-sm font-semibold rounded-full transition-all border-2 bg-blue-600/80 hover:bg-blue-700 text-white border-blue-500/50 disabled:opacity-50"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 inline ${isSyncing ? "animate-spin" : ""}`} />
               Sincronizar
-            </Button>
-            <Button variant="outline" onClick={() => setIsEditing(!isEditing)}>
-              <Edit className="h-4 w-4 mr-2" />
+            </button>
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="px-5 py-2 text-sm font-semibold rounded-full transition-all border-2 bg-white/5 backdrop-blur-md hover:bg-white/10 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-white/10"
+            >
+              <Edit className="h-4 w-4 mr-2 inline" />
               {isEditing ? "Cancelar" : "Editar"}
-            </Button>
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Target className="h-5 w-5 text-blue-500" />
-                  <span>Dados do Quiz</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm text-gray-600">Nome</Label>
-                    <p className="font-medium">{quizData?.name || "Não informado"}</p>
-                    {process.env.NODE_ENV === "development" && (
-                      <p className="text-xs text-gray-400">Debug: {quizData?.name}</p>
-                    )}
-                  </div>
-                  <div>
-                    <Label className="text-sm text-gray-600">Gênero</Label>
-                    <p className="font-medium capitalize">{quizData?.gender || "Não informado"}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm text-gray-600">Peso Atual</Label>
-                    <p className="font-medium">{quizData?.currentWeight} kg</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm text-gray-600">Peso Meta</Label>
-                    <p className="font-medium">{quizData?.targetWeight} kg</p>
-                  </div>
-                </div>
-
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="bg-white dark:bg-white/5 backdrop-blur-md border-gray-200 dark:border-white/10">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                <Target className="h-5 w-5 text-blue-400" />
+                Dados do Quiz
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm text-gray-600">Tipo Corporal</Label>
-                  <Badge variant="outline" className="capitalize">
+                  <Label className="text-gray-600 dark:text-gray-400 text-sm">Nome</Label>
+                  <p className="font-semibold text-gray-900 dark:text-white text-lg">
+                    {quizData?.name || "Não informado"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-gray-600 dark:text-gray-400 text-sm">Gênero</Label>
+                  <p className="font-semibold text-gray-900 dark:text-white text-lg capitalize">
+                    {quizData?.gender || "Não informado"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-gray-600 dark:text-gray-400 text-sm">Peso Atual</Label>
+                  <p className="font-semibold text-gray-900 dark:text-white text-lg">
+                    {quizData?.currentWeight ? `${quizData.currentWeight} kg` : "Não informado"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-gray-600 dark:text-gray-400 text-sm">Peso Meta</Label>
+                  <p className="font-semibold text-gray-900 dark:text-white text-lg">
+                    {quizData?.targetWeight ? `${quizData.targetWeight} kg` : "Não informado"}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-gray-600 dark:text-gray-400 text-sm">Tipo Corporal</Label>
+                <div className="mt-1">
+                  <Badge className="bg-blue-500/20 text-blue-600 dark:text-blue-300 border-blue-500/30 capitalize">
                     {quizData?.bodyType || "Não informado"}
                   </Badge>
                 </div>
+              </div>
 
+              <div>
+                <Label className="text-gray-600 dark:text-gray-400 text-sm">Objetivos</Label>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  {(() => {
+                    if (!quizData?.goal) return "Não definido"
+                    if (Array.isArray(quizData.goal) && quizData.goal.length > 0) {
+                      return getGoalText(quizData.goal)
+                    }
+                    if (typeof quizData.goal === "string" && quizData.goal.length > 0) {
+                      return quizData.goal
+                    }
+                    return "Não definido"
+                  })()}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm text-gray-600">Objetivos</Label>
-                  <p className="font-medium">{getGoalText(quizData?.goal || [])}</p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm text-gray-600">Experiência</Label>
-                    <Badge variant="outline" className="capitalize">
+                  <Label className="text-gray-600 dark:text-gray-400 text-sm">Experiência</Label>
+                  <div className="mt-1">
+                    <Badge className="bg-blue-500/20 text-blue-600 dark:text-blue-300 border-blue-500/30 capitalize">
                       {quizData?.experience || "Não informado"}
                     </Badge>
                   </div>
-                  <div>
-                    <Label className="text-sm text-gray-600">Tempo de Treino</Label>
-                    <p className="font-medium">{quizData?.workoutTime || "Não definido"}</p>
-                  </div>
                 </div>
-
                 <div>
-                  <Label className="text-sm text-gray-600">Dias de Treino por Semana</Label>
-                  <p className="font-medium">{quizData?.trainingDaysPerWeek || "Não definido"}</p>
+                  <Label className="text-gray-600 dark:text-gray-400 text-sm">Tempo de Treino</Label>
+                  <p className="font-semibold text-gray-900 dark:text-white text-lg">
+                    {quizData?.workoutTime || "Não definido"}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+
+              <div>
+                <Label className="text-gray-600 dark:text-gray-400 text-sm">Dias de Treino por Semana</Label>
+                <p className="font-semibold text-gray-900 dark:text-white text-lg">
+                  {quizData?.trainingDaysPerWeek || "Não definido"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
 
           <div className="space-y-6">
-            <Card>
+            <Card className="bg-white dark:bg-white/5 backdrop-blur-md border-gray-200 dark:border-white/10">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <User className="h-5 w-5 text-green-500" />
-                  <span>Dados Pessoais</span>
+                <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                  <User className="h-5 w-5 text-green-400" />
+                  Dados Pessoais
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="age">Idade</Label>
+                    <Label htmlFor="age" className="text-gray-600 dark:text-gray-400 text-sm">
+                      Idade
+                    </Label>
                     <Input
                       id="age"
                       value={personalData.age}
                       onChange={(e) => setPersonalData((prev) => ({ ...prev, age: e.target.value }))}
-                      placeholder="Ex: 25"
+                      placeholder="25"
                       disabled={!isEditing}
+                      className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="height">Altura (cm)</Label>
+                    <Label htmlFor="height" className="text-gray-600 dark:text-gray-400 text-sm">
+                      Altura (cm)
+                    </Label>
                     <Input
                       id="height"
                       value={personalData.height}
                       onChange={(e) => setPersonalData((prev) => ({ ...prev, height: e.target.value }))}
-                      placeholder="Ex: 175"
+                      placeholder="178"
                       disabled={!isEditing}
+                      className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="phone">Telefone</Label>
+                  <Label htmlFor="phone" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Telefone
+                  </Label>
                   <Input
                     id="phone"
                     value={personalData.phone}
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, phone: e.target.value }))}
                     placeholder="(11) 99999-9999"
                     disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="email">E-mail</Label>
+                  <Label htmlFor="email" className="text-gray-600 dark:text-gray-400 text-sm">
+                    E-mail
+                  </Label>
                   <Input
                     id="email"
                     type="email"
                     value={personalData.email}
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, email: e.target.value }))}
-                    placeholder="seu@email.com"
+                    placeholder="cleber.neves013@gmail.com"
                     disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="address">Endereço</Label>
+                  <Label htmlFor="address" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Endereço
+                  </Label>
                   <Input
                     id="address"
                     value={personalData.address}
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, address: e.target.value }))}
                     placeholder="Rua, número, bairro, cidade"
                     disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="emergencyContact">Contato de Emergência</Label>
+                  <Label htmlFor="emergencyContact" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Contato de Emergência
+                  </Label>
                   <Input
                     id="emergencyContact"
                     value={personalData.emergencyContact}
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, emergencyContact: e.target.value }))}
                     placeholder="Nome e telefone"
                     disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
-
-                {isEditing && (
-                  <Button onClick={handleSave} className="w-full" disabled={isSyncing}>
-                    <Save className="h-4 w-4 mr-2" />
-                    {isSyncing ? "Salvando..." : "Salvar Dados"}
-                  </Button>
-                )}
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-white dark:bg-white/5 backdrop-blur-md border-gray-200 dark:border-white/10">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Calendar className="h-5 w-5 text-red-500" />
-                  <span>Informações Médicas</span>
+                <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                  <Calendar className="h-5 w-5 text-red-400" />
+                  Informações Médicas
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="medicalConditions">Condições Médicas</Label>
+                  <Label htmlFor="medicalConditions" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Condições Médicas
+                  </Label>
                   <Input
                     id="medicalConditions"
                     value={personalData.medicalConditions}
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, medicalConditions: e.target.value }))}
                     placeholder="Diabetes, hipertensão, etc."
                     disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="allergies">Alergias</Label>
+                  <Label htmlFor="allergies" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Alergias
+                  </Label>
                   <Input
                     id="allergies"
                     value={personalData.allergies}
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, allergies: e.target.value }))}
                     placeholder="Alimentos, medicamentos, etc."
                     disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
                 </div>
 
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-800">
-                    ⚠️ <strong>Importante:</strong> Sempre consulte um médico antes de iniciar qualquer programa de
-                    exercícios ou dieta.
+                <div className="p-4 bg-amber-100/90 border border-amber-300 rounded-xl">
+                  <p className="text-sm text-amber-900 flex items-start gap-2">
+                    <AlertTriangle className="h-5 w-5 text-amber-700 flex-shrink-0 mt-0.5" />
+                    <span>
+                      <strong>Importante:</strong> Sempre consulte um médico antes de iniciar qualquer programa de
+                      exercícios ou dieta.
+                    </span>
                   </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white dark:bg-white/5 backdrop-blur-md border-gray-200 dark:border-white/10">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                  <Calendar className="h-5 w-5 text-red-400" />
+                  Medidas Corporais
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="weight" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Peso (kg)
+                  </Label>
+                  <Input
+                    id="weight"
+                    value={measurements.weight}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, weight: e.target.value }))}
+                    placeholder="80"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="bodyHeight" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Altura (cm)
+                  </Label>
+                  <Input
+                    id="bodyHeight"
+                    value={measurements.height}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, height: e.target.value }))}
+                    placeholder="178"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="chest" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Peitoral (cm)
+                  </Label>
+                  <Input
+                    id="chest"
+                    value={measurements.chest}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, chest: e.target.value }))}
+                    placeholder="105"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="waist" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Cintura (cm)
+                  </Label>
+                  <Input
+                    id="waist"
+                    value={measurements.waist}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, waist: e.target.value }))}
+                    placeholder="85"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="thigh" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Quadril (cm)
+                  </Label>
+                  <Input
+                    id="thigh"
+                    value={measurements.thigh}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, thigh: e.target.value }))}
+                    placeholder="60"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="leftArm" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Braço Esquerdo (cm)
+                  </Label>
+                  <Input
+                    id="leftArm"
+                    value={measurements.leftArm}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, leftArm: e.target.value }))}
+                    placeholder="38"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="rightArm" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Braço Direito (cm)
+                  </Label>
+                  <Input
+                    id="rightArm"
+                    value={measurements.rightArm}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, rightArm: e.target.value }))}
+                    placeholder="38"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="leftLeg" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Coxa Esquerda (cm)
+                  </Label>
+                  <Input
+                    id="leftLeg"
+                    value={measurements.leftLeg}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, leftLeg: e.target.value }))}
+                    placeholder="60"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="rightLeg" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Coxa Direita (cm)
+                  </Label>
+                  <Input
+                    id="rightLeg"
+                    value={measurements.rightLeg}
+                    onChange={(e) => setMeasurements((prev) => ({ ...prev, rightLeg: e.target.value }))}
+                    placeholder="60"
+                    disabled={!isEditing}
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
                 </div>
               </CardContent>
             </Card>
           </div>
         </div>
+
+        <button
+          onClick={handleSave}
+          disabled={isSyncing}
+          className="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(37,99,235,0.5)] hover:shadow-[0_0_30px_rgba(37,99,235,0.7)] transition-all duration-300 flex items-center gap-3 font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed z-50"
+        >
+          <Save className="h-6 w-6" />
+          {isSyncing ? "Salvando..." : "Salvar Dados"}
+        </button>
       </div>
     </div>
   )

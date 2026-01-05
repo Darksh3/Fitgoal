@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -36,7 +35,13 @@ interface BodyMeasurements {
   leftThigh: string
   rightThigh: string
   neck: string
+  calf: string
   date: string
+}
+
+interface ProgressData {
+  currentWeight: string
+  targetWeight: string
 }
 
 export default function ProgressoPage() {
@@ -54,10 +59,15 @@ export default function ProgressoPage() {
     leftThigh: "",
     rightThigh: "",
     neck: "",
+    calf: "",
     date: new Date().toISOString().split("T")[0],
   })
   const [measurementHistory, setMeasurementHistory] = useState<BodyMeasurements[]>([])
   const [isSaving, setIsSaving] = useState(false)
+  const [progress, setProgress] = useState<ProgressData>({
+    currentWeight: "",
+    targetWeight: "",
+  })
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -79,6 +89,12 @@ export default function ProgressoPage() {
               weight: userData.quizData.currentWeight || prev.weight,
               height: userData.quizData.height || prev.height,
             }))
+
+            // Set progress data
+            setProgress({
+              currentWeight: userData.quizData.currentWeight || "",
+              targetWeight: userData.quizData.targetWeight || "",
+            })
           }
         } else {
           // Fallback to localStorage
@@ -86,13 +102,17 @@ export default function ProgressoPage() {
           if (savedQuizData) {
             const parsedData = JSON.parse(savedQuizData)
             setQuizData(parsedData)
-
-            // Pre-fill weight and height from localStorage quiz data
             setMeasurements((prev) => ({
               ...prev,
               weight: parsedData.currentWeight || prev.weight,
               height: parsedData.height || prev.height,
             }))
+
+            // Set progress data
+            setProgress({
+              currentWeight: parsedData.currentWeight || "",
+              targetWeight: parsedData.targetWeight || "",
+            })
           }
         }
       } catch (error) {
@@ -107,6 +127,12 @@ export default function ProgressoPage() {
             weight: parsedData.currentWeight || prev.weight,
             height: parsedData.height || prev.height,
           }))
+
+          // Set progress data
+          setProgress({
+            currentWeight: parsedData.currentWeight || "",
+            targetWeight: parsedData.targetWeight || "",
+          })
         }
       }
     }
@@ -147,23 +173,36 @@ export default function ProgressoPage() {
   }
 
   const saveMeasurements = async () => {
-    if (!user) return
+    if (!user) {
+      console.log("[v0] No user logged in")
+      alert("Você precisa estar logado para salvar medidas.")
+      return
+    }
+
+    console.log("[v0] Starting save measurements for user:", user.uid)
+    console.log("[v0] Measurements to save:", measurements)
 
     setIsSaving(true)
     try {
       const measurementsRef = collection(db, "users", user.uid, "measurements")
+      console.log("[v0] Collection reference created:", `users/${user.uid}/measurements`)
+
       await addDoc(measurementsRef, {
         ...measurements,
         timestamp: new Date(),
       })
 
+      console.log("[v0] Measurements saved successfully!")
+
       // Reload history
       await loadMeasurementHistory()
 
       alert("Medidas salvas com sucesso!")
-    } catch (error) {
-      console.error("Error saving measurements:", error)
-      alert("Erro ao salvar medidas. Tente novamente.")
+    } catch (error: any) {
+      console.error("[v0] Error saving measurements:", error)
+      console.error("[v0] Error code:", error.code)
+      console.error("[v0] Error message:", error.message)
+      alert(`Erro ao salvar medidas: ${error.message}`)
     } finally {
       setIsSaving(false)
     }
@@ -230,19 +269,28 @@ export default function ProgressoPage() {
 
   const analysis = getBodyAnalysis()
 
+  const biotypeImage: Record<string, string> = {
+    ectomorfo: "/biotypes/ectomorfo1.png",
+    mesomorfo: "/biotypes/mesomorfo1.png",
+    endomorfo: "/biotypes/endomorfo1.png",
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center mb-6">
-          <Button variant="ghost" onClick={() => router.back()} className="mr-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+        <div className="mb-6">
+          <button
+            onClick={() => router.back()}
+            className="px-5 py-1.5 text-sm font-semibold rounded-full transition-all border-2 bg-gray-900/80 hover:bg-gray-800 text-gray-100 border-gray-600/50 flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
             Voltar
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Análise Corporal Completa</h1>
-            <p className="text-gray-600">Entenda seu biotipo e acompanhe suas medidas</p>
-          </div>
+          </button>
+        </div>
+
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Análise Corporal Completa</h1>
+          <p className="text-gray-600 dark:text-gray-400">Entenda seu biotipo e acompanhe suas medidas</p>
         </div>
 
         {/* Body Measurements Section */}
@@ -264,6 +312,7 @@ export default function ProgressoPage() {
                   value={measurements.weight}
                   onChange={(e) => handleMeasurementChange("weight", e.target.value)}
                   placeholder="Ex: 70.5"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -275,6 +324,7 @@ export default function ProgressoPage() {
                   value={measurements.height}
                   onChange={(e) => handleMeasurementChange("height", e.target.value)}
                   placeholder="Ex: 175"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -287,6 +337,7 @@ export default function ProgressoPage() {
                   value={measurements.chest}
                   onChange={(e) => handleMeasurementChange("chest", e.target.value)}
                   placeholder="Ex: 95.5"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -299,6 +350,7 @@ export default function ProgressoPage() {
                   value={measurements.waist}
                   onChange={(e) => handleMeasurementChange("waist", e.target.value)}
                   placeholder="Ex: 80.0"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -311,6 +363,7 @@ export default function ProgressoPage() {
                   value={measurements.hips}
                   onChange={(e) => handleMeasurementChange("hips", e.target.value)}
                   placeholder="Ex: 95.0"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -323,6 +376,7 @@ export default function ProgressoPage() {
                   value={measurements.leftArm}
                   onChange={(e) => handleMeasurementChange("leftArm", e.target.value)}
                   placeholder="Ex: 35.5"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -335,6 +389,7 @@ export default function ProgressoPage() {
                   value={measurements.rightArm}
                   onChange={(e) => handleMeasurementChange("rightArm", e.target.value)}
                   placeholder="Ex: 35.5"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -347,6 +402,7 @@ export default function ProgressoPage() {
                   value={measurements.leftThigh}
                   onChange={(e) => handleMeasurementChange("leftThigh", e.target.value)}
                   placeholder="Ex: 55.0"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -359,6 +415,7 @@ export default function ProgressoPage() {
                   value={measurements.rightThigh}
                   onChange={(e) => handleMeasurementChange("rightThigh", e.target.value)}
                   placeholder="Ex: 55.0"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -367,10 +424,23 @@ export default function ProgressoPage() {
                 <Input
                   id="neck"
                   type="number"
-                  step="0.1"
                   value={measurements.neck}
                   onChange={(e) => handleMeasurementChange("neck", e.target.value)}
                   placeholder="Ex: 38.0"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="calf">Panturrilha (cm)</Label>
+                <Input
+                  id="calf"
+                  type="number"
+                  step="0.1"
+                  value={measurements.calf}
+                  onChange={(e) => handleMeasurementChange("calf", e.target.value)}
+                  placeholder="Ex: 38.0"
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
 
@@ -381,14 +451,21 @@ export default function ProgressoPage() {
                   type="date"
                   value={measurements.date}
                   onChange={(e) => handleMeasurementChange("date", e.target.value)}
+                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
                 />
               </div>
             </div>
 
-            <Button onClick={saveMeasurements} disabled={isSaving} className="w-full">
-              <Save className="h-4 w-4 mr-2" />
-              {isSaving ? "Salvando..." : "Salvar Medidas"}
-            </Button>
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={saveMeasurements}
+                disabled={isSaving}
+                className="px-8 py-2.5 text-base font-semibold rounded-full transition-all border-2 bg-blue-600 hover:bg-blue-700 text-white border-blue-500 shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <Save className="h-4 w-4" />
+                {isSaving ? "Salvando..." : "Salvar Medidas"}
+              </button>
+            </div>
           </CardContent>
         </Card>
 
@@ -412,6 +489,8 @@ export default function ProgressoPage() {
                       <th className="text-left p-2">Peitoral</th>
                       <th className="text-left p-2">Braço E</th>
                       <th className="text-left p-2">Coxa E</th>
+                      <th className="text-left p-2">Pescoço</th>
+                      <th className="text-left p-2">Panturrilha</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -423,6 +502,8 @@ export default function ProgressoPage() {
                         <td className="p-2">{measurement.chest || "-"} cm</td>
                         <td className="p-2">{measurement.leftArm || "-"} cm</td>
                         <td className="p-2">{measurement.leftThigh || "-"} cm</td>
+                        <td className="p-2">{measurement.neck || "-"} cm</td>
+                        <td className="p-2">{measurement.calf || "-"} cm</td>
                       </tr>
                     ))}
                   </tbody>
@@ -434,83 +515,114 @@ export default function ProgressoPage() {
 
         {analysis && (
           <div className="space-y-8">
-            {/* Body Type Analysis */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <User className="h-5 w-5 text-blue-500" />
-                  <span>Seu Biotipo: {analysis.bodyType.name}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-gray-700">{analysis.bodyType.description}</p>
+            <Card className="bg-white dark:bg-gray-900/40 backdrop-blur-xl border border-gray-200 dark:border-gray-700/40 rounded-2xl">
+              <CardContent className="p-8 space-y-8">
+                {/* Biotipo Section */}
+                <div className="flex items-center gap-8">
+                  <img
+                    src={biotypeImage[quizData?.bodyType?.toLowerCase() || "ectomorfo"]}
+                    alt={`Biotipo ${analysis.bodyType.name}`}
+                    className="w-32 h-32 md:w-40 md:h-40 object-contain drop-shadow-2xl flex-shrink-0"
+                  />
 
+                  <div className="flex-1 space-y-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <User className="h-5 w-5 text-blue-500" />
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                          Seu <span className="text-blue-600 dark:text-blue-400">Biotipo:</span>{" "}
+                          <span className="text-blue-600 dark:text-blue-400">{analysis.bodyType.name}</span>
+                        </h2>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-400">{analysis.bodyType.description}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <hr className="border-gray-300 dark:border-gray-700/50" />
+
+                {/* Características Principais */}
                 <div>
-                  <h4 className="font-medium mb-2">Características Principais:</h4>
-                  <div className="grid grid-cols-2 gap-2">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Características Principais</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {analysis.bodyType.characteristics.map((char, index) => (
-                      <Badge key={index} variant="outline" className="justify-start">
+                      <div
+                        key={index}
+                        className="px-4 py-3 bg-gray-100 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-300 dark:border-gray-700 rounded-full text-gray-700 dark:text-gray-200 text-sm flex items-center gap-3"
+                      >
+                        <div className="w-2 h-2 bg-blue-500 rounded-full" />
                         {char}
-                      </Badge>
+                      </div>
                     ))}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
 
-            {/* Metrics */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Activity className="h-5 w-5 text-green-500" />
-                  <span>Métricas Corporais</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Taxa Metabólica</span>
-                      <span className="text-sm text-gray-600">{analysis.metrics.metabolismRate}%</span>
-                    </div>
-                    <Progress value={analysis.metrics.metabolismRate} className="h-2" />
+                {/* Divider */}
+                <hr className="border-gray-300 dark:border-gray-700/50" />
+
+                {/* Métricas Corporais */}
+                <div>
+                  <div className="flex items-center gap-2 mb-6">
+                    <Activity className="h-5 w-5 text-green-500" />
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Métricas Corporais</h3>
                   </div>
-
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Potencial de Ganho Muscular</span>
-                      <span className="text-sm text-gray-600">{analysis.metrics.muscleGainPotential}%</span>
+                  <div className="space-y-6">
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-base font-medium text-gray-900 dark:text-white">Taxa Metabólica</span>
+                        <span className="text-base text-gray-600 dark:text-gray-400">
+                          {analysis.metrics.metabolismRate}%
+                        </span>
+                      </div>
+                      <Progress value={analysis.metrics.metabolismRate} className="h-3" />
                     </div>
-                    <Progress value={analysis.metrics.muscleGainPotential} className="h-2" />
-                  </div>
 
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Potencial de Perda de Gordura</span>
-                      <span className="text-sm text-gray-600">{analysis.metrics.fatLossPotential}%</span>
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-base font-medium text-gray-900 dark:text-white">
+                          Potencial de Ganho Muscular
+                        </span>
+                        <span className="text-base text-gray-600 dark:text-gray-400">
+                          {analysis.metrics.muscleGainPotential}%
+                        </span>
+                      </div>
+                      <Progress value={analysis.metrics.muscleGainPotential} className="h-3" />
                     </div>
-                    <Progress value={analysis.metrics.fatLossPotential} className="h-2" />
-                  </div>
 
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Taxa de Recuperação</span>
-                      <span className="text-sm text-gray-600">{analysis.metrics.recoveryRate}%</span>
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-base font-medium text-gray-900 dark:text-white">
+                          Potencial de Perda de Gordura
+                        </span>
+                        <span className="text-base text-gray-600 dark:text-gray-400">
+                          {analysis.metrics.fatLossPotential}%
+                        </span>
+                      </div>
+                      <Progress value={analysis.metrics.fatLossPotential} className="h-3" />
                     </div>
-                    <Progress value={analysis.metrics.recoveryRate} className="h-2" />
+
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-base font-medium text-gray-900 dark:text-white">Taxa de Recuperação</span>
+                        <span className="text-base text-gray-600 dark:text-gray-400">
+                          {analysis.metrics.recoveryRate}%
+                        </span>
+                      </div>
+                      <Progress value={analysis.metrics.recoveryRate} className="h-3" />
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Recommendations */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">🍽️ Dieta Recomendada</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-700">{analysis.recommendations.diet}</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-400">{analysis.recommendations.diet}</p>
                 </CardContent>
               </Card>
 
@@ -519,7 +631,7 @@ export default function ProgressoPage() {
                   <CardTitle className="text-lg">💪 Treino Ideal</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-700">{analysis.recommendations.training}</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-400">{analysis.recommendations.training}</p>
                 </CardContent>
               </Card>
 
@@ -540,32 +652,24 @@ export default function ProgressoPage() {
             </div>
 
             {/* Action Plan */}
-            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 border-blue-200 dark:border-gray-600">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
+                <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
                   <Target className="h-5 w-5 text-blue-600" />
                   <span>Plano de Ação Personalizado</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 bg-white rounded-lg">
-                      <h4 className="font-medium text-blue-800 mb-2">Primeiras 4 Semanas</h4>
-                      <ul className="text-sm text-blue-700 space-y-1">
-                        <li>• Estabelecer rotina de treinos</li>
-                        <li>• Ajustar dieta ao biotipo</li>
-                        <li>• Monitorar progresso</li>
-                      </ul>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Peso Atual</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{progress.currentWeight} kg</p>
                     </div>
 
-                    <div className="p-4 bg-white rounded-lg">
-                      <h4 className="font-medium text-blue-800 mb-2">Próximos 2 Meses</h4>
-                      <ul className="text-sm text-blue-700 space-y-1">
-                        <li>• Intensificar treinos</li>
-                        <li>• Ajustar macronutrientes</li>
-                        <li>• Incluir suplementação</li>
-                      </ul>
+                    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Meta</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{progress.targetWeight} kg</p>
                     </div>
                   </div>
                 </div>
