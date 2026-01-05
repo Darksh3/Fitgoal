@@ -393,9 +393,9 @@ export default function QuizPage() {
 
   const getMainTitle = () => {
     if (animatedPercentage < 30) return "Estamos\nanalisando\nseus dados"
-    if (animatedPercentage < 60) return "Estamos\ncrando sua\ndieta"
-    if (animatedPercentage < 80) return "Estamos\ncrando seu\ntreino"
-    if (animatedPercentage < 95) return "Estamos\ncrando um plano\npersonalizado"
+    if (animatedPercentage < 60) return "Estamos\ncriando sua\ndieta"
+    if (animatedPercentage < 80) return "Estamos\ncriando seu\ntreino"
+    if (animatedPercentage < 95) return "Estamos\ncriando um plano\npersonalizado"
     return "Plano de\nmudança\ncompleto!"
   }
   // </CHANGE>

@@ -486,8 +486,8 @@ export default function ResultsPage() {
                     <p className="text-white/90 text-sm">
                       Plano de dieta claro, personalizado apenas para você, barato e fácil de seguir
                     </p>
-                    <p className="text-white/80 text-xs mt-1">
-                      Valor individual: <span className="line-through">R$ 129</span>
+                    <p className="text-yellow-300 text-lg font-bold mt-2">
+                      <span className="line-through">R$ 129</span>
                     </p>
                   </div>
                 </div>
@@ -496,8 +496,8 @@ export default function ResultsPage() {
                   <div className="flex-1">
                     <h4 className="font-bold text-white">Programa de treino personalizado</h4>
                     <p className="text-white/90 text-sm">Plano de treino claro e fácil de seguir</p>
-                    <p className="text-white/80 text-xs mt-1">
-                      Valor individual: <span className="line-through">R$ 149</span>
+                    <p className="text-yellow-300 text-lg font-bold mt-2">
+                      <span className="line-through">R$ 149</span>
                     </p>
                   </div>
                 </div>
@@ -506,8 +506,8 @@ export default function ResultsPage() {
                   <div className="flex-1">
                     <h4 className="font-bold text-white">Resultados visíveis após o primeiro mês</h4>
                     <p className="text-white/90 text-sm">Veja mudanças reais em seu corpo</p>
-                    <p className="text-white/80 text-xs mt-1">
-                      Valor: <span className="line-through">R$ 97</span>
+                    <p className="text-yellow-300 text-lg font-bold mt-2">
+                      <span className="line-through">R$ 97</span>
                     </p>
                   </div>
                 </div>
@@ -516,8 +516,8 @@ export default function ResultsPage() {
                   <div className="flex-1">
                     <h4 className="font-bold text-white">Acompanhamento de progresso</h4>
                     <p className="text-white/90 text-sm">Monitore sua evolução e ajuste conforme necessário</p>
-                    <p className="text-white/80 text-xs mt-1">
-                      Valor: <span className="line-through">R$ 79</span>
+                    <p className="text-yellow-300 text-lg font-bold mt-2">
+                      <span className="line-through">R$ 79</span>
                     </p>
                   </div>
                 </div>
