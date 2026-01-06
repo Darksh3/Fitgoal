@@ -9,18 +9,16 @@ import { Clock, MapPin, TrendingUp, Calendar, CheckCircle, Heart, Flame, Moon, T
 import React from "react"
 import { AnimatedCounter } from "@/components/animated-counter"
 import { AnimatedProgressBar } from "@/components/animated-progress-bar"
-import { RouletteWheel } from "@/components/roulette-wheel"
 
 export default function ResultsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
+  const [showWheel, setShowWheel] = useState(false)
   const [showPricing, setShowPricing] = useState(false)
   const [discount, setDiscount] = useState<number | null>(null)
   const [currentIMC, setCurrentIMC] = useState<number | null>(null)
   const [isBmiAnimationDone, setIsBmiAnimationDone] = React.useState(false)
-  const [showWheel, setShowWheel] = useState(false)
-  const [wheelDiscount, setWheelDiscount] = useState<number | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,6 +73,16 @@ export default function ResultsPage() {
   useEffect(() => {
     console.log("[v0] Data state updated:", data)
   }, [data])
+
+  useEffect(() => {
+    if (discount && showWheel) {
+      const timer = setTimeout(() => {
+        setShowWheel(false)
+        setShowPricing(true)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [discount, showWheel])
 
   const getDataValue = (key: string) => {
     if (data?.[key] !== undefined) return data[key]
@@ -284,11 +292,6 @@ export default function ResultsPage() {
     ]
 
     return iconMap.filter((item) => goals.includes(item.key))
-  }
-
-  const handleWheelSpinComplete = (discount: number) => {
-    setWheelDiscount(discount)
-    // Optionally apply discount or show result
   }
 
   if (loading) {
@@ -539,33 +542,73 @@ export default function ResultsPage() {
 
           <p className="text-center text-xs text-gray-500 pb-8">Baseado nos dados dos usuários do Fitgoal</p>
 
-          {/* Offer Section */}
+          {/* Roleta Section */}
           <section className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center space-y-6">
             <h2 className="text-3xl font-bold">Ganhe um Presente Especial!</h2>
             <p className="text-gray-400 text-lg">
-              Parabéns por chegar até aqui! Gire a roleta para descobrir sua oferta exclusiva.
+              Parabéns por chegar até aqui! Gire a roleta para ganhar um desconto exclusivo no seu plano personalizado.
             </p>
+            <div className="flex justify-center px-4">
+              <button
+                onClick={() => setShowWheel(true)}
+                className="bg-white hover:bg-gray-100 text-black px-8 py-4 rounded-full text-lg font-bold shadow-lg transition-all hover:scale-105 active:scale-95"
+              >
+                GIRAR ROLETA
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
 
-            {!showWheel ? (
+      {/* Roleta Modal */}
+      {showWheel && (
+        <div className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 w-full max-w-sm text-center space-y-8 relative overflow-hidden">
+            <h3 className="text-2xl font-bold mb-4">Gire e ganhe desconto</h3>
+
+            <div className={`w-64 h-64 mx-auto mb-6 relative flex items-center justify-center`}>
+              <img src="/images/roleta.webp" alt="Roleta de desconto" className="w-full h-full object-contain" />
+
+              {[10, 15, 20, 30, 40, 50].map((value, i) => (
+                <div
+                  key={i}
+                  className="absolute flex items-center justify-center font-black text-sm w-8 h-8 rounded-full left-1/2 -ml-4 origin-[0_124px]"
+                  style={{
+                    transform: `rotate(${i * 60}deg) translateY(-112px)`,
+                    backgroundColor: i % 2 === 0 ? "#ffffff" : "#ef4444",
+                    color: i % 2 === 0 ? "#ef4444" : "#ffffff",
+                  }}
+                >
+                  {value}%
+                </div>
+              ))}
+            </div>
+
+            {!discount ? (
               <div className="flex justify-center px-4">
                 <button
-                  onClick={() => setShowWheel(true)}
-                  className="bg-white hover:bg-gray-100 text-black px-8 py-4 rounded-full text-lg font-bold shadow-lg transition-all hover:scale-105 active:scale-95"
+                  onClick={() => {
+                    const prizes = [10, 15, 20, 30, 40, 50]
+                    setDiscount(prizes[Math.floor(Math.random() * prizes.length)])
+                  }}
+                  className="w-full max-w-md bg-red-600 hover:bg-red-700 h-16 rounded-2xl text-xl font-black shadow-lg shadow-red-600/20 text-white transition-colors"
                 >
-                  DESCUBRA SUA OFERTA
+                  GIRAR E GANHAR!
                 </button>
               </div>
             ) : (
-              <div className="py-6">
-                <RouletteWheel onSpinComplete={handleWheelSpinComplete} />
-                {wheelDiscount && (
-                  <div className="mt-6 text-xl font-bold text-yellow-400">
-                    🎉 Você ganhou {wheelDiscount}% de desconto!
-                  </div>
-                )}
+              <div className="space-y-4 animate-in fade-in zoom-in duration-500">
+                <div className="text-4xl font-black text-lime-400">🎉 {discount}% OFF!</div>
+                <p className="text-zinc-400 font-medium">Seu desconto especial foi aplicado.</p>
+                <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-orange-500 animate-[progress_3s_linear]" />
+                </div>
+                <p className="text-[10px] text-zinc-500 uppercase tracking-widest">
+                  Preparando seu plano com desconto...
+                </p>
               </div>
             )}
-          </section>
+          </div>
         </div>
       )}
     </div>
