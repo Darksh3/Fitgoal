@@ -65,7 +65,7 @@ export function RouletteWheel({ onSpinComplete }: { onSpinComplete?: (discount: 
             width={288}
             height={288}
             priority
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
           />
         </div>
 
