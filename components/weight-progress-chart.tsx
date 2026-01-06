@@ -13,14 +13,16 @@ export function WeightProgressChart({
   endWeight,
   startLabel = "Agora",
   endLabel = "6 meses",
-  unit = "lbs",
+  unit = "kg",
 }: WeightProgressChartProps) {
-  const maxWeight = Math.max(startWeight, endWeight) + 10
-  const minWeight = Math.min(startWeight, endWeight) - 10
+  const maxWeight = Math.max(startWeight, endWeight) + 5
+  const minWeight = Math.min(startWeight, endWeight) - 5
   const range = maxWeight - minWeight
 
-  const startY = ((maxWeight - startWeight) / range) * 100
-  const endY = ((maxWeight - endWeight) / range) * 100
+  const startY = ((maxWeight - startWeight) / range) * 150
+  const endY = ((maxWeight - endWeight) / range) * 150
+
+  const controlY = startY + (endY - startY) * 0.7
 
   return (
     <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
@@ -48,20 +50,20 @@ export function WeightProgressChart({
             </linearGradient>
           </defs>
 
-          {/* Progress line */}
           <path
-            d={`M 50 ${50 + startY * 1.5} Q 215 ${50 + ((startY + endY) / 2) * 1.5} 380 ${50 + endY * 1.5}`}
+            d={`M 50 ${50 + startY} C 150 ${50 + controlY} 280 ${50 + controlY} 380 ${50 + endY}`}
             stroke="url(#lineGradient)"
             strokeWidth="3"
             fill="none"
             strokeLinecap="round"
+            strokeLinejoin="round"
           />
 
           {/* Start point */}
-          <circle cx="50" cy={50 + startY * 1.5} r="6" fill="#FF6B35" />
+          <circle cx="50" cy={50 + startY} r="6" fill="#FF6B35" />
 
           {/* End point */}
-          <circle cx="380" cy={50 + endY * 1.5} r="6" fill="#00D084" />
+          <circle cx="380" cy={50 + endY} r="6" fill="#00D084" />
 
           {/* Start weight label */}
           <text x="50" y="30" textAnchor="middle" fill="white" fontSize="20" fontWeight="bold">

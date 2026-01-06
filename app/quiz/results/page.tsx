@@ -374,9 +374,9 @@ export default function ResultsPage() {
           </div>
 
           <WeightProgressChart
-            startWeight={Number(data.weight)}
-            endWeight={Math.round(Number(data.weight) * 0.9)}
-            unit="lbs"
+            startWeight={Math.round((Number(data.weight) / 2.205) * 10) / 10}
+            endWeight={Math.round(((Number(data.weight) * 0.9) / 2.205) * 10) / 10}
+            unit="kg"
           />
 
           <div className="space-y-6">
