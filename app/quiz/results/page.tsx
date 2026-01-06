@@ -9,6 +9,7 @@ import { Clock, MapPin, TrendingUp, Calendar, CheckCircle, Heart, Flame, Moon, T
 import React from "react"
 import { AnimatedCounter } from "@/components/animated-counter"
 import { AnimatedProgressBar } from "@/components/animated-progress-bar"
+import { WeightProgressChart } from "@/components/weight-progress-chart"
 
 export default function ResultsPage() {
   const router = useRouter()
@@ -371,6 +372,12 @@ export default function ResultsPage() {
               *A imagem não se destina a representar o usuário. Os resultados variam por pessoa e não são garantidos.
             </p>
           </div>
+
+          <WeightProgressChart
+            startWeight={Number(data.weight)}
+            endWeight={Math.round(Number(data.weight) * 0.9)}
+            unit="lbs"
+          />
 
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-center">Resumo pessoal baseado em suas respostas</h2>
