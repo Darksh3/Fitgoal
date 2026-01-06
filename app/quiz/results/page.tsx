@@ -375,7 +375,13 @@ export default function ResultsPage() {
 
           <WeightProgressChart
             startWeight={Math.round((Number(data.weight) / 2.205) * 10) / 10}
-            endWeight={Math.round(((Number(data.weight) * 0.9) / 2.205) * 10) / 10}
+            endWeight={
+              data.goal?.includes("perder-peso")
+                ? Math.round(((Number(data.weight) * 0.85) / 2.205) * 10) / 10
+                : data.goal?.includes("ganhar-massa")
+                  ? Math.round(((Number(data.weight) * 1.15) / 2.205) * 10) / 10
+                  : Math.round(((Number(data.weight) * 0.9) / 2.205) * 10) / 10
+            }
             unit="kg"
           />
 
