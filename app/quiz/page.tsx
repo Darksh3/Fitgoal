@@ -1092,7 +1092,7 @@ export default function QuizPage() {
             </defs>
             <rect x="40" y="140" width="120" height="8" rx="4" fill="#8B4513" />
             <circle cx="100" cy="60" r="12" fill="url(#bodyGradient4)" />
-            <rect x="85" y="70" width="30" height={35} rx="15" fill="url(#bodyGradient4)" />
+            <rect x="85" y="70" width="30" height="35" rx="15" fill="url(#bodyGradient4)" />
             <ellipse cx="85" cy="85" rx="6" ry="15" fill="url(#bodyGradient4)" transform="rotate(-20 85 85)" />
             <ellipse cx="115" cy="85" rx="6" ry="15" fill="url(#bodyGradient4)" transform="rotate(20 115 85)" />
             <ellipse cx="85" cy="120" rx="12" ry="8" fill="url(#bodyGradient4)" transform="rotate(30 85 120)" />
@@ -1746,18 +1746,28 @@ export default function QuizPage() {
           </div>
 
           {/* Title */}
-          <div className="space-y-4">
+          <motion.div
+            className="space-y-4"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.7 }}
+          >
             <h2 className="text-4xl sm:text-5xl font-bold text-white leading-tight">
               SEU MAIOR GARGALO
               <br />
               NÃO É O TREINO
             </h2>
             <p className="text-gray-300 text-lg">Nutrição influencia 81% do seu resultado</p>
-          </div>
+          </motion.div>
 
           {/* Insight Cards */}
           <div className="space-y-4 mt-8">
-            <div className="flex items-start space-x-4 border border-gray-700/50 rounded-2xl p-6 bg-gray-800/30 backdrop-blur-sm hover:border-cyan-500/30 transition-all">
+            <motion.div
+              className="flex items-start space-x-4 border border-gray-700/50 rounded-2xl p-6 bg-gray-800/30 backdrop-blur-sm hover:border-cyan-500/30 transition-all"
+              initial={{ opacity: 0, x: -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+            >
               <div className="flex-shrink-0">
                 <div className="flex items-center justify-center h-8 w-8 rounded-full border-2 border-green-500">
                   <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
@@ -1774,9 +1784,14 @@ export default function QuizPage() {
                   Seu corpo não recebe calorias suficientes para crescer
                 </p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="flex items-start space-x-4 border border-gray-700/50 rounded-2xl p-6 bg-gray-800/30 backdrop-blur-sm hover:border-cyan-500/30 transition-all">
+            <motion.div
+              className="flex items-start space-x-4 border border-gray-700/50 rounded-2xl p-6 bg-gray-800/30 backdrop-blur-sm hover:border-cyan-500/30 transition-all"
+              initial={{ opacity: 0, x: -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.45, duration: 0.6 }}
+            >
               <div className="flex-shrink-0">
                 <div className="flex items-center justify-center h-8 w-8 rounded-full border-2 border-green-500">
                   <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
@@ -1793,22 +1808,32 @@ export default function QuizPage() {
                   A ingestão de proteína hoje limita sua recuperação muscular
                 </p>
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* CTA Button */}
-          <button
+          <motion.button
             onClick={() => {
               setShowNutritionInfo(false)
               setCurrentStep(currentStep + 1)
             }}
             className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
           >
             Continuar
-          </button>
+          </motion.button>
 
           {/* Footer text */}
-          <p className="text-gray-500 text-sm">Leva menos de 1 minuto</p>
+          <motion.p
+            className="text-gray-400 text-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.75, duration: 0.6 }}
+          >
+            Leva menos de 1 minuto
+          </motion.p>
         </div>
       </div>
     )
