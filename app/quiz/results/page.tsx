@@ -124,8 +124,9 @@ export default function ResultsPage() {
   const getCurrentBodyFatImage = () => {
     const bodyFat = Number(data.bodyFat) || 25
     const gender = getDataValue("gender") || data.gender || "male"
+    const isMale = gender === "male" || gender === "homem"
 
-    if (gender === "male") {
+    if (isMale) {
       if (bodyFat <= 10) return "/images/mone.webp"
       if (bodyFat <= 15) return "/images/mtwo.webp"
       if (bodyFat <= 20) return "/images/mthree.webp"
@@ -149,8 +150,9 @@ export default function ResultsPage() {
   const getImprovedBodyFatImage = () => {
     const bodyFat = Number(data.bodyFat) || 25
     const gender = getDataValue("gender") || data.gender || "male"
+    const isMale = gender === "male" || gender === "homem"
 
-    if (gender === "male") {
+    if (isMale) {
       if (bodyFat <= 10) return "/images/mone.webp" // Already at best
       if (bodyFat <= 15) return "/images/mone.webp"
       if (bodyFat <= 20) return "/images/mtwo.webp"
@@ -374,8 +376,8 @@ export default function ResultsPage() {
           </div>
 
           <WeightProgressChart
-            currentWeight={Number(data.quizData?.weight) || 0}
-            targetWeight={Number(data.quizData?.targetWeight) || 0}
+            currentWeight={Number(data.quizData?.weight) ? Number(data.quizData.weight) / 2.205 : 0}
+            targetWeight={Number(data.quizData?.targetWeight) ? Number(data.quizData.targetWeight) / 2.205 : 0}
             unit="kg"
           />
 

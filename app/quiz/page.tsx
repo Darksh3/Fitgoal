@@ -4020,7 +4020,7 @@ export default function QuizPage() {
                   updateQuizData("wantsSupplement", "sim")
                   updateQuizData("recommendedSupplement", supplementRecommendation.name)
                   updateQuizData("supplementType", supplementType)
-                  setTimeout(() => nextStep(), 300)
+                  setTimeout(() => setCurrentStep(28), 300)
                 }}
                 className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
                   quizData.wantsSupplement === "sim"
