@@ -595,14 +595,11 @@ export default function ResultsPage() {
               <div className="grid grid-cols-3 gap-8 mb-12">
                 {/* Testimonial 1 - Brandon */}
                 <div className="bg-gray-900 rounded-2xl overflow-hidden">
-                  <div className="aspect-square bg-gray-800 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-b from-gray-700 to-gray-900 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="w-32 h-32 bg-gray-700 rounded-full mx-auto mb-4"></div>
-                        <p className="text-gray-400 text-sm">Antes / Depois</p>
-                      </div>
-                    </div>
-                  </div>
+                  <img
+                    src="/images/5123122014301391780.jpg"
+                    alt="Brandon - Transformação antes e depois"
+                    className="w-full aspect-square object-cover"
+                  />
                   <div className="p-6 space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-bold text-white">Brandon</h3>
@@ -618,14 +615,11 @@ export default function ResultsPage() {
 
                 {/* Testimonial 2 - Peter */}
                 <div className="bg-gray-900 rounded-2xl overflow-hidden">
-                  <div className="aspect-square bg-gray-800 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-b from-gray-700 to-gray-900 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="w-32 h-32 bg-gray-700 rounded-full mx-auto mb-4"></div>
-                        <p className="text-gray-400 text-sm">Antes / Depois</p>
-                      </div>
-                    </div>
-                  </div>
+                  <img
+                    src="/images/5123122014301391779.jpg"
+                    alt="Peter - Transformação antes e depois"
+                    className="w-full aspect-square object-cover"
+                  />
                   <div className="p-6 space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-bold text-white">Peter</h3>
@@ -641,14 +635,11 @@ export default function ResultsPage() {
 
                 {/* Testimonial 3 - Kevin */}
                 <div className="bg-gray-900 rounded-2xl overflow-hidden">
-                  <div className="aspect-square bg-gray-800 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-b from-gray-700 to-gray-900 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="w-32 h-32 bg-gray-700 rounded-full mx-auto mb-4"></div>
-                        <p className="text-gray-400 text-sm">Antes / Depois</p>
-                      </div>
-                    </div>
-                  </div>
+                  <img
+                    src="/images/5123122014301391781.jpg"
+                    alt="Kevin - Transformação antes e depois"
+                    className="w-full aspect-square object-cover"
+                  />
                   <div className="p-6 space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-bold text-white">Kevin</h3>
