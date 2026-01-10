@@ -348,28 +348,11 @@ export default function ResultsPage() {
               {/* IMC */}
               <div>
                 <p className="text-gray-400 text-sm mb-2">IMC</p>
-                {(() => {
-                  const weight = getDataValue("weight") ? Number(getDataValue("weight")) / 2.205 : null
-                  const height = getDataValue("height") ? Number(getDataValue("height")) : null
-
-                  if (!weight || !height) {
-                    return <p className="text-white text-xl font-semibold">—</p>
-                  }
-
-                  const imc = (weight / (height / 100) ** 2).toFixed(1)
-                  const imcNum = Number(imc)
-
-                  let imcColor = "text-white"
-                  if (imcNum < 18.5) {
-                    imcColor = "text-blue-400"
-                  } else if (imcNum >= 18.5 && imcNum <= 24.9) {
-                    imcColor = "text-green-400"
-                  } else {
-                    imcColor = "text-red-400"
-                  }
-
-                  return <p className={`${imcColor} text-xl font-semibold`}>{imc}</p>
-                })()}
+                <p className="text-white text-xl font-semibold">
+                  {getDataValue("weight") && getDataValue("height")
+                    ? (Number(getDataValue("weight")) / 2.205 / (Number(getDataValue("height")) / 100) ** 2).toFixed(1)
+                    : "—"}
+                </p>
               </div>
 
               {/* Meta de Calorias */}
@@ -389,123 +372,123 @@ export default function ResultsPage() {
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="max-w-5xl mx-auto mt-16">
-            <h2 className="text-4xl font-bold text-center mb-8">Escolha Seu Plano</h2>
+        <div className="max-w-5xl mx-auto mt-16">
+          <h2 className="text-4xl font-bold text-center mb-8">Escolha Seu Plano</h2>
 
-            {/* Promo code banner */}
-            <div className="bg-orange-400 rounded-xl p-1 mb-8">
-              <div className="bg-black rounded-lg p-6 space-y-4">
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
+          {/* Promo code banner */}
+          <div className="bg-orange-400 rounded-xl p-1 mb-8">
+            <div className="bg-black rounded-lg p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
+                </svg>
+                <span className="text-white font-semibold">Seu código promo foi aplicado!</span>
+              </div>
+
+              <div className="flex gap-4 items-center">
+                <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
+                  <p className="text-white font-mono text-lg">cleber_jan26</p>
+                </div>
+                <div className="text-orange-400 font-bold text-right">
+                  <p className="text-2xl">02:08</p>
+                  <p className="text-xs text-orange-300">minutos segundos</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Plan cards */}
+          <div className="grid grid-cols-3 gap-6 mb-8">
+            {/* Monthly Plan */}
+            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 cursor-pointer hover:border-gray-700 transition">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-white">Plano Mensal</h3>
+                <div className="w-6 h-6 rounded-full border-2 border-gray-600" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-gray-400 text-sm">Acesso completo por 30 dias</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-white text-2xl font-bold">R$ 79,90</span>
+                </div>
+                <p className="text-gray-400 text-xs">por mês</p>
+              </div>
+            </div>
+
+            {/* Quarterly Plan - Featured */}
+            <div className="bg-gray-900 border-2 border-orange-400 rounded-xl p-6 relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-black px-4 py-1">
+                <p className="text-xs font-bold text-orange-400 tracking-widest">MAIS POPULAR</p>
+              </div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-white">Plano Trimestral</h3>
+                <div className="w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  <span className="text-white font-semibold">Seu código promo foi aplicado!</span>
                 </div>
-
-                <div className="flex gap-4 items-center">
-                  <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
-                    <p className="text-white font-mono text-lg">cleber_jan26</p>
-                  </div>
-                  <div className="text-orange-400 font-bold text-right">
-                    <p className="text-2xl">02:08</p>
-                    <p className="text-xs text-orange-300">minutos segundos</p>
-                  </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-gray-400 text-sm">Acesso completo por 90 dias</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-white text-2xl font-bold">R$ 159,90</span>
                 </div>
+                <p className="text-gray-400 text-xs">por trimestre</p>
               </div>
             </div>
 
-            {/* Plan cards */}
-            <div className="grid grid-cols-3 gap-6 mb-8">
-              {/* Monthly Plan */}
-              <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 cursor-pointer hover:border-gray-700 transition">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-white">Plano Mensal</h3>
-                  <div className="w-6 h-6 rounded-full border-2 border-gray-600" />
-                </div>
-                <div className="space-y-2">
-                  <p className="text-gray-400 text-sm">Acesso completo por 30 dias</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-white text-2xl font-bold">R$ 79,90</span>
-                  </div>
-                  <p className="text-gray-400 text-xs">por mês</p>
-                </div>
+            {/* Semi-annual Plan */}
+            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 cursor-pointer hover:border-gray-700 transition">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-white">Plano Semestral</h3>
+                <div className="w-6 h-6 rounded-full border-2 border-gray-600" />
               </div>
-
-              {/* Quarterly Plan - Featured */}
-              <div className="bg-gray-900 border-2 border-orange-400 rounded-xl p-6 relative">
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-black px-4 py-1">
-                  <p className="text-xs font-bold text-orange-400 tracking-widest">MAIS POPULAR</p>
+              <div className="space-y-2">
+                <p className="text-gray-400 text-sm">Acesso completo por 180 dias</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-white text-2xl font-bold">R$ 239,90</span>
                 </div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-white">Plano Trimestral</h3>
-                  <div className="w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-gray-400 text-sm">Acesso completo por 90 dias</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-white text-2xl font-bold">R$ 159,90</span>
-                  </div>
-                  <p className="text-gray-400 text-xs">por trimestre</p>
-                </div>
-              </div>
-
-              {/* Semi-annual Plan */}
-              <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 cursor-pointer hover:border-gray-700 transition">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-white">Plano Semestral</h3>
-                  <div className="w-6 h-6 rounded-full border-2 border-gray-600" />
-                </div>
-                <div className="space-y-2">
-                  <p className="text-gray-400 text-sm">Acesso completo por 180 dias</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-white text-2xl font-bold">R$ 239,90</span>
-                  </div>
-                  <p className="text-gray-400 text-xs">por semestre</p>
-                </div>
+                <p className="text-gray-400 text-xs">por semestre</p>
               </div>
             </div>
+          </div>
 
-            {/* Disclaimer */}
-            <p className="text-center text-xs text-gray-500 mb-8">
-              Sem cancelamento antes do final do período de desconto para planos, concordo que a BetterMe será
-              automaticamente cobrada R$ 38.95 (IVA incluído) a cada 4 semanas até que eu cancele. Cancelar online via
-              perfil no <span className="underline">site</span> ou app.
-            </p>
+          {/* Disclaimer */}
+          <p className="text-center text-xs text-gray-500 mb-8">
+            Sem cancelamento antes do final do período de desconto para planos, concordo que a BetterMe será
+            automaticamente cobrada R$ 38.95 (IVA incluído) a cada 4 semanas até que eu cancele. Cancelar online via
+            perfil no <span className="underline">site</span> ou app.
+          </p>
 
-            {/* CTA Button */}
-            <div className="flex justify-center">
-              <button className="px-12 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition">
-                OBTER MEU PLANO
-              </button>
-            </div>
+          {/* CTA Button */}
+          <div className="flex justify-center">
+            <button className="px-12 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition">
+              OBTER MEU PLANO
+            </button>
+          </div>
 
-            {/* Highlights of your plan section */}
-            <div className="mt-20 py-16 border-t border-gray-800">
-              <h2 className="text-4xl font-bold text-center text-white mb-12">Destaques do seu plano</h2>
+          {/* Highlights of your plan section */}
+          <div className="mt-20 py-16 border-t border-gray-800">
+            <h2 className="text-4xl font-bold text-center text-white mb-12">Destaques do seu plano</h2>
 
-              <div className="grid grid-cols-2 gap-12">
-                {/* Left column - Highlights list */}
-                <div className="space-y-8">
-                  {/* Highlight 1 */}
-                  <div className="flex gap-4">
-                    <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
-                      <path
-                        fillRule="evenodd"
-                        d="M4 5a2 2 0 012-2 1 1 0 000 2H6a6 6 0 116 0h.5a1 1 0 000-2 2 2 0 01-2-2 9 9 0 11-9 9 5 5 0 018-9H9a1 1 0 000 2h2a1 1 0 100-2H4z"
-                        clipRule="evenodd"
-                      ></path>
-                    </svg>
-                  </div>
+            <div className="grid grid-cols-2 gap-12">
+              {/* Left column - Highlights list */}
+              <div className="space-y-8">
+                {/* Highlight 1 */}
+                <div className="flex gap-4">
+                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                    <path
+                      fillRule="evenodd"
+                      d="M4 5a2 2 0 012-2 1 1 0 000 2H6a6 6 0 116 0h.5a1 1 0 000-2 2 2 0 01-2-2 9 9 0 11-9 9 5 5 0 018-9H9a1 1 0 000 2h2a1 1 0 100-2H4z"
+                      clipRule="evenodd"
+                    ></path>
+                  </svg>
                   <div>
                     <p className="text-white font-bold">Programa de treino progressivo</p>
                     <p className="text-gray-400 text-sm">Adequado ao seu nível de forma física e objetivo</p>
