@@ -1715,7 +1715,7 @@ export default function QuizPage() {
                 setShowSuccess(false)
                 router.push("/quiz/results")
               }}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] animate-in fade-in duration-500 delay-500"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] animate-in fade-in duration-700 delay-500"
             >
               Ver Resultados
             </button>
@@ -2000,28 +2000,29 @@ export default function QuizPage() {
         return quizData.equipment.length > 0
       case 22: // Updated from 21. Food Preferences
         return quizData.workoutTime !== ""
-      case 23: // Updated from 22. Allergies check trainingDays instead of foodPreferences
-        return quizData.trainingDays !== "" && quizData.trainingDays !== undefined
+      case 23: // Updated from 22. Allergies
+        // Allow proceeding if "Let Mad Muscles Choose" is true or if at least one food preference is selected
+        return quizData.letMadMusclesChoose || Object.values(quizData.foodPreferences).some((arr) => arr.length > 0)
       case 24: // Updated from 23. Allergy Details (only if allergies is 'sim')
-        return (quizData.allergies === "sim" && quizData.allergyDetails !== "") || quizData.allergies === "nao"
+        return quizData.allergies !== ""
       case 25: // Updated from 24. Supplement Interest
-        return quizData.wantsSupplement !== ""
+        return (quizData.allergies === "sim" && quizData.allergyDetails !== "") || quizData.allergies === "nao"
       case 26: // Updated from 25. Supplement Recommendation
+        return quizData.wantsSupplement !== ""
+      case 27: // Updated from 26. Name
         // This case is now for Supplement Interest, and we can always proceed to next step if we want to show recommendation.
         // The actual *choice* of supplement type was removed from the flow.
         return true // Always allow proceeding after seeing recommendation
       // </CHANGE>
-      case 27: // Updated from 26. Name
-        return quizData.name.trim() !== ""
       case 28: // Updated from 27. Email
+        return quizData.name.trim() !== ""
+      case 29: // Updated from 28. Training days per week
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         return quizData.email !== "" && emailRegex.test(quizData.email)
-      case 29: // Updated from 28. Training days per week
+      case 30: // Final submit
         // Training days per week is now handled by step 23.
         // This step is now the final submit.
-        return true
-      case 30: // Final submit
         return true
 
       // </CHANGE>
@@ -3617,7 +3618,60 @@ export default function QuizPage() {
           </div>
         )
 
-      case 23: // Updated from 22. Food Preferences
+      case 23:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
+              <p className="text-gray-300">Selecione de 1 a 7 dias</p>
+            </div>
+
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 space-y-8">
+                {/* Value display */}
+                <div className="flex justify-center">
+                  <div className="bg-white/10 rounded-full px-8 py-3">
+                    <span className="text-xl md:text-2xl font-bold text-white">
+                      {quizData.trainingDays || "5"} {(quizData.trainingDays || "5") === "1" ? "dia" : "dias"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Slider */}
+                <div className="space-y-4">
+                  <input
+                    type="range"
+                    min="1"
+                    max="7"
+                    value={quizData.trainingDays || "5"}
+                    onChange={(e) => updateQuizData("trainingDays", e.target.value)}
+                    className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 100%)`,
+                    }}
+                  />
+
+                  {/* Labels */}
+                  <div className="flex justify-between text-gray-400 text-sm">
+                    <span>1 dia</span>
+                    <span>7 dias</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={nextStep}
+                  disabled={!canProceed()}
+                  className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Continuar
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+
+      case 24: // Updated from 22
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3803,41 +3857,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 24: // Updated from 23. Allergy Details
-        if (quizData.allergies !== "sim") {
-          return null
-        }
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Quais são suas alergias ou restrições alimentares?</h2>
-              <p className="text-gray-300">Descreva suas alergias, intolerâncias ou restrições alimentares</p>
-            </div>
-            <div className="space-y-6">
-              <Textarea
-                placeholder="Ex: Alergia a amendoim, intolerância à lactose, não como carne vermelha..."
-                value={quizData.allergyDetails}
-                onChange={(e) => updateQuizData("allergyDetails", e.target.value)}
-                className="
-                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
-                
-                [--muted-foreground:theme(colors.gray.500)]
-                "
-              />
-            </div>
-            <div className="flex justify-center mt-8">
-              <button
-                onClick={nextStep}
-                disabled={!canProceed()}
-                className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Continuar
-              </button>
-            </div>
-          </div>
-        )
-
-      case 25: // Updated from 24. Supplement Interest
+      case 25: // Updated from 23
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -3876,7 +3896,41 @@ export default function QuizPage() {
           </div>
         )
 
-      case 26: // Updated from 25. Supplement Interest
+      case 26: // Updated from 24
+        if (quizData.allergies !== "sim") {
+          return null
+        }
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold text-white">Quais são suas alergias ou restrições alimentares?</h2>
+              <p className="text-gray-300">Descreva suas alergias, intolerâncias ou restrições alimentares</p>
+            </div>
+            <div className="space-y-6">
+              <Textarea
+                placeholder="Ex: Alergia a amendoim, intolerância à lactose, não como carne vermelha..."
+                value={quizData.allergyDetails}
+                onChange={(e) => updateQuizData("allergyDetails", e.target.value)}
+                className="
+                w-full p-3 sm:p-4 text-lg sm:text-xl text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-bold focus:border-lime-500 focus:outline-none placeholder:text-gray-500
+                
+                [--muted-foreground:theme(colors.gray.500)]
+                "
+              />
+            </div>
+            <div className="flex justify-center mt-8">
+              <button
+                onClick={nextStep}
+                disabled={!canProceed()}
+                className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Continuar
+              </button>
+            </div>
+          </div>
+        )
+
+      case 27: // Updated from 25. Now Supplement Interest
         const shouldRecommendHipercalorico = () => {
           // Factor 1: Low IMC (underweight)
           if (quizData.imc && quizData.imc < 18.5) {
@@ -4015,7 +4069,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 27: // Updated from 26. Now Name
+      case 28: // Updated from 26. Now Name
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -4046,7 +4100,7 @@ export default function QuizPage() {
           </div>
         )
 
-      case 28: // Updated from 27. Email
+      case 29: // Updated from 27. Email
         return (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -4074,61 +4128,6 @@ export default function QuizPage() {
               >
                 Destravar meus resultados
               </button>
-            </div>
-          </div>
-        )
-
-      case 29: // Updated from 28. Training days per week
-        // Training days per week is now handled by step 23.
-        // This step is now the final submit.
-        return (
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Quantos dias você irá treinar por semana?</h2>
-              <p className="text-gray-300">Selecione de 1 a 7 dias</p>
-            </div>
-
-            <div className="max-w-2xl mx-auto">
-              <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 space-y-8">
-                {/* Value display */}
-                <div className="flex justify-center">
-                  <div className="bg-white/10 rounded-full px-8 py-3">
-                    <span className="text-xl md:text-2xl font-bold text-white">
-                      {quizData.trainingDays || "5"} {(quizData.trainingDays || "5") === "1" ? "dia" : "dias"}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Slider */}
-                <div className="space-y-4">
-                  <input
-                    type="range"
-                    min="1"
-                    max="7"
-                    value={quizData.trainingDays || "5"}
-                    onChange={(e) => updateQuizData("trainingDays", e.target.value)}
-                    className="w-full h-2 rounded-full appearance-none cursor-pointer"
-                    style={{
-                      background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 100%)`,
-                    }}
-                  />
-
-                  {/* Labels */}
-                  <div className="flex justify-between text-gray-400 text-sm">
-                    <span>1 dia</span>
-                    <span>7 dias</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-center mt-8">
-                <button
-                  onClick={nextStep}
-                  disabled={!canProceed()}
-                  className="w-full h-16 text-xl font-bold text-black bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Continuar
-                </button>
-              </div>
             </div>
           </div>
         )

@@ -1,47 +1,45 @@
+"use client"
+
 export interface WeightProgressChartProps {
-  currentWeight: number
-  targetWeight: number
+  startWeight: number
+  endWeight: number
   startLabel?: string
   endLabel?: string
   unit?: string
 }
 
 export function WeightProgressChart({
-  currentWeight,
-  targetWeight,
+  startWeight,
+  endWeight,
   startLabel = "Agora",
   endLabel = "6 meses",
   unit = "kg",
 }: WeightProgressChartProps) {
-  // Convert to numbers and round
-  const startWeight = Math.round(currentWeight * 10) / 10
-  const endWeight = Math.round(targetWeight * 10) / 10
-
   const maxWeight = Math.max(startWeight, endWeight) + 5
   const minWeight = Math.min(startWeight, endWeight) - 5
   const range = maxWeight - minWeight
 
-  const startY = ((maxWeight - startWeight) / range) * 180
-  const endY = ((maxWeight - endWeight) / range) * 180
+  const startY = ((maxWeight - startWeight) / range) * 150
+  const endY = ((maxWeight - endWeight) / range) * 150
 
-  const controlY = startY + (endY - startY) * 0.6
+  const controlY = startY + (endY - startY) * 0.7
 
   return (
     <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
-      <h3 className="text-2xl font-bold text-white mb-8">Summary</h3>
+      <h3 className="text-2xl font-bold text-white mb-6">Summary</h3>
 
       {/* SVG Chart */}
-      <div className="w-full h-80">
-        <svg width="100%" height="100%" viewBox="0 0 500 300" preserveAspectRatio="xMidYMid meet">
+      <div className="w-full aspect-video flex items-center justify-center">
+        <svg width="100%" height="100%" viewBox="0 0 400 250" preserveAspectRatio="xMidYMid meet">
           {/* Grid lines */}
-          <line x1="60" y1="40" x2="60" y2="240" stroke="#374151" strokeWidth="1.5" />
-          <line x1="60" y1="240" x2="460" y2="240" stroke="#374151" strokeWidth="1.5" />
+          <line x1="50" y1="50" x2="50" y2="200" stroke="#374151" strokeWidth="1" />
+          <line x1="50" y1="200" x2="380" y2="200" stroke="#374151" strokeWidth="1" />
 
           {/* Horizontal grid lines */}
-          <line x1="60" y1="80" x2="460" y2="80" stroke="#1F2937" strokeWidth="1" strokeDasharray="4,2" />
-          <line x1="60" y1="120" x2="460" y2="120" stroke="#1F2937" strokeWidth="1" strokeDasharray="4,2" />
-          <line x1="60" y1="160" x2="460" y2="160" stroke="#1F2937" strokeWidth="1" strokeDasharray="4,2" />
-          <line x1="60" y1="200" x2="460" y2="200" stroke="#1F2937" strokeWidth="1" strokeDasharray="4,2" />
+          <line x1="50" y1="80" x2="380" y2="80" stroke="#1F2937" strokeWidth="0.5" strokeDasharray="3" />
+          <line x1="50" y1="110" x2="380" y2="110" stroke="#1F2937" strokeWidth="0.5" strokeDasharray="3" />
+          <line x1="50" y1="140" x2="380" y2="140" stroke="#1F2937" strokeWidth="0.5" strokeDasharray="3" />
+          <line x1="50" y1="170" x2="380" y2="170" stroke="#1F2937" strokeWidth="0.5" strokeDasharray="3" />
 
           {/* Line gradient */}
           <defs>
@@ -53,36 +51,28 @@ export function WeightProgressChart({
           </defs>
 
           <path
-            d={`M 60 ${40 + startY} C 180 ${40 + controlY} 340 ${40 + controlY} 460 ${40 + endY}`}
+            d={`M 50 ${50 + startY} C 150 ${50 + controlY} 280 ${50 + controlY} 380 ${50 + endY}`}
             stroke="url(#lineGradient)"
-            strokeWidth="4"
+            strokeWidth="3"
             fill="none"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
 
           {/* Start point */}
-          <circle cx="60" cy={40 + startY} r="8" fill="#FF6B35" />
+          <circle cx="50" cy={50 + startY} r="6" fill="#FF6B35" />
 
           {/* End point */}
-          <circle cx="460" cy={40 + endY} r="8" fill="#00D084" />
+          <circle cx="380" cy={50 + endY} r="6" fill="#00D084" />
 
           {/* Start weight label */}
-          <text x="60" y="25" textAnchor="middle" fill="white" fontSize="24" fontWeight="bold">
-            {startWeight}
+          <text x="50" y="30" textAnchor="middle" fill="white" fontSize="20" fontWeight="bold">
+            {startWeight} {unit}
           </text>
 
           {/* End weight label */}
-          <text x="460" y="270" textAnchor="middle" fill="white" fontSize="24" fontWeight="bold">
-            {endWeight}
-          </text>
-
-          {/* Unit labels */}
-          <text x="60" y="50" textAnchor="middle" fill="#9CA3AF" fontSize="14">
-            {unit}
-          </text>
-          <text x="460" y="290" textAnchor="middle" fill="#9CA3AF" fontSize="14">
-            {unit}
+          <text x="380" y="230" textAnchor="middle" fill="white" fontSize="20" fontWeight="bold">
+            {endWeight} {unit}
           </text>
         </svg>
       </div>
