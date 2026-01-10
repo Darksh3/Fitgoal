@@ -773,12 +773,34 @@ export default function ResultsPage() {
 
           {/* Get Visible Results Section */}
           <section className="py-16">
-            <div className="max-w-6xl mx-auto px-4">
+            <div className="max-w-6xl mx-auto px-6">
               <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-12">
                 Obtenha resultados visíveis em 4 semanas!
               </h2>
 
-              {/* Plans */}
+              {/* Promo code banner */}
+              <div className="bg-orange-400 rounded-xl p-1 mb-8">
+                <div className="bg-black rounded-lg p-6 space-y-4">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
+                    </svg>
+                    <span className="text-white font-semibold">Seu código promo foi aplicado!</span>
+                  </div>
+
+                  <div className="flex gap-4 items-center">
+                    <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
+                      <p className="text-white font-mono text-lg">cleber_jan26</p>
+                    </div>
+                    <div className="text-orange-400 font-bold text-right">
+                      <p className="text-2xl">02:08</p>
+                      <p className="text-xs text-orange-300">minutos segundos</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Plan cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {/* Monthly Plan */}
                 <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
