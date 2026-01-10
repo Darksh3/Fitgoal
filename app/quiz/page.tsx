@@ -1092,7 +1092,7 @@ export default function QuizPage() {
             </defs>
             <rect x="40" y="140" width="120" height="8" rx="4" fill="#8B4513" />
             <circle cx="100" cy="60" r="12" fill="url(#bodyGradient4)" />
-            <rect x="85" y="70" width="30" height={35} rx="15" fill="url(#bodyGradient4)" />
+            <rect x="85" y="70" width="30" height="35" rx="15" fill="url(#bodyGradient4)" />
             <ellipse cx="85" cy="85" rx="6" ry="15" fill="url(#bodyGradient4)" transform="rotate(-20 85 85)" />
             <ellipse cx="115" cy="85" rx="6" ry="15" fill="url(#bodyGradient4)" transform="rotate(20 115 85)" />
             <ellipse cx="85" cy="120" rx="12" ry="8" fill="url(#bodyGradient4)" transform="rotate(30 85 120)" />
@@ -1363,18 +1363,33 @@ export default function QuizPage() {
         </div>
 
         <div className="text-center space-y-4 max-w-2xl relative z-10">
-          <h2 className="text-xl md:text-3xl font-bold leading-tight">
+          <motion.h2
+            className="text-xl md:text-3xl font-bold leading-tight"
+            initial={{ opacity: 0, y: -24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.6 }}
+          >
             O último plano de que você precisará para <span className="text-lime-400">finalmente entrar em forma</span>
-          </h2>
+          </motion.h2>
 
-          <p className="text-gray-300 text-sm md:text-base">
+          <motion.p
+            className="text-gray-300 text-sm md:text-base"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+          >
             Com base em nossos cálculos, você atingirá seu peso ideal de {target} kg até
-          </p>
+          </motion.p>
 
-          <div className="relative inline-block">
+          <motion.div
+            className="relative inline-block"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.45, duration: 0.6 }}
+          >
             <div className="absolute inset-0 bg-lime-400/20 blur-3xl rounded-full" />
             <div className="relative text-2xl md:text-4xl font-bold text-lime-400">{quizData.timeToGoal}</div>
-          </div>
+          </motion.div>
 
           <div className="relative w-full max-w-md mx-auto">
             <div
@@ -1463,47 +1478,57 @@ export default function QuizPage() {
             </div>
           </div>
 
-          <div className="flex justify-between text-xs md:text-sm text-gray-400">
+          <motion.div
+            className="flex justify-between text-xs md:text-sm text-gray-400"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55, duration: 0.6 }}
+          >
             <span>{getCurrentDate()}</span>
             <span>{quizData.timeToGoal}</span>
-          </div>
+          </motion.div>
 
-          <button
+          <motion.button
             onClick={() => {
               setShowTimeCalculation(false)
-              setCurrentStep(currentStep + 1)
+              setCurrentStep(28)
             }}
-            className="w-full h-16 bg-white text-black text-xl font-bold rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-8 bg-lime-500 hover:bg-lime-600 text-gray-900 font-bold py-4 px-12 rounded-full text-lg transition-colors"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.65, duration: 0.6 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
           >
-            Entendi
-          </button>
-
-          <style>{`
-            @keyframes madDraw {
-              to { stroke-dashoffset: 0; }
-            }
-            @keyframes madBar {
-              from { height: 0%; }
-              to { height: 100%; }
-            }
-            @keyframes floatUp {
-              0% {
-                transform: translateY(0) translateX(0);
-                opacity: 0;
-              }
-              10% {
-                opacity: 1;
-              }
-              90% {
-                opacity: 1;
-              }
-              100% {
-                transform: translateY(-100vh) translateX(${Math.random() * 40 - 20}px);
-                opacity: 0;
-              }
-            }
-          `}</style>
+            Continuar
+          </motion.button>
         </div>
+
+        <style>{`
+          @keyframes floatUp {
+            0% {
+              transform: translateY(0) translateX(0);
+              opacity: 0;
+            }
+            10% {
+              opacity: 1;
+            }
+            90% {
+              opacity: 1;
+            }
+            100% {
+              transform: translateY(-100vh) translateX(${Math.random() * 40 - 20}px);
+              opacity: 0;
+            }
+          }
+          @keyframes madDraw {
+            to { stroke-dashoffset: 0; }
+          }
+          @keyframes madBar {
+            from { height: 0%; }
+            to { height: 100%; }
+          }
+        `}</style>
       </div>
     )
   }
@@ -3138,7 +3163,7 @@ export default function QuizPage() {
                         : option.value === "neutral"
                           ? "border-yellow-500 bg-yellow-500/20"
                           : "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/10"
                   }`}
                 >
                   <span className="text-white">{option.label}</span>
