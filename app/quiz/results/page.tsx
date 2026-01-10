@@ -263,8 +263,8 @@ export default function ResultsPage() {
             <div className="bg-gray-900 bg-opacity-50 rounded-lg p-6 border border-gray-800">
               <div className="space-y-4">
                 <div>
-                  <p className="text-gray-400 text-sm mb-1">Força Muscular</p>
-                  <p className="text-white font-bold mb-2">{getCurrentBodyFatRange()}</p>
+                  <p className="text-gray-400 text-sm mb-1">Percentual de Gordura</p>
+                  <p className="text-white font-bold mb-2">{Number(data?.bodyFat) || 25}%</p>
                   <div className="w-full bg-gray-800 rounded-full h-2">
                     <div
                       className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
@@ -286,7 +286,7 @@ export default function ResultsPage() {
             <div className="bg-gray-900 bg-opacity-50 rounded-lg p-6 border border-gray-800">
               <div className="space-y-4">
                 <div>
-                  <p className="text-gray-400 text-sm mb-1">Força Muscular</p>
+                  <p className="text-gray-400 text-sm mb-1">Percentual de Gordura</p>
                   <p className="text-white font-bold mb-2">{getImprovedBodyFatRange()}</p>
                   <div className="w-full bg-gray-800 rounded-full h-2">
                     <div className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full w-4/5" />
