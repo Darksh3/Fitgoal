@@ -4,22 +4,13 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
-import { PricingSection } from "@/components/pricing-section"
-import { Clock, MapPin, TrendingUp, Calendar, CheckCircle, Heart, Flame, Moon, TargetIcon, Zap } from "lucide-react"
-import React from "react"
-import { AnimatedCounter } from "@/components/animated-counter"
-import { AnimatedProgressBar } from "@/components/animated-progress-bar"
-import { WeightProgressChart } from "@/components/weight-progress-chart"
+import { Heart, Zap, TargetIcon, Moon, TrendingUp, ChevronRight, Check, Star } from "lucide-react"
+import { ScratchCard } from "@/components/scratch-card"
 
 export default function ResultsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
-  const [showWheel, setShowWheel] = useState(false)
-  const [showPricing, setShowPricing] = useState(false)
-  const [discount, setDiscount] = useState<number | null>(null)
-  const [currentIMC, setCurrentIMC] = useState<number | null>(null)
-  const [isBmiAnimationDone, setIsBmiAnimationDone] = React.useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,11 +18,9 @@ export default function ResultsPage() {
 
       if (typeof window !== "undefined") {
         const local = localStorage.getItem("quizData")
-        console.log("localStorage quizData:", local)
         if (local) {
           try {
             stored = JSON.parse(local)
-            console.log("Dados do localStorage parseados:", stored)
           } catch (error) {
             console.error("Erro ao parsear localStorage:", error)
           }
@@ -39,15 +28,11 @@ export default function ResultsPage() {
       }
 
       if (!stored && auth.currentUser) {
-        console.log("Buscando no Firebase para usuário:", auth.currentUser.uid)
         try {
           const ref = doc(db, "users", auth.currentUser.uid)
           const snap = await getDoc(ref)
           if (snap.exists()) {
             stored = snap.data()
-            console.log("Dados do Firebase encontrados:", stored)
-          } else {
-            console.log("Documento não existe no Firebase")
           }
         } catch (error) {
           console.error("Erro ao buscar no Firebase:", error)
@@ -55,35 +40,18 @@ export default function ResultsPage() {
       }
 
       if (!stored) {
-        console.log("Nenhum dado encontrado, redirecionando para /quiz")
         setTimeout(() => {
           router.push("/quiz")
         }, 2000)
         return
       }
 
-      console.log("Dados finais encontrados:", stored)
       setData(stored)
       setLoading(false)
-      setCurrentIMC(Number(stored.imc))
     }
 
     fetchData()
   }, [router])
-
-  useEffect(() => {
-    console.log("[v0] Data state updated:", data)
-  }, [data])
-
-  useEffect(() => {
-    if (discount && showWheel) {
-      const timer = setTimeout(() => {
-        setShowWheel(false)
-        setShowPricing(true)
-      }, 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [discount, showWheel])
 
   const getDataValue = (key: string) => {
     if (data?.[key] !== undefined) return data[key]
@@ -153,7 +121,7 @@ export default function ResultsPage() {
     const isMale = gender === "male" || gender === "homem"
 
     if (isMale) {
-      if (bodyFat <= 10) return "/images/mone.webp" // Already at best
+      if (bodyFat <= 10) return "/images/mone.webp"
       if (bodyFat <= 15) return "/images/mone.webp"
       if (bodyFat <= 20) return "/images/mtwo.webp"
       if (bodyFat <= 25) return "/images/mthree.webp"
@@ -162,7 +130,7 @@ export default function ResultsPage() {
       if (bodyFat <= 39) return "/images/msix.webp"
       return "/images/mseven.webp"
     } else {
-      if (bodyFat <= 10) return "/images/bodyfat-one.webp" // Already at best
+      if (bodyFat <= 10) return "/images/bodyfat-one.webp"
       if (bodyFat <= 15) return "/images/bodyfat-one.webp"
       if (bodyFat <= 20) return "/images/bodyfat-two.webp"
       if (bodyFat <= 25) return "/images/bodyfat-three.webp"
@@ -197,20 +165,13 @@ export default function ResultsPage() {
     return "36-39%"
   }
 
-  const handleGoToCheckout = () => {
-    if (!data) return
-    router.push("/checkout")
-  }
-
   const calculateDailyCalories = () => {
     if (!data) return 2425
-
     const weight = Number(data.weight) || 70
     const height = Number(data.height) || 170
     const age = Number(data.age) || 30
     const gender = data.gender || "male"
 
-    // Harris-Benedict equation
     let bmr
     if (gender === "homem") {
       bmr = 88.362 + 13.397 * weight + 4.799 * height - 5.677 * age
@@ -218,28 +179,22 @@ export default function ResultsPage() {
       bmr = 447.593 + 9.247 * weight + 3.098 * height - 4.33 * age
     }
 
-    // Activity factor based on training days
     const trainingDays = Number(data.trainingDays) || 3
     const activityFactor = trainingDays >= 5 ? 1.725 : trainingDays >= 3 ? 1.55 : 1.375
 
-    // Goal adjustment
     let calories = bmr * activityFactor
     if (data.goal?.includes("perder-peso")) {
-      calories -= 500 // Deficit for weight loss
+      calories -= 500
     } else if (data.goal?.includes("ganhar-massa")) {
-      calories += 300 // Surplus for muscle gain
+      calories += 300
     }
 
     return Math.round(calories)
   }
 
   const getWorkoutLocation = () => {
-    console.log("[v0] getWorkoutLocation - data:", data)
-    console.log("[v0] getWorkoutLocation - equipment:", getDataValue("equipment"))
-
     const equipment = getDataValue("equipment")
     if (!equipment || (Array.isArray(equipment) && equipment.length === 0)) {
-      console.log("[v0] Returning 'Não definido' - data or equipment is missing")
       return "Não definido"
     }
 
@@ -266,9 +221,6 @@ export default function ResultsPage() {
   }
 
   const getWorkoutDuration = () => {
-    console.log("[v0] getWorkoutDuration - data:", data)
-    console.log("[v0] getWorkoutDuration - workoutTime:", getDataValue("workoutTime"))
-
     const workoutTime = getDataValue("workoutTime")
     if (!workoutTime) {
       return "Não definido"
@@ -297,11 +249,16 @@ export default function ResultsPage() {
     return iconMap.filter((item) => goals.includes(item.key))
   }
 
+  const handleGoToCheckout = () => {
+    if (!data) return
+    router.push("/checkout")
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white bg-gradient-to-b from-black via-gray-900 to-black">
+      <div className="min-h-screen flex items-center justify-center text-white bg-black">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lime-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
           <p>Carregando seus resultados...</p>
         </div>
       </div>
@@ -310,12 +267,12 @@ export default function ResultsPage() {
 
   if (!data) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white bg-gradient-to-b from-black via-gray-900 to-black">
+      <div className="min-h-screen flex items-center justify-center text-white bg-black">
         <div className="text-center">
           <p className="text-red-400 mb-4">Dados do quiz não encontrados</p>
           <button
             onClick={() => router.push("/quiz")}
-            className="bg-lime-500 hover:bg-lime-600 text-white px-8 py-6 text-lg font-semibold rounded-full shadow-lg transition-colors"
+            className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 font-semibold rounded-full transition-colors"
           >
             Refazer Quiz
           </button>
@@ -324,325 +281,172 @@ export default function ResultsPage() {
     )
   }
 
-  const bmiInfo = getBMICategory(Number(data.imc))
+  const currentBodyImage = getCurrentBodyFatImage()
+  const improvedBodyImage = getImprovedBodyFatImage()
+  const currentBodyFatRange = getCurrentBodyFatRange()
+  const improvedBodyFatRange = getImprovedBodyFatRange()
+  const dailyCalories = calculateDailyCalories()
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 pb-24 md:p-8">
-      {showPricing ? (
-        <PricingSection gender={getDataValue("gender") || "male"} discount={discount || 0} />
-      ) : (
-        <div className="max-w-4xl mx-auto space-y-12">
-          <div className="text-center space-y-3">
-            <h1 className="text-4xl md:text-5xl font-bold">
-              Parabéns, <span className="text-lime-400">{data.name || "Íay"}</span>!
-            </h1>
-            <p className="text-gray-300 text-lg">Seu plano personalizado está pronto</p>
-          </div>
+    <div className="min-h-screen bg-black text-white">
+      {/* Header */}
+      <header className="border-b border-gray-800 py-4 px-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Seu Plano</h1>
+          <button
+            onClick={handleGoToCheckout}
+            className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full font-semibold transition-colors"
+          >
+            Começar Agora
+          </button>
+        </div>
+      </header>
 
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
-            <div className="grid grid-cols-2 gap-4 md:gap-8 items-center">
-              <div className="text-center space-y-2">
-                <p className="text-gray-400 text-xs md:text-sm uppercase tracking-wide">Agora</p>
-                <div className="flex justify-center">
-                  <img
-                    src={getCurrentBodyFatImage() || "/placeholder.svg"}
-                    alt="Corpo atual"
-                    className="w-32 h-48 md:w-40 md:h-64 object-contain"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs md:text-sm text-gray-400">Gordura corporal</p>
-                  <p className="text-xl md:text-2xl font-bold text-yellow-400">{getCurrentBodyFatRange()}</p>
-                </div>
-              </div>
-              <div className="text-center space-y-2">
-                <p className="text-gray-400 text-xs md:text-sm uppercase tracking-wide">6 meses</p>
-                <div className="flex justify-center">
-                  <img
-                    src={getImprovedBodyFatImage() || "/placeholder.svg"}
-                    alt="Corpo melhorado"
-                    className="w-32 h-48 md:w-40 md:h-64 object-contain"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs md:text-sm text-gray-400">Gordura corporal</p>
-                  <p className="text-xl md:text-2xl font-bold text-lime-400">{getImprovedBodyFatRange()}</p>
-                </div>
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 text-center mt-4">
-              *A imagem não se destina a representar o usuário. Os resultados variam por pessoa e não são garantidos.
-            </p>
-          </div>
+      {/* Hero Section */}
+      <section className="py-16 px-6 bg-gradient-to-b from-gray-900 to-black">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-5xl font-bold text-center mb-16">
+            Seu Plano de Treino
+            <br />
+            Personalizado está pronto!
+          </h2>
 
-          <WeightProgressChart
-            currentWeight={Number(data.quizData?.weight) ? Number(data.quizData.weight) / 2.205 : 0}
-            targetWeight={Number(data.quizData?.targetWeight) ? Number(data.quizData.targetWeight) / 2.205 : 0}
-            unit="kg"
-          />
-
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-center">Resumo pessoal baseado em suas respostas</h2>
-
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <Heart className="h-5 w-5 text-lime-500" />
-                <h3 className="text-xl font-semibold">IMC Atual</h3>
-              </div>
-              <div className="text-center space-y-4">
-                <div className={`text-6xl font-bold ${bmiInfo.color}`}>
-                  <AnimatedCounter targetValue={currentIMC} onComplete={() => setIsBmiAnimationDone(true)} />
-                </div>
-                <div className="flex justify-center items-center gap-2 text-sm">
-                  <span className="text-blue-400">Abaixo do peso</span>
-                  <span className="text-lime-400 font-bold">Normal</span>
-                  <span className="text-red-400">Obeso</span>
-                </div>
-                <AnimatedProgressBar
-                  percentage={Math.min((Number(data.imc) / 40) * 100, 100)}
-                  color={
-                    Number(data.imc) < 18.5
-                      ? "bg-blue-400"
-                      : Number(data.imc) < 25
-                        ? "bg-lime-500"
-                        : Number(data.imc) < 30
-                          ? "bg-yellow-400"
-                          : "bg-red-400"
-                  }
+          {/* Character Comparison */}
+          <div className="bg-gray-900 rounded-2xl p-12 mb-12">
+            <div className="flex justify-between items-end gap-8 mb-8">
+              <div className="flex-1 text-center">
+                <p className="text-gray-400 mb-4">Agora</p>
+                <img
+                  src={currentBodyImage || "/placeholder.svg"}
+                  alt="Você agora"
+                  className="w-full h-96 object-contain mb-4"
                 />
-                <p className="text-gray-300">
-                  Você está com <span className={`font-bold ${bmiInfo.color}`}>{bmiInfo.text}</span>
-                </p>
+                <p className="text-lg font-semibold">{currentBodyFatRange}</p>
               </div>
-            </div>
 
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <Flame className="h-5 w-5 text-orange-500" />
-                <h3 className="text-xl font-semibold">Ingestão calórica diária recomendada</h3>
+              <div className="flex items-end justify-center pb-24">
+                <ChevronRight className="w-12 h-12 text-gray-600" />
               </div>
-              <div className="text-center space-y-4">
-                <div className="text-5xl font-bold text-lime-400">
-                  <AnimatedCounter
-                    targetValue={calculateDailyCalories()}
-                    suffix=" "
-                    delay={isBmiAnimationDone ? 0 : 99999}
-                    decimals={0} // set decimals to 0 for calories
-                  />
-                  <span className="text-2xl text-gray-400">kcal</span>
-                </div>
-                <AnimatedProgressBar
-                  percentage={(calculateDailyCalories() / 5000) * 100}
-                  color="bg-gradient-to-r from-lime-500 to-lime-400"
-                  delay={isBmiAnimationDone ? 0 : 99999}
+
+              <div className="flex-1 text-center">
+                <p className="text-gray-400 mb-4">Em 4 Semanas</p>
+                <img
+                  src={improvedBodyImage || "/placeholder.svg"}
+                  alt="Você em 4 semanas"
+                  className="w-full h-96 object-contain mb-4"
                 />
-                <div className="flex justify-between text-sm text-gray-400">
-                  <span>0 kcal</span>
-                  <span>5000 kcal</span>
-                </div>
+                <p className="text-lg font-semibold text-lime-400">{improvedBodyFatRange}</p>
+              </div>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 gap-6 mt-8 pt-8 border-t border-gray-700">
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Calorias Diárias</p>
+                <p className="text-2xl font-bold">{dailyCalories} kcal</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Frequência</p>
+                <p className="text-2xl font-bold">{data.trainingDays || 3}x por semana</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 md:p-8">
-            <h2 className="text-2xl font-bold text-center mb-6">
-              Plano personalizado para {data.name || "você"} está pronto!
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 p-4 bg-gray-700/30 rounded-xl">
-                <Clock className="h-8 w-8 text-lime-500 flex-shrink-0" />
-                <div>
-                  <p className="text-sm text-gray-400">Duração do Treino</p>
-                  <p className="text-lg font-semibold">{getWorkoutDuration()}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-4 bg-gray-700/30 rounded-xl">
-                <MapPin className="h-8 w-8 text-lime-500 flex-shrink-0" />
-                <div>
-                  <p className="text-sm text-gray-400">Local do Treino</p>
-                  <p className="text-lg font-semibold">{getWorkoutLocation()}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-4 bg-gray-700/30 rounded-xl">
-                <TrendingUp className="h-8 w-8 text-lime-500 flex-shrink-0" />
-                <div>
-                  <p className="text-sm text-gray-400">Nível de Fitness</p>
-                  <p className="text-lg font-semibold">{getFitnessLevel()}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-4 bg-gray-700/30 rounded-xl">
-                <Calendar className="h-8 w-8 text-lime-500 flex-shrink-0" />
-                <div>
-                  <p className="text-sm text-gray-400">Frequência do Treino</p>
-                  <p className="text-lg font-semibold">{getTrainingFrequency()}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative bg-gradient-to-br from-lime-500 via-lime-600 to-lime-700 rounded-2xl p-6 md:p-8 border border-lime-400/30 shadow-2xl overflow-hidden">
-            {/* Orange glow effect */}
-            <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/30 rounded-full blur-3xl" />
-            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-orange-500/20 rounded-full blur-3xl" />
-
-            <div className="relative z-10">
-              <h3 className="text-2xl md:text-3xl font-bold mb-6 text-white">O que você recebe:</h3>
-              <div className="space-y-5">
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="h-6 w-6 text-white flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <h4 className="font-bold text-white">Dieta 100% personalizada em você</h4>
-                    <p className="text-white/90 text-sm">
-                      Plano de dieta claro, personalizado apenas para você, barato e fácil de seguir
-                    </p>
-                    <p className="text-yellow-300 text-lg font-bold mt-2">
-                      <span className="line-through">R$ 129</span>
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="h-6 w-6 text-white flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <h4 className="font-bold text-white">Programa de treino personalizado</h4>
-                    <p className="text-white/90 text-sm">Plano de treino claro e fácil de seguir</p>
-                    <p className="text-yellow-300 text-lg font-bold mt-2">
-                      <span className="line-through">R$ 149</span>
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="h-6 w-6 text-white flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <h4 className="font-bold text-white">Resultados visíveis após o primeiro mês</h4>
-                    <p className="text-white/90 text-sm">Veja mudanças reais em seu corpo</p>
-                    <p className="text-yellow-300 text-lg font-bold mt-2">
-                      <span className="line-through">R$ 97</span>
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="h-6 w-6 text-white flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <h4 className="font-bold text-white">Acompanhamento de progresso</h4>
-                    <p className="text-white/90 text-sm">Monitore sua evolução e ajuste conforme necessário</p>
-                    <p className="text-yellow-300 text-lg font-bold mt-2">
-                      <span className="line-through">R$ 79</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-6 border-t border-white/30">
-                <p className="text-center text-white font-bold text-lg">
-                  ✨ Você vai ter uma <span className="text-yellow-100">Condição Mega Especial</span>! ✨
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row gap-4 justify-center pt-4">
+          {/* CTA */}
+          <div className="text-center mb-12">
+            <h3 className="text-2xl font-semibold mb-4">Escolha Seu Plano</h3>
             <button
               onClick={handleGoToCheckout}
-              className="w-full md:w-auto bg-white hover:bg-gray-100 text-black px-8 py-6 text-lg font-semibold rounded-full shadow-lg transition-colors"
+              className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-full font-bold text-lg transition-colors"
             >
-              Escolher Plano e Finalizar
+              Ver Planos
             </button>
           </div>
-
-          <p className="text-center text-xs text-gray-500 pb-8">Baseado nos dados dos usuários do Fitgoal</p>
-
-          {/* Roleta Section */}
-          <section className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center space-y-6">
-            <h2 className="text-3xl font-bold">Ganhe um Presente Especial!</h2>
-            <p className="text-gray-400 text-lg">
-              Parabéns por chegar até aqui! Gire a roleta para ganhar um desconto exclusivo no seu plano personalizado.
-            </p>
-            <div className="flex justify-center px-4">
-              <button
-                onClick={() => setShowWheel(true)}
-                className="bg-white hover:bg-gray-100 text-black px-8 py-4 rounded-full text-lg font-bold shadow-lg transition-all hover:scale-105 active:scale-95"
-              >
-                GIRAR ROLETA
-              </button>
-            </div>
-          </section>
         </div>
-      )}
+      </section>
 
-      {/* Roleta Modal */}
-      {showWheel && (
-        <div className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 w-full max-w-sm text-center space-y-8 relative overflow-hidden">
-            <h3 className="text-2xl font-bold mb-4">Gire e ganhe desconto</h3>
-
-            <div className={`w-64 h-64 mx-auto mb-6 relative flex items-center justify-center`}>
-              <img src="/images/roleta.webp" alt="Roleta de desconto" className="w-full h-full object-contain" />
-
-              {[10, 15, 20, 30, 40, 50].map((value, i) => (
-                <div
-                  key={i}
-                  className="absolute flex items-center justify-center font-black text-sm w-8 h-8 rounded-full left-1/2 -ml-4 origin-[0_124px]"
-                  style={{
-                    transform: `rotate(${i * 60}deg) translateY(-112px)`,
-                    backgroundColor: i % 2 === 0 ? "#ffffff" : "#ef4444",
-                    color: i % 2 === 0 ? "#ef4444" : "#ffffff",
-                  }}
-                >
-                  {value}%
-                </div>
-              ))}
+      {/* Highlights */}
+      <section className="py-16 px-6">
+        <div className="max-w-7xl mx-auto">
+          <h3 className="text-3xl font-bold mb-12">Destaques do Seu Plano</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="flex gap-4">
+              <Check className="w-6 h-6 text-lime-400 flex-shrink-0" />
+              <div>
+                <h4 className="font-semibold mb-2">Programa personalizado</h4>
+                <p className="text-gray-400">Treino customizado baseado no seu nível e objetivos</p>
+              </div>
             </div>
-
-            {!discount ? (
-              <div className="flex justify-center px-4">
-                <button
-                  onClick={() => {
-                    const prizes = [10, 15, 20, 30, 40, 50]
-                    setDiscount(prizes[Math.floor(Math.random() * prizes.length)])
-                  }}
-                  className="w-full max-w-md bg-red-600 hover:bg-red-700 h-16 rounded-2xl text-xl font-black shadow-lg shadow-red-600/20 text-white transition-colors"
-                >
-                  GIRAR E GANHAR!
-                </button>
+            <div className="flex gap-4">
+              <Check className="w-6 h-6 text-lime-400 flex-shrink-0" />
+              <div>
+                <h4 className="font-semibold mb-2">Progressão semanal</h4>
+                <p className="text-gray-400">Aumente a intensidade conforme você melhora</p>
               </div>
-            ) : (
-              <div className="space-y-4 animate-in fade-in zoom-in duration-500">
-                <div className="text-4xl font-black text-lime-400">🎉 {discount}% OFF!</div>
-                <p className="text-zinc-400 font-medium">Seu desconto especial foi aplicado.</p>
-                <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-orange-500 animate-[progress_3s_linear]" />
-                </div>
-                <p className="text-[10px] text-zinc-500 uppercase tracking-widest">
-                  Preparando seu plano com desconto...
-                </p>
+            </div>
+            <div className="flex gap-4">
+              <Check className="w-6 h-6 text-lime-400 flex-shrink-0" />
+              <div>
+                <h4 className="font-semibold mb-2">Plano de nutrição</h4>
+                <p className="text-gray-400">{dailyCalories} calorias diárias com recomendações de macro</p>
               </div>
-            )}
+            </div>
+            <div className="flex gap-4">
+              <Check className="w-6 h-6 text-lime-400 flex-shrink-0" />
+              <div>
+                <h4 className="font-semibold mb-2">Acompanhamento</h4>
+                <p className="text-gray-400">Monitore seu progresso e obtenha ajustes conforme necessário</p>
+              </div>
+            </div>
           </div>
         </div>
-      )}
-    </div>
-  )
-}
+      </section>
 
-/* ================= SUB COMPONENTS ================= */
+      {/* Testimonials */}
+      <section className="py-16 px-6 bg-gray-950">
+        <div className="max-w-7xl mx-auto">
+          <h3 className="text-3xl font-bold text-center mb-12">Confiem 10+ milhões de pessoas</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-gray-900 p-6 rounded-lg">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, j) => (
+                    <Star key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-300 mb-4">
+                  "Transformação incrível! Os resultados em 4 semanas foram melhores do que esperava."
+                </p>
+                <p className="font-semibold">Usuário Verificado</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-function Info({ icon: Icon, label, value }: any) {
-  return (
-    <div className="bg-gray-800/60 border border-gray-700 rounded-xl p-3 flex items-center gap-3">
-      <Icon className="text-lime-400" />
-      <div>
-        <p className="text-xs text-gray-400">{label}</p>
-        <p className="font-semibold">{value}</p>
-      </div>
-    </div>
-  )
-}
+      {/* Final CTA */}
+      <section className="py-16 px-6">
+        <div className="max-w-2xl mx-auto text-center">
+          <h3 className="text-3xl font-bold mb-8">Comece Sua Transformação</h3>
+          <button
+            onClick={handleGoToCheckout}
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-full font-bold text-lg transition-colors mb-4"
+          >
+            Ver Planos Agora
+          </button>
+          <p className="text-gray-400 text-sm">Garantia de reembolso de 30 dias. Sem riscos.</p>
+        </div>
+      </section>
 
-function Benefit({ text }: { text: string }) {
-  return (
-    <div className="flex items-center gap-3">
-      <CheckCircle className="text-lime-400" />
-      <p>{text}</p>
+      {/* Scratch Card Section */}
+      <section className="py-16 px-6 bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center space-y-6">
+        <ScratchCard
+          discount={20}
+          onReveal={() => {
+            // Optional callback when discount is revealed
+          }}
+        />
+      </section>
     </div>
   )
 }
