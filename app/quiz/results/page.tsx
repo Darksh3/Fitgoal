@@ -210,7 +210,7 @@ export default function QuizResultsPage() {
 
       <main className="w-full px-6 py-12">
         <h1 className="text-4xl md:text-5xl font-bold text-center mb-12">
-          Seu Plano de Calistenia <br /> está Pronto!
+          Seu Plano de Dieta e Treino <br /> estão Prontos!
         </h1>
 
         {/* Comparison container */}
@@ -310,7 +310,7 @@ export default function QuizResultsPage() {
           </div>
 
           <div className="mt-8 bg-gray-900 bg-opacity-50 rounded-2xl p-8 border border-gray-700">
-            <h3 className="text-3xl font-bold text-white mb-6">Sumário</h3>
+            <h3 className="text-3xl font-bold text-white mb-6">Sumário:</h3>
             <div className="border-t border-gray-700 mb-8"></div>
 
             <div className="grid grid-cols-2 gap-x-8 gap-y-8">
@@ -411,8 +411,10 @@ export default function QuizResultsPage() {
             {/* Monthly Plan */}
             <div
               onClick={() => setSelectedPlan("monthly")}
-              className={`bg-black border rounded-lg p-6 cursor-pointer transition ${
-                selectedPlan === "monthly" ? "border-orange-500" : "border-gray-700"
+              className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
+                selectedPlan === "monthly"
+                  ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
+                  : "border-gray-700"
               }`}
             >
               <div className="flex items-center justify-between mb-4">
@@ -429,8 +431,10 @@ export default function QuizResultsPage() {
             {/* Quarterly Plan - Featured */}
             <div
               onClick={() => setSelectedPlan("quarterly")}
-              className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition ${
-                selectedPlan === "quarterly" ? "border-orange-500" : "border-gray-700"
+              className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition duration-300 ${
+                selectedPlan === "quarterly"
+                  ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
+                  : "border-gray-700"
               }`}
             >
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
@@ -450,8 +454,10 @@ export default function QuizResultsPage() {
             {/* Semi-annual Plan */}
             <div
               onClick={() => setSelectedPlan("semiannual")}
-              className={`bg-black border rounded-lg p-6 cursor-pointer transition ${
-                selectedPlan === "semiannual" ? "border-orange-500" : "border-gray-700"
+              className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
+                selectedPlan === "semiannual"
+                  ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
+                  : "border-gray-700"
               }`}
             >
               <div className="flex items-center justify-between mb-4">
@@ -808,8 +814,10 @@ export default function QuizResultsPage() {
                 {/* Monthly Plan */}
                 <div
                   onClick={() => setSelectedPlan("monthly")}
-                  className={`bg-black border rounded-lg p-6 cursor-pointer transition ${
-                    selectedPlan === "monthly" ? "border-orange-500" : "border-gray-700"
+                  className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
+                    selectedPlan === "monthly"
+                      ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
+                      : "border-gray-700"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-4">
@@ -826,8 +834,10 @@ export default function QuizResultsPage() {
                 {/* Quarterly Plan - Featured */}
                 <div
                   onClick={() => setSelectedPlan("quarterly")}
-                  className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition ${
-                    selectedPlan === "quarterly" ? "border-orange-500" : "border-gray-700"
+                  className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition duration-300 ${
+                    selectedPlan === "quarterly"
+                      ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
+                      : "border-gray-700"
                   }`}
                 >
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
@@ -847,8 +857,10 @@ export default function QuizResultsPage() {
                 {/* Semi-annual Plan */}
                 <div
                   onClick={() => setSelectedPlan("semiannual")}
-                  className={`bg-black border rounded-lg p-6 cursor-pointer transition ${
-                    selectedPlan === "semiannual" ? "border-orange-500" : "border-gray-700"
+                  className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
+                    selectedPlan === "semiannual"
+                      ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
+                      : "border-gray-700"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-4">
