@@ -6,11 +6,12 @@ import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import Image from "next/image"
 
-export default function ResultsPage() {
+export default function QuizResultsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
   const [timeLeft, setTimeLeft] = useState({ minutes: 4, seconds: 0 })
+  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "quarterly" | "semiannual">("quarterly")
 
   useEffect(() => {
     const fetchData = async () => {
@@ -410,10 +411,29 @@ export default function ResultsPage() {
           {/* Plan cards */}
           <div className="grid grid-cols-3 gap-6 mb-8">
             {/* Monthly Plan */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 cursor-pointer hover:border-gray-700 transition">
+            <div
+              onClick={() => setSelectedPlan("monthly")}
+              className={`bg-gray-900 border rounded-xl p-6 cursor-pointer hover:border-gray-700 transition ${
+                selectedPlan === "monthly" ? "border-orange-400" : "border-gray-800"
+              }`}
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-white">Plano Mensal</h3>
-                <div className="w-6 h-6 rounded-full border-2 border-gray-600" />
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                    selectedPlan === "monthly" ? "bg-orange-400" : "border-2 border-gray-600"
+                  }`}
+                >
+                  {selectedPlan === "monthly" && (
+                    <svg className="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
+                </div>
               </div>
               <div className="space-y-2">
                 <p className="text-gray-400 text-sm">Acesso completo por 30 dias</p>
@@ -425,13 +445,22 @@ export default function ResultsPage() {
             </div>
 
             {/* Quarterly Plan - Featured */}
-            <div className="bg-gray-900 border-2 border-orange-400 rounded-xl p-6 relative">
+            <div
+              onClick={() => setSelectedPlan("quarterly")}
+              className={`bg-gray-900 border-2 rounded-xl p-6 relative cursor-pointer transition ${
+                selectedPlan === "quarterly" ? "border-orange-400" : "border-gray-800"
+              }`}
+            >
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-black px-4 py-1">
                 <p className="text-xs font-bold text-orange-400 tracking-widest">MAIS POPULAR</p>
               </div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-white">Plano Trimestral</h3>
-                <div className="w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center">
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                    selectedPlan === "quarterly" ? "bg-orange-400" : "border-2 border-gray-600"
+                  }`}
+                >
                   <svg className="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
@@ -451,10 +480,29 @@ export default function ResultsPage() {
             </div>
 
             {/* Semi-annual Plan */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 cursor-pointer hover:border-gray-700 transition">
+            <div
+              onClick={() => setSelectedPlan("semiannual")}
+              className={`bg-gray-900 border rounded-xl p-6 cursor-pointer hover:border-gray-700 transition ${
+                selectedPlan === "semiannual" ? "border-orange-400" : "border-gray-800"
+              }`}
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-white">Plano Semestral</h3>
-                <div className="w-6 h-6 rounded-full border-2 border-gray-600" />
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                    selectedPlan === "semiannual" ? "bg-orange-400" : "border-2 border-gray-600"
+                  }`}
+                >
+                  {selectedPlan === "semiannual" && (
+                    <svg className="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
+                </div>
               </div>
               <div className="space-y-2">
                 <p className="text-gray-400 text-sm">Acesso completo por 180 dias</p>
@@ -475,7 +523,10 @@ export default function ResultsPage() {
 
           {/* CTA Button */}
           <div className="flex justify-center">
-            <button className="px-12 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition">
+            <button
+              onClick={() => router.push("/checkout")}
+              className="px-12 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition"
+            >
               OBTER MEU PLANO
             </button>
           </div>
@@ -804,8 +855,8 @@ export default function ResultsPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {/* Monthly Plan */}
                 <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-                  <div className="text-gray-400 text-sm mb-4">4-WEEK PLAN</div>
-                  <div className="text-3xl font-bold text-white mb-2">£17.77</div>
+                  <div className="text-gray-400 text-sm mb-4">PLANO MENSAL</div>
+                  <div className="text-3xl font-bold text-white mb-2">R$ 79,90</div>
                 </div>
 
                 {/* Quarterly Plan - Featured */}
@@ -814,25 +865,25 @@ export default function ResultsPage() {
                     MAIS POPULAR
                   </div>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-2xl font-bold text-white">Plano 4 Semanas</h3>
+                    <h3 className="text-2xl font-bold text-white">Plano Trimestral</h3>
                     <svg className="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                     </svg>
                   </div>
-                  <div className="text-3xl font-bold text-white">£38.95</div>
+                  <div className="text-3xl font-bold text-white">R$ 159,90</div>
                 </div>
 
                 {/* Semi-annual Plan */}
                 <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-                  <div className="text-gray-400 text-sm mb-4">12-WEEK PLAN</div>
-                  <div className="text-3xl font-bold text-white mb-2">£94.85</div>
+                  <div className="text-gray-400 text-sm mb-4">PLANO SEMESTRAL</div>
+                  <div className="text-3xl font-bold text-white mb-2">R$ 239,90</div>
                 </div>
               </div>
 
               {/* Disclaimer */}
               <p className="text-gray-400 text-sm text-center mb-8 max-w-2xl mx-auto">
-                Sem cancelamento, antes do plano selecionado terminar, aceito que o BetterMe cobrará automaticamente
-                £38,95 (incl. IVA) a cada 4 semanas até eu cancelar. Cancelar online via perfil ou app.
+                Sem cancelamento, antes do plano selecionado terminar, aceito que a BetterMe cobrará automaticamente R$
+                159,90 (incl. impostos) a cada 4 semanas até eu cancelar. Cancelar online via perfil ou app.
               </p>
 
               {/* CTA Button */}
