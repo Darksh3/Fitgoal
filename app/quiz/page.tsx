@@ -1092,7 +1092,7 @@ export default function QuizPage() {
             </defs>
             <rect x="40" y="140" width="120" height="8" rx="4" fill="#8B4513" />
             <circle cx="100" cy="60" r="12" fill="url(#bodyGradient4)" />
-            <rect x="85" y="70" width="30" height="35" rx="15" fill="url(#bodyGradient4)" />
+            <rect x="85" y="70" width="30" height={35} rx="15" fill="url(#bodyGradient4)" />
             <ellipse cx="85" cy="85" rx="6" ry="15" fill="url(#bodyGradient4)" transform="rotate(-20 85 85)" />
             <ellipse cx="115" cy="85" rx="6" ry="15" fill="url(#bodyGradient4)" transform="rotate(20 115 85)" />
             <ellipse cx="85" cy="120" rx="12" ry="8" fill="url(#bodyGradient4)" transform="rotate(30 85 120)" />
@@ -1132,25 +1132,163 @@ export default function QuizPage() {
   const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
   // </CHANGE>
 
-  if (showCortisolMessage && currentStep === 22) {
+  if (showQuickResults) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center p-6">
+      <motion.div
+        className="
+        min-h-screen text-white flex items-center justify-center px-4 py-10
+        bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50
+      "
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
         <div className="max-w-2xl w-full space-y-8">
-          <motion.h2
-            className="text-3xl font-bold text-white text-center"
+          {/* Header */}
+          <motion.div
+            className="text-center space-y-3"
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.7 }}
           >
-            Não é necessário se esforçar ao limite!
-          </motion.h2>
+            <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para sentir os primeiros sinais</h1>
+            <p className="text-gray-300 text-lg">
+              Com base no seu perfil, estes são os resultados iniciais mais comuns
+            </p>
+          </motion.div>
 
+          {/* Status Box */}
           <motion.div
-            className="relative bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-white/10"
+            className="
+            bg-gradient-to-br from-blue-950/40 via-purple-950/30 to-blue-950/40
+            border border-blue-800/40
+            rounded-3xl px-6 py-6 space-y-5 backdrop-blur-sm
+          "
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.7 }}
           >
+            {/* Item 1 */}
+            <motion.div
+              className="flex items-center justify-between"
+              initial={{ opacity: 0, x: -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.45, duration: 0.6 }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-green-500/15 flex items-center justify-center">
+                  <span className="text-green-400 text-lg">✓</span>
+                </div>
+                <span className="text-lg">Energia diária</span>
+              </div>
+              <span className="text-green-400 font-medium">↑ Estável</span>
+            </motion.div>
+
+            <div className="h-px bg-blue-800/30" />
+
+            {/* Item 2 */}
+            <motion.div
+              className="flex items-center justify-between"
+              initial={{ opacity: 0, x: -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.65, duration: 0.6 }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-red-500/15 flex items-center justify-center">
+                  <span className="text-red-400 text-lg">✓</span>
+                </div>
+                <span className="text-lg">Gordura corporal</span>
+              </div>
+              <span className="text-red-400 font-medium">↓ Em queda</span>
+            </motion.div>
+
+            <div className="h-px bg-blue-800/30" />
+
+            {/* Item 3 */}
+            <motion.div
+              className="flex items-center justify-between"
+              initial={{ opacity: 0, x: -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.85, duration: 0.6 }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-cyan-500/15 flex items-center justify-center">
+                  <span className="text-cyan-400 text-lg">✓</span>
+                </div>
+                <span className="text-lg">Corpo mais firme</span>
+              </div>
+              <span className="text-cyan-400 font-medium">↑ Ativando</span>
+            </motion.div>
+          </motion.div>
+
+          {/* Timeline */}
+          <motion.div
+            className="text-center space-y-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.05, duration: 0.6 }}
+          >
+            <div className="flex justify-between text-sm text-gray-300 px-2">
+              <span>Agora</span>
+              <span>7 dias</span>
+              <span className="text-white font-medium">14 dias</span>
+            </div>
+
+            <div className="relative h-1 bg-blue-900/40 rounded-full overflow-hidden">
+              <motion.div
+                className="absolute left-0 top-0 h-1
+                         bg-gradient-to-r from-blue-600 to-cyan-400
+                         rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: "66%" }}
+                transition={{ delay: 1.15, duration: 0.9, ease: "easeOut" }}
+              />
+            </div>
+
+            <p className="text-sm text-gray-300">▲ primeiros sinais perceptíveis</p>
+          </motion.div>
+
+          {/* Proof */}
+          <motion.p
+            className="text-center text-sm text-gray-400"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.35, duration: 0.5 }}
+          >
+            *Estimativa baseada em mais de 1,3 milhão de treinos analisados
+          </motion.p>
+
+          {/* CTA */}
+          <motion.button
+            onClick={() => {
+              setShowQuickResults(false)
+              setCurrentStep(6)
+            }}
+            className="
+            w-full h-16 text-xl font-bold text-black
+            bg-white
+            rounded-full shadow-lg
+          "
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.5, duration: 0.6 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Continuar
+          </motion.button>
+        </div>
+      </motion.div>
+    )
+  }
+
+  if (showCortisolMessage && currentStep === 22) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center p-6">
+        <div className="max-w-2xl w-full space-y-8">
+          <h2 className="text-3xl font-bold text-white text-center">Não é necessário se esforçar ao limite!</h2>
+
+          <div className="relative bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
             {/* Graph visualization */}
             <div className="relative h-64 mb-6">
               <svg className="w-full h-full" viewBox="0 0 400 200" preserveAspectRatio="none">
@@ -1182,39 +1320,23 @@ export default function QuizPage() {
             </div>
 
             <div className="space-y-4 text-center">
-              <motion.p
-                className="text-gray-300 text-lg leading-relaxed"
-                initial={{ opacity: 0, x: -24 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.45, duration: 0.6 }}
-              >
+              <p className="text-gray-300 text-lg leading-relaxed">
                 Exercícios muito intensos podem aumentar seus níveis de cortisol e dificultar o ganho de massa muscular.
                 Nosso programa personaliza seu plano para ajudá-lo a atingir seus objetivos sem exagerar.
-              </motion.p>
-              <motion.p
-                className="text-gray-400 text-sm italic"
-                initial={{ opacity: 0, x: -24 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.65, duration: 0.6 }}
-              >
-                *Baseado em dados de 1.3m treinos.
-              </motion.p>
+              </p>
+              <p className="text-gray-400 text-sm italic">*Baseado em dados de 1.3m treinos.</p>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.button
+          <button
             onClick={() => {
               setShowCortisolMessage(false)
+              // The renderQuestion will handle showing the next step correctly (case 22)
             }}
             className="w-full bg-lime-500 hover:bg-lime-600 text-white rounded-lg py-4 font-semibold transition-all shadow-lg"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
           >
             Entendi
-          </motion.button>
+          </button>
         </div>
       </div>
     )
@@ -1363,33 +1485,18 @@ export default function QuizPage() {
         </div>
 
         <div className="text-center space-y-4 max-w-2xl relative z-10">
-          <motion.h2
-            className="text-xl md:text-3xl font-bold leading-tight"
-            initial={{ opacity: 0, y: -24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.6 }}
-          >
+          <h2 className="text-xl md:text-3xl font-bold leading-tight">
             O último plano de que você precisará para <span className="text-lime-400">finalmente entrar em forma</span>
-          </motion.h2>
+          </h2>
 
-          <motion.p
-            className="text-gray-300 text-sm md:text-base"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-          >
+          <p className="text-gray-300 text-sm md:text-base">
             Com base em nossos cálculos, você atingirá seu peso ideal de {target} kg até
-          </motion.p>
+          </p>
 
-          <motion.div
-            className="relative inline-block"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.45, duration: 0.6 }}
-          >
+          <div className="relative inline-block">
             <div className="absolute inset-0 bg-lime-400/20 blur-3xl rounded-full" />
             <div className="relative text-2xl md:text-4xl font-bold text-lime-400">{quizData.timeToGoal}</div>
-          </motion.div>
+          </div>
 
           <div className="relative w-full max-w-md mx-auto">
             <div
@@ -1478,57 +1585,47 @@ export default function QuizPage() {
             </div>
           </div>
 
-          <motion.div
-            className="flex justify-between text-xs md:text-sm text-gray-400"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.55, duration: 0.6 }}
-          >
+          <div className="flex justify-between text-xs md:text-sm text-gray-400">
             <span>{getCurrentDate()}</span>
             <span>{quizData.timeToGoal}</span>
-          </motion.div>
+          </div>
 
-          <motion.button
+          <button
             onClick={() => {
               setShowTimeCalculation(false)
-              setCurrentStep(28)
+              setCurrentStep(currentStep + 1)
             }}
-            className="mt-8 bg-lime-500 hover:bg-lime-600 text-gray-900 font-bold py-4 px-12 rounded-full text-lg transition-colors"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.65, duration: 0.6 }}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
+            className="w-full h-16 bg-white text-black text-xl font-bold rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Continuar
-          </motion.button>
-        </div>
+            Entendi
+          </button>
 
-        <style>{`
-          @keyframes floatUp {
-            0% {
-              transform: translateY(0) translateX(0);
-              opacity: 0;
+          <style>{`
+            @keyframes madDraw {
+              to { stroke-dashoffset: 0; }
             }
-            10% {
-              opacity: 1;
+            @keyframes madBar {
+              from { height: 0%; }
+              to { height: 100%; }
             }
-            90% {
-              opacity: 1;
+            @keyframes floatUp {
+              0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+              }
+              10% {
+                opacity: 1;
+              }
+              90% {
+                opacity: 1;
+              }
+              100% {
+                transform: translateY(-100vh) translateX(${Math.random() * 40 - 20}px);
+                opacity: 0;
+              }
             }
-            100% {
-              transform: translateY(-100vh) translateX(${Math.random() * 40 - 20}px);
-              opacity: 0;
-            }
-          }
-          @keyframes madDraw {
-            to { stroke-dashoffset: 0; }
-          }
-          @keyframes madBar {
-            from { height: 0%; }
-            to { height: 100%; }
-          }
-        `}</style>
+          `}</style>
+        </div>
       </div>
     )
   }
@@ -3163,7 +3260,7 @@ export default function QuizPage() {
                         : option.value === "neutral"
                           ? "border-yellow-500 bg-yellow-500/20"
                           : "border-lime-500 bg-lime-500/10"
-                      : "border-white/10 bg-white/5 hover:border-lime-500/10"
+                      : "border-white/10 bg-white/5 hover:border-lime-500/10 backdrop-blur-sm"
                   }`}
                 >
                   <span className="text-white">{option.label}</span>
@@ -4101,156 +4198,6 @@ export default function QuizPage() {
       default:
         return true
     }
-  }
-
-  if (showQuickResults) {
-    return (
-      <motion.div
-        className="
-        min-h-screen text-white flex items-center justify-center px-4 py-10
-        bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50
-      "
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="max-w-2xl w-full space-y-8">
-          {/* Header */}
-          <motion.div
-            className="text-center space-y-3"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.7 }}
-          >
-            <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para sentir os primeiros sinais</h1>
-            <p className="text-gray-300 text-lg">
-              Com base no seu perfil, estes são os resultados iniciais mais comuns
-            </p>
-          </motion.div>
-
-          {/* Status Box */}
-          <motion.div
-            className="
-            bg-gradient-to-br from-blue-950/40 via-purple-950/30 to-blue-950/40
-            border border-blue-800/40
-            rounded-3xl px-6 py-6 space-y-5 backdrop-blur-sm
-          "
-            initial={{ opacity: 0, y: 32 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.7 }}
-          >
-            {/* Item 1 */}
-            <motion.div
-              className="flex items-center justify-between"
-              initial={{ opacity: 0, x: -24 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.45, duration: 0.6 }}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-green-500/15 flex items-center justify-center">
-                  <span className="text-green-400 text-lg">✓</span>
-                </div>
-                <span className="text-lg">Energia diária</span>
-              </div>
-              <span className="text-green-400 font-medium">↑ Estável</span>
-            </motion.div>
-
-            <div className="h-px bg-blue-800/30" />
-
-            {/* Item 2 */}
-            <motion.div
-              className="flex items-center justify-between"
-              initial={{ opacity: 0, x: -24 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.65, duration: 0.6 }}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-red-500/15 flex items-center justify-center">
-                  <span className="text-red-400 text-lg">✓</span>
-                </div>
-                <span className="text-lg">Gordura corporal</span>
-              </div>
-              <span className="text-red-400 font-medium">↓ Em queda</span>
-            </motion.div>
-
-            <div className="h-px bg-blue-800/30" />
-
-            {/* Item 3 */}
-            <motion.div
-              className="flex items-center justify-between"
-              initial={{ opacity: 0, x: -24 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.85, duration: 0.6 }}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-cyan-500/15 flex items-center justify-center">
-                  <span className="text-cyan-400 text-lg">✓</span>
-                </div>
-                <span className="text-lg">Corpo mais firme</span>
-              </div>
-              <span className="text-cyan-400 font-medium">↑ Ativando</span>
-            </motion.div>
-          </motion.div>
-
-          {/* Timeline */}
-          <motion.div
-            className="text-center space-y-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.05, duration: 0.6 }}
-          >
-            <div className="flex justify-between text-sm text-gray-300 px-2">
-              <span>Agora</span>
-              <span>7 dias</span>
-              <span className="text-white font-medium">14 dias</span>
-            </div>
-
-            <div className="relative h-1 bg-blue-900/40 rounded-full overflow-hidden">
-              <motion.div
-                className="absolute left-0 top-0 h-1
-                         bg-gradient-to-r from-blue-600 to-cyan-400
-                         rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: "66%" }}
-                transition={{ delay: 1.15, duration: 0.9, ease: "easeOut" }}
-              />
-            </div>
-
-            <p className="text-sm text-gray-300">▲ primeiros sinais perceptíveis</p>
-          </motion.div>
-
-          {/* Proof */}
-          <motion.p
-            className="text-center text-sm text-gray-400"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.35, duration: 0.5 }}
-          >
-            *Estimativa baseada em mais de 1,3 milhão de treinos analisados
-          </motion.p>
-
-          {/* CTA */}
-          <motion.button
-            onClick={() => {
-              setShowQuickResults(false)
-              setCurrentStep(6)
-            }}
-            className="
-            w-full h-16 text-xl font-bold text-black
-            bg-white
-            rounded-full shadow-lg
-          "
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.5, duration: 0.6 }}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Continuar
-          </motion.button>
-        </div>
-      </motion.div>
-    )
   }
 
   return (
