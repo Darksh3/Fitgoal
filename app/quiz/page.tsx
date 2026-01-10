@@ -2017,10 +2017,6 @@ export default function QuizPage() {
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         return quizData.email !== "" && emailRegex.test(quizData.email)
-      case 29: // Updated from 28. Training days per week
-        // Basic email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        return quizData.email !== "" && emailRegex.test(quizData.email)
       case 30: // Final submit
         // Training days per week is now handled by step 23.
         // This step is now the final submit.
