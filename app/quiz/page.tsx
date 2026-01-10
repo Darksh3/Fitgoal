@@ -4029,7 +4029,7 @@ export default function QuizPage() {
                   updateQuizData("wantsSupplement", "nao")
                   updateQuizData("recommendedSupplement", "")
                   updateQuizData("supplementType", "")
-                  setTimeout(() => setCurrentStep(29), 300)
+                  setTimeout(() => setCurrentStep(28), 300)
                 }}
                 className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
                   quizData.wantsSupplement === "nao"
