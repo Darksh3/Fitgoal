@@ -213,7 +213,7 @@ export default function ResultsPage() {
         </h1>
 
         {/* Comparison container */}
-        <div className="max-w-4xl mx-auto bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-xl p-8 mb-16 relative">
+        <div className="max-w-4xl mx-auto bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-xl p-8 mb-16">
           {/* Tabs */}
           <div className="flex gap-4 mb-8 bg-black rounded-lg p-1">
             <button className="flex-1 py-3 px-4 bg-gray-800 text-white rounded-lg font-semibold">Agora</button>
@@ -257,7 +257,8 @@ export default function ResultsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 -mt-20 pt-8 border-t border-gray-800 bg-gradient-to-t from-gray-900 via-gray-900 to-transparent relative z-10">
+          {/* Stats grid */}
+          <div className="grid grid-cols-2 gap-8 mt-8 pt-8 border-t border-gray-800">
             {/* Current stats */}
             <div className="space-y-4">
               <div>
