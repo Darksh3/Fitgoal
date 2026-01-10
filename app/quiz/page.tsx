@@ -2713,7 +2713,7 @@ export default function QuizPage() {
                           height: `${debugValues.m_leg_lower_right.height}%`,
                           borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
                           transform: `rotate(${debugValues.m_leg_lower_right.rotate}deg)`,
-                          boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
+                          boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
                     </>
@@ -4208,7 +4208,8 @@ export default function QuizPage() {
             {isComplete && (
               <button
                 onClick={() => {
-                  router.push(`/quiz/results`)
+                  const selectedDiscount = ""
+                  router.push(`/quiz/results?discount=${selectedDiscount}`)
                 }}
                 className="w-full max-w-md h-14 bg-white text-black text-lg font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg"
               >
