@@ -397,6 +397,282 @@ export default function ResultsPage() {
               OBTER MEU PLANO
             </button>
           </div>
+
+          {/* Highlights of your plan section */}
+          <div className="mt-20 py-16 border-t border-gray-800">
+            <h2 className="text-4xl font-bold text-white mb-12">Destaques do seu plano</h2>
+
+            <div className="grid grid-cols-2 gap-12">
+              {/* Left column - Highlights list */}
+              <div className="space-y-8">
+                {/* Highlight 1 */}
+                <div className="flex gap-4">
+                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                    <path
+                      fillRule="evenodd"
+                      d="M4 5a2 2 0 012-2 1 1 0 000 2H6a6 6 0 116 0h.5a1 1 0 000-2 2 2 0 01-2-2 9 9 0 11-9 9 5 5 0 018-9H9a1 1 0 000 2h2a1 1 0 100-2H4z"
+                      clipRule="evenodd"
+                    ></path>
+                  </svg>
+                  <div>
+                    <p className="text-white font-bold">Programa de treino progressivo</p>
+                    <p className="text-gray-400 text-sm">Adequado ao seu nível de forma física e objetivo</p>
+                  </div>
+                </div>
+
+                {/* Highlight 2 */}
+                <div className="flex gap-4">
+                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M13 7a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 11-2 0 1 1 0 012 0zm6 0a1 1 0 11-2 0 1 1 0 012 0zm2-8a1 1 0 01.967.25l2.5 6.526a1 1 0 01-.5 1.3H17v6a2 2 0 01-2 2h-2a2 2 0 01-2-2v-3H9v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-6H.033a1 1 0 01-.5-1.3l2.5-6.526A1 1 0 015 1h10z"></path>
+                  </svg>
+                  <div>
+                    <p className="text-white font-bold">Rotinas fáceis para iniciantes</p>
+                    <p className="text-gray-400 text-sm">Para construir músculo e queimar gordura</p>
+                  </div>
+                </div>
+
+                {/* Highlight 3 */}
+                <div className="flex gap-4">
+                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 00-1.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    ></path>
+                  </svg>
+                  <div>
+                    <p className="text-white font-bold">Top 100 exercícios de Calistenia</p>
+                    <p className="text-gray-400 text-sm">Que atingem cada grupo muscular do corpo</p>
+                  </div>
+                </div>
+
+                {/* Highlight 4 */}
+                <div className="flex gap-4">
+                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM9 12a6 6 0 11-12 0 6 6 0 0112 0zM12.5 1a.5.5 0 01.5.5v2a.5.5 0 01-1 0V1.5a.5.5 0 01.5-.5zM15.854 3.146a.5.5 0 010 .708l-1.414 1.414a.5.5 0 01-.708-.708l1.414-1.414a.5.5 0 01.708 0zM18 6.5a.5.5 0 01-.5.5h-2a.5.5 0 010-1h2a.5.5 0 01.5.5zM15.854 10.854a.5.5 0 01-.708 0l-1.414-1.414a.5.5 0 01.708-.708l1.414 1.414a.5.5 0 010 .708zM12.5 14a.5.5 0 01.5.5v2a.5.5 0 01-1 0v-2a.5.5 0 01.5-.5z"></path>
+                  </svg>
+                  <div>
+                    <p className="text-white font-bold">1.500+ treinos guiados em casa</p>
+                    <p className="text-gray-400 text-sm">Desenvolvido por treinadores de fitness certificados</p>
+                  </div>
+                </div>
+
+                {/* Highlight 5 */}
+                <div className="flex gap-4">
+                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 011-1zM5.05 6.051a1 1 0 00-1.414 1.414l.707.707a1 1 0 101.414-1.414l-.707-.707zM3 9a1 1 0 100 2v4a2 2 0 100 4h12a2 2 0 100-4V9a1 1 0 100-2H3z"></path>
+                  </svg>
+                  <div>
+                    <p className="text-white font-bold">Plano de refeições personalizado</p>
+                    <p className="text-gray-400 text-sm">
+                      Com mais de 1000 receitas fáceis de seguir para atingir seu objetivo mais rápido
+                    </p>
+                  </div>
+                </div>
+
+                {/* Highlight 6 */}
+                <div className="flex gap-4">
+                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M4.5 2a1 1 0 00-.5.887v14.226a1 1 0 00.5.887l7-3.5a1 1 0 01.5-.887V5.387a1 1 0 00-.5-.887l-7-3.5zm7.707.707a1 1 0 00-1.414-1.414l-7 7a1 1 0 000 1.414l7 7a1 1 0 001.414-1.414L11.414 10l6.293-6.293a1 1 0 000-1.414l-7-7z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <div>
+                    <p className="text-white font-bold">Sem academia, sem problema</p>
+                    <p className="text-gray-400 text-sm">
+                      Faça Calistenia em casa ou fora com equipamento mínimo ou nenhum
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right column - Image mockup */}
+              <div className="flex items-center justify-center">
+                <div className="relative w-full max-w-sm">
+                  {/* Placeholder for the app mockup image */}
+                  <div className="bg-gradient-to-b from-gray-800 to-gray-900 rounded-3xl p-4 border border-gray-700">
+                    <div className="bg-black rounded-2xl aspect-video flex items-center justify-center">
+                      <svg className="w-12 h-12 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V5a2 2 0 00-2-2H5zm6 9a1 1 0 100-2 1 1 0 000 2z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Results that make us proud section with testimonials */}
+          <section className="py-20 bg-black">
+            <div className="max-w-5xl mx-auto px-4">
+              <h2 className="text-4xl font-bold text-center text-white mb-12">Resultados que nos deixam orgulhosos</h2>
+
+              <div className="grid grid-cols-3 gap-8 mb-12">
+                {/* Testimonial 1 - Brandon */}
+                <div className="bg-gray-900 rounded-2xl overflow-hidden">
+                  <div className="aspect-square bg-gray-800 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-b from-gray-700 to-gray-900 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-32 h-32 bg-gray-700 rounded-full mx-auto mb-4"></div>
+                        <p className="text-gray-400 text-sm">Antes / Depois</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-white">Brandon</h3>
+                      <span className="text-orange-400 font-bold text-lg">-15 kg</span>
+                    </div>
+                    <p className="text-gray-400 text-sm line-clamp-3">
+                      Olá, estou usando seus treinos e comecei há cerca de 4-5 meses atrás e só queria dizer obrigado,
+                      você fez um ótimo trabalho, realmente vi um t...
+                    </p>
+                    <button className="text-orange-400 text-sm font-semibold hover:text-orange-300">Ler mais</button>
+                  </div>
+                </div>
+
+                {/* Testimonial 2 - Peter */}
+                <div className="bg-gray-900 rounded-2xl overflow-hidden">
+                  <div className="aspect-square bg-gray-800 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-b from-gray-700 to-gray-900 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-32 h-32 bg-gray-700 rounded-full mx-auto mb-4"></div>
+                        <p className="text-gray-400 text-sm">Antes / Depois</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-white">Peter</h3>
+                      <span className="text-orange-400 font-bold text-lg">-5 kg</span>
+                    </div>
+                    <p className="text-gray-400 text-sm line-clamp-3">
+                      Os vídeos são muito úteis e fáceis de entender. Os conselhos do seu consultor funcionam bem
+                      comigo. Consigo dormir cedo agora. Este aplicativo funciona f...
+                    </p>
+                    <button className="text-orange-400 text-sm font-semibold hover:text-orange-300">Ler mais</button>
+                  </div>
+                </div>
+
+                {/* Testimonial 3 - Kevin */}
+                <div className="bg-gray-900 rounded-2xl overflow-hidden">
+                  <div className="aspect-square bg-gray-800 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-b from-gray-700 to-gray-900 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-32 h-32 bg-gray-700 rounded-full mx-auto mb-4"></div>
+                        <p className="text-gray-400 text-sm">Antes / Depois</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-white">Kevin</h3>
+                      <span className="text-orange-400 font-bold text-lg">-13 kg</span>
+                    </div>
+                    <p className="text-gray-400 text-sm line-clamp-3">
+                      Comecei com cerca de 200 lbs e agora estou com um peso saudável e magro 172.
+                    </p>
+                    <button className="text-orange-400 text-sm font-semibold hover:text-orange-300">Ler mais</button>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-xs text-gray-500 text-center">
+                *Disclaimer: Usuários do BetterMe compartilharam seu feedback. Este usuário teve acesso a treinamento
+                personalizado, recursos adicionais de pagamento. Os seguintes exercícios e os planos são a chave em sua
+                jornada de fitness e resultados geralmente aparecem em 4 semanas. Os resultados podem variar por pessoa
+                e não são garantidos.
+              </p>
+            </div>
+          </section>
+
+          {/* People often ask FAQ section with expandable items */}
+          <section className="py-20 bg-black">
+            <div className="max-w-3xl mx-auto px-4">
+              <h2 className="text-4xl font-bold text-center text-white mb-12">As pessoas frequentemente perguntam</h2>
+
+              <div className="space-y-6">
+                {/* FAQ Item 1 */}
+                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
+                  <summary className="flex items-center justify-between font-bold text-white">
+                    Como este plano pode me ajudar a queimar gordura e construir músculos?
+                    <svg
+                      className="w-5 h-5 transform group-open:rotate-180 transition"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                      />
+                    </svg>
+                  </summary>
+                  <p className="text-gray-400 mt-4">
+                    Nosso plano foi desenvolvido para ajudá-lo a queimar gordura e construir um corpo tonificado e
+                    magro, combinando treinos passo a passo com um plano de refeições personalizado. Nossas rotinas com
+                    vídeos guiados garantem a forma correta e ajudam você a manter a consistência e a motivação,
+                    tornando a perda de peso mais alcançável e sustentável.
+                  </p>
+                </details>
+
+                {/* FAQ Item 2 */}
+                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
+                  <summary className="flex items-center justify-between font-bold text-white">
+                    Quais são os benefícios da calistenia em comparação com outros treinos?
+                    <svg
+                      className="w-5 h-5 transform group-open:rotate-180 transition"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                      />
+                    </svg>
+                  </summary>
+                  <p className="text-gray-400 mt-4">
+                    Calistenia é um salva-vidas se você quer ter um corpo melhor, mas não tem acesso a equipamento de
+                    academia, não consegue se dedicar ao levantamento tradicional de pesos, ou simplesmente quer tentar
+                    algo inovador e divertido. Obtenha seu plano e experimente agora!
+                  </p>
+                </details>
+
+                {/* FAQ Item 3 */}
+                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
+                  <summary className="flex items-center justify-between font-bold text-white">
+                    E se eu perder a motivação rapidamente?
+                    <svg
+                      className="w-5 h-5 transform group-open:rotate-180 transition"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                      />
+                    </svg>
+                  </summary>
+                  <p className="text-gray-400 mt-4">
+                    Forneceremos lembretes suaves, conselhos de especialistas, ferramentas de rastreamento úteis e apoio
+                    constante para ajudá-lo a ver o progresso e manter-se consistente. Dessa forma, você pode alcançar
+                    seus objetivos e desfrutar de um corpo mais saudável e em forma sem o medo de desistir.
+                  </p>
+                </details>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
     </div>
