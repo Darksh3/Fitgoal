@@ -2000,30 +2000,28 @@ export default function QuizPage() {
         return quizData.equipment.length > 0
       case 22: // Updated from 21. Food Preferences
         return quizData.workoutTime !== ""
-      case 23: // Updated from 22. Allergies
+      case 23:
+        return quizData.trainingDays !== ""
+      case 24: // Updated from 22. Allergies
         // Allow proceeding if "Let Mad Muscles Choose" is true or if at least one food preference is selected
         return quizData.letMadMusclesChoose || Object.values(quizData.foodPreferences).some((arr) => arr.length > 0)
-      case 24: // Updated from 23. Allergy Details (only if allergies is 'sim')
+      case 25: // Updated from 23. Allergy Details (only if allergies is 'sim')
         return quizData.allergies !== ""
-      case 25: // Updated from 24. Supplement Interest
+      case 26: // Updated from 24. Supplement Interest
         return (quizData.allergies === "sim" && quizData.allergyDetails !== "") || quizData.allergies === "nao"
-      case 26: // Updated from 25. Supplement Recommendation
+      case 27: // Updated from 25. Supplement Recommendation
         return quizData.wantsSupplement !== ""
-      case 27: // Updated from 26. Name
+      case 28: // Updated from 26. Name
         // This case is now for Supplement Interest, and we can always proceed to next step if we want to show recommendation.
         // The actual *choice* of supplement type was removed from the flow.
         return true // Always allow proceeding after seeing recommendation
       // </CHANGE>
-      case 28: // Updated from 27. Email
+      case 29: // Updated from 27. Email
         return quizData.name.trim() !== ""
-      case 29: // Updated from 28. Training days per week
+      case 30: // Updated from 28. Training days per week
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         return quizData.email !== "" && emailRegex.test(quizData.email)
-      case 30: // Final submit
-        // Training days per week is now handled by step 23.
-        // This step is now the final submit.
-        return true
 
       // </CHANGE>
       default:
