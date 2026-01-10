@@ -4,13 +4,13 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
-import { Heart, Zap, TargetIcon, Moon, TrendingUp, ChevronRight, Check, Star } from "lucide-react"
-import { ScratchCard } from "@/components/scratch-card"
+import Image from "next/image"
 
 export default function ResultsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
+  const [timeLeft, setTimeLeft] = useState({ minutes: 4, seconds: 0 })
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,45 +53,30 @@ export default function ResultsPage() {
     fetchData()
   }, [router])
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev.seconds > 0) {
+          return { ...prev, seconds: prev.seconds - 1 }
+        } else if (prev.minutes > 0) {
+          return { minutes: prev.minutes - 1, seconds: 59 }
+        }
+        return prev
+      })
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
+
   const getDataValue = (key: string) => {
     if (data?.[key] !== undefined) return data[key]
     if (data?.quizData?.[key] !== undefined) return data.quizData[key]
     return undefined
   }
 
-  const getGoalText = (goals: string[]) => {
-    const goalMap: { [key: string]: string } = {
-      "perder-peso": "Perder Peso",
-      "ganhar-massa": "Ganhar Massa Muscular",
-      "melhorar-saude": "Melhorar Saúde",
-      "aumentar-resistencia": "Aumentar Resistência",
-    }
-    return goals.map((goal) => goalMap[goal] || goal).join(", ")
-  }
-
-  const getBodyTypeText = (bodyType: string) => {
-    switch (bodyType) {
-      case "ectomorfo":
-        return "Ectomorfo"
-      case "mesomorfo":
-        return "Mesomorfo"
-      case "endomorfo":
-        return "Endomorfo"
-      default:
-        return "Não especificado"
-    }
-  }
-
-  const getBMICategory = (imc: number) => {
-    if (imc < 18.5) return { text: "Abaixo do peso", color: "text-blue-400" }
-    if (imc >= 18.5 && imc < 25) return { text: "Peso normal", color: "text-lime-400" }
-    if (imc >= 25 && imc < 30) return { text: "Sobrepeso", color: "text-yellow-400" }
-    return { text: "Obesidade", color: "text-red-400" }
-  }
-
   const getCurrentBodyFatImage = () => {
-    const bodyFat = Number(data.bodyFat) || 25
-    const gender = getDataValue("gender") || data.gender || "male"
+    const bodyFat = Number(data?.bodyFat) || 25
+    const gender = getDataValue("gender") || data?.gender || "male"
     const isMale = gender === "male" || gender === "homem"
 
     if (isMale) {
@@ -116,8 +101,8 @@ export default function ResultsPage() {
   }
 
   const getImprovedBodyFatImage = () => {
-    const bodyFat = Number(data.bodyFat) || 25
-    const gender = getDataValue("gender") || data.gender || "male"
+    const bodyFat = Number(data?.bodyFat) || 25
+    const gender = getDataValue("gender") || data?.gender || "male"
     const isMale = gender === "male" || gender === "homem"
 
     if (isMale) {
@@ -142,7 +127,7 @@ export default function ResultsPage() {
   }
 
   const getCurrentBodyFatRange = () => {
-    const bodyFat = Number(data.bodyFat) || 25
+    const bodyFat = Number(data?.bodyFat) || 25
     if (bodyFat <= 10) return "5-10%"
     if (bodyFat <= 15) return "11-15%"
     if (bodyFat <= 20) return "16-20%"
@@ -154,7 +139,7 @@ export default function ResultsPage() {
   }
 
   const getImprovedBodyFatRange = () => {
-    const bodyFat = Number(data.bodyFat) || 25
+    const bodyFat = Number(data?.bodyFat) || 25
     if (bodyFat <= 10) return "5-10%"
     if (bodyFat <= 15) return "5-10%"
     if (bodyFat <= 20) return "11-15%"
@@ -167,10 +152,10 @@ export default function ResultsPage() {
 
   const calculateDailyCalories = () => {
     if (!data) return 2425
-    const weight = Number(data.weight) || 70
-    const height = Number(data.height) || 170
-    const age = Number(data.age) || 30
-    const gender = data.gender || "male"
+    const weight = Number(data?.weight) || 70
+    const height = Number(data?.height) || 170
+    const age = Number(data?.age) || 30
+    const gender = data?.gender || "male"
 
     let bmr
     if (gender === "homem") {
@@ -179,274 +164,139 @@ export default function ResultsPage() {
       bmr = 447.593 + 9.247 * weight + 3.098 * height - 4.33 * age
     }
 
-    const trainingDays = Number(data.trainingDays) || 3
+    const trainingDays = Number(data?.trainingDays) || 3
     const activityFactor = trainingDays >= 5 ? 1.725 : trainingDays >= 3 ? 1.55 : 1.375
 
     let calories = bmr * activityFactor
-    if (data.goal?.includes("perder-peso")) {
+    if (data?.goal?.includes("perder-peso")) {
       calories -= 500
-    } else if (data.goal?.includes("ganhar-massa")) {
+    } else if (data?.goal?.includes("ganhar-massa")) {
       calories += 300
     }
 
     return Math.round(calories)
   }
 
-  const getWorkoutLocation = () => {
-    const equipment = getDataValue("equipment")
-    if (!equipment || (Array.isArray(equipment) && equipment.length === 0)) {
-      return "Não definido"
-    }
-
-    const equipmentArray = Array.isArray(equipment) ? equipment : [equipment]
-
-    if (equipmentArray.includes("gym")) return "Academia"
-    if (equipmentArray.includes("bodyweight")) return "Apenas peso corporal"
-    if (equipmentArray.includes("dumbbells")) return "Halteres"
-
-    return "Não definido"
-  }
-
-  const getFitnessLevel = () => {
-    if (!data || !data.strengthTraining) return "Intermediário"
-    if (data.strengthTraining === "sim-regularmente") return "Avançado"
-    if (data.strengthTraining === "sim-ocasionalmente") return "Intermediário"
-    if (data.strengthTraining === "nao") return "Iniciante"
-    return "Intermediário"
-  }
-
-  const getTrainingFrequency = () => {
-    const days = Number.parseInt(String(data?.trainingDays || "3"), 10) || 3
-    return `${days}x por semana`
-  }
-
-  const getWorkoutDuration = () => {
-    const workoutTime = getDataValue("workoutTime")
-    if (!workoutTime) {
-      return "Não definido"
-    }
-
-    const durationMap: Record<string, string> = {
-      "15-30": "15-30 minutos",
-      "30-45": "30-45 minutos",
-      "45-60": "45-60 minutos",
-      "60+": "60+ minutos",
-    }
-
-    return durationMap[workoutTime] || workoutTime
-  }
-
-  const getAdditionalGoalsIcons = () => {
-    const goals = data?.additionalGoals || []
-    const iconMap = [
-      { key: "reduzir-estresse", icon: Zap, label: "Reduzir estresse" },
-      { key: "sentir-saudavel", icon: Heart, label: "Sentir-se mais saudável" },
-      { key: "autodisciplina", icon: TargetIcon, label: "Autodisciplina" },
-      { key: "formar-habito", icon: TrendingUp, label: "Formar hábito físico" },
-      { key: "melhorar-sono", icon: Moon, label: "Melhorar o sono" },
-    ]
-
-    return iconMap.filter((item) => goals.includes(item.key))
-  }
-
-  const handleGoToCheckout = () => {
-    if (!data) return
-    router.push("/checkout")
-  }
-
-  if (loading) {
+  if (loading || !data) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white bg-black">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-          <p>Carregando seus resultados...</p>
-        </div>
+      <div className="w-full h-screen bg-black flex items-center justify-center">
+        <div className="text-white">Carregando...</div>
       </div>
     )
   }
-
-  if (!data) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-white bg-black">
-        <div className="text-center">
-          <p className="text-red-400 mb-4">Dados do quiz não encontrados</p>
-          <button
-            onClick={() => router.push("/quiz")}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 font-semibold rounded-full transition-colors"
-          >
-            Refazer Quiz
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  const currentBodyImage = getCurrentBodyFatImage()
-  const improvedBodyImage = getImprovedBodyFatImage()
-  const currentBodyFatRange = getCurrentBodyFatRange()
-  const improvedBodyFatRange = getImprovedBodyFatRange()
-  const dailyCalories = calculateDailyCalories()
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <header className="border-b border-gray-800 py-4 px-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Seu Plano</h1>
-          <button
-            onClick={handleGoToCheckout}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full font-semibold transition-colors"
-          >
-            Começar Agora
+    <div className="w-full min-h-screen bg-black text-white">
+      <header className="w-full px-6 py-4 flex items-center justify-between border-b border-gray-800">
+        <div />
+        <div className="flex items-center gap-4">
+          <span className="text-sm">Desconto reservado por:</span>
+          <div className="flex gap-2 text-orange-400 font-bold text-lg">
+            <span>{String(timeLeft.minutes).padStart(2, "0")}</span>
+            <span>:</span>
+            <span>{String(timeLeft.seconds).padStart(2, "0")}</span>
+          </div>
+          <button className="px-6 py-2 bg-white text-black rounded-full font-semibold text-sm hover:bg-gray-200 transition">
+            OBTER MEU PLANO
+          </button>
+          <button className="w-8 h-8 flex items-center justify-center">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
           </button>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-16 px-6 bg-gradient-to-b from-gray-900 to-black">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-5xl font-bold text-center mb-16">
-            Seu Plano de Treino
-            <br />
-            Personalizado está pronto!
-          </h2>
+      <main className="w-full px-6 py-12">
+        <h1 className="text-4xl md:text-5xl font-bold text-center mb-12">
+          Seu Plano de Calistenia <br /> está Pronto!
+        </h1>
 
-          {/* Character Comparison */}
-          <div className="bg-gray-900 rounded-2xl p-12 mb-12">
-            <div className="flex justify-between items-end gap-8 mb-8">
-              <div className="flex-1 text-center">
-                <p className="text-gray-400 mb-4">Agora</p>
-                <img
-                  src={currentBodyImage || "/placeholder.svg"}
-                  alt="Você agora"
-                  className="w-full h-96 object-contain mb-4"
-                />
-                <p className="text-lg font-semibold">{currentBodyFatRange}</p>
-              </div>
-
-              <div className="flex items-end justify-center pb-24">
-                <ChevronRight className="w-12 h-12 text-gray-600" />
-              </div>
-
-              <div className="flex-1 text-center">
-                <p className="text-gray-400 mb-4">Em 4 Semanas</p>
-                <img
-                  src={improvedBodyImage || "/placeholder.svg"}
-                  alt="Você em 4 semanas"
-                  className="w-full h-96 object-contain mb-4"
-                />
-                <p className="text-lg font-semibold text-lime-400">{improvedBodyFatRange}</p>
-              </div>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 gap-6 mt-8 pt-8 border-t border-gray-700">
-              <div>
-                <p className="text-gray-400 text-sm mb-2">Calorias Diárias</p>
-                <p className="text-2xl font-bold">{dailyCalories} kcal</p>
-              </div>
-              <div>
-                <p className="text-gray-400 text-sm mb-2">Frequência</p>
-                <p className="text-2xl font-bold">{data.trainingDays || 3}x por semana</p>
-              </div>
-            </div>
-          </div>
-
-          {/* CTA */}
-          <div className="text-center mb-12">
-            <h3 className="text-2xl font-semibold mb-4">Escolha Seu Plano</h3>
-            <button
-              onClick={handleGoToCheckout}
-              className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-full font-bold text-lg transition-colors"
-            >
-              Ver Planos
+        {/* Comparison container */}
+        <div className="max-w-4xl mx-auto bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-xl p-8">
+          {/* Tabs */}
+          <div className="flex gap-4 mb-8 bg-black rounded-lg p-1">
+            <button className="flex-1 py-3 px-4 bg-gray-800 text-white rounded-lg font-semibold">Agora</button>
+            <button className="flex-1 py-3 px-4 bg-transparent text-gray-400 rounded-lg font-semibold hover:bg-gray-800 transition">
+              Sua Meta
             </button>
           </div>
-        </div>
-      </section>
 
-      {/* Highlights */}
-      <section className="py-16 px-6">
-        <div className="max-w-7xl mx-auto">
-          <h3 className="text-3xl font-bold mb-12">Destaques do Seu Plano</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="flex gap-4">
-              <Check className="w-6 h-6 text-lime-400 flex-shrink-0" />
-              <div>
-                <h4 className="font-semibold mb-2">Programa personalizado</h4>
-                <p className="text-gray-400">Treino customizado baseado no seu nível e objetivos</p>
-              </div>
+          {/* Body comparison */}
+          <div className="grid grid-cols-2 gap-8 mb-8 items-end justify-center">
+            {/* Current body */}
+            <div className="flex flex-col items-center">
+              <Image
+                src={getCurrentBodyFatImage() || "/placeholder.svg"}
+                alt="Corpo Atual"
+                width={250}
+                height={450}
+                className="h-96 w-auto object-contain"
+              />
             </div>
-            <div className="flex gap-4">
-              <Check className="w-6 h-6 text-lime-400 flex-shrink-0" />
-              <div>
-                <h4 className="font-semibold mb-2">Progressão semanal</h4>
-                <p className="text-gray-400">Aumente a intensidade conforme você melhora</p>
-              </div>
+
+            {/* Chevron */}
+            <div className="col-span-2 flex justify-center -my-8">
+              <svg className="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7m0 0l-7 7m7-7H6" />
+              </svg>
             </div>
-            <div className="flex gap-4">
-              <Check className="w-6 h-6 text-lime-400 flex-shrink-0" />
-              <div>
-                <h4 className="font-semibold mb-2">Plano de nutrição</h4>
-                <p className="text-gray-400">{dailyCalories} calorias diárias com recomendações de macro</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <Check className="w-6 h-6 text-lime-400 flex-shrink-0" />
-              <div>
-                <h4 className="font-semibold mb-2">Acompanhamento</h4>
-                <p className="text-gray-400">Monitore seu progresso e obtenha ajustes conforme necessário</p>
-              </div>
+
+            {/* Target body */}
+            <div className="flex flex-col items-center">
+              <Image
+                src={getImprovedBodyFatImage() || "/placeholder.svg"}
+                alt="Corpo Alvo"
+                width={250}
+                height={450}
+                className="h-96 w-auto object-contain"
+              />
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Testimonials */}
-      <section className="py-16 px-6 bg-gray-950">
-        <div className="max-w-7xl mx-auto">
-          <h3 className="text-3xl font-bold text-center mb-12">Confiem 10+ milhões de pessoas</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-gray-900 p-6 rounded-lg">
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, j) => (
-                    <Star key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  ))}
+          {/* Stats grid */}
+          <div className="grid grid-cols-2 gap-8 mt-8 pt-8 border-t border-gray-800">
+            {/* Current stats */}
+            <div className="space-y-4">
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Força Muscular</p>
+                <p className="text-white font-bold mb-2">{getCurrentBodyFatRange()}</p>
+                <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div
+                    className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
+                    style={{ width: `${(Number(data?.bodyFat) || 25) * 2}%` }}
+                  />
                 </div>
-                <p className="text-gray-300 mb-4">
-                  "Transformação incrível! Os resultados em 4 semanas foram melhores do que esperava."
-                </p>
-                <p className="font-semibold">Usuário Verificado</p>
               </div>
-            ))}
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
+                <p className="text-white font-bold mb-2">Iniciante</p>
+                <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full w-1/3" />
+                </div>
+              </div>
+            </div>
+
+            {/* Target stats */}
+            <div className="space-y-4">
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Força Muscular</p>
+                <p className="text-white font-bold mb-2">{getImprovedBodyFatRange()}</p>
+                <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full w-4/5" />
+                </div>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
+                <p className="text-white font-bold mb-2">Avançado</p>
+                <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full w-3/4" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="py-16 px-6">
-        <div className="max-w-2xl mx-auto text-center">
-          <h3 className="text-3xl font-bold mb-8">Comece Sua Transformação</h3>
-          <button
-            onClick={handleGoToCheckout}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-full font-bold text-lg transition-colors mb-4"
-          >
-            Ver Planos Agora
-          </button>
-          <p className="text-gray-400 text-sm">Garantia de reembolso de 30 dias. Sem riscos.</p>
-        </div>
-      </section>
-
-      {/* Scratch Card Section */}
-      <section className="py-16 px-6 bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center space-y-6">
-        <ScratchCard
-          discount={20}
-          onReveal={() => {
-            // Optional callback when discount is revealed
-          }}
-        />
-      </section>
+      </main>
     </div>
   )
 }
