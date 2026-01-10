@@ -213,7 +213,7 @@ export default function ResultsPage() {
         </h1>
 
         {/* Comparison container */}
-        <div className="max-w-4xl mx-auto bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-xl p-8 mb-16">
+        <div className="max-w-4xl mx-auto bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-xl p-8 mb-16 relative">
           {/* Tabs */}
           <div className="flex gap-4 mb-8 bg-black rounded-lg p-1">
             <button className="flex-1 py-3 px-4 bg-gray-800 text-white rounded-lg font-semibold">Agora</button>
@@ -222,205 +222,201 @@ export default function ResultsPage() {
             </button>
           </div>
 
-          {/* Body comparison and stats combined */}
-          <div className="relative">
-            {/* Body comparison */}
-            <div className="flex gap-12 mb-0 items-center justify-center">
-              {/* Current body */}
-              <div className="flex flex-col items-center">
-                <Image
-                  src={getCurrentBodyFatImage() || "/placeholder.svg"}
-                  alt="Corpo Atual"
-                  width={200}
-                  height={400}
-                  className="h-80 w-auto object-contain"
-                />
+          {/* Body comparison */}
+          <div className="flex gap-12 mb-8 items-center justify-center">
+            {/* Current body */}
+            <div className="flex flex-col items-center">
+              <Image
+                src={getCurrentBodyFatImage() || "/placeholder.svg"}
+                alt="Corpo Atual"
+                width={200}
+                height={400}
+                className="h-80 w-auto object-contain"
+              />
+            </div>
+
+            {/* Chevron - CHANGE: positioned between characters */}
+            <svg
+              className="w-12 h-12 text-gray-500 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7m0 0l-7 7m7-7H6" />
+            </svg>
+
+            {/* Target body */}
+            <div className="flex flex-col items-center">
+              <Image
+                src={getImprovedBodyFatImage() || "/placeholder.svg"}
+                alt="Corpo Alvo"
+                width={200}
+                height={400}
+                className="h-80 w-auto object-contain"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-8 -mt-20 pt-8 border-t border-gray-800 bg-gradient-to-t from-gray-900 via-gray-900 to-transparent relative z-10">
+            {/* Current stats */}
+            <div className="space-y-4">
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Força Muscular</p>
+                <p className="text-white font-bold mb-2">{getCurrentBodyFatRange()}</p>
+                <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div
+                    className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
+                    style={{ width: `${(Number(data?.bodyFat) || 25) * 2}%` }}
+                  />
+                </div>
               </div>
-
-              {/* Chevron */}
-              <svg
-                className="w-12 h-12 text-gray-500 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7m0 0l-7 7m7-7H6" />
-              </svg>
-
-              {/* Target body */}
-              <div className="flex flex-col items-center">
-                <Image
-                  src={getImprovedBodyFatImage() || "/placeholder.svg"}
-                  alt="Corpo Alvo"
-                  width={200}
-                  height={400}
-                  className="h-80 w-auto object-contain"
-                />
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
+                <p className="text-white font-bold mb-2">Iniciante</p>
+                <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full w-1/3" />
+                </div>
               </div>
             </div>
 
-            {/* Stats grid */}
-            <div className="grid grid-cols-2 gap-8 -mt-16 pt-8 px-8 relative z-10 bg-gradient-to-b from-transparent via-black to-black">
-              {/* Current stats */}
-              <div className="space-y-4">
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Força Muscular</p>
-                  <p className="text-white font-bold mb-2">{getCurrentBodyFatRange()}</p>
-                  <div className="w-full bg-gray-800 rounded-full h-2">
-                    <div
-                      className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
-                      style={{ width: `${(Number(data?.bodyFat) || 25) * 2}%` }}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
-                  <p className="text-white font-bold mb-2">Iniciante</p>
-                  <div className="w-full bg-gray-800 rounded-full h-2">
-                    <div className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full w-1/3" />
-                  </div>
+            {/* Target stats */}
+            <div className="space-y-4">
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Força Muscular</p>
+                <p className="text-white font-bold mb-2">{getImprovedBodyFatRange()}</p>
+                <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full w-4/5" />
                 </div>
               </div>
-
-              {/* Target stats */}
-              <div className="space-y-4">
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Força Muscular</p>
-                  <p className="text-white font-bold mb-2">{getImprovedBodyFatRange()}</p>
-                  <div className="w-full bg-gray-800 rounded-full h-2">
-                    <div className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full w-4/5" />
-                  </div>
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
+                <p className="text-white font-bold mb-2">Avançado</p>
+                <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full w-3/4" />
                 </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
-                  <p className="text-white font-bold mb-2">Avançado</p>
-                  <div className="w-full bg-gray-800 rounded-full h-2">
-                    <div className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full w-3/4" />
-                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-8">Escolha Seu Plano</h2>
+
+          {/* Promo code banner */}
+          <div className="bg-orange-400 rounded-xl p-1 mb-8">
+            <div className="bg-black rounded-lg p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
+                </svg>
+                <span className="text-white font-semibold">Seu código promo foi aplicado!</span>
+              </div>
+
+              <div className="flex gap-4 items-center">
+                <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
+                  <p className="text-white font-mono text-lg">cleber_jan26</p>
+                </div>
+                <div className="text-orange-400 font-bold text-right">
+                  <p className="text-2xl">02:08</p>
+                  <p className="text-xs text-orange-300">minutos segundos</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-4xl font-bold text-center mb-8">Escolha Seu Plano</h2>
+          {/* Plan cards */}
+          <div className="grid grid-cols-3 gap-6 mb-8">
+            {/* 1-Week Trial */}
+            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 cursor-pointer hover:border-gray-700 transition">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-white">Teste 1 Semana</h3>
+                <div className="w-6 h-6 rounded-full border-2 border-gray-600" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-gray-400 text-sm">4-WEEK PLAN - Primeira semana por</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-gray-500 line-through text-sm">R$ 17.77</span>
+                  <span className="text-white text-2xl font-bold">R$ 6.93</span>
+                </div>
+                <p className="text-red-500 text-xs font-semibold">0% OFF</p>
+              </div>
+            </div>
 
-            {/* Promo code banner */}
-            <div className="bg-orange-400 rounded-xl p-1 mb-8">
-              <div className="bg-black rounded-lg p-6 space-y-4">
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
+            {/* 4-Week Plan - Featured */}
+            <div className="bg-gray-900 border-2 border-orange-400 rounded-xl p-6 relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-black px-4 py-1">
+                <p className="text-xs font-bold text-orange-400 tracking-widest">MAIS POPULAR</p>
+              </div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-white">Plano 4 Semanas</h3>
+                <div className="w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  <span className="text-white font-semibold">Seu código promo foi aplicado!</span>
                 </div>
-
-                <div className="flex gap-4 items-center">
-                  <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
-                    <p className="text-white font-mono text-lg">cleber_jan26</p>
-                  </div>
-                  <div className="text-orange-400 font-bold text-right">
-                    <p className="text-2xl">02:08</p>
-                    <p className="text-xs text-orange-300">minutos segundos</p>
-                  </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-gray-400 text-sm">Primeiras 4 semanas por</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-gray-500 line-through text-sm">R$ 38.95</span>
+                  <span className="text-white text-2xl font-bold">R$ 15.19</span>
                 </div>
+                <p className="text-red-500 text-xs font-semibold">61% OFF</p>
               </div>
             </div>
 
-            {/* Plan cards */}
-            <div className="grid grid-cols-3 gap-6 mb-8">
-              {/* 1-Week Trial */}
-              <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 cursor-pointer hover:border-gray-700 transition">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-white">Teste 1 Semana</h3>
-                  <div className="w-6 h-6 rounded-full border-2 border-gray-600" />
-                </div>
-                <div className="space-y-2">
-                  <p className="text-gray-400 text-sm">4-WEEK PLAN - Primeira semana por</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-gray-500 line-through text-sm">R$ 17.77</span>
-                    <span className="text-white text-2xl font-bold">R$ 6.93</span>
-                  </div>
-                  <p className="text-red-500 text-xs font-semibold">0% OFF</p>
-                </div>
+            {/* 12-Week Plan */}
+            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 cursor-pointer hover:border-gray-700 transition">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-white">Plano 12 Semanas</h3>
+                <div className="w-6 h-6 rounded-full border-2 border-gray-600" />
               </div>
-
-              {/* 4-Week Plan - Featured */}
-              <div className="bg-gray-900 border-2 border-orange-400 rounded-xl p-6 relative">
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-black px-4 py-1">
-                  <p className="text-xs font-bold text-orange-400 tracking-widest">MAIS POPULAR</p>
+              <div className="space-y-2">
+                <p className="text-gray-400 text-sm">Primeiras 12 semanas por</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-gray-500 line-through text-sm">R$ 94.85</span>
+                  <span className="text-white text-2xl font-bold">R$ 38.99</span>
                 </div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-white">Plano 4 Semanas</h3>
-                  <div className="w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-gray-400 text-sm">Primeiras 4 semanas por</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-gray-500 line-through text-sm">R$ 38.95</span>
-                    <span className="text-white text-2xl font-bold">R$ 15.19</span>
-                  </div>
-                  <p className="text-red-500 text-xs font-semibold">61% OFF</p>
-                </div>
-              </div>
-
-              {/* 12-Week Plan */}
-              <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 cursor-pointer hover:border-gray-700 transition">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-white">Plano 12 Semanas</h3>
-                  <div className="w-6 h-6 rounded-full border-2 border-gray-600" />
-                </div>
-                <div className="space-y-2">
-                  <p className="text-gray-400 text-sm">Primeiras 12 semanas por</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-gray-500 line-through text-sm">R$ 94.85</span>
-                    <span className="text-white text-2xl font-bold">R$ 38.99</span>
-                  </div>
-                  <p className="text-red-500 text-xs font-semibold">61% OFF</p>
-                </div>
+                <p className="text-red-500 text-xs font-semibold">61% OFF</p>
               </div>
             </div>
+          </div>
 
-            {/* Disclaimer */}
-            <p className="text-center text-xs text-gray-500 mb-8">
-              Sem cancelamento antes do final do período de desconto para planos, concordo que a BetterMe será
-              automaticamente cobrada R$ 38.95 (IVA incluído) a cada 4 semanas até que eu cancele. Cancelar online via
-              perfil no <span className="underline">site</span> ou app.
-            </p>
+          {/* Disclaimer */}
+          <p className="text-center text-xs text-gray-500 mb-8">
+            Sem cancelamento antes do final do período de desconto para planos, concordo que a BetterMe será
+            automaticamente cobrada R$ 38.95 (IVA incluído) a cada 4 semanas até que eu cancele. Cancelar online via
+            perfil no <span className="underline">site</span> ou app.
+          </p>
 
-            {/* CTA Button */}
-            <div className="flex justify-center">
-              <button className="px-12 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition">
-                OBTER MEU PLANO
-              </button>
-            </div>
+          {/* CTA Button */}
+          <div className="flex justify-center">
+            <button className="px-12 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition">
+              OBTER MEU PLANO
+            </button>
+          </div>
 
-            {/* Highlights of your plan section */}
-            <div className="mt-20 py-16 border-t border-gray-800">
-              <h2 className="text-4xl font-bold text-white mb-12">Destaques do seu plano</h2>
+          {/* Highlights of your plan section */}
+          <div className="mt-20 py-16 border-t border-gray-800">
+            <h2 className="text-4xl font-bold text-white mb-12">Destaques do seu plano</h2>
 
-              <div className="grid grid-cols-2 gap-12">
-                {/* Left column - Highlights list */}
-                <div className="space-y-8">
-                  {/* Highlight 1 */}
-                  <div className="flex gap-4">
-                    <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
-                      <path
-                        fillRule="evenodd"
-                        d="M4 5a2 2 0 012-2 1 1 0 000 2H6a6 6 0 116 0h.5a1 1 0 000-2 2 2 0 01-2-2 9 9 0 11-9 9 5 5 0 018-9H9a1 1 0 000 2h2a1 1 0 100-2H4z"
-                        clipRule="evenodd"
-                      ></path>
-                    </svg>
-                  </div>
+            <div className="grid grid-cols-2 gap-12">
+              {/* Left column - Highlights list */}
+              <div className="space-y-8">
+                {/* Highlight 1 */}
+                <div className="flex gap-4">
+                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                    <path
+                      fillRule="evenodd"
+                      d="M4 5a2 2 0 012-2 1 1 0 000 2H6a6 6 0 116 0h.5a1 1 0 000-2 2 2 0 01-2-2 9 9 0 11-9 9 5 5 0 018-9H9a1 1 0 000 2h2a1 1 0 100-2H4z"
+                      clipRule="evenodd"
+                    ></path>
+                  </svg>
                   <div>
                     <p className="text-white font-bold">Programa de treino progressivo</p>
                     <p className="text-gray-400 text-sm">Adequado ao seu nível de forma física e objetivo</p>
