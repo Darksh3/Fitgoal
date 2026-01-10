@@ -236,20 +236,44 @@ export default function QuizResultsPage() {
               />
             </div>
 
-            {/* Chevron - CHANGE: positioned between characters */}
-            <svg
-              className="w-12 h-12 text-gray-500 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 5l7 7m0 0l-7 7m7-7H6a6 6 0 116 0h.5a1 1 0 000-2 2 2 0 01-2-2 9 9 0 11-9 9 5 5 0 018-9H9a1 1 0 000 2h2a1 1 0 100-2H4z"
-              />
-            </svg>
+            {/* Chevron - CHANGE: replaced with animated triple chevron */}
+            <style>{`
+              @keyframes chevronFlow {
+                0% {
+                  opacity: 0.3;
+                  transform: translateX(-8px);
+                }
+                50% {
+                  opacity: 1;
+                }
+                100% {
+                  opacity: 0.3;
+                  transform: translateX(8px);
+                }
+              }
+              .animate-chevron {
+                animation: chevronFlow 1.5s ease-in-out infinite;
+              }
+              .animate-chevron-delay-1 {
+                animation: chevronFlow 1.5s ease-in-out infinite;
+                animation-delay: 0.2s;
+              }
+              .animate-chevron-delay-2 {
+                animation: chevronFlow 1.5s ease-in-out infinite;
+                animation-delay: 0.4s;
+              }
+            `}</style>
+            <div className="flex gap-1 items-center">
+              <svg className="w-8 h-8 text-gray-400 animate-chevron" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L12.17 12z" />
+              </svg>
+              <svg className="w-8 h-8 text-gray-400 animate-chevron-delay-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L12.17 12z" />
+              </svg>
+              <svg className="w-8 h-8 text-gray-400 animate-chevron-delay-2" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L12.17 12z" />
+              </svg>
+            </div>
 
             {/* Target body */}
             <div className="flex flex-col items-center">
@@ -515,7 +539,7 @@ export default function QuizResultsPage() {
                 {/* Highlight 2 */}
                 <div className="flex gap-4">
                   <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M13 7a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 11-2 0 1 1 0 012 0zm6 0a1 1 0 11-2 0 1 1 0 012 0zm2-8a1 1 0 01.967.25l2.5 6.526a1 1 0 01-.5 1.3H17v6a2 2 0 01-2 2h-2a2 2 0 01-2-2v-3H9v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-6H.033a1 1 0 01-.5-1.3l2.5-6.526A1 1 0 015 1h10z"></path>
+                    <path d="M13 7a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 11-2 0 1 1 0 012 0zm6 0a1 1 0 11-2 0 1 1 0 012 0zm2-8a1 1 0 01.967.25l2.5 6.526a1 1 0 01-.5 1.3H17v6a2 2 0 01-2 2h-.5a1 1 0 000-2 2 2 0 01-2-2 9 9 0 11-9 9 5 5 0 018-9H9a1 1 0 000 2h2a1 1 0 100-2H4.5a1 1 0 000 2H4a2 2 0 01-2 2v-6h2a2 2 0 012-2h.5z"></path>
                   </svg>
                   <div>
                     <p className="text-white font-bold">Rotinas fáceis para iniciantes</p>
@@ -528,7 +552,7 @@ export default function QuizResultsPage() {
                   <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 00-1.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 00-1.414 1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                       clipRule="evenodd"
                     ></path>
                   </svg>
