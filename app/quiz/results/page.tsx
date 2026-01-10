@@ -308,12 +308,15 @@ export default function ResultsPage() {
             </div>
           </div>
 
-          <div className="mt-8 bg-gray-900 bg-opacity-50 rounded-lg p-8 border border-gray-800">
-            <h3 className="text-2xl font-bold text-white mb-6">Sumário</h3>
-            <div className="grid grid-cols-2 gap-6 text-gray-300">
+          <div className="mt-8 bg-gray-900 bg-opacity-50 rounded-2xl p-8 border border-gray-700">
+            <h3 className="text-3xl font-bold text-white mb-6">Sumário</h3>
+            <div className="border-t border-gray-700 mb-8"></div>
+
+            <div className="grid grid-cols-2 gap-x-8 gap-y-8">
+              {/* Gênero */}
               <div>
-                <p className="text-gray-400 text-sm mb-1">Gênero</p>
-                <p className="text-white font-semibold">
+                <p className="text-gray-400 text-sm mb-2">Gênero</p>
+                <p className="text-white text-xl font-semibold">
                   {getDataValue("gender") === "homem"
                     ? "Masculino"
                     : getDataValue("gender") === "mulher"
@@ -321,37 +324,49 @@ export default function ResultsPage() {
                       : "—"}
                 </p>
               </div>
+
+              {/* Idade */}
               <div>
-                <p className="text-gray-400 text-sm mb-1">Idade</p>
-                <p className="text-white font-semibold">{getDataValue("age") || "—"} anos</p>
+                <p className="text-gray-400 text-sm mb-2">Idade</p>
+                <p className="text-white text-xl font-semibold">{getDataValue("age") || "—"} anos</p>
               </div>
+
+              {/* Altura */}
               <div>
-                <p className="text-gray-400 text-sm mb-1">Altura</p>
-                <p className="text-white font-semibold">{getDataValue("height") || "—"} cm</p>
+                <p className="text-gray-400 text-sm mb-2">Altura</p>
+                <p className="text-white text-xl font-semibold">{getDataValue("height") || "—"} cm</p>
               </div>
+
+              {/* Peso Atual */}
               <div>
-                <p className="text-gray-400 text-sm mb-1">Peso Atual</p>
-                <p className="text-white font-semibold">
+                <p className="text-gray-400 text-sm mb-2">Peso Atual</p>
+                <p className="text-white text-xl font-semibold">
                   {getDataValue("weight") ? (Number(getDataValue("weight")) / 2.205).toFixed(1) : "—"} kg
                 </p>
               </div>
+
+              {/* IMC */}
               <div>
-                <p className="text-gray-400 text-sm mb-1">IMC</p>
-                <p className="text-white font-semibold">
+                <p className="text-gray-400 text-sm mb-2">IMC</p>
+                <p className="text-white text-xl font-semibold">
                   {getDataValue("weight") && getDataValue("height")
                     ? (Number(getDataValue("weight")) / 2.205 / (Number(getDataValue("height")) / 100) ** 2).toFixed(1)
                     : "—"}
                 </p>
               </div>
+
+              {/* Meta de Calorias */}
               <div>
-                <p className="text-gray-400 text-sm mb-1">Meta de Calorias</p>
-                <p className="text-white font-semibold">
+                <p className="text-gray-400 text-sm mb-2">Meta de Calorias</p>
+                <p className="text-white text-xl font-semibold">
                   {getDataValue("dailyCalorieGoal") || getDataValue("calorieGoal") || "—"} kcal
                 </p>
               </div>
+
+              {/* Data para atingir objetivo - Full width */}
               <div className="col-span-2">
-                <p className="text-gray-400 text-sm mb-1">Data para atingir objetivo</p>
-                <p className="text-white font-semibold">
+                <p className="text-gray-400 text-sm mb-2">Data para atingir objetivo</p>
+                <p className="text-white text-xl font-semibold">
                   {new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}
                 </p>
               </div>
@@ -359,7 +374,7 @@ export default function ResultsPage() {
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto mt-16">
           <h2 className="text-4xl font-bold text-center mb-8">Escolha Seu Plano</h2>
 
           {/* Promo code banner */}
@@ -386,29 +401,28 @@ export default function ResultsPage() {
 
           {/* Plan cards */}
           <div className="grid grid-cols-3 gap-6 mb-8">
-            {/* 1-Week Trial */}
+            {/* Monthly Plan */}
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 cursor-pointer hover:border-gray-700 transition">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-white">Teste 1 Semana</h3>
+                <h3 className="text-xl font-bold text-white">Plano Mensal</h3>
                 <div className="w-6 h-6 rounded-full border-2 border-gray-600" />
               </div>
               <div className="space-y-2">
-                <p className="text-gray-400 text-sm">4-WEEK PLAN - Primeira semana por</p>
+                <p className="text-gray-400 text-sm">Acesso completo por 30 dias</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-gray-500 line-through text-sm">R$ 17.77</span>
-                  <span className="text-white text-2xl font-bold">R$ 6.93</span>
+                  <span className="text-white text-2xl font-bold">R$ 79,90</span>
                 </div>
-                <p className="text-red-500 text-xs font-semibold">0% OFF</p>
+                <p className="text-gray-400 text-xs">por mês</p>
               </div>
             </div>
 
-            {/* 4-Week Plan - Featured */}
+            {/* Quarterly Plan - Featured */}
             <div className="bg-gray-900 border-2 border-orange-400 rounded-xl p-6 relative">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-black px-4 py-1">
                 <p className="text-xs font-bold text-orange-400 tracking-widest">MAIS POPULAR</p>
               </div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-white">Plano 4 Semanas</h3>
+                <h3 className="text-xl font-bold text-white">Plano Trimestral</h3>
                 <div className="w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center">
                   <svg className="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 20 20">
                     <path
@@ -420,28 +434,26 @@ export default function ResultsPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <p className="text-gray-400 text-sm">Primeiras 4 semanas por</p>
+                <p className="text-gray-400 text-sm">Acesso completo por 90 dias</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-gray-500 line-through text-sm">R$ 38.95</span>
-                  <span className="text-white text-2xl font-bold">R$ 15.19</span>
+                  <span className="text-white text-2xl font-bold">R$ 159,90</span>
                 </div>
-                <p className="text-red-500 text-xs font-semibold">61% OFF</p>
+                <p className="text-gray-400 text-xs">por trimestre</p>
               </div>
             </div>
 
-            {/* 12-Week Plan */}
+            {/* Semi-annual Plan */}
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 cursor-pointer hover:border-gray-700 transition">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-white">Plano 12 Semanas</h3>
+                <h3 className="text-xl font-bold text-white">Plano Semestral</h3>
                 <div className="w-6 h-6 rounded-full border-2 border-gray-600" />
               </div>
               <div className="space-y-2">
-                <p className="text-gray-400 text-sm">Primeiras 12 semanas por</p>
+                <p className="text-gray-400 text-sm">Acesso completo por 180 dias</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-gray-500 line-through text-sm">R$ 94.85</span>
-                  <span className="text-white text-2xl font-bold">R$ 38.99</span>
+                  <span className="text-white text-2xl font-bold">R$ 239,90</span>
                 </div>
-                <p className="text-red-500 text-xs font-semibold">61% OFF</p>
+                <p className="text-gray-400 text-xs">por semestre</p>
               </div>
             </div>
           </div>
@@ -462,7 +474,7 @@ export default function ResultsPage() {
 
           {/* Highlights of your plan section */}
           <div className="mt-20 py-16 border-t border-gray-800">
-            <h2 className="text-4xl font-bold text-white mb-12">Destaques do seu plano</h2>
+            <h2 className="text-4xl font-bold text-center text-white mb-12">Destaques do seu plano</h2>
 
             <div className="grid grid-cols-2 gap-12">
               {/* Left column - Highlights list */}
@@ -769,13 +781,13 @@ export default function ResultsPage() {
 
               {/* Plans */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {/* 1-Week Trial */}
+                {/* Monthly Plan */}
                 <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
                   <div className="text-gray-400 text-sm mb-4">4-WEEK PLAN</div>
                   <div className="text-3xl font-bold text-white mb-2">£17.77</div>
                 </div>
 
-                {/* 4-Week Plan - Featured */}
+                {/* Quarterly Plan - Featured */}
                 <div className="bg-black border-2 border-orange-500 rounded-lg p-6 relative">
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-white text-black text-xs font-bold px-4 py-1 rounded-full">
                     MAIS POPULAR
@@ -789,7 +801,7 @@ export default function ResultsPage() {
                   <div className="text-3xl font-bold text-white">£38.95</div>
                 </div>
 
-                {/* 12-Week Plan */}
+                {/* Semi-annual Plan */}
                 <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
                   <div className="text-gray-400 text-sm mb-4">12-WEEK PLAN</div>
                   <div className="text-3xl font-bold text-white mb-2">£94.85</div>
