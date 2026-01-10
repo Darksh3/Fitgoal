@@ -220,7 +220,7 @@ const debugFrequencySelection = (frequency: number) => {
     const stored = localStorage.getItem("quizData")
     if (stored) {
       try {
-        const parsed = JSON.JSON.parse(stored)
+        const parsed = JSON.parse(stored)
         console.log(`[QUIZ] Stored frequency: ${parsed.trainingDaysPerWeek}`)
       } catch (error) {
         console.error("[QUIZ] localStorage parse error:", error)
@@ -911,7 +911,7 @@ export default function QuizPage() {
       setQuizData(updatedQuizData) // Atualiza o estado local
 
       try {
-        localStorage.setItem("quizData", JSON.JSON.stringify(updatedQuizData))
+        localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
         debugDataFlow("QUIZ_LOCALSTORAGE_SAVE", updatedQuizData)
       } catch (error) {
         console.error("[QUIZ] Storage failed:", error)
