@@ -302,6 +302,46 @@ export default function ResultsPage() {
               </div>
             </div>
           </div>
+
+          <div className="mt-8 bg-gray-900 bg-opacity-50 rounded-lg p-8 border border-gray-800">
+            <h3 className="text-2xl font-bold text-white mb-6">Sumário</h3>
+            <div className="grid grid-cols-2 gap-6 text-gray-300">
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Gênero</p>
+                <p className="text-white font-semibold">
+                  {data?.quizData?.gender === "homem" ? "Masculino" : "Feminino"}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Idade</p>
+                <p className="text-white font-semibold">{data?.quizData?.age} anos</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Altura</p>
+                <p className="text-white font-semibold">{data?.quizData?.height} cm</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Peso Atual</p>
+                <p className="text-white font-semibold">{(Number(data?.quizData?.weight) / 2.205).toFixed(1)} kg</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm mb-1">IMC</p>
+                <p className="text-white font-semibold">
+                  {(Number(data?.quizData?.weight) / 2.205 / (Number(data?.quizData?.height) / 100) ** 2).toFixed(1)}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Meta de Calorias</p>
+                <p className="text-white font-semibold">{data?.quizData?.calorieGoal || 2500} kcal</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-gray-400 text-sm mb-1">Data para atingir objetivo</p>
+                <p className="text-white font-semibold">
+                  {new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="max-w-5xl mx-auto">
