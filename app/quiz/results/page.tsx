@@ -107,22 +107,22 @@ export default function ResultsPage() {
 
     if (isMale) {
       if (bodyFat <= 10) return "/images/mone.webp"
-      if (bodyFat <= 15) return "/images/mtwo.webp"
-      if (bodyFat <= 20) return "/images/mthree.webp"
-      if (bodyFat <= 25) return "/images/mfour.webp"
-      if (bodyFat <= 30) return "/images/mfive.webp"
-      if (bodyFat <= 35) return "/images/msix.webp"
-      if (bodyFat <= 39) return "/images/mseven.webp"
-      return "/images/meight.webp"
+      if (bodyFat <= 15) return "/images/mone.webp"
+      if (bodyFat <= 20) return "/images/mtwo.webp"
+      if (bodyFat <= 25) return "/images/mthree.webp"
+      if (bodyFat <= 30) return "/images/mfour.webp"
+      if (bodyFat <= 35) return "/images/mfive.webp"
+      if (bodyFat <= 39) return "/images/msix.webp"
+      return "/images/mseven.webp"
     } else {
       if (bodyFat <= 10) return "/images/bodyfat-one.webp"
-      if (bodyFat <= 15) return "/images/bodyfat-two.webp"
-      if (bodyFat <= 20) return "/images/bodyfat-three.webp"
-      if (bodyFat <= 25) return "/images/bodyfat-four.webp"
-      if (bodyFat <= 30) return "/images/bodyfat-five.webp"
-      if (bodyFat <= 35) return "/images/bodyfat-six.webp"
-      if (bodyFat <= 39) return "/images/bodyfat-seven.webp"
-      return "/images/bodyfat-eight.webp"
+      if (bodyFat <= 15) return "/images/bodyfat-one.webp"
+      if (bodyFat <= 20) return "/images/bodyfat-two.webp"
+      if (bodyFat <= 25) return "/images/bodyfat-three.webp"
+      if (bodyFat <= 30) return "/images/bodyfat-four.webp"
+      if (bodyFat <= 35) return "/images/bodyfat-five.webp"
+      if (bodyFat <= 39) return "/images/bodyfat-six.webp"
+      return "/images/bodyfat-seven.webp"
     }
   }
 
@@ -141,13 +141,13 @@ export default function ResultsPage() {
   const getImprovedBodyFatRange = () => {
     const bodyFat = Number(data?.bodyFat) || 25
     if (bodyFat <= 10) return "5-10%"
-    if (bodyFat <= 15) return "11-15%"
-    if (bodyFat <= 20) return "16-20%"
-    if (bodyFat <= 25) return "21-25%"
-    if (bodyFat <= 30) return "26-30%"
-    if (bodyFat <= 35) return "31-35%"
-    if (bodyFat <= 39) return "36-39%"
-    return "40%+"
+    if (bodyFat <= 15) return "5-10%"
+    if (bodyFat <= 20) return "11-15%"
+    if (bodyFat <= 25) return "16-20%"
+    if (bodyFat <= 30) return "21-25%"
+    if (bodyFat <= 35) return "26-30%"
+    if (bodyFat <= 39) return "31-35%"
+    return "36-39%"
   }
 
   const calculateDailyCalories = () => {
@@ -258,7 +258,7 @@ export default function ResultsPage() {
           </div>
 
           {/* Stats grid */}
-          <div className="bg-gray-900 bg-opacity-50 rounded-lg p-8 border border-gray-800">
+          <div className="bg-gray-900 bg-opacity-50 rounded-lg p-8 border border-gray-800 mt-8">
             <div className="grid grid-cols-2 gap-12">
               {/* Current stats */}
               <div className="space-y-4">
@@ -441,7 +441,7 @@ export default function ResultsPage() {
                     <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
                       <path
                         fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 00-1.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 01-1.414 1.414L10 11.414l1.293 1.293a1 1 0 00-1.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                         clipRule="evenodd"
                       ></path>
                     </svg>
@@ -454,7 +454,7 @@ export default function ResultsPage() {
                   {/* Highlight 4 */}
                   <div className="flex gap-4">
                     <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM9 12a6 6 0 11-12 0 6 6 0 0112 0zM12.5 1a.5.5 0 01.5.5v2a.5.5 0 01-1 0V1.5a.5.5 0 01.5-.5zM15.854 3.146a.5.5 0 010 .708l-1.414 1.414a.5.5 0 01-.708-.708l1.414-1.414a.5.5 0 010 .708zM18 6.5a.5.5 0 01-.5.5h-2a.5.5 0 010-1h2a.5.5 0 01.5.5zM15.854 10.854a.5.5 0 01-.708 0l-1.414-1.414a.5.5 0 01.708-.708l1.414 1.414a.5.5 0 010 .708zM12.5 14a.5.5 0 01.5.5v2a.5.5 0 01-1 0v-2a.5.5 0 01.5-.5z"></path>
+                      <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM9 12a6 6 0 11-12 0 6 6 0 0112 0zM12.5 1a.5.5 0 01.5.5v2a.5.5 0 01-1 0V1.5a.5.5 0 01.5-.5zM15.854 3.146a.5.5 0 010 .708l-1.414 1.414a.5.5 0 01-.708-.708l1.414-1.414a.5.5 0 01.708 0zM18 6.5a.5.5 0 01-.5.5h-2a.5.5 0 010-1h2a.5.5 0 01.5.5zM15.854 10.854a.5.5 0 01-.708 0l-1.414-1.414a.5.5 0 01.708-.708l1.414 1.414a.5.5 0 010 .708zM12.5 14a.5.5 0 01.5.5v2a.5.5 0 01-1 0v-2a.5.5 0 01.5-.5z"></path>
                     </svg>
                     <div>
                       <p className="text-white font-bold">1.500+ treinos guiados em casa</p>
@@ -480,7 +480,7 @@ export default function ResultsPage() {
                     <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
                       <path
                         fillRule="evenodd"
-                        d="M4.5 2a1 1 0 00-.5.887v14.226a1 1 0 00.5.887l7-3.5a1 1 0 001.414-1.414l-.707-.707zM3 9a1 1 0 100 2v4a2 2 0 100 4h12a2 2 0 100-4V9a1 1 0 100-2H3z"
+                        d="M4.5 2a1 1 0 00-.5.887v14.226a1 1 0 00.5.887l7-3.5a1 1 0 01.5-.887V5.387a1 1 0 00-.5-.887l-7-3.5zm7.707.707a1 1 0 00-1.414-1.414l-7 7a1 1 0 000 1.414l7 7a1 1 0 001.414-1.414L11.414 10l6.293-6.293a1 1 0 000-1.414l-7-7z"
                         clipRule="evenodd"
                       />
                     </svg>
