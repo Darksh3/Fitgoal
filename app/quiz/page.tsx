@@ -2011,17 +2011,20 @@ export default function QuizPage() {
         return (quizData.allergies === "sim" && quizData.allergyDetails !== "") || quizData.allergies === "nao"
       case 27: // Updated from 25. Supplement Recommendation
         return quizData.wantsSupplement !== ""
-      case 28: // Updated from 26. Name
-        // This case is now for Supplement Interest, and we can always proceed to next step if we want to show recommendation.
-        // The actual *choice* of supplement type was removed from the flow.
-        return true // Always allow proceeding after seeing recommendation
-      // </CHANGE>
-      case 29: // Updated from 27. Email
+      case 28: // Updated from 27. Email
         return quizData.name.trim() !== ""
-      case 30: // Updated from 28. Training days per week
+      case 29: // Updated from 28. Training days per week
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         return quizData.email !== "" && emailRegex.test(quizData.email)
+      case 29: // Updated from 28. Training days per week
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        return quizData.email !== "" && emailRegex.test(quizData.email)
+      case 30: // Final submit
+        // Training days per week is now handled by step 23.
+        // This step is now the final submit.
+        return true
 
       // </CHANGE>
       default:
