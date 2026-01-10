@@ -242,7 +242,12 @@ export default function ResultsPage() {
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7m0 0l-7 7m7-7H6" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 5l7 7m0 0l-7 7m7-7H6a6 6 0 116 0h.5a1 1 0 000-2 2 2 0 01-2-2 9 9 0 11-9 9 5 5 0 018-9H9a1 1 0 000 2h2a1 1 0 100-2H4z"
+              />
             </svg>
 
             {/* Target body */}
@@ -309,30 +314,40 @@ export default function ResultsPage() {
               <div>
                 <p className="text-gray-400 text-sm mb-1">Gênero</p>
                 <p className="text-white font-semibold">
-                  {data?.quizData?.gender === "homem" ? "Masculino" : "Feminino"}
+                  {getDataValue("gender") === "homem"
+                    ? "Masculino"
+                    : getDataValue("gender") === "mulher"
+                      ? "Feminino"
+                      : "—"}
                 </p>
               </div>
               <div>
                 <p className="text-gray-400 text-sm mb-1">Idade</p>
-                <p className="text-white font-semibold">{data?.quizData?.age} anos</p>
+                <p className="text-white font-semibold">{getDataValue("age") || "—"} anos</p>
               </div>
               <div>
                 <p className="text-gray-400 text-sm mb-1">Altura</p>
-                <p className="text-white font-semibold">{data?.quizData?.height} cm</p>
+                <p className="text-white font-semibold">{getDataValue("height") || "—"} cm</p>
               </div>
               <div>
                 <p className="text-gray-400 text-sm mb-1">Peso Atual</p>
-                <p className="text-white font-semibold">{(Number(data?.quizData?.weight) / 2.205).toFixed(1)} kg</p>
+                <p className="text-white font-semibold">
+                  {getDataValue("weight") ? (Number(getDataValue("weight")) / 2.205).toFixed(1) : "—"} kg
+                </p>
               </div>
               <div>
                 <p className="text-gray-400 text-sm mb-1">IMC</p>
                 <p className="text-white font-semibold">
-                  {(Number(data?.quizData?.weight) / 2.205 / (Number(data?.quizData?.height) / 100) ** 2).toFixed(1)}
+                  {getDataValue("weight") && getDataValue("height")
+                    ? (Number(getDataValue("weight")) / 2.205 / (Number(getDataValue("height")) / 100) ** 2).toFixed(1)
+                    : "—"}
                 </p>
               </div>
               <div>
                 <p className="text-gray-400 text-sm mb-1">Meta de Calorias</p>
-                <p className="text-white font-semibold">{data?.quizData?.calorieGoal || 2500} kcal</p>
+                <p className="text-white font-semibold">
+                  {getDataValue("dailyCalorieGoal") || getDataValue("calorieGoal") || "—"} kcal
+                </p>
               </div>
               <div className="col-span-2">
                 <p className="text-gray-400 text-sm mb-1">Data para atingir objetivo</p>
@@ -523,7 +538,7 @@ export default function ResultsPage() {
                   <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
-                      d="M4.5 2a1 1 0 00-.5.887v14.226a1 1 0 00.5.887l7-3.5a1 1 0 01.5-.887V5.387a1 1 0 00-.5-.887l-7-3.5zm7.707.707a1 1 0 00-1.414-1.414l-7 7a1 1 0 000 1.414l7 7a1 1 0 001.414-1.414L11.414 10l6.293-6.293a1 1 0 000-1.414l-7-7z"
+                      d="M4.5 2a1 1 0 00-.5.887v14.226a1 1 0 00.5.887l7-3.5a1 1 0 000 1.414l7 7a1 1 0 001.414-1.414L11.414 10l6.293-6.293a1 1 0 000-1.414l-7-7z"
                       clipRule="evenodd"
                     />
                   </svg>
