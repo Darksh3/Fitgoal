@@ -260,40 +260,44 @@ export default function ResultsPage() {
           {/* Stats grid */}
           <div className="grid grid-cols-2 gap-8 mt-8 pt-8 border-t border-gray-800">
             {/* Current stats */}
-            <div className="space-y-4">
-              <div>
-                <p className="text-gray-400 text-sm mb-1">Força Muscular</p>
-                <p className="text-white font-bold mb-2">{getCurrentBodyFatRange()}</p>
-                <div className="w-full bg-gray-800 rounded-full h-2">
-                  <div
-                    className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
-                    style={{ width: `${(Number(data?.bodyFat) || 25) * 2}%` }}
-                  />
+            <div className="bg-gray-900 bg-opacity-50 rounded-lg p-6 border border-gray-800">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-gray-400 text-sm mb-1">Força Muscular</p>
+                  <p className="text-white font-bold mb-2">{getCurrentBodyFatRange()}</p>
+                  <div className="w-full bg-gray-800 rounded-full h-2">
+                    <div
+                      className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
+                      style={{ width: `${(Number(data?.bodyFat) || 25) * 2}%` }}
+                    />
+                  </div>
                 </div>
-              </div>
-              <div>
-                <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
-                <p className="text-white font-bold mb-2">Iniciante</p>
-                <div className="w-full bg-gray-800 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full w-1/3" />
+                <div>
+                  <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
+                  <p className="text-white font-bold mb-2">Iniciante</p>
+                  <div className="w-full bg-gray-800 rounded-full h-2">
+                    <div className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full w-1/3" />
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Target stats */}
-            <div className="space-y-4">
-              <div>
-                <p className="text-gray-400 text-sm mb-1">Força Muscular</p>
-                <p className="text-white font-bold mb-2">{getImprovedBodyFatRange()}</p>
-                <div className="w-full bg-gray-800 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full w-4/5" />
+            <div className="bg-gray-900 bg-opacity-50 rounded-lg p-6 border border-gray-800">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-gray-400 text-sm mb-1">Força Muscular</p>
+                  <p className="text-white font-bold mb-2">{getImprovedBodyFatRange()}</p>
+                  <div className="w-full bg-gray-800 rounded-full h-2">
+                    <div className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full w-4/5" />
+                  </div>
                 </div>
-              </div>
-              <div>
-                <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
-                <p className="text-white font-bold mb-2">Avançado</p>
-                <div className="w-full bg-gray-800 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full w-3/4" />
+                <div>
+                  <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
+                  <p className="text-white font-bold mb-2">Avançado</p>
+                  <div className="w-full bg-gray-800 rounded-full h-2">
+                    <div className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full w-3/4" />
+                  </div>
                 </div>
               </div>
             </div>
