@@ -832,41 +832,76 @@ export default function QuizResultsPage() {
               {/* Plan cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {/* Monthly Plan */}
-                <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-                  <div className="text-gray-400 text-sm mb-4">PLANO MENSAL</div>
-                  <div className="text-3xl font-bold text-white mb-2">R$ 79,90</div>
+                <div
+                  onClick={() => setSelectedPlan("monthly")}
+                  className={`bg-gray-800 border rounded-lg p-6 cursor-pointer transition ${
+                    selectedPlan === "monthly" ? "border-orange-500" : "border-gray-700"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-white">Plano Mensal</h3>
+                    <div className="w-6 h-6 rounded-full border-2 border-gray-600 flex items-center justify-center">
+                      {selectedPlan === "monthly" && <div className="w-3 h-3 bg-orange-500 rounded-full" />}
+                    </div>
+                  </div>
+                  <div className="text-gray-400 text-sm mb-3">Acesso completo por 30 dias</div>
+                  <div className="text-3xl font-bold text-white mb-1">R$ 79,90</div>
+                  <div className="text-gray-500 text-xs">por mês</div>
                 </div>
 
                 {/* Quarterly Plan - Featured */}
-                <div className="bg-black border-2 border-orange-500 rounded-lg p-6 relative">
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-white text-black text-xs font-bold px-4 py-1 rounded-full">
+                <div
+                  onClick={() => setSelectedPlan("quarterly")}
+                  className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition ${
+                    selectedPlan === "quarterly" ? "border-orange-500" : "border-gray-700"
+                  }`}
+                >
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                     MAIS POPULAR
                   </div>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-2xl font-bold text-white">Plano Trimestral</h3>
+                    <h3 className="text-lg font-bold text-white">Plano Trimestral</h3>
                     <svg className="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                     </svg>
                   </div>
-                  <div className="text-3xl font-bold text-white">R$ 159,90</div>
+                  <div className="text-gray-400 text-sm mb-3">Acesso completo por 90 dias</div>
+                  <div className="text-3xl font-bold text-white mb-1">R$ 159,90</div>
+                  <div className="text-gray-500 text-xs">por trimestre</div>
                 </div>
 
                 {/* Semi-annual Plan */}
-                <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-                  <div className="text-gray-400 text-sm mb-4">PLANO SEMESTRAL</div>
-                  <div className="text-3xl font-bold text-white mb-2">R$ 239,90</div>
+                <div
+                  onClick={() => setSelectedPlan("semiannual")}
+                  className={`bg-gray-800 border rounded-lg p-6 cursor-pointer transition ${
+                    selectedPlan === "semiannual" ? "border-orange-500" : "border-gray-700"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-white">Plano Semestral</h3>
+                    <div className="w-6 h-6 rounded-full border-2 border-gray-600 flex items-center justify-center">
+                      {selectedPlan === "semiannual" && <div className="w-3 h-3 bg-orange-500 rounded-full" />}
+                    </div>
+                  </div>
+                  <div className="text-gray-400 text-sm mb-3">Acesso completo por 180 dias</div>
+                  <div className="text-3xl font-bold text-white mb-1">R$ 239,90</div>
+                  <div className="text-gray-500 text-xs">por semestre</div>
                 </div>
               </div>
 
               {/* Disclaimer */}
               <p className="text-gray-400 text-sm text-center mb-8 max-w-2xl mx-auto">
-                Sem cancelamento, antes do plano selecionado terminar, aceito que a BetterMe cobrará automaticamente R$
-                159,90 (incl. impostos) a cada 4 semanas até eu cancelar. Cancelar online via perfil ou app.
+                Sem cancelamento antes do final do período de desconto para planos, concordo que a BetterMe será
+                automaticamente cobrada R$ 38,95 (incl. impostos) a cada 4 semanas até eu cancelar. Cancelar online via
+                perfil ou app.
               </p>
 
               {/* CTA Button */}
               <div className="text-center mb-16">
-                <button className="bg-white text-black font-bold px-12 py-3 rounded-full hover:bg-gray-100 transition">
+                <button
+                  onClick={() => router.push(`/checkout?plan=${selectedPlan}`)}
+                  className="bg-white text-black font-bold px-12 py-3 rounded-full hover:bg-gray-100 transition"
+                >
                   OBTER MEU PLANO
                 </button>
               </div>
