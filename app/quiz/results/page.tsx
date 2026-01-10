@@ -348,7 +348,15 @@ export default function ResultsPage() {
               {/* IMC */}
               <div>
                 <p className="text-gray-400 text-sm mb-2">IMC</p>
-                <p className="text-white text-xl font-semibold">
+                <p
+                  className={`text-xl font-semibold ${(() => {
+                    if (!getDataValue("weight") || !getDataValue("height")) return "text-white"
+                    const imc = Number(getDataValue("weight")) / 2.205 / (Number(getDataValue("height")) / 100) ** 2
+                    if (imc < 18.5) return "text-blue-400"
+                    if (imc < 25) return "text-green-400"
+                    return "text-red-400"
+                  })()}`}
+                >
                   {getDataValue("weight") && getDataValue("height")
                     ? (Number(getDataValue("weight")) / 2.205 / (Number(getDataValue("height")) / 100) ** 2).toFixed(1)
                     : "—"}
