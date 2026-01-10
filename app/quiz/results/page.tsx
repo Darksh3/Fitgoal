@@ -594,300 +594,298 @@ export default function ResultsPage() {
                 </div>
               </div>
             </div>
-
-            {/* Results that make us proud section with testimonials */}
-            <section className="py-20 bg-black">
-              <div className="max-w-5xl mx-auto px-4">
-                <h2 className="text-4xl font-bold text-center text-white mb-12">
-                  Resultados que nos deixam orgulhosos
-                </h2>
-
-                <div className="grid grid-cols-3 gap-8 mb-12">
-                  {/* Testimonial 1 - Brandon */}
-                  <div className="bg-gray-900 rounded-2xl overflow-hidden">
-                    <div className="aspect-square bg-gray-800 relative overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-b from-gray-700 to-gray-900 flex items-center justify-center">
-                        <div className="text-center">
-                          <div className="w-32 h-32 bg-gray-700 rounded-full mx-auto mb-4"></div>
-                          <p className="text-gray-400 text-sm">Antes / Depois</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-6 space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-bold text-white">Brandon</h3>
-                        <span className="text-orange-400 font-bold text-lg">-15 kg</span>
-                      </div>
-                      <p className="text-gray-400 text-sm line-clamp-3">
-                        Olá, estou usando seus treinos e comecei há cerca de 4-5 meses atrás e só queria dizer obrigado,
-                        você fez um ótimo trabalho, realmente vi um t...
-                      </p>
-                      <button className="text-orange-400 text-sm font-semibold hover:text-orange-300">Ler mais</button>
-                    </div>
-                  </div>
-
-                  {/* Testimonial 2 - Peter */}
-                  <div className="bg-gray-900 rounded-2xl overflow-hidden">
-                    <div className="aspect-square bg-gray-800 relative overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-b from-gray-700 to-gray-900 flex items-center justify-center">
-                        <div className="text-center">
-                          <div className="w-32 h-32 bg-gray-700 rounded-full mx-auto mb-4"></div>
-                          <p className="text-gray-400 text-sm">Antes / Depois</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-6 space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-bold text-white">Peter</h3>
-                        <span className="text-orange-400 font-bold text-lg">-5 kg</span>
-                      </div>
-                      <p className="text-gray-400 text-sm line-clamp-3">
-                        Os vídeos são muito úteis e fáceis de entender. Os conselhos do seu consultor funcionam bem
-                        comigo. Consigo dormir cedo agora. Este aplicativo funciona f...
-                      </p>
-                      <button className="text-orange-400 text-sm font-semibold hover:text-orange-300">Ler mais</button>
-                    </div>
-                  </div>
-
-                  {/* Testimonial 3 - Kevin */}
-                  <div className="bg-gray-900 rounded-2xl overflow-hidden">
-                    <div className="aspect-square bg-gray-800 relative overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-b from-gray-700 to-gray-900 flex items-center justify-center">
-                        <div className="text-center">
-                          <div className="w-32 h-32 bg-gray-700 rounded-full mx-auto mb-4"></div>
-                          <p className="text-gray-400 text-sm">Antes / Depois</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-6 space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-bold text-white">Kevin</h3>
-                        <span className="text-orange-400 font-bold text-lg">-13 kg</span>
-                      </div>
-                      <p className="text-gray-400 text-sm line-clamp-3">
-                        Comecei com cerca de 200 lbs e agora estou com um peso saudável e magro 172.
-                      </p>
-                      <button className="text-orange-400 text-sm font-semibold hover:text-orange-300">Ler mais</button>
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-xs text-gray-500 text-center">
-                  *Disclaimer: Usuários do BetterMe compartilharam seu feedback. Este usuário teve acesso a treinamento
-                  personalizado, recursos adicionais de pagamento. Os seguintes exercícios e os planos são a chave em
-                  sua jornada de fitness e resultados geralmente aparecem em 4 semanas. Os resultados podem variar por
-                  pessoa e não são garantidos.
-                </p>
-              </div>
-            </section>
-
-            {/* People often ask FAQ section with expandable items */}
-            <section className="py-20 bg-black">
-              <div className="max-w-3xl mx-auto px-4">
-                <h2 className="text-4xl font-bold text-center text-white mb-12">As pessoas frequentemente perguntam</h2>
-
-                <div className="space-y-6">
-                  {/* FAQ Item 1 */}
-                  <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
-                    <summary className="flex items-center justify-between font-bold text-white">
-                      Como este plano pode me ajudar a queimar gordura e construir músculos?
-                      <svg
-                        className="w-5 h-5 transform group-open:rotate-180 transition"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                        />
-                      </svg>
-                    </summary>
-                    <p className="text-gray-400 mt-4">
-                      Nosso plano foi desenvolvido para ajudá-lo a queimar gordura e construir um corpo tonificado e
-                      magro, combinando treinos passo a passo com um plano de refeições personalizado. Nossas rotinas
-                      com vídeos guiados garantem a forma correta e ajudam você a manter a consistência e a motivação,
-                      tornando a perda de peso mais alcançável e sustentável.
-                    </p>
-                  </details>
-
-                  {/* FAQ Item 2 */}
-                  <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
-                    <summary className="flex items-center justify-between font-bold text-white">
-                      Quais são os benefícios da calistenia em comparação com outros treinos?
-                      <svg
-                        className="w-5 h-5 transform group-open:rotate-180 transition"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                        />
-                      </svg>
-                    </summary>
-                    <p className="text-gray-400 mt-4">
-                      Calistenia é um salva-vidas se você quer ter um corpo melhor, mas não tem acesso a equipamento de
-                      academia, não consegue se dedicar ao levantamento tradicional de pesos, ou simplesmente quer
-                      tentar algo inovador e divertido. Obtenha seu plano e experimente agora!
-                    </p>
-                  </details>
-
-                  {/* FAQ Item 3 */}
-                  <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
-                    <summary className="flex items-center justify-between font-bold text-white">
-                      E se eu perder a motivação rapidamente?
-                      <svg
-                        className="w-5 h-5 transform group-open:rotate-180 transition"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                        />
-                      </svg>
-                    </summary>
-                    <p className="text-gray-400 mt-4">
-                      Forneceremos lembretes suaves, conselhos de especialistas, ferramentas de rastreamento úteis e
-                      apoio constante para ajudá-lo a ver o progresso e manter-se consistente. Dessa forma, você pode
-                      alcançar seus objetivos e desfrutar de um corpo mais saudável e em forma sem o medo de desistir.
-                    </p>
-                  </details>
-                </div>
-              </div>
-            </section>
-
-            {/* Trustpilot Section */}
-            <section className="border-t border-gray-800 py-12">
-              <div className="max-w-6xl mx-auto px-4 text-center">
-                <div className="flex items-center justify-center gap-8 mb-8">
-                  <div className="flex items-center gap-2">
-                    <svg className="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    <span className="text-white font-bold">Trustpilot</span>
-                  </div>
-                  <div className="text-gray-400">
-                    <div className="text-sm font-bold text-white">Excelente</div>
-                    <div className="flex gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <svg key={i} className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                        </svg>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Get Visible Results Section */}
-            <section className="py-16">
-              <div className="max-w-6xl mx-auto px-4">
-                <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-12">
-                  Obtenha resultados visíveis em 4 semanas!
-                </h2>
-
-                {/* Plans */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  {/* Monthly Plan */}
-                  <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-                    <div className="text-gray-400 text-sm mb-4">PLANO MENSAL</div>
-                    <div className="text-3xl font-bold text-white mb-2">R$ 79,90</div>
-                  </div>
-
-                  {/* Quarterly Plan - Featured */}
-                  <div className="bg-black border-2 border-orange-500 rounded-lg p-6 relative">
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-white text-black text-xs font-bold px-4 py-1 rounded-full">
-                      MAIS POPULAR
-                    </div>
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-2xl font-bold text-white">Plano Trimestral</h3>
-                      <svg className="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                      </svg>
-                    </div>
-                    <div className="text-3xl font-bold text-white">R$ 159,90</div>
-                  </div>
-
-                  {/* Semi-annual Plan */}
-                  <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-                    <div className="text-gray-400 text-sm mb-4">PLANO SEMESTRAL</div>
-                    <div className="text-3xl font-bold text-white mb-2">R$ 239,90</div>
-                  </div>
-                </div>
-
-                {/* Disclaimer */}
-                <p className="text-gray-400 text-sm text-center mb-8 max-w-2xl mx-auto">
-                  Sem cancelamento antes do plano selecionado terminar, aceito que a BetterMe cobrará automaticamente R$
-                  38,95 (incl. IVA) a cada 4 semanas até eu cancelar. Cancelar online via perfil ou app.
-                </p>
-
-                {/* CTA Button */}
-                <div className="text-center mb-16">
-                  <button className="bg-white text-black font-bold px-12 py-3 rounded-full hover:bg-gray-100 transition">
-                    OBTER MEU PLANO
-                  </button>
-                </div>
-
-                {/* Money-Back Guarantee */}
-                <div className="bg-gray-900 border border-gray-800 rounded-lg p-12 text-center">
-                  <svg
-                    className="w-12 h-12 text-green-400 mx-auto mb-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <h3 className="text-3xl font-bold text-white mb-4">Garantia de devolução do dinheiro em 30 dias</h3>
-                  <p className="text-gray-400 mb-4">
-                    Acreditamos que nosso plano funcionará para você, e você deveria ver resultados visíveis em apenas 4
-                    semanas! Estamos até dispostos a devolver seu dinheiro se você puder demonstrar que seguiu o plano
-                    mas não viu nenhum resultado.
-                  </p>
-                  <p className="text-gray-400">
-                    Saiba mais sobre limitações aplicáveis em nossa{" "}
-                    <a href="#" className="text-green-400 hover:underline">
-                      política de devolução
-                    </a>
-                    .
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            {/* Footer */}
-            <footer className="border-t border-gray-800 mt-16 py-8 text-center text-gray-400 text-sm">
-              <p className="mb-4">
-                BetterMe International Limited | Escritório No. 101, 1º Andar, "Alteribo Avas" Building, Corner of
-                Tspelleriou & Koryktos Street, 8010, Paphos, Cyprus
-              </p>
-              <div className="flex justify-center gap-4">
-                <a href="#" className="hover:text-white transition">
-                  Privacidade
-                </a>
-                <span>|</span>
-                <a href="#" className="hover:text-white transition">
-                  Termos
-                </a>
-              </div>
-            </footer>
           </div>
+
+          {/* Results that make us proud section with testimonials */}
+          <section className="py-20 bg-black">
+            <div className="max-w-5xl mx-auto px-4">
+              <h2 className="text-4xl font-bold text-center text-white mb-12">Resultados que nos deixam orgulhosos</h2>
+
+              <div className="grid grid-cols-3 gap-8 mb-12">
+                {/* Testimonial 1 - Brandon */}
+                <div className="bg-gray-900 rounded-2xl overflow-hidden">
+                  <div className="aspect-square bg-gray-800 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-b from-gray-700 to-gray-900 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-32 h-32 bg-gray-700 rounded-full mx-auto mb-4"></div>
+                        <p className="text-gray-400 text-sm">Antes / Depois</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-white">Brandon</h3>
+                      <span className="text-orange-400 font-bold text-lg">-15 kg</span>
+                    </div>
+                    <p className="text-gray-400 text-sm line-clamp-3">
+                      Olá, estou usando seus treinos e comecei há cerca de 4-5 meses atrás e só queria dizer obrigado,
+                      você fez um ótimo trabalho, realmente vi um t...
+                    </p>
+                    <button className="text-orange-400 text-sm font-semibold hover:text-orange-300">Ler mais</button>
+                  </div>
+                </div>
+
+                {/* Testimonial 2 - Peter */}
+                <div className="bg-gray-900 rounded-2xl overflow-hidden">
+                  <div className="aspect-square bg-gray-800 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-b from-gray-700 to-gray-900 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-32 h-32 bg-gray-700 rounded-full mx-auto mb-4"></div>
+                        <p className="text-gray-400 text-sm">Antes / Depois</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-white">Peter</h3>
+                      <span className="text-orange-400 font-bold text-lg">-5 kg</span>
+                    </div>
+                    <p className="text-gray-400 text-sm line-clamp-3">
+                      Os vídeos são muito úteis e fáceis de entender. Os conselhos do seu consultor funcionam bem
+                      comigo. Consigo dormir cedo agora. Este aplicativo funciona f...
+                    </p>
+                    <button className="text-orange-400 text-sm font-semibold hover:text-orange-300">Ler mais</button>
+                  </div>
+                </div>
+
+                {/* Testimonial 3 - Kevin */}
+                <div className="bg-gray-900 rounded-2xl overflow-hidden">
+                  <div className="aspect-square bg-gray-800 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-b from-gray-700 to-gray-900 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-32 h-32 bg-gray-700 rounded-full mx-auto mb-4"></div>
+                        <p className="text-gray-400 text-sm">Antes / Depois</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-white">Kevin</h3>
+                      <span className="text-orange-400 font-bold text-lg">-13 kg</span>
+                    </div>
+                    <p className="text-gray-400 text-sm line-clamp-3">
+                      Comecei com cerca de 200 lbs e agora estou com um peso saudável e magro 172.
+                    </p>
+                    <button className="text-orange-400 text-sm font-semibold hover:text-orange-300">Ler mais</button>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-xs text-gray-500 text-center">
+                *Disclaimer: Usuários do BetterMe compartilharam seu feedback. Este usuário teve acesso a treinamento
+                personalizado, recursos adicionais de pagamento. Os seguintes exercícios e os planos são a chave em sua
+                jornada de fitness e resultados geralmente aparecem em 4 semanas. Os resultados podem variar por pessoa
+                e não são garantidos.
+              </p>
+            </div>
+          </section>
+
+          {/* People often ask FAQ section with expandable items */}
+          <section className="py-20 bg-black">
+            <div className="max-w-3xl mx-auto px-4">
+              <h2 className="text-4xl font-bold text-center text-white mb-12">As pessoas frequentemente perguntam</h2>
+
+              <div className="space-y-6">
+                {/* FAQ Item 1 */}
+                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
+                  <summary className="flex items-center justify-between font-bold text-white">
+                    Como este plano pode me ajudar a queimar gordura e construir músculos?
+                    <svg
+                      className="w-5 h-5 transform group-open:rotate-180 transition"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                      />
+                    </svg>
+                  </summary>
+                  <p className="text-gray-400 mt-4">
+                    Nosso plano foi desenvolvido para ajudá-lo a queimar gordura e construir um corpo tonificado e
+                    magro, combinando treinos passo a passo com um plano de refeições personalizado. Nossas rotinas com
+                    vídeos guiados garantem a forma correta e ajudam você a manter a consistência e a motivação,
+                    tornando a perda de peso mais alcançável e sustentável.
+                  </p>
+                </details>
+
+                {/* FAQ Item 2 */}
+                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
+                  <summary className="flex items-center justify-between font-bold text-white">
+                    Quais são os benefícios da calistenia em comparação com outros treinos?
+                    <svg
+                      className="w-5 h-5 transform group-open:rotate-180 transition"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                      />
+                    </svg>
+                  </summary>
+                  <p className="text-gray-400 mt-4">
+                    Calistenia é um salva-vidas se você quer ter um corpo melhor, mas não tem acesso a equipamento de
+                    academia, não consegue se dedicar ao levantamento tradicional de pesos, ou simplesmente quer tentar
+                    algo inovador e divertido. Obtenha seu plano e experimente agora!
+                  </p>
+                </details>
+
+                {/* FAQ Item 3 */}
+                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
+                  <summary className="flex items-center justify-between font-bold text-white">
+                    E se eu perder a motivação rapidamente?
+                    <svg
+                      className="w-5 h-5 transform group-open:rotate-180 transition"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                      />
+                    </svg>
+                  </summary>
+                  <p className="text-gray-400 mt-4">
+                    Forneceremos lembretes suaves, conselhos de especialistas, ferramentas de rastreamento úteis e apoio
+                    constante para ajudá-lo a ver o progresso e manter-se consistente. Dessa forma, você pode alcançar
+                    seus objetivos e desfrutar de um corpo mais saudável e em forma sem o medo de desistir.
+                  </p>
+                </details>
+              </div>
+            </div>
+          </section>
+
+          {/* Trustpilot Section */}
+          <section className="border-t border-gray-800 py-12">
+            <div className="max-w-6xl mx-auto px-4 text-center">
+              <div className="flex items-center justify-center gap-8 mb-8">
+                <div className="flex items-center gap-2">
+                  <svg className="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  <span className="text-white font-bold">Trustpilot</span>
+                </div>
+                <div className="text-gray-400">
+                  <div className="text-sm font-bold text-white">Excelente</div>
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <svg key={i} className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Get Visible Results Section */}
+          <section className="py-16">
+            <div className="max-w-6xl mx-auto px-4">
+              <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-12">
+                Obtenha resultados visíveis em 4 semanas!
+              </h2>
+
+              {/* Plans */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                {/* Monthly Plan */}
+                <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
+                  <div className="text-gray-400 text-sm mb-4">4-WEEK PLAN</div>
+                  <div className="text-3xl font-bold text-white mb-2">£17.77</div>
+                </div>
+
+                {/* Quarterly Plan - Featured */}
+                <div className="bg-black border-2 border-orange-500 rounded-lg p-6 relative">
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-white text-black text-xs font-bold px-4 py-1 rounded-full">
+                    MAIS POPULAR
+                  </div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-2xl font-bold text-white">Plano 4 Semanas</h3>
+                    <svg className="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                    </svg>
+                  </div>
+                  <div className="text-3xl font-bold text-white">£38.95</div>
+                </div>
+
+                {/* Semi-annual Plan */}
+                <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
+                  <div className="text-gray-400 text-sm mb-4">12-WEEK PLAN</div>
+                  <div className="text-3xl font-bold text-white mb-2">£94.85</div>
+                </div>
+              </div>
+
+              {/* Disclaimer */}
+              <p className="text-gray-400 text-sm text-center mb-8 max-w-2xl mx-auto">
+                Sem cancelamento, antes do plano selecionado terminar, aceito que o BetterMe cobrará automaticamente
+                £38,95 (incl. IVA) a cada 4 semanas até eu cancelar. Cancelar online via perfil ou app.
+              </p>
+
+              {/* CTA Button */}
+              <div className="text-center mb-16">
+                <button className="bg-white text-black font-bold px-12 py-3 rounded-full hover:bg-gray-100 transition">
+                  OBTER MEU PLANO
+                </button>
+              </div>
+
+              {/* Money-Back Guarantee */}
+              <div className="bg-gray-900 border border-gray-800 rounded-lg p-12 text-center">
+                <svg
+                  className="w-12 h-12 text-green-400 mx-auto mb-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <h3 className="text-3xl font-bold text-white mb-4">Garantia de devolução do dinheiro em 30 dias</h3>
+                <p className="text-gray-400 mb-4">
+                  Acreditamos que nosso plano funcionará para você, e você deveria ver resultados visíveis em apenas 4
+                  semanas! Estamos até dispostos a devolver seu dinheiro se você puder demonstrar que seguiu o plano mas
+                  não viu nenhum resultado.
+                </p>
+                <p className="text-gray-400">
+                  Saiba mais sobre limitações aplicáveis em nossa{" "}
+                  <a href="#" className="text-green-400 hover:underline">
+                    política de devolução
+                  </a>
+                  .
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Footer */}
+          <footer className="border-t border-gray-800 mt-16 py-8 text-center text-gray-400 text-sm">
+            <p className="mb-4">
+              BetterMe International Limited | Escritório No. 101, 1º Andar, "Alteribo Avas" Building, Corner of
+              Tspelleriou & Koryktos Street, 8010, Paphos, Cyprus
+            </p>
+            <div className="flex justify-center gap-4">
+              <a href="#" className="hover:text-white transition">
+                Privacidade
+              </a>
+              <span>|</span>
+              <a href="#" className="hover:text-white transition">
+                Termos
+              </a>
+            </div>
+          </footer>
         </div>
       </main>
     </div>
