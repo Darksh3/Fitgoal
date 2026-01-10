@@ -24,6 +24,8 @@ import { onAuthStateChanged, signInAnonymously } from "firebase/auth"
 
 import { motion } from "framer-motion"
 
+import { calculateNutrition } from "@/lib/calculate-nutrition"
+
 // Helper component for AnimatedPercentage
 const AnimatedPercentage = ({ targetPercentage = 100, duration = 8, onPercentageChange }) => {
   const [percentage, setPercentage] = useState(0)
@@ -125,6 +127,7 @@ interface QuizData {
   alcoholFrequency?: string
   trainingDays?: string // Added for slider in case 23
   letMadMusclesChoose?: boolean // Added for food preference step
+  targetCalories?: number // Added for nutrition calculation
 }
 // </CHANGE>
 
@@ -220,7 +223,7 @@ const debugFrequencySelection = (frequency: number) => {
     const stored = localStorage.getItem("quizData")
     if (stored) {
       try {
-        const parsed = JSON.parse(stored)
+        const parsed = JSON.JSON.parse(stored)
         console.log(`[QUIZ] Stored frequency: ${parsed.trainingDaysPerWeek}`)
       } catch (error) {
         console.error("[QUIZ] localStorage parse error:", error)
@@ -380,7 +383,6 @@ export default function QuizPage() {
     }
   }, [showWaterCongrats])
   // </CHANGE>
-
   const [animatedPercentage, setAnimatedPercentage] = useState(0)
 
   const statuses = [
@@ -897,7 +899,6 @@ export default function QuizPage() {
         imc: imc,
         imcClassification: classification,
         imcStatus: status,
-        // </CHANGE> Renaming fields for consistency with the canProceed updates
         sweetsFrequency: quizData.sugarFrequency, // Use sweetsFrequency
         trainingDays: quizData.trainingDays, // Use trainingDays as string from slider
         cardioFeeling: quizData.exercisePreferences.cardio,
@@ -907,6 +908,7 @@ export default function QuizPage() {
         supplement: quizData.wantsSupplement, // Use supplement field
         previousProblems: quizData.previousProblems, // Include previousProblems
         letMadMusclesChoose: quizData.letMadMusclesChoose, // Include letMadMusclesChoose
+        targetCalories: calculateNutrition(quizData),
       }
       setQuizData(updatedQuizData) // Atualiza o estado local
 
