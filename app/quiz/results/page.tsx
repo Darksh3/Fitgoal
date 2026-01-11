@@ -542,9 +542,6 @@ export default function QuizResultsPage() {
               </p>
             </div>
           </div>
-
-          
-          
           
           {/* Promo code banner */}
           <div className="bg-orange-400 rounded-xl p-1 mb-8">
