@@ -560,6 +560,86 @@ export default function QuizResultsPage() {
             </button>
           </div>
 
+          <div className="mt-12 bg-gray-900 border border-gray-800 rounded-xl p-8 max-w-3xl mx-auto">
+            <h3 className="text-2xl font-bold text-white mb-8">O que você recebe:</h3>
+
+            <div className="space-y-6">
+              {/* Benefit 1 */}
+              <div className="flex gap-4">
+                <svg className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <div className="flex-1">
+                  <p className="font-bold text-white">Dieta 100% personalizada em você</p>
+                  <p className="text-gray-400 text-sm">
+                    Plano de dieta claro, personalizado apenas para você, barato e fácil de seguir
+                  </p>
+                  <p className="text-orange-500 font-bold mt-2">R$ 129</p>
+                </div>
+              </div>
+
+              {/* Benefit 2 */}
+              <div className="flex gap-4">
+                <svg className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <div className="flex-1">
+                  <p className="font-bold text-white">Programa de treino personalizado</p>
+                  <p className="text-gray-400 text-sm">Plano de treino claro e fácil de seguir</p>
+                  <p className="text-orange-500 font-bold mt-2">R$ 149</p>
+                </div>
+              </div>
+
+              {/* Benefit 3 */}
+              <div className="flex gap-4">
+                <svg className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <div className="flex-1">
+                  <p className="font-bold text-white">Resultados visíveis após o primeiro mês</p>
+                  <p className="text-gray-400 text-sm">Veja mudanças reais em seu corpo</p>
+                  <p className="text-orange-500 font-bold mt-2">R$ 97</p>
+                </div>
+              </div>
+
+              {/* Benefit 4 */}
+              <div className="flex gap-4">
+                <svg className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <div className="flex-1">
+                  <p className="font-bold text-white">Acompanhamento de progresso</p>
+                  <p className="text-gray-400 text-sm">Monitore sua evolução e ajuste conforme necessário</p>
+                  <p className="text-orange-500 font-bold mt-2">R$ 79</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Special condition message */}
+            <div className="mt-8 pt-6 border-t border-gray-700 text-center">
+              <p className="text-white">
+                <span className="text-orange-500">✨</span> Você vai ter uma Condição Mega Especial!{" "}
+                <span className="text-orange-500">✨</span>
+              </p>
+            </div>
+          </div>
+
           {/* Highlights of your plan section */}
           <div className="mt-20 py-16 border-t border-gray-800">
             <h2 className="text-4xl font-bold text-center text-white mb-12">Destaques do seu plano</h2>
@@ -604,7 +684,7 @@ export default function QuizResultsPage() {
                     ></path>
                   </svg>
                   <div>
-                    <p className="text-white font-bold">Top 100 exercícios de Calistenia</p>
+                    <p className="text-white font-bold">Top exercícios para os seus objetivos</p>
                     <p className="text-gray-400 text-sm">Que atingem cada grupo muscular do corpo</p>
                   </div>
                 </div>
@@ -615,8 +695,10 @@ export default function QuizResultsPage() {
                     <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM9 12a6 6 0 11-12 0 6 6 0 0112 0zM12.5 1a.5.5 0 01.5.5v2a.5.5 0 01-1 0V1.5a.5.5 0 01.5-.5zM15.854 3.146a.5.5 0 010 .708l-1.414 1.414a.5.5 0 01-.708-.708l1.414-1.414a.5.5 0 01.708 0zM18 6.5a.5.5 0 01-.5.5h-2a.5.5 0 010-1h2a.5.5 0 01.5.5zM15.854 10.854a.5.5 0 01-.708 0l-1.414-1.414a.5.5 0 01.708-.708l1.414 1.414a.5.5 0 010 .708zM12.5 14a.5.5 0 01.5.5v2a.5.5 0 01-1 0v-2a.5.5 0 01.5-.5z"></path>
                   </svg>
                   <div>
-                    <p className="text-white font-bold">1.500+ treinos guiados em casa</p>
-                    <p className="text-gray-400 text-sm">Desenvolvido por treinadores de fitness certificados</p>
+                    <p className="text-white font-bold">Treinos 100% personalizados para VOCÊ</p>
+                    <p className="text-gray-400 text-sm">
+                      Desenvolvido para te ajudar a chegar no seu objetivo o mais rápido e saudável possível
+                    </p>
                   </div>
                 </div>
 
@@ -628,7 +710,7 @@ export default function QuizResultsPage() {
                   <div>
                     <p className="text-white font-bold">Plano de refeições personalizado</p>
                     <p className="text-gray-400 text-sm">
-                      Com mais de 1000 receitas fáceis de seguir para atingir seu objetivo mais rápido
+                      Dieta 100% personalizada pensando em VOCÊ, para atingir seu objetivo mais rápido
                     </p>
                   </div>
                 </div>
@@ -645,7 +727,7 @@ export default function QuizResultsPage() {
                   <div>
                     <p className="text-white font-bold">Sem academia, sem problema</p>
                     <p className="text-gray-400 text-sm">
-                      Faça Calistenia em casa ou fora com equipamento mínimo ou nenhum
+                      Faça exercicios em casa ou fora com equipamento mínimo ou nenhum
                     </p>
                   </div>
                 </div>
@@ -734,7 +816,7 @@ export default function QuizResultsPage() {
               </div>
 
               <p className="text-xs text-gray-500 text-center">
-                *Disclaimer: Usuários do BetterMe compartilharam seu feedback. Este usuário teve acesso a treinamento
+                *Disclaimer: Usuários do FITGOAL compartilharam seu feedback. Este usuário teve acesso a treinamento
                 personalizado, recursos adicionais de pagamento. Os seguintes exercícios e os planos são a chave em sua
                 jornada de fitness e resultados geralmente aparecem em 4 semanas. Os resultados podem variar por pessoa
                 e não são garantidos.
