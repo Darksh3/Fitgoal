@@ -455,6 +455,94 @@ export default function QuizResultsPage() {
         <div className="max-w-5xl mx-auto mt-16">
           <h2 className="text-4xl font-bold text-center mb-8">Escolha Seu Plano</h2>
 
+<div className="mt-12 bg-gray-900 border border-gray-800 rounded-xl p-8 max-w-3xl mx-auto">
+            <h3 className="text-2xl font-bold text-white mb-8">O que você recebe:</h3>
+
+            <div className="space-y-6">
+              {/* Benefit 1 */}
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-white font-bold">Dieta 100% personalizada em você</p>
+                  <p className="text-gray-400 text-sm">
+                    Plano de dieta claro, personalizado apenas para você, barato e fácil de seguir
+                  </p>
+                  <p className="text-orange-400 font-bold mt-2">R$ 129</p>
+                </div>
+              </div>
+
+              {/* Benefit 2 */}
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-white font-bold">Programa de treino personalizado</p>
+                  <p className="text-gray-400 text-sm">Plano de treino claro e fácil de seguir</p>
+                  <p className="text-orange-400 font-bold mt-2">R$ 149</p>
+                </div>
+              </div>
+
+              {/* Benefit 3 */}
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-white font-bold">Resultados visíveis após o primeiro mês</p>
+                  <p className="text-gray-400 text-sm">Veja mudanças reais em seu corpo</p>
+                  <p className="text-orange-400 font-bold mt-2">R$ 97</p>
+                </div>
+              </div>
+
+              {/* Benefit 4 */}
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-white font-bold">Acompanhamento de progresso</p>
+                  <p className="text-gray-400 text-sm">Monitore sua evolução e ajuste conforme necessário</p>
+                  <p className="text-orange-400 font-bold mt-2">R$ 79</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Special condition message */}
+            <div className="mt-6 pt-6 border-t border-gray-700 text-center">
+              <p className="text-white">
+                <span className="text-orange-400">✨</span> Você vai ter uma Condição Mega Especial!{" "}
+                <span className="text-orange-400">✨</span>
+              </p>
+            </div>
+          </div>
+          
           {/* Promo code banner */}
           <div className="bg-orange-400 rounded-xl p-1 mb-8">
             <div className="bg-black rounded-lg p-6 space-y-4">
@@ -558,94 +646,6 @@ export default function QuizResultsPage() {
             >
               OBTER MEU PLANO
             </button>
-          </div>
-
-          <div className="mt-12 bg-gray-900 border border-gray-800 rounded-xl p-8 max-w-3xl mx-auto">
-            <h3 className="text-2xl font-bold text-white mb-8">O que você recebe:</h3>
-
-            <div className="space-y-6">
-              {/* Benefit 1 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold">Dieta 100% personalizada em você</p>
-                  <p className="text-gray-400 text-sm">
-                    Plano de dieta claro, personalizado apenas para você, barato e fácil de seguir
-                  </p>
-                  <p className="text-orange-400 font-bold mt-2">R$ 129</p>
-                </div>
-              </div>
-
-              {/* Benefit 2 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold">Programa de treino personalizado</p>
-                  <p className="text-gray-400 text-sm">Plano de treino claro e fácil de seguir</p>
-                  <p className="text-orange-400 font-bold mt-2">R$ 149</p>
-                </div>
-              </div>
-
-              {/* Benefit 3 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold">Resultados visíveis após o primeiro mês</p>
-                  <p className="text-gray-400 text-sm">Veja mudanças reais em seu corpo</p>
-                  <p className="text-orange-400 font-bold mt-2">R$ 97</p>
-                </div>
-              </div>
-
-              {/* Benefit 4 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold">Acompanhamento de progresso</p>
-                  <p className="text-gray-400 text-sm">Monitore sua evolução e ajuste conforme necessário</p>
-                  <p className="text-orange-400 font-bold mt-2">R$ 79</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Special condition message */}
-            <div className="mt-6 pt-6 border-t border-gray-700 text-center">
-              <p className="text-white">
-                <span className="text-orange-400">✨</span> Você vai ter uma Condição Mega Especial!{" "}
-                <span className="text-orange-400">✨</span>
-              </p>
-            </div>
           </div>
 
           {/* Highlights of your plan section */}
