@@ -307,7 +307,7 @@ export default function QuizResultsPage() {
                 >
                   <p className="text-gray-400 text-sm mb-1">Percentual de Gordura</p>
                   <p className="text-white font-bold mb-2">{Number(data?.bodyFat) || 25}%</p>
-                  <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
                       className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
                       style={{ width: `${(Number(data?.bodyFat) || 25) * 2}%` }}
@@ -327,9 +327,10 @@ export default function QuizResultsPage() {
                 >
                   <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
                   <p className="text-white font-bold mb-2">Iniciante</p>
-                  <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
-                      className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full w-1/3"
+                      className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
+                      style={{ width: `${25}%` }}
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
                       transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
@@ -358,9 +359,10 @@ export default function QuizResultsPage() {
                 >
                   <p className="text-gray-400 text-sm mb-1">Percentual de Gordura</p>
                   <p className="text-white font-bold mb-2">{getImprovedBodyFatRange()}</p>
-                  <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
-                      className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full w-4/5"
+                      className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full"
+                      style={{ width: `${80}%` }}
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
                       transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
@@ -377,9 +379,10 @@ export default function QuizResultsPage() {
                 >
                   <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
                   <p className="text-white font-bold mb-2">Avançado</p>
-                  <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
-                      className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full w-3/4"
+                      className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full"
+                      style={{ width: `${75}%` }}
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
                       transition={{ duration: 0.8, delay: 1.2, ease: "easeOut" }}
@@ -614,7 +617,7 @@ export default function QuizResultsPage() {
                   <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 00-1.414 1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 00-1.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                       clipRule="evenodd"
                     ></path>
                   </svg>
