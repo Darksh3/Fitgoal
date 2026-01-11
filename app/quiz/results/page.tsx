@@ -310,12 +310,14 @@ export default function QuizResultsPage() {
                   <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
                       className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
-                      style={{ width: `${Number(data?.bodyFat) || 25}%` }}
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
                       transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                       viewport={{ once: true }}
                       origin="left"
+                      style={{
+                        width: `${Number(data?.bodyFat) || 25}%`,
+                      }}
                     />
                   </div>
                 </motion.div>
@@ -330,6 +332,11 @@ export default function QuizResultsPage() {
                   <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
                       className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
+                      initial={{ scaleX: 0 }}
+                      whileInView={{ scaleX: 1 }}
+                      transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
+                      viewport={{ once: true }}
+                      origin="left"
                       style={{
                         width: `${
                           getDataValue("experience") === "Iniciante"
@@ -339,11 +346,6 @@ export default function QuizResultsPage() {
                               : 100
                         }%`,
                       }}
-                      initial={{ scaleX: 0 }}
-                      whileInView={{ scaleX: 1 }}
-                      transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
-                      viewport={{ once: true }}
-                      origin="left"
                     />
                   </div>
                 </motion.div>
