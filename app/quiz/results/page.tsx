@@ -153,6 +153,18 @@ export default function QuizResultsPage() {
     return "36-39%"
   }
 
+  const getImprovedBodyFatPercentage = () => {
+    const bodyFat = Number(data?.bodyFat) || 25
+    if (bodyFat <= 10) return 7.5
+    if (bodyFat <= 15) return 7.5
+    if (bodyFat <= 20) return 13
+    if (bodyFat <= 25) return 18
+    if (bodyFat <= 30) return 23
+    if (bodyFat <= 35) return 28
+    if (bodyFat <= 39) return 33
+    return 37.5
+  }
+
   const calculateDailyCalories = () => {
     if (!data) return 2425
     const weight = Number(data?.weight) || 70
@@ -346,7 +358,7 @@ export default function QuizResultsPage() {
                   <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
-                      whileInView={{ width: "80%" }}
+                      whileInView={{ width: `${getImprovedBodyFatPercentage()}%` }}
                       transition={{ duration: 1.2, delay: 1.4, ease: "easeOut" }}
                       className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full"
                     />
