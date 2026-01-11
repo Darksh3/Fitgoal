@@ -312,7 +312,7 @@ export default function QuizResultsPage() {
                       className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
-                      transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                      transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
                       viewport={{ once: true }}
                       origin="left"
                       style={{
@@ -324,7 +324,7 @@ export default function QuizResultsPage() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.6 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
                   viewport={{ once: true }}
                 >
                   <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
@@ -334,7 +334,7 @@ export default function QuizResultsPage() {
                       className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
-                      transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
+                      transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
                       viewport={{ once: true }}
                       origin="left"
                       style={{
@@ -375,7 +375,7 @@ export default function QuizResultsPage() {
                       style={{ width: `${Math.min(Number(data?.targetBodyFatMax) || 15, 100)}%` }}
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
-                      transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
+                      transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
                       viewport={{ once: true }}
                       origin="left"
                     />
@@ -384,7 +384,7 @@ export default function QuizResultsPage() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 1 }}
+                  transition={{ duration: 0.5, delay: 0.7 }}
                   viewport={{ once: true }}
                 >
                   <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
@@ -395,7 +395,7 @@ export default function QuizResultsPage() {
                       style={{ width: `100%` }}
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
-                      transition={{ duration: 0.8, delay: 1.2, ease: "easeOut" }}
+                      transition={{ duration: 1, delay: 1.1, ease: "easeOut" }}
                       viewport={{ once: true }}
                       origin="left"
                     />
