@@ -455,7 +455,7 @@ export default function QuizResultsPage() {
         <div className="max-w-5xl mx-auto mt-16">
           <h2 className="text-4xl font-bold text-center mb-8">Escolha Seu Plano</h2>
 
-<div className="mt-12 bg-gray-900 border border-gray-800 rounded-xl p-8 max-w-3xl mx-auto">
+          <div className="mt-12 bg-gray-900 border border-gray-800 rounded-xl p-8 max-w-3xl mx-auto">
             <h3 className="text-2xl font-bold text-white mb-8">O que você recebe:</h3>
 
             <div className="space-y-6">
@@ -542,29 +542,6 @@ export default function QuizResultsPage() {
               </p>
             </div>
           </div>
-          
-          
-          {/* Promo code banner */}
-          <div className="bg-orange-400 rounded-xl p-1 mb-8">
-            <div className="bg-black rounded-lg p-6 space-y-4">
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
-                </svg>
-                <span className="text-white font-semibold">Seu código promo foi aplicado!</span>
-              </div>
-
-              <div className="flex gap-4 items-center">
-                <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
-                  <p className="text-white font-mono text-lg">cleber_jan26</p>
-                </div>
-                <div className="text-orange-400 font-bold text-right">
-                  <p className="text-2xl">02:08</p>
-                  <p className="text-xs text-orange-300">minutos segundos</p>
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* Plan cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -638,6 +615,28 @@ export default function QuizResultsPage() {
             automaticamente cobrada R$ 38.95 (IVA incluído) a cada 4 semanas até eu cancelar. Cancelar online via perfil
             no <span className="underline">site</span> ou app.
           </p>
+
+          {/* Promo code banner */}
+          <div className="bg-orange-400 rounded-xl p-1 mb-8">
+            <div className="bg-black rounded-lg p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
+                </svg>
+                <span className="text-white font-semibold">Seu código promo foi aplicado!</span>
+              </div>
+
+              <div className="flex gap-4 items-center">
+                <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
+                  <p className="text-white font-mono text-lg">cleber_jan26</p>
+                </div>
+                <div className="text-orange-400 font-bold text-right">
+                  <p className="text-2xl">02:08</p>
+                  <p className="text-xs text-orange-300">minutos segundos</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* CTA Button */}
           <div className="flex justify-center">
@@ -1043,16 +1042,6 @@ export default function QuizResultsPage() {
                 automaticamente cobrada R$ 38,95 (incl. impostos) a cada 4 semanas até eu cancelar. Cancelar online via
                 perfil ou app.
               </p>
-
-              {/* CTA Button */}
-              <div className="text-center mb-16">
-                <button
-                  onClick={() => router.push(`/checkout?plan=${selectedPlan}`)}
-                  className="bg-white text-black font-bold px-12 py-3 rounded-full hover:bg-gray-100 transition"
-                >
-                  OBTER MEU PLANO
-                </button>
-              </div>
 
               {/* Money-Back Guarantee */}
               <div className="bg-gray-900 border border-gray-800 rounded-lg p-12 text-center">
