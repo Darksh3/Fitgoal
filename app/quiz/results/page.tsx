@@ -566,76 +566,84 @@ export default function QuizResultsPage() {
             <div className="space-y-6">
               {/* Benefit 1 */}
               <div className="flex gap-4">
-                <svg className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <div className="flex-shrink-0">
+                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
                 <div className="flex-1">
-                  <p className="font-bold text-white">Dieta 100% personalizada em você</p>
+                  <p className="text-white font-bold">Dieta 100% personalizada em você</p>
                   <p className="text-gray-400 text-sm">
                     Plano de dieta claro, personalizado apenas para você, barato e fácil de seguir
                   </p>
-                  <p className="text-orange-500 font-bold mt-2">R$ 129</p>
+                  <p className="text-orange-400 font-bold mt-2">R$ 129</p>
                 </div>
               </div>
 
               {/* Benefit 2 */}
               <div className="flex gap-4">
-                <svg className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <div className="flex-shrink-0">
+                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
                 <div className="flex-1">
-                  <p className="font-bold text-white">Programa de treino personalizado</p>
+                  <p className="text-white font-bold">Programa de treino personalizado</p>
                   <p className="text-gray-400 text-sm">Plano de treino claro e fácil de seguir</p>
-                  <p className="text-orange-500 font-bold mt-2">R$ 149</p>
+                  <p className="text-orange-400 font-bold mt-2">R$ 149</p>
                 </div>
               </div>
 
               {/* Benefit 3 */}
               <div className="flex gap-4">
-                <svg className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <div className="flex-shrink-0">
+                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
                 <div className="flex-1">
-                  <p className="font-bold text-white">Resultados visíveis após o primeiro mês</p>
+                  <p className="text-white font-bold">Resultados visíveis após o primeiro mês</p>
                   <p className="text-gray-400 text-sm">Veja mudanças reais em seu corpo</p>
-                  <p className="text-orange-500 font-bold mt-2">R$ 97</p>
+                  <p className="text-orange-400 font-bold mt-2">R$ 97</p>
                 </div>
               </div>
 
               {/* Benefit 4 */}
               <div className="flex gap-4">
-                <svg className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <div className="flex-shrink-0">
+                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
                 <div className="flex-1">
-                  <p className="font-bold text-white">Acompanhamento de progresso</p>
+                  <p className="text-white font-bold">Acompanhamento de progresso</p>
                   <p className="text-gray-400 text-sm">Monitore sua evolução e ajuste conforme necessário</p>
-                  <p className="text-orange-500 font-bold mt-2">R$ 79</p>
+                  <p className="text-orange-400 font-bold mt-2">R$ 79</p>
                 </div>
               </div>
             </div>
 
             {/* Special condition message */}
-            <div className="mt-8 pt-6 border-t border-gray-700 text-center">
+            <div className="mt-6 pt-6 border-t border-gray-700 text-center">
               <p className="text-white">
-                <span className="text-orange-500">✨</span> Você vai ter uma Condição Mega Especial!{" "}
-                <span className="text-orange-500">✨</span>
+                <span className="text-orange-400">✨</span> Você vai ter uma Condição Mega Especial!{" "}
+                <span className="text-orange-400">✨</span>
               </p>
             </div>
           </div>
