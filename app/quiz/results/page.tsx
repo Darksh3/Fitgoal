@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { motion } from "framer-motion" // Added Framer Motion import
 import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import Image from "next/image"
-import { motion } from "framer-motion"
 
 export default function QuizResultsPage() {
   const router = useRouter()
@@ -13,6 +13,7 @@ export default function QuizResultsPage() {
   const [data, setData] = useState<any>(null)
   const [timeLeft, setTimeLeft] = useState({ minutes: 4, seconds: 0 })
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "quarterly" | "semiannual">("quarterly")
+  const [barsVisible, setBarsVisible] = useState(false) // State to trigger bar animations
 
   useEffect(() => {
     const fetchData = async () => {
@@ -179,6 +180,21 @@ export default function QuizResultsPage() {
     return Math.round(calories)
   }
 
+  const getTrainingLevelPercentage = (level: string) => {
+    switch (level?.toLowerCase()) {
+      case "iniciante":
+        return 25
+      case "intermediario":
+      case "intermediário":
+        return 50
+      case "avançado":
+      case "advanced":
+        return 100
+      default:
+        return 25
+    }
+  }
+
   if (loading || !data) {
     return (
       <div className="w-full h-screen bg-black flex items-center justify-center">
@@ -291,118 +307,65 @@ export default function QuizResultsPage() {
           {/* Stats grid */}
           <div className="grid grid-cols-2 gap-8 mt-8 pt-8 border-t border-gray-800">
             {/* Current stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="bg-gray-900 bg-opacity-50 rounded-lg p-6 border border-gray-800"
-            >
+            <div className="bg-gray-900 bg-opacity-50 rounded-lg p-6 border border-gray-800">
               <div className="space-y-4">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0 }}
-                  viewport={{ once: true }}
-                >
+                <div>
                   <p className="text-gray-400 text-sm mb-1">Percentual de Gordura</p>
                   <p className="text-white font-bold mb-2">{Number(data?.bodyFat) || 25}%</p>
                   <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: `${Number(data?.bodyFat) || 25}%` }}
+                      transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
                       className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
-                      initial={{ scaleX: 0 }}
-                      whileInView={{ scaleX: 1 }}
-                      transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-                      viewport={{ once: true }}
-                      origin="left"
-                      style={{
-                        width: `${Number(data?.bodyFat) || 25}%`,
-                      }}
+                      onViewportEnter={() => setBarsVisible(true)}
                     />
                   </div>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                  viewport={{ once: true }}
-                >
+                </div>
+                <div>
                   <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
                   <p className="text-white font-bold mb-2">{getDataValue("experience") || "Iniciante"}</p>
                   <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: `${getTrainingLevelPercentage(getDataValue("experience"))}%` }}
+                      transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
                       className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
-                      initial={{ scaleX: 0 }}
-                      whileInView={{ scaleX: 1 }}
-                      transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
-                      viewport={{ once: true }}
-                      origin="left"
-                      style={{
-                        width: `${
-                          getDataValue("experience") === "Iniciante"
-                            ? 25
-                            : getDataValue("experience") === "Intermediário"
-                              ? 50
-                              : 100
-                        }%`,
-                      }}
                     />
                   </div>
-                </motion.div>
+                </div>
               </div>
-            </motion.div>
+            </div>
 
             {/* Target stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              viewport={{ once: true }}
-              className="bg-gray-900 bg-opacity-50 rounded-lg p-6 border border-gray-800"
-            >
+            <div className="bg-gray-900 bg-opacity-50 rounded-lg p-6 border border-gray-800">
               <div className="space-y-4">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                  viewport={{ once: true }}
-                >
+                <div>
                   <p className="text-gray-400 text-sm mb-1">Percentual de Gordura</p>
                   <p className="text-white font-bold mb-2">{getImprovedBodyFatRange()}</p>
                   <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: "80%" }}
+                      transition={{ duration: 1.2, delay: 1.4, ease: "easeOut" }}
                       className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full"
-                      style={{ width: `${Math.min(Number(data?.targetBodyFatMax) || 15, 100)}%` }}
-                      initial={{ scaleX: 0 }}
-                      whileInView={{ scaleX: 1 }}
-                      transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
-                      viewport={{ once: true }}
-                      origin="left"
                     />
                   </div>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.7 }}
-                  viewport={{ once: true }}
-                >
+                </div>
+                <div>
                   <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
                   <p className="text-white font-bold mb-2">Avançado</p>
                   <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: "100%" }}
+                      transition={{ duration: 1.2, delay: 2, ease: "easeOut" }}
                       className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full"
-                      style={{ width: `100%` }}
-                      initial={{ scaleX: 0 }}
-                      whileInView={{ scaleX: 1 }}
-                      transition={{ duration: 1, delay: 1.1, ease: "easeOut" }}
-                      viewport={{ once: true }}
-                      origin="left"
                     />
                   </div>
-                </motion.div>
+                </div>
               </div>
-            </motion.div>
+            </div>
           </div>
 
           <div className="mt-8 bg-gray-900 bg-opacity-50 rounded-2xl p-8 border border-gray-700">
@@ -505,14 +468,13 @@ export default function QuizResultsPage() {
           {/* Plan cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* Monthly Plan */}
-            <motion.div
+            <div
               onClick={() => setSelectedPlan("monthly")}
               className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
                 selectedPlan === "monthly"
                   ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
                   : "border-gray-700"
               }`}
-              whileHover={{ scale: 1.05 }}
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-white">Plano Mensal</h3>
@@ -523,17 +485,16 @@ export default function QuizResultsPage() {
               <div className="text-gray-400 text-sm mb-3">Acesso completo por 30 dias</div>
               <div className="text-3xl font-bold text-white mb-1">R$ 79,90</div>
               <div className="text-gray-500 text-xs">por mês</div>
-            </motion.div>
+            </div>
 
             {/* Quarterly Plan - Featured */}
-            <motion.div
+            <div
               onClick={() => setSelectedPlan("quarterly")}
               className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition duration-300 ${
                 selectedPlan === "quarterly"
                   ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
                   : "border-gray-700"
               }`}
-              whileHover={{ scale: 1.05 }}
             >
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                 MAIS POPULAR
@@ -547,17 +508,16 @@ export default function QuizResultsPage() {
               <div className="text-gray-400 text-sm mb-3">Acesso completo por 90 dias</div>
               <div className="text-3xl font-bold text-white mb-1">R$ 159,90</div>
               <div className="text-gray-500 text-xs">por trimestre</div>
-            </motion.div>
+            </div>
 
             {/* Semi-annual Plan */}
-            <motion.div
+            <div
               onClick={() => setSelectedPlan("semiannual")}
               className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
                 selectedPlan === "semiannual"
                   ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
                   : "border-gray-700"
               }`}
-              whileHover={{ scale: 1.05 }}
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-white">Plano Semestral</h3>
@@ -568,7 +528,7 @@ export default function QuizResultsPage() {
               <div className="text-gray-400 text-sm mb-3">Acesso completo por 180 dias</div>
               <div className="text-3xl font-bold text-white mb-1">R$ 239,90</div>
               <div className="text-gray-500 text-xs">por semestre</div>
-            </motion.div>
+            </div>
           </div>
 
           {/* Disclaimer */}
@@ -614,7 +574,7 @@ export default function QuizResultsPage() {
                 {/* Highlight 2 */}
                 <div className="flex gap-4">
                   <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M13 7a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 11-2 0 1 1 0 012 0zm6 0a1 1 0 11-2 0 1 1 0 012 0zm2-8a1 1 0 01.967.25l2.5 6.526a1 1 0 01-.5 1.3H17v6a2 2 0 01-2 2h-.5a1 1 0 000-2 2 2 0 01-2-2 9 9 0 11-9 9 5 5 0 018-9H9a1 1 0 000 2h2a1 1 0 100-2H4.5a1 1 0 000 2H4a2 2 0 01-2 2v-6h2a2 2 0 012-2h.5z"></path>
+                    <path d="M13 7a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 11-2 0 1 1 0 012 0zm6 0a1 1 0 11-2 0 1 1 0 012 0zm2-8a1 1 0 01.967.25l2.5 6.526a1 1 0 01-.5 1.3H17v6a2 2 0 01-2 2h.5a1 1 0 000-2 2 2 0 01-2-2 9 9 0 11-9 9 5 5 0 018-9H9a1 1 0 000 2h2a1 1 0 100-2H4.5a1 1 0 000 2H4a2 2 0 01-2 2v-6h2a2 2 0 012-2h.5z"></path>
                   </svg>
                   <div>
                     <p className="text-white font-bold">Rotinas fáceis para iniciantes</p>
@@ -627,7 +587,7 @@ export default function QuizResultsPage() {
                   <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 00-1.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 00-1.414 1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                       clipRule="evenodd"
                     ></path>
                   </svg>
@@ -911,14 +871,13 @@ export default function QuizResultsPage() {
               {/* Plan cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {/* Monthly Plan */}
-                <motion.div
+                <div
                   onClick={() => setSelectedPlan("monthly")}
                   className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
                     selectedPlan === "monthly"
                       ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
                       : "border-gray-700"
                   }`}
-                  whileHover={{ scale: 1.05 }}
                 >
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold text-white">Plano Mensal</h3>
@@ -929,17 +888,16 @@ export default function QuizResultsPage() {
                   <div className="text-gray-400 text-sm mb-3">Acesso completo por 30 dias</div>
                   <div className="text-3xl font-bold text-white mb-1">R$ 79,90</div>
                   <div className="text-gray-500 text-xs">por mês</div>
-                </motion.div>
+                </div>
 
                 {/* Quarterly Plan - Featured */}
-                <motion.div
+                <div
                   onClick={() => setSelectedPlan("quarterly")}
                   className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition duration-300 ${
                     selectedPlan === "quarterly"
                       ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
                       : "border-gray-700"
                   }`}
-                  whileHover={{ scale: 1.05 }}
                 >
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                     MAIS POPULAR
@@ -953,17 +911,16 @@ export default function QuizResultsPage() {
                   <div className="text-gray-400 text-sm mb-3">Acesso completo por 90 dias</div>
                   <div className="text-3xl font-bold text-white mb-1">R$ 159,90</div>
                   <div className="text-gray-500 text-xs">por trimestre</div>
-                </motion.div>
+                </div>
 
                 {/* Semi-annual Plan */}
-                <motion.div
+                <div
                   onClick={() => setSelectedPlan("semiannual")}
                   className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
                     selectedPlan === "semiannual"
                       ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
                       : "border-gray-700"
                   }`}
-                  whileHover={{ scale: 1.05 }}
                 >
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold text-white">Plano Semestral</h3>
@@ -974,7 +931,7 @@ export default function QuizResultsPage() {
                   <div className="text-gray-400 text-sm mb-3">Acesso completo por 180 dias</div>
                   <div className="text-3xl font-bold text-white mb-1">R$ 239,90</div>
                   <div className="text-gray-500 text-xs">por semestre</div>
-                </motion.div>
+                </div>
               </div>
 
               {/* Disclaimer */}
