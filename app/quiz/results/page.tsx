@@ -310,7 +310,7 @@ export default function QuizResultsPage() {
                   <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
                       className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
-                      style={{ width: `${(Number(data?.bodyFat) || 25) * 2}%` }}
+                      style={{ width: `${Number(data?.bodyFat) || 25}%` }}
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
                       transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -326,11 +326,19 @@ export default function QuizResultsPage() {
                   viewport={{ once: true }}
                 >
                   <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
-                  <p className="text-white font-bold mb-2">Iniciante</p>
+                  <p className="text-white font-bold mb-2">{getDataValue("experience") || "Iniciante"}</p>
                   <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
                       className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
-                      style={{ width: `${25}%` }}
+                      style={{
+                        width: `${
+                          getDataValue("experience") === "Iniciante"
+                            ? 25
+                            : getDataValue("experience") === "Intermediário"
+                              ? 50
+                              : 100
+                        }%`,
+                      }}
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
                       transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
@@ -362,7 +370,7 @@ export default function QuizResultsPage() {
                   <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
                       className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full"
-                      style={{ width: `${80}%` }}
+                      style={{ width: `${Math.min(Number(data?.targetBodyFatMax) || 15, 100)}%` }}
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
                       transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
@@ -382,7 +390,7 @@ export default function QuizResultsPage() {
                   <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
                       className="bg-gradient-to-r from-lime-400 to-green-500 h-2 rounded-full"
-                      style={{ width: `${75}%` }}
+                      style={{ width: `100%` }}
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
                       transition={{ duration: 0.8, delay: 1.2, ease: "easeOut" }}
