@@ -6,6 +6,7 @@ import { motion } from "framer-motion" // Added Framer Motion import
 import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import Image from "next/image"
+import CheckoutModal from "@/components/checkout-modal"
 
 export default function QuizResultsPage() {
   const router = useRouter()
@@ -14,6 +15,7 @@ export default function QuizResultsPage() {
   const [timeLeft, setTimeLeft] = useState({ minutes: 4, seconds: 0 })
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "quarterly" | "semiannual">("quarterly")
   const [barsVisible, setBarsVisible] = useState(false) // State to trigger bar animations
+  const [checkoutOpen, setCheckoutOpen] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -207,6 +209,20 @@ export default function QuizResultsPage() {
     }
   }
 
+  // Helper to get plan key string
+  const getPlanKey = () => {
+    switch (selectedPlan) {
+      case "monthly":
+        return "mensal"
+      case "quarterly":
+        return "trimestral"
+      case "semiannual":
+        return "semestral"
+      default:
+        return "trimestral"
+    }
+  }
+
   if (loading || !data) {
     return (
       <div className="w-full h-screen bg-black flex items-center justify-center">
@@ -226,7 +242,11 @@ export default function QuizResultsPage() {
             <span>:</span>
             <span>{String(timeLeft.seconds).padStart(2, "0")}</span>
           </div>
-          <button className="px-6 py-2 bg-white text-black rounded-full font-semibold text-sm hover:bg-gray-200 transition">
+          {/* Open modal instead of redirect */}
+          <button
+            onClick={() => setCheckoutOpen(true)}
+            className="px-6 py-2 bg-white text-black rounded-full font-semibold text-sm hover:bg-gray-200 transition"
+          >
             OBTER MEU PLANO
           </button>
           <button className="w-8 h-8 flex items-center justify-center">
@@ -455,7 +475,7 @@ export default function QuizResultsPage() {
         <div className="max-w-5xl mx-auto mt-16">
           <h2 className="text-4xl font-bold text-center mb-8">Escolha Seu Plano</h2>
 
-<div className="mt-12 bg-gray-900 border border-gray-800 rounded-xl p-8 max-w-3xl mx-auto">
+          <div className="mt-12 bg-gray-900 border border-gray-800 rounded-xl p-8 max-w-3xl mx-auto">
             <h3 className="text-2xl font-bold text-white mb-8">O que você recebe:</h3>
 
             <div className="space-y-6">
@@ -542,7 +562,7 @@ export default function QuizResultsPage() {
               </p>
             </div>
           </div>
-          
+
           {/* Promo code banner */}
           <div className="bg-orange-400 rounded-xl p-1 mb-8">
             <div className="bg-black rounded-lg p-6 space-y-4">
@@ -634,14 +654,14 @@ export default function QuizResultsPage() {
           {/* Disclaimer */}
           <p className="text-center text-xs text-gray-500 mb-8">
             Sem cancelamento automático antes do final do período para planos, concordo que o Fitgoal cobrará
-            automaticamente no final do plano escolhido ou até eu cancelar. Cancele online via perfil,
-            no <span className="underline">site</span> ou app.
+            automaticamente no final do plano escolhido ou até eu cancelar. Cancele online via perfil, no{" "}
+            <span className="underline">site</span> ou app.
           </p>
 
           {/* CTA Button */}
           <div className="flex justify-center">
             <button
-              onClick={() => router.push("/checkout")}
+              onClick={() => setCheckoutOpen(true)}
               className="px-12 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition"
             >
               OBTER MEU PLANO
@@ -858,8 +878,10 @@ export default function QuizResultsPage() {
                   </summary>
                   <p className="text-gray-400 mt-4">
                     Nosso plano foi desenvolvido para ajudá-lo a queimar gordura e construir um corpo tonificado e
-                    aesthetic, combinando treinos passo a passo e um plano de refeições 100% personalizado. Nossos treinos e dietas garantem a forma correta e ajudam você a manter a consistência e a motivação,
-                    tornando a perda de peso mais alcançável e sustentável uma vez que tudo é 100% personalizado para você de acordo com as informações que coletamos no quiz.
+                    aesthetic, combinando treinos passo a passo e um plano de refeições 100% personalizado. Nossos
+                    treinos e dietas garantem a forma correta e ajudam você a manter a consistência e a motivação,
+                    tornando a perda de peso mais alcançável e sustentável uma vez que tudo é 100% personalizado para
+                    você de acordo com as informações que coletamos no quiz.
                   </p>
                 </details>
 
@@ -882,8 +904,12 @@ export default function QuizResultsPage() {
                     </svg>
                   </summary>
                   <p className="text-gray-400 mt-4">
-                    Os nossos planos são 100% personalizados para VOCÊ, tanto a dieta quanto o treino, enquanto os nossos concorrentes te enviam planos genéricos nós vamos mais a fundo garantindo eficiência e resultados desde que você se comprometa com os nossos planos de treino e dieta, além disso temos orgulho do nosso suporte que te ajudará a ajustar qualquer coisa ou tirar dúvidas, se você simplesmente quer tentar
-                    algo que dê RESULTADOS, inovador e divertido. Obtenha seu plano e experimente agora!
+                    Os nossos planos são 100% personalizados para VOCÊ, tanto a dieta quanto o treino, enquanto os
+                    nossos concorrentes te enviam planos genéricos nós vamos mais a fundo garantindo eficiência e
+                    resultados desde que você se comprometa com os nossos planos de treino e dieta, além disso temos
+                    orgulho do nosso suporte que te ajudará a ajustar qualquer coisa ou tirar dúvidas, se você
+                    simplesmente quer tentar algo que dê RESULTADOS, inovador e divertido. Obtenha seu plano e
+                    experimente agora!
                   </p>
                 </details>
 
@@ -1037,14 +1063,14 @@ export default function QuizResultsPage() {
               {/* Disclaimer */}
               <p className="text-gray-400 text-sm text-center mb-8 max-w-2xl mx-auto">
                 Sem cancelamento automático antes do final do período para planos, concordo que o Fitgoal cobrará
-            automaticamente no final do plano escolhido ou até eu cancelar. Cancele online via perfil,
-            no site ou app.
+                automaticamente no final do plano escolhido ou até eu cancelar. Cancele online via perfil, no site ou
+                app.
               </p>
 
               {/* CTA Button */}
               <div className="text-center mb-16">
                 <button
-                  onClick={() => router.push(`/checkout?plan=${selectedPlan}`)}
+                  onClick={() => setCheckoutOpen(true)}
                   className="bg-white text-black font-bold px-12 py-3 rounded-full hover:bg-gray-100 transition"
                 >
                   DESTRAVAR MEUS RESULTADOS
@@ -1085,9 +1111,7 @@ export default function QuizResultsPage() {
 
           {/* Footer */}
           <footer className="border-t border-gray-800 mt-16 py-8 text-center text-gray-400 text-sm">
-            <p className="mb-4">
-              Fitgoal | Escritório No. 101, 1º Andar, Avenida Paulista, São Paulo
-            </p>
+            <p className="mb-4">Fitgoal | Escritório No. 101, 1º Andar, Avenida Paulista, São Paulo</p>
             <div className="flex justify-center gap-4">
               <a href="#" className="hover:text-white transition">
                 Privacidade
@@ -1100,6 +1124,7 @@ export default function QuizResultsPage() {
           </footer>
         </div>
       </main>
+      <CheckoutModal isOpen={checkoutOpen} onClose={() => setCheckoutOpen(false)} selectedPlan={getPlanKey()} />
     </div>
   )
 }
