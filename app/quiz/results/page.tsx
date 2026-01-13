@@ -633,8 +633,8 @@ export default function QuizResultsPage() {
 
           {/* Disclaimer */}
           <p className="text-center text-xs text-gray-500 mb-8">
-            Sem cancelamento antes do final do período de desconto para planos, concordo que a BetterMe será
-            automaticamente cobrada R$ 38.95 (IVA incluído) a cada 4 semanas até eu cancelar. Cancelar online via perfil
+            Sem cancelamento automático antes do final do período para planos, concordo que o Fitgoal cobrará
+            automaticamente no final do plano escolhido ou até eu cancelar. Cancele online via perfil,
             no <span className="underline">site</span> ou app.
           </p>
 
@@ -858,16 +858,15 @@ export default function QuizResultsPage() {
                   </summary>
                   <p className="text-gray-400 mt-4">
                     Nosso plano foi desenvolvido para ajudá-lo a queimar gordura e construir um corpo tonificado e
-                    magro, combinando treinos passo a passo com um plano de refeições personalizado. Nossas rotinas com
-                    vídeos guiados garantem a forma correta e ajudam você a manter a consistência e a motivação,
-                    tornando a perda de peso mais alcançável e sustentável.
+                    aesthetic, combinando treinos passo a passo e um plano de refeições 100% personalizado. Nossos treinos e dietas garantem a forma correta e ajudam você a manter a consistência e a motivação,
+                    tornando a perda de peso mais alcançável e sustentável uma vez que tudo é 100% personalizado para você de acordo com as informações que coletamos no quiz.
                   </p>
                 </details>
 
                 {/* FAQ Item 2 */}
                 <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
                   <summary className="flex items-center justify-between font-bold text-white">
-                    Quais são os benefícios da calistenia em comparação com outros treinos?
+                    Quais são os benefícios dos planos FITGOAL em comparação com concorrentes?
                     <svg
                       className="w-5 h-5 transform group-open:rotate-180 transition"
                       fill="none"
@@ -883,9 +882,8 @@ export default function QuizResultsPage() {
                     </svg>
                   </summary>
                   <p className="text-gray-400 mt-4">
-                    Calistenia é um salva-vidas se você quer ter um corpo melhor, mas não tem acesso a equipamento de
-                    academia, não consegue se dedicar ao levantamento tradicional de pesos, ou simplesmente quer tentar
-                    algo inovador e divertido. Obtenha seu plano e experimente agora!
+                    Os nossos planos são 100% personalizados para VOCÊ, tanto a dieta quanto o treino, enquanto os nossos concorrentes te enviam planos genéricos nós vamos mais a fundo garantindo eficiência e resultados desde que você se comprometa com os nossos planos de treino e dieta, além disso temos orgulho do nosso suporte que te ajudará a ajustar qualquer coisa ou tirar dúvidas, se você simplesmente quer tentar
+                    algo que dê RESULTADOS, inovador e divertido. Obtenha seu plano e experimente agora!
                   </p>
                 </details>
 
@@ -1038,9 +1036,9 @@ export default function QuizResultsPage() {
 
               {/* Disclaimer */}
               <p className="text-gray-400 text-sm text-center mb-8 max-w-2xl mx-auto">
-                Sem cancelamento antes do final do período de desconto para planos, concordo que a BetterMe será
-                automaticamente cobrada R$ 38,95 (incl. impostos) a cada 4 semanas até eu cancelar. Cancelar online via
-                perfil ou app.
+                Sem cancelamento automático antes do final do período para planos, concordo que o Fitgoal cobrará
+            automaticamente no final do plano escolhido ou até eu cancelar. Cancele online via perfil,
+            no site ou app.
               </p>
 
               {/* CTA Button */}
@@ -1049,7 +1047,7 @@ export default function QuizResultsPage() {
                   onClick={() => router.push(`/checkout?plan=${selectedPlan}`)}
                   className="bg-white text-black font-bold px-12 py-3 rounded-full hover:bg-gray-100 transition"
                 >
-                  OBTER MEU PLANO
+                  DESTRAVAR MEUS RESULTADOS
                 </button>
               </div>
 
@@ -1088,8 +1086,7 @@ export default function QuizResultsPage() {
           {/* Footer */}
           <footer className="border-t border-gray-800 mt-16 py-8 text-center text-gray-400 text-sm">
             <p className="mb-4">
-              BetterMe International Limited | Escritório No. 101, 1º Andar, "Alteribo Avas" Building, Corner of
-              Tspelleriou & Koryktos Street, 8010, Paphos, Cyprus
+              Fitgoal | Escritório No. 101, 1º Andar, Avenida Paulista, São Paulo
             </p>
             <div className="flex justify-center gap-4">
               <a href="#" className="hover:text-white transition">
