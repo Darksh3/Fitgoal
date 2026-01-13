@@ -693,7 +693,8 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
 
               <Button
                 onClick={handleNextStep}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white py-6 text-lg font-semibold rounded-lg transition-all duration-200 shadow-lg"
+                variant="ghost"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white py-6 text-lg font-semibold rounded-lg transition-all duration-200 shadow-lg !rounded-lg"
               >
                 Continuar para Pagamento
               </Button>
