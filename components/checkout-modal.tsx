@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -449,30 +449,32 @@ function ProgressIndicator({ currentStep }: { currentStep: number }) {
   ]
 
   return (
-    <div className="flex justify-center items-center gap-6 mb-8">
-      {steps.map((step, index) => {
-        const Icon = step.icon
-        const isActive = currentStep >= step.number
-        const isCompleted = currentStep > step.number
+    <div className="flex justify-center mb-8">
+      <div className="flex items-center space-x-4 text-gray-400 text-sm">
+        {steps.map((step, index) => {
+          const Icon = step.icon
+          const isActive = currentStep >= step.number
+          const isCompleted = currentStep > step.number
 
-        return (
-          <div key={step.number} className="flex items-center gap-6">
-            <div className="flex flex-col items-center">
-              <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                  isActive ? "bg-lime-500 text-white" : "bg-gray-600 text-gray-400"
-                }`}
-              >
-                {isCompleted ? <Check className="h-6 w-6" /> : <Icon className="h-6 w-6" />}
+          return (
+            <React.Fragment key={step.number}>
+              <div className="flex flex-col items-center">
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                    isActive ? "bg-lime-500 text-white" : "bg-gray-600 text-gray-400"
+                  }`}
+                >
+                  {isCompleted ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+                </div>
+                <span className="mt-1 text-xs text-gray-300 text-center">{step.title}</span>
               </div>
-              <span className="mt-2 text-xs text-gray-300 text-center font-medium">{step.title}</span>
-            </div>
-            {index < steps.length - 1 && (
-              <div className={`w-16 h-1 ${isActive && !isCompleted ? "bg-lime-500" : "bg-gray-600"}`}></div>
-            )}
-          </div>
-        )
-      })}
+              {index < steps.length - 1 && (
+                <div className={`w-12 h-1 ${isActive ? "bg-lime-500" : "bg-gray-600"}`}></div>
+              )}
+            </React.Fragment>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -603,90 +605,87 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3 }}
-              className="space-y-4"
+              className="space-y-6"
             >
               <Card className="bg-gray-800 border-gray-700">
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-3">
-                    <ShoppingCart className="h-5 w-5 text-orange-400 mt-1 flex-shrink-0" />
-                    <div className="flex-1">
-                      <h3 className="text-white font-semibold">Plano Selecionado</h3>
-                      <p className="text-gray-400 text-sm">{currentPlanData.name}</p>
-                      <p className="text-gray-400 text-xs">{currentPlanData.description}</p>
-                      <p className="text-orange-400 text-lg font-bold mt-2">{currentPlanData.price}</p>
-                    </div>
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <ShoppingCart className="h-5 w-5" /> Plano Selecionado
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-white">
+                    <p className="text-lg font-semibold">{currentPlanData.name}</p>
+                    <p className="text-gray-400 text-sm">{currentPlanData.description}</p>
+                    <p className="text-orange-400 text-2xl font-bold mt-2">{currentPlanData.price}</p>
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="bg-gray-800 border-gray-700">
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <User className="h-5 w-5 text-gray-300" />
-                    <h3 className="text-white font-semibold">Dados Pessoais</h3>
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <User className="h-5 w-5" /> Dados Pessoais
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Nome Completo</label>
+                    <Input
+                      value={formData.name}
+                      onChange={(e) => handleFormChange("name", e.target.value)}
+                      placeholder="Seu nome"
+                      className="bg-gray-700 border-gray-600 text-white"
+                      required
+                    />
                   </div>
-
-                  <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <Input
+                      value={formData.email}
+                      onChange={(e) => handleFormChange("email", e.target.value)}
+                      placeholder="seu@email.com"
+                      className="bg-gray-700 border-gray-600 text-white"
+                      disabled
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-gray-300 mb-1">Nome Completo</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">CPF</label>
                       <Input
-                        value={formData.name}
-                        onChange={(e) => handleFormChange("name", e.target.value)}
-                        placeholder="Seu nome"
-                        className="bg-gray-700 border-gray-600 text-white text-sm"
+                        value={formData.cpf}
+                        onChange={(e) => {
+                          let value = e.target.value.replace(/\D/g, "")
+                          if (value.length <= 11) {
+                            value = value
+                              .replace(/(\d{3})(\d)/, "$1.$2")
+                              .replace(/(\d{3})(\d)/, "$1.$2")
+                              .replace(/(\d{3})(\d{1,2})/, "$1-$2")
+                          }
+                          handleFormChange("cpf", value)
+                        }}
+                        placeholder="000.000.000-00"
+                        className="bg-gray-700 border-gray-600 text-white"
+                        maxLength={14}
                         required
                       />
                     </div>
-
                     <div>
-                      <label className="block text-xs font-medium text-gray-300 mb-1">Email</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Telefone</label>
                       <Input
-                        value={formData.email}
-                        onChange={(e) => handleFormChange("email", e.target.value)}
-                        placeholder="seu@email.com"
-                        className="bg-gray-700 border-gray-600 text-white text-sm"
-                        disabled
+                        value={formData.phone}
+                        onChange={(e) => {
+                          let value = e.target.value.replace(/\D/g, "")
+                          if (value.length <= 11) {
+                            value = value.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d)/, "$1-$2")
+                          }
+                          handleFormChange("phone", value)
+                        }}
+                        placeholder="(00) 00000-0000"
+                        className="bg-gray-700 border-gray-600 text-white"
+                        maxLength={15}
+                        required
                       />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs font-medium text-gray-300 mb-1">CPF</label>
-                        <Input
-                          value={formData.cpf}
-                          onChange={(e) => {
-                            let value = e.target.value.replace(/\D/g, "")
-                            if (value.length <= 11) {
-                              value = value
-                                .replace(/(\d{3})(\d)/, "$1.$2")
-                                .replace(/(\d{3})(\d)/, "$1.$2")
-                                .replace(/(\d{3})(\d{1,2})/, "$1-$2")
-                            }
-                            handleFormChange("cpf", value)
-                          }}
-                          placeholder="000.000.000-00"
-                          className="bg-gray-700 border-gray-600 text-white text-sm"
-                          maxLength={14}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-gray-300 mb-1">Telefone</label>
-                        <Input
-                          value={formData.phone}
-                          onChange={(e) => {
-                            let value = e.target.value.replace(/\D/g, "")
-                            if (value.length <= 11) {
-                              value = value.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d)/, "$1-$2")
-                            }
-                            handleFormChange("phone", value)
-                          }}
-                          placeholder="(00) 00000-0000"
-                          className="bg-gray-700 border-gray-600 text-white text-sm"
-                          maxLength={15}
-                          required
-                        />
-                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -694,7 +693,7 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
 
               <Button
                 onClick={handleNextStep}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-base font-semibold"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white py-6 text-lg font-semibold rounded-lg transition-all duration-200 shadow-lg"
               >
                 Continuar para Pagamento
               </Button>
