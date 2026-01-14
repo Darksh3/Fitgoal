@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { CreditCard, Check, ShoppingCart, User, Lock, QrCode, FileText, Smartphone, X } from "lucide-react"
+import { CreditCard, Check, ShoppingCart, User, Lock, QrCode, FileText, Smartphone } from "lucide-react"
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
 
@@ -35,18 +35,18 @@ function PaymentMethodSelector({
               onClick={() => onSelect(method.id)}
               className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
                 selected === method.id
-                  ? "border-lime-400 bg-lime-400/10"
+                  ? "border-blue-600 bg-blue-600/10"
                   : "border-gray-700 bg-gray-800/50 hover:border-gray-600"
               }`}
             >
-              <Icon className={`h-6 w-6 ${selected === method.id ? "text-lime-400" : "text-gray-400"}`} />
+              <Icon className={`h-6 w-6 ${selected === method.id ? "text-blue-600" : "text-gray-400"}`} />
               <div className="flex-1 text-left">
-                <div className={`font-semibold ${selected === method.id ? "text-lime-400" : "text-white"}`}>
+                <div className={`font-semibold ${selected === method.id ? "text-blue-600" : "text-white"}`}>
                   {method.name}
                 </div>
                 <div className="text-sm text-gray-400">{method.description}</div>
               </div>
-              {selected === method.id && <Check className="h-5 w-5 text-lime-400" />}
+              {selected === method.id && <Check className="h-5 w-5 text-blue-600" />}
             </button>
           )
         })}
@@ -207,7 +207,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                 navigator.clipboard.writeText(pixData.copyPaste)
                 alert("Código Pix copiado!")
               }}
-              className="w-full bg-lime-500 hover:bg-lime-600"
+              className="w-full bg-blue-600 hover:bg-blue-700"
             >
               Copiar Código Pix
             </Button>
@@ -382,7 +382,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                     onClick={() => setInstallments(option)}
                     className={`w-full p-3 rounded-lg border-2 transition-all ${
                       installments === option
-                        ? "border-lime-400 bg-lime-400/10 text-lime-400"
+                        ? "border-blue-600 bg-blue-600/10 text-blue-600"
                         : "border-gray-700 bg-gray-800/50 text-gray-300 hover:border-gray-600"
                     }`}
                   >
@@ -461,7 +461,7 @@ function ProgressIndicator({ currentStep }: { currentStep: number }) {
               <div className="flex flex-col items-center">
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                    isActive ? "bg-lime-500 text-white" : "bg-gray-600 text-gray-400"
+                    isActive ? "bg-blue-600 text-white" : "bg-gray-600 text-gray-400"
                   }`}
                 >
                   {isCompleted ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
@@ -469,7 +469,7 @@ function ProgressIndicator({ currentStep }: { currentStep: number }) {
                 <span className="mt-1 text-xs text-gray-300 text-center">{step.title}</span>
               </div>
               {index < steps.length - 1 && (
-                <div className={`w-12 h-1 ${isActive ? "bg-lime-500" : "bg-gray-600"}`}></div>
+                <div className={`w-12 h-1 ${isActive ? "bg-blue-600" : "bg-gray-600"}`}></div>
               )}
             </React.Fragment>
           )
@@ -576,13 +576,8 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-800">
-        <DialogHeader>
-          <div className="flex justify-between items-center">
-            <DialogTitle className="text-2xl font-bold text-white">Finalizar Compra</DialogTitle>
-            <button onClick={onClose} className="text-gray-400 hover:text-white">
-              <X className="h-6 w-6" />
-            </button>
-          </div>
+        <DialogHeader className="flex justify-center items-center">
+          <DialogTitle className="text-2xl font-bold text-white">Finalizar Compra</DialogTitle>
         </DialogHeader>
 
         <motion.div
