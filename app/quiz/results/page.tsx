@@ -495,7 +495,7 @@ export default function QuizResultsPage() {
                   <p className="text-gray-400 text-sm">
                     Plano de dieta claro, personalizado apenas para você, barato e fácil de seguir
                   </p>
-                  <p className="text-orange-400 font-bold mt-2">R$ 129</p>
+                  <p className="text-orange-400 font-bold mt-2 line-through">R$ 129</p>
                 </div>
               </div>
 
@@ -513,7 +513,7 @@ export default function QuizResultsPage() {
                 <div className="flex-1">
                   <p className="text-white font-bold">Programa de treino personalizado</p>
                   <p className="text-gray-400 text-sm">Plano de treino claro e fácil de seguir</p>
-                  <p className="text-orange-400 font-bold mt-2">R$ 149</p>
+                  <p className="text-orange-400 font-bold mt-2 line-through">R$ 149</p>
                 </div>
               </div>
 
@@ -531,7 +531,7 @@ export default function QuizResultsPage() {
                 <div className="flex-1">
                   <p className="text-white font-bold">Resultados visíveis após o primeiro mês</p>
                   <p className="text-gray-400 text-sm">Veja mudanças reais em seu corpo</p>
-                  <p className="text-orange-400 font-bold mt-2">R$ 97</p>
+                  <p className="text-orange-400 font-bold mt-2 line-through">R$ 97</p>
                 </div>
               </div>
 
@@ -549,7 +549,7 @@ export default function QuizResultsPage() {
                 <div className="flex-1">
                   <p className="text-white font-bold">Acompanhamento de progresso</p>
                   <p className="text-gray-400 text-sm">Monitore sua evolução e ajuste conforme necessário</p>
-                  <p className="text-orange-400 font-bold mt-2">R$ 79</p>
+                  <p className="text-orange-400 font-bold mt-2 line-through">R$ 79</p>
                 </div>
               </div>
             </div>
@@ -566,8 +566,8 @@ export default function QuizResultsPage() {
                   Se comprasse separadamente: <span className="line-through text-gray-500">R$ 454</span>
                 </p>
                 <p className="text-white font-bold">
-                  Com a gente: de <span className="text-orange-400">R$ 1,33</span> a{" "}
-                  <span className="text-orange-400">R$ 2,66</span> por dia
+                  Com a gente: de <span className="text-orange-400">R$ 39,98</span> a{" "}
+                  <span className="text-orange-400">R$ 79,90</span> por mês
                 </p>
               </div>
             </div>
@@ -614,33 +614,30 @@ export default function QuizResultsPage() {
               </div>
               <div className="text-gray-400 text-sm mb-3">Acesso completo por 30 dias</div>
               <div className="text-3xl font-bold text-white mb-1">R$ 79,90</div>
-              <div className="text-gray-500 text-xs">por mês</div>
+              <div className="text-gray-400 text-sm">Ideal para quem quer resultados rápidos</div>
             </div>
 
-            {/* Quarterly Plan - Featured */}
+            {/* Quarterly Plan */}
             <div
               onClick={() => setSelectedPlan("quarterly")}
-              className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition duration-300 ${
+              className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
                 selectedPlan === "quarterly"
                   ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
                   : "border-gray-700"
               }`}
             >
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                MAIS POPULAR
-              </div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-white">Plano Trimestral</h3>
-                <svg className="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                </svg>
+                <div className="w-6 h-6 rounded-full border-2 border-gray-600 flex items-center justify-center">
+                  {selectedPlan === "quarterly" && <div className="w-3 h-3 bg-orange-500 rounded-full" />}
+                </div>
               </div>
               <div className="text-gray-400 text-sm mb-3">Acesso completo por 90 dias</div>
-              <div className="text-3xl font-bold text-white mb-1">R$ 159,90</div>
-              <div className="text-gray-500 text-xs">por trimestre</div>
+              <div className="text-3xl font-bold text-white mb-1">R$ 199,80</div>
+              <div className="text-gray-400 text-sm">Ideal para quem quer manter o ritmo</div>
             </div>
 
-            {/* Semi-annual Plan */}
+            {/* Semiannual Plan */}
             <div
               onClick={() => setSelectedPlan("semiannual")}
               className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
@@ -656,485 +653,17 @@ export default function QuizResultsPage() {
                 </div>
               </div>
               <div className="text-gray-400 text-sm mb-3">Acesso completo por 180 dias</div>
-              <div className="text-3xl font-bold text-white mb-1">R$ 239,90</div>
-              <div className="text-gray-500 text-xs">por semestre</div>
+              <div className="text-3xl font-bold text-white mb-1">R$ 359,70</div>
+              <div className="text-gray-400 text-sm">Ideal para quem quer economizar</div>
             </div>
           </div>
-
-          {/* Disclaimer */}
-          <p className="text-center text-xs text-gray-500 mb-8">
-            Sem cancelamento automático antes do final do período para planos, concordo que o Fitgoal cobrará
-            automaticamente no final do plano escolhido ou até eu cancelar. Cancele online via perfil, no{" "}
-            <span className="underline">site</span> ou app.
-          </p>
-
-          {/* CTA Button */}
-          <div className="flex justify-center">
-            <button
-              onClick={() => setCheckoutOpen(true)}
-              className="px-12 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition"
-            >
-              OBTER MEU PLANO
-            </button>
-          </div>
-
-          {/* Highlights of your plan section */}
-          <div className="mt-20 py-16 border-t border-gray-800">
-            <h2 className="text-4xl font-bold text-center text-white mb-12">Destaques do seu plano</h2>
-
-            <div className="grid grid-cols-2 gap-12">
-              {/* Left column - Highlights list */}
-              <div className="space-y-8">
-                {/* Highlight 1 */}
-                <div className="flex gap-4">
-                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
-                    <path
-                      fillRule="evenodd"
-                      d="M4 5a2 2 0 012-2 1 1 0 000 2H6a6 6 0 116 0h.5a1 1 0 000-2 2 2 0 01-2-2 9 9 0 11-9 9 5 5 0 018-9H9a1 1 0 000 2h2a1 1 0 100-2H4z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
-                  <div>
-                    <p className="text-white font-bold">Programa de treino progressivo</p>
-                    <p className="text-gray-400 text-sm">Adequado ao seu nível de forma física e objetivo</p>
-                  </div>
-                </div>
-
-                {/* Highlight 2 */}
-                <div className="flex gap-4">
-                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M13 7a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 11-2 0 1 1 0 012 0zm6 0a1 1 0 11-2 0 1 1 0 012 0zm2-8a1 1 0 01.967.25l2.5 6.526a1 1 0 01-.5 1.3H17v6a2 2 0 01-2 2h.5a1 1 0 000-2 2 2 0 01-2-2 9 9 0 11-9 9 5 5 0 018-9H9a1 1 0 000 2h2a1 1 0 100-2H4.5a1 1 0 000 2H4a2 2 0 01-2 2v-6h2a2 2 0 012-2h.5z"></path>
-                  </svg>
-                  <div>
-                    <p className="text-white font-bold">Rotinas fáceis para iniciantes</p>
-                    <p className="text-gray-400 text-sm">Para construir músculo e queimar gordura</p>
-                  </div>
-                </div>
-
-                {/* Highlight 3 */}
-                <div className="flex gap-4">
-                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 00-1.414 1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
-                  <div>
-                    <p className="text-white font-bold">Top exercícios para os seus objetivos</p>
-                    <p className="text-gray-400 text-sm">Que atingem cada grupo muscular do corpo</p>
-                  </div>
-                </div>
-
-                {/* Highlight 4 */}
-                <div className="flex gap-4">
-                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM9 12a6 6 0 11-12 0 6 6 0 0112 0zM12.5 1a.5.5 0 01.5.5v2a.5.5 0 01-1 0V1.5a.5.5 0 01.5-.5zM15.854 3.146a.5.5 0 010 .708l-1.414 1.414a.5.5 0 01-.708-.708l1.414-1.414a.5.5 0 01.708 0zM18 6.5a.5.5 0 01-.5.5h-2a.5.5 0 010-1h2a.5.5 0 01.5.5zM15.854 10.854a.5.5 0 01-.708 0l-1.414-1.414a.5.5 0 01.708-.708l1.414 1.414a.5.5 0 010 .708zM12.5 14a.5.5 0 01.5.5v2a.5.5 0 01-1 0v-2a.5.5 0 01.5-.5z"></path>
-                  </svg>
-                  <div>
-                    <p className="text-white font-bold">Treinos 100% personalizados para VOCÊ</p>
-                    <p className="text-gray-400 text-sm">
-                      Desenvolvido para te ajudar a chegar no seu objetivo o mais rápido e saudável possível
-                    </p>
-                  </div>
-                </div>
-
-                {/* Highlight 5 */}
-                <div className="flex gap-4">
-                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 01-1zM5.05 6.051a1 1 0 00-1.414 1.414l.707.707a1 1 0 101.414-1.414l-.707-.707zM3 9a1 1 0 100 2v4a2 2 0 100 4h12a2 2 0 100-4V9a1 1 0 100-2H3z"></path>
-                  </svg>
-                  <div>
-                    <p className="text-white font-bold">Plano de refeições personalizado</p>
-                    <p className="text-gray-400 text-sm">
-                      Dieta 100% personalizada pensando em VOCÊ, para atingir seu objetivo mais rápido
-                    </p>
-                  </div>
-                </div>
-
-                {/* Highlight 6 */}
-                <div className="flex gap-4">
-                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M4.5 2a1 1 0 00-.5.887v14.226a1 1 0 00.5.887l7-3.5a1 1 0 000 1.414l7 7a1 1 0 001.414-1.414L11.414 10l6.293-6.293a1 1 0 000-1.414l-7-7z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <div>
-                    <p className="text-white font-bold">Sem academia, sem problema</p>
-                    <p className="text-gray-400 text-sm">
-                      Faça exercicios em casa ou fora com equipamento mínimo ou nenhum
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right column - Image mockup */}
-              <div className="flex items-center justify-center">
-                <div className="relative w-full max-w-sm">
-                  {/* Placeholder for the app mockup image */}
-                  <div className="bg-gradient-to-b from-gray-800 to-gray-900 rounded-3xl p-4 border border-gray-700">
-                    <div className="bg-black rounded-2xl aspect-video flex items-center justify-center">
-                      <svg className="w-12 h-12 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V5a2 2 0 00-2-2H5zm6 9a1 1 0 100-2 1 1 0 000 2z"></path>
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Results that make us proud section with testimonials */}
-          <section className="py-20 bg-black">
-            <div className="max-w-5xl mx-auto px-4">
-              <h2 className="text-4xl font-bold text-center text-white mb-12">Resultados que nos deixam orgulhosos</h2>
-
-              <div className="grid grid-cols-3 gap-8 mb-12">
-                {/* Testimonial 1 - Brandon */}
-                <div className="bg-gray-900 rounded-2xl overflow-hidden">
-                  <img
-                    src="/images/5123122014301391780.jpg"
-                    alt="Brandon - Transformação antes e depois"
-                    className="w-full aspect-square object-cover"
-                  />
-                  <div className="p-6 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold text-white">Brandon</h3>
-                      <span className="text-orange-400 font-bold text-lg">-15 kg</span>
-                    </div>
-                    <p className="text-gray-400 text-sm line-clamp-3">
-                      Olá, estou usando seus treinos e comecei há cerca de 4-5 meses atrás e só queria dizer obrigado,
-                      você fez um ótimo trabalho, realmente vi um t...
-                    </p>
-                    <button className="text-orange-400 text-sm font-semibold hover:text-orange-300">Ler mais</button>
-                  </div>
-                </div>
-
-                {/* Testimonial 2 - Peter */}
-                <div className="bg-gray-900 rounded-2xl overflow-hidden">
-                  <img
-                    src="/images/5123122014301391779.jpg"
-                    alt="Peter - Transformação antes e depois"
-                    className="w-full aspect-square object-cover"
-                  />
-                  <div className="p-6 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold text-white">Peter</h3>
-                      <span className="text-orange-400 font-bold text-lg">-5 kg</span>
-                    </div>
-                    <p className="text-gray-400 text-sm line-clamp-3">
-                      Os vídeos são muito úteis e fáceis de entender. Os conselhos do seu consultor funcionam bem
-                      comigo. Consigo dormir cedo agora. Este aplicativo funciona f...
-                    </p>
-                    <button className="text-orange-400 text-sm font-semibold hover:text-orange-300">Ler mais</button>
-                  </div>
-                </div>
-
-                {/* Testimonial 3 - Kevin */}
-                <div className="bg-gray-900 rounded-2xl overflow-hidden">
-                  <img
-                    src="/images/5123122014301391781.jpg"
-                    alt="Kevin - Transformação antes e depois"
-                    className="w-full aspect-square object-cover"
-                  />
-                  <div className="p-6 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold text-white">Kevin</h3>
-                      <span className="text-orange-400 font-bold text-lg">-13 kg</span>
-                    </div>
-                    <p className="text-gray-400 text-sm line-clamp-3">
-                      Comecei com cerca de 200 lbs e agora estou com um peso saudável e magro 172.
-                    </p>
-                    <button className="text-orange-400 text-sm font-semibold hover:text-orange-300">Ler mais</button>
-                  </div>
-                </div>
-              </div>
-
-              <p className="text-xs text-gray-500 text-center">
-                *Disclaimer: Usuários do FITGOAL compartilharam seu feedback. Este usuário teve acesso a treinamento
-                personalizado, recursos adicionais de pagamento. Os seguintes exercícios e os planos são a chave em sua
-                jornada de fitness e resultados geralmente aparecem em 4 semanas. Os resultados podem variar por pessoa
-                e não são garantidos.
-              </p>
-            </div>
-          </section>
-
-          {/* People often ask FAQ section with expandable items */}
-          <section className="py-20 bg-black">
-            <div className="max-w-3xl mx-auto px-4">
-              <h2 className="text-4xl font-bold text-center text-white mb-12">As pessoas frequentemente perguntam</h2>
-
-              <div className="space-y-6">
-                {/* FAQ Item 1 */}
-                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
-                  <summary className="flex items-center justify-between font-bold text-white">
-                    Como este plano pode me ajudar a queimar gordura e construir músculos?
-                    <svg
-                      className="w-5 h-5 transform group-open:rotate-180 transition"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                      />
-                    </svg>
-                  </summary>
-                  <p className="text-gray-400 mt-4">
-                    Nosso plano foi desenvolvido para ajudá-lo a queimar gordura e construir um corpo tonificado e
-                    aesthetic, combinando treinos passo a passo e um plano de refeições 100% personalizado. Nossos
-                    treinos e dietas garantem a forma correta e ajudam você a manter a consistência e a motivação,
-                    tornando a perda de peso mais alcançável e sustentável uma vez que tudo é 100% personalizado para
-                    você de acordo com as informações que coletamos no quiz.
-                  </p>
-                </details>
-
-                {/* FAQ Item 2 */}
-                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
-                  <summary className="flex items-center justify-between font-bold text-white">
-                    Quais são os benefícios dos planos FITGOAL em comparação com concorrentes?
-                    <svg
-                      className="w-5 h-5 transform group-open:rotate-180 transition"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                      />
-                    </svg>
-                  </summary>
-                  <p className="text-gray-400 mt-4">
-                    Os nossos planos são 100% personalizados para VOCÊ, tanto a dieta quanto o treino, enquanto os
-                    nossos concorrentes te enviam planos genéricos nós vamos mais a fundo garantindo eficiência e
-                    resultados desde que você se comprometa com os nossos planos de treino e dieta, além disso temos
-                    orgulho do nosso suporte que te ajudará a ajustar qualquer coisa ou tirar dúvidas, se você
-                    simplesmente quer tentar algo que dê RESULTADOS, inovador e divertido. Obtenha seu plano e
-                    experimente agora!
-                  </p>
-                </details>
-
-                {/* FAQ Item 3 */}
-                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
-                  <summary className="flex items-center justify-between font-bold text-white">
-                    E se eu perder a motivação rapidamente?
-                    <svg
-                      className="w-5 h-5 transform group-open:rotate-180 transition"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                      />
-                    </svg>
-                  </summary>
-                  <p className="text-gray-400 mt-4">
-                    Forneceremos lembretes suaves, conselhos de especialistas, ferramentas de rastreamento úteis e apoio
-                    constante para ajudá-lo a ver o progresso e manter-se consistente. Dessa forma, você pode alcançar
-                    seus objetivos e desfrutar de um corpo mais saudável e em forma sem o medo de desistir.
-                  </p>
-                </details>
-              </div>
-            </div>
-          </section>
-
-          {/* Trustpilot Section */}
-          <section className="border-t border-gray-800 py-12">
-            <div className="max-w-6xl mx-auto px-4 text-center">
-              <div className="flex items-center justify-center gap-8 mb-8">
-                <div className="flex items-center gap-2">
-                  <svg className="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <span className="text-white font-bold">Trustpilot</span>
-                </div>
-                <div className="text-gray-400">
-                  <div className="text-sm font-bold text-white">Excelente</div>
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Get Visible Results Section */}
-          <section className="py-16">
-            <div className="max-w-6xl mx-auto px-6">
-              <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-12">
-                Obtenha resultados visíveis em 4 semanas!
-              </h2>
-
-              {/* Promo code banner */}
-              <div className="bg-orange-400 rounded-xl p-1 mb-8">
-                <div className="bg-black rounded-lg p-6 space-y-4">
-                  <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
-                    </svg>
-                    <span className="text-white font-semibold">Seu código promo foi aplicado!</span>
-                  </div>
-
-                  <div className="flex gap-4 items-center">
-                    <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
-                      <p className="text-white font-mono text-lg">cleber_jan26</p>
-                    </div>
-                    <div className="text-orange-400 font-bold text-right">
-                      <p className="text-2xl">02:08</p>
-                      <p className="text-xs text-orange-300">minutos segundos</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Plan cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {/* Monthly Plan */}
-                <div
-                  onClick={() => setSelectedPlan("monthly")}
-                  className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
-                    selectedPlan === "monthly"
-                      ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
-                      : "border-gray-700"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-white">Plano Mensal</h3>
-                    <div className="w-6 h-6 rounded-full border-2 border-gray-600 flex items-center justify-center">
-                      {selectedPlan === "monthly" && <div className="w-3 h-3 bg-orange-500 rounded-full" />}
-                    </div>
-                  </div>
-                  <div className="text-gray-400 text-sm mb-3">Acesso completo por 30 dias</div>
-                  <div className="text-3xl font-bold text-white mb-1">R$ 79,90</div>
-                  <div className="text-gray-500 text-xs">por mês</div>
-                </div>
-
-                {/* Quarterly Plan - Featured */}
-                <div
-                  onClick={() => setSelectedPlan("quarterly")}
-                  className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition duration-300 ${
-                    selectedPlan === "quarterly"
-                      ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
-                      : "border-gray-700"
-                  }`}
-                >
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                    MAIS POPULAR
-                  </div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-white">Plano Trimestral</h3>
-                    <svg className="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                    </svg>
-                  </div>
-                  <div className="text-gray-400 text-sm mb-3">Acesso completo por 90 dias</div>
-                  <div className="text-3xl font-bold text-white mb-1">R$ 159,90</div>
-                  <div className="text-gray-500 text-xs">por trimestre</div>
-                </div>
-
-                {/* Semi-annual Plan */}
-                <div
-                  onClick={() => setSelectedPlan("semiannual")}
-                  className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
-                    selectedPlan === "semiannual"
-                      ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
-                      : "border-gray-700"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-white">Plano Semestral</h3>
-                    <div className="w-6 h-6 rounded-full border-2 border-gray-600 flex items-center justify-center">
-                      {selectedPlan === "semiannual" && <div className="w-3 h-3 bg-orange-500 rounded-full" />}
-                    </div>
-                  </div>
-                  <div className="text-gray-400 text-sm mb-3">Acesso completo por 180 dias</div>
-                  <div className="text-3xl font-bold text-white mb-1">R$ 239,90</div>
-                  <div className="text-gray-500 text-xs">por semestre</div>
-                </div>
-              </div>
-
-              {/* Disclaimer */}
-              <p className="text-gray-400 text-sm text-center mb-8 max-w-2xl mx-auto">
-                Sem cancelamento automático antes do final do período para planos, concordo que o Fitgoal cobrará
-                automaticamente no final do plano escolhido ou até eu cancelar. Cancele online via perfil, no site ou
-                app.
-              </p>
-
-              {/* CTA Button */}
-              <div className="text-center mb-16">
-                <button
-                  onClick={() => setCheckoutOpen(true)}
-                  className="bg-white text-black font-bold px-12 py-3 rounded-full hover:bg-gray-100 transition"
-                >
-                  DESTRAVAR MEUS RESULTADOS
-                </button>
-              </div>
-
-              {/* Money-Back Guarantee */}
-              <div className="bg-gray-900 border border-gray-800 rounded-lg p-12 text-center">
-                <svg
-                  className="w-12 h-12 text-green-400 mx-auto mb-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <h3 className="text-3xl font-bold text-white mb-4">Garantia de devolução do dinheiro em 30 dias</h3>
-                <p className="text-gray-400 mb-4">
-                  Acreditamos que nosso plano funcionará para você, e você deveria ver resultados visíveis em apenas 4
-                  semanas! Estamos até dispostos a devolver seu dinheiro se você puder demonstrar que seguiu o plano mas
-                  não viu nenhum resultado.
-                </p>
-                <p className="text-gray-400">
-                  Saiba mais sobre limitações aplicáveis em nossa{" "}
-                  <a href="#" className="text-green-400 hover:underline">
-                    política de devolução
-                  </a>
-                  .
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* Footer */}
-          <footer className="border-t border-gray-800 mt-16 py-8 text-center text-gray-400 text-sm">
-            <p className="mb-4">Fitgoal | Escritório No. 101, 1º Andar, Avenida Paulista, São Paulo</p>
-            <div className="flex justify-center gap-4">
-              <a href="#" className="hover:text-white transition">
-                Privacidade
-              </a>
-              <span>|</span>
-              <a href="#" className="hover:text-white transition">
-                Termos
-              </a>
-            </div>
-          </footer>
         </div>
       </main>
-      <CheckoutModal isOpen={checkoutOpen} onClose={() => setCheckoutOpen(false)} selectedPlan={getPlanKey()} />
+
+      {/* Checkout Modal */}
+      {checkoutOpen && (
+        <CheckoutModal selectedPlan={selectedPlan} onClose={() => setCheckoutOpen(false)} planKey={getPlanKey()} />
+      )}
     </div>
   )
 }
