@@ -233,7 +233,7 @@ export default function QuizResultsPage() {
 
   return (
     <div className="w-full min-h-screen bg-black text-white">
-      <header className="sticky top-0 z-50 w-full px-6 py-4 flex items-center justify-between border-b border-gray-800">
+      <header className="sticky top-0 z-50 w-full px-6 py-4 flex items-center justify-between border-b border-gray-800 bg-black">
         <div />
         <div className="flex items-center gap-4">
           <span className="text-sm">Desconto reservado por:</span>
@@ -733,7 +733,7 @@ export default function QuizResultsPage() {
                 {/* Highlight 5 */}
                 <div className="flex gap-4">
                   <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 011-1zM5.05 6.051a1 1 0 00-1.414 1.414l.707.707a1 1 0 101.414-1.414l-.707-.707zM3 9a1 1 0 100 2v4a2 2 0 100 4h12a2 2 0 100-4V9a1 1 0 100-2H3z"></path>
+                    <path d="M9 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 01-1zM5.05 6.051a1 1 0 00-1.414 1.414l.707.707a1 1 0 101.414-1.414l-.707-.707zM3 9a1 1 0 100 2v4a2 2 0 100 4h12a2 2 0 100-4V9a1 1 0 100-2H3z"></path>
                   </svg>
                   <div>
                     <p className="text-white font-bold">Plano de refeições personalizado</p>
