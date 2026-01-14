@@ -560,6 +560,16 @@ export default function QuizResultsPage() {
                 <span className="text-orange-400">✨</span> Você vai ter uma Condição Mega Especial!{" "}
                 <span className="text-orange-400">✨</span>
               </p>
+
+              <div className="mt-4 space-y-2">
+                <p className="text-gray-400 text-sm">
+                  Se comprasse separadamente: <span className="line-through text-gray-500">R$ 454</span>
+                </p>
+                <p className="text-white font-bold">
+                  Com a gente: de <span className="text-orange-400">R$ 1,33</span> a{" "}
+                  <span className="text-orange-400">R$ 2,66</span> por dia
+                </p>
+              </div>
             </div>
           </div>
 
