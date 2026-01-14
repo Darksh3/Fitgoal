@@ -564,7 +564,7 @@ export default function QuizResultsPage() {
           </div>
 
           {/* Promo code banner */}
-          <div className="bg-orange-400 rounded-xl p-1 mb-8">
+          <div className="bg-orange-400 rounded-xl p-1 mb-8 sticky top-0 z-50">
             <div className="bg-black rounded-lg p-6 space-y-4">
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
@@ -973,7 +973,7 @@ export default function QuizResultsPage() {
               </h2>
 
               {/* Promo code banner */}
-              <div className="bg-orange-400 rounded-xl p-1 mb-8">
+              <div className="bg-orange-400 rounded-xl p-1 mb-8 sticky top-0 z-50">
                 <div className="bg-black rounded-lg p-6 space-y-4">
                   <div className="flex items-center gap-2">
                     <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
