@@ -475,7 +475,7 @@ export default function QuizResultsPage() {
         <div className="max-w-5xl mx-auto mt-16">
           <h2 className="text-4xl font-bold text-center mb-8">Escolha Seu Plano</h2>
 
-          <div className="mt-12 bg-gray-900 border border-gray-800 rounded-xl p-8 max-w-3xl mx-auto">
+          <div className="mt-8 bg-gray-900 border border-gray-800 rounded-xl p-8 max-w-3xl mx-auto">
             <h3 className="text-2xl font-bold text-white mb-8">O que você recebe:</h3>
 
             <div className="space-y-6">
@@ -564,7 +564,7 @@ export default function QuizResultsPage() {
           </div>
 
           {/* Promo code banner */}
-          <div className="bg-orange-400 rounded-xl p-1 mb-8">
+          <div className="bg-orange-400 rounded-xl p-1 mt-8">
             <div className="bg-black rounded-lg p-6 space-y-4">
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
