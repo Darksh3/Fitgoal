@@ -691,12 +691,12 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
                 </CardContent>
               </Card>
 
-              <Button
+              <button
                 onClick={handleNextStep}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white py-6 text-lg font-semibold rounded-lg transition-all duration-200 shadow-lg border-0"
+                className="w-full !bg-gradient-to-r !from-blue-600 !to-blue-500 hover:!from-blue-700 hover:!to-blue-600 !text-white !py-6 !text-lg !font-semibold !rounded-lg !transition-all !duration-200 !shadow-lg !border-0 !cursor-pointer"
               >
                 Continuar para Pagamento
-              </Button>
+              </button>
             </motion.div>
           ) : (
             <motion.div
