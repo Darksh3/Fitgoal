@@ -555,14 +555,25 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
   }
 
   const handleNextStep = () => {
-    if (currentStep === 1) {
-      if (!formData.name || !formData.cpf || !formData.phone) {
-        setError("Por favor, preencha todos os campos")
-        return
-      }
-      setError(null)
-      setCurrentStep(2)
+    console.log("[v0] Form Data:", {
+      name: formData.name,
+      email: formData.email,
+      cpf: formData.cpf,
+      phone: formData.phone,
+    })
+
+    if (!formData.name || !formData.cpf || !formData.phone) {
+      console.log("[v0] Validation failed - Missing fields:")
+      console.log("[v0] - Name:", !formData.name ? "MISSING" : "OK")
+      console.log("[v0] - CPF:", !formData.cpf ? "MISSING" : "OK")
+      console.log("[v0] - Phone:", !formData.phone ? "MISSING" : "OK")
+      setError("Por favor, preencha todos os campos")
+      return
     }
+
+    console.log("[v0] Validation passed - Moving to step 2")
+    setError(null)
+    setCurrentStep(2)
   }
 
   const handleError = (errorMsg: string) => {
