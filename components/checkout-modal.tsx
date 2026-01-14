@@ -348,7 +348,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                     setAddressData({ ...addressData, postalCode: value })
                   }}
                   placeholder="00000-000"
-                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                   maxLength={9}
                   required
                 />
@@ -359,7 +359,8 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                   value={addressData.addressNumber}
                   onChange={(e) => setAddressData({ ...addressData, addressNumber: e.target.value })}
                   placeholder="123"
-                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
+                  maxLength={15}
                   required
                 />
               </div>
@@ -640,8 +641,7 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
                       value={formData.email}
                       onChange={(e) => handleFormChange("email", e.target.value)}
                       placeholder="seu@email.com"
-                      className="bg-gray-700 border-gray-600 text-white"
-                      disabled
+                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -660,7 +660,7 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
                           handleFormChange("cpf", value)
                         }}
                         placeholder="000.000.000-00"
-                        className="bg-gray-700 border-gray-600 text-white"
+                        className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                         maxLength={14}
                         required
                       />
@@ -677,7 +677,7 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
                           handleFormChange("phone", value)
                         }}
                         placeholder="(00) 00000-0000"
-                        className="bg-gray-700 border-gray-600 text-white"
+                        className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                         maxLength={15}
                         required
                       />
