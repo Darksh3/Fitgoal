@@ -640,7 +640,7 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
                       value={formData.email}
                       onChange={(e) => handleFormChange("email", e.target.value)}
                       placeholder="seu@email.com"
-                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
+                      className="bg-gray-700 border-gray-600 text-white !placeholder-gray-500"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -659,7 +659,7 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
                           handleFormChange("cpf", value)
                         }}
                         placeholder="000.000.000-00"
-                        className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
+                        className="bg-gray-700 border-gray-600 text-white !placeholder-gray-500"
                         maxLength={14}
                         required
                       />
@@ -676,7 +676,7 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
                           handleFormChange("phone", value)
                         }}
                         placeholder="(00) 00000-0000"
-                        className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
+                        className="bg-gray-700 border-gray-600 text-white !placeholder-gray-500"
                         maxLength={15}
                         required
                       />
