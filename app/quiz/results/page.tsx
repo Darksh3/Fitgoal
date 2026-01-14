@@ -563,10 +563,10 @@ export default function QuizResultsPage() {
 
               <div className="mt-4 space-y-2">
                 <p className="text-gray-400 text-sm">
-                  Se comprasse separadamente: <span className="line-through text-gray-500">R$ 454</span>
+                  Se comprasse separadamente: <span className="line-through text-gray-500">R$ 639,40</span>
                 </p>
                 <p className="text-white font-bold">
-                  Com a gente: de <span className="text-orange-400">R$ 39,98</span> a{" "}
+                  Com a gente: de <span className="text-orange-400">R$ 59,95</span> a{" "}
                   <span className="text-orange-400">R$ 79,90</span> por mês
                 </p>
               </div>
