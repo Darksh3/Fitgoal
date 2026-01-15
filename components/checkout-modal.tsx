@@ -88,27 +88,36 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
     try {
       setProcessing(true)
 
+      const paymentPayload = {
+        email: userEmail,
+        name: formData.name,
+        cpf: formData.cpf,
+        phone: formData.phone,
+        planType: currentPlan.key,
+        paymentMethod,
+        installments: paymentMethod === "card" ? installments : undefined,
+        clientUid,
+      }
+      console.log("[v0] Payment Payload Being Sent:", paymentPayload)
+      console.log("[v0] Payment Method:", paymentMethod)
+      console.log("[v0] Current Plan:", currentPlan)
+
       const paymentResponse = await fetch("/api/create-asaas-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: userEmail,
-          name: formData.name,
-          cpf: formData.cpf,
-          phone: formData.phone,
-          planType: currentPlan.key,
-          paymentMethod,
-          installments: paymentMethod === "card" ? installments : undefined,
-          clientUid,
-        }),
+        body: JSON.stringify(paymentPayload),
       })
+
+      console.log("[v0] API Response Status:", paymentResponse.status)
 
       if (!paymentResponse.ok) {
         const errorData = await paymentResponse.json()
+        console.log("[v0] API Error Response:", errorData)
         throw new Error(errorData.error || "Erro ao criar cobrança")
       }
 
       const paymentResult = await paymentResponse.json()
+      console.log("[v0] Payment Result:", paymentResult)
 
       if (paymentMethod === "pix") {
         const qrCodeResponse = await fetch(`/api/get-pix-qrcode?paymentId=${paymentResult.paymentId}`)
@@ -140,31 +149,40 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
       }
 
       if (paymentMethod === "card") {
+        const cardPayload = {
+          paymentId: paymentResult.paymentId,
+          creditCard: {
+            holderName: cardData.holderName,
+            number: cardData.number.replace(/\s/g, ""),
+            expiryMonth: cardData.expiryMonth,
+            expiryYear: cardData.expiryYear,
+            ccv: cardData.ccv,
+          },
+          creditCardHolderInfo: {
+            name: formData.name,
+            email: userEmail,
+            cpfCnpj: formData.cpf.replace(/\D/g, ""),
+            postalCode: addressData.postalCode.replace(/\D/g, ""),
+            addressNumber: addressData.addressNumber,
+            phone: formData.phone.replace(/\D/g, ""),
+          },
+        }
+        console.log("[v0] Card Payment Payload:", cardPayload)
+        console.log("[v0] Address Data Being Sent:", addressData)
+        console.log("[v0] Postal Code Value:", addressData.postalCode)
+        console.log("[v0] Address Number Value:", addressData.addressNumber)
+
         const cardResponse = await fetch("/api/process-asaas-card", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            paymentId: paymentResult.paymentId,
-            creditCard: {
-              holderName: cardData.holderName,
-              number: cardData.number.replace(/\s/g, ""),
-              expiryMonth: cardData.expiryMonth,
-              expiryYear: cardData.expiryYear,
-              ccv: cardData.ccv,
-            },
-            creditCardHolderInfo: {
-              name: formData.name,
-              email: userEmail,
-              cpfCnpj: formData.cpf.replace(/\D/g, ""),
-              postalCode: addressData.postalCode.replace(/\D/g, ""),
-              addressNumber: addressData.addressNumber,
-              phone: formData.phone.replace(/\D/g, ""),
-            },
-          }),
+          body: JSON.stringify(cardPayload),
         })
+
+        console.log("[v0] Card API Response Status:", cardResponse.status)
 
         if (!cardResponse.ok) {
           const errorData = await cardResponse.json()
+          console.log("[v0] Card API Error Response:", errorData)
           throw new Error(errorData.error || "Erro ao processar cartão")
         }
 
