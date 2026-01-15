@@ -88,6 +88,40 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
     try {
       setProcessing(true)
 
+      console.log("[v0] === FORM DATA VALIDATION START ===")
+      console.log("[v0] Email:", userEmail, "| Type:", typeof userEmail, "| Empty:", !userEmail?.trim())
+      console.log("[v0] Name:", formData.name, "| Type:", typeof formData.name, "| Empty:", !formData.name?.trim())
+      console.log("[v0] CPF:", formData.cpf, "| Type:", typeof formData.cpf, "| Empty:", !formData.cpf?.trim())
+      console.log("[v0] Phone:", formData.phone, "| Type:", typeof formData.phone, "| Empty:", !formData.phone?.trim())
+      console.log("[v0] === FORM DATA VALIDATION END ===")
+
+      if (paymentMethod === "card") {
+        console.log("[v0] Validating card payment required fields")
+        console.log("[v0] Card Data:", cardData)
+        console.log("[v0] Address Data:", addressData)
+
+        if (!cardData.holderName?.trim()) {
+          throw new Error("Nome no cartão é obrigatório")
+        }
+        if (!cardData.number?.replace(/\s/g, "")) {
+          throw new Error("Número do cartão é obrigatório")
+        }
+        if (!cardData.expiryMonth || !cardData.expiryYear) {
+          throw new Error("Data de validade é obrigatória")
+        }
+        if (!cardData.ccv) {
+          throw new Error("CVV é obrigatório")
+        }
+        if (!addressData.postalCode?.replace(/\D/g, "")) {
+          throw new Error("CEP é obrigatório")
+        }
+        if (!addressData.addressNumber?.trim()) {
+          throw new Error("Número do endereço é obrigatório")
+        }
+
+        console.log("[v0] All card validation fields passed")
+      }
+
       const paymentPayload = {
         email: userEmail,
         name: formData.name,
