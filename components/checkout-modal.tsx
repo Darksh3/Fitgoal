@@ -587,16 +587,19 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
         if (stored) {
           const parsed = JSON.parse(stored)
           setQuizAnswers(parsed)
+          console.log("[v0] Initializing formData - Email from quiz:", parsed.email)
           setFormData((prev) => ({
             ...prev,
             name: parsed.name || "",
-            email: parsed.email || "",
+            email: parsed.email || "", // Ensure email is set
+            cpf: parsed.cpf || "",
+            phone: parsed.phone || "",
           }))
         }
 
         setLoading(false)
-      } catch (err) {
-        console.error("Erro ao carregar dados:", err)
+      } catch (error) {
+        console.error("Error loading quiz data:", error)
         setError("Erro ao carregar dados")
         setLoading(false)
       }
@@ -606,6 +609,7 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
   }, [isOpen])
 
   const handleFormChange = (field: string, value: string) => {
+    console.log(`[v0] Form field changed - ${field}: ${value}`) // Adding debug log to track form changes
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
