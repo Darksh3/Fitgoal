@@ -89,7 +89,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
       setProcessing(true)
 
       console.log("[v0] === FORM DATA VALIDATION START ===")
-      console.log("[v0] Email:", userEmail, "| Type:", typeof userEmail, "| Empty:", !userEmail?.trim())
+      console.log("[v0] Email:", formData.email, "| Type:", typeof formData.email, "| Empty:", !formData.email?.trim())
       console.log("[v0] Name:", formData.name, "| Type:", typeof formData.name, "| Empty:", !formData.name?.trim())
       console.log("[v0] CPF:", formData.cpf, "| Type:", typeof formData.cpf, "| Empty:", !formData.cpf?.trim())
       console.log("[v0] Phone:", formData.phone, "| Type:", typeof formData.phone, "| Empty:", !formData.phone?.trim())
@@ -123,7 +123,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
       }
 
       const paymentPayload = {
-        email: userEmail,
+        email: formData.email,
         name: formData.name,
         cpf: formData.cpf,
         phone: formData.phone,
@@ -194,7 +194,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
           },
           creditCardHolderInfo: {
             name: formData.name,
-            email: userEmail,
+            email: formData.email,
             cpfCnpj: formData.cpf.replace(/\D/g, ""),
             postalCode: addressData.postalCode.replace(/\D/g, ""),
             addressNumber: addressData.addressNumber,
