@@ -88,38 +88,56 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
     try {
       setProcessing(true)
 
-      console.log("[v0] === FORM DATA VALIDATION START ===")
-      console.log("[v0] Email:", formData.email, "| Type:", typeof formData.email, "| Empty:", !formData.email?.trim())
-      console.log("[v0] Name:", formData.name, "| Type:", typeof formData.name, "| Empty:", !formData.name?.trim())
-      console.log("[v0] CPF:", formData.cpf, "| Type:", typeof formData.cpf, "| Empty:", !formData.cpf?.trim())
-      console.log("[v0] Phone:", formData.phone, "| Type:", typeof formData.phone, "| Empty:", !formData.phone?.trim())
-      console.log("[v0] === FORM DATA VALIDATION END ===")
+      console.log("[v0] === COMPREHENSIVE FIELD VALIDATION START ===")
+
+      const missingFields = []
+
+      if (!formData.email?.trim()) missingFields.push("Email")
+      if (!formData.name?.trim()) missingFields.push("Nome Completo")
+      if (!formData.cpf?.trim()) missingFields.push("CPF")
+      if (!formData.phone?.trim()) missingFields.push("Telefone")
+
+      console.log("[v0] Email:", formData.email, "| Valid:", !!formData.email?.trim())
+      console.log("[v0] Name:", formData.name, "| Valid:", !!formData.name?.trim())
+      console.log("[v0] CPF:", formData.cpf, "| Valid:", !!formData.cpf?.trim())
+      console.log("[v0] Phone:", formData.phone, "| Valid:", !!formData.phone?.trim())
+      console.log("[v0] Plan Type:", currentPlan?.key, "| Valid:", !!currentPlan?.key)
+      console.log("[v0] Payment Method:", paymentMethod, "| Valid:", !!paymentMethod)
+      console.log("[v0] Client UID:", clientUid, "| Valid:", !!clientUid)
+
+      if (missingFields.length > 0) {
+        throw new Error(`Campos obrigatórios faltando: ${missingFields.join(", ")}`)
+      }
+
+      console.log("[v0] === ALL BASIC FIELDS VALID ===")
 
       if (paymentMethod === "card") {
-        console.log("[v0] Validating card payment required fields")
-        console.log("[v0] Card Data:", cardData)
-        console.log("[v0] Address Data:", addressData)
+        console.log("[v0] === CARD PAYMENT VALIDATION START ===")
+        const cardMissingFields = []
 
-        if (!cardData.holderName?.trim()) {
-          throw new Error("Nome no cartão é obrigatório")
-        }
-        if (!cardData.number?.replace(/\s/g, "")) {
-          throw new Error("Número do cartão é obrigatório")
-        }
-        if (!cardData.expiryMonth || !cardData.expiryYear) {
-          throw new Error("Data de validade é obrigatória")
-        }
-        if (!cardData.ccv) {
-          throw new Error("CVV é obrigatório")
-        }
-        if (!addressData.postalCode?.replace(/\D/g, "")) {
-          throw new Error("CEP é obrigatório")
-        }
-        if (!addressData.addressNumber?.trim()) {
-          throw new Error("Número do endereço é obrigatório")
+        if (!cardData.holderName?.trim()) cardMissingFields.push("Nome no Cartão")
+        if (!cardData.number?.replace(/\s/g, "")) cardMissingFields.push("Número do Cartão")
+        if (!cardData.expiryMonth) cardMissingFields.push("Mês de Validade")
+        if (!cardData.expiryYear) cardMissingFields.push("Ano de Validade")
+        if (!cardData.ccv) cardMissingFields.push("CVV")
+        if (!addressData.postalCode?.replace(/\D/g, "")) cardMissingFields.push("CEP")
+        if (!addressData.addressNumber?.trim()) cardMissingFields.push("Número do Endereço")
+
+        console.log("[v0] Card Fields Valid:", {
+          holderName: !!cardData.holderName?.trim(),
+          number: !!cardData.number?.replace(/\s/g, ""),
+          expiryMonth: !!cardData.expiryMonth,
+          expiryYear: !!cardData.expiryYear,
+          ccv: !!cardData.ccv,
+          postalCode: !!addressData.postalCode?.replace(/\D/g, ""),
+          addressNumber: !!addressData.addressNumber?.trim(),
+        })
+
+        if (cardMissingFields.length > 0) {
+          throw new Error(`Campos do cartão faltando: ${cardMissingFields.join(", ")}`)
         }
 
-        console.log("[v0] All card validation fields passed")
+        console.log("[v0] === ALL CARD FIELDS VALID ===")
       }
 
       const paymentPayload = {
@@ -132,9 +150,8 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         installments: paymentMethod === "card" ? installments : undefined,
         clientUid,
       }
-      console.log("[v0] Payment Payload Being Sent:", paymentPayload)
-      console.log("[v0] Payment Method:", paymentMethod)
-      console.log("[v0] Current Plan:", currentPlan)
+      console.log("[v0] === PAYMENT PAYLOAD READY ===")
+      console.log("[v0] Complete Payload:", paymentPayload)
 
       const paymentResponse = await fetch("/api/create-asaas-payment", {
         method: "POST",
@@ -146,7 +163,10 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
 
       if (!paymentResponse.ok) {
         const errorData = await paymentResponse.json()
-        console.log("[v0] API Error Response:", errorData)
+        console.log("[v0] === API ERROR ===")
+        console.log("[v0] Full Error Response:", errorData)
+        console.log("[v0] Error Message:", errorData.error || "Erro desconhecido")
+        console.log("[v0] Error Details:", errorData.details || "Sem detalhes")
         throw new Error(errorData.error || "Erro ao criar cobrança")
       }
 
