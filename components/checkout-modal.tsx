@@ -55,7 +55,16 @@ function PaymentMethodSelector({
   )
 }
 
-function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, paymentMethod, onError, onSuccess }: any) {
+function AsaasPaymentForm({
+  formData,
+  currentPlan,
+  userEmail,
+  clientUid,
+  paymentMethod,
+  onError,
+  onSuccess,
+  setPaymentMethod,
+}: any) {
   const [processing, setProcessing] = useState(false)
   const [installments, setInstallments] = useState(1)
   const [cardData, setCardData] = useState({
@@ -495,22 +504,107 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   }
 
   return (
-    <button
-      onClick={handleAsaasPayment}
-      disabled={processing}
-      className={`w-full py-4 text-lg font-bold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-all ${
-        processing ? "opacity-75 cursor-not-allowed" : ""
-      }`}
-    >
-      {processing ? (
-        <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-          Gerando...
-        </div>
-      ) : (
-        `Gerar ${paymentMethod === "pix" ? "Pix" : "Boleto"}`
+    <div className="space-y-6">
+      <PaymentMethodSelector onSelect={setPaymentMethod} selected={paymentMethod} />
+
+      {paymentMethod && (paymentMethod === "pix" || paymentMethod === "boleto") && (
+        <Card className="bg-gray-800 border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-white">Endereço para Cobrança</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">CEP</label>
+                <Input
+                  value={addressData.postalCode}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/\D/g, "")
+                    if (value.length <= 8) {
+                      value = value.replace(/(\d{5})(\d)/, "$1-$2")
+                    }
+                    setAddressData({ ...addressData, postalCode: value })
+                  }}
+                  placeholder="00000-000"
+                  className="bg-gray-700 border-gray-600 text-white !placeholder-gray-500"
+                  maxLength={9}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Número</label>
+                <Input
+                  value={addressData.addressNumber}
+                  onChange={(e) => setAddressData({ ...addressData, addressNumber: e.target.value })}
+                  placeholder="123"
+                  className="bg-gray-700 border-gray-600 text-white !placeholder-gray-500"
+                  required
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
-    </button>
+
+      {paymentMethod && (
+        <>
+          {paymentMethod === "card" ? (
+            <form onSubmit={handleAsaasPayment} className="space-y-6">
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center">
+                    <CreditCard className="h-5 w-5 mr-2" /> Dados do Cartão
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">{/* ... existing card fields ... */}</CardContent>
+              </Card>
+
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white">Parcelamento</CardTitle>
+                </CardHeader>
+                <CardContent>{/* ... existing installment options ... */}</CardContent>
+              </Card>
+
+              <button
+                type="submit"
+                disabled={processing}
+                className={`w-full py-4 text-lg font-bold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-all ${
+                  processing ? "opacity-75 cursor-not-allowed" : ""
+                }`}
+              >
+                {/* ... existing button content ... */}
+              </button>
+            </form>
+          ) : (
+            <button
+              onClick={handleAsaasPayment}
+              disabled={processing}
+              className={`w-full py-4 text-lg font-bold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-all ${
+                processing ? "opacity-75 cursor-not-allowed" : ""
+              }`}
+            >
+              {processing ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Gerando...
+                </div>
+              ) : paymentMethod === "pix" ? (
+                <div className="flex items-center justify-center gap-3">
+                  <Smartphone className="h-5 w-5" />
+                  <span>Gerar Pix</span>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-3">
+                  <FileText className="h-5 w-5" />
+                  <span>Gerar Boleto</span>
+                </div>
+              )}
+            </button>
+          )}
+        </>
+      )}
+    </div>
   )
 }
 
@@ -790,8 +884,6 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
               transition={{ duration: 0.3 }}
               className="space-y-6"
             >
-              <PaymentMethodSelector onSelect={setPaymentMethod} selected={paymentMethod} />
-
               {paymentMethod && (
                 <AsaasPaymentForm
                   formData={formData}
@@ -799,6 +891,7 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
                   userEmail={userEmail}
                   clientUid={clientUid}
                   paymentMethod={paymentMethod}
+                  setPaymentMethod={setPaymentMethod}
                   onError={handleError}
                   onSuccess={handleSuccess}
                 />
