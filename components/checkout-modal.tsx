@@ -704,7 +704,7 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
                     <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
                     <Input
                       value={formData.email}
-                      onChange={(e) => setUserEmail(e.target.value)}
+                      onChange={(e) => handleFormChange("email", e.target.value)}
                       placeholder="seu@email.com"
                       className="bg-gray-700 border-gray-600 text-white !placeholder-gray-500"
                     />
