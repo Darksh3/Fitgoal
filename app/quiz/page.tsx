@@ -220,7 +220,7 @@ const debugFrequencySelection = (frequency: number) => {
     const stored = localStorage.getItem("quizData")
     if (stored) {
       try {
-        const parsed = JSON.parse(stored)
+        const parsed = JSON.Parse(stored)
         console.log(`[QUIZ] Stored frequency: ${parsed.trainingDaysPerWeek}`)
       } catch (error) {
         console.error("[QUIZ] localStorage parse error:", error)
@@ -380,7 +380,6 @@ export default function QuizPage() {
     }
   }, [showWaterCongrats])
   // </CHANGE>
-
   const [animatedPercentage, setAnimatedPercentage] = useState(0)
 
   const statuses = [
@@ -412,40 +411,95 @@ export default function QuizPage() {
 
   // </CHANGE>
 
+  // ** NEW CODE START **
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        setCurrentUser(user)
-        // Se o usuário está logado (ou anônimo), tenta carregar dados de quiz existentes
+    const initializeUser = async () => {
+      try {
+        // Check if user already exists
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+          if (!user) {
+            // No user, create anonymous
+            console.log("[v0] Creating anonymous user...")
+            await signInAnonymously(auth)
+          } else {
+            console.log("[v0] User already exists:", user.uid)
+            setCurrentUser(user)
+          }
+        })
+
+        return () => unsubscribe()
+      } catch (error) {
+        console.log("[v0] Error initializing user:", error)
+      }
+    }
+
+    initializeUser()
+  }, [])
+
+  useEffect(() => {
+    if (!currentUser) return
+
+    const saveToFirebase = async () => {
+      try {
+        const userDocRef = doc(db, "users", currentUser.uid)
+        await setDoc(
+          userDocRef,
+          {
+            quizData,
+            lastUpdated: new Date().toISOString(),
+            email: quizData.email || null,
+            name: quizData.name || null,
+          },
+          { merge: true },
+        )
+        console.log("[v0] Quiz data saved to Firebase")
+      } catch (error) {
+        console.log("[v0] Error saving to Firebase:", error)
+      }
+    }
+
+    // Save after a small delay to avoid too many writes
+    const timer = setTimeout(saveToFirebase, 500)
+    return () => clearTimeout(timer)
+  }, [quizData, currentUser])
+  // ** NEW CODE END **
+
+  const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      setCurrentUser(user)
+      // If the user is logged in (or anonymous), try to load existing quiz data
+      if (db) {
+        const userDocRef = doc(db, "users", user.uid)
+        const userDocSnap = await getDoc(userDocRef)
+        if (userDocSnap.exists() && userDocSnap.data().quizData) {
+          setQuizData(userDocSnap.data().quizData)
+          console.log("Loaded existing quiz data for user:", user.uid)
+        }
+      }
+    } else {
+      // If no user is logged in, try to sign in anonymously
+      try {
+        const anonymousUser = await signInAnonymously(auth)
+        setCurrentUser(anonymousUser.user)
+        console.log("Signed in anonymously:", anonymousUser.user.uid)
+        // Try to load quiz data for this anonymous user if it exists
         if (db) {
-          const userDocRef = doc(db, "users", user.uid)
+          const userDocRef = doc(db, "users", anonymousUser.user.uid)
           const userDocSnap = await getDoc(userDocRef)
           if (userDocSnap.exists() && userDocSnap.data().quizData) {
             setQuizData(userDocSnap.data().quizData)
-            console.log("Loaded existing quiz data for user:", user.uid)
+            console.log("Loaded existing quiz data for anonymous user:", anonymousUser.user.uid)
           }
         }
-      } else {
-        // Se nenhum usuário está logado, tenta fazer login anonimamente
-        try {
-          const anonymousUser = await signInAnonymously(auth)
-          setCurrentUser(anonymousUser.user)
-          console.log("Signed in anonymously:", anonymousUser.user.uid)
-          // Tenta carregar dados de quiz para este usuário anônimo se existirem
-          if (db) {
-            const userDocRef = doc(db, "users", anonymousUser.user.uid)
-            const userDocSnap = await getDoc(userDocRef)
-            if (userDocSnap.exists() && userDocSnap.data().quizData) {
-              setQuizData(userDocSnap.data().quizData)
-              console.log("Loaded existing quiz data for anonymous user:", anonymousUser.user.uid)
-            }
-          }
-        } catch (error) {
-          console.error("Error signing in anonymously:", error)
-        }
+      } catch (error) {
+        console.error("Error signing in anonymously:", error)
       }
-    })
-    return () => unsubscribe()
+    }
+  })
+
+  useEffect(() => {
+    // Cleanup subscription on component unmount
+    return () => unsubscribeAuth()
   }, [])
 
   useEffect(() => {
@@ -3459,7 +3513,7 @@ export default function QuizPage() {
           <div className="space-y-8">
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-white">Marque abaixo os seus objetivos adicionais:</h2>
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-300 text-sm">
                 Temos certeza de que você deseja não apenas um corpo melhor, mas também melhorar seu estilo de vida.
               </p>
             </div>
@@ -4208,8 +4262,7 @@ export default function QuizPage() {
             {isComplete && (
               <button
                 onClick={() => {
-                  const selectedDiscount = ""
-                  router.push(`/quiz/results?discount=${selectedDiscount}`)
+                  router.push(`/quiz/results`)
                 }}
                 className="w-full max-w-md h-14 bg-white text-black text-lg font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg"
               >
