@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { CreditCard, Check, ShoppingCart, User, Lock, QrCode, FileText, Smartphone } from "lucide-react"
+import { CreditCard, Check, ShoppingCart, User, Lock, QrCode, FileText, Smartphone, ArrowLeft } from "lucide-react"
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
 
@@ -148,6 +148,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         planType: currentPlan.key,
         paymentMethod: paymentMethod === "card" ? "card" : paymentMethod, // Keep as "pix", "boleto", or "card"
         description: `${currentPlan.name} - Fitgoal Fitness`,
+        externalReference: clientUid || formData.email,
       }
 
       if (paymentMethod === "card") {
@@ -212,6 +213,10 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
           })
         }
 
+        setTimeout(() => {
+          window.location.href = `/payment-success?paymentId=${paymentResult.paymentId}`
+        }, 2000)
+
         setProcessing(false)
         return
       }
@@ -221,6 +226,11 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
           url: paymentResult.boletoUrl,
           barCode: paymentResult.boletoBarCode,
         })
+
+        setTimeout(() => {
+          window.location.href = `/payment-success?paymentId=${paymentResult.paymentId}`
+        }, 2000)
+
         setProcessing(false)
         return
       }
@@ -691,7 +701,16 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-800">
-        <DialogHeader className="flex justify-center items-center">
+        <DialogHeader className="flex justify-center items-center relative">
+          {currentStep === 2 && (
+            <button
+              onClick={() => setCurrentStep(1)}
+              className="absolute left-0 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-white transition-colors"
+              aria-label="Voltar"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+          )}
           <DialogTitle className="text-2xl font-bold text-white">Finalizar Compra</DialogTitle>
         </DialogHeader>
 
