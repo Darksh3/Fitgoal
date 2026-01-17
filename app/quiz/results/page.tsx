@@ -74,10 +74,26 @@ export default function QuizResultsPage() {
   }, [])
 
   const getDataValue = (key: string) => {
+    console.log("[v0] getDataValue called for key:", key)
+    console.log("[v0] data object:", data)
+    console.log("[v0] data[key]:", data?.[key])
+    console.log("[v0] data.quizData[key]:", data?.quizData?.[key])
+
     if (data?.[key] !== undefined) return data[key]
     if (data?.quizData?.[key] !== undefined) return data.quizData[key]
     return undefined
   }
+
+  useEffect(() => {
+    if (data) {
+      console.log("[v0] Full data structure:", JSON.stringify(data, null, 2))
+      console.log("[v0] data.height:", data.height)
+      console.log("[v0] data.weight:", data.weight)
+      console.log("[v0] data.quizData:", data.quizData)
+      console.log("[v0] data.quizData?.height:", data.quizData?.height)
+      console.log("[v0] data.quizData?.weight:", data.quizData?.weight)
+    }
+  }, [data])
 
   const getCurrentBodyFatImage = () => {
     const bodyFat = Number(data?.bodyFat) || 25
