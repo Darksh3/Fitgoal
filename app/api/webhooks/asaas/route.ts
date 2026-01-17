@@ -14,36 +14,24 @@ export async function POST(request: Request) {
       case "PAYMENT_RECEIVED":
       case "PAYMENT_CONFIRMED":
         const payment = body.payment
-        const anonUserId = payment.externalReference // This is the anonymous user ID from quiz
+        const userId = payment.externalReference
 
         console.log("[v0] Pagamento confirmado:", {
-          anonUserId,
+          userId,
           paymentId: payment.id,
           value: payment.value,
           billingType: payment.billingType,
         })
 
-        if (anonUserId) {
+        if (userId) {
           try {
             const pendingPaymentsRef = db.collection("pending_payments")
-            const snapshot = await pendingPaymentsRef.where("externalReference", "==", anonUserId).get()
+            const snapshot = await pendingPaymentsRef.where("externalReference", "==", userId).get()
 
             if (!snapshot.empty) {
               const pendingPayment = snapshot.docs[0].data()
 
               const newPassword = Math.random().toString(36).slice(-12)
-
-              let leadData: any = {}
-              try {
-                const leadDocRef = db.collection("leads").doc(anonUserId)
-                const leadDocSnap = await leadDocRef.get()
-                if (leadDocSnap.exists()) {
-                  leadData = leadDocSnap.data() || {}
-                  console.log("[v0] Lead data found:", leadData)
-                }
-              } catch (leadError) {
-                console.warn("[v0] Erro ao buscar lead data:", leadError)
-              }
 
               try {
                 const userRecord = await require("firebase-admin").auth().createUser({
@@ -70,30 +58,11 @@ export async function POST(request: Request) {
                     subscriptionEndDate: endDate,
                     paymentId: payment.id,
                     paymentStatus: "confirmed",
-                    quizData: leadData.quizData || pendingPayment.quizData || {},
-                    age: leadData.quizData?.age || pendingPayment.quizData?.age,
-                    gender: leadData.quizData?.gender || pendingPayment.quizData?.gender,
-                    height: leadData.quizData?.height || pendingPayment.quizData?.height,
-                    weight: leadData.quizData?.weight || pendingPayment.quizData?.weight,
-                    targetWeight: leadData.quizData?.targetWeight || pendingPayment.quizData?.targetWeight,
-                    bodyFat: leadData.quizData?.bodyFat || pendingPayment.quizData?.bodyFat,
-                    experience: leadData.quizData?.experience || pendingPayment.quizData?.experience,
-                    imc: leadData.quizData?.imc || pendingPayment.quizData?.imc,
-                    imcClassification:
-                      leadData.quizData?.imcClassification || pendingPayment.quizData?.imcClassification,
-                    convertedAt: new Date(),
                   },
                   { merge: true },
                 )
 
                 console.log("[v0] Assinatura ativada para:", userRecord.uid)
-
-                try {
-                  await db.collection("leads").doc(anonUserId).delete()
-                  console.log("[v0] Lead document deleted after user creation:", anonUserId)
-                } catch (deleteError) {
-                  console.warn("[v0] Erro ao deletar lead document:", deleteError)
-                }
               } catch (authError: any) {
                 if (authError.code === "auth/email-already-exists") {
                   console.log("[v0] Usuário já existe, atualizando plano...")
@@ -115,28 +84,9 @@ export async function POST(request: Request) {
                       subscriptionEndDate: endDate,
                       paymentId: payment.id,
                       paymentStatus: "confirmed",
-                      quizData: leadData.quizData || pendingPayment.quizData || {},
-                      age: leadData.quizData?.age || pendingPayment.quizData?.age,
-                      gender: leadData.quizData?.gender || pendingPayment.quizData?.gender,
-                      height: leadData.quizData?.height || pendingPayment.quizData?.height,
-                      weight: leadData.quizData?.weight || pendingPayment.quizData?.weight,
-                      targetWeight: leadData.quizData?.targetWeight || pendingPayment.quizData?.targetWeight,
-                      bodyFat: leadData.quizData?.bodyFat || pendingPayment.quizData?.bodyFat,
-                      experience: leadData.quizData?.experience || pendingPayment.quizData?.experience,
-                      imc: leadData.quizData?.imc || pendingPayment.quizData?.imc,
-                      imcClassification:
-                        leadData.quizData?.imcClassification || pendingPayment.quizData?.imcClassification,
-                      convertedAt: new Date(),
                     })
 
                     console.log("[v0] Plano renovado para:", existingUserId)
-
-                    try {
-                      await db.collection("leads").doc(anonUserId).delete()
-                      console.log("[v0] Lead document deleted after updating existing user:", anonUserId)
-                    } catch (deleteError) {
-                      console.warn("[v0] Erro ao deletar lead document:", deleteError)
-                    }
                   }
                 } else {
                   throw authError
@@ -158,7 +108,7 @@ export async function POST(request: Request) {
               const generateResponse = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/generate-plans-on-demand`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId: anonUserId }),
+                body: JSON.stringify({ userId }),
               })
 
               if (!generateResponse.ok) {
