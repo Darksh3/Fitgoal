@@ -140,17 +140,39 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         console.log("[v0] === ALL CARD FIELDS VALID ===")
       }
 
-      const paymentPayload = {
+      const paymentPayload: Record<string, any> = {
         email: formData.email,
         name: formData.name,
-        cpf: formData.cpf,
-        phone: formData.phone,
+        cpf: formData.cpf.replace(/\D/g, ""), // Send only numbers for CPF
+        phone: formData.phone.replace(/\D/g, ""), // Send only numbers for phone
         planType: currentPlan.key,
-        paymentMethod,
-        installments: paymentMethod === "card" ? installments : undefined,
-        clientUid,
+        paymentMethod: paymentMethod === "card" ? "card" : paymentMethod, // Keep as "pix", "boleto", or "card"
         description: `${currentPlan.name} - Fitgoal Fitness`,
       }
+
+      if (paymentMethod === "card") {
+        paymentPayload.installments = installments || 1
+      }
+
+      if (paymentMethod === "boleto" || paymentMethod === "card") {
+        if (addressData.postalCode) {
+          paymentPayload.postalCode = addressData.postalCode.replace(/\D/g, "")
+        }
+        if (addressData.addressNumber) {
+          paymentPayload.addressNumber = addressData.addressNumber
+        }
+      }
+
+      if (paymentMethod === "card") {
+        paymentPayload.cardData = {
+          holderName: cardData.holderName,
+          number: cardData.number?.replace(/\s/g, ""),
+          expiryMonth: cardData.expiryMonth,
+          expiryYear: cardData.expiryYear,
+          ccv: cardData.ccv,
+        }
+      }
+
       console.log("[v0] === PAYMENT PAYLOAD READY ===")
       console.log("[v0] Complete Payload:", paymentPayload)
 
