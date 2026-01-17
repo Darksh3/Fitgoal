@@ -975,8 +975,10 @@ export default function QuizPage() {
         setShowSuccess(true)
       }
     } catch (error) {
-      console.error("handleSubmit: Erro no handleSubmit:", error)
-      alert("Erro inesperado. Tente novamente.")
+      console.error("[v0] HANDLESUBMIT_ERROR - Full error object:", error)
+      console.error("[v0] HANDLESUBMIT_ERROR_MESSAGE:", error instanceof Error ? error.message : String(error))
+      console.error("[v0] HANDLESUBMIT_ERROR_STACK:", error instanceof Error ? error.stack : "No stack trace")
+      alert("Erro inesperado ao salvar os dados. Verifique o console para mais detalhes.")
     } finally {
       setIsSubmitting(false) // Reset isSubmitting
     }
@@ -4235,8 +4237,8 @@ export default function QuizPage() {
             {isComplete && (
               <button
                 onClick={() => {
-                  console.log("[v0] CASE_30_BUTTON_CLICKED - Redirecting to results page")
-                  router.push(`/quiz/results`)
+                  console.log("[v0] CASE_30_BUTTON_CLICKED - Calling handleSubmit before redirect")
+                  handleSubmit()
                 }}
                 className="w-full max-w-md h-14 bg-white text-black text-lg font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg"
               >
