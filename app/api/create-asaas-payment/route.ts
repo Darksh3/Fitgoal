@@ -2,75 +2,70 @@ import { NextResponse } from "next/server"
 
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY
 const ASAAS_ENVIRONMENT = process.env.ASAAS_ENVIRONMENT || "production"
-const ASAAS_API_URL = ASAAS_ENVIRONMENT === "sandbox" ? "https://sandbox.asaas.com/api/v3" : "https://api.asaas.com/v3"
+const ASAAS_API_URL = ASAAS_ENVIRONMENT === "sandbox" ? "https://sandbox.asaas.com/v3" : "https://api.asaas.com/v3"
 
 export async function POST(req: Request) {
-  console.log("[v0] === API CREATE-ASAAS-PAYMENT STARTED ===")
-
   try {
-    console.log("[v0] Step 1: Parsing request body...")
-    const body = await req.json()
-    console.log("[v0] Step 1 DONE - Body parsed:", JSON.stringify(body, null, 2))
+    const { email, name, cpf, phone, planType, paymentMethod, installments, clientUid } = await req.json()
 
-    const { email, name, cpf, phone, planType, paymentMethod, installments, clientUid, description } = body
+    console.log("[v0] create-asaas-payment - Dados recebidos:", {
+      email,
+      name,
+      cpf,
+      phone,
+      planType,
+      paymentMethod,
+      clientUid,
+    })
+    console.log("[v0] create-asaas-payment - Environment:", { env: ASAAS_ENVIRONMENT, apiUrl: ASAAS_API_URL })
 
-    console.log("[v0] Step 2: Validating required fields...")
-    if (!email || !name || !cpf || !planType || !paymentMethod) {
-      console.log("[v0] Step 2 FAILED - Missing fields:", {
-        email: !email ? "MISSING" : "OK",
-        name: !name ? "MISSING" : "OK",
-        cpf: !cpf ? "MISSING" : "OK",
-        planType: !planType ? "MISSING" : "OK",
-        paymentMethod: !paymentMethod ? "MISSING" : "OK",
-      })
+    if (!email || !name || !cpf || !planType || !paymentMethod || !clientUid) {
       return NextResponse.json({ error: "Dados obrigatórios ausentes" }, { status: 400 })
     }
-    console.log("[v0] Step 2 DONE - All required fields present")
 
-    console.log("[v0] Step 3: Checking API Key...")
     if (!ASAAS_API_KEY) {
-      console.error("[v0] Step 3 FAILED - ASAAS_API_KEY não configurada")
-      return NextResponse.json({ error: "Erro de configuração do servidor - API Key ausente" }, { status: 500 })
+      console.error("ASAAS_API_KEY não configurada")
+      return NextResponse.json({ error: "Erro de configuração do servidor" }, { status: 500 })
     }
-    console.log("[v0] Step 3 DONE - API Key exists, length:", ASAAS_API_KEY.length)
 
-    console.log("[v0] Step 4: Getting plan price...")
+    console.log("[v0] create-asaas-payment - API Key verificação:", {
+      keyExists: !!ASAAS_API_KEY,
+      keyLength: ASAAS_API_KEY?.length || 0,
+      keyFirstChars: ASAAS_API_KEY?.substring(0, 5) + "***" || "N/A",
+    })
+
+    // Mapeamento de planos para valores
     const planPrices: Record<string, number> = {
       mensal: 79.9,
-      trimestral: 199.8,
-      semestral: 359.7,
+      trimestral: 194.7,
+      semestral: 299.4,
     }
 
     const amount = planPrices[planType]
     if (!amount) {
-      console.log("[v0] Step 4 FAILED - Invalid plan type:", planType)
       return NextResponse.json({ error: "Plano inválido" }, { status: 400 })
     }
-    console.log("[v0] Step 4 DONE - Plan price:", amount)
 
-    console.log("[v0] Step 5: Cleaning CPF and phone...")
+    // Limpar CPF/CNPJ
     const cleanCpf = cpf.replace(/\D/g, "")
     const cleanPhone = phone ? phone.replace(/\D/g, "") : ""
-    console.log("[v0] Step 5 DONE - Clean CPF:", cleanCpf, "Clean Phone:", cleanPhone)
+
+    console.log("[v0] create-asaas-payment - Dados limpos:", { cleanCpf, cleanPhone })
 
     // 1. Criar ou buscar cliente no Asaas
-    console.log("[v0] Step 6: Creating customer in Asaas...")
     const customerData: any = {
       name,
       email,
       cpfCnpj: cleanCpf,
+      externalReference: clientUid,
     }
 
+    // Only add phone if provided
     if (cleanPhone) {
       customerData.phone = cleanPhone
     }
 
-    if (clientUid) {
-      customerData.externalReference = clientUid
-    }
-
-    console.log("[v0] Step 6 - Customer data to send:", JSON.stringify(customerData, null, 2))
-    console.log("[v0] Step 6 - API URL:", `${ASAAS_API_URL}/customers`)
+    console.log("[v0] create-asaas-payment - Criando cliente com dados:", customerData)
 
     const customerResponse = await fetch(`${ASAAS_API_URL}/customers`, {
       method: "POST",
@@ -81,24 +76,33 @@ export async function POST(req: Request) {
       body: JSON.stringify(customerData),
     })
 
-    console.log("[v0] Step 6 - Customer response status:", customerResponse.status)
+    console.log("[v0] create-asaas-payment - Requisição enviada:", {
+      url: `${ASAAS_API_URL}/customers`,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        access_token: ASAAS_API_KEY ? `${ASAAS_API_KEY.substring(0, 10)}...` : "N/A",
+      },
+    })
 
     const customerResult = await customerResponse.json()
-    console.log("[v0] Step 6 - Customer response body:", JSON.stringify(customerResult, null, 2))
+
+    console.log("[v0] create-asaas-payment - Status da resposta:", customerResponse.status)
+    console.log(
+      "[v0] create-asaas-payment - Headers da resposta:",
+      Object.fromEntries(customerResponse.headers.entries()),
+    )
+    console.log("[v0] create-asaas-payment - Corpo da resposta completo:", JSON.stringify(customerResult, null, 2))
 
     let customerId = null
 
     if (customerResponse.ok) {
+      // Cliente criado com sucesso
       customerId = customerResult.id
-      console.log("[v0] Step 6 DONE - Customer created with ID:", customerId)
-    } else if (customerResult.errors?.[0]?.code === "invalid_cpfCnpj") {
-      console.log("[v0] Step 6 FAILED - Invalid CPF/CNPJ")
-      return NextResponse.json({ error: "CPF inválido" }, { status: 400 })
-    } else if (
-      customerResult.errors?.some((e: any) => e.code === "invalid_cpfCnpj" || e.description?.includes("já existe"))
-    ) {
+      console.log("[v0] create-asaas-payment - Cliente criado com sucesso:", customerId)
+    } else if (customerResult.errors?.[0]?.code === "already_exists") {
       // Cliente já existe, buscar por CPF
-      console.log("[v0] Step 6b: Customer already exists, searching by CPF...")
+      console.log("[v0] create-asaas-payment - Cliente já existe, buscando por CPF...")
 
       const searchResponse = await fetch(`${ASAAS_API_URL}/customers?cpfCnpj=${cleanCpf}`, {
         headers: {
@@ -107,33 +111,31 @@ export async function POST(req: Request) {
       })
 
       const searchResult = await searchResponse.json()
-      console.log("[v0] Step 6b - Search result:", JSON.stringify(searchResult, null, 2))
+      console.log("[v0] create-asaas-payment - Resultado da busca:", searchResult)
 
       if (searchResponse.ok && searchResult.data?.[0]?.id) {
         customerId = searchResult.data[0].id
-        console.log("[v0] Step 6b DONE - Customer found with ID:", customerId)
+        console.log("[v0] create-asaas-payment - Cliente encontrado:", customerId)
       }
     } else {
       // Erro ao criar cliente
-      console.error("[v0] Step 6 FAILED - Error creating customer:", JSON.stringify(customerResult, null, 2))
+      console.error("[v0] create-asaas-payment - Erro ao criar cliente:", customerResult)
       return NextResponse.json(
         {
-          error: `Erro ao processar cliente: ${customerResult.errors?.[0]?.description || customerResult.errors?.[0]?.code || "Erro desconhecido"}`,
-          details: customerResult.errors,
+          error: `Erro ao processar cliente: ${customerResult.errors?.[0]?.description || "Erro desconhecido"}`,
         },
         { status: 400 },
       )
     }
 
     if (!customerId) {
-      console.error("[v0] Step 6 FINAL FAILED - Could not obtain customer ID")
+      console.error("[v0] create-asaas-payment - Não foi possível obter ID do cliente")
       return NextResponse.json({ error: "Erro ao obter ID do cliente" }, { status: 400 })
     }
 
-    // 2. Criar cobrança
-    console.log("[v0] Step 7: Creating payment...")
+    // 2. Criar cobrança (pagamento único ou assinatura)
     const dueDate = new Date()
-    dueDate.setDate(dueDate.getDate() + 3)
+    dueDate.setDate(dueDate.getDate() + 3) // Vencimento em 3 dias
 
     const billingType = paymentMethod === "pix" ? "PIX" : paymentMethod === "boleto" ? "BOLETO" : "CREDIT_CARD"
 
@@ -142,19 +144,15 @@ export async function POST(req: Request) {
       billingType,
       value: amount,
       dueDate: dueDate.toISOString().split("T")[0],
-      description: description || `Plano ${planType} - Fitgoal Fitness`,
+      description: `Plano ${planType} - Fitgoal`,
+      externalReference: clientUid,
     }
 
+    // Se for cartão de crédito, adicionar parcelamento
     if (billingType === "CREDIT_CARD" && installments) {
       paymentData.installmentCount = installments
       paymentData.installmentValue = amount / installments
     }
-
-    if (clientUid) {
-      paymentData.externalReference = clientUid
-    }
-
-    console.log("[v0] Step 7 - Payment data to send:", JSON.stringify(paymentData, null, 2))
 
     const paymentResponse = await fetch(`${ASAAS_API_URL}/payments`, {
       method: "POST",
@@ -165,26 +163,14 @@ export async function POST(req: Request) {
       body: JSON.stringify(paymentData),
     })
 
-    console.log("[v0] Step 7 - Payment response status:", paymentResponse.status)
-
     const paymentResult = await paymentResponse.json()
-    console.log("[v0] Step 7 - Payment response body:", JSON.stringify(paymentResult, null, 2))
 
     if (!paymentResponse.ok) {
-      console.error("[v0] Step 7 FAILED - Error creating payment:", JSON.stringify(paymentResult, null, 2))
-      return NextResponse.json(
-        {
-          error: paymentResult.errors?.[0]?.description || "Erro ao criar cobrança",
-          details: paymentResult.errors,
-        },
-        { status: 400 },
-      )
+      console.error("Erro ao criar cobrança Asaas:", paymentResult)
+      return NextResponse.json({ error: "Erro ao criar cobrança" }, { status: 400 })
     }
 
-    console.log("[v0] Step 7 DONE - Payment created with ID:", paymentResult.id)
-
     // 3. Retornar dados específicos do método de pagamento
-    console.log("[v0] Step 8: Preparing response...")
     const response: any = {
       paymentId: paymentResult.id,
       customerId,
@@ -193,28 +179,32 @@ export async function POST(req: Request) {
     }
 
     if (billingType === "PIX") {
-      response.pixQrCode = paymentResult.encodedImage || paymentResult.qrCode
+      console.log("[v0] PaymentResult fields:", Object.keys(paymentResult))
+      console.log("[v0] PaymentResult full:", JSON.stringify(paymentResult, null, 2))
+      console.log("[v0] encodedImage value:", paymentResult.encodedImage)
+      console.log("[v0] qrCode value:", paymentResult.qrCode)
+      console.log("[v0] dict value:", paymentResult.dict)
+
+      // Try multiple field names that Asaas might use
+      const qrCodeImage = paymentResult.encodedImage || paymentResult.qrCode || paymentResult.dict
+
+      response.pixQrCode = qrCodeImage
       response.pixCopyPaste = paymentResult.payload
     } else if (billingType === "BOLETO") {
       response.boletoUrl = paymentResult.bankSlipUrl
       response.boletoBarCode = paymentResult.identificationField
     }
 
-    console.log("[v0] Step 8 DONE - Final response:", JSON.stringify(response, null, 2))
-    console.log("[v0] === API CREATE-ASAAS-PAYMENT COMPLETED SUCCESSFULLY ===")
+    console.log("Cobrança Asaas criada:", {
+      paymentId: paymentResult.id,
+      customerId,
+      billingType,
+      amount,
+    })
 
     return NextResponse.json(response)
   } catch (error: any) {
-    console.error("[v0] === API CREATE-ASAAS-PAYMENT FATAL ERROR ===")
-    console.error("[v0] Error name:", error.name)
-    console.error("[v0] Error message:", error.message)
-    console.error("[v0] Error stack:", error.stack)
-    return NextResponse.json(
-      {
-        error: "Erro interno do servidor",
-        details: error.message,
-      },
-      { status: 500 },
-    )
+    console.error("Erro fatal na API Asaas:", error)
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
 }
