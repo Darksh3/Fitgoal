@@ -3155,8 +3155,8 @@ export default function QuizPage() {
               <Input
                 type="number"
                 placeholder="Peso atual em kg"
-                value={quizData.weight}
-                onChange={(e) => updateQuizData("weight", e.target.value)}
+                value={quizData.currentWeight}
+                onChange={(e) => updateQuizData("currentWeight", e.target.value)}
                 min="1"
                 max="500"
                 step="0.1"
