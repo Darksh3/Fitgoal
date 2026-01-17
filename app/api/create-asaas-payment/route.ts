@@ -6,7 +6,7 @@ const ASAAS_API_URL = ASAAS_ENVIRONMENT === "sandbox" ? "https://sandbox.asaas.c
 
 export async function POST(req: Request) {
   try {
-    const { email, name, cpf, phone, planType, paymentMethod, installments, clientUid } = await req.json()
+    const { email, name, cpf, phone, planType, paymentMethod, installments, clientUid, description } = await req.json()
 
     console.log("[v0] create-asaas-payment - Dados recebidos:", {
       email,
@@ -16,10 +16,18 @@ export async function POST(req: Request) {
       planType,
       paymentMethod,
       clientUid,
+      description,
     })
     console.log("[v0] create-asaas-payment - Environment:", { env: ASAAS_ENVIRONMENT, apiUrl: ASAAS_API_URL })
 
-    if (!email || !name || !cpf || !planType || !paymentMethod || !clientUid) {
+    if (!email || !name || !cpf || !planType || !paymentMethod) {
+      console.log("[v0] create-asaas-payment - Campos faltando:", {
+        email: !email,
+        name: !name,
+        cpf: !cpf,
+        planType: !planType,
+        paymentMethod: !paymentMethod,
+      })
       return NextResponse.json({ error: "Dados obrigatórios ausentes" }, { status: 400 })
     }
 
@@ -57,12 +65,10 @@ export async function POST(req: Request) {
       name,
       email,
       cpfCnpj: cleanCpf,
-      externalReference: clientUid,
     }
 
-    // Only add phone if provided
-    if (cleanPhone) {
-      customerData.phone = cleanPhone
+    if (clientUid) {
+      customerData.externalReference = clientUid
     }
 
     console.log("[v0] create-asaas-payment - Criando cliente com dados:", customerData)
@@ -144,14 +150,17 @@ export async function POST(req: Request) {
       billingType,
       value: amount,
       dueDate: dueDate.toISOString().split("T")[0],
-      description: `Plano ${planType} - Fitgoal`,
-      externalReference: clientUid,
+      description: description || `Plano ${planType} - Fitgoal`,
     }
 
     // Se for cartão de crédito, adicionar parcelamento
     if (billingType === "CREDIT_CARD" && installments) {
       paymentData.installmentCount = installments
       paymentData.installmentValue = amount / installments
+    }
+
+    if (clientUid) {
+      paymentData.externalReference = clientUid
     }
 
     const paymentResponse = await fetch(`${ASAAS_API_URL}/payments`, {
