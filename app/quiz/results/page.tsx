@@ -426,15 +426,13 @@ export default function QuizResultsPage() {
               {/* Altura */}
               <div>
                 <p className="text-gray-400 text-sm mb-2">Altura</p>
-                <p className="text-white text-xl font-semibold">{getDataValue("height") || "—"} cm</p>
+                <p className="text-white text-xl font-semibold">{data?.quizData?.height || "—"} cm</p>
               </div>
 
               {/* Peso Atual */}
               <div>
                 <p className="text-gray-400 text-sm mb-2">Peso Atual</p>
-                <p className="text-white text-xl font-semibold">
-                  {getDataValue("weight") ? (Number(getDataValue("weight")) / 2.205).toFixed(1) : "—"} kg
-                </p>
+                <p className="text-white text-xl font-semibold">{data?.quizData?.weight || "—"} kg</p>
               </div>
 
               {/* IMC */}
@@ -442,15 +440,15 @@ export default function QuizResultsPage() {
                 <p className="text-gray-400 text-sm mb-2">IMC</p>
                 <p
                   className={`text-xl font-semibold ${(() => {
-                    if (!getDataValue("weight") || !getDataValue("height")) return "text-white"
-                    const imc = Number(getDataValue("weight")) / 2.205 / (Number(getDataValue("height")) / 100) ** 2
+                    if (!data?.quizData?.weight || !data?.quizData?.height) return "text-white"
+                    const imc = Number(data.quizData.weight) / (Number(data.quizData.height) / 100) ** 2
                     if (imc < 18.5) return "text-blue-400"
                     if (imc < 25) return "text-green-400"
                     return "text-red-400"
                   })()}`}
                 >
-                  {getDataValue("weight") && getDataValue("height")
-                    ? (Number(getDataValue("weight")) / 2.205 / (Number(getDataValue("height")) / 100) ** 2).toFixed(1)
+                  {data?.quizData?.weight && data?.quizData?.height
+                    ? (Number(data.quizData.weight) / (Number(data.quizData.height) / 100) ** 2).toFixed(1)
                     : "—"}
                 </p>
               </div>
