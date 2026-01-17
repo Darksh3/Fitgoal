@@ -891,6 +891,41 @@ export default function QuizPage() {
 
       const { imc, classification, status } = calculateIMC(weightForIMC, heightForIMC)
 
+      // Calculate TDEE (Total Daily Energy Expenditure)
+      const age = Number.parseInt(quizData.age || "0")
+      const gender = quizData.gender || "male"
+      
+      let tmb: number
+      if (gender === "female") {
+        tmb = 10 * weightForIMC + 6.25 * heightForIMC - 5 * age - 161
+      } else {
+        tmb = 10 * weightForIMC + 6.25 * heightForIMC - 5 * age + 5
+      }
+
+      // Activity multiplier based on training days
+      let baseActivityMultiplier = 1.55 // Moderado (default)
+      const trainingDaysNum = Number.parseInt(quizData.trainingDays || "3")
+      
+      if (trainingDaysNum === 0) baseActivityMultiplier = 1.2 // Sedentário
+      else if (trainingDaysNum <= 1) baseActivityMultiplier = 1.375 // Leve
+      else if (trainingDaysNum <= 3) baseActivityMultiplier = 1.55 // Moderado
+      else if (trainingDaysNum <= 5) baseActivityMultiplier = 1.725 // Intenso
+      else baseActivityMultiplier = 1.9 // Muito intenso
+
+      let tdee = tmb * baseActivityMultiplier
+
+      // Adjust for body type (somatotype)
+      if (quizData.somatotype === "ectomorfo") {
+        tdee *= 1.1 // +10% para ectomorfos (metabolism acelerado)
+      } else if (quizData.somatotype === "endomorfo") {
+        tdee *= 0.95 // -5% para endomorfos (metabolism lento)
+      }
+
+      console.log("[v0] CALORIE_CALCULATION - TMB:", Math.round(tmb), "kcal")
+      console.log("[v0] CALORIE_CALCULATION - TDEE:", Math.round(tdee), "kcal")
+      console.log("[v0] CALORIE_CALCULATION - Activity multiplier:", baseActivityMultiplier)
+      console.log("[v0] CALORIE_CALCULATION - Body type adjustment for:", quizData.somatotype)
+
       // Prepare updated quiz data before saving
       // Flatten foodPreferences to avoid nested arrays in Firestore
       const flatFoodPreferences = {
@@ -906,6 +941,8 @@ export default function QuizPage() {
         imc: imc,
         imcClassification: classification,
         imcStatus: status,
+        tmb: Math.round(tmb),
+        tdee: Math.round(tdee),
         // </CHANGE> Renaming fields for consistency with the canProceed updates
         sweetsFrequency: quizData.sugarFrequency || [], // Use sweetsFrequency
         trainingDays: String(quizData.trainingDays), // Use trainingDays as string from slider
@@ -930,6 +967,8 @@ export default function QuizPage() {
       console.log("[v0] QUIZ_DATA_PREPARED - Updated data keys:", Object.keys(updatedQuizData))
       console.log("[v0] QUIZ_DATA_EMAIL:", updatedQuizData.email)
       console.log("[v0] QUIZ_DATA_NAME:", updatedQuizData.name)
+      console.log("[v0] QUIZ_DATA_TMB:", updatedQuizData.tmb, "kcal")
+      console.log("[v0] QUIZ_DATA_TDEE:", updatedQuizData.tdee, "kcal")
       setQuizData(updatedQuizData) // Atualiza o estado local
 
       try {

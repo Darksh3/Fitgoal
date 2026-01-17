@@ -446,7 +446,7 @@ export default function QuizResultsPage() {
               <div>
                 <p className="text-gray-400 text-sm mb-2">Peso Atual</p>
                 <p className="text-white text-xl font-semibold">
-                  {getDataValue("weight") ? (Number(getDataValue("weight")) / 2.205).toFixed(1) : "—"} kg
+                  {getDataValue("weight") ? Number(getDataValue("weight")).toFixed(1) : "—"} kg
                 </p>
               </div>
 
@@ -456,14 +456,14 @@ export default function QuizResultsPage() {
                 <p
                   className={`text-xl font-semibold ${(() => {
                     if (!getDataValue("weight") || !getDataValue("height")) return "text-white"
-                    const imc = Number(getDataValue("weight")) / 2.205 / (Number(getDataValue("height")) / 100) ** 2
+                    const imc = Number(getDataValue("weight")) / (Number(getDataValue("height")) / 100) ** 2
                     if (imc < 18.5) return "text-blue-400"
                     if (imc < 25) return "text-green-400"
                     return "text-red-400"
                   })()}`}
                 >
                   {getDataValue("weight") && getDataValue("height")
-                    ? (Number(getDataValue("weight")) / 2.205 / (Number(getDataValue("height")) / 100) ** 2).toFixed(1)
+                    ? (Number(getDataValue("weight")) / (Number(getDataValue("height")) / 100) ** 2).toFixed(1)
                     : "—"}
                 </p>
               </div>
@@ -471,7 +471,7 @@ export default function QuizResultsPage() {
               {/* Meta de Calorias */}
               <div>
                 <p className="text-gray-400 text-sm mb-2">Meta de Calorias</p>
-                <p className="text-white text-xl font-semibold">{getDataValue("targetCalories") || "—"} kcal</p>
+                <p className="text-white text-xl font-semibold">{getDataValue("tdee") ? Math.round(Number(getDataValue("tdee"))) : getDataValue("targetCalories") ? Math.round(Number(getDataValue("targetCalories"))) : "—"} kcal</p>
               </div>
 
               {/* Data para atingir objetivo - Full width */}
