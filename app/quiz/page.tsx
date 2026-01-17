@@ -892,21 +892,38 @@ export default function QuizPage() {
       const { imc, classification, status } = calculateIMC(weightForIMC, heightForIMC)
 
       // Prepare updated quiz data before saving
+      // Flatten foodPreferences to avoid nested arrays in Firestore
+      const flatFoodPreferences = {
+        vegetables: Array.isArray(quizData.foodPreferences?.vegetables) ? quizData.foodPreferences.vegetables.join(", ") : "",
+        grains: Array.isArray(quizData.foodPreferences?.grains) ? quizData.foodPreferences.grains.join(", ") : "",
+        ingredients: Array.isArray(quizData.foodPreferences?.ingredients) ? quizData.foodPreferences.ingredients.join(", ") : "",
+        meats: Array.isArray(quizData.foodPreferences?.meats) ? quizData.foodPreferences.meats.join(", ") : "",
+        fruits: Array.isArray(quizData.foodPreferences?.fruits) ? quizData.foodPreferences.fruits.join(", ") : "",
+      }
+
       const updatedQuizData = {
         ...quizData,
         imc: imc,
         imcClassification: classification,
         imcStatus: status,
         // </CHANGE> Renaming fields for consistency with the canProceed updates
-        sweetsFrequency: quizData.sugarFrequency, // Use sweetsFrequency
-        trainingDays: quizData.trainingDays, // Use trainingDays as string from slider
-        cardioFeeling: quizData.exercisePreferences.cardio,
-        strengthFeeling: quizData.exercisePreferences.pullups,
-        stretchingFeeling: quizData.exercisePreferences.yoga,
-        healthConditions: quizData.allergyDetails.length > 0 ? [quizData.allergyDetails] : [], // Convert allergyDetails to healthConditions array
-        supplement: quizData.wantsSupplement, // Use supplement field
-        previousProblems: quizData.previousProblems, // Include previousProblems
-        letMadMusclesChoose: quizData.letMadMusclesChoose, // Include letMadMusclesChoose
+        sweetsFrequency: quizData.sugarFrequency || [], // Use sweetsFrequency
+        trainingDays: String(quizData.trainingDays), // Use trainingDays as string from slider
+        cardioFeeling: quizData.exercisePreferences?.cardio || "",
+        strengthFeeling: quizData.exercisePreferences?.pullups || "",
+        stretchingFeeling: quizData.exercisePreferences?.yoga || "",
+        // Convert allergyDetails to healthConditions string (not nested array)
+        healthConditions: quizData.allergyDetails ? [quizData.allergyDetails] : [],
+        supplement: quizData.wantsSupplement || "", // Use supplement field
+        previousProblems: Array.isArray(quizData.previousProblems) ? quizData.previousProblems : [], // Include previousProblems
+        letMadMusclesChoose: Boolean(quizData.letMadMusclesChoose), // Include letMadMusclesChoose
+        // Flatten nested objects and arrays
+        foodPreferences: flatFoodPreferences,
+        goal: Array.isArray(quizData.goal) ? quizData.goal : [],
+        problemAreas: Array.isArray(quizData.problemAreas) ? quizData.problemAreas : [],
+        equipment: Array.isArray(quizData.equipment) ? quizData.equipment : [],
+        sugarFrequency: Array.isArray(quizData.sugarFrequency) ? quizData.sugarFrequency : [],
+        additionalGoals: Array.isArray(quizData.additionalGoals) ? quizData.additionalGoals : [],
       }
       setQuizData(updatedQuizData) // Atualiza o estado local
 
