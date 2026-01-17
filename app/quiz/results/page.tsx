@@ -26,31 +26,44 @@ export default function QuizResultsPage() {
         if (local) {
           try {
             stored = JSON.parse(local)
+            console.log("[v0] RESULTS_DATA_FOUND_IN_LOCALSTORAGE - Keys:", Object.keys(stored || {}))
           } catch (error) {
-            console.error("Erro ao parsear localStorage:", error)
+            console.error("[v0] RESULTS_LOCALSTORAGE_PARSE_ERROR:", error)
           }
+        } else {
+          console.log("[v0] RESULTS_NO_DATA_IN_LOCALSTORAGE")
         }
       }
 
       if (!stored && auth.currentUser) {
+        console.log("[v0] RESULTS_FETCHING_FROM_FIREBASE - User ID:", auth.currentUser.uid)
         try {
           const ref = doc(db, "users", auth.currentUser.uid)
           const snap = await getDoc(ref)
           if (snap.exists()) {
             stored = snap.data()
+            console.log("[v0] RESULTS_DATA_FOUND_IN_FIREBASE - Keys:", Object.keys(stored || {}))
+            console.log("[v0] RESULTS_FIREBASE_DATA_EMAIL:", stored?.email)
+            console.log("[v0] RESULTS_FIREBASE_DATA_NAME:", stored?.name)
+          } else {
+            console.log("[v0] RESULTS_NO_USER_DOC_FOUND_IN_FIREBASE - User ID:", auth.currentUser.uid)
           }
         } catch (error) {
-          console.error("Erro ao buscar no Firebase:", error)
+          console.error("[v0] RESULTS_FIREBASE_FETCH_ERROR:", error)
         }
+      } else if (!stored && !auth.currentUser) {
+        console.log("[v0] RESULTS_NO_AUTH_USER_AND_NO_LOCALSTORAGE")
       }
 
       if (!stored) {
+        console.log("[v0] RESULTS_NO_DATA_FOUND - REDIRECTING_TO_QUIZ after 2 seconds")
         setTimeout(() => {
           router.push("/quiz")
         }, 2000)
         return
       }
 
+      console.log("[v0] RESULTS_DATA_LOADED_SUCCESSFULLY")
       setData(stored)
       setLoading(false)
     }

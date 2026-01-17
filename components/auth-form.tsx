@@ -29,12 +29,18 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
 
     try {
       if (isLogin) {
+        console.log("[v0] AUTH_FORM_LOGIN_ATTEMPT - Email:", email)
         await signInWithEmailAndPassword(auth, email, password)
+        console.log("[v0] AUTH_FORM_LOGIN_SUCCESS - User authenticated")
       } else {
+        console.log("[v0] AUTH_FORM_REGISTER_ATTEMPT - Email:", email)
         await createUserWithEmailAndPassword(auth, email, password)
+        console.log("[v0] AUTH_FORM_REGISTER_SUCCESS - User created and authenticated")
       }
+      console.log("[v0] AUTH_FORM_REDIRECTING_TO_DASHBOARD")
       router.push("/dashboard")
     } catch (error: any) {
+      console.error("[v0] AUTH_FORM_ERROR:", error.message)
       setError(error.message)
     } finally {
       setLoading(false)

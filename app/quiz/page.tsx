@@ -925,18 +925,26 @@ export default function QuizPage() {
         sugarFrequency: Array.isArray(quizData.sugarFrequency) ? quizData.sugarFrequency : [],
         additionalGoals: Array.isArray(quizData.additionalGoals) ? quizData.additionalGoals : [],
       }
+      
+      console.log("[v0] QUIZ_SUBMIT_START - User ID:", currentUser.uid)
+      console.log("[v0] QUIZ_DATA_PREPARED - Updated data keys:", Object.keys(updatedQuizData))
+      console.log("[v0] QUIZ_DATA_EMAIL:", updatedQuizData.email)
+      console.log("[v0] QUIZ_DATA_NAME:", updatedQuizData.name)
       setQuizData(updatedQuizData) // Atualiza o estado local
 
       try {
         localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
         debugDataFlow("QUIZ_LOCALSTORAGE_SAVE", updatedQuizData)
+        console.log("[v0] QUIZ_DATA_SAVED_TO_LOCALSTORAGE")
       } catch (error) {
-        console.error("[QUIZ] Storage failed:", error)
+        console.error("[v0] QUIZ_STORAGE_ERROR:", error)
       }
 
       const userDocRef = doc(db, "users", currentUser.uid)
       const leadDocRef = doc(db, "leads", currentUser.uid)
 
+      console.log("[v0] FIREBASE_SAVE_START - Refs created for user:", currentUser.uid)
+      
       await setDoc(
         userDocRef,
         {
@@ -947,6 +955,7 @@ export default function QuizPage() {
         },
         { merge: true },
       )
+      console.log("[v0] FIREBASE_USER_DOC_SAVED - User doc saved to /users/" + currentUser.uid)
 
       await setDoc(
         leadDocRef,
@@ -958,6 +967,7 @@ export default function QuizPage() {
         },
         { merge: true },
       )
+      console.log("[v0] FIREBASE_LEAD_DOC_SAVED - Lead doc saved to /leads/" + currentUser.uid)
 
       if (imc > 0) {
         setShowIMCResult(true)
@@ -4225,8 +4235,8 @@ export default function QuizPage() {
             {isComplete && (
               <button
                 onClick={() => {
-                  const selectedDiscount = ""
-                  router.push(`/quiz/results?discount=${selectedDiscount}`)
+                  console.log("[v0] CASE_30_BUTTON_CLICKED - Redirecting to results page")
+                  router.push(`/quiz/results`)
                 }}
                 className="w-full max-w-md h-14 bg-white text-black text-lg font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg"
               >
