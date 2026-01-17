@@ -58,14 +58,6 @@ export async function POST(request: Request) {
                     subscriptionEndDate: endDate,
                     paymentId: payment.id,
                     paymentStatus: "confirmed",
-                    quizData: pendingPayment.quizData || {},
-                    age: pendingPayment.quizData?.age,
-                    gender: pendingPayment.quizData?.gender,
-                    height: pendingPayment.quizData?.height,
-                    weight: pendingPayment.quizData?.weight,
-                    targetWeight: pendingPayment.quizData?.targetWeight,
-                    bodyFat: pendingPayment.quizData?.bodyFat,
-                    experience: pendingPayment.quizData?.experience,
                   },
                   { merge: true },
                 )
@@ -92,14 +84,6 @@ export async function POST(request: Request) {
                       subscriptionEndDate: endDate,
                       paymentId: payment.id,
                       paymentStatus: "confirmed",
-                      quizData: pendingPayment.quizData || {},
-                      age: pendingPayment.quizData?.age,
-                      gender: pendingPayment.quizData?.gender,
-                      height: pendingPayment.quizData?.height,
-                      weight: pendingPayment.quizData?.weight,
-                      targetWeight: pendingPayment.quizData?.targetWeight,
-                      bodyFat: pendingPayment.quizData?.bodyFat,
-                      experience: pendingPayment.quizData?.experience,
                     })
 
                     console.log("[v0] Plano renovado para:", existingUserId)
