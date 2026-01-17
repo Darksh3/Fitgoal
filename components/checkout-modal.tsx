@@ -148,7 +148,6 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         planType: currentPlan.key,
         paymentMethod: paymentMethod === "card" ? "card" : paymentMethod, // Keep as "pix", "boleto", or "card"
         description: `${currentPlan.name} - Fitgoal Fitness`,
-        externalReference: clientUid || formData.email,
       }
 
       if (paymentMethod === "card") {
@@ -213,10 +212,6 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
           })
         }
 
-        setTimeout(() => {
-          window.location.href = `/payment-success?paymentId=${paymentResult.paymentId}`
-        }, 2000)
-
         setProcessing(false)
         return
       }
@@ -226,11 +221,6 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
           url: paymentResult.boletoUrl,
           barCode: paymentResult.boletoBarCode,
         })
-
-        setTimeout(() => {
-          window.location.href = `/payment-success?paymentId=${paymentResult.paymentId}`
-        }, 2000)
-
         setProcessing(false)
         return
       }
