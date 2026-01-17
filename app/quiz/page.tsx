@@ -220,7 +220,7 @@ const debugFrequencySelection = (frequency: number) => {
     const stored = localStorage.getItem("quizData")
     if (stored) {
       try {
-        const parsed = JSON.parse(stored)
+        const parsed = JSON.Parse(stored)
         console.log(`[QUIZ] Stored frequency: ${parsed.trainingDaysPerWeek}`)
       } catch (error) {
         console.error("[QUIZ] localStorage parse error:", error)
@@ -327,6 +327,51 @@ export default function QuizPage() {
   const [showAnalyzingData, setShowAnalyzingData] = useState(false)
   const [analyzingStep, setAnalyzingStep] = useState(0)
   // </CHANGE>
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null) // State to hold the current user ID
+
+  // </CHANGE> Add initial auth state tracking
+  useEffect(() => {
+    // </CHANGE> Adding debug logs for auth state changes
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log("[v0] Auth state changed - User:", user?.uid ? `${user.uid.substring(0, 8)}...` : "null")
+
+      if (user) {
+        setCurrentUserId(user.uid)
+        console.log("[v0] Attempting to load existing quiz data for user:", user.uid.substring(0, 8))
+
+        try {
+          // Prefer loading from 'leads' collection first, as it contains more comprehensive lead data
+          const leadDoc = await getDoc(doc(db, "leads", user.uid))
+          if (leadDoc.exists() && leadDoc.data().quizData) {
+            console.log("[v0] Loaded existing quiz data from Firebase (leads collection)")
+            setQuizData(leadDoc.data().quizData)
+          } else {
+            // Fallback to 'users' collection if not found in 'leads'
+            const userDoc = await getDoc(doc(db, "users", user.uid))
+            if (userDoc.exists() && userDoc.data().quizData) {
+              console.log("[v0] Loaded existing quiz data from Firebase (users collection)")
+              setQuizData(userDoc.data().quizData)
+            } else {
+              console.log("[v0] No existing quiz data found in either collection - starting fresh")
+            }
+          }
+        } catch (error) {
+          console.log("[v0] Error loading quiz data:", error.message)
+        }
+      } else {
+        console.log("[v0] No authenticated user - creating anonymous user")
+        try {
+          const anonymousUser = await signInAnonymously(auth)
+          setCurrentUserId(anonymousUser.user.uid)
+          console.log("[v0] Anonymous user created:", anonymousUser.user.uid.substring(0, 8))
+        } catch (error) {
+          console.log("[v0] Error creating anonymous user:", error.message)
+        }
+      }
+    })
+    return () => unsubscribe()
+  }, [])
+  // </CHANGE>
 
   const [debugMode, setDebugMode] = useState(false) // Disabled debug mode
   const [debugValues, setDebugValues] = useState({
@@ -380,7 +425,6 @@ export default function QuizPage() {
     }
   }, [showWaterCongrats])
   // </CHANGE>
-
   const [animatedPercentage, setAnimatedPercentage] = useState(0)
 
   const statuses = [
@@ -941,6 +985,28 @@ export default function QuizPage() {
         },
         { merge: true },
       )
+
+      console.log("[v0] Saving quiz data to leads collection for user:", currentUser.uid.substring(0, 8))
+      console.log("[v0] Quiz data being saved:", {
+        step: currentStep,
+        fieldsSet: Object.keys(quizData).length,
+      })
+
+      try {
+        await setDoc(
+          leadDocRef,
+          {
+            ...quizData, // Saving the current state of quizData
+            lastUpdated: new Date().toISOString(),
+            currentStep,
+          },
+          { merge: true },
+        )
+        console.log("[v0] Successfully saved quiz data to Firebase (leads collection)")
+      } catch (error) {
+        console.log("[v0] Error saving quiz data to leads collection:", error.message, error.code)
+      }
+      // </CHANGE>
 
       if (imc > 0) {
         setShowIMCResult(true)
@@ -2720,110 +2786,6 @@ export default function QuizPage() {
                   )}
               </div>
 
-              {debugMode && (
-                <div className="w-96 max-h-[600px] overflow-y-auto bg-gray-900/95 rounded-lg p-4 space-y-4 border border-purple-500">
-                  <div className="flex justify-between items-center sticky top-0 bg-gray-900 pb-2 border-b border-purple-500">
-                    <h3 className="text-lg font-bold text-white">
-                      Ajustar Marcações ({quizData.gender === "mulher" ? "Feminino" : "Masculino"})
-                    </h3>
-                    <button
-                      onClick={copyDebugValues}
-                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm"
-                    >
-                      Copiar Valores
-                    </button>
-                  </div>
-
-                  {Object.entries(debugValues)
-                    .filter(([key]) => (quizData.gender === "mulher" ? !key.startsWith("m_") : key.startsWith("m_")))
-                    .map(([key, values]) => (
-                      <div key={key} className="space-y-2 border-b border-gray-700 pb-3">
-                        <h4 className="text-sm font-semibold text-purple-300">
-                          {key.replace(/m_/g, "").replace(/_/g, " ").toUpperCase()}
-                        </h4>
-
-                        <div className="space-y-1">
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Top: {values.top}%</span>
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              value={values.top}
-                              onChange={(e) => updateDebugValue(key, "top", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-
-                          {"left" in values && (
-                            <label className="text-xs text-gray-400 flex justify-between">
-                              <span>Left: {values.left}%</span>
-                              <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                value={values.left}
-                                onChange={(e) => updateDebugValue(key, "left", Number(e.target.value))}
-                                className="w-48"
-                              />
-                            </label>
-                          )}
-
-                          {"right" in values && (
-                            <label className="text-xs text-gray-400 flex justify-between">
-                              <span>Right: {values.right}%</span>
-                              <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                value={values.right}
-                                onChange={(e) => updateDebugValue(key, "right", Number(e.target.value))}
-                                className="w-48"
-                              />
-                            </label>
-                          )}
-
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Width: {values.width}%</span>
-                            <input
-                              type="range"
-                              min="1"
-                              max="50"
-                              value={values.width}
-                              onChange={(e) => updateDebugValue(key, "width", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Height: {values.height}%</span>
-                            <input
-                              type="range"
-                              min="1"
-                              max="50"
-                              value={values.height}
-                              onChange={(e) => updateDebugValue(key, "height", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-
-                          <label className="text-xs text-gray-400 flex justify-between">
-                            <span>Rotate: {values.rotate}°</span>
-                            <input
-                              type="range"
-                              min="-90"
-                              max="90"
-                              value={values.rotate}
-                              onChange={(e) => updateDebugValue(key, "rotate", Number(e.target.value))}
-                              className="w-48"
-                            />
-                          </label>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              )}
-
               <div className="flex flex-col space-y-4 max-w-md">
                 {["Peito", "Braços", "Barriga", "Pernas", "Tudo"].map((area) => (
                   <div
@@ -4208,8 +4170,7 @@ export default function QuizPage() {
             {isComplete && (
               <button
                 onClick={() => {
-                  const selectedDiscount = ""
-                  router.push(`/quiz/results?discount=${selectedDiscount}`)
+                  router.push("/quiz/results")
                 }}
                 className="w-full max-w-md h-14 bg-white text-black text-lg font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg"
               >
