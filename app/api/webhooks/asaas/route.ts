@@ -37,6 +37,11 @@ export async function POST(request: Request) {
                 userId,
                 paymentId: payment?.id,
                 billingType: payment?.billingType,
+                // Passar dados do cliente do pagamento
+                customerName: payment?.customer?.name,
+                customerEmail: payment?.customer?.email,
+                customerPhone: payment?.customer?.phone,
+                customerCpf: payment?.customer?.cpf,
               }),
             })
 
