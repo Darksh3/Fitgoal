@@ -174,7 +174,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         planType: currentPlan.key,
         paymentMethod: paymentMethod === "card" ? "card" : paymentMethod, // Keep as "pix", "boleto", or "card"
         description: `${currentPlan.name} - Fitgoal Fitness`,
-        clientUid: clientUid, // Include userId for webhook to identify user
+        clientUid: clientUid, // Include userId so webhook can identify user
       }
 
       if (paymentMethod === "card") {

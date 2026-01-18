@@ -43,17 +43,8 @@ export async function POST(req: Request) {
     const body = await req.json()
     const { sessionId, subscription_id, customer_id, client_uid, payment_intent_id, plan_duration, price_id } = body
 
-    const userId = body.userId; // Declare userId here
-    const customerEmail = body.customerEmail; // Declare customerEmail here
-    const customerName = body.customerName; // Declare customerName here
-
     if (!sessionId && !subscription_id && !payment_intent_id) {
       return NextResponse.json({ error: "sessionId, subscription_id ou payment_intent_id ausente." }, { status: 400 })
-    }
-
-    // Validação para Stripe
-    if (!sessionId && !subscription_id && !payment_intent_id && !userId) {
-      return NextResponse.json({ error: "sessionId, subscription_id, payment_intent_id ou userId ausente." }, { status: 400 })
     }
 
     let userEmail: string | null = null
@@ -136,49 +127,6 @@ export async function POST(req: Request) {
           }
         } catch (error) {
           console.warn("Não foi possível recuperar dados do quiz do Firestore:", error)
-        }
-      }
-    } else if (userId && customerEmail) {
-      // Asaas payment via webhook (PIX, Boleto, Cartão)
-      userEmail = customerEmail
-      userName = customerName
-      clientUidFromSource = userId
-      
-      console.log("[v0] ASAAS_PAYMENT - Processando pagamento Asaas:", { userEmail, userName, userId })
-      
-      // Se não houver clientUidFromSource válido, buscar lead pelo email
-      if (!clientUidFromSource || clientUidFromSource === "") {
-        try {
-          console.log("[v0] ASAAS_SEARCHING_LEAD - Buscando lead pelo email:", userEmail)
-          const leadsRef = adminDb.collection("leads")
-          const leadSnapshot = await leadsRef.where("email", "==", userEmail).limit(1).get()
-          
-          if (!leadSnapshot.empty) {
-            const leadDoc = leadSnapshot.docs[0]
-            clientUidFromSource = leadDoc.id
-            const leadData = leadDoc.data()
-            quizAnswersFromMetadata = leadData
-            console.log("[v0] ASAAS_LEAD_FOUND - Lead encontrado com UID:", clientUidFromSource)
-          } else {
-            console.warn("[v0] ASAAS_NO_LEAD - Nenhum lead encontrado com email:", userEmail)
-          }
-        } catch (error) {
-          console.error("[v0] ASAAS_LEAD_ERROR - Erro ao buscar lead:", error)
-        }
-      } else {
-        // Se tem clientUidFromSource, buscar dados do lead
-        try {
-          console.log("[v0] ASAAS_LOADING_LEAD_DATA - Carregando dados do lead:", clientUidFromSource)
-          const leadDocRef = adminDb.collection("leads").doc(clientUidFromSource)
-          const leadDocSnap = await leadDocRef.get()
-          if (leadDocSnap.exists()) {
-            quizAnswersFromMetadata = leadDocSnap.data() || {}
-            console.log("[v0] ASAAS_LEAD_DATA_LOADED - Dados do lead carregados")
-          } else {
-            console.warn("[v0] ASAAS_LEAD_NOT_FOUND - Documento lead não encontrado para UID:", clientUidFromSource)
-          }
-        } catch (error) {
-          console.error("[v0] ASAAS_LEAD_DATA_ERROR - Erro ao carregar dados do lead:", error)
         }
       }
     }
