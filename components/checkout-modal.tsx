@@ -58,6 +58,7 @@ function PaymentMethodSelector({
 function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, paymentMethod, onError, onSuccess }: any) {
   const [processing, setProcessing] = useState(false)
   const [installments, setInstallments] = useState(1)
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false)
   const [cardData, setCardData] = useState({
     holderName: "",
     number: "",
@@ -85,10 +86,11 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         if (data.status === "CONFIRMED" || data.status === "APPROVED") {
           console.log("[v0] PIX_CONFIRMED - Pagamento PIX confirmado!")
           clearInterval(interval)
-          // Aguarda 2 segundos para o webhook processar completamente
+          setPaymentConfirmed(true)
+          // Aguarda 3 segundos e depois redireciona
           setTimeout(() => {
             window.location.href = "/success"
-          }, 2000)
+          }, 3000)
         }
       } catch (error) {
         console.error("[v0] PIX_POLLING_ERROR - Erro ao verificar status:", error)
@@ -291,7 +293,11 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
           throw new Error(errorData.error || "Erro ao processar cartão")
         }
 
-        onSuccess()
+        // Pagamento com cartão confirmado
+        setPaymentConfirmed(true)
+        setTimeout(() => {
+          onSuccess()
+        }, 3000)
       }
     } catch (err: any) {
       console.error("Erro no pagamento:", err)
@@ -299,6 +305,53 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
     } finally {
       setProcessing(false)
     }
+  }
+
+  // Tela de Sucesso - Agradecimento
+  if (paymentConfirmed) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="bg-gradient-to-br from-green-900 to-green-800 border-green-600">
+          <CardContent className="pt-12 pb-12 text-center space-y-6">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+              className="flex justify-center"
+            >
+              <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center">
+                <Check className="w-10 h-10 text-white" />
+              </div>
+            </motion.div>
+
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold text-white">Pagamento Confirmado!</h2>
+              <p className="text-green-100 text-lg">Obrigado por sua compra</p>
+            </div>
+
+            <div className="space-y-3 text-left">
+              <p className="text-green-100">
+                Seu plano <span className="font-bold text-white">{currentPlan.name}</span> foi ativado com sucesso!
+              </p>
+              <p className="text-green-100">
+                Você receberá um email com todos os detalhes e seus dados de acesso em instantes.
+              </p>
+              <p className="text-green-50 text-sm mt-4">
+                Redirecionando para seu dashboard em breve...
+              </p>
+            </div>
+
+            <div className="pt-4 border-t border-green-700">
+              <p className="text-green-100 text-sm">Bem-vindo à FitGoal! 🚀</p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    )
   }
 
   // Tela de Pix
