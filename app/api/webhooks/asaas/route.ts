@@ -22,24 +22,29 @@ export async function POST(request: Request) {
           billingType: payment.billingType,
         })
 
-        // Ativar plano do usuário e gerar treinos
+        // Ativar plano do usuário, gerar treinos e enviar email
         if (userId) {
           try {
-            const generateResponse = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/generate-plans-on-demand`, {
+            console.log("[v0] WEBHOOK_CALLING_POST_CHECKOUT - Chamando handle-post-checkout para", userId)
+            const generateResponse = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/handle-post-checkout`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ userId }),
+              body: JSON.stringify({ 
+                userId,
+                paymentId: payment.id,
+                billingType: payment.billingType,
+              }),
             })
 
             if (!generateResponse.ok) {
-              console.error("Erro ao gerar planos após pagamento")
+              console.error("[v0] WEBHOOK_ERROR - Erro ao processar checkout após pagamento")
             } else {
-              console.log("Planos gerados com sucesso para:", userId)
+              console.log("[v0] WEBHOOK_SUCCESS - Checkout processado com sucesso para:", userId)
             }
           } catch (error) {
-            console.error("Erro ao acionar geração de planos:", error)
+            console.error("[v0] WEBHOOK_ERROR - Erro ao processar checkout:", error)
           }
         }
         break

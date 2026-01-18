@@ -69,8 +69,34 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
     postalCode: "",
     addressNumber: "",
   })
-  const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string } | null>(null)
+  const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
+
+  // Polling para PIX - verifica a cada 5 segundos se o pagamento foi confirmado
+  useEffect(() => {
+    if (!pixData?.paymentId || paymentMethod !== "pix") return
+
+    const interval = setInterval(async () => {
+      try {
+        console.log("[v0] PIX_POLLING - Verificando status do pagamento PIX:", pixData.paymentId)
+        const response = await fetch(`/api/check-payment-status?paymentId=${pixData.paymentId}`)
+        const data = await response.json()
+
+        if (data.status === "CONFIRMED" || data.status === "APPROVED") {
+          console.log("[v0] PIX_CONFIRMED - Pagamento PIX confirmado!")
+          clearInterval(interval)
+          // Aguarda 2 segundos para o webhook processar completamente
+          setTimeout(() => {
+            window.location.href = "/success"
+          }, 2000)
+        }
+      } catch (error) {
+        console.error("[v0] PIX_POLLING_ERROR - Erro ao verificar status:", error)
+      }
+    }, 5000) // Verifica a cada 5 segundos
+
+    return () => clearInterval(interval)
+  }, [pixData?.paymentId, paymentMethod])
 
   const maxInstallments = 6
   const minInstallmentValue = 50
@@ -209,6 +235,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
           setPixData({
             qrCode: paymentResult.pixQrCode,
             copyPaste: paymentResult.pixCopyPaste,
+            paymentId: paymentResult.paymentId,
           })
         }
 
@@ -685,6 +712,12 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
   }
 
   const handleSuccess = () => {
+    console.log("[v0] CHECKOUT_SUCCESS - Aguardando processamento do webhook...")
+    // Espera 3 segundos para o webhook processar o pagamento antes de redirecionar
+    setTimeout(() => {
+      console.log("[v0] CHECKOUT_REDIRECT - Redirecionando para /success")
+      window.location.href = "/success"
+    }, 3000)
     onClose()
   }
 
