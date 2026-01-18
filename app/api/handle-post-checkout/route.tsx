@@ -769,6 +769,12 @@ export async function POST(req: Request) {
       `
 
       if (isNewUser) {
+        emailHtmlContent += `
+          <div style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p><strong>Dados de acesso:</strong></p>
+            <p>Email: <code style="background-color: white; padding: 5px 10px; border-radius: 3px;">${userEmail}</code></p>
+          </div>
+        `
         if (passwordResetLink) {
           emailHtmlContent += `
             <p>Para começar, crie sua senha clicando no botão abaixo:</p>

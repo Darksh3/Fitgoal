@@ -667,6 +667,10 @@ DADOS DO CLIENTE PARA PERSONALIZAÇÃO:
 - Áreas problemáticas: ${quizData.problemAreas?.join(", ") || "Nenhuma específica"}
 - Tempo disponível: ${quizData.workoutTime}
 - Equipamentos: ${quizData.equipment?.join(", ") || "Academia"}
+- Preferências de exercício:
+  * Cardio: ${quizData.exercisePreferences?.cardio || "Não informado"}
+  * Musculação/Força: ${quizData.exercisePreferences?.pullups || "Não informado"}
+  * Yoga/Flexibilidade: ${quizData.exercisePreferences?.yoga || "Não informado"}
 
 INSTRUÇÕES OBRIGATÓRIAS DE PERSONALIZAÇÃO:
 - Cada dia deve ter EXATAMENTE ${exerciseRange.min}-${exerciseRange.max} exercícios (${exerciseRange.description})
@@ -949,10 +953,86 @@ function calculateScientificCalories(data: any) {
   // Se o calorieGoal já foi calculado no quiz, use-o
   if (data.calorieGoal && data.calorieGoal > 0) {
     console.log(`✅ [CALORIE_GOAL] Usando calorieGoal do quiz: ${Math.round(data.calorieGoal)} kcal`)
+    
+    const dailyCalories = Math.round(data.calorieGoal)
+    const weight = Number.parseFloat(data.currentWeight) || 70
+    const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
+    const bodyType = data.bodyType || ""
+    const isFemale = (data.gender || "").toLowerCase().includes("fem") || (data.gender || "").toLowerCase().includes("mulher")
+    
+    // Calcular suplementação
+    let supplementCalories = 0
+    let supplementProtein = 0
+    let supplementCarbs = 0
+    let supplementFats = 0
+    
+    if (data.wantsSupplement === "sim" && data.supplementType) {
+      if (data.supplementType === "hipercalorico") {
+        supplementCalories = 615
+        supplementProtein = 37
+        supplementCarbs = 108
+        supplementFats = 3.7
+      } else if (data.supplementType === "whey-protein") {
+        supplementCalories = 119
+        supplementProtein = 24
+        supplementCarbs = 2.3
+        supplementFats = 1.5
+      }
+    }
+    
+    // Calorias para refeições (sem suplemento)
+    const caloriesForMeals = dailyCalories - supplementCalories
+    
+    // PROTEÍNA baseada em objetivo + gênero (igual ao fallback)
+    let proteinBase = 1.8
+    if (goals.includes("ganhar-massa")) {
+      proteinBase = isFemale ? 2.0 : 2.2
+    } else if (goals.includes("emagrecer")) {
+      proteinBase = isFemale ? 1.8 : 2.0
+    } else {
+      proteinBase = isFemale ? 1.8 : 2.0
+    }
+    
+    // GORDURAS baseadas em SOMATÓTIPO (igual ao fallback)
+    let fatsBase = 1.0
+    if (bodyType.toLowerCase() === "ectomorfo") {
+      fatsBase = isFemale ? 1.3 : 1.2 // Tolera bem
+    } else if (bodyType.toLowerCase() === "mesomorfo") {
+      fatsBase = isFemale ? 1.1 : 1.0
+    } else if (bodyType.toLowerCase() === "endomorfo") {
+      fatsBase = isFemale ? 1.0 : 0.9 // Controlar um pouco
+    } else {
+      fatsBase = isFemale ? 1.1 : 1.0
+    }
+    
+    // Mínimo de gordura para mulheres (segurança hormonal)
+    if (isFemale && fatsBase < 0.8) {
+      fatsBase = 0.8
+    }
+    
+    const protein = Math.round(weight * proteinBase)
+    const fats = Math.round(weight * fatsBase)
+    
+    // Proteína mínima
+    const minProtein = Math.round(weight * (isFemale ? 1.6 : 1.8))
+    const finalProtein = Math.max(protein, minProtein)
+    
+    // Carboidratos = resto das calorias (dinâmico)
+    const carbs = Math.round((caloriesForMeals - finalProtein * 4 - fats * 9) / 4)
+    const finalCarbs = Math.max(carbs, 50) // Mínimo 50g
+    
     return {
       tmb: Math.round(data.tmb || 0),
       tdee: Math.round(data.tdee || 0),
-      dailyCalorieGoal: Math.round(data.calorieGoal),
+      dailyCalorieGoal: dailyCalories,
+      finalCalories: dailyCalories,
+      protein: finalProtein,
+      carbs: finalCarbs,
+      fats: fats,
+      supplementCalories,
+      supplementProtein,
+      supplementCarbs,
+      supplementFats,
     }
   }
 
