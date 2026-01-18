@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { adminDb } from "@/lib/firebaseAdmin"
 
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY
 
@@ -29,40 +30,36 @@ export async function POST(request: Request) {
           try {
             console.log("[v0] WEBHOOK_CALLING_POST_CHECKOUT - Chamando handle-post-checkout para", userId)
             
-            // Buscar dados completos do pagamento da API Asaas para ter email, nome, etc
-            let customerName = payment?.customer?.name || payment?.customerName
-            let customerEmail = payment?.customer?.email || payment?.customerEmail
-            let customerPhone = payment?.customer?.phone || payment?.customerPhone
-            let customerCpf = payment?.customer?.cpf || payment?.customerCpf
+            // Primeiramente, tentar obter dados do payment do Asaas
+            let customerName = payment?.customer?.name
+            let customerEmail = payment?.customer?.email
+            let customerPhone = payment?.customer?.phone
+            let customerCpf = payment?.customer?.cpf
             
-            console.log("[v0] WEBHOOK_INITIAL_CUSTOMER_DATA - Dados iniciais:", { customerName, customerEmail, customerPhone, customerCpf })
+            console.log("[v0] WEBHOOK_ASAAS_CUSTOMER_DATA - Dados do Asaas:", { customerName, customerEmail, customerPhone, customerCpf })
             
-            // Se não tiver os dados do cliente, tentar buscar da API
-            if (!customerEmail && payment?.id) {
+            // Se não tiver email no Asaas, buscar lead do Firebase
+            if (!customerEmail) {
               try {
-                console.log("[v0] WEBHOOK_FETCHING_PAYMENT_DATA - Buscando dados completos do pagamento:", payment.id)
-                const paymentDataResponse = await fetch(`https://api.asaas.com/v3/payments/${payment.id}`, {
-                  headers: {
-                    "access_token": ASAAS_API_KEY,
-                  },
-                })
+                console.log("[v0] WEBHOOK_FETCHING_LEAD_DATA - Email não encontrado no Asaas, buscando do Firebase:", userId)
+                const leadDocRef = adminDb.collection("leads").doc(userId)
+                const leadDocSnap = await leadDocRef.get()
                 
-                if (paymentDataResponse.ok) {
-                  const paymentData = await paymentDataResponse.json()
-                  console.log("[v0] WEBHOOK_PAYMENT_API_RESPONSE - Resposta da API:", JSON.stringify(paymentData))
-                  customerName = paymentData.customer?.name || paymentData.customerName || payment?.customer?.name
-                  customerEmail = paymentData.customer?.email || paymentData.customerEmail || payment?.customer?.email
-                  customerPhone = paymentData.customer?.phone || paymentData.customerPhone || payment?.customer?.phone
-                  customerCpf = paymentData.customer?.cpf || paymentData.customerCpf || payment?.customer?.cpf
-                  console.log("[v0] WEBHOOK_PAYMENT_DATA_FETCHED - Dados encontrados:", { customerName, customerEmail })
-                } else {
-                  const errorBody = await paymentDataResponse.text()
-                  console.warn("[v0] WEBHOOK_FETCH_ERROR - Erro ao buscar dados do pagamento. Status:", paymentDataResponse.status, "Body:", errorBody)
+                if (leadDocSnap.exists()) {
+                  const leadData = leadDocSnap.data()
+                  // Usar dados do Firebase para preencher os vazios
+                  customerName = customerName || leadData?.name
+                  customerEmail = leadData?.email // Usar do Firebase pois Asaas não tem
+                  customerPhone = customerPhone || leadData?.phone
+                  customerCpf = customerCpf || leadData?.cpf
+                  console.log("[v0] WEBHOOK_LEAD_DATA_FOUND - Dados complementados do lead:", { customerName, customerEmail })
                 }
-              } catch (fetchError) {
-                console.error("[v0] WEBHOOK_FETCH_ERROR - Erro ao buscar payment data:", fetchError)
+              } catch (firebaseError) {
+                console.error("[v0] WEBHOOK_FIREBASE_ERROR - Erro ao buscar lead do Firebase:", firebaseError)
               }
             }
+            
+            console.log("[v0] WEBHOOK_FINAL_CUSTOMER_DATA - Dados finais para enviar:", { customerName, customerEmail, customerPhone, customerCpf })
             
             const generateResponse = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/handle-post-checkout`, {
               method: "POST",
