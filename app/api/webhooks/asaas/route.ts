@@ -4,22 +4,24 @@ const ASAAS_API_KEY = process.env.ASAAS_API_KEY
 
 export async function POST(request: Request) {
   try {
+    console.log("[v0] WEBHOOK_RECEIVED - Webhook Asaas recebido com sucesso")
     const body = await request.json()
     const event = body.event
+    const payment = body.payment
 
-    console.log("Webhook Asaas recebido:", event)
+    console.log("[v0] WEBHOOK_BODY - Event:", event, "PaymentID:", payment?.id, "Status:", payment?.status)
 
     switch (event) {
       case "PAYMENT_RECEIVED":
       case "PAYMENT_CONFIRMED":
-        const payment = body.payment
-        const userId = payment.externalReference
+        const userId = payment?.externalReference
 
-        console.log("Pagamento Asaas confirmado:", {
+        console.log("[v0] WEBHOOK_PAYMENT - Pagamento confirmado:", {
           userId,
-          paymentId: payment.id,
-          value: payment.value,
-          billingType: payment.billingType,
+          paymentId: payment?.id,
+          status: payment?.status,
+          value: payment?.value,
+          billingType: payment?.billingType,
         })
 
         // Ativar plano do usuário, gerar treinos e enviar email
@@ -33,19 +35,21 @@ export async function POST(request: Request) {
               },
               body: JSON.stringify({ 
                 userId,
-                paymentId: payment.id,
-                billingType: payment.billingType,
+                paymentId: payment?.id,
+                billingType: payment?.billingType,
               }),
             })
 
             if (!generateResponse.ok) {
-              console.error("[v0] WEBHOOK_ERROR - Erro ao processar checkout após pagamento")
+              console.error("[v0] WEBHOOK_ERROR - Erro ao processar checkout após pagamento. Status:", generateResponse.status)
             } else {
               console.log("[v0] WEBHOOK_SUCCESS - Checkout processado com sucesso para:", userId)
             }
           } catch (error) {
             console.error("[v0] WEBHOOK_ERROR - Erro ao processar checkout:", error)
           }
+        } else {
+          console.warn("[v0] WEBHOOK_WARNING - userId não encontrado no externalReference")
         }
         break
 
@@ -63,7 +67,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ received: true })
   } catch (error) {
-    console.error("Erro no webhook Asaas:", error)
+    console.error("[v0] WEBHOOK_ERROR - Erro no webhook Asaas:", error)
     return NextResponse.json({ error: "Webhook error" }, { status: 400 })
   }
 }
