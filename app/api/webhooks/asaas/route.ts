@@ -45,7 +45,8 @@ export async function POST(request: Request) {
                 const leadDocRef = adminDb.collection("leads").doc(userId)
                 const leadDocSnap = await leadDocRef.get()
                 
-                if (leadDocSnap.exists()) {
+                // Firebase Admin SDK usa .exists (propriedade), não .exists() (função)
+                if (leadDocSnap.exists) {
                   const leadData = leadDocSnap.data()
                   // Usar dados do Firebase para preencher os vazios
                   customerName = customerName || leadData?.name
@@ -53,6 +54,8 @@ export async function POST(request: Request) {
                   customerPhone = customerPhone || leadData?.phone
                   customerCpf = customerCpf || leadData?.cpf
                   console.log("[v0] WEBHOOK_LEAD_DATA_FOUND - Dados complementados do lead:", { customerName, customerEmail })
+                } else {
+                  console.warn("[v0] WEBHOOK_LEAD_NOT_FOUND - Lead não encontrado no Firebase para userId:", userId)
                 }
               } catch (firebaseError) {
                 console.error("[v0] WEBHOOK_FIREBASE_ERROR - Erro ao buscar lead do Firebase:", firebaseError)
