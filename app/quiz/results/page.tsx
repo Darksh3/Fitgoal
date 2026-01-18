@@ -182,7 +182,7 @@ export default function QuizResultsPage() {
 
   const calculateDailyCalories = () => {
     if (!data) return 2425
-    const weight = Number(data?.weight) || 70
+    const weight = Number(data?.currentWeight) || 70
     const height = Number(data?.height) || 170
     const age = Number(data?.age) || 30
     const gender = data?.gender || "male"
@@ -442,7 +442,7 @@ export default function QuizResultsPage() {
               <div>
                 <p className="text-gray-400 text-sm mb-2">Peso Atual</p>
                 <p className="text-white text-xl font-semibold">
-                  {getDataValue("weight") ? Number(getDataValue("weight")).toFixed(1) : "—"} kg
+                  {getDataValue("currentWeight") ? Number(getDataValue("currentWeight")).toFixed(1) : "—"} kg
                 </p>
               </div>
 
@@ -451,15 +451,15 @@ export default function QuizResultsPage() {
                 <p className="text-gray-400 text-sm mb-2">IMC</p>
                 <p
                   className={`text-xl font-semibold ${(() => {
-                    if (!getDataValue("weight") || !getDataValue("height")) return "text-white"
-                    const imc = Number(getDataValue("weight")) / (Number(getDataValue("height")) / 100) ** 2
+                    if (!getDataValue("currentWeight") || !getDataValue("height")) return "text-white"
+                    const imc = Number(getDataValue("currentWeight")) / (Number(getDataValue("height")) / 100) ** 2
                     if (imc < 18.5) return "text-blue-400"
                     if (imc < 25) return "text-green-400"
                     return "text-red-400"
                   })()}`}
                 >
-                  {getDataValue("weight") && getDataValue("height")
-                    ? (Number(getDataValue("weight")) / (Number(getDataValue("height")) / 100) ** 2).toFixed(1)
+                  {getDataValue("currentWeight") && getDataValue("height")
+                    ? (Number(getDataValue("currentWeight")) / (Number(getDataValue("height")) / 100) ** 2).toFixed(1)
                     : "—"}
                 </p>
               </div>
