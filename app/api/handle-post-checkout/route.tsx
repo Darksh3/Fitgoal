@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
 import { adminDb, admin, auth } from "@/lib/firebaseAdmin" // Ensure auth is imported from firebaseAdmin
-import sgMail from "@sendgrid/mail"
+import { Resend } from "resend"
 import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
+import sgMail from "@sendgrid/mail" // Declare sgMail here
 
 // Helper function to extract JSON from a string, even if it contains extra text
 function extractJson(text: string): any | null {
@@ -22,17 +23,20 @@ function extractJson(text: string): any | null {
   }
 }
 
-// Configura a chave da API do SendGrid
-const sendgridApiKey = process.env.SENDGRID_API_KEY
-if (sendgridApiKey) {
-  sgMail.setApiKey(sendgridApiKey)
-} else {
-  console.error("SENDGRID_API_KEY não está definida. O envio de e-mails não funcionará.")
+// Configura a chave da API do Resend
+const resendApiKey = process.env.RESEND_API_KEY
+const resend = new Resend(resendApiKey)
+console.log("[v0] RESEND_INIT - API Key present:", !!resendApiKey)
+if (!resendApiKey) {
+  console.error("[v0] RESEND_INIT - RESEND_API_KEY não está definida!")
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2024-04-10",
 })
+
+const sendgridApiKey = process.env.SENDGRID_API_KEY // Declare sendgridApiKey here
+sgMail.setApiKey(sendgridApiKey) // Set SendGrid API key here
 
 export async function POST(req: Request) {
   try {
@@ -786,26 +790,30 @@ export async function POST(req: Request) {
         </div>
       `
 
-      const msg = {
-        to: userEmail,
-        from: "contato@fitgoal.com.br",
-        subject: emailSubject,
-        html: emailHtmlContent,
-      }
+      // Email será enviado abaixo com Resend
 
       try {
-        await sgMail.send(msg)
-        console.log(`DEBUG: E-mail de confirmação enviado para ${userEmail}`)
+        console.log("[v0] RESEND_SENDING - Iniciando envio de email")
+        console.log("[v0] RESEND_EMAIL - Para:", userEmail)
+        console.log("[v0] RESEND_SUBJECT - Assunto:", emailSubject)
+        console.log("[v0] RESEND_KEY_EXISTS - API Key configurada:", !!resendApiKey)
+        
+        const response = await resend.emails.send({
+          from: "FitGoal <onboarding@resend.dev>",
+          to: userEmail,
+          subject: emailSubject,
+          html: emailHtmlContent,
+        })
+        
+        console.log(`[v0] RESEND_SUCCESS - E-mail enviado com sucesso para ${userEmail}`, response)
       } catch (emailError: any) {
-        console.error("ERRO: Falha ao enviar e-mail com SendGrid:", {
-          error: emailError.response?.body || emailError.message,
+        console.error("[v0] RESEND_ERROR - Falha ao enviar e-mail:", {
+          error: emailError.message,
           email: userEmail,
           subject: emailSubject,
         })
         // Don't fail the entire process if email fails
       }
-    } else {
-      console.warn("AVISO: SENDGRID_API_KEY não configurada - e-mails não serão enviados")
     }
 
     console.log(`DEBUG: Processo de pós-checkout concluído com sucesso para usuário: ${finalUserUid}`)
@@ -815,7 +823,7 @@ export async function POST(req: Request) {
       userUid: finalUserUid,
       isNewUser: isNewUser,
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error("ERRO FATAL em handle-post-checkout:", {
       message: error.message,
       stack: error.stack,
