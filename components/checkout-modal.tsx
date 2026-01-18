@@ -661,6 +661,8 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
           const parsed = JSON.parse(stored)
           setQuizAnswers(parsed)
           console.log("[v0] Initializing formData - Email from quiz:", parsed.email)
+          console.log("[v0] Initializing clientUid from quiz:", parsed.uid)
+          setClientUid(parsed.uid || null) // Set the clientUid from quiz data
           setFormData((prev) => ({
             ...prev,
             name: parsed.name || "",
