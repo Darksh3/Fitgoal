@@ -237,11 +237,7 @@ export default function QuizResultsPage() {
   }
 
   if (loading || !data) {
-    return (
-      <div className="w-full h-screen bg-black flex items-center justify-center">
-        <div className="text-white">Carregando...</div>
-      </div>
-    )
+    return <div />
   }
 
   return (
@@ -471,7 +467,7 @@ export default function QuizResultsPage() {
               {/* Meta de Calorias */}
               <div>
                 <p className="text-gray-400 text-sm mb-2">Meta de Calorias</p>
-                <p className="text-white text-xl font-semibold">{getDataValue("tdee") ? Math.round(Number(getDataValue("tdee"))) : getDataValue("targetCalories") ? Math.round(Number(getDataValue("targetCalories"))) : "—"} kcal</p>
+                <p className="text-white text-xl font-semibold">{getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))) : "—"} kcal</p>
               </div>
 
               {/* Data para atingir objetivo - Full width */}

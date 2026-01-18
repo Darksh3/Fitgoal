@@ -943,6 +943,17 @@ JSON OBRIGATÓRIO:
  * Considera: Tipo Corporal (Somatótipo) + Gênero + Objetivo
  */
 function calculateScientificCalories(data: any) {
+  // Se o calorieGoal já foi calculado no quiz, use-o
+  if (data.calorieGoal && data.calorieGoal > 0) {
+    console.log(`✅ [CALORIE_GOAL] Usando calorieGoal do quiz: ${Math.round(data.calorieGoal)} kcal`)
+    return {
+      tmb: Math.round(data.tmb || 0),
+      tdee: Math.round(data.tdee || 0),
+      dailyCalorieGoal: Math.round(data.calorieGoal),
+    }
+  }
+
+  // Caso contrário, calcule do zero (fallback para dados antigos)
   const weight = Number.parseFloat(data.currentWeight) || 70
   const height = Number.parseFloat(data.height) || 170
   const age = Number.parseFloat(data.age) || 25
