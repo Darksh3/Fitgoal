@@ -64,33 +64,49 @@ export async function POST(request: Request) {
             
             console.log("[v0] WEBHOOK_FINAL_CUSTOMER_DATA - Dados finais para enviar:", { customerName, customerEmail, customerPhone, customerCpf })
             
-            const generateResponse = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/handle-post-checkout`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ 
-                userId,
-                paymentId: payment?.id,
-                billingType: payment?.billingType,
-                customerName,
-                customerEmail,
-                customerPhone,
-                customerCpf,
-              }),
-            })
+            // RESPONDER IMEDIATAMENTE AO ASAAS COM 200 OK ANTES DE PROCESSAR
+            // Salvar resposta para retornar ao final
+            const responseToAsaas = NextResponse.json({ received: true, processing: true }, { status: 200 })
+            
+            // Processar em background SEM AGUARDAR - usar IIFE
+            ;(async () => {
+              try {
+                const generateResponse = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/handle-post-checkout`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ 
+                    userId,
+                    paymentId: payment?.id,
+                    billingType: payment?.billingType,
+                    customerName,
+                    customerEmail,
+                    customerPhone,
+                    customerCpf,
+                  }),
+                })
 
-            if (!generateResponse.ok) {
-              const errorText = await generateResponse.text()
-              console.error("[v0] WEBHOOK_ERROR - Erro ao processar checkout após pagamento. Status:", generateResponse.status, "Erro:", errorText)
-            } else {
-              console.log("[v0] WEBHOOK_SUCCESS - Checkout processado com sucesso para:", userId)
-            }
+                if (!generateResponse.ok) {
+                  const errorText = await generateResponse.text()
+                  console.error("[v0] WEBHOOK_BACKGROUND_ERROR - Erro ao processar checkout. Status:", generateResponse.status, "Erro:", errorText)
+                } else {
+                  console.log("[v0] WEBHOOK_BACKGROUND_SUCCESS - Checkout processado com sucesso para:", userId)
+                }
+              } catch (error) {
+                console.error("[v0] WEBHOOK_BACKGROUND_ERROR - Erro ao processar em background:", error)
+              }
+            })()
+            
+            return responseToAsaas
           } catch (error) {
-            console.error("[v0] WEBHOOK_ERROR - Erro ao processar checkout:", error)
+            console.error("[v0] WEBHOOK_ERROR - Erro ao processar webhook:", error)
+            // Mesmo com erro, retornar 200 para não ser penalizado
+            return NextResponse.json({ received: true, error: true }, { status: 200 })
           }
         } else {
           console.warn("[v0] WEBHOOK_WARNING - userId não encontrado no externalReference")
+          return NextResponse.json({ received: true }, { status: 200 })
         }
         break
 
@@ -109,6 +125,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true })
   } catch (error) {
     console.error("[v0] WEBHOOK_ERROR - Erro no webhook Asaas:", error)
-    return NextResponse.json({ error: "Webhook error" }, { status: 400 })
+    // Retornar 200 mesmo com erro para não ser penalizado pelo Asaas
+    return NextResponse.json({ error: "Webhook error", processing: false }, { status: 200 })
   }
 }
