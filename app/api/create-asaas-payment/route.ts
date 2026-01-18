@@ -15,6 +15,7 @@ export async function POST(req: Request) {
     const { email, name, cpf, phone, planType, paymentMethod, installments, clientUid, description } = body
 
     console.log("[v0] Step 2: Validating required fields...")
+    console.log("[v0] clientUid received:", clientUid)
     if (!email || !name || !cpf || !planType || !paymentMethod) {
       console.log("[v0] Step 2 FAILED - Missing fields:", {
         email: !email ? "MISSING" : "OK",
