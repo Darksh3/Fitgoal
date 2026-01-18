@@ -53,9 +53,17 @@ export async function POST(req: Request) {
     let userName: string | null = null
     let quizAnswersFromMetadata: any = {}
     let planType: string | null = price_id || null
-    let clientUidFromSource: string | null = client_uid || null
     let stripeCustomerId: string | null = customer_id || null
     let subscriptionDuration: number = plan_duration || 30 // padrão 30 dias
+    let clientUidFromSource: string | null = client_uid || null // Declare clientUidFromSource here
+
+    // Se vem do webhook Asaas, usar os dados diretamente
+    if (userId && customerEmail) {
+      userEmail = customerEmail
+      userName = customerName || null
+      clientUidFromSource = userId
+      console.log("[v0] HANDLE_POST_CHECKOUT - Dados do Asaas webhook:", { userEmail, userName, clientUidFromSource })
+    }
 
     if (payment_intent_id) {
       const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id, {
@@ -70,7 +78,7 @@ export async function POST(req: Request) {
       userEmail = customer.email
       userName = customer.name
       planType = paymentIntent.metadata?.priceId || price_id
-      clientUidFromSource = paymentIntent.metadata?.clientUid || client_uid
+      clientUidFromSource = paymentIntent.metadata?.clientUid || clientUidFromSource
       stripeCustomerId = customer.id
       subscriptionDuration = Number.parseInt(paymentIntent.metadata?.planDuration || "30")
 
@@ -100,7 +108,7 @@ export async function POST(req: Request) {
       userName = session.customer_details?.name || null
       quizAnswersFromMetadata = session.metadata?.quizAnswers ? JSON.parse(session.metadata.quizAnswers) : {}
       planType = session.metadata?.planType || null
-      clientUidFromSource = session.metadata?.clientUid || null
+      clientUidFromSource = session.metadata?.clientUid || clientUidFromSource
       stripeCustomerId = typeof session.customer === "string" ? session.customer : session.customer?.id || null
     } else if (subscription_id) {
       const subscription = await stripe.subscriptions.retrieve(subscription_id, {
@@ -115,7 +123,7 @@ export async function POST(req: Request) {
       userEmail = customer.email
       userName = customer.name
       planType = subscription.items.data[0]?.price.id || null
-      clientUidFromSource = subscription.metadata?.clientUid || client_uid
+      clientUidFromSource = subscription.metadata?.clientUid || clientUidFromSource
       stripeCustomerId = customer.id
 
       // For direct subscription, we need to get quiz data from Firestore using clientUid
