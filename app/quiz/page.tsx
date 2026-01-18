@@ -937,6 +937,7 @@ export default function QuizPage() {
 
       const updatedQuizData = {
         ...quizData,
+        uid: currentUser.uid, // IMPORTANTE: Adicionar o uid para usar no checkout!
         imc: imc,
         imcClassification: classification,
         imcStatus: status,
