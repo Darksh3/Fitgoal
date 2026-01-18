@@ -30,10 +30,12 @@ export async function POST(request: Request) {
             console.log("[v0] WEBHOOK_CALLING_POST_CHECKOUT - Chamando handle-post-checkout para", userId)
             
             // Buscar dados completos do pagamento da API Asaas para ter email, nome, etc
-            let customerName = payment?.customer?.name
-            let customerEmail = payment?.customer?.email
-            let customerPhone = payment?.customer?.phone
-            let customerCpf = payment?.customer?.cpf
+            let customerName = payment?.customer?.name || payment?.customerName
+            let customerEmail = payment?.customer?.email || payment?.customerEmail
+            let customerPhone = payment?.customer?.phone || payment?.customerPhone
+            let customerCpf = payment?.customer?.cpf || payment?.customerCpf
+            
+            console.log("[v0] WEBHOOK_INITIAL_CUSTOMER_DATA - Dados iniciais:", { customerName, customerEmail, customerPhone, customerCpf })
             
             // Se não tiver os dados do cliente, tentar buscar da API
             if (!customerEmail && payment?.id) {
@@ -47,13 +49,15 @@ export async function POST(request: Request) {
                 
                 if (paymentDataResponse.ok) {
                   const paymentData = await paymentDataResponse.json()
-                  customerName = paymentData.customer?.name || payment?.customer?.name
-                  customerEmail = paymentData.customer?.email || payment?.customer?.email
-                  customerPhone = paymentData.customer?.phone || payment?.customer?.phone
-                  customerCpf = paymentData.customer?.cpf || payment?.customer?.cpf
+                  console.log("[v0] WEBHOOK_PAYMENT_API_RESPONSE - Resposta da API:", JSON.stringify(paymentData))
+                  customerName = paymentData.customer?.name || paymentData.customerName || payment?.customer?.name
+                  customerEmail = paymentData.customer?.email || paymentData.customerEmail || payment?.customer?.email
+                  customerPhone = paymentData.customer?.phone || paymentData.customerPhone || payment?.customer?.phone
+                  customerCpf = paymentData.customer?.cpf || paymentData.customerCpf || payment?.customer?.cpf
                   console.log("[v0] WEBHOOK_PAYMENT_DATA_FETCHED - Dados encontrados:", { customerName, customerEmail })
                 } else {
-                  console.warn("[v0] WEBHOOK_FETCH_ERROR - Erro ao buscar dados do pagamento")
+                  const errorBody = await paymentDataResponse.text()
+                  console.warn("[v0] WEBHOOK_FETCH_ERROR - Erro ao buscar dados do pagamento. Status:", paymentDataResponse.status, "Body:", errorBody)
                 }
               } catch (fetchError) {
                 console.error("[v0] WEBHOOK_FETCH_ERROR - Erro ao buscar payment data:", fetchError)
