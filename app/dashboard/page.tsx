@@ -74,6 +74,8 @@ export default function DashboardPage() {
   const [initialWeight, setInitialWeight] = useState<number>(0)
   const [currentWeightSlider, setCurrentWeightSlider] = useState<number>(0)
   const [isSaving, setIsSaving] = useState(false)
+  const [subscriptionExpired, setSubscriptionExpired] = useState(false)
+  const [subscriptionExpiresAt, setSubscriptionExpiresAt] = useState<Date | null>(null)
   const [progressData, setProgressData] = useState({
     consecutiveDays: 0,
     completedWorkouts: 0,
@@ -155,6 +157,26 @@ export default function DashboardPage() {
         if (docSnap.exists()) {
           const data = docSnap.data()
           console.log("[v0] Dados do usuário encontrados no Firestore:", data)
+          
+          // VERIFICAR EXPIRAÇÃO DA ASSINATURA
+          if (data.subscriptionExpiresAt) {
+            const expiresAt = new Date(data.subscriptionExpiresAt)
+            const now = new Date()
+            
+            console.log("[v0] SUBSCRIPTION_CHECK - Expires:", expiresAt, "Now:", now, "Expired:", expiresAt < now)
+            
+            if (expiresAt < now) {
+              console.log("[v0] SUBSCRIPTION_EXPIRED - Bloqueando acesso ao usuário")
+              setSubscriptionExpired(true)
+              setSubscriptionExpiresAt(expiresAt)
+              setLoading(false)
+              return // Não carregar mais dados, bloquear aqui
+            } else {
+              setSubscriptionExpiresAt(expiresAt)
+              console.log("[v0] SUBSCRIPTION_ACTIVE - Dias restantes:", Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+            }
+          }
+          
           if (data.quizData) {
             foundQuizData = data.quizData as QuizData
             setQuizData(foundQuizData)
@@ -534,6 +556,49 @@ export default function DashboardPage() {
       }))
     }
   }, [dietPlan])
+
+  // Tela de bloqueio para assinatura expirada
+  if (subscriptionExpired) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-900 to-red-800 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-white shadow-2xl">
+          <CardContent className="pt-8 pb-8 text-center space-y-6">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+              <X className="w-8 h-8 text-red-600" />
+            </div>
+
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-gray-900">Assinatura Expirada</h2>
+              <p className="text-gray-600 text-sm">
+                {subscriptionExpiresAt && `Expirou em ${subscriptionExpiresAt.toLocaleDateString("pt-BR")}`}
+              </p>
+            </div>
+
+            <p className="text-gray-700">Sua assinatura expirou. Para continuar acessando seu plano personalizado, você precisará renovar sua assinatura.</p>
+
+            <div className="pt-4 space-y-3 border-t">
+              <Button
+                onClick={() => router.push("/pricing")}
+                className="w-full bg-lime-600 hover:bg-lime-700 text-white font-semibold py-2"
+              >
+                Renovar Assinatura
+              </Button>
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  await signOut(auth)
+                  router.push("/")
+                }}
+                className="w-full"
+              >
+                Sair
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   if (loading) {
     return (
