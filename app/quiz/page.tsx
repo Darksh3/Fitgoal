@@ -2070,8 +2070,8 @@ export default function QuizPage() {
         return quizData.age > 0
       case 12: // Updated from 11. Current Weight
         return quizData.height !== "" && normalizeHeight(quizData.height) !== ""
-      case 13: // Updated from 12. Target Weight
-        return quizData.weight !== ""
+      case 13: // Updated from 12. Current Weight
+        return quizData.currentWeight !== "" && Number(quizData.currentWeight) > 0
       case 14: // Updated from 13. Strength Training Experience
         return quizData.targetWeight !== ""
       case 15: // Updated from 14. Cardio Feeling
