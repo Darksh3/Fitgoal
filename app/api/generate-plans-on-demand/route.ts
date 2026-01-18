@@ -465,7 +465,7 @@ export async function POST(req: Request) {
           scientificCalculations: {
             ...scientificCalcs,
             calculatedAt: admin.firestore.FieldValue.serverTimestamp(),
-            quizDataSnapshot: quizData,
+            quizDataSnapshot: JSON.parse(JSON.stringify(quizData)), // Sanitizar quizData removendo valores inválidos
           },
         },
         { merge: true },
@@ -893,9 +893,12 @@ JSON OBRIGATÓRIO:
       try {
         await userDocRef.set(
           {
-            plans: { dietPlan, workoutPlan },
-            dietPlan,
-            workoutPlan,
+            plans: { 
+              dietPlan: JSON.parse(JSON.stringify(dietPlan)), // Sanitizar
+              workoutPlan: JSON.parse(JSON.stringify(workoutPlan)) // Sanitizar
+            },
+            dietPlan: JSON.parse(JSON.stringify(dietPlan)), // Sanitizar
+            workoutPlan: JSON.parse(JSON.stringify(workoutPlan)), // Sanitizar
             finalResults: {
               scientificTarget: savedCalcs.finalCalories,
               // The actual generated calories here will be the sum of meal calories and supplement calories

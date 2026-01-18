@@ -87,7 +87,7 @@ export async function POST(req: Request) {
         try {
           const clientDocRef = adminDb.collection("users").doc(clientUidFromSource)
           const clientDocSnap = await clientDocRef.get()
-          if (clientDocSnap.exists()) {
+          if (clientDocSnap.exists) {
             const clientData = clientDocSnap.data()
             quizAnswersFromMetadata = clientData?.quizData || clientData?.quizAnswers || {}
           }
@@ -131,7 +131,7 @@ export async function POST(req: Request) {
         try {
           const clientDocRef = adminDb.collection("users").doc(clientUidFromSource)
           const clientDocSnap = await clientDocRef.get()
-          if (clientDocSnap.exists()) {
+          if (clientDocSnap.exists) {
             const clientData = clientDocSnap.data()
             quizAnswersFromMetadata = clientData?.quizData || clientData?.quizAnswers || {}
           }
@@ -247,7 +247,7 @@ export async function POST(req: Request) {
         const clientDocRef = adminDb.collection("users").doc(clientUidFromSource)
         const clientDocSnap = await clientDocRef.get()
 
-        if (clientDocSnap && clientDocSnap.exists && clientDocSnap.exists()) {
+        if (clientDocSnap && clientDocSnap.exists && clientDocSnap.data()) {
           existingUserData = clientDocSnap.data() || {}
           console.log(`Dados existentes do UID do cliente (${clientUidFromSource}) recuperados.`)
         } else {
@@ -266,7 +266,7 @@ export async function POST(req: Request) {
       try {
         const userDocRef = adminDb.collection("users").doc(clientUidFromSource)
         const userDoc = await userDocRef.get()
-        if (userDoc.exists()) {
+        if (userDoc.exists) {
           const userData = userDoc.data()
           // Verificar se os planos existem e foram gerados recentemente (últimos 10 minutos)
           if (userData?.dietPlan && userData?.workoutPlan) {
