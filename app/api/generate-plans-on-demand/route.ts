@@ -439,7 +439,7 @@ export async function POST(req: Request) {
       console.log("💊 [DEBUG] Condition check (wantsSupplement === 'sim'):", quizData.wantsSupplement === "sim")
       console.log("💊 [DEBUG] Condition check (supplementType exists):", !!quizData.supplementType)
 
-      const requestedDays = quizData.trainingDaysPerWeek || 5
+      const requestedDays = quizData.trainingDays || 5
       console.log(`🎯 [CRITICAL] User ${userId} requested EXACTLY ${requestedDays} training days`)
 
       const scientificCalcs = calculateScientificCalories(quizData)
@@ -448,7 +448,7 @@ export async function POST(req: Request) {
       console.log("=== DEBUG DADOS RECEBIDOS ===")
       console.log("bodyType:", quizData.bodyType)
       console.log("timeToGoal:", quizData.timeToGoal)
-      console.log("trainingDaysPerWeek:", quizData.trainingDaysPerWeek)
+      console.log("trainingDays:", quizData.trainingDays)
       console.log("scientificCalcs enviados:", scientificCalcs)
 
       console.log(`🔍 [FIREBASE DEBUG] Saving to document: users/${userId}`)
@@ -538,7 +538,7 @@ NÃO adicione o suplemento nas refeições! Ele será incluído automaticamente.
 `
 }
 
-CLIENTE: ${quizData.gender}, ${quizData.age} anos, ${quizData.currentWeight}kg, objetivo: ${quizData.goal?.join(", ")}, biotipo: ${quizData.bodyType}
+CLIENTE: ${quizData.gender}, ${quizData.age} anos, ${quizData.currentWeight}kg, objetivo: ${quizData.goal?.join(", ")}, biotipo: ${quizData.bodyType}, prazo: ${quizData.timeToGoal}
 ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
 ${
   quizData.diet
@@ -664,6 +664,7 @@ DADOS DO CLIENTE PARA PERSONALIZAÇÃO:
 - Experiência: ${quizData.experience}
 - Objetivo: ${quizData.goal?.join(", ")}
 - Biotipo: ${quizData.bodyType}
+- Tempo para atingir o objetivo: ${quizData.timeToGoal}
 - Áreas problemáticas: ${quizData.problemAreas?.join(", ") || "Nenhuma específica"}
 - Tempo disponível: ${quizData.workoutTime}
 - Equipamentos: ${quizData.equipment?.join(", ") || "Academia"}
@@ -957,6 +958,7 @@ function calculateScientificCalories(data: any) {
     const dailyCalories = Math.round(data.calorieGoal)
     const weight = Number.parseFloat(data.currentWeight) || 70
     const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
+    const effectiveGoals = goals
     const bodyType = data.bodyType || ""
     const isFemale = (data.gender || "").toLowerCase().includes("fem") || (data.gender || "").toLowerCase().includes("mulher")
     
@@ -985,9 +987,9 @@ function calculateScientificCalories(data: any) {
     
     // PROTEÍNA baseada em objetivo + gênero (igual ao fallback)
     let proteinBase = 1.8
-    if (goals.includes("ganhar-massa")) {
+    if (effectiveGoals.includes("ganhar-massa")) {
       proteinBase = isFemale ? 2.0 : 2.2
-    } else if (goals.includes("emagrecer")) {
+    } else if (effectiveGoals.includes("emagrecer")) {
       proteinBase = isFemale ? 1.8 : 2.0
     } else {
       proteinBase = isFemale ? 1.8 : 2.0
@@ -1047,6 +1049,32 @@ function calculateScientificCalories(data: any) {
   const targetWeight = Number.parseFloat(data.targetWeight) || weight
   const timeToGoal = data.timeToGoal || ""
   const bodyType = data.bodyType || ""
+
+  // ========== DETECTOR DE CONTRADIÇÃO: OBJETIVO vs META DE PESO ==========
+  let effectiveGoals = goals
+  const weightDifference = targetWeight - weight
+
+  if (Math.abs(weightDifference) > 2) {
+    // Se diferença > 2kg, usar a meta de peso como fonte de verdade
+    if (weightDifference < 0) {
+      // Meta < Peso atual = PERDER PESO
+      console.log(
+        `⚠️ [CONTRADICTION DETECTED] User says "${goals.join(", ")}" but target weight (${targetWeight}kg) < current weight (${weight}kg)`,
+      )
+      console.log(`📊 [AUTO-CORRECTION] Overriding to WEIGHT LOSS mode (deficit)`)
+      effectiveGoals = ["emagrecer"]
+    } else if (weightDifference > 0) {
+      // Meta > Peso atual = GANHAR PESO/MASSA
+      console.log(`ℹ️ [WEIGHT GOAL CONFIRMS] User target weight (${targetWeight}kg) > current weight (${weight}kg) = GAIN mode`)
+      if (!effectiveGoals.includes("ganhar-massa") && !effectiveGoals.includes("ganhar-peso")) {
+        console.log(`📊 [AUTO-CORRECTION] Overriding to MUSCLE GAIN mode (surplus)`)
+        effectiveGoals = ["ganhar-massa"]
+      }
+    }
+  } else {
+    // Peso atual ≈ Meta (diferença ≤ 2kg)
+    console.log(`⚖️ [MAINTENANCE MODE] Current weight (${weight}kg) ≈ target weight (${targetWeight}kg), using declared goals`)
+  }
 
   const isFemale = gender.toLowerCase().includes("fem") || gender.toLowerCase().includes("mulher")
 
@@ -1118,7 +1146,6 @@ function calculateScientificCalories(data: any) {
   // 4. AJUSTE CALÓRICO BASEADO NO OBJETIVO
   // ============================================
   let dailyCalorieAdjustment = 0
-  const weightDifference = targetWeight - weight
 
   if (weightDifference < -0.5) {
     // ========== MODO: PERDA DE PESO ==========
@@ -1230,9 +1257,9 @@ function calculateScientificCalories(data: any) {
     // ========== MODO: MANUTENÇÃO/RECOMPOSIÇÃO ==========
     console.log(`⚖️ [PRIORITY] Target weight (${targetWeight}kg) ≈ current weight (${weight}kg) = FOLLOW DECLARED GOALS`)
 
-    if (goals.includes("perder-peso") || goals.includes("emagrecer")) {
+    if (effectiveGoals.includes("perder-peso") || effectiveGoals.includes("emagrecer")) {
       dailyCalorieAdjustment = bodyType.toLowerCase() === "endomorfo" ? -400 : -300
-    } else if (goals.includes("ganhar-massa") || goals.includes("ganhar-peso")) {
+    } else if (effectiveGoals.includes("ganhar-massa") || effectiveGoals.includes("ganhar-peso")) {
       if (bodyType.toLowerCase() === "ectomorfo") {
         dailyCalorieAdjustment = 400
       } else if (bodyType.toLowerCase() === "endomorfo") {
