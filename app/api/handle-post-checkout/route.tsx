@@ -809,7 +809,8 @@ export async function POST(req: Request) {
         console.log("[v0] RESEND_KEY_EXISTS - API Key configurada:", !!resendApiKey)
         
         const response = await resend.emails.send({
-          from: "FitGoal <onboarding@resend.dev>",
+          from: "FitGoal <noreply@fitgoal.com.br>",
+          replyTo: "suporte@fitgoal.com.br",
           to: userEmail,
           subject: emailSubject,
           html: emailHtmlContent,
