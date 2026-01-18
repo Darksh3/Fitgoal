@@ -41,10 +41,12 @@ sgMail.setApiKey(sendgridApiKey) // Set SendGrid API key here
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { sessionId, subscription_id, customer_id, client_uid, payment_intent_id, plan_duration, price_id } = body
+    const { sessionId, subscription_id, customer_id, client_uid, payment_intent_id, plan_duration, price_id, userId, paymentId, billingType, customerName, customerEmail, customerPhone, customerCpf } = body
 
-    if (!sessionId && !subscription_id && !payment_intent_id) {
-      return NextResponse.json({ error: "sessionId, subscription_id ou payment_intent_id ausente." }, { status: 400 })
+    console.log("[v0] HANDLE_POST_CHECKOUT_INIT - Recebido:", { sessionId, subscription_id, payment_intent_id, userId })
+
+    if (!sessionId && !subscription_id && !payment_intent_id && !userId) {
+      return NextResponse.json({ error: "sessionId, subscription_id, payment_intent_id ou userId ausente." }, { status: 400 })
     }
 
     let userEmail: string | null = null
