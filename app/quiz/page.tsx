@@ -809,14 +809,6 @@ export default function QuizPage() {
     }
   }
 
-  // Auto-save plan when reaching final step
-  useEffect(() => {
-    if (currentStep === 30 && currentUser?.uid) {
-      console.log("[v0] currentStep is 30, calling generateAndSavePlan")
-      generateAndSavePlan(quizData, currentUser.uid)
-    }
-  }, [currentStep, currentUser?.uid])
-
   const nextStep = () => {
     // Handle specific step logic
     if (currentStep === 5) {
