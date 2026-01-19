@@ -30,11 +30,38 @@ export async function POST(request: Request) {
           try {
             console.log("[v0] WEBHOOK_CALLING_POST_CHECKOUT - Chamando handle-post-checkout para", userId)
             
-            // Primeiramente, tentar obter dados do payment do Asaas
-            let customerName = payment?.customer?.name
-            let customerEmail = payment?.customer?.email
-            let customerPhone = payment?.customer?.phone
-            let customerCpf = payment?.customer?.cpf
+            // Primeiramente, tentar obter dados do cliente através da API do Asaas
+            let customerName = undefined
+            let customerEmail = undefined
+            let customerPhone = undefined
+            let customerCpf = undefined
+            
+            // Se há customerId, buscar dados completos do cliente no Asaas
+            const customerId = payment?.customer?.id
+            if (customerId) {
+              try {
+                console.log("[v0] WEBHOOK_FETCHING_ASAAS_CUSTOMER - Buscando dados do cliente no Asaas:", customerId)
+                const customerResponse = await fetch(`https://api.asaas.com/v3/customers/${customerId}`, {
+                  method: "GET",
+                  headers: {
+                    "access_token": ASAAS_API_KEY,
+                  },
+                })
+                
+                if (customerResponse.ok) {
+                  const customerData = await customerResponse.json()
+                  customerName = customerData.name
+                  customerEmail = customerData.email
+                  customerPhone = customerData.phone
+                  customerCpf = customerData.cpfCnpj
+                  console.log("[v0] WEBHOOK_ASAAS_CUSTOMER_FOUND - Dados do cliente do Asaas:", { customerName, customerEmail, customerPhone, customerCpf })
+                } else {
+                  console.warn("[v0] WEBHOOK_ASAAS_CUSTOMER_ERROR - Erro ao buscar cliente no Asaas, status:", customerResponse.status)
+                }
+              } catch (asaasError) {
+                console.error("[v0] WEBHOOK_ASAAS_FETCH_ERROR - Erro ao chamar API Asaas:", asaasError)
+              }
+            }
             
             console.log("[v0] WEBHOOK_ASAAS_CUSTOMER_DATA - Dados do Asaas:", { customerName, customerEmail, customerPhone, customerCpf })
             
