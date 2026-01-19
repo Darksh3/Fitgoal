@@ -159,7 +159,7 @@ const initialQuizData: QuizData = {
     pullups: "",
     yoga: "",
   },
-  trainingDaysPerWeek: 3,
+  trainingDaysPerWeek: 5, // Synced with trainingDays default (5)
   email: "",
   imc: 0,
   imcClassification: "",
@@ -172,7 +172,7 @@ const initialQuizData: QuizData = {
   cardioFeeling: "",
   strengthFeeling: "",
   stretchingFeeling: "",
-  trainingDays: "", // Redundant, consider unifying with trainingDaysPerWeek.
+  trainingDays: "5", // Default value for the new slider
   previousProblems: [],
   additionalGoals: [],
   foodPreferences: {
@@ -183,7 +183,6 @@ const initialQuizData: QuizData = {
     fruits: [],
   },
   alcoholFrequency: "",
-  trainingDays: "5", // Default value for the new slider
   letMadMusclesChoose: false, // Default value for the new toggle
 }
 
@@ -671,7 +670,7 @@ export default function QuizPage() {
           waterIntake: data.waterIntake,
           workoutTime: data.workoutTime,
           equipment: data.equipment,
-          trainingDaysPerWeek: Number.parseInt(data.trainingDays || "3"), // Ensure it's a number
+          trainingDaysPerWeek: Number.parseInt(data.trainingDays) || 3, // Sync with trainingDays
           lastActivity: new Date().toISOString(),
           createdAt: new Date().toISOString(),
         },
@@ -3665,7 +3664,10 @@ export default function QuizPage() {
                     min="1"
                     max="7"
                     value={quizData.trainingDays || "5"}
-                    onChange={(e) => updateQuizData("trainingDays", e.target.value)}
+                    onChange={(e) => {
+                      updateQuizData("trainingDays", e.target.value)
+                      updateQuizData("trainingDaysPerWeek", Number.parseInt(e.target.value))
+                    }}
                     className="w-full h-2 rounded-full appearance-none cursor-pointer"
                     style={{
                       background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 100%)`,
