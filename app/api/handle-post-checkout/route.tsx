@@ -36,7 +36,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 })
 
 const sendgridApiKey = process.env.SENDGRID_API_KEY // Declare sendgridApiKey here
-sgMail.setApiKey(sendgridApiKey) // Set SendGrid API key here
+if (sendgridApiKey) {
+  sgMail.setApiKey(sendgridApiKey) // Set SendGrid API key only if it exists
+}
 
 export async function POST(req: Request) {
   try {
@@ -822,7 +824,10 @@ export async function POST(req: Request) {
         </div>
       `
 
-      // Email será enviado abaixo com Resend
+      // Agora Resend é completamente independente de SendGrid
+      const emailSubjectForResend = isNewUser
+        ? "Bem-vindo(a) ao FitGoal! Crie sua senha."
+        : "Sua Assinatura FitGoal foi Confirmada!"
 
       try {
         if (!userEmail) {
@@ -832,18 +837,22 @@ export async function POST(req: Request) {
 
         console.log("[v0] RESEND_SENDING - Iniciando envio de email")
         console.log("[v0] RESEND_EMAIL - Para:", userEmail)
-        console.log("[v0] RESEND_SUBJECT - Assunto:", emailSubject)
+        console.log("[v0] RESEND_SUBJECT - Assunto:", emailSubjectForResend)
         console.log("[v0] RESEND_KEY_EXISTS - API Key configurada:", !!resendApiKey)
         
-        const response = await resend.emails.send({
-          from: "FitGoal <noreply@fitgoal.com.br>",
-          replyTo: "suporte@fitgoal.com.br",
-          to: userEmail,
-          subject: emailSubject,
-          html: emailHtmlContent,
-        })
-        
-        console.log(`[v0] RESEND_SUCCESS - E-mail enviado com sucesso para ${userEmail}`, response)
+        if (resendApiKey) {
+          const response = await resend.emails.send({
+            from: "FitGoal <noreply@fitgoal.com.br>",
+            replyTo: "suporte@fitgoal.com.br",
+            to: userEmail,
+            subject: emailSubjectForResend,
+            html: emailHtmlContent,
+          })
+          
+          console.log(`[v0] RESEND_SUCCESS - E-mail enviado com sucesso para ${userEmail}`, response)
+        } else {
+          console.warn("[v0] RESEND_KEY_MISSING - RESEND_API_KEY não configurada, pulando envio")
+        }
       } catch (emailError: any) {
         console.error("[v0] RESEND_ERROR - Falha ao enviar e-mail:", {
           error: emailError.message,

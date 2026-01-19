@@ -64,41 +64,37 @@ export async function POST(request: Request) {
             
             console.log("[v0] WEBHOOK_FINAL_CUSTOMER_DATA - Dados finais para enviar:", { customerName, customerEmail, customerPhone, customerCpf })
             
-            // RESPONDER IMEDIATAMENTE AO ASAAS COM 200 OK ANTES DE PROCESSAR
-            // Salvar resposta para retornar ao final
-            const responseToAsaas = NextResponse.json({ received: true, processing: true }, { status: 200 })
-            
-            // Processar em background SEM AGUARDAR - usar IIFE
-            ;(async () => {
-              try {
-                const generateResponse = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/handle-post-checkout`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({ 
-                    userId,
-                    paymentId: payment?.id,
-                    billingType: payment?.billingType,
-                    customerName,
-                    customerEmail,
-                    customerPhone,
-                    customerCpf,
-                  }),
-                })
+            // Chamar handle-post-checkout COM AWAIT para garantir que complete
+            // Isso é seguro em Vercel porque eles esperam a Promise
+            try {
+              console.log("[v0] WEBHOOK_CALLING_POST_CHECKOUT - Chamando handle-post-checkout com await")
+              const generateResponse = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/handle-post-checkout`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ 
+                  userId,
+                  paymentId: payment?.id,
+                  billingType: payment?.billingType,
+                  customerName,
+                  customerEmail,
+                  customerPhone,
+                  customerCpf,
+                }),
+              })
 
-                if (!generateResponse.ok) {
-                  const errorText = await generateResponse.text()
-                  console.error("[v0] WEBHOOK_BACKGROUND_ERROR - Erro ao processar checkout. Status:", generateResponse.status, "Erro:", errorText)
-                } else {
-                  console.log("[v0] WEBHOOK_BACKGROUND_SUCCESS - Checkout processado com sucesso para:", userId)
-                }
-              } catch (error) {
-                console.error("[v0] WEBHOOK_BACKGROUND_ERROR - Erro ao processar em background:", error)
+              if (!generateResponse.ok) {
+                const errorText = await generateResponse.text()
+                console.error("[v0] WEBHOOK_POST_CHECKOUT_ERROR - Erro ao processar checkout. Status:", generateResponse.status, "Erro:", errorText)
+              } else {
+                console.log("[v0] WEBHOOK_POST_CHECKOUT_SUCCESS - Checkout processado com sucesso para:", userId)
               }
-            })()
+            } catch (postCheckoutError) {
+              console.error("[v0] WEBHOOK_POST_CHECKOUT_FETCH_ERROR - Erro ao chamar handle-post-checkout:", postCheckoutError)
+            }
             
-            return responseToAsaas
+            return NextResponse.json({ received: true, processing: true }, { status: 200 })
           } catch (error) {
             console.error("[v0] WEBHOOK_ERROR - Erro ao processar webhook:", error)
             // Mesmo com erro, retornar 200 para não ser penalizado
