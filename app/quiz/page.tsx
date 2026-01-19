@@ -900,6 +900,7 @@ export default function QuizPage() {
       // Prepare updated quiz data before saving
       const updatedQuizData = {
         ...quizData,
+        uid: currentUser.uid, // Adicionar UID explicitamente
         currentWeight: quizData.weight, // Add currentWeight for results page
         imc: imc,
         imcClassification: classification,
