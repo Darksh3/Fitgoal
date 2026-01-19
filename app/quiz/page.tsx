@@ -159,7 +159,7 @@ const initialQuizData: QuizData = {
     pullups: "",
     yoga: "",
   },
-  trainingDaysPerWeek: 5, // Synced with trainingDays default (5)
+  trainingDaysPerWeek: 3,
   email: "",
   imc: 0,
   imcClassification: "",
@@ -172,7 +172,7 @@ const initialQuizData: QuizData = {
   cardioFeeling: "",
   strengthFeeling: "",
   stretchingFeeling: "",
-  trainingDays: "5", // Default value for the new slider
+  trainingDays: "", // Redundant, consider unifying with trainingDaysPerWeek.
   previousProblems: [],
   additionalGoals: [],
   foodPreferences: {
@@ -183,6 +183,7 @@ const initialQuizData: QuizData = {
     fruits: [],
   },
   alcoholFrequency: "",
+  trainingDays: "5", // Default value for the new slider
   letMadMusclesChoose: false, // Default value for the new toggle
 }
 
@@ -670,7 +671,7 @@ export default function QuizPage() {
           waterIntake: data.waterIntake,
           workoutTime: data.workoutTime,
           equipment: data.equipment,
-          trainingDaysPerWeek: Number.parseInt(data.trainingDays) || 3, // Sync with trainingDays
+          trainingDaysPerWeek: Number.parseInt(data.trainingDays || "3"), // Ensure it's a number
           lastActivity: new Date().toISOString(),
           createdAt: new Date().toISOString(),
         },
@@ -808,14 +809,6 @@ export default function QuizPage() {
         return getBodyImage(quizData.gender)
     }
   }
-
-  // Auto-save plan when reaching final step
-  useEffect(() => {
-    if (currentStep === 30 && currentUser?.uid) {
-      console.log("[v0] currentStep is 30, calling generateAndSavePlan")
-      generateAndSavePlan(quizData, currentUser.uid)
-    }
-  }, [currentStep, currentUser?.uid])
 
   const nextStep = () => {
     // Handle specific step logic
@@ -1598,7 +1591,7 @@ export default function QuizPage() {
 
           <button
             onClick={() => {
-              setShowTimeCalculation(true)
+              setShowTimeCalculation(false)
               setCurrentStep(currentStep + 1)
             }}
             className="w-full h-16 bg-white text-black text-xl font-bold rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -3672,10 +3665,7 @@ export default function QuizPage() {
                     min="1"
                     max="7"
                     value={quizData.trainingDays || "5"}
-                    onChange={(e) => {
-                      updateQuizData("trainingDays", e.target.value)
-                      updateQuizData("trainingDaysPerWeek", Number.parseInt(e.target.value))
-                    }}
+                    onChange={(e) => updateQuizData("trainingDays", e.target.value)}
                     className="w-full h-2 rounded-full appearance-none cursor-pointer"
                     style={{
                       background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 100%)`,
