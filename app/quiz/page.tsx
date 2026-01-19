@@ -1534,7 +1534,63 @@ export default function QuizPage() {
     const isGaining = target > current
 
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 relative overflow-hidden">
+      <div
+        className="min-h-screen text-white p-6 relative overflow-hidden bg-[#0a0f1a]"
+        style={{
+          background: "radial-gradient(at center, #0f1419 0%, #0a0f1a 70%)",
+        }}
+      >
+        {/* Background effects */}
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            width: "380px",
+            height: "380px",
+            background: "#1c3dff55",
+            filter: "blur(150px)",
+            borderRadius: "50%",
+            top: "20%",
+            right: "-10%",
+          }}
+        />
+
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            width: "300px",
+            height: "300px",
+            background: "#7f3dff33",
+            filter: "blur(140px)",
+            borderRadius: "50%",
+            bottom: "10%",
+            left: "15%",
+          }}
+        />
+
+        <div className="max-w-4xl mx-auto relative z-10">
+          {/* Header with back button and progress */}
+          <div className="flex items-center justify-between mb-8">
+            <Button variant="ghost" onClick={() => { setShowTimeCalculation(false) }} className="text-white">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar
+            </Button>
+            <div className="text-center">
+              <p className="text-gray-400">
+                {currentStep} de {totalSteps}
+              </p>
+            </div>
+            <div className="w-16" />
+          </div>
+          <div className="w-full bg-white/10 backdrop-blur-sm rounded-full h-2 mb-8">
+            <div
+              className="bg-lime-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+            />
+          </div>
+
+          {/* Content */}
+          <div className="mb-8 flex items-center justify-center min-h-[60vh]">
+      <div className="bg-gray-900 text-white flex items-center justify-center p-4 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(20)].map((_, i) => (
             <div
@@ -1693,7 +1749,10 @@ export default function QuizPage() {
             }
           `}</style>
         </div>
+          </div>
+        </div>
       </div>
+    </div>
     )
   }
 
