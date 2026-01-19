@@ -4206,8 +4206,11 @@ export default function QuizPage() {
 
             {isComplete && (
               <button
-                onClick={() => {
-                  router.push("/quiz/results")
+                onClick={async () => {
+                  await handleSubmit()
+                  setTimeout(() => {
+                    router.push("/quiz/results")
+                  }, 500)
                 }}
                 className="w-full max-w-md h-14 bg-white text-black text-lg font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg"
               >
