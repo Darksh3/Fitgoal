@@ -380,7 +380,6 @@ export default function QuizPage() {
     }
   }, [showWaterCongrats])
   // </CHANGE>
-
   const [animatedPercentage, setAnimatedPercentage] = useState(0)
 
   const statuses = [
@@ -891,98 +890,35 @@ export default function QuizPage() {
 
       const { imc, classification, status } = calculateIMC(weightForIMC, heightForIMC)
 
-      // Calculate TMB (Basal Metabolic Rate) using Mifflin-St Jeor Equation
-      const weight = Number.parseFloat(quizData.currentWeight || quizData.weight || "0")
-      const height = Number.parseFloat(quizData.height || "0")
-      const age = quizData.age || 25
-      const isMale = quizData.gender === "homem"
-
-      let tmb = 0
-      if (isMale) {
-        tmb = 10 * weight + 6.25 * height - 5 * age + 5
-      } else {
-        tmb = 10 * weight + 6.25 * height - 5 * age - 161
-      }
-
-      // Calculate TDEE (Total Daily Energy Expenditure) based on activity level
-      // Using training days as activity indicator
-      const trainingDays = Number.parseInt(quizData.trainingDays || "3")
-      let activityMultiplier = 1.2 // Sedentary
-      if (trainingDays >= 6) activityMultiplier = 1.725 // Very active
-      else if (trainingDays >= 4) activityMultiplier = 1.55 // Moderately active
-      else if (trainingDays >= 2) activityMultiplier = 1.375 // Lightly active
-
-      const tdee = tmb * activityMultiplier
-
-      // Calculate calorie goal based on user's goals
-      const hasLoseWeightGoal = quizData.goal?.some((g) => g.toLowerCase().includes("perder"))
-      const hasGainWeightGoal = quizData.goal?.some((g) => g.toLowerCase().includes("ganhar"))
-
-      let calorieGoal = tdee
-      if (hasLoseWeightGoal) {
-        calorieGoal = tdee * 0.85 // 15% deficit for weight loss
-      } else if (hasGainWeightGoal) {
-        calorieGoal = tdee * 1.1 // 10% surplus for weight gain
-      }
-
       // Prepare updated quiz data before saving
-      // Flatten foodPreferences to avoid nested arrays in Firestore
-      const flatFoodPreferences = {
-        vegetables: Array.isArray(quizData.foodPreferences?.vegetables) ? quizData.foodPreferences.vegetables.join(", ") : "",
-        grains: Array.isArray(quizData.foodPreferences?.grains) ? quizData.foodPreferences.grains.join(", ") : "",
-        ingredients: Array.isArray(quizData.foodPreferences?.ingredients) ? quizData.foodPreferences.ingredients.join(", ") : "",
-        meats: Array.isArray(quizData.foodPreferences?.meats) ? quizData.foodPreferences.meats.join(", ") : "",
-        fruits: Array.isArray(quizData.foodPreferences?.fruits) ? quizData.foodPreferences.fruits.join(", ") : "",
-      }
-
       const updatedQuizData = {
         ...quizData,
-        uid: currentUser.uid, // IMPORTANTE: Adicionar o uid para usar no checkout!
         imc: imc,
         imcClassification: classification,
         imcStatus: status,
-        tmb: Math.round(tmb),
-        tdee: Math.round(tdee),
-        calorieGoal: Math.round(calorieGoal),
         // </CHANGE> Renaming fields for consistency with the canProceed updates
-        sweetsFrequency: quizData.sugarFrequency || [], // Use sweetsFrequency
-        trainingDays: String(quizData.trainingDays), // Use trainingDays as string from slider
-        cardioFeeling: quizData.exercisePreferences?.cardio || "",
-        strengthFeeling: quizData.exercisePreferences?.pullups || "",
-        stretchingFeeling: quizData.exercisePreferences?.yoga || "",
-        // Convert allergyDetails to healthConditions string (not nested array)
-        healthConditions: quizData.allergyDetails ? [quizData.allergyDetails] : [],
-        supplement: quizData.wantsSupplement || "", // Use supplement field
-        previousProblems: Array.isArray(quizData.previousProblems) ? quizData.previousProblems : [], // Include previousProblems
-        letMadMusclesChoose: Boolean(quizData.letMadMusclesChoose), // Include letMadMusclesChoose
-        // Flatten nested objects and arrays
-        foodPreferences: flatFoodPreferences,
-        goal: Array.isArray(quizData.goal) ? quizData.goal : [],
-        problemAreas: Array.isArray(quizData.problemAreas) ? quizData.problemAreas : [],
-        equipment: Array.isArray(quizData.equipment) ? quizData.equipment : [],
-        sugarFrequency: Array.isArray(quizData.sugarFrequency) ? quizData.sugarFrequency : [],
-        additionalGoals: Array.isArray(quizData.additionalGoals) ? quizData.additionalGoals : [],
+        sweetsFrequency: quizData.sugarFrequency, // Use sweetsFrequency
+        trainingDays: quizData.trainingDays, // Use trainingDays as string from slider
+        cardioFeeling: quizData.exercisePreferences.cardio,
+        strengthFeeling: quizData.exercisePreferences.pullups,
+        stretchingFeeling: quizData.exercisePreferences.yoga,
+        healthConditions: quizData.allergyDetails.length > 0 ? [quizData.allergyDetails] : [], // Convert allergyDetails to healthConditions array
+        supplement: quizData.wantsSupplement, // Use supplement field
+        previousProblems: quizData.previousProblems, // Include previousProblems
+        letMadMusclesChoose: quizData.letMadMusclesChoose, // Include letMadMusclesChoose
       }
-      
-      console.log("[v0] QUIZ_SUBMIT_START - User ID:", currentUser.uid)
-      console.log("[v0] QUIZ_DATA_PREPARED - Updated data keys:", Object.keys(updatedQuizData))
-      console.log("[v0] QUIZ_DATA_EMAIL:", updatedQuizData.email)
-      console.log("[v0] QUIZ_DATA_NAME:", updatedQuizData.name)
       setQuizData(updatedQuizData) // Atualiza o estado local
 
       try {
         localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
         debugDataFlow("QUIZ_LOCALSTORAGE_SAVE", updatedQuizData)
-        console.log("[v0] QUIZ_DATA_SAVED_TO_LOCALSTORAGE")
       } catch (error) {
-        console.error("[v0] QUIZ_STORAGE_ERROR:", error)
+        console.error("[QUIZ] Storage failed:", error)
       }
 
       const userDocRef = doc(db, "users", currentUser.uid)
       const leadDocRef = doc(db, "leads", currentUser.uid)
 
-      console.log("[v0] FIREBASE_SAVE_START - Refs created for user:", currentUser.uid)
-      
       await setDoc(
         userDocRef,
         {
@@ -993,7 +929,6 @@ export default function QuizPage() {
         },
         { merge: true },
       )
-      console.log("[v0] FIREBASE_USER_DOC_SAVED - User doc saved to /users/" + currentUser.uid)
 
       await setDoc(
         leadDocRef,
@@ -1005,7 +940,6 @@ export default function QuizPage() {
         },
         { merge: true },
       )
-      console.log("[v0] FIREBASE_LEAD_DOC_SAVED - Lead doc saved to /leads/" + currentUser.uid)
 
       if (imc > 0) {
         setShowIMCResult(true)
@@ -1013,10 +947,8 @@ export default function QuizPage() {
         setShowSuccess(true)
       }
     } catch (error) {
-      console.error("[v0] HANDLESUBMIT_ERROR - Full error object:", error)
-      console.error("[v0] HANDLESUBMIT_ERROR_MESSAGE:", error instanceof Error ? error.message : String(error))
-      console.error("[v0] HANDLESUBMIT_ERROR_STACK:", error instanceof Error ? error.stack : "No stack trace")
-      alert("Erro inesperado ao salvar os dados. Verifique o console para mais detalhes.")
+      console.error("handleSubmit: Erro no handleSubmit:", error)
+      alert("Erro inesperado. Tente novamente.")
     } finally {
       setIsSubmitting(false) // Reset isSubmitting
     }
@@ -1453,7 +1385,7 @@ export default function QuizPage() {
     )
   }
 
-  if (showGoalTimeline) {
+ if (showGoalTimeline) {
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 relative overflow-hidden">
         <div className="text-center space-y-8 max-w-md">
@@ -1534,63 +1466,7 @@ export default function QuizPage() {
     const isGaining = target > current
 
     return (
-      <div
-        className="min-h-screen text-white p-6 relative overflow-hidden bg-[#0a0f1a]"
-        style={{
-          background: "radial-gradient(at center, #0f1419 0%, #0a0f1a 70%)",
-        }}
-      >
-        {/* Background effects */}
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            width: "380px",
-            height: "380px",
-            background: "#1c3dff55",
-            filter: "blur(150px)",
-            borderRadius: "50%",
-            top: "20%",
-            right: "-10%",
-          }}
-        />
-
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            width: "300px",
-            height: "300px",
-            background: "#7f3dff33",
-            filter: "blur(140px)",
-            borderRadius: "50%",
-            bottom: "10%",
-            left: "15%",
-          }}
-        />
-
-        <div className="max-w-4xl mx-auto relative z-10">
-          {/* Header with back button and progress */}
-          <div className="flex items-center justify-between mb-8">
-            <Button variant="ghost" onClick={() => { setShowTimeCalculation(false) }} className="text-white">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar
-            </Button>
-            <div className="text-center">
-              <p className="text-gray-400">
-                {currentStep} de {totalSteps}
-              </p>
-            </div>
-            <div className="w-16" />
-          </div>
-          <div className="w-full bg-white/10 backdrop-blur-sm rounded-full h-2 mb-8">
-            <div
-              className="bg-lime-500 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-            />
-          </div>
-
-          {/* Content */}
-          <div className="mb-8 flex items-center justify-center min-h-[60vh]">
-      <div className="bg-gray-900 text-white flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(20)].map((_, i) => (
             <div
@@ -1749,10 +1625,7 @@ export default function QuizPage() {
             }
           `}</style>
         </div>
-          </div>
-        </div>
       </div>
-    </div>
     )
   }
 
@@ -1839,7 +1712,7 @@ export default function QuizPage() {
             <button
               onClick={() => {
                 setShowSuccess(false)
-                router.push(`/quiz/results`)
+                router.push("/quiz/results")
               }}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] animate-in fade-in duration-700 delay-500"
             >
@@ -2130,8 +2003,8 @@ export default function QuizPage() {
         return quizData.age > 0
       case 12: // Updated from 11. Current Weight
         return quizData.height !== "" && normalizeHeight(quizData.height) !== ""
-      case 13: // Updated from 12. Current Weight
-        return quizData.currentWeight !== "" && Number(quizData.currentWeight) > 0
+      case 13: // Updated from 12. Target Weight
+        return quizData.weight !== ""
       case 14: // Updated from 13. Strength Training Experience
         return quizData.targetWeight !== ""
       case 15: // Updated from 14. Cardio Feeling
@@ -3252,8 +3125,8 @@ export default function QuizPage() {
               <Input
                 type="number"
                 placeholder="Peso atual em kg"
-                value={quizData.currentWeight}
-                onChange={(e) => updateQuizData("currentWeight", e.target.value)}
+                value={quizData.weight}
+                onChange={(e) => updateQuizData("weight", e.target.value)}
                 min="1"
                 max="500"
                 step="0.1"
@@ -4334,8 +4207,7 @@ export default function QuizPage() {
             {isComplete && (
               <button
                 onClick={() => {
-                  console.log("[v0] CASE_30_BUTTON_CLICKED - Calling handleSubmit before redirect")
-                  handleSubmit()
+                  router.push("/quiz/results")
                 }}
                 className="w-full max-w-md h-14 bg-white text-black text-lg font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg"
               >
