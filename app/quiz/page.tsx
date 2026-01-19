@@ -159,7 +159,7 @@ const initialQuizData: QuizData = {
     pullups: "",
     yoga: "",
   },
-  trainingDaysPerWeek: 3,
+  trainingDaysPerWeek: 0,
   email: "",
   imc: 0,
   imcClassification: "",
@@ -172,7 +172,7 @@ const initialQuizData: QuizData = {
   cardioFeeling: "",
   strengthFeeling: "",
   stretchingFeeling: "",
-  trainingDays: "", // Redundant, consider unifying with trainingDaysPerWeek.
+  trainingDays: "", // Will be set by user selection in case 23
   previousProblems: [],
   additionalGoals: [],
   foodPreferences: {
@@ -183,7 +183,6 @@ const initialQuizData: QuizData = {
     fruits: [],
   },
   alcoholFrequency: "",
-  trainingDays: "5", // Default value for the new slider
   letMadMusclesChoose: false, // Default value for the new toggle
 }
 
@@ -935,6 +934,7 @@ export default function QuizPage() {
         // </CHANGE> Renaming fields for consistency with the canProceed updates
         sweetsFrequency: quizData.sugarFrequency, // Use sweetsFrequency
         trainingDays: quizData.trainingDays, // Use trainingDays as string from slider
+        trainingDaysPerWeek: Number.parseInt(quizData.trainingDays || "5"), // Add trainingDaysPerWeek synchronized with trainingDays
         cardioFeeling: quizData.exercisePreferences.cardio,
         strengthFeeling: quizData.exercisePreferences.pullups,
         stretchingFeeling: quizData.exercisePreferences.yoga,
