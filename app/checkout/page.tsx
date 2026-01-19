@@ -74,6 +74,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   })
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
+  const [paymentId, setPaymentId] = useState<string | null>(null) // Declare setPaymentId here
 
   const maxInstallments = 6
   const minInstallmentValue = 50
@@ -153,6 +154,10 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
       console.log("[v0] pixQrCode type:", typeof paymentResult.pixQrCode)
       console.log("[v0] pixQrCode length:", paymentResult.pixQrCode?.length)
       console.log("[v0] pixCopyPaste value:", paymentResult.pixCopyPaste)
+
+      // Salvar paymentId no estado para polling
+      setPaymentId(paymentResult.paymentId)
+      console.log("[v0] PaymentId salvo para polling:", paymentResult.paymentId)
 
       // 2. Se for Pix, buscar QR Code
       if (paymentMethod === "pix") {
@@ -560,6 +565,34 @@ export default function CheckoutPage() {
       setCurrentStep(2)
     }
   }, [searchParams])
+
+  // Polling para verificar status do pagamento
+  useEffect(() => {
+    if (!paymentId) return
+
+    const pollPaymentStatus = async () => {
+      try {
+        const response = await fetch(`/api/check-payment-status?paymentId=${paymentId}`)
+        if (response.ok) {
+          const data = await response.json()
+          console.log("[v0] Status do pagamento:", data.status)
+
+          // Se pagamento confirmado, redirecionar para sucesso
+          if (data.status === "RECEIVED" || data.status === "CONFIRMED") {
+            console.log("[v0] Pagamento confirmado! Redirecionando para success...")
+            window.location.href = "/success"
+          }
+        }
+      } catch (err) {
+        console.error("[v0] Erro ao verificar status do pagamento:", err)
+      }
+    }
+
+    // Fazer polling a cada 3 segundos
+    const interval = setInterval(pollPaymentStatus, 3000)
+
+    return () => clearInterval(interval)
+  }, [paymentId])
 
   const plans = [
     {
