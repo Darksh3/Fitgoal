@@ -1723,7 +1723,7 @@ export default function QuizPage() {
             <button
               onClick={() => {
                 setShowSuccess(false)
-                router.push("/checkout")
+                router.push("/quiz/results")
               }}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] animate-in fade-in duration-700 delay-500"
             >
@@ -4220,7 +4220,7 @@ export default function QuizPage() {
                 onClick={async () => {
                   await handleSubmit()
                   setTimeout(() => {
-                    router.push("/checkout")
+                    router.push("/quiz/results")
                   }, 500)
                 }}
                 className="w-full max-w-md h-14 bg-white text-black text-lg font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg"
