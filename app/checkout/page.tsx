@@ -8,8 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CreditCard, Check, ShoppingCart, User, Lock, QrCode, FileText, Smartphone } from "lucide-react"
 import { auth, onAuthStateChanged, db } from "@/lib/firebaseClient"
-import { signInAnonymously } from "firebase/auth"
-import { doc, getDoc } from "firebase/firestore"
+import { doc, getDoc, setDoc } from "firebase/firestore"
 import { formatCurrency } from "@/utils/currency"
 
 type PaymentMethod = "pix" | "boleto" | "card"
@@ -103,7 +102,27 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         clientUid,
       })
 
-      // 1. Criar cobrança no Asaas
+      // 1. Salvar dados no Firebase com UID
+      if (clientUid) {
+        try {
+          const userDocRef = doc(db, "users", clientUid)
+          await setDoc(userDocRef, {
+            email: userEmail,
+            name: formData.name,
+            cpf: formData.cpf,
+            phone: formData.phone,
+            planType: currentPlan.key,
+            paymentMethod,
+            checkoutDate: new Date().toISOString(),
+            uid: clientUid, // Salvando o UID explicitamente
+          }, { merge: true })
+          console.log("[v0] Dados salvos no Firebase com UID:", clientUid)
+        } catch (firebaseError) {
+          console.error("[v0] Erro ao salvar no Firebase:", firebaseError)
+        }
+      }
+
+      // 2. Criar cobrança no Asaas
       const paymentResponse = await fetch("/api/create-asaas-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -621,14 +640,6 @@ export default function CheckoutPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId: user.uid }),
               }).catch((err) => console.error("Erro ao gerar planos:", err))
-            }
-          } else {
-            // Usuário não autenticado - fazer login anônimo
-            try {
-              const anonUser = await signInAnonymously(auth)
-              setClientUid(anonUser.user.uid)
-            } catch (anonError) {
-              console.error("Erro ao fazer login anônimo:", anonError)
             }
           }
           setLoading(false)
