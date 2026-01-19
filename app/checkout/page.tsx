@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CreditCard, Check, ShoppingCart, User, Lock, QrCode, FileText, Smartphone } from "lucide-react"
 import { auth, onAuthStateChanged, db } from "@/lib/firebaseClient"
+import { signInAnonymously } from "firebase/auth"
 import { doc, getDoc } from "firebase/firestore"
 import { formatCurrency } from "@/utils/currency"
 
@@ -620,6 +621,14 @@ export default function CheckoutPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId: user.uid }),
               }).catch((err) => console.error("Erro ao gerar planos:", err))
+            }
+          } else {
+            // Usuário não autenticado - fazer login anônimo
+            try {
+              const anonUser = await signInAnonymously(auth)
+              setClientUid(anonUser.user.uid)
+            } catch (anonError) {
+              console.error("Erro ao fazer login anônimo:", anonError)
             }
           }
           setLoading(false)
