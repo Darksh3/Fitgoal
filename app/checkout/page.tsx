@@ -7,8 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CreditCard, Check, ShoppingCart, User, Lock, QrCode, FileText, Smartphone } from "lucide-react"
-import { auth, onAuthStateChanged, db } from "@/lib/firebaseClient"
-import { doc, getDoc, setDoc } from "firebase/firestore"
+import { auth, onAuthStateChanged, db, getFirestore } from "@/lib/firebaseClient"
+import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore"
 import { signInAnonymously } from "firebase/auth"
 import { formatCurrency } from "@/utils/currency"
 
@@ -155,9 +155,26 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
       console.log("[v0] pixQrCode length:", paymentResult.pixQrCode?.length)
       console.log("[v0] pixCopyPaste value:", paymentResult.pixCopyPaste)
 
-      // Salvar paymentId no estado para polling
+      // Salvar paymentId no estado para onSnapshot
       setPaymentId(paymentResult.paymentId)
-      console.log("[v0] PaymentId salvo para polling:", paymentResult.paymentId)
+      console.log("[v0] PaymentId salvo para onSnapshot:", paymentResult.paymentId)
+
+      // Salvar pagamento no Firestore com status PENDING
+      try {
+        console.log("[v0] CHECKOUT_SAVING_PAYMENT - Salvando pagamento no Firestore com status PENDING")
+        const db = getFirestore()
+        await setDoc(doc(db, "payments", paymentResult.paymentId), {
+          paymentId: paymentResult.paymentId,
+          userId: clientUid, // Use clientUid instead of currentUser?.uid
+          status: "PENDING",
+          paymentMethod: paymentMethod,
+          planType: currentPlan.key, // Use currentPlan.key instead of selectedPlan
+          createdAt: new Date(),
+        })
+        console.log("[v0] CHECKOUT_PAYMENT_SAVED - Pagamento salvo no Firestore com status PENDING")
+      } catch (error) {
+        console.error("[v0] CHECKOUT_SAVE_ERROR - Erro ao salvar pagamento no Firestore:", error)
+      }
 
       // 2. Se for Pix, buscar QR Code
       if (paymentMethod === "pix") {
@@ -567,42 +584,42 @@ export default function CheckoutPage() {
     }
   }, [searchParams])
 
-  // Polling para verificar status do pagamento
+  // Escutar mudanças em tempo real do status do pagamento
   useEffect(() => {
-    console.log("[v0] CHECKOUT_POLLING - useEffect iniciado, paymentId:", paymentId)
+    console.log("[v0] CHECKOUT_LISTENER - useEffect iniciado, paymentId:", paymentId)
     if (!paymentId) {
-      console.log("[v0] CHECKOUT_POLLING - Sem paymentId, não iniciando polling")
+      console.log("[v0] CHECKOUT_LISTENER - Sem paymentId, não iniciando onSnapshot")
       return
     }
 
-    const pollPaymentStatus = async () => {
-      try {
-        console.log("[v0] CHECKOUT_POLLING - Chamando check-payment-status com paymentId:", paymentId)
-        const response = await fetch(`/api/check-payment-status?paymentId=${paymentId}`)
-        if (response.ok) {
-          const data = await response.json()
-          console.log("[v0] CHECKOUT_POLLING - Resposta recebida, status:", data.status)
+    try {
+      const db = getFirestore()
+      const paymentDocRef = doc(db, "payments", paymentId)
 
-          // Se pagamento confirmado, redirecionar para sucesso
-          if (data.status === "RECEIVED" || data.status === "CONFIRMED") {
-            console.log("[v0] CHECKOUT_POLLING - Pagamento confirmado! Redirecionando para success...")
+      console.log("[v0] CHECKOUT_LISTENER - Iniciando onSnapshot para paymentId:", paymentId)
+      const unsubscribe = onSnapshot(paymentDocRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const paymentData = snapshot.data()
+          console.log("[v0] CHECKOUT_LISTENER - Documento atualizado, status:", paymentData.status)
+
+          // Se pagamento foi confirmado, redirecionar para sucesso
+          if (paymentData.status === "RECEIVED" || paymentData.status === "CONFIRMED") {
+            console.log("[v0] CHECKOUT_LISTENER - Pagamento confirmado! Status:", paymentData.status)
+            console.log("[v0] CHECKOUT_LISTENER - Redirecionando para success...")
+            unsubscribe()
             window.location.href = "/success"
           }
         } else {
-          console.warn("[v0] CHECKOUT_POLLING - Resposta não OK, status:", response.status)
+          console.log("[v0] CHECKOUT_LISTENER - Documento não encontrado ainda")
         }
-      } catch (err) {
-        console.error("[v0] CHECKOUT_POLLING - Erro ao verificar status do pagamento:", err)
+      })
+
+      return () => {
+        console.log("[v0] CHECKOUT_LISTENER - Limpando onSnapshot listener")
+        unsubscribe()
       }
-    }
-
-    // Fazer polling a cada 3 segundos
-    console.log("[v0] CHECKOUT_POLLING - Iniciando interval de 3 segundos")
-    const interval = setInterval(pollPaymentStatus, 3000)
-
-    return () => {
-      console.log("[v0] CHECKOUT_POLLING - Limpando interval")
-      clearInterval(interval)
+    } catch (error) {
+      console.error("[v0] CHECKOUT_LISTENER - Erro ao configurar onSnapshot:", error)
     }
   }, [paymentId])
 

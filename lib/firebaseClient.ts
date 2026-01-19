@@ -12,6 +12,7 @@ import {
   updateDoc,
   arrayUnion,
   deleteDoc,
+  onSnapshot,
 } from "firebase/firestore"
 import { useEffect, useState } from "react"
 
@@ -83,7 +84,7 @@ export const auth = getFirebaseAuth()
 export const db = getFirebaseDb()
 export { app, onAuthStateChanged }
 
-export { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, deleteDoc }
+export { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, deleteDoc, getFirestore, onSnapshot }
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
