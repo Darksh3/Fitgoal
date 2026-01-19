@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CreditCard, Check, ShoppingCart, User, Lock, QrCode, FileText, Smartphone } from "lucide-react"
-import { auth, onAuthStateChanged, db, getFirestore } from "@/lib/firebaseClient"
+import { auth, onAuthStateChanged, db } from "@/lib/firebaseClient"
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore"
 import { signInAnonymously } from "firebase/auth"
 import { formatCurrency } from "@/utils/currency"
@@ -162,13 +162,12 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
       // Salvar pagamento no Firestore com status PENDING
       try {
         console.log("[v0] CHECKOUT_SAVING_PAYMENT - Salvando pagamento no Firestore com status PENDING")
-        const db = getFirestore()
-        await setDoc(doc(db, "payments", paymentResult.paymentId), {
+        await setDoc(doc("payments", paymentResult.paymentId), {
           paymentId: paymentResult.paymentId,
-          userId: clientUid, // Use clientUid instead of currentUser?.uid
+          userId: clientUid,
           status: "PENDING",
           paymentMethod: paymentMethod,
-          planType: currentPlan.key, // Use currentPlan.key instead of selectedPlan
+          planType: currentPlan.key,
           createdAt: new Date(),
         })
         console.log("[v0] CHECKOUT_PAYMENT_SAVED - Pagamento salvo no Firestore com status PENDING")
@@ -593,8 +592,7 @@ export default function CheckoutPage() {
     }
 
     try {
-      const db = getFirestore()
-      const paymentDocRef = doc(db, "payments", paymentId)
+      const paymentDocRef = doc("payments", paymentId)
 
       console.log("[v0] CHECKOUT_LISTENER - Iniciando onSnapshot para paymentId:", paymentId)
       const unsubscribe = onSnapshot(paymentDocRef, (snapshot) => {
