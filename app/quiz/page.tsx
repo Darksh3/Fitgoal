@@ -898,6 +898,7 @@ export default function QuizPage() {
         imc: imc,
         imcClassification: classification,
         imcStatus: status,
+        calorieGoal: calculateScientificCalories(quizData), // Calculate and add calorie goal
         // </CHANGE> Renaming fields for consistency with the canProceed updates
         sweetsFrequency: quizData.sugarFrequency, // Use sweetsFrequency
         trainingDays: quizData.trainingDays, // Use trainingDays as string from slider
