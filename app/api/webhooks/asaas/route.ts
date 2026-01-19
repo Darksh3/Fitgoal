@@ -64,6 +64,26 @@ export async function POST(request: Request) {
             
             console.log("[v0] WEBHOOK_FINAL_CUSTOMER_DATA - Dados finais para enviar:", { customerName, customerEmail, customerPhone, customerCpf })
             
+            // SALVAR STATUS DO PAGAMENTO NO FIREBASE PARA O POLLING
+            try {
+              console.log("[v0] WEBHOOK_SAVING_PAYMENT - Salvando status do pagamento no Firebase")
+              const paymentsRef = adminDb.collection("payments")
+              await paymentsRef.add({
+                paymentId: payment?.id,
+                userId: userId,
+                status: payment?.status,
+                billingType: payment?.billingType,
+                value: payment?.value,
+                customerEmail: customerEmail,
+                customerName: customerName,
+                createdAt: new Date(),
+                externalReference: userId,
+              })
+              console.log("[v0] WEBHOOK_PAYMENT_SAVED - Pagamento salvo no Firebase com sucesso")
+            } catch (saveError) {
+              console.error("[v0] WEBHOOK_SAVE_ERROR - Erro ao salvar pagamento no Firebase:", saveError)
+            }
+            
             // Chamar handle-post-checkout COM AWAIT para garantir que complete
             // Isso é seguro em Vercel porque eles esperam a Promise
             try {

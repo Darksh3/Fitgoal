@@ -557,6 +557,7 @@ export default function CheckoutPage() {
   const [quizAnswers, setQuizAnswers] = useState<any>(null)
   const [clientUid, setClientUid] = useState<string | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
+  const [paymentId, setPaymentId] = useState<string | null>(null) // Declare paymentId here
 
   useEffect(() => {
     const planFromUrl = searchParams.get("plan")
@@ -568,30 +569,41 @@ export default function CheckoutPage() {
 
   // Polling para verificar status do pagamento
   useEffect(() => {
-    if (!paymentId) return
+    console.log("[v0] CHECKOUT_POLLING - useEffect iniciado, paymentId:", paymentId)
+    if (!paymentId) {
+      console.log("[v0] CHECKOUT_POLLING - Sem paymentId, não iniciando polling")
+      return
+    }
 
     const pollPaymentStatus = async () => {
       try {
+        console.log("[v0] CHECKOUT_POLLING - Chamando check-payment-status com paymentId:", paymentId)
         const response = await fetch(`/api/check-payment-status?paymentId=${paymentId}`)
         if (response.ok) {
           const data = await response.json()
-          console.log("[v0] Status do pagamento:", data.status)
+          console.log("[v0] CHECKOUT_POLLING - Resposta recebida, status:", data.status)
 
           // Se pagamento confirmado, redirecionar para sucesso
           if (data.status === "RECEIVED" || data.status === "CONFIRMED") {
-            console.log("[v0] Pagamento confirmado! Redirecionando para success...")
+            console.log("[v0] CHECKOUT_POLLING - Pagamento confirmado! Redirecionando para success...")
             window.location.href = "/success"
           }
+        } else {
+          console.warn("[v0] CHECKOUT_POLLING - Resposta não OK, status:", response.status)
         }
       } catch (err) {
-        console.error("[v0] Erro ao verificar status do pagamento:", err)
+        console.error("[v0] CHECKOUT_POLLING - Erro ao verificar status do pagamento:", err)
       }
     }
 
     // Fazer polling a cada 3 segundos
+    console.log("[v0] CHECKOUT_POLLING - Iniciando interval de 3 segundos")
     const interval = setInterval(pollPaymentStatus, 3000)
 
-    return () => clearInterval(interval)
+    return () => {
+      console.log("[v0] CHECKOUT_POLLING - Limpando interval")
+      clearInterval(interval)
+    }
   }, [paymentId])
 
   const plans = [
@@ -837,6 +849,7 @@ export default function CheckoutPage() {
                     paymentMethod={paymentMethod}
                     onError={handlePaymentError}
                     onSuccess={handlePaymentSuccess}
+                    paymentId={paymentId} // Pass paymentId to AsaasPaymentForm
                   />
                 )}
               </>
