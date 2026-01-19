@@ -890,12 +890,48 @@ export default function QuizPage() {
 
       const { imc, classification, status } = calculateIMC(weightForIMC, heightForIMC)
 
+      // Calculate basic calorie goal (simplified calculation, API will refine it)
+      const calorieGoal = (() => {
+        const weight = weightForIMC
+        const height = heightForIMC
+        const age = Number.parseInt(quizData.age || "25")
+        
+        // Mifflin-St Jeor formula for BMR
+        let bmr = 0
+        if (quizData.gender === "masculino") {
+          bmr = 10 * weight + 6.25 * height - 5 * age + 5
+        } else {
+          bmr = 10 * weight + 6.25 * height - 5 * age - 161
+        }
+        
+        // Activity multiplier based on training days
+        const trainingDaysNum = Number.parseInt(quizData.trainingDays || "3")
+        let activityMultiplier = 1.2 // sedentary
+        if (trainingDaysNum >= 3) activityMultiplier = 1.55 // moderate
+        if (trainingDaysNum >= 5) activityMultiplier = 1.725 // heavy
+        
+        // Calculate TDEE
+        const tdee = bmr * activityMultiplier
+        
+        // Adjust based on goal
+        let goal = tdee
+        if (quizData.weightChangeType === "struggle-gain") {
+          goal = tdee + 500 // surplus for muscle gain
+        } else if (quizData.weightChangeType === "struggle-lose") {
+          goal = tdee - 500 // deficit for weight loss
+        }
+        
+        return Math.round(goal)
+      })()
+
       // Prepare updated quiz data before saving
       const updatedQuizData = {
         ...quizData,
+        currentWeight: quizData.weight, // Add currentWeight for results page
         imc: imc,
         imcClassification: classification,
         imcStatus: status,
+        calorieGoal: calorieGoal, // Add calculated calorie goal
         // </CHANGE> Renaming fields for consistency with the canProceed updates
         sweetsFrequency: quizData.sugarFrequency, // Use sweetsFrequency
         trainingDays: quizData.trainingDays, // Use trainingDays as string from slider
