@@ -58,11 +58,27 @@ export async function POST(req: Request) {
     let clientUidFromSource: string | null = client_uid || null // Declare clientUidFromSource here
 
     // Se vem do webhook Asaas, usar os dados diretamente
-    if (userId && customerEmail) {
+    if (userId && customerEmail && customerEmail !== 'undefined') {
       userEmail = customerEmail
       userName = customerName || null
       clientUidFromSource = userId
       console.log("[v0] HANDLE_POST_CHECKOUT - Dados do Asaas webhook:", { userEmail, userName, clientUidFromSource })
+    } else if (userId && !userEmail) {
+      // Se não tem email do Asaas, buscar do Firebase usando o userId
+      console.log("[v0] HANDLE_POST_CHECKOUT - Email não recebido do Asaas, buscando do Firebase:", userId)
+      try {
+        const userDocRef = adminDb.collection("users").doc(userId)
+        const userDocSnap = await userDocRef.get()
+        if (userDocSnap.exists) {
+          const userData = userDocSnap.data()
+          userEmail = userData?.email || null
+          userName = userData?.name || customerName || null
+          clientUidFromSource = userId
+          console.log("[v0] HANDLE_POST_CHECKOUT - Dados recuperados do Firebase:", { userEmail, userName })
+        }
+      } catch (fbError) {
+        console.error("[v0] HANDLE_POST_CHECKOUT - Erro ao buscar do Firebase:", fbError)
+      }
     }
 
     if (payment_intent_id) {
@@ -809,6 +825,11 @@ export async function POST(req: Request) {
       // Email será enviado abaixo com Resend
 
       try {
+        if (!userEmail) {
+          console.warn("[v0] RESEND_WARNING - Email não disponível, não é possível enviar")
+          throw new Error("Email não disponível para envio")
+        }
+
         console.log("[v0] RESEND_SENDING - Iniciando envio de email")
         console.log("[v0] RESEND_EMAIL - Para:", userEmail)
         console.log("[v0] RESEND_SUBJECT - Assunto:", emailSubject)
