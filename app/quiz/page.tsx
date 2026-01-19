@@ -416,6 +416,9 @@ export default function QuizPage() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setCurrentUser(user)
+        // Salvar UID no localStorage para usar no checkout
+        localStorage.setItem("clientUid", user.uid)
+        console.log("[v0] Initializing clientUid from quiz:", user.uid)
         // Se o usuário está logado (ou anônimo), tenta carregar dados de quiz existentes
         if (db) {
           const userDocRef = doc(db, "users", user.uid)
@@ -430,7 +433,10 @@ export default function QuizPage() {
         try {
           const anonymousUser = await signInAnonymously(auth)
           setCurrentUser(anonymousUser.user)
-          console.log("Signed in anonymously:", anonymousUser.user.uid)
+          // Salvar UID anônimo no localStorage
+          localStorage.setItem("clientUid", anonymousUser.user.uid)
+          console.log("[v0] Signed in anonymously:", anonymousUser.user.uid)
+          console.log("[v0] Initializing clientUid from quiz:", anonymousUser.user.uid)
           // Tenta carregar dados de quiz para este usuário anônimo se existirem
           if (db) {
             const userDocRef = doc(db, "users", anonymousUser.user.uid)
