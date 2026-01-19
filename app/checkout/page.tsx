@@ -609,13 +609,6 @@ export default function CheckoutPage() {
     const fetchData = async () => {
       try {
         const stored = localStorage.getItem("quizData")
-        const storedClientUid = localStorage.getItem("clientUid")
-
-        // Recuperar clientUid do localStorage se disponível
-        if (storedClientUid) {
-          setClientUid(storedClientUid)
-          console.log("[v0] ClientUid recuperado do localStorage:", storedClientUid)
-        }
 
         if (stored) {
           const parsed = JSON.parse(stored)
@@ -624,11 +617,14 @@ export default function CheckoutPage() {
           setUserEmail(parsed.email || null)
         }
 
+        // Usar onAuthStateChanged como ÚNICA fonte de verdade para clientUid
         onAuthStateChanged(auth, async (user) => {
           if (user) {
+            // Usuário autenticado (normal ou anônimo)
             setClientUid(user.uid)
             localStorage.setItem("clientUid", user.uid)
-            console.log("[v0] ClientUid atualizado do Firebase:", user.uid)
+            console.log("[v0] ClientUid definido:", user.uid)
+
             if (!stored) {
               try {
                 const docRef = doc(db, "users", user.uid)
@@ -652,12 +648,12 @@ export default function CheckoutPage() {
               }).catch((err) => console.error("Erro ao gerar planos:", err))
             }
           } else {
-            // Usuário não autenticado - fazer login anônimo
+            // Nenhum usuário autenticado - fazer login anônimo
             try {
               const anonUser = await signInAnonymously(auth)
               setClientUid(anonUser.user.uid)
               localStorage.setItem("clientUid", anonUser.user.uid)
-              console.log("[v0] Login anônimo realizado com sucesso:", anonUser.user.uid)
+              console.log("[v0] Login anônimo, clientUid definido:", anonUser.user.uid)
             } catch (anonError) {
               console.error("[v0] Erro ao fazer login anônimo:", anonError)
             }
