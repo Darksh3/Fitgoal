@@ -780,93 +780,88 @@ export async function POST(req: Request) {
       }
     }
 
-    if (sendgridApiKey) {
-      const emailSubject = isNewUser
-        ? "Bem-vindo(a) ao FitGoal! Crie sua senha."
-        : "Sua Assinatura FitGoal foi Confirmada!"
-      const displayPlanName = planNames[planType!] || planType
+    // ==================== EMAIL COM RESEND ====================
+    // Resend funciona independentemente de SendGrid
+    const emailSubject = isNewUser
+      ? "Bem-vindo(a) ao FitGoal! Crie sua senha."
+      : "Sua Assinatura FitGoal foi Confirmada!"
+    const displayPlanName = planNames[planType!] || planType
 
-      let emailHtmlContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #84cc16;">Olá, ${userName || "campeão(ã)"}!</h1>
-          <p>Sua assinatura do plano <strong>${displayPlanName}</strong> foi confirmada!</p>
-      `
+    let emailHtmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #84cc16;">Olá, ${userName || "campeão(ã)"}!</h1>
+        <p>Sua assinatura do plano <strong>${displayPlanName}</strong> foi confirmada!</p>
+    `
 
-      if (isNewUser) {
-        emailHtmlContent += `
-          <div style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <p><strong>Dados de acesso:</strong></p>
-            <p>Email: <code style="background-color: white; padding: 5px 10px; border-radius: 3px;">${userEmail}</code></p>
-          </div>
-        `
-        if (passwordResetLink) {
-          emailHtmlContent += `
-            <p>Para começar, crie sua senha clicando no botão abaixo:</p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${passwordResetLink}" style="background-color: #84cc16; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Criar Minha Senha</a>
-            </div>
-            <p><small>Se o botão não funcionar, copie e cole este link no seu navegador:<br>${passwordResetLink}</small></p>
-          `
-        } else {
-          emailHtmlContent += `
-            <p>Para acessar sua conta, vá para a página de login e use a opção "Esqueceu a senha?" com seu e-mail:</p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_URL}/auth" style="background-color: #84cc16; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Fazer Login</a>
-            </div>
-          `
-        }
-      } else {
-        emailHtmlContent += `
-          <p>Acesse seu dashboard aqui:</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.NEXT_PUBLIC_URL}/dashboard" style="background-color: #84cc16; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Acessar Dashboard</a>
-          </div>
-        `
-      }
-
+    if (isNewUser) {
       emailHtmlContent += `
-          <p>Se você tiver alguma dúvida, entre em contato conosco.</p>
-          <p>Equipe FitGoal</p>
+        <div style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin: 20px 0;">
+          <p><strong>Dados de acesso:</strong></p>
+          <p>Email: <code style="background-color: white; padding: 5px 10px; border-radius: 3px;">${userEmail}</code></p>
         </div>
       `
-
-      // Agora Resend é completamente independente de SendGrid
-      const emailSubjectForResend = isNewUser
-        ? "Bem-vindo(a) ao FitGoal! Crie sua senha."
-        : "Sua Assinatura FitGoal foi Confirmada!"
-
-      try {
-        if (!userEmail) {
-          console.warn("[v0] RESEND_WARNING - Email não disponível, não é possível enviar")
-          throw new Error("Email não disponível para envio")
-        }
-
-        console.log("[v0] RESEND_SENDING - Iniciando envio de email")
-        console.log("[v0] RESEND_EMAIL - Para:", userEmail)
-        console.log("[v0] RESEND_SUBJECT - Assunto:", emailSubjectForResend)
-        console.log("[v0] RESEND_KEY_EXISTS - API Key configurada:", !!resendApiKey)
-        
-        if (resendApiKey) {
-          const response = await resend.emails.send({
-            from: "FitGoal <noreply@fitgoal.com.br>",
-            replyTo: "suporte@fitgoal.com.br",
-            to: userEmail,
-            subject: emailSubjectForResend,
-            html: emailHtmlContent,
-          })
-          
-          console.log(`[v0] RESEND_SUCCESS - E-mail enviado com sucesso para ${userEmail}`, response)
-        } else {
-          console.warn("[v0] RESEND_KEY_MISSING - RESEND_API_KEY não configurada, pulando envio")
-        }
-      } catch (emailError: any) {
-        console.error("[v0] RESEND_ERROR - Falha ao enviar e-mail:", {
-          error: emailError.message,
-          email: userEmail,
-          subject: emailSubject,
-        })
-        // Don't fail the entire process if email fails
+      if (passwordResetLink) {
+        emailHtmlContent += `
+          <p>Para começar, crie sua senha clicando no botão abaixo:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${passwordResetLink}" style="background-color: #84cc16; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Criar Minha Senha</a>
+          </div>
+          <p><small>Se o botão não funcionar, copie e cole este link no seu navegador:<br>${passwordResetLink}</small></p>
+        `
+      } else {
+        emailHtmlContent += `
+          <p>Para acessar sua conta, vá para a página de login e use a opção "Esqueceu a senha?" com seu e-mail:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.NEXT_PUBLIC_URL}/auth" style="background-color: #84cc16; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Fazer Login</a>
+          </div>
+        `
       }
+    } else {
+      emailHtmlContent += `
+        <p>Acesse seu dashboard aqui:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${process.env.NEXT_PUBLIC_URL}/dashboard" style="background-color: #84cc16; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Acessar Dashboard</a>
+        </div>
+      `
+    }
+
+    emailHtmlContent += `
+        <p>Se você tiver alguma dúvida, entre em contato conosco.</p>
+        <p>Equipe FitGoal</p>
+      </div>
+    `
+
+    try {
+      if (!userEmail) {
+        console.warn("[v0] RESEND_WARNING - Email não disponível, não é possível enviar")
+        throw new Error("Email não disponível para envio")
+      }
+
+      console.log("[v0] RESEND_SENDING - Iniciando envio de email")
+      console.log("[v0] RESEND_EMAIL - Para:", userEmail)
+      console.log("[v0] RESEND_SUBJECT - Assunto:", emailSubject)
+      console.log("[v0] RESEND_KEY_EXISTS - API Key configurada:", !!resendApiKey)
+      
+      if (resendApiKey) {
+        const response = await resend.emails.send({
+          from: "FitGoal <noreply@fitgoal.com.br>",
+          replyTo: "suporte@fitgoal.com.br",
+          to: userEmail,
+          subject: emailSubject,
+          html: emailHtmlContent,
+        })
+        
+        console.log(`[v0] RESEND_SUCCESS - E-mail enviado com sucesso para ${userEmail}`, response)
+      } else {
+        console.warn("[v0] RESEND_KEY_MISSING - RESEND_API_KEY não configurada, pulando envio")
+      }
+    } catch (emailError: any) {
+      console.error("[v0] RESEND_ERROR - Falha ao enviar e-mail:", {
+        error: emailError.message,
+        email: userEmail,
+        subject: emailSubject,
+      })
+      // Don't fail the entire process if email fails
     }
 
     console.log(`DEBUG: Processo de pós-checkout concluído com sucesso para usuário: ${finalUserUid}`)
