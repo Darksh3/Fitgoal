@@ -670,7 +670,7 @@ export default function QuizPage() {
           imcClassification: data.imcClassification, // Agora vem do quizData
           primaryGoals: data.goal,
           bodyType: data.bodyType,
-          experience: data.experience,
+          experience: data.strengthTraining, // Mapear strengthTraining para experience
           gender: data.gender,
           age: data.age,
           dietPreferences: data.diet,

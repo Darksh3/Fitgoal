@@ -132,7 +132,9 @@ export default function DadosPage() {
             ...localQuizData,
             ...firestoreQuizData,
             // Garantir que campos importantes sempre estejam preenchidos
-            experience: firestoreQuizData?.experience || localQuizData?.experience || "",
+            // experience pode vir de "experience" ou "strengthTraining" dependendo de quando foi salvo
+            experience: firestoreQuizData?.experience || firestoreQuizData?.strengthTraining || localQuizData?.experience || localQuizData?.strengthTraining || "",
+            strengthTraining: firestoreQuizData?.strengthTraining || firestoreQuizData?.experience || localQuizData?.strengthTraining || localQuizData?.experience || "",
             workoutTime: firestoreQuizData?.workoutTime || localQuizData?.workoutTime || "",
             trainingDaysPerWeek: firestoreQuizData?.trainingDaysPerWeek || localQuizData?.trainingDaysPerWeek || "",
           }
