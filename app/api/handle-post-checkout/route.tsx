@@ -724,7 +724,13 @@ export async function POST(req: Request) {
       name: userName,
       email: userEmail,
       quizAnswers: { ...existingUserData.quizAnswers, ...quizAnswersFromMetadata },
-      quizData: { ...initialQuizData, ...quizAnswersFromMetadata, initialWeight: initialQuizData.initialWeight },
+      quizData: {
+        ...initialQuizData,
+        ...quizAnswersFromMetadata,
+        // Garantir que initialWeight sempre tem um valor válido
+        initialWeight: initialQuizData.initialWeight || quizAnswersFromMetadata.weight || quizAnswersFromMetadata.currentWeight || "0",
+        currentWeight: quizAnswersFromMetadata.currentWeight || quizAnswersFromMetadata.weight || "0",
+      },
       personalData: existingUserData.personalData || {},
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       createdAt: existingUserData.createdAt || admin.firestore.FieldValue.serverTimestamp(),
@@ -782,6 +788,7 @@ export async function POST(req: Request) {
 
     // ==================== EMAIL COM RESEND ====================
     // Resend funciona independentemente de SendGrid
+    console.log("[v0] EMAIL_BLOCK_START - Iniciando bloco de email")
     const emailSubject = isNewUser
       ? "Bem-vindo(a) ao FitGoal! Crie sua senha."
       : "Sua Assinatura FitGoal foi Confirmada!"
@@ -843,6 +850,7 @@ export async function POST(req: Request) {
       console.log("[v0] RESEND_KEY_EXISTS - API Key configurada:", !!resendApiKey)
       
       if (resendApiKey) {
+        console.log("[v0] RESEND_CALLING - Chamando resend.emails.send()")
         const response = await resend.emails.send({
           from: "FitGoal <noreply@fitgoal.com.br>",
           replyTo: "suporte@fitgoal.com.br",
@@ -851,15 +859,17 @@ export async function POST(req: Request) {
           html: emailHtmlContent,
         })
         
-        console.log(`[v0] RESEND_SUCCESS - E-mail enviado com sucesso para ${userEmail}`, response)
+        console.log(`[v0] RESEND_SUCCESS - E-mail enviado com sucesso para ${userEmail}:`, response)
       } else {
         console.warn("[v0] RESEND_KEY_MISSING - RESEND_API_KEY não configurada, pulando envio")
       }
     } catch (emailError: any) {
       console.error("[v0] RESEND_ERROR - Falha ao enviar e-mail:", {
-        error: emailError.message,
+        error: emailError?.message,
+        errorFull: emailError,
         email: userEmail,
         subject: emailSubject,
+        stack: emailError?.stack,
       })
       // Don't fail the entire process if email fails
     }
