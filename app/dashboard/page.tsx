@@ -432,15 +432,27 @@ export default function DashboardPage() {
 
     try {
       const userRef = doc(db, "users", user.uid)
+      
+      // Atualizar currentWeight e quizData.currentWeight ao mesmo tempo
       await updateDoc(userRef, {
         currentWeight: newWeight.toString(),
+        "quizData.currentWeight": newWeight.toString(),
       })
 
+      // Atualizar estado local
       if (quizData) {
         setQuizData({
           ...quizData,
           currentWeight: newWeight.toString(),
         })
+      }
+
+      // Atualizar localStorage também para sincronizar com outras abas
+      const savedQuizData = localStorage.getItem("quizData")
+      if (savedQuizData) {
+        const parsed = JSON.parse(savedQuizData)
+        parsed.currentWeight = newWeight.toString()
+        localStorage.setItem("quizData", JSON.stringify(parsed))
       }
 
       console.log("[v0] Peso atualizado no Firestore:", newWeight)
