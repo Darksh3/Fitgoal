@@ -54,6 +54,7 @@ export default function AuthPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password)
       const userId = userCredential.user.uid
+      let hasQuizData = false
 
       try {
         const leadsDocRef = doc(db, "leads", userId)
@@ -62,6 +63,7 @@ export default function AuthPage() {
         if (leadsDoc.exists()) {
           const leadData = leadsDoc.data()
           console.log("[v0] Lead data found, copying to user:", userId)
+          hasQuizData = !!(leadData.quizData || leadData.goal)
 
           // Copiar todos os dados do lead para o documento do usuário
           const userDocRef = doc(db, "users", userId)
@@ -116,7 +118,13 @@ export default function AuthPage() {
         title: "Sucesso!",
         description: "Conta criada com sucesso.",
       })
-      router.push("/dashboard")
+
+      // Redirecionar para quiz se não tem dados de quiz, senão para dashboard
+      if (hasQuizData) {
+        router.push("/dashboard")
+      } else {
+        router.push("/quiz")
+      }
     } catch (error: any) {
       toast({
         title: "Erro ao criar conta",
@@ -182,31 +190,9 @@ export default function AuthPage() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <button
-                type="button"
-                onClick={() => {
-                  const loginTab = document.querySelector('[value="login"]') as HTMLButtonElement
-                  loginTab?.click()
-                }}
-                className="px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 bg-lime-500 hover:bg-lime-600 text-white shadow-lg"
-              >
-                Login
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const signupTab = document.querySelector('[value="signup"]') as HTMLButtonElement
-                  signupTab?.click()
-                }}
-                className="px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 bg-white/10 hover:bg-white/20 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
-              >
-                Cadastrar
-              </button>
-            </div>
-            <TabsList className="hidden">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Cadastrar</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="login" className="text-base font-semibold">Login</TabsTrigger>
+              <TabsTrigger value="signup" className="text-base font-semibold">Cadastrar</TabsTrigger>
             </TabsList>
             <TabsContent value="login" className="mt-4">
               <form onSubmit={handleSignIn} className="space-y-4">

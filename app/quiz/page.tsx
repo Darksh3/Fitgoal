@@ -329,7 +329,7 @@ export default function QuizPage() {
   const [analyzingStep, setAnalyzingStep] = useState(0)
   // </CHANGE>
 
-  const [debugMode, setDebugMode] = useState(false) // Disabled debug mode
+  const [debugMode, setDebugMode] = useState(true) // Enabled debug mode for alignment
   const [debugValues, setDebugValues] = useState({
     chest_left: { top: 23, left: 33, width: 14, height: 6, rotate: -90 },
     chest_right: { top: 23, right: 38, width: 14, height: 6, rotate: -90 },
