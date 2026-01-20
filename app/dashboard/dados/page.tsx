@@ -131,6 +131,10 @@ export default function DadosPage() {
           const finalQuizData = {
             ...localQuizData,
             ...firestoreQuizData,
+            // Garantir que campos importantes sempre estejam preenchidos
+            experience: firestoreQuizData?.experience || localQuizData?.experience || "",
+            workoutTime: firestoreQuizData?.workoutTime || localQuizData?.workoutTime || "",
+            trainingDaysPerWeek: firestoreQuizData?.trainingDaysPerWeek || localQuizData?.trainingDaysPerWeek || "",
           }
           setQuizData(finalQuizData)
           localStorage.setItem("quizData", JSON.stringify(finalQuizData))
