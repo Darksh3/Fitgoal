@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { CreditCard, Check, ShoppingCart, User, Lock, QrCode, FileText, Smartphone, ArrowLeft } from "lucide-react"
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
-import { doc, onSnapshot, setDoc, db } from "@/lib/firebaseClient"
+import { doc, onSnapshot, setDoc, db, auth } from "@/lib/firebaseClient"
 
 type PaymentMethod = "pix" | "boleto" | "card"
 
@@ -257,15 +257,16 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
 
         // Salvar documento no Firestore com userId ANTES do webhook chegar
         try {
-          console.log("[v0] PIX_SAVING_TO_FIRESTORE - Salvando pagamento no Firestore com userId")
+          const currentUserId = auth.currentUser?.uid
+          console.log("[v0] PIX_SAVING_TO_FIRESTORE - Salvando pagamento no Firestore com userId:", currentUserId)
           await setDoc(doc(db, "payments", paymentResult.paymentId), {
             paymentId: paymentResult.paymentId,
-            userId: clientUid, // ESSENCIAL: userId para RLS do Firestore
+            userId: currentUserId || null, // ESSENCIAL: userId do auth para RLS do Firestore
             status: "PENDING",
             billingType: "PIX",
             createdAt: new Date(),
           })
-          console.log("[v0] PIX_SAVED_FIRESTORE - Documento criado no Firestore")
+          console.log("[v0] PIX_SAVED_FIRESTORE - Documento criado no Firestore com userId:", currentUserId)
         } catch (error) {
           console.error("[v0] PIX_FIRESTORE_ERROR - Erro ao salvar no Firestore:", error)
         }

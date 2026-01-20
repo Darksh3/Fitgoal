@@ -15,16 +15,17 @@ export async function POST(request: Request) {
     // ATUALIZAR FIRESTORE IMEDIATAMENTE (rápido, síncrono)
     if (payment?.id && payment?.status) {
       try {
-        console.log("[v0] WEBHOOK_UPDATING_PAYMENT - Atualizando Firestore")
+        const userId = payment?.externalReference
+        console.log("[v0] WEBHOOK_UPDATING_PAYMENT - Atualizando Firestore com userId:", userId)
         await adminDb.collection("payments").doc(payment.id).set({
           paymentId: payment.id,
-          userId: payment?.externalReference || null, // Adicionar userId para RLS
+          userId: userId || null, // ESSENCIAL para RLS
           status: payment.status,
           billingType: payment.billingType,
           value: payment.value,
           updatedAt: new Date(),
         }, { merge: true })
-        console.log("[v0] WEBHOOK_UPDATED - Firestore atualizado com status:", payment.status)
+        console.log("[v0] WEBHOOK_UPDATED - Firestore atualizado com status:", payment.status, "userId:", userId)
       } catch (error) {
         console.error("[v0] WEBHOOK_FIRESTORE_ERROR - Erro:", error)
       }
