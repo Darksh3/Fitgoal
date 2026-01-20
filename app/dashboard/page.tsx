@@ -73,6 +73,7 @@ export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [initialWeight, setInitialWeight] = useState<number>(0)
   const [currentWeightSlider, setCurrentWeightSlider] = useState<number>(0)
+  const [bestWeight, setBestWeight] = useState<number | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [subscriptionExpired, setSubscriptionExpired] = useState(false)
   const [subscriptionExpiresAt, setSubscriptionExpiresAt] = useState<Date | null>(null)
@@ -144,8 +145,27 @@ export default function DashboardPage() {
       if (currentWeightSlider === 0) {
         setCurrentWeightSlider(initialW)
       }
+
+      // Carregar bestWeight se não foi carregado ainda
+      if (bestWeight === null && user) {
+        const loadBestWeight = async () => {
+          try {
+            const userRef = doc(db, "users", user.uid)
+            const userSnap = await getDoc(userRef)
+            if (userSnap.exists()) {
+              const data = userSnap.data()
+              const best = data?.bestWeight ? Number.parseFloat(data.bestWeight) : initialW
+              setBestWeight(best)
+            }
+          } catch (error) {
+            console.error("[v0] Erro ao carregar bestWeight:", error)
+            setBestWeight(initialW)
+          }
+        }
+        loadBestWeight()
+      }
     }
-  }, [quizData])
+  }, [quizData, user, bestWeight])
 
   const loadQuizDataAndGeneratePlans = async (user: any) => {
     let foundQuizData = null
@@ -425,10 +445,32 @@ export default function DashboardPage() {
     setIsSaving(true)
 
     try {
+      // Calcular novo bestWeight
+      let newBestWeight = bestWeight
+      if (newBestWeight === null) {
+        newBestWeight = newWeight
+      } else {
+        // Para bulking (meta maior): melhor é o maior peso
+        // Para cutting (meta menor): melhor é o menor peso
+        const goalWeight = Number.parseFloat(quizData?.targetWeight || "0")
+        const start = initialWeight
+
+        if (goalWeight > start) {
+          // Bulking
+          newBestWeight = Math.max(bestWeight, newWeight)
+        } else {
+          // Cutting
+          newBestWeight = Math.min(bestWeight, newWeight)
+        }
+      }
+
       const userRef = doc(db, "users", user.uid)
       await updateDoc(userRef, {
         currentWeight: newWeight.toString(),
+        bestWeight: newBestWeight.toString(),
       })
+
+      setBestWeight(newBestWeight)
 
       if (quizData) {
         setQuizData({
@@ -437,12 +479,29 @@ export default function DashboardPage() {
         })
       }
 
-      console.log("[v0] Peso atualizado no Firestore:", newWeight)
+      console.log("[v0] Peso atualizado:", newWeight, "| Melhor peso:", newBestWeight)
     } catch (error) {
       console.error("[v0] Erro ao salvar peso:", error)
     } finally {
       setIsSaving(false)
     }
+  }
+
+  // Função para calcular progresso (funciona para bulking e cutting)
+  const calcProgress = (start: number, current: number, goal: number) => {
+    if (!isFinite(start) || !isFinite(current) || !isFinite(goal)) return 0
+
+    if (goal === start) return 1
+
+    if (goal > start) {
+      // Bulking (meta maior)
+      const p = (current - start) / (goal - start)
+      return Math.min(1, Math.max(0, p))
+    }
+
+    // Cutting (meta menor)
+    const p = (start - current) / (start - goal)
+    return Math.min(1, Math.max(0, p))
   }
 
   const loadPhotoProgressBonus = async (userId: string) => {
@@ -568,7 +627,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-gray-900">Assinatura Expirada</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Assinatura Expirada</h2>
               <p className="text-gray-600 text-sm">
                 {subscriptionExpiresAt && `Expirou em ${subscriptionExpiresAt.toLocaleDateString("pt-BR")}`}
               </p>
@@ -759,54 +818,76 @@ export default function DashboardPage() {
 
           {quizData && (
             <div className="mb-12 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-8 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-center">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Peso Inicial</p>
-                  <p className="text-2xl font-bold text-gray-400 dark:text-gray-500">{initialWeight.toFixed(1)} kg</p>
+              <div className="relative mt-6">
+                {/* Labels com pesos */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-center">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Peso Inicial</p>
+                    <p className="text-2xl font-bold text-gray-400 dark:text-gray-500">{initialWeight.toFixed(1)} kg</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Peso Atual</p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                      {currentWeightSlider.toFixed(1)} kg
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Meta</p>
+                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">{quizData?.targetWeight} kg</p>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Peso Atual</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                    {currentWeightSlider.toFixed(1)} kg
-                  </p>
-                </div>
-                <div className="text-center">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Meta</p>
-                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">{quizData.targetWeight} kg</p>
-                </div>
-              </div>
 
-              <div className="relative">
+                {/* Barra com feedback de progresso e regressão */}
+                {(() => {
+                  const start = initialWeight
+                  const current = currentWeightSlider
+                  const goal = Number.parseFloat(quizData?.targetWeight || "0")
+                  const best = bestWeight || current
+
+                  const currentP = calcProgress(start, current, goal)
+                  const bestP = calcProgress(start, best, goal)
+
+                  const currentPercent = currentP * 100
+                  const bestPercent = bestP * 100
+                  const regressPercent = Math.max(0, bestPercent - currentPercent)
+
+                  return (
+                    <div className="relative h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-6">
+                      {/* Melhor progresso (azul) */}
+                      <div
+                        className="absolute left-0 top-0 h-4 bg-blue-500 rounded-full transition-all"
+                        style={{ width: `${bestPercent}%` }}
+                      />
+
+                      {/* Regressão (vermelho) - só aparece se regredir */}
+                      {regressPercent > 0 && (
+                        <div
+                          className="absolute top-0 h-4 bg-red-500/70 transition-all"
+                          style={{ left: `${currentPercent}%`, width: `${regressPercent}%` }}
+                        />
+                      )}
+
+                      {/* Bolinha atual */}
+                      <div
+                        className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full border-4 border-blue-500 shadow-lg transition-all pointer-events-none"
+                        style={{ left: `calc(${currentPercent}% - 12px)` }}
+                      />
+                    </div>
+                  )
+                })()}
+
+                {/* Slider input (invisível) */}
                 <input
                   type="range"
-                  min={Math.min(initialWeight, Number.parseFloat(quizData.targetWeight)) - 10}
-                  max={Math.max(initialWeight, Number.parseFloat(quizData.targetWeight)) + 10}
+                  min={Math.min(initialWeight, Number.parseFloat(quizData?.targetWeight || "0")) - 10}
+                  max={Math.max(initialWeight, Number.parseFloat(quizData?.targetWeight || "0")) + 10}
                   step="0.1"
                   value={currentWeightSlider}
                   onChange={(e) => handleWeightChange(Number.parseFloat(e.target.value))}
-                  className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb"
-                  style={{
-                    background: `linear-gradient(to right, 
-                      rgb(59 130 246) 0%, 
-                      rgb(59 130 246) ${
-                        ((currentWeightSlider -
-                          (Math.min(initialWeight, Number.parseFloat(quizData.targetWeight)) - 10)) /
-                          (Math.max(initialWeight, Number.parseFloat(quizData.targetWeight)) +
-                            10 -
-                            (Math.min(initialWeight, Number.parseFloat(quizData.targetWeight)) - 10))) *
-                        100
-                      }%, 
-                      rgb(229 231 235) ${
-                        ((currentWeightSlider -
-                          (Math.min(initialWeight, Number.parseFloat(quizData.targetWeight)) - 10)) /
-                          (Math.max(initialWeight, Number.parseFloat(quizData.targetWeight)) +
-                            10 -
-                            (Math.min(initialWeight, Number.parseFloat(quizData.targetWeight)) - 10))) *
-                        100
-                      }%, 
-                      rgb(229 231 235) 100%)`,
-                  }}
+                  className="w-full h-3 bg-transparent rounded-lg appearance-none cursor-pointer absolute top-1/2 -translate-y-1/2 opacity-0"
+                  style={{ zIndex: 5 }}
                 />
+
                 {isSaving && <p className="text-xs text-blue-600 dark:text-blue-400 text-center mt-2">Salvando...</p>}
               </div>
             </div>
