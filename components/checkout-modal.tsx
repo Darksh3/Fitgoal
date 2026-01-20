@@ -8,29 +8,9 @@ import { Input } from "@/components/ui/input"
 import { CreditCard, Check, ShoppingCart, User, Lock, QrCode, FileText, Smartphone, ArrowLeft } from "lucide-react"
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
-import { doc, onSnapshot, setDoc, serverTimestamp } from "firebase/firestore"
-import { db, auth } from "@/lib/firebaseClient"
+import { doc, onSnapshot, setDoc, db } from "@/lib/firebaseClient"
 
 type PaymentMethod = "pix" | "boleto" | "card"
-
-// Helper para esperar auth estar pronto
-function waitForAuthUser(): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const u = auth.currentUser?.uid
-    if (u) return resolve(u)
-
-    const unsub = auth.onAuthStateChanged((user) => {
-      unsub()
-      if (user?.uid) {
-        console.log("[v0] AUTH_READY - User authenticated:", user.uid)
-        resolve(user.uid)
-      } else {
-        console.error("[v0] AUTH_FAILED - Usuário não autenticado")
-        reject(new Error("Usuário não autenticado"))
-      }
-    })
-  })
-}
 
 function PaymentMethodSelector({
   onSelect,
@@ -93,38 +73,65 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   })
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
-  const [paymentId, setPaymentId] = useState<string | null>(null) // Declare paymentId variable
-  const [paymentStatus, setPaymentStatus] = useState<string | null>(null) // Declare paymentStatus variable
+  const [redirectCountdown, setRedirectCountdown] = useState(15)
 
-  // Listener real-time para PIX - escuta mudanças do Firestore
+  // Listener real-time para PIX - escuta mudanças do Firestore em tempo real
   useEffect(() => {
-    const pid = pixData?.paymentId
-    if (!pid || paymentMethod !== "pix") return
+    if (!pixData?.paymentId || paymentMethod !== "pix") return
 
-    console.log("[v0] PIX_LISTENER_START - onSnapshot:", pid)
+    console.log("[v0] PIX_LISTENER_START - Iniciando onSnapshot para:", pixData.paymentId)
 
-    const ref = doc(db, "payments", pid)
-    const unsubscribe = onSnapshot(
-      ref,
-      (snap) => {
-        if (!snap.exists()) return
-        const data = snap.data()
-        console.log("[v0] PIX_LISTENER_UPDATE - Status:", data?.status)
+    try {
+      const paymentDocRef = doc(db, "payments", pixData.paymentId)
+      const unsubscribe = onSnapshot(
+        paymentDocRef,
+        (snapshot) => {
+          if (!snapshot.exists()) {
+            console.log("[v0] PIX_LISTENER - Documento não encontrado ainda")
+            return
+          }
 
-        if (data?.status === "RECEIVED" || data?.status === "CONFIRMED") {
-          console.log("[v0] PIX_LISTENER_CONFIRMED - Redirecionando em 5 segundos...")
-          unsubscribe()
-          setTimeout(() => onSuccess(pid), 5000)
+          const paymentData = snapshot.data()
+          console.log("[v0] PIX_LISTENER_UPDATE - Status atualizado:", paymentData?.status)
+
+          // Se pagamento foi confirmado, mostrar sucesso
+          if (paymentData?.status === "RECEIVED" || paymentData?.status === "CONFIRMED") {
+            console.log("[v0] PIX_LISTENER_CONFIRMED - Pagamento confirmado! Mostrando animação...")
+            setPaymentConfirmed(true)
+            unsubscribe()
+          }
+        },
+        (error) => {
+          console.error("[v0] PIX_LISTENER_ERROR - Erro ao escutar documento:", error)
         }
-      },
-      (err) => console.error("[v0] PIX_LISTENER_ERROR:", err)
-    )
+      )
 
-    return () => {
-      console.log("[v0] PIX_LISTENER_CLEANUP - Unmounting listener")
-      unsubscribe()
+      return () => {
+        console.log("[v0] PIX_LISTENER_CLEANUP - Limpando listener")
+        unsubscribe()
+      }
+    } catch (error) {
+      console.error("[v0] PIX_LISTENER_SETUP_ERROR - Erro ao configurar listener:", error)
     }
-  }, [pixData?.paymentId, paymentMethod, onSuccess])
+  }, [pixData?.paymentId, paymentMethod])
+
+  // Countdown para redirecionamento
+  useEffect(() => {
+    if (!paymentConfirmed) return
+
+    const interval = setInterval(() => {
+      setRedirectCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval)
+          window.location.href = "/dashboard"
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [paymentConfirmed])
 
   const maxInstallments = 6
   const minInstallmentValue = 50
@@ -250,31 +257,25 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
 
       const paymentResult = await paymentResponse.json()
       console.log("[v0] Payment Result:", paymentResult)
-      setPaymentId(paymentResult.paymentId) // Set paymentId after receiving the response
 
       if (paymentMethod === "pix") {
+        // Sempre guardar paymentId no localStorage para persistência
         localStorage.setItem("lastPaymentId", paymentResult.paymentId)
-        console.log("[v0] PIX_PAYMENT_CREATED - paymentId:", paymentResult.paymentId)
+        console.log("[v0] PIX_PAYMENT_CREATED - paymentId salvo:", paymentResult.paymentId)
 
-        // Esperar auth estar pronto ANTES de salvar
+        // Salvar documento no Firestore com userId ANTES do webhook chegar
         try {
-          const uid = await waitForAuthUser()
-          console.log("[v0] PIX_AUTH_READY - Salvando no Firestore com uid:", uid)
-          
-          await setDoc(
-            doc(db, "payments", paymentResult.paymentId),
-            {
-              paymentId: paymentResult.paymentId,
-              userId: uid, // SEMPRE preenchido e válido
-              status: "PENDING",
-              billingType: "PIX",
-              createdAt: serverTimestamp(),
-            },
-            { merge: true }
-          )
-          console.log("[v0] PIX_SAVED_FIRESTORE - Documento criado com sucesso")
-        } catch (err) {
-          console.error("[v0] PIX_AUTH_ERROR - Erro ao aguardar auth ou salvar:", err)
+          console.log("[v0] PIX_SAVING_TO_FIRESTORE - Salvando pagamento no Firestore com userId")
+          await setDoc(doc(db, "payments", paymentResult.paymentId), {
+            paymentId: paymentResult.paymentId,
+            userId: clientUid, // ESSENCIAL: userId para RLS do Firestore
+            status: "PENDING",
+            billingType: "PIX",
+            createdAt: new Date(),
+          })
+          console.log("[v0] PIX_SAVED_FIRESTORE - Documento criado no Firestore")
+        } catch (error) {
+          console.error("[v0] PIX_FIRESTORE_ERROR - Erro ao salvar no Firestore:", error)
         }
 
         const qrCodeResponse = await fetch(`/api/get-pix-qrcode?paymentId=${paymentResult.paymentId}`)
@@ -284,13 +285,13 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
           setPixData({
             qrCode: qrCodeResult.encodedImage || qrCodeResult.qrCode,
             copyPaste: qrCodeResult.payload,
-            paymentId: paymentResult.paymentId,
+            paymentId: paymentResult.paymentId, // ESSENCIAL: sempre salvar paymentId
           })
         } else {
           setPixData({
             qrCode: paymentResult.pixQrCode,
             copyPaste: paymentResult.pixCopyPaste,
-            paymentId: paymentResult.paymentId,
+            paymentId: paymentResult.paymentId, // ESSENCIAL: sempre salvar paymentId
           })
         }
 
@@ -363,12 +364,45 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   if (paymentConfirmed) {
     return (
       <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
-        className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center animate-bounce"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
       >
-        <Check className="w-10 h-10 text-white" />
+        <Card className="bg-gradient-to-br from-green-900 to-green-800 border-green-600">
+          <CardContent className="pt-12 pb-12 text-center space-y-6">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+              className="flex justify-center"
+            >
+              <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center">
+                <Check className="w-10 h-10 text-white" />
+              </div>
+            </motion.div>
+
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold text-white">Pagamento Confirmado!</h2>
+              <p className="text-green-100 text-lg">Obrigado por sua compra</p>
+            </div>
+
+            <div className="space-y-3 text-left">
+              <p className="text-green-100">
+                Seu plano <span className="font-bold text-white">{currentPlan.name}</span> foi ativado com sucesso!
+              </p>
+              <p className="text-green-100">
+                Você receberá um email com todos os detalhes e seus dados de acesso em instantes.
+              </p>
+              <p className="text-green-50 text-sm mt-4">
+                Redirecionando para seu dashboard em <span className="font-bold text-white">{redirectCountdown}s</span>...
+              </p>
+            </div>
+
+            <div className="pt-4 border-t border-green-700">
+              <p className="text-green-100 text-sm">Bem-vindo à FitGoal! 🚀</p>
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
     )
   }
@@ -539,8 +573,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                     onChange={(e) => {
                       let value = e.target.value.replace(/\D/g, "")
                       if (value.length <= 8) {
-                        value = value
-                          .replace(/(\d{5})(\d)/, "$1-$2")
+                        value = value.replace(/(\d{5})(\d)/, "$1-$2")
                       }
                       setAddressData({ ...addressData, postalCode: value })
                     }}

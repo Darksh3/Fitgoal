@@ -759,15 +759,7 @@ export default function CheckoutPage() {
     fetchData()
   }, [])
 
-  const handlePaymentSuccess = (paymentId?: string) => {
-    if (paymentId) {
-      // Fluxo Asaas (PIX, Boleto, Cartão)
-      router.push(`/success-asaas?paymentId=${paymentId}`)
-    } else {
-      // Fluxo Stripe
-      router.push("/success?embedded=true")
-    }
-  }
+  const handlePaymentSuccess = () => router.push("/success?embedded=true")
   const handlePaymentError = (msg: string) => setError(msg)
 
   if (loading) return <div className="flex justify-center items-center min-h-screen text-white">Carregando...</div>
