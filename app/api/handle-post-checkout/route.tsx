@@ -713,12 +713,18 @@ export async function POST(req: Request) {
     })
 
     const userDocRef = adminDb.collection("users").doc(finalUserUid)
+    
+    // Se é novo usuário, seta initialWeight (peso inicial fixo)
+    const initialQuizData = isNewUser 
+      ? { ...quizAnswersFromMetadata, initialWeight: quizAnswersFromMetadata.currentWeight }
+      : existingUserData.quizData
+    
     const userData = {
       ...existingUserData,
       name: userName,
       email: userEmail,
       quizAnswers: { ...existingUserData.quizAnswers, ...quizAnswersFromMetadata },
-      quizData: { ...existingUserData.quizData, ...quizAnswersFromMetadata },
+      quizData: { ...initialQuizData, ...quizAnswersFromMetadata },
       personalData: existingUserData.personalData || {},
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       createdAt: existingUserData.createdAt || admin.firestore.FieldValue.serverTimestamp(),

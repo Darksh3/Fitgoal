@@ -137,13 +137,14 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (quizData?.currentWeight) {
-      const initialW = Number.parseFloat(quizData.currentWeight)
+      // Usar initialWeight do Firestore (fixo), se não tiver, usar currentWeight como fallback
+      const initialW = Number.parseFloat((quizData as any).initialWeight ?? quizData.currentWeight)
       setInitialWeight(initialW)
 
-      // Peso atual do slider deve começar no peso inicial
+      // Peso atual do slider deve começar no peso atual
       // Só atualiza se ainda não foi modificado pelo usuário
       if (currentWeightSlider === 0) {
-        setCurrentWeightSlider(initialW)
+        setCurrentWeightSlider(Number.parseFloat(quizData.currentWeight))
       }
     }
     if (quizData?.height) {
@@ -763,35 +764,44 @@ export default function DashboardPage() {
 
           {quizData && (
             <div className="mb-12 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-8 shadow-sm">
-              {/* Labels dos 3 pontos */}
-              <div className="flex items-center justify-between mb-8">
-                <div className="text-center flex-1">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Peso Inicial</p>
-                  <p className="text-lg font-bold text-gray-400 dark:text-gray-500">{initialWeight.toFixed(1)} kg</p>
-                </div>
-                <div className="text-center flex-1">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Peso Atual</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {currentWeightSlider.toFixed(1)} kg
-                  </p>
-                </div>
-                <div className="text-center flex-1">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Meta</p>
-                  <p className="text-lg font-bold text-green-600 dark:text-green-400">{quizData.targetWeight} kg</p>
-                </div>
-              </div>
+              {/* Labels dos 3 pontos com regressão dinâmica */}
+              {(() => {
+                const start = initialWeight
+                const current = currentWeightSlider
+                const goal = Number.parseFloat(quizData.targetWeight)
+                const isBulking = goal > start
+                const isCutting = goal < start
+                const isRegression = (isBulking && current < start) || (isCutting && current > start)
 
-              {/* Barra de progresso com 3 seções */}
+                return (
+                  <div className="flex items-center justify-between mb-8">
+                    <div className="text-center flex-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Peso Inicial</p>
+                      <p className="text-lg font-bold text-gray-400 dark:text-gray-500">{initialWeight.toFixed(1)} kg</p>
+                    </div>
+                    <div className="text-center flex-1">
+                      <p className={`text-xs mb-1 font-semibold ${isRegression ? "text-red-500 dark:text-red-400" : "text-gray-500 dark:text-gray-400"}`}>
+                        {isRegression ? "Regressão" : "Peso Atual"}
+                      </p>
+                      <p className={`text-2xl font-bold ${isRegression ? "text-red-500 dark:text-red-400" : "text-gray-900 dark:text-white"}`}>
+                        {current.toFixed(1)} kg
+                      </p>
+                    </div>
+                    <div className="text-center flex-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Meta</p>
+                      <p className="text-lg font-bold text-green-600 dark:text-green-400">{goal.toFixed(1)} kg</p>
+                    </div>
+                  </div>
+                )
+              })()}
+
+              {/* Barra de progresso com preenchimento do start até o current */}
               <div className="relative h-2 bg-gray-300 dark:bg-gray-600 rounded-full mb-6 overflow-visible">
                 {/* Slider input (invisível, mas interativo) */}
                 <input
                   type="range"
-                  min={initialWeight * 0.7}
-                  max={(() => {
-                    const start = initialWeight
-                    const goal = Number.parseFloat(quizData.targetWeight)
-                    return goal > start ? goal * 1.3 : start * 1.3
-                  })()}
+                  min={Math.min(initialWeight, Number.parseFloat(quizData.targetWeight)) * 0.7}
+                  max={Math.max(initialWeight, Number.parseFloat(quizData.targetWeight)) * 1.3}
                   step="0.1"
                   value={currentWeightSlider}
                   onChange={(e) => handleWeightChange(Number.parseFloat(e.target.value))}
@@ -804,38 +814,46 @@ export default function DashboardPage() {
                   const current = currentWeightSlider
                   const goal = Number.parseFloat(quizData.targetWeight)
 
-                  // Determinar se é bulking ou cutting
+                  const minBase = Math.min(start, goal)
+                  const maxBase = Math.max(start, goal)
+
+                  const minRange = minBase * 0.7
+                  const maxRange = maxBase * 1.3
+
                   const isBulking = goal > start
+                  const isCutting = goal < start
 
-                  // Range da barra
-                  const minRange = start * 0.7
-                  const maxRange = goal > start ? goal * 1.3 : start * 1.3
+                  const isRegression = (isBulking && current < start) || (isCutting && current > start)
 
-                  // Converter pesos em percentuais
-                  const currentPercent = ((current - minRange) / (maxRange - minRange)) * 100
+                  const toPercent = (w: number) => ((w - minRange) / (maxRange - minRange)) * 100
+                  const startPercent = toPercent(start)
+                  const currentPercent = toPercent(current)
 
-                  // Detectar regressão
-                  const isRegression = isBulking ? current < start : current > start
+                  const left = Math.min(startPercent, currentPercent)
+                  const width = Math.abs(currentPercent - startPercent)
 
-                  // Cores
-                  const regressionColor = isRegression ? "rgb(239 68 68)" : "rgb(59 130 246)" // Vermelho ou Azul
+                  const barColor = isRegression ? "rgb(239 68 68)" : "rgb(59 130 246)"
 
                   return (
                     <>
-                      {/* Seção vermelha (regressão) ou azul (progresso) do início até o peso atual */}
+                      {/* Preenchimento do peso inicial até o peso atual */}
                       <div
                         className="absolute top-0 h-full transition-all pointer-events-none"
                         style={{
-                          left: "0%",
-                          width: `${currentPercent}%`,
-                          backgroundColor: regressionColor,
+                          left: `${left}%`,
+                          width: `${width}%`,
+                          backgroundColor: barColor,
                         }}
                       />
 
-                      {/* Bolinha branca no peso atual */}
+                      {/* Bolinha no peso atual com cor dinâmica */}
                       <div
-                        className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full shadow-lg border-2 border-gray-800 dark:border-gray-200 transition-all pointer-events-none"
-                        style={{ left: `calc(${currentPercent}% - 12px)`, zIndex: 5 }}
+                        className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full shadow-lg border-2 transition-all pointer-events-none"
+                        style={{
+                          left: `calc(${currentPercent}% - 12px)`,
+                          borderColor: isRegression ? "rgb(239 68 68)" : "rgb(59 130 246)",
+                          zIndex: 5,
+                        }}
                       />
                     </>
                   )
