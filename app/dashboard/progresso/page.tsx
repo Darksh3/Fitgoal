@@ -194,6 +194,15 @@ export default function ProgressoPage() {
 
       console.log("[v0] Measurements saved successfully!")
 
+      // Sincronizar o peso atual se foi preenchido
+      if (measurements.weight) {
+        setProgress((prev) => ({
+          ...prev,
+          currentWeight: measurements.weight,
+        }))
+        console.log("[v0] Weight synced:", measurements.weight)
+      }
+
       // Reload history
       await loadMeasurementHistory()
 
@@ -213,6 +222,22 @@ export default function ProgressoPage() {
       ...prev,
       [field]: value,
     }))
+
+    // Sincronizar peso em tempo real no "Plano de Ação Personalizado"
+    if (field === "weight" && value) {
+      setProgress((prev) => ({
+        ...prev,
+        currentWeight: value,
+      }))
+    }
+  }
+
+  // Helper para estilizar inputs: cinza para vazio (placeholder), branco para preenchido
+  const getInputClassName = (value: string) => {
+    const baseClass = "border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
+    const emptyClass = "bg-gray-400/20 dark:bg-gray-600/20 text-gray-500 dark:text-gray-400 placeholder:text-gray-500 dark:placeholder:text-gray-600"
+    const filledClass = "bg-white/5 dark:bg-white/5 text-white placeholder:text-gray-400"
+    return `${baseClass} ${value ? filledClass : emptyClass}`
   }
 
   const getBodyAnalysis = () => {
@@ -311,8 +336,8 @@ export default function ProgressoPage() {
                   step="0.1"
                   value={measurements.weight}
                   onChange={(e) => handleMeasurementChange("weight", e.target.value)}
-                  placeholder="Ex: 70.5"
-                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
+                  placeholder="Ex: 79"
+                  className={getInputClassName(measurements.weight)}
                 />
               </div>
 
@@ -324,7 +349,7 @@ export default function ProgressoPage() {
                   value={measurements.height}
                   onChange={(e) => handleMeasurementChange("height", e.target.value)}
                   placeholder="Ex: 175"
-                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
+                  className={getInputClassName(measurements.height)}
                 />
               </div>
 
@@ -337,7 +362,7 @@ export default function ProgressoPage() {
                   value={measurements.chest}
                   onChange={(e) => handleMeasurementChange("chest", e.target.value)}
                   placeholder="Ex: 95.5"
-                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
+                  className={getInputClassName(measurements.chest)}
                 />
               </div>
 
@@ -350,7 +375,7 @@ export default function ProgressoPage() {
                   value={measurements.waist}
                   onChange={(e) => handleMeasurementChange("waist", e.target.value)}
                   placeholder="Ex: 80.0"
-                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
+                  className={getInputClassName(measurements.waist)}
                 />
               </div>
 
@@ -363,7 +388,7 @@ export default function ProgressoPage() {
                   value={measurements.hips}
                   onChange={(e) => handleMeasurementChange("hips", e.target.value)}
                   placeholder="Ex: 95.0"
-                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
+                  className={getInputClassName(measurements.hips)}
                 />
               </div>
 
@@ -376,7 +401,7 @@ export default function ProgressoPage() {
                   value={measurements.leftArm}
                   onChange={(e) => handleMeasurementChange("leftArm", e.target.value)}
                   placeholder="Ex: 35.5"
-                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
+                  className={getInputClassName(measurements.leftArm)}
                 />
               </div>
 
@@ -389,7 +414,7 @@ export default function ProgressoPage() {
                   value={measurements.rightArm}
                   onChange={(e) => handleMeasurementChange("rightArm", e.target.value)}
                   placeholder="Ex: 35.5"
-                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
+                  className={getInputClassName(measurements.rightArm)}
                 />
               </div>
 
@@ -402,7 +427,7 @@ export default function ProgressoPage() {
                   value={measurements.leftThigh}
                   onChange={(e) => handleMeasurementChange("leftThigh", e.target.value)}
                   placeholder="Ex: 55.0"
-                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
+                  className={getInputClassName(measurements.leftThigh)}
                 />
               </div>
 
@@ -415,7 +440,7 @@ export default function ProgressoPage() {
                   value={measurements.rightThigh}
                   onChange={(e) => handleMeasurementChange("rightThigh", e.target.value)}
                   placeholder="Ex: 55.0"
-                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
+                  className={getInputClassName(measurements.rightThigh)}
                 />
               </div>
 
@@ -427,7 +452,7 @@ export default function ProgressoPage() {
                   value={measurements.neck}
                   onChange={(e) => handleMeasurementChange("neck", e.target.value)}
                   placeholder="Ex: 38.0"
-                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
+                  className={getInputClassName(measurements.neck)}
                 />
               </div>
 
@@ -440,7 +465,7 @@ export default function ProgressoPage() {
                   value={measurements.calf}
                   onChange={(e) => handleMeasurementChange("calf", e.target.value)}
                   placeholder="Ex: 38.0"
-                  className="bg-white/5 dark:bg-white/5 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 text-white focus:border-blue-500/40 focus:ring-2 focus:ring-blue-500/30 transition-all"
+                  className={getInputClassName(measurements.calf)}
                 />
               </div>
 
