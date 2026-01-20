@@ -58,7 +58,7 @@ function PaymentMethodSelector({
   )
 }
 
-function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, paymentMethod, onError, onSuccess }: any) {
+function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, paymentMethod, onError, onSuccess, paymentId, setPaymentId }: any) {
   const [processing, setProcessing] = useState(false)
   const [installments, setInstallments] = useState(1)
   const [cardData, setCardData] = useState({
@@ -74,7 +74,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   })
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
-  const [paymentId, setPaymentId] = useState<string | null>(null) // Declare setPaymentId here
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null) // Declare paymentStatus here
 
   const maxInstallments = 6
   const minInstallmentValue = 50
@@ -91,7 +91,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   const handleAsaasPayment = async () => {
     try {
       setProcessing(true)
-      const setError = onError // Declare setError here
+      const setError = onError
 
       console.log("[v0] Dados sendo enviados para Asaas:", {
         email: userEmail,
@@ -116,7 +116,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
             planType: currentPlan.key,
             paymentMethod,
             checkoutDate: new Date().toISOString(),
-            uid: clientUid, // Salvando o UID explicitamente
+            uid: clientUid,
           }, { merge: true })
           console.log("[v0] Dados salvos no Firebase com UID:", clientUid)
         } catch (firebaseError) {
@@ -156,13 +156,15 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
       console.log("[v0] pixCopyPaste value:", paymentResult.pixCopyPaste)
 
       // Salvar paymentId no estado para onSnapshot
-      setPaymentId(paymentResult.paymentId)
-      console.log("[v0] PaymentId salvo para onSnapshot:", paymentResult.paymentId)
+      if (!paymentId) {
+        setPaymentId(paymentResult.paymentId)
+        console.log("[v0] PaymentId salvo para onSnapshot:", paymentResult.paymentId)
+      }
 
       // Salvar pagamento no Firestore com status PENDING
       try {
         console.log("[v0] CHECKOUT_SAVING_PAYMENT - Salvando pagamento no Firestore com status PENDING")
-        await setDoc(doc("payments", paymentResult.paymentId), {
+        await setDoc(doc(db, "payments", paymentResult.paymentId), {
           paymentId: paymentResult.paymentId,
           userId: clientUid,
           status: "PENDING",
@@ -265,29 +267,39 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center">
-            <p className="text-gray-300 mb-4">Escaneie o QR Code ou copie o código abaixo:</p>
-            {pixData.qrCode ? (
-              <div className="bg-white p-4 rounded-lg inline-block mb-4">
-                <img src={`data:image/png;base64,${pixData.qrCode}`} alt="QR Code Pix" className="w-64 h-64" />
+            {paymentStatus === "RECEIVED" || paymentStatus === "CONFIRMED" ? (
+              <div className="bg-green-900 border-2 border-green-500 p-6 rounded-lg mb-4 animate-pulse">
+                <div className="text-3xl mb-2">✓</div>
+                <p className="text-green-400 font-bold text-lg">Pagamento Confirmado!</p>
+                <p className="text-green-300 text-sm mt-2">Redirecionando para sua conta...</p>
               </div>
             ) : (
-              <div className="bg-gray-700 p-4 rounded-lg inline-block mb-4 text-red-400">
-                <p>Erro ao gerar QR Code. Por favor, tente novamente.</p>
-              </div>
+              <>
+                <p className="text-gray-300 mb-4">Escaneie o QR Code ou copie o código abaixo:</p>
+                {pixData.qrCode ? (
+                  <div className="bg-white p-4 rounded-lg inline-block mb-4">
+                    <img src={`data:image/png;base64,${pixData.qrCode}`} alt="QR Code Pix" className="w-64 h-64" />
+                  </div>
+                ) : (
+                  <div className="bg-gray-700 p-4 rounded-lg inline-block mb-4 text-red-400">
+                    <p>Erro ao gerar QR Code. Por favor, tente novamente.</p>
+                  </div>
+                )}
+                <div className="bg-gray-700 p-3 rounded-lg mb-4">
+                  <p className="text-xs text-gray-300 break-all font-mono">{pixData.copyPaste}</p>
+                </div>
+                <Button
+                  onClick={() => {
+                    navigator.clipboard.writeText(pixData.copyPaste)
+                    alert("Código Pix copiado!")
+                  }}
+                  className="w-full bg-lime-500 hover:bg-lime-600"
+                >
+                  Copiar Código Pix
+                </Button>
+                <p className="text-sm text-gray-400 mt-4">Após o pagamento, seu plano será ativado automaticamente</p>
+              </>
             )}
-            <div className="bg-gray-700 p-3 rounded-lg mb-4">
-              <p className="text-xs text-gray-300 break-all font-mono">{pixData.copyPaste}</p>
-            </div>
-            <Button
-              onClick={() => {
-                navigator.clipboard.writeText(pixData.copyPaste)
-                alert("Código Pix copiado!")
-              }}
-              className="w-full bg-lime-500 hover:bg-lime-600"
-            >
-              Copiar Código Pix
-            </Button>
-            <p className="text-sm text-gray-400 mt-4">Após o pagamento, seu plano será ativado automaticamente</p>
           </div>
         </CardContent>
       </Card>
@@ -305,31 +317,41 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center">
-            <p className="text-gray-300 mb-4">Seu boleto foi gerado com sucesso!</p>
-            <div className="space-y-3">
-              <Button
-                onClick={() => window.open(boletoData.url, "_blank")}
-                className="w-full bg-blue-600 hover:bg-blue-700"
-              >
-                Abrir Boleto
-              </Button>
-              <div className="bg-gray-700 p-3 rounded-lg">
-                <p className="text-xs text-gray-400 mb-1">Código de barras:</p>
-                <p className="text-xs text-gray-300 break-all font-mono">{boletoData.barCode}</p>
+            {paymentStatus === "RECEIVED" || paymentStatus === "CONFIRMED" ? (
+              <div className="bg-green-900 border-2 border-green-500 p-6 rounded-lg mb-4 animate-pulse">
+                <div className="text-3xl mb-2">✓</div>
+                <p className="text-green-400 font-bold text-lg">Pagamento Confirmado!</p>
+                <p className="text-green-300 text-sm mt-2">Redirecionando para sua conta...</p>
               </div>
-              <Button
-                onClick={() => {
-                  navigator.clipboard.writeText(boletoData.barCode)
-                  alert("Código copiado!")
-                }}
-                className="w-full bg-gray-600 hover:bg-gray-700"
-              >
-                Copiar Código de Barras
-              </Button>
-            </div>
-            <p className="text-sm text-gray-400 mt-4">
-              Vencimento em 3 dias. Após o pagamento, seu plano será ativado automaticamente.
-            </p>
+            ) : (
+              <>
+                <p className="text-gray-300 mb-4">Seu boleto foi gerado com sucesso!</p>
+                <div className="space-y-3">
+                  <Button
+                    onClick={() => window.open(boletoData.url, "_blank")}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                  >
+                    Abrir Boleto
+                  </Button>
+                  <div className="bg-gray-700 p-3 rounded-lg">
+                    <p className="text-xs text-gray-400 mb-1">Código de barras:</p>
+                    <p className="text-xs text-gray-300 break-all font-mono">{boletoData.barCode}</p>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(boletoData.barCode)
+                      alert("Código copiado!")
+                    }}
+                    className="w-full bg-gray-600 hover:bg-gray-700"
+                  >
+                    Copiar Código de Barras
+                  </Button>
+                </div>
+                <p className="text-sm text-gray-400 mt-4">
+                  Vencimento em 3 dias. Após o pagamento, seu plano será ativado automaticamente.
+                </p>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -347,99 +369,109 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Nome no Cartão</label>
-              <Input
-                value={cardData.holderName}
-                onChange={(e) => setCardData({ ...cardData, holderName: e.target.value })}
-                placeholder="NOME COMO ESTÁ NO CARTÃO"
-                className="bg-gray-700 border-gray-600 text-white"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Número do Cartão</label>
-              <Input
-                value={cardData.number}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "").slice(0, 16)
-                  const formatted = value.replace(/(\d{4})(?=\d)/g, "$1 ")
-                  setCardData({ ...cardData, number: formatted })
-                }}
-                placeholder="0000 0000 0000 0000"
-                className="bg-gray-700 border-gray-600 text-white"
-                maxLength={19}
-                required
-              />
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Mês</label>
-                <Input
-                  value={cardData.expiryMonth}
-                  onChange={(e) =>
-                    setCardData({ ...cardData, expiryMonth: e.target.value.replace(/\D/g, "").slice(0, 2) })
-                  }
-                  placeholder="MM"
-                  className="bg-gray-700 border-gray-600 text-white"
-                  maxLength={2}
-                  required
-                />
+            {paymentStatus === "RECEIVED" || paymentStatus === "CONFIRMED" ? (
+              <div className="bg-green-900 border-2 border-green-500 p-6 rounded-lg mb-4 animate-pulse">
+                <div className="text-3xl mb-2">✓</div>
+                <p className="text-green-400 font-bold text-lg">Pagamento Confirmado!</p>
+                <p className="text-green-300 text-sm mt-2">Redirecionando para sua conta...</p>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Ano</label>
-                <Input
-                  value={cardData.expiryYear}
-                  onChange={(e) =>
-                    setCardData({ ...cardData, expiryYear: e.target.value.replace(/\D/g, "").slice(0, 4) })
-                  }
-                  placeholder="AAAA"
-                  className="bg-gray-700 border-gray-600 text-white"
-                  maxLength={4}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">CVV</label>
-                <Input
-                  value={cardData.ccv}
-                  onChange={(e) => setCardData({ ...cardData, ccv: e.target.value.replace(/\D/g, "").slice(0, 4) })}
-                  placeholder="000"
-                  className="bg-gray-700 border-gray-600 text-white"
-                  maxLength={4}
-                  required
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">CEP</label>
-                <Input
-                  value={addressData.postalCode}
-                  onChange={(e) => {
-                    let value = e.target.value.replace(/\D/g, "")
-                    if (value.length <= 8) {
-                      value = value.replace(/(\d{5})(\d)/, "$1-$2")
-                    }
-                    setAddressData({ ...addressData, postalCode: value })
-                  }}
-                  placeholder="00000-000"
-                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                  maxLength={9}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Número</label>
-                <Input
-                  value={addressData.addressNumber}
-                  onChange={(e) => setAddressData({ ...addressData, addressNumber: e.target.value })}
-                  placeholder="123"
-                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                  required
-                />
-              </div>
-            </div>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Nome no Cartão</label>
+                  <Input
+                    value={cardData.holderName}
+                    onChange={(e) => setCardData({ ...cardData, holderName: e.target.value })}
+                    placeholder="NOME COMO ESTÁ NO CARTÃO"
+                    className="bg-gray-700 border-gray-600 text-white"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Número do Cartão</label>
+                  <Input
+                    value={cardData.number}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, "").slice(0, 16)
+                      const formatted = value.replace(/(\d{4})(?=\d)/g, "$1 ")
+                      setCardData({ ...cardData, number: formatted })
+                    }}
+                    placeholder="0000 0000 0000 0000"
+                    className="bg-gray-700 border-gray-600 text-white"
+                    maxLength={19}
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Mês</label>
+                    <Input
+                      value={cardData.expiryMonth}
+                      onChange={(e) =>
+                        setCardData({ ...cardData, expiryMonth: e.target.value.replace(/\D/g, "").slice(0, 2) })
+                      }
+                      placeholder="MM"
+                      className="bg-gray-700 border-gray-600 text-white"
+                      maxLength={2}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Ano</label>
+                    <Input
+                      value={cardData.expiryYear}
+                      onChange={(e) =>
+                        setCardData({ ...cardData, expiryYear: e.target.value.replace(/\D/g, "").slice(0, 4) })
+                      }
+                      placeholder="AAAA"
+                      className="bg-gray-700 border-gray-600 text-white"
+                      maxLength={4}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">CVV</label>
+                    <Input
+                      value={cardData.ccv}
+                      onChange={(e) => setCardData({ ...cardData, ccv: e.target.value.replace(/\D/g, "").slice(0, 4) })}
+                      placeholder="000"
+                      className="bg-gray-700 border-gray-600 text-white"
+                      maxLength={4}
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">CEP</label>
+                    <Input
+                      value={addressData.postalCode}
+                      onChange={(e) => {
+                        let value = e.target.value.replace(/\D/g, "")
+                        if (value.length <= 8) {
+                          value = value.replace(/(\d{5})(\d)/, "$1-$2")
+                        }
+                        setAddressData({ ...addressData, postalCode: value })
+                      }}
+                      placeholder="00000-000"
+                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                      maxLength={9}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Número</label>
+                    <Input
+                      value={addressData.addressNumber}
+                      onChange={(e) => setAddressData({ ...addressData, addressNumber: e.target.value })}
+                      placeholder="123"
+                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                      required
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -573,15 +605,8 @@ export default function CheckoutPage() {
   const [quizAnswers, setQuizAnswers] = useState<any>(null)
   const [clientUid, setClientUid] = useState<string | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
-  const [paymentId, setPaymentId] = useState<string | null>(null) // Declare paymentId here
-
-  useEffect(() => {
-    const planFromUrl = searchParams.get("plan")
-    if (planFromUrl) {
-      setSelectedPlan(planFromUrl)
-      setCurrentStep(2)
-    }
-  }, [searchParams])
+  const [paymentId, setPaymentId] = useState<string | null>(null) // Declare setPaymentId here
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null) // Declare setPaymentStatus here
 
   // Escutar mudanças em tempo real do status do pagamento
   useEffect(() => {
@@ -592,20 +617,24 @@ export default function CheckoutPage() {
     }
 
     try {
-      const paymentDocRef = doc("payments", paymentId)
+      const paymentDocRef = doc(db, "payments", paymentId)
 
       console.log("[v0] CHECKOUT_LISTENER - Iniciando onSnapshot para paymentId:", paymentId)
       const unsubscribe = onSnapshot(paymentDocRef, (snapshot) => {
         if (snapshot.exists()) {
           const paymentData = snapshot.data()
           console.log("[v0] CHECKOUT_LISTENER - Documento atualizado, status:", paymentData.status)
+          setPaymentStatus(paymentData.status)
 
           // Se pagamento foi confirmado, redirecionar para sucesso
           if (paymentData.status === "RECEIVED" || paymentData.status === "CONFIRMED") {
             console.log("[v0] CHECKOUT_LISTENER - Pagamento confirmado! Status:", paymentData.status)
-            console.log("[v0] CHECKOUT_LISTENER - Redirecionando para success...")
+            console.log("[v0] CHECKOUT_LISTENER - Redirecionando para success em 2 segundos...")
             unsubscribe()
-            window.location.href = "/success"
+            // Dar tempo para mostrar feedback visual
+            setTimeout(() => {
+              window.location.href = "/success"
+            }, 2000)
           }
         } else {
           console.log("[v0] CHECKOUT_LISTENER - Documento não encontrado ainda")
@@ -865,6 +894,7 @@ export default function CheckoutPage() {
                     onError={handlePaymentError}
                     onSuccess={handlePaymentSuccess}
                     paymentId={paymentId} // Pass paymentId to AsaasPaymentForm
+                    setPaymentId={setPaymentId} // Pass setPaymentId to AsaasPaymentForm
                   />
                 )}
               </>
