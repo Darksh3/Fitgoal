@@ -99,7 +99,23 @@ export default function TreinoPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [actualTrainingFrequency, setActualTrainingFrequency] = useState<string>("Carregando...")
   const [isRegenerating, setIsRegenerating] = useState(false)
+  const [showRegenerateModal, setShowRegenerateModal] = useState(false)
   const router = useRouter()
+
+  // Helper para obter trainingDaysPerWeek com fallback seguro
+  const getTrainingDaysPerWeek = (quizData: any): number => {
+    // Priority 1: Use trainingDaysPerWeek if it's a valid number > 0
+    if (quizData?.trainingDaysPerWeek && quizData.trainingDaysPerWeek > 0) {
+      return quizData.trainingDaysPerWeek
+    }
+    // Priority 2: Parse from trainingDays string
+    if (quizData?.trainingDays) {
+      const parsed = Number.parseInt(quizData.trainingDays)
+      if (parsed > 0) return parsed
+    }
+    // Priority 3: Default to 5
+    return 5
+  }
 
   const detectAndCleanInconsistentData = async (data: any, currentUserEmail: string) => {
     const hasInconsistentData =
@@ -605,7 +621,7 @@ export default function TreinoPage() {
                     </h3>
                     <p className="text-xs text-orange-700 dark:text-orange-400">
                       Seu plano tem {workoutPlan?.days?.length || 0} dias, mas você selecionou{" "}
-                      {(userData as any)?.quizData?.trainingDaysPerWeek || 0} dias no quiz.
+                      {getTrainingDaysPerWeek((userData as any)?.quizData)} dias no quiz.
                     </p>
                   </div>
                 </div>

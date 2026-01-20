@@ -73,7 +73,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   })
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
-  const [redirectCountdown, setRedirectCountdown] = useState(15)
+  const [redirectCountdown, setRedirectCountdown] = useState(90)
 
   // Listener real-time para PIX - escuta mudanças do Firestore em tempo real
   useEffect(() => {

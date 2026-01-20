@@ -321,6 +321,15 @@ export default function DadosPage() {
 
       const result = await response.json()
 
+      // Se dados ainda estão sendo processados, tentar novamente após delay
+      if (result.code === "INCOMPLETE_DATA") {
+        console.log("[CLEANUP] Dados ainda estão sendo gerados, tentando novamente em 3 segundos...")
+        setTimeout(() => {
+          handleCleanup()
+        }, 3000)
+        return
+      }
+
       if (result.success) {
         localStorage.removeItem("quizData")
         localStorage.removeItem("personalData")
