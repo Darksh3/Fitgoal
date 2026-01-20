@@ -471,7 +471,6 @@ export default function DashboardPage() {
     }
 
     const currentWeight = currentWeightSlider || Number.parseFloat(quizData.currentWeight)
-    const initialWeight = Number.parseFloat(quizData.currentWeight)
     const targetWeight = Number.parseFloat(quizData.targetWeight)
 
     if (
