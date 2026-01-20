@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { CreditCard, Check, ShoppingCart, User, Lock, QrCode, FileText, Smartphone, ArrowLeft } from "lucide-react"
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
-import { doc, onSnapshot, setDoc, getFirestore } from "@/lib/firebaseClient"
+import { doc, onSnapshot, setDoc, db } from "@/lib/firebaseClient"
 
 type PaymentMethod = "pix" | "boleto" | "card"
 
@@ -81,7 +81,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
     console.log("[v0] PIX_LISTENER_START - Iniciando onSnapshot para:", pixData.paymentId)
 
     try {
-      const paymentDocRef = doc("payments", pixData.paymentId)
+      const paymentDocRef = doc(db, "payments", pixData.paymentId)
       const unsubscribe = onSnapshot(
         paymentDocRef,
         (snapshot) => {
@@ -251,7 +251,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         // Salvar documento no Firestore com userId ANTES do webhook chegar
         try {
           console.log("[v0] PIX_SAVING_TO_FIRESTORE - Salvando pagamento no Firestore com userId")
-          await setDoc(doc("payments", paymentResult.paymentId), {
+          await setDoc(doc(db, "payments", paymentResult.paymentId), {
             paymentId: paymentResult.paymentId,
             userId: clientUid, // ESSENCIAL: userId para RLS do Firestore
             status: "PENDING",
