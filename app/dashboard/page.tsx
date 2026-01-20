@@ -764,7 +764,7 @@ export default function DashboardPage() {
 
           {quizData && (
             <div className="mb-12 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-8 shadow-sm">
-              {/* Labels dos 3 pontos com regressão dinâmica */}
+              {/* Labels dos 3 pontos */}
               {(() => {
                 const start = initialWeight
                 const current = currentWeightSlider
@@ -772,95 +772,180 @@ export default function DashboardPage() {
                 const isBulking = goal > start
                 const isCutting = goal < start
                 const isRegression = (isBulking && current < start) || (isCutting && current > start)
+                const metaAtingida = (isBulking && current >= goal) || (isCutting && current <= goal)
+                const diffFromStart = current - start
+                const remainingToGoal = Math.abs(goal - current)
 
                 return (
-                  <div className="flex items-center justify-between mb-8">
-                    <div className="text-center flex-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Peso Inicial</p>
-                      <p className="text-lg font-bold text-gray-400 dark:text-gray-500">{initialWeight.toFixed(1)} kg</p>
+                  <>
+                    <div className="flex items-center justify-between mb-10">
+                      <div className="text-center flex-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Peso Inicial</p>
+                        <p className="text-xl font-bold text-gray-400 dark:text-gray-500">{start.toFixed(1)} kg</p>
+                      </div>
+                      <div className="text-center flex-1">
+                        <p className={`text-xs mb-2 font-semibold ${isRegression ? "text-red-500 dark:text-red-400" : "text-gray-500 dark:text-gray-400"}`}>
+                          Peso Atual
+                        </p>
+                        <p className={`text-3xl font-bold ${isRegression ? "text-red-500 dark:text-red-400" : "text-white"}`}>
+                          {current.toFixed(1)} kg
+                        </p>
+                      </div>
+                      <div className="text-center flex-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Meta</p>
+                        <p className="text-xl font-bold text-green-500 dark:text-green-400">{goal.toFixed(1)} kg</p>
+                      </div>
                     </div>
-                    <div className="text-center flex-1">
-                      <p className={`text-xs mb-1 font-semibold ${isRegression ? "text-red-500 dark:text-red-400" : "text-gray-500 dark:text-gray-400"}`}>
-                        {isRegression ? "Regressão" : "Peso Atual"}
-                      </p>
-                      <p className={`text-2xl font-bold ${isRegression ? "text-red-500 dark:text-red-400" : "text-gray-900 dark:text-white"}`}>
-                        {current.toFixed(1)} kg
-                      </p>
+
+                    {/* Barra de progresso com 3 segmentos */}
+                    <div className="relative mb-8">
+                      {/* Slider input (invisível, mas interativo) */}
+                      <input
+                        type="range"
+                        min={Math.min(start, goal) * 0.7}
+                        max={Math.max(start, goal) * 1.3}
+                        step="0.1"
+                        value={current}
+                        onChange={(e) => handleWeightChange(Number.parseFloat(e.target.value))}
+                        className="w-full h-8 -my-3 bg-transparent rounded-lg appearance-none cursor-pointer absolute top-2 left-0"
+                        style={{ zIndex: 10 }}
+                      />
+
+                      {/* Container da barra com marcadores */}
+                      <div className="relative pt-4">
+                        {/* Barra de fundo */}
+                        <div className="h-3 bg-gray-700 dark:bg-gray-600 rounded-full overflow-hidden relative">
+                          {(() => {
+                            const minRange = Math.min(start, goal) * 0.7
+                            const maxRange = Math.max(start, goal) * 1.3
+                            const toPercent = (w: number) => ((w - minRange) / (maxRange - minRange)) * 100
+
+                            const startPercent = toPercent(start)
+                            const currentPercent = toPercent(current)
+                            const goalPercent = toPercent(goal)
+
+                            return (
+                              <>
+                                {/* Segmento vermelho/laranja (regressão) */}
+                                {isRegression && (
+                                  <div
+                                    className="absolute top-0 h-full bg-gradient-to-r from-red-600 to-orange-500"
+                                    style={{
+                                      left: `${Math.min(startPercent, currentPercent)}%`,
+                                      width: `${Math.abs(currentPercent - startPercent)}%`,
+                                    }}
+                                  />
+                                )}
+
+                                {/* Segmento azul (peso atual se progresso) */}
+                                {!isRegression && (
+                                  <div
+                                    className="absolute top-0 h-full bg-gradient-to-r from-red-600 via-blue-500 to-blue-500"
+                                    style={{
+                                      left: `${Math.min(startPercent, currentPercent)}%`,
+                                      width: `${Math.abs(currentPercent - startPercent)}%`,
+                                    }}
+                                  />
+                                )}
+
+                                {/* Segmento verde (até a meta) */}
+                                {currentPercent !== goalPercent && (
+                                  <div
+                                    className="absolute top-0 h-full bg-gradient-to-r from-teal-500 to-green-500"
+                                    style={{
+                                      left: `${Math.max(currentPercent, startPercent)}%`,
+                                      width: `${Math.abs(goalPercent - Math.max(currentPercent, startPercent))}%`,
+                                    }}
+                                  />
+                                )}
+                              </>
+                            )
+                          })()}
+                        </div>
+
+                        {/* Bolinha no peso atual */}
+                        {(() => {
+                          const minRange = Math.min(start, goal) * 0.7
+                          const maxRange = Math.max(start, goal) * 1.3
+                          const toPercent = (w: number) => ((w - minRange) / (maxRange - minRange)) * 100
+                          const currentPercent = toPercent(current)
+
+                          return (
+                            <div
+                              className="absolute top-0 w-7 h-7 bg-white rounded-full shadow-xl border-4 border-gray-300 transition-all pointer-events-none"
+                              style={{
+                                left: `calc(${currentPercent}% - 14px)`,
+                                marginTop: "-5px",
+                                zIndex: 5,
+                              }}
+                            />
+                          )
+                        })()}
+                      </div>
+
+                      {/* Marcadores com números (peso inicial e meta) */}
+                      {(() => {
+                        const minRange = Math.min(start, goal) * 0.7
+                        const maxRange = Math.max(start, goal) * 1.3
+                        const toPercent = (w: number) => ((w - minRange) / (maxRange - minRange)) * 100
+
+                        const startPercent = toPercent(start)
+                        const goalPercent = toPercent(goal)
+
+                        return (
+                          <>
+                            {/* Marcador do peso inicial */}
+                            <div
+                              className="absolute text-xs font-semibold text-gray-400 dark:text-gray-500 -translate-x-1/2"
+                              style={{
+                                left: `${startPercent}%`,
+                                top: "52px",
+                              }}
+                            >
+                              {start.toFixed(0)}
+                            </div>
+
+                            {/* Marca tracejada abaixo dos números */}
+                            <svg className="absolute w-full h-20 top-12 left-0 pointer-events-none" style={{ zIndex: 0 }}>
+                              <line x1={`${startPercent}%`} y1="0" x2={`${startPercent}%`} y2="20" stroke="rgb(107 114 128)" strokeDasharray="3,3" strokeWidth="1" />
+                              <line x1={`${goalPercent}%`} y1="0" x2={`${goalPercent}%`} y2="20" stroke="rgb(107 114 128)" strokeDasharray="3,3" strokeWidth="1" />
+                            </svg>
+
+                            {/* Marcador da meta */}
+                            <div
+                              className="absolute text-xs font-semibold text-gray-400 dark:text-gray-500 -translate-x-1/2"
+                              style={{
+                                left: `${goalPercent}%`,
+                                top: "52px",
+                              }}
+                            >
+                              {goal.toFixed(0)}
+                            </div>
+                          </>
+                        )
+                      })()}
                     </div>
-                    <div className="text-center flex-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Meta</p>
-                      <p className="text-lg font-bold text-green-600 dark:text-green-400">{goal.toFixed(1)} kg</p>
+
+                    {/* Informações abaixo */}
+                    <div className="flex items-center justify-between text-sm mt-8 gap-4">
+                      <div>
+                        <p className={`font-semibold ${diffFromStart < 0 ? "text-orange-500" : "text-blue-500"}`}>
+                          {diffFromStart < 0 ? "-" : "+"}{Math.abs(diffFromStart).toFixed(1)} kg desde o início
+                        </p>
+                      </div>
+                      <div className="flex-1" />
+                      <div className="text-right">
+                        <p className="text-gray-400">Faltam {remainingToGoal.toFixed(1)} kg pra meta</p>
+                        {metaAtingida && (
+                          <p className="text-green-500 font-semibold">Meta atingida!</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
+
+                    {isSaving && <p className="text-xs text-blue-600 dark:text-blue-400 text-center mt-4">Salvando...</p>}
+                  </>
                 )
               })()}
-
-              {/* Barra de progresso com preenchimento do start até o current */}
-              <div className="relative h-2 bg-gray-300 dark:bg-gray-600 rounded-full mb-6 overflow-visible">
-                {/* Slider input (invisível, mas interativo) */}
-                <input
-                  type="range"
-                  min={Math.min(initialWeight, Number.parseFloat(quizData.targetWeight)) * 0.7}
-                  max={Math.max(initialWeight, Number.parseFloat(quizData.targetWeight)) * 1.3}
-                  step="0.1"
-                  value={currentWeightSlider}
-                  onChange={(e) => handleWeightChange(Number.parseFloat(e.target.value))}
-                  className="w-full h-8 -my-3 bg-transparent rounded-lg appearance-none cursor-pointer absolute top-0 left-0"
-                  style={{ zIndex: 10 }}
-                />
-
-                {(() => {
-                  const start = initialWeight
-                  const current = currentWeightSlider
-                  const goal = Number.parseFloat(quizData.targetWeight)
-
-                  const minBase = Math.min(start, goal)
-                  const maxBase = Math.max(start, goal)
-
-                  const minRange = minBase * 0.7
-                  const maxRange = maxBase * 1.3
-
-                  const isBulking = goal > start
-                  const isCutting = goal < start
-
-                  const isRegression = (isBulking && current < start) || (isCutting && current > start)
-
-                  const toPercent = (w: number) => ((w - minRange) / (maxRange - minRange)) * 100
-                  const startPercent = toPercent(start)
-                  const currentPercent = toPercent(current)
-
-                  const left = Math.min(startPercent, currentPercent)
-                  const width = Math.abs(currentPercent - startPercent)
-
-                  const barColor = isRegression ? "rgb(239 68 68)" : "rgb(59 130 246)"
-
-                  return (
-                    <>
-                      {/* Preenchimento do peso inicial até o peso atual */}
-                      <div
-                        className="absolute top-0 h-full transition-all pointer-events-none"
-                        style={{
-                          left: `${left}%`,
-                          width: `${width}%`,
-                          backgroundColor: barColor,
-                        }}
-                      />
-
-                      {/* Bolinha no peso atual com cor dinâmica */}
-                      <div
-                        className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full shadow-lg border-2 transition-all pointer-events-none"
-                        style={{
-                          left: `calc(${currentPercent}% - 12px)`,
-                          borderColor: isRegression ? "rgb(239 68 68)" : "rgb(59 130 246)",
-                          zIndex: 5,
-                        }}
-                      />
-                    </>
-                  )
-                })()}
-              </div>
-
-              {isSaving && <p className="text-xs text-blue-600 dark:text-blue-400 text-center mt-4">Salvando...</p>}
             </div>
           )}
 
