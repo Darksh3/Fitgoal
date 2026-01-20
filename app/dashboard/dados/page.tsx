@@ -104,103 +104,67 @@ export default function DadosPage() {
 
       if (auth.currentUser) {
         try {
-          const leadsDoc = await getDoc(doc(db, "leads", auth.currentUser.uid))
+          // Tentar carregar do users collection (onde o quizData é salvo)
+          const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid))
 
-          if (leadsDoc.exists()) {
-            const firestoreData = leadsDoc.data()
+          let firestoreQuizData = null
+          let firestorePersonalData = null
+          let firestoreMeasurements = null
 
-            const currentUserEmail = auth.currentUser.email
-            if (firestoreData?.email && currentUserEmail && firestoreData.email !== currentUserEmail) {
-              setHasOldData(true)
-            }
-
-            if (firestoreData?.name && firestoreData.name !== localQuizData?.name) {
-              const updatedQuizData = { ...localQuizData, ...firestoreData }
-              setQuizData(updatedQuizData)
-              localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
-            } else {
-              setQuizData(localQuizData || firestoreData)
-            }
-
-            try {
-              const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid))
-              if (userDoc.exists()) {
-                const userData = userDoc.data()
-
-                if (userData.personalData) {
-                  const mergedPersonalData = { ...localPersonalData, ...userData.personalData }
-                  setPersonalData(mergedPersonalData)
-                  localStorage.setItem("personalData", JSON.stringify(mergedPersonalData))
-                } else {
-                  const preFilledData = {
-                    ...localPersonalData,
-                    age: userData.quizData?.age || localQuizData?.age || localPersonalData?.age || "",
-                    height: userData.quizData?.height || localQuizData?.height || localPersonalData?.height || "",
-                    email: auth.currentUser.email || localPersonalData?.email || "",
-                  }
-                  setPersonalData(preFilledData)
-                }
-
-                if (userData.measurements) {
-                  const mergedMeasurements = { ...localMeasurements, ...userData.measurements }
-                  setMeasurements(mergedMeasurements)
-                  localStorage.setItem("measurements", JSON.stringify(mergedMeasurements))
-                } else {
-                  const preFilledMeasurements = {
-                    ...localMeasurements,
-                    weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
-                    height: localQuizData?.height || localMeasurements?.height || "",
-                  }
-                  setMeasurements(preFilledMeasurements)
-                }
-              } else {
-                const preFilledData = {
-                  ...localPersonalData,
-                  age: localQuizData?.age || localPersonalData?.age || "",
-                  height: localQuizData?.height || localPersonalData?.height || "",
-                  email: auth.currentUser?.email || localPersonalData?.email || "",
-                }
-                setPersonalData(preFilledData)
-
-                const preFilledMeasurements = {
-                  ...localMeasurements,
-                  weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
-                  height: localQuizData?.height || localMeasurements?.height || "",
-                }
-                setMeasurements(preFilledMeasurements)
-              }
-            } catch (error) {
-              const preFilledData = {
-                ...localPersonalData,
-                age: localQuizData?.age || localPersonalData?.age || "",
-                height: localQuizData?.height || localPersonalData?.height || "",
-                email: auth.currentUser.email || localPersonalData?.email || "",
-              }
-              setPersonalData(preFilledData)
-
-              const preFilledMeasurements = {
-                ...localMeasurements,
-                weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
-                height: localQuizData?.height || localMeasurements?.height || "",
-              }
-              setMeasurements(preFilledMeasurements)
-            }
+          if (userDoc.exists()) {
+            const userData = userDoc.data()
+            firestoreQuizData = userData?.quizData
+            firestorePersonalData = userData?.personalData
+            firestoreMeasurements = userData?.measurements
           } else {
-            setQuizData(localQuizData)
-            const preFilledData = {
-              ...localPersonalData,
-              age: localQuizData?.age || localPersonalData?.age || "",
-              height: localQuizData?.height || localPersonalData?.height || "",
-              email: auth.currentUser?.email || localPersonalData?.email || "",
+            // Se não existe em users, tentar em leads (compatibilidade)
+            const leadsDoc = await getDoc(doc(db, "leads", auth.currentUser.uid))
+            if (leadsDoc.exists()) {
+              const leadsData = leadsDoc.data()
+              firestoreQuizData = leadsData?.quizData
+              firestorePersonalData = leadsData?.personalData
+              firestoreMeasurements = leadsData?.measurements
             }
-            setPersonalData(preFilledData)
+          }
 
-            const preFilledMeasurements = {
-              ...localMeasurements,
-              weight: localQuizData?.currentWeight || localMeasurements?.weight || "",
-              height: localQuizData?.height || localMeasurements?.height || "",
-            }
-            setMeasurements(preFilledMeasurements)
+          // Merge com prioridade: Firestore > localStorage > vazio
+          const finalQuizData = {
+            ...localQuizData,
+            ...firestoreQuizData,
+          }
+          setQuizData(finalQuizData)
+          localStorage.setItem("quizData", JSON.stringify(finalQuizData))
+
+          const finalPersonalData = {
+            age: firestorePersonalData?.age || localPersonalData?.age || finalQuizData?.age || "",
+            height: firestorePersonalData?.height || localPersonalData?.height || finalQuizData?.height || "",
+            phone: firestorePersonalData?.phone || localPersonalData?.phone || "",
+            email: firestorePersonalData?.email || localPersonalData?.email || auth.currentUser.email || "",
+            address: firestorePersonalData?.address || localPersonalData?.address || "",
+            emergencyContact: firestorePersonalData?.emergencyContact || localPersonalData?.emergencyContact || "",
+            medicalConditions: firestorePersonalData?.medicalConditions || localPersonalData?.medicalConditions || "",
+            allergies: firestorePersonalData?.allergies || localPersonalData?.allergies || "",
+          }
+          setPersonalData(finalPersonalData)
+          localStorage.setItem("personalData", JSON.stringify(finalPersonalData))
+
+          const finalMeasurements = {
+            weight: firestoreMeasurements?.weight || localMeasurements?.weight || finalQuizData?.currentWeight || "",
+            height: firestoreMeasurements?.height || localMeasurements?.height || finalQuizData?.height || "",
+            chest: firestoreMeasurements?.chest || localMeasurements?.chest || "",
+            waist: firestoreMeasurements?.waist || localMeasurements?.waist || "",
+            thigh: firestoreMeasurements?.thigh || localMeasurements?.thigh || "",
+            leftArm: firestoreMeasurements?.leftArm || localMeasurements?.leftArm || "",
+            rightArm: firestoreMeasurements?.rightArm || localMeasurements?.rightArm || "",
+            leftLeg: firestoreMeasurements?.leftLeg || localMeasurements?.leftLeg || "",
+            rightLeg: firestoreMeasurements?.rightLeg || localMeasurements?.rightLeg || "",
+          }
+          setMeasurements(finalMeasurements)
+          localStorage.setItem("measurements", JSON.stringify(finalMeasurements))
+
+          // Verificar dados antigos
+          if (firestoreQuizData?.email && auth.currentUser.email && firestoreQuizData.email !== auth.currentUser.email) {
+            setHasOldData(true)
           }
         } catch (error) {
           console.error("[v0] Error fetching from Firestore:", error)

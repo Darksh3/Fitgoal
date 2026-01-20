@@ -930,10 +930,20 @@ export default function QuizPage() {
       const userDocRef = doc(db, "users", currentUser.uid)
       const leadDocRef = doc(db, "leads", currentUser.uid)
 
+      // Buscar documento existente para verificar se initialWeight já foi setado
+      const existingUserDoc = await getDoc(userDocRef)
+      const existingInitialWeight = existingUserDoc.data()?.quizData?.initialWeight
+
+      // Se initialWeight não existe ainda, setá-lo com o weight do quiz (só uma vez!)
+      const finalQuizData = {
+        ...updatedQuizData,
+        initialWeight: existingInitialWeight || updatedQuizData.weight, // Só seta uma vez!
+      }
+
       await setDoc(
         userDocRef,
         {
-          quizData: updatedQuizData,
+          quizData: finalQuizData,
           email: updatedQuizData.email,
           name: updatedQuizData.name,
           updatedAt: new Date().toISOString(),
@@ -944,7 +954,7 @@ export default function QuizPage() {
       await setDoc(
         leadDocRef,
         {
-          quizData: updatedQuizData,
+          quizData: finalQuizData,
           email: updatedQuizData.email,
           name: updatedQuizData.name,
           updatedAt: new Date().toISOString(),
