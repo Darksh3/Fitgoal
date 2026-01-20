@@ -8,9 +8,29 @@ import { Input } from "@/components/ui/input"
 import { CreditCard, Check, ShoppingCart, User, Lock, QrCode, FileText, Smartphone, ArrowLeft } from "lucide-react"
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
-import { doc, onSnapshot, setDoc, db, auth } from "@/lib/firebaseClient"
+import { doc, onSnapshot, setDoc, serverTimestamp } from "firebase/firestore"
+import { db, auth } from "@/lib/firebaseClient"
 
 type PaymentMethod = "pix" | "boleto" | "card"
+
+// Helper para esperar auth estar pronto
+function waitForAuthUser(): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const u = auth.currentUser?.uid
+    if (u) return resolve(u)
+
+    const unsub = auth.onAuthStateChanged((user) => {
+      unsub()
+      if (user?.uid) {
+        console.log("[v0] AUTH_READY - User authenticated:", user.uid)
+        resolve(user.uid)
+      } else {
+        console.error("[v0] AUTH_FAILED - Usuário não autenticado")
+        reject(new Error("Usuário não autenticado"))
+      }
+    })
+  })
+}
 
 function PaymentMethodSelector({
   onSelect,
@@ -73,56 +93,38 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   })
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
-  const [paymentStatus, setPaymentStatus] = useState<string | null>(null)
   const [paymentId, setPaymentId] = useState<string | null>(null) // Declare paymentId variable
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null) // Declare paymentStatus variable
 
-  // Listener real-time para PIX - escuta mudanças do Firestore em tempo real
+  // Listener real-time para PIX - escuta mudanças do Firestore
   useEffect(() => {
-    const paymentIdValue = paymentId // Use the declared variable
-    if (!paymentIdValue || paymentMethod !== "pix") return
+    const pid = pixData?.paymentId
+    if (!pid || paymentMethod !== "pix") return
 
-    console.log("[v0] PIX_LISTENER_START - Iniciando onSnapshot para:", paymentIdValue)
+    console.log("[v0] PIX_LISTENER_START - onSnapshot:", pid)
 
-    try {
-      const paymentDocRef = doc(db, "payments", paymentIdValue)
-      const unsubscribe = onSnapshot(
-        paymentDocRef,
-        (snapshot) => {
-          if (!snapshot.exists()) {
-            console.log("[v0] PIX_LISTENER - Documento não encontrado ainda")
-            return
-          }
+    const ref = doc(db, "payments", pid)
+    const unsubscribe = onSnapshot(
+      ref,
+      (snap) => {
+        if (!snap.exists()) return
+        const data = snap.data()
+        console.log("[v0] PIX_LISTENER_UPDATE - Status:", data?.status)
 
-          const paymentData = snapshot.data()
-          console.log("[v0] PIX_LISTENER_UPDATE - Status atualizado:", paymentData?.status)
-          
-          // Atualizar paymentStatus (não pixData!)
-          setPaymentStatus(paymentData?.status)
-
-          // Se pagamento foi confirmado, mostrar sucesso
-          if (paymentData?.status === "RECEIVED" || paymentData?.status === "CONFIRMED") {
-            console.log("[v0] PIX_LISTENER_CONFIRMED - Pagamento confirmado! Mostrando animação...")
-            unsubscribe()
-            // Aguarda 5 segundos para mostrar a animação completa
-            setTimeout(() => {
-              console.log("[v0] PIX_LISTENER_REDIRECTING - Redirecionando para sucesso com paymentId:", paymentId)
-              onSuccess(paymentId) // Passar paymentId para redirecionar para /success-asaas
-            }, 5000)
-          }
-        },
-        (error) => {
-          console.error("[v0] PIX_LISTENER_ERROR - Erro ao escutar documento:", error)
+        if (data?.status === "RECEIVED" || data?.status === "CONFIRMED") {
+          console.log("[v0] PIX_LISTENER_CONFIRMED - Redirecionando em 5 segundos...")
+          unsubscribe()
+          setTimeout(() => onSuccess(pid), 5000)
         }
-      )
+      },
+      (err) => console.error("[v0] PIX_LISTENER_ERROR:", err)
+    )
 
-      return () => {
-        console.log("[v0] PIX_LISTENER_CLEANUP - Limpando listener")
-        unsubscribe()
-      }
-    } catch (error) {
-      console.error("[v0] PIX_LISTENER_SETUP_ERROR - Erro ao configurar listener:", error)
+    return () => {
+      console.log("[v0] PIX_LISTENER_CLEANUP - Unmounting listener")
+      unsubscribe()
     }
-  }, [paymentId])
+  }, [pixData?.paymentId, paymentMethod, onSuccess])
 
   const maxInstallments = 6
   const minInstallmentValue = 50
@@ -251,24 +253,28 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
       setPaymentId(paymentResult.paymentId) // Set paymentId after receiving the response
 
       if (paymentMethod === "pix") {
-        // Sempre guardar paymentId no localStorage para persistência
         localStorage.setItem("lastPaymentId", paymentResult.paymentId)
-        console.log("[v0] PIX_PAYMENT_CREATED - paymentId salvo:", paymentResult.paymentId)
+        console.log("[v0] PIX_PAYMENT_CREATED - paymentId:", paymentResult.paymentId)
 
-        // Salvar documento no Firestore com userId ANTES do webhook chegar
+        // Esperar auth estar pronto ANTES de salvar
         try {
-          const currentUserId = auth.currentUser?.uid
-          console.log("[v0] PIX_SAVING_TO_FIRESTORE - Salvando pagamento no Firestore com userId:", currentUserId)
-          await setDoc(doc(db, "payments", paymentResult.paymentId), {
-            paymentId: paymentResult.paymentId,
-            userId: currentUserId || null, // ESSENCIAL: userId do auth para RLS do Firestore
-            status: "PENDING",
-            billingType: "PIX",
-            createdAt: new Date(),
-          })
-          console.log("[v0] PIX_SAVED_FIRESTORE - Documento criado no Firestore com userId:", currentUserId)
-        } catch (error) {
-          console.error("[v0] PIX_FIRESTORE_ERROR - Erro ao salvar no Firestore:", error)
+          const uid = await waitForAuthUser()
+          console.log("[v0] PIX_AUTH_READY - Salvando no Firestore com uid:", uid)
+          
+          await setDoc(
+            doc(db, "payments", paymentResult.paymentId),
+            {
+              paymentId: paymentResult.paymentId,
+              userId: uid, // SEMPRE preenchido e válido
+              status: "PENDING",
+              billingType: "PIX",
+              createdAt: serverTimestamp(),
+            },
+            { merge: true }
+          )
+          console.log("[v0] PIX_SAVED_FIRESTORE - Documento criado com sucesso")
+        } catch (err) {
+          console.error("[v0] PIX_AUTH_ERROR - Erro ao aguardar auth ou salvar:", err)
         }
 
         const qrCodeResponse = await fetch(`/api/get-pix-qrcode?paymentId=${paymentResult.paymentId}`)
@@ -278,13 +284,13 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
           setPixData({
             qrCode: qrCodeResult.encodedImage || qrCodeResult.qrCode,
             copyPaste: qrCodeResult.payload,
-            paymentId: paymentResult.paymentId, // ESSENCIAL: sempre salvar paymentId
+            paymentId: paymentResult.paymentId,
           })
         } else {
           setPixData({
             qrCode: paymentResult.pixQrCode,
             copyPaste: paymentResult.pixCopyPaste,
-            paymentId: paymentResult.paymentId, // ESSENCIAL: sempre salvar paymentId
+            paymentId: paymentResult.paymentId,
           })
         }
 
