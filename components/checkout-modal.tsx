@@ -73,15 +73,18 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   })
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null)
+  const [paymentId, setPaymentId] = useState<string | null>(null) // Declare paymentId variable
 
   // Listener real-time para PIX - escuta mudanças do Firestore em tempo real
   useEffect(() => {
-    if (!pixData?.paymentId || paymentMethod !== "pix") return
+    const paymentIdValue = paymentId // Use the declared variable
+    if (!paymentIdValue || paymentMethod !== "pix") return
 
-    console.log("[v0] PIX_LISTENER_START - Iniciando onSnapshot para:", pixData.paymentId)
+    console.log("[v0] PIX_LISTENER_START - Iniciando onSnapshot para:", paymentIdValue)
 
     try {
-      const paymentDocRef = doc(db, "payments", pixData.paymentId)
+      const paymentDocRef = doc(db, "payments", paymentIdValue)
       const unsubscribe = onSnapshot(
         paymentDocRef,
         (snapshot) => {
@@ -92,16 +95,19 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
 
           const paymentData = snapshot.data()
           console.log("[v0] PIX_LISTENER_UPDATE - Status atualizado:", paymentData?.status)
+          
+          // Atualizar paymentStatus (não pixData!)
+          setPaymentStatus(paymentData?.status)
 
           // Se pagamento foi confirmado, mostrar sucesso
           if (paymentData?.status === "RECEIVED" || paymentData?.status === "CONFIRMED") {
-            console.log("[v0] PIX_LISTENER_CONFIRMED - Pagamento confirmado! Redirecionando...")
-            setPaymentConfirmed(true)
+            console.log("[v0] PIX_LISTENER_CONFIRMED - Pagamento confirmado! Mostrando animação...")
             unsubscribe()
-            // Aguarda 2 segundos para mostrar animação, depois redireciona
+            // Aguarda 5 segundos para mostrar a animação completa
             setTimeout(() => {
-              onSuccess()
-            }, 2000)
+              console.log("[v0] PIX_LISTENER_REDIRECTING - Redirecionando para sucesso com paymentId:", paymentId)
+              onSuccess(paymentId) // Passar paymentId para redirecionar para /success-asaas
+            }, 5000)
           }
         },
         (error) => {
@@ -116,7 +122,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
     } catch (error) {
       console.error("[v0] PIX_LISTENER_SETUP_ERROR - Erro ao configurar listener:", error)
     }
-  }, [pixData?.paymentId, paymentMethod, onSuccess])
+  }, [paymentId])
 
   const maxInstallments = 6
   const minInstallmentValue = 50
@@ -242,6 +248,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
 
       const paymentResult = await paymentResponse.json()
       console.log("[v0] Payment Result:", paymentResult)
+      setPaymentId(paymentResult.paymentId) // Set paymentId after receiving the response
 
       if (paymentMethod === "pix") {
         // Sempre guardar paymentId no localStorage para persistência
@@ -349,45 +356,12 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   if (paymentConfirmed) {
     return (
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
+        className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center animate-bounce"
       >
-        <Card className="bg-gradient-to-br from-green-900 to-green-800 border-green-600">
-          <CardContent className="pt-12 pb-12 text-center space-y-6">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="flex justify-center"
-            >
-              <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center">
-                <Check className="w-10 h-10 text-white" />
-              </div>
-            </motion.div>
-
-            <div className="space-y-2">
-              <h2 className="text-3xl font-bold text-white">Pagamento Confirmado!</h2>
-              <p className="text-green-100 text-lg">Obrigado por sua compra</p>
-            </div>
-
-            <div className="space-y-3 text-left">
-              <p className="text-green-100">
-                Seu plano <span className="font-bold text-white">{currentPlan.name}</span> foi ativado com sucesso!
-              </p>
-              <p className="text-green-100">
-                Você receberá um email com todos os detalhes e seus dados de acesso em instantes.
-              </p>
-              <p className="text-green-50 text-sm mt-4">
-                Redirecionando para seu dashboard em breve...
-              </p>
-            </div>
-
-            <div className="pt-4 border-t border-green-700">
-              <p className="text-green-100 text-sm">Bem-vindo à FitGoal! 🚀</p>
-            </div>
-          </CardContent>
-        </Card>
+        <Check className="w-10 h-10 text-white" />
       </motion.div>
     )
   }
@@ -558,7 +532,8 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                     onChange={(e) => {
                       let value = e.target.value.replace(/\D/g, "")
                       if (value.length <= 8) {
-                        value = value.replace(/(\d{5})(\d)/, "$1-$2")
+                        value = value
+                          .replace(/(\d{5})(\d)/, "$1-$2")
                       }
                       setAddressData({ ...addressData, postalCode: value })
                     }}
