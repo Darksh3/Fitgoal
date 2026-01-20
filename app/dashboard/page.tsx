@@ -138,10 +138,10 @@ export default function DashboardPage() {
   useEffect(() => {
     if (quizData?.currentWeight) {
       // Usar initialWeight do Firestore (fixo), se não tiver, usar currentWeight como fallback
-      const initialW = Number.parseFloat((quizData as any).initialWeight ?? quizData.currentWeight)
+      const initialW = Number.parseFloat((quizData as any).initialWeight || quizData.currentWeight)
       setInitialWeight(initialW)
 
-      // Peso atual do slider deve começar no peso atual
+      // Peso atual do slider deve começar no currentWeight do quizData
       // Só atualiza se ainda não foi modificado pelo usuário
       if (currentWeightSlider === 0) {
         setCurrentWeightSlider(Number.parseFloat(quizData.currentWeight))

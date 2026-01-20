@@ -724,7 +724,7 @@ export async function POST(req: Request) {
       name: userName,
       email: userEmail,
       quizAnswers: { ...existingUserData.quizAnswers, ...quizAnswersFromMetadata },
-      quizData: { ...initialQuizData, ...quizAnswersFromMetadata },
+      quizData: { ...initialQuizData, ...quizAnswersFromMetadata, initialWeight: initialQuizData.initialWeight },
       personalData: existingUserData.personalData || {},
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       createdAt: existingUserData.createdAt || admin.firestore.FieldValue.serverTimestamp(),
