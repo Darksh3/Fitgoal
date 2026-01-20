@@ -999,7 +999,7 @@ export default function DashboardPage() {
 
             <Card
               className="bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-all shadow-sm"
-              onClick={() => router.push("/dashboard/resumo")}
+              onClick={() => router.push("/dashboard/progresso")}
             >
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white text-xl">
