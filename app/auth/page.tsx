@@ -220,7 +220,7 @@ export default function AuthPage() {
                     placeholder="mig@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
+                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-500 focus:border-lime-500"
                     required
                   />
                 </div>
@@ -234,7 +234,7 @@ export default function AuthPage() {
                     placeholder="Senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
+                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-500 focus:border-lime-500"
                     required
                   />
                 </div>
@@ -281,7 +281,7 @@ export default function AuthPage() {
                     placeholder="mig@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
+                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-500 focus:border-lime-500"
                     required
                   />
                 </div>
@@ -295,7 +295,7 @@ export default function AuthPage() {
                     placeholder="Senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
+                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-500 focus:border-lime-500"
                     required
                   />
                 </div>
@@ -308,7 +308,7 @@ export default function AuthPage() {
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:border-lime-500"
+                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-500 focus:border-lime-500"
                     required
                   />
                 </div>
