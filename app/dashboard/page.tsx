@@ -783,7 +783,23 @@ export default function DashboardPage() {
               </div>
 
               {/* Barra de progresso com 3 seções */}
-              <div className="relative h-2 bg-gray-300 dark:bg-gray-600 rounded-full mb-6 overflow-hidden">
+              <div className="relative h-2 bg-gray-300 dark:bg-gray-600 rounded-full mb-6 overflow-visible">
+                {/* Slider input (invisível, mas interativo) */}
+                <input
+                  type="range"
+                  min={initialWeight * 0.7}
+                  max={(() => {
+                    const start = initialWeight
+                    const goal = Number.parseFloat(quizData.targetWeight)
+                    return goal > start ? goal * 1.3 : start * 1.3
+                  })()}
+                  step="0.1"
+                  value={currentWeightSlider}
+                  onChange={(e) => handleWeightChange(Number.parseFloat(e.target.value))}
+                  className="w-full h-8 -my-3 bg-transparent rounded-lg appearance-none cursor-pointer absolute top-0 left-0"
+                  style={{ zIndex: 10 }}
+                />
+
                 {(() => {
                   const start = initialWeight
                   const current = currentWeightSlider
@@ -797,7 +813,6 @@ export default function DashboardPage() {
                   const maxRange = goal > start ? goal * 1.3 : start * 1.3
 
                   // Converter pesos em percentuais
-                  const startPercent = ((start - minRange) / (maxRange - minRange)) * 100
                   const currentPercent = ((current - minRange) / (maxRange - minRange)) * 100
 
                   // Detectar regressão
@@ -810,7 +825,7 @@ export default function DashboardPage() {
                     <>
                       {/* Seção vermelha (regressão) ou azul (progresso) do início até o peso atual */}
                       <div
-                        className="absolute top-0 h-full transition-all"
+                        className="absolute top-0 h-full transition-all pointer-events-none"
                         style={{
                           left: "0%",
                           width: `${currentPercent}%`,
@@ -821,29 +836,11 @@ export default function DashboardPage() {
                       {/* Bolinha branca no peso atual */}
                       <div
                         className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full shadow-lg border-2 border-gray-800 dark:border-gray-200 transition-all pointer-events-none"
-                        style={{ left: `calc(${currentPercent}% - 12px)` }}
+                        style={{ left: `calc(${currentPercent}% - 12px)`, zIndex: 5 }}
                       />
                     </>
                   )
                 })()}
-              </div>
-
-              {/* Slider input (invisível) */}
-              <div className="relative">
-                <input
-                  type="range"
-                  min={initialWeight * 0.7}
-                  max={(() => {
-                    const start = initialWeight
-                    const goal = Number.parseFloat(quizData.targetWeight)
-                    return goal > start ? goal * 1.3 : start * 1.3
-                  })()}
-                  step="0.1"
-                  value={currentWeightSlider}
-                  onChange={(e) => handleWeightChange(Number.parseFloat(e.target.value))}
-                  className="w-full h-2 bg-transparent rounded-lg appearance-none cursor-pointer absolute opacity-0"
-                  style={{ zIndex: 5 }}
-                />
               </div>
 
               {isSaving && <p className="text-xs text-blue-600 dark:text-blue-400 text-center mt-4">Salvando...</p>}
