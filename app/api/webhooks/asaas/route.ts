@@ -18,6 +18,7 @@ export async function POST(request: Request) {
         console.log("[v0] WEBHOOK_UPDATING_PAYMENT - Atualizando Firestore")
         await adminDb.collection("payments").doc(payment.id).set({
           paymentId: payment.id,
+          userId: payment?.externalReference || null, // Adicionar userId para RLS
           status: payment.status,
           billingType: payment.billingType,
           value: payment.value,

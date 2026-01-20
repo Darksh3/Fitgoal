@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { CreditCard, Check, ShoppingCart, User, Lock, QrCode, FileText, Smartphone, ArrowLeft } from "lucide-react"
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
+import { doc, onSnapshot, setDoc, getFirestore } from "@/lib/firebaseClient"
 
 type PaymentMethod = "pix" | "boleto" | "card"
 
@@ -73,32 +74,49 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
 
-  // Polling para PIX - verifica a cada 5 segundos se o pagamento foi confirmado
+  // Listener real-time para PIX - escuta mudanças do Firestore em tempo real
   useEffect(() => {
     if (!pixData?.paymentId || paymentMethod !== "pix") return
 
-    const interval = setInterval(async () => {
-      try {
-        console.log("[v0] PIX_POLLING - Verificando status do pagamento PIX:", pixData.paymentId)
-        const response = await fetch(`/api/check-payment-status?paymentId=${pixData.paymentId}`)
-        const data = await response.json()
+    console.log("[v0] PIX_LISTENER_START - Iniciando onSnapshot para:", pixData.paymentId)
 
-        if (data.status === "CONFIRMED" || data.status === "APPROVED") {
-          console.log("[v0] PIX_CONFIRMED - Pagamento PIX confirmado!")
-          clearInterval(interval)
-          setPaymentConfirmed(true)
-          // Aguarda 3 segundos e depois redireciona
-          setTimeout(() => {
-            window.location.href = "/success"
-          }, 3000)
+    try {
+      const paymentDocRef = doc("payments", pixData.paymentId)
+      const unsubscribe = onSnapshot(
+        paymentDocRef,
+        (snapshot) => {
+          if (!snapshot.exists()) {
+            console.log("[v0] PIX_LISTENER - Documento não encontrado ainda")
+            return
+          }
+
+          const paymentData = snapshot.data()
+          console.log("[v0] PIX_LISTENER_UPDATE - Status atualizado:", paymentData?.status)
+
+          // Se pagamento foi confirmado, mostrar sucesso
+          if (paymentData?.status === "RECEIVED" || paymentData?.status === "CONFIRMED") {
+            console.log("[v0] PIX_LISTENER_CONFIRMED - Pagamento confirmado! Redirecionando...")
+            setPaymentConfirmed(true)
+            unsubscribe()
+            // Aguarda 2 segundos para mostrar animação, depois redireciona
+            setTimeout(() => {
+              onSuccess()
+            }, 2000)
+          }
+        },
+        (error) => {
+          console.error("[v0] PIX_LISTENER_ERROR - Erro ao escutar documento:", error)
         }
-      } catch (error) {
-        console.error("[v0] PIX_POLLING_ERROR - Erro ao verificar status:", error)
-      }
-    }, 5000) // Verifica a cada 5 segundos
+      )
 
-    return () => clearInterval(interval)
-  }, [pixData?.paymentId, paymentMethod])
+      return () => {
+        console.log("[v0] PIX_LISTENER_CLEANUP - Limpando listener")
+        unsubscribe()
+      }
+    } catch (error) {
+      console.error("[v0] PIX_LISTENER_SETUP_ERROR - Erro ao configurar listener:", error)
+    }
+  }, [pixData?.paymentId, paymentMethod, onSuccess])
 
   const maxInstallments = 6
   const minInstallmentValue = 50
@@ -226,6 +244,25 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
       console.log("[v0] Payment Result:", paymentResult)
 
       if (paymentMethod === "pix") {
+        // Sempre guardar paymentId no localStorage para persistência
+        localStorage.setItem("lastPaymentId", paymentResult.paymentId)
+        console.log("[v0] PIX_PAYMENT_CREATED - paymentId salvo:", paymentResult.paymentId)
+
+        // Salvar documento no Firestore com userId ANTES do webhook chegar
+        try {
+          console.log("[v0] PIX_SAVING_TO_FIRESTORE - Salvando pagamento no Firestore com userId")
+          await setDoc(doc("payments", paymentResult.paymentId), {
+            paymentId: paymentResult.paymentId,
+            userId: clientUid, // ESSENCIAL: userId para RLS do Firestore
+            status: "PENDING",
+            billingType: "PIX",
+            createdAt: new Date(),
+          })
+          console.log("[v0] PIX_SAVED_FIRESTORE - Documento criado no Firestore")
+        } catch (error) {
+          console.error("[v0] PIX_FIRESTORE_ERROR - Erro ao salvar no Firestore:", error)
+        }
+
         const qrCodeResponse = await fetch(`/api/get-pix-qrcode?paymentId=${paymentResult.paymentId}`)
 
         if (qrCodeResponse.ok) {
@@ -233,12 +270,13 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
           setPixData({
             qrCode: qrCodeResult.encodedImage || qrCodeResult.qrCode,
             copyPaste: qrCodeResult.payload,
+            paymentId: paymentResult.paymentId, // ESSENCIAL: sempre salvar paymentId
           })
         } else {
           setPixData({
             qrCode: paymentResult.pixQrCode,
             copyPaste: paymentResult.pixCopyPaste,
-            paymentId: paymentResult.paymentId,
+            paymentId: paymentResult.paymentId, // ESSENCIAL: sempre salvar paymentId
           })
         }
 
