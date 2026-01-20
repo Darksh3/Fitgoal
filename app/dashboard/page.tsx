@@ -487,6 +487,12 @@ export default function DashboardPage() {
     }
   }
 
+  // Função para calcular a posição de um peso na barra (0-100%)
+  const getWeightPosition = (weight: number, rangeMin: number, rangeMax: number): number => {
+    if (rangeMax === rangeMin) return 50
+    return ((weight - rangeMin) / (rangeMax - rangeMin)) * 100
+  }
+
   // Função para calcular progresso (funciona para bulking e cutting)
   const calcProgress = (start: number, current: number, goal: number) => {
     if (!isFinite(start) || !isFinite(current) || !isFinite(goal)) return 0
@@ -818,77 +824,122 @@ export default function DashboardPage() {
 
           {quizData && (
             <div className="mb-12 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-8 shadow-sm">
+              {/* Slider com 4 pontos-chave */}
               <div className="relative mt-6">
-                {/* Labels com pesos */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Peso Inicial</p>
-                    <p className="text-2xl font-bold text-gray-400 dark:text-gray-500">{initialWeight.toFixed(1)} kg</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Peso Atual</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                      {currentWeightSlider.toFixed(1)} kg
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Meta</p>
-                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">{quizData?.targetWeight} kg</p>
-                  </div>
-                </div>
-
-                {/* Barra com feedback de progresso e regressão */}
                 {(() => {
                   const start = initialWeight
                   const current = currentWeightSlider
                   const goal = Number.parseFloat(quizData?.targetWeight || "0")
-                  const best = bestWeight || current
 
-                  const currentP = calcProgress(start, current, goal)
-                  const bestP = calcProgress(start, best, goal)
+                  // Calcular range expandido: -30% do inicial até +30% da meta
+                  const rangeMin = start - start * 0.3
+                  const rangeMax = goal > start ? goal + goal * 0.3 : start + start * 0.3
 
-                  const currentPercent = currentP * 100
-                  const bestPercent = bestP * 100
-                  const regressPercent = Math.max(0, bestPercent - currentPercent)
+                  // Posições dos 3 pontos-chave (0-100%)
+                  const startPos = getWeightPosition(start, rangeMin, rangeMax)
+                  const currentPos = getWeightPosition(current, rangeMin, rangeMax)
+                  const goalPos = getWeightPosition(goal, rangeMin, rangeMax)
+
+                  // Detectar regressão: movimento contra a meta
+                  const isBulking = goal > start
+                  const isRegression = isBulking ? current < start : current > start
+
+                  // Cor da bolinha: azul normal, vermelho se regressão
+                  const ballColor = isRegression ? "border-red-600" : "border-blue-600"
 
                   return (
-                    <div className="relative h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-6">
-                      {/* Melhor progresso (azul) */}
-                      <div
-                        className="absolute left-0 top-0 h-4 bg-blue-500 rounded-full transition-all"
-                        style={{ width: `${bestPercent}%` }}
-                      />
-
-                      {/* Regressão (vermelho) - só aparece se regredir */}
-                      {regressPercent > 0 && (
+                    <>
+                      {/* Barra de fundo */}
+                      <div className="relative h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-2">
+                        {/* Progresso azul (do peso inicial à meta) */}
                         <div
-                          className="absolute top-0 h-4 bg-red-500/70 transition-all"
-                          style={{ left: `${currentPercent}%`, width: `${regressPercent}%` }}
+                          className="absolute top-0 h-4 bg-blue-500 rounded-full transition-all"
+                          style={{
+                            left: `${Math.min(startPos, goalPos)}%`,
+                            width: `${Math.abs(goalPos - startPos)}%`,
+                          }}
                         />
-                      )}
 
-                      {/* Bolinha atual */}
-                      <div
-                        className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full border-4 border-blue-500 shadow-lg transition-all pointer-events-none"
-                        style={{ left: `calc(${currentPercent}% - 12px)` }}
+                        {/* Regressão em vermelho (movimento contra a meta) */}
+                        {isRegression && (
+                          <div
+                            className="absolute top-0 h-4 bg-red-500/70 transition-all"
+                            style={{
+                              left: isBulking ? `${currentPos}%` : `${goalPos}%`,
+                              width: isBulking ? `${startPos - currentPos}%` : `${currentPos - startPos}%`,
+                            }}
+                          />
+                        )}
+
+                        {/* Marcador do peso inicial */}
+                        <div
+                          className="absolute top-1/2 -translate-y-1/2 w-1 h-6 bg-gray-400 rounded-sm transition-all"
+                          style={{ left: `calc(${startPos}% - 2px)`, top: "50%" }}
+                        />
+
+                        {/* Marcador da meta */}
+                        <div
+                          className="absolute top-1/2 -translate-y-1/2 w-1 h-6 bg-green-500 rounded-sm transition-all"
+                          style={{ left: `calc(${goalPos}% - 2px)`, top: "50%" }}
+                        />
+
+                        {/* Bolinha do peso atual (muda de cor se em regressão) */}
+                        <div
+                          className={`absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full border-3 shadow-lg transition-all pointer-events-none ${ballColor}`}
+                          style={{ left: `calc(${currentPos}% - 12px)` }}
+                        />
+                      </div>
+
+                      {/* Labels dos 3 pontos-chave */}
+                      <div className="relative h-12 mb-4">
+                        {/* Label Peso Inicial */}
+                        <div
+                          className="absolute text-center transform -translate-x-1/2"
+                          style={{ left: `${startPos}%` }}
+                        >
+                          <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">Inicial</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">{start.toFixed(1)} kg</p>
+                        </div>
+
+                        {/* Label Peso Atual */}
+                        <div
+                          className="absolute text-center transform -translate-x-1/2"
+                          style={{ left: `${currentPos}%` }}
+                        >
+                          <p className={`text-xs font-semibold ${isRegression ? "text-red-600 dark:text-red-400" : "text-blue-600 dark:text-blue-400"}`}>
+                            {isRegression ? "Regressão" : "Atual"}
+                          </p>
+                          <p className="text-xs font-bold text-gray-900 dark:text-white">{current.toFixed(1)} kg</p>
+                        </div>
+
+                        {/* Label Meta */}
+                        <div
+                          className="absolute text-center transform -translate-x-1/2"
+                          style={{ left: `${goalPos}%` }}
+                        >
+                          <p className="text-xs font-semibold text-green-600 dark:text-green-400">Meta</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">{goal.toFixed(1)} kg</p>
+                        </div>
+                      </div>
+
+                      {/* Slider input (invisível) */}
+                      <input
+                        type="range"
+                        min={rangeMin}
+                        max={rangeMax}
+                        step="0.1"
+                        value={current}
+                        onChange={(e) => handleWeightChange(Number.parseFloat(e.target.value))}
+                        className="w-full h-3 bg-transparent rounded-lg appearance-none cursor-pointer absolute opacity-0"
+                        style={{ top: "22px", zIndex: 5 }}
                       />
-                    </div>
+
+                      {isSaving && (
+                        <p className="text-xs text-blue-600 dark:text-blue-400 text-center mt-4">Salvando...</p>
+                      )}
+                    </>
                   )
                 })()}
-
-                {/* Slider input (invisível) */}
-                <input
-                  type="range"
-                  min={Math.min(initialWeight, Number.parseFloat(quizData?.targetWeight || "0")) - 10}
-                  max={Math.max(initialWeight, Number.parseFloat(quizData?.targetWeight || "0")) + 10}
-                  step="0.1"
-                  value={currentWeightSlider}
-                  onChange={(e) => handleWeightChange(Number.parseFloat(e.target.value))}
-                  className="w-full h-3 bg-transparent rounded-lg appearance-none cursor-pointer absolute top-1/2 -translate-y-1/2 opacity-0"
-                  style={{ zIndex: 5 }}
-                />
-
-                {isSaving && <p className="text-xs text-blue-600 dark:text-blue-400 text-center mt-2">Salvando...</p>}
               </div>
             </div>
           )}
