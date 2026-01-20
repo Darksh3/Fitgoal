@@ -799,7 +799,7 @@ export default function DashboardPage() {
 
                     {/* Barra de progresso com 3 segmentos */}
                     <div className="relative mb-8">
-                      {/* Slider input (invisível, mas interativo) */}
+                      {/* Slider input com estilo customizado */}
                       <input
                         type="range"
                         min={Math.min(start, goal) * 0.7}
@@ -807,63 +807,44 @@ export default function DashboardPage() {
                         step="0.1"
                         value={current}
                         onChange={(e) => handleWeightChange(Number.parseFloat(e.target.value))}
-                        className="w-full h-8 -my-3 bg-transparent rounded-lg appearance-none cursor-pointer absolute top-2 left-0"
-                        style={{ zIndex: 10 }}
+                        className="w-full h-3 rounded-full appearance-none bg-transparent cursor-pointer absolute top-4 left-0"
+                        style={{
+                          zIndex: 10,
+                          WebkitAppearance: "none",
+                        }}
                       />
+
+                      <style>{`
+                        input[type="range"]::-webkit-slider-thumb {
+                          -webkit-appearance: none;
+                          appearance: none;
+                          width: 0;
+                          height: 0;
+                          background: transparent;
+                          cursor: pointer;
+                          border: none;
+                        }
+                        input[type="range"]::-moz-range-thumb {
+                          width: 0;
+                          height: 0;
+                          background: transparent;
+                          cursor: pointer;
+                          border: none;
+                        }
+                        input[type="range"]::-moz-range-track {
+                          background: transparent;
+                          border: none;
+                        }
+                      `}</style>
 
                       {/* Container da barra com marcadores */}
                       <div className="relative pt-4">
-                        {/* Barra de fundo */}
-                        <div className="h-3 bg-gray-700 dark:bg-gray-600 rounded-full overflow-hidden relative">
-                          {(() => {
-                            const minRange = Math.min(start, goal) * 0.7
-                            const maxRange = Math.max(start, goal) * 1.3
-                            const toPercent = (w: number) => ((w - minRange) / (maxRange - minRange)) * 100
-
-                            const startPercent = toPercent(start)
-                            const currentPercent = toPercent(current)
-                            const goalPercent = toPercent(goal)
-
-                            return (
-                              <>
-                                {/* Segmento vermelho/laranja (regressão) */}
-                                {isRegression && (
-                                  <div
-                                    className="absolute top-0 h-full bg-gradient-to-r from-red-600 to-orange-500"
-                                    style={{
-                                      left: `${Math.min(startPercent, currentPercent)}%`,
-                                      width: `${Math.abs(currentPercent - startPercent)}%`,
-                                    }}
-                                  />
-                                )}
-
-                                {/* Segmento azul (peso atual se progresso) */}
-                                {!isRegression && (
-                                  <div
-                                    className="absolute top-0 h-full bg-gradient-to-r from-red-600 via-blue-500 to-blue-500"
-                                    style={{
-                                      left: `${Math.min(startPercent, currentPercent)}%`,
-                                      width: `${Math.abs(currentPercent - startPercent)}%`,
-                                    }}
-                                  />
-                                )}
-
-                                {/* Segmento verde (até a meta) */}
-                                {currentPercent !== goalPercent && (
-                                  <div
-                                    className="absolute top-0 h-full bg-gradient-to-r from-teal-500 to-green-500"
-                                    style={{
-                                      left: `${Math.max(currentPercent, startPercent)}%`,
-                                      width: `${Math.abs(goalPercent - Math.max(currentPercent, startPercent))}%`,
-                                    }}
-                                  />
-                                )}
-                              </>
-                            )
-                          })()}
+                        {/* Barra gradiente completa (vermelho -> azul -> verde) */}
+                        <div className="h-3 bg-gradient-to-r from-red-600 via-blue-500 to-green-500 rounded-full overflow-hidden relative shadow-lg">
+                          {/* Overlay de fundo para manter visível */}
                         </div>
 
-                        {/* Bolinha no peso atual */}
+                        {/* Bolinha no peso atual - posicionada corretamente */}
                         {(() => {
                           const minRange = Math.min(start, goal) * 0.7
                           const maxRange = Math.max(start, goal) * 1.3
@@ -872,10 +853,10 @@ export default function DashboardPage() {
 
                           return (
                             <div
-                              className="absolute top-0 w-7 h-7 bg-white rounded-full shadow-xl border-4 border-gray-300 transition-all pointer-events-none"
+                              className="absolute w-6 h-6 bg-white rounded-full shadow-2xl border-4 border-white transition-all pointer-events-none"
                               style={{
-                                left: `calc(${currentPercent}% - 14px)`,
-                                marginTop: "-5px",
+                                left: `calc(${currentPercent}% - 12px)`,
+                                top: "3px",
                                 zIndex: 5,
                               }}
                             />
