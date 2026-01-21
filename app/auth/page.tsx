@@ -116,7 +116,7 @@ export default function AuthPage() {
         title: "Sucesso!",
         description: "Conta criada com sucesso.",
       })
-      router.push("/dashboard")
+      router.push("/quiz")
     } catch (error: any) {
       toast({
         title: "Erro ao criar conta",
@@ -204,10 +204,6 @@ export default function AuthPage() {
                 Cadastrar
               </button>
             </div>
-            <TabsList className="hidden">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Cadastrar</TabsTrigger>
-            </TabsList>
             <TabsContent value="login" className="mt-4">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
