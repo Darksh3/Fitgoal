@@ -852,34 +852,11 @@ JSON OBRIGATÓRIO:
         } else if (dietResponse.status === "rejected") {
           console.error("❌ [DIET] Generation failed:", dietResponse.reason)
         }
-                  }
-                })
-              }
 
-              // Update totals to reflect meal-only values for the diet plan structure
-              parsed.totalDailyCalories = `${caloriesForMeals} kcal`
-              parsed.totalProtein = `${proteinForMeals}g`
-              parsed.totalCarbs = `${carbsForMeals}g`
-              parsed.totalFats = `${fatsForMeals}g`
-
-              dietPlan = parsed
-              console.log("✅ [DIET SUCCESS] Generated and corrected for meals")
-            } else {
-              console.log(
-                `[DIET] Meal count mismatch. Expected ${mealConfig.count}, got ${parsed.meals?.length || "undefined"}`,
-              )
-            }
-          } catch (e) {
-            console.log("⚠️ [DIET] Parse error:", e.message)
-          }
-        } else if (dietResponse.status === "rejected") {
-          console.error("❌ [DIET] Generation failed:", dietResponse.reason)
-        }
-
-        // Process workout response\
+        // Process workout response
         if (workoutResponse.status === "fulfilled") {
-          try {\
-            const responseContent = workoutResponse.value.choices[0].message?.content || "{}"\
+          try {
+            const responseContent = workoutResponse.value.choices[0].message?.content || "{}"
             console.log("[WORKOUT] Raw response content length:", responseContent.length)
             
             // Tentar fazer parse do JSON
@@ -921,8 +898,8 @@ JSON OBRIGATÓRIO:
         console.log("⚠️ [PARALLEL] Generation failed, using fallbacks")
       }
 \
-      if (!dietPlan) {\
-        console.log(\"❌ [NO DIET PLAN] AI must provide all nutritional data. Using placeholder and returning error.")
+      if (!dietPlan) {
+        console.log("❌ [NO DIET PLAN] AI must provide all nutritional data. Using placeholder and returning error.")
         // Return an error if diet plan generation failed and no fallback is appropriate
         return new Response(
           JSON.stringify({
@@ -959,11 +936,11 @@ JSON OBRIGATÓRIO:
       if (dietPlan?.meals) {
         dietPlan.meals.forEach((meal: any, index: number) => {
           const mealTotal = meal.foods?.reduce((sum: number, food: any) => sum + (food.calories || 0), 0) || 0
-          console.log(\`   Meal ${index + 1} (${meal.name}): ${mealTotal} kcal (${meal.foods?.length || 0} foods)`)
+          console.log(`   Meal ${index + 1} (${meal.name}): ${mealTotal} kcal (${meal.foods?.length || 0} foods)`)
         })
       }
-      console.log(\`   Total Calories (Scientific Target): ${savedCalcs.finalCalories} kcal`)
-      console.log(\`   Total Calories from Supplement: ${savedCalcs.supplementCalories} kcal`)
+      console.log(`   Total Calories (Scientific Target): ${savedCalcs.finalCalories} kcal`)
+      console.log(`   Total Calories from Supplement: ${savedCalcs.supplementCalories} kcal`)
       console.log("=".repeat(80))
 
       try {
@@ -972,21 +949,21 @@ JSON OBRIGATÓRIO:
             plans: { 
               dietPlan: JSON.parse(JSON.stringify(dietPlan)), // Sanitizar
               workoutPlan: JSON.parse(JSON.stringify(workoutPlan)) // Sanitizar
-            },\
+            },
             dietPlan: JSON.parse(JSON.stringify(dietPlan)), // Sanitizar
             workoutPlan: JSON.parse(JSON.stringify(workoutPlan)), // Sanitizar
-            finalResults: {\
-              scientificTarget: savedCalcs.finalCalories,\
+            finalResults: {
+              scientificTarget: savedCalcs.finalCalories,
               // The actual generated calories here will be the sum of meal calories and supplement calories
               actualGenerated: `${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
               valuesMatch:
-                \`${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal` ===
-                `${savedCalcs.finalCalories} kcal`,\
+                `${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal` ===
+                `${savedCalcs.finalCalories} kcal`,
               generatedAt: admin.firestore.FieldValue.serverTimestamp(),
             },
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           },
-          { merge: true },\
+          { merge: true },
         )
         console.log(
           `✅ Plans saved - Scientific: ${savedCalcs.finalCalories} kcal, Saved: ${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
@@ -994,7 +971,7 @@ JSON OBRIGATÓRIO:
       } catch (firestoreError) {
         console.error("⚠️ Firestore error:", firestoreError)
       }
-\
+
       return new Response(
         JSON.stringify({
           success: true,
@@ -1022,12 +999,12 @@ JSON OBRIGATÓRIO:
  * Considera: Tipo Corporal (Somatótipo) + Gênero + Objetivo
  */
 function calculateScientificCalories(data: any) {
-  // Se o calorieGoal já foi calculado no quiz, use-o\
+  // Se o calorieGoal já foi calculado no quiz, use-o
   if (data.calorieGoal && data.calorieGoal > 0) {
-    console.log(\`✅ [CALORIE_GOAL] Usando calorieGoal do quiz: ${Math.round(data.calorieGoal)} kcal`)
+    console.log(`✅ [CALORIE_GOAL] Usando calorieGoal do quiz: ${Math.round(data.calorieGoal)} kcal`)
     
     const dailyCalories = Math.round(data.calorieGoal)
-    const weight = Number.parseFloat(data.currentWeight) || 70\
+    const weight = Number.parseFloat(data.currentWeight) || 70
     const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
     const effectiveGoals = goals
     const bodyType = data.bodyType || ""
