@@ -876,10 +876,10 @@ JSON OBRIGATÓRIO:
           console.error("❌ [DIET] Generation failed:", dietResponse.reason)
         }
 
-        // Process workout response
+        // Process workout response\
         if (workoutResponse.status === "fulfilled") {
-          try {
-            const responseContent = workoutResponse.value.choices[0].message?.content || "{}"
+          try {\
+            const responseContent = workoutResponse.value.choices[0].message?.content || "{}"\
             console.log("[WORKOUT] Raw response content length:", responseContent.length)
             
             // Tentar fazer parse do JSON
@@ -920,9 +920,9 @@ JSON OBRIGATÓRIO:
       } catch (error) {
         console.log("⚠️ [PARALLEL] Generation failed, using fallbacks")
       }
-
-      if (!dietPlan) {
-        console.log("❌ [NO DIET PLAN] AI must provide all nutritional data. Using placeholder and returning error.")
+\
+      if (!dietPlan) {\
+        console.log(\"❌ [NO DIET PLAN] AI must provide all nutritional data. Using placeholder and returning error.")
         // Return an error if diet plan generation failed and no fallback is appropriate
         return new Response(
           JSON.stringify({
@@ -952,18 +952,18 @@ JSON OBRIGATÓRIO:
       console.log(`📊 [DIET SUMMARY]`)
       // Displaying meal-only totals here as dietPlan reflects that
       console.log(`   Total Daily Calories (Meals Only): ${dietPlan?.totalDailyCalories}`)
-      console.log(`   Total Protein (Meals Only): ${dietPlan?.totalProtein}`)
+      console.log(\`   Total Protein (Meals Only): ${dietPlan?.totalProtein}`)
       console.log(`   Total Carbs (Meals Only): ${dietPlan?.totalCarbs}`)
       console.log(`   Total Fats (Meals Only): ${dietPlan?.totalFats}`)
       console.log(`   Number of Meals: ${dietPlan?.meals?.length || 0}`)
       if (dietPlan?.meals) {
         dietPlan.meals.forEach((meal: any, index: number) => {
           const mealTotal = meal.foods?.reduce((sum: number, food: any) => sum + (food.calories || 0), 0) || 0
-          console.log(`   Meal ${index + 1} (${meal.name}): ${mealTotal} kcal (${meal.foods?.length || 0} foods)`)
+          console.log(\`   Meal ${index + 1} (${meal.name}): ${mealTotal} kcal (${meal.foods?.length || 0} foods)`)
         })
       }
-      console.log(`   Total Calories (Scientific Target): ${savedCalcs.finalCalories} kcal`)
-      console.log(`   Total Calories from Supplement: ${savedCalcs.supplementCalories} kcal`)
+      console.log(\`   Total Calories (Scientific Target): ${savedCalcs.finalCalories} kcal`)
+      console.log(\`   Total Calories from Supplement: ${savedCalcs.supplementCalories} kcal`)
       console.log("=".repeat(80))
 
       try {
