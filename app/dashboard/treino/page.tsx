@@ -586,7 +586,7 @@ export default function TreinoPage() {
                         {workoutPlan?.days?.length || "N/A"} dias
                         <br />
                         User: {(userData as any)?.quizData?.name || "N/A"}
-                        {workoutPlan?.days?.length !== (userData as any)?.quizData?.trainingDaysPerWeek && (
+          {workoutPlan?.days?.length && getTrainingDaysPerWeek((userData as any)?.quizData) && workoutPlan?.days?.length !== getTrainingDaysPerWeek((userData as any)?.quizData) && (
                           <span className="text-orange-500 dark:text-orange-400"> (Discrepância detectada)</span>
                         )}
                       </p>
