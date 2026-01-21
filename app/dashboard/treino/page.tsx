@@ -466,16 +466,35 @@ export default function TreinoPage() {
           debugDataFlow("DASHBOARD_LOAD", data)
           setUserData(data)
 
-          const expectedFrequency = data.quizData?.trainingDaysPerWeek || 5
-          const actualDays = data.workoutPlan?.days?.length || 0
+          const expectedFrequency = Number(data.quizData?.trainingDaysPerWeek ?? 5)
+          const actualDays = Number(data.workoutPlan?.days?.length ?? 0)
+
+          console.log("[DASHBOARD] Frequency types:", {
+            expectedFrequency,
+            expectedType: typeof expectedFrequency,
+            actualDays,
+            actualType: typeof actualDays,
+          })
+
           const hasMinimumExercises =
             data.workoutPlan?.days?.every((day: any) => day.exercises && day.exercises.length >= 5) || false
 
           const needsRegeneration =
             !data.workoutPlan ||
-            !data.workoutPlan.days ||
+            !Array.isArray(data.workoutPlan.days) ||
             actualDays === 0 ||
-            (actualDays > 0 && actualDays !== expectedFrequency) // Regenerate if any difference
+            actualDays !== expectedFrequency ||
+            !hasMinimumExercises
+
+          console.log(`[DASHBOARD] Regeneration check:`, {
+            hasWorkoutPlan: !!data.workoutPlan,
+            hasDays: !!data.workoutPlan?.days,
+            actualDays,
+            expectedFrequency,
+            hasMinimumExercises,
+            needsRegeneration,
+          })
+ // Regenerate if any difference
 
           console.log(`[DASHBOARD] Regeneration check:`, {
             hasWorkoutPlan: !!data.workoutPlan,
