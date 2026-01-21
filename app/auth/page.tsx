@@ -54,7 +54,6 @@ export default function AuthPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password)
       const userId = userCredential.user.uid
-      let hasQuizData = false
 
       try {
         const leadsDocRef = doc(db, "leads", userId)
@@ -63,7 +62,6 @@ export default function AuthPage() {
         if (leadsDoc.exists()) {
           const leadData = leadsDoc.data()
           console.log("[v0] Lead data found, copying to user:", userId)
-          hasQuizData = !!(leadData.quizData || leadData.goal)
 
           // Copiar todos os dados do lead para o documento do usuário
           const userDocRef = doc(db, "users", userId)
@@ -118,13 +116,7 @@ export default function AuthPage() {
         title: "Sucesso!",
         description: "Conta criada com sucesso.",
       })
-
-      // Redirecionar para quiz se não tem dados de quiz, senão para dashboard
-      if (hasQuizData) {
-        router.push("/dashboard")
-      } else {
-        router.push("/quiz")
-      }
+      router.push("/dashboard")
     } catch (error: any) {
       toast({
         title: "Erro ao criar conta",
