@@ -116,7 +116,7 @@ export default function AuthPage() {
         title: "Sucesso!",
         description: "Conta criada com sucesso.",
       })
-      router.push("/quiz")
+      router.push("/dashboard")
     } catch (error: any) {
       toast({
         title: "Erro ao criar conta",
@@ -195,12 +195,19 @@ export default function AuthPage() {
               </button>
               <button
                 type="button"
-                onClick={() => router.push("/quiz")}
+                onClick={() => {
+                  const signupTab = document.querySelector('[value="signup"]') as HTMLButtonElement
+                  signupTab?.click()
+                }}
                 className="px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 bg-white/10 hover:bg-white/20 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
               >
                 Cadastrar
               </button>
             </div>
+            <TabsList className="hidden">
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="signup">Cadastrar</TabsTrigger>
+            </TabsList>
             <TabsContent value="login" className="mt-4">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
