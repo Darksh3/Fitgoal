@@ -8,17 +8,25 @@ const ASAAS_API_URL = ASAAS_ENVIRONMENT === "sandbox" ? "https://sandbox.asaas.c
 export async function POST(request: Request) {
   try {
     console.log("[v0] WEBHOOK_RECEIVED - Webhook Asaas recebido")
+    console.log("[v0] WEBHOOK_ENV_CHECK - ASAAS_API_KEY presente:", !!ASAAS_API_KEY, "ASAAS_ENVIRONMENT:", ASAAS_ENVIRONMENT, "URL:", ASAAS_API_URL)
+    
     const body = await request.json()
     const event = body.event
     const paymentId = body.id // O Asaas envia o ID em "id", não em "payment.id"
 
-    console.log("[v0] WEBHOOK_EVENT - Event:", event, "PaymentID:", paymentId)
+    console.log("[v0] WEBHOOK_EVENT - Event:", event, "PaymentID:", paymentId, "Body keys:", Object.keys(body))
 
     // Se for um evento de pagamento, buscar dados completos
     if ((event === "PAYMENT_RECEIVED" || event === "PAYMENT_CONFIRMED") && paymentId) {
       try {
         console.log("[v0] WEBHOOK_FETCHING - Buscando dados do pagamento do Asaas:", paymentId)
+        console.log("[v0] WEBHOOK_FETCH_URL - Usando URL:", `${ASAAS_API_URL}/payments/${paymentId}`)
         
+        if (!ASAAS_API_KEY) {
+          console.error("[v0] WEBHOOK_NO_API_KEY - ASAAS_API_KEY não está definida!")
+          return NextResponse.json({ received: true, error: "No API key" }, { status: 200 })
+        }
+
         const fetchResponse = await fetch(`${ASAAS_API_URL}/payments/${paymentId}`, {
           headers: {
             "accept": "application/json",
@@ -26,8 +34,11 @@ export async function POST(request: Request) {
           },
         })
 
+        console.log("[v0] WEBHOOK_FETCH_RESPONSE - Status:", fetchResponse.status, "Ok:", fetchResponse.ok)
+
         if (!fetchResponse.ok) {
-          console.error("[v0] WEBHOOK_FETCH_FAILED - Status:", fetchResponse.status)
+          const errorText = await fetchResponse.text()
+          console.error("[v0] WEBHOOK_FETCH_FAILED - Status:", fetchResponse.status, "Response:", errorText)
           return NextResponse.json({ received: true }, { status: 200 })
         }
 
@@ -57,10 +68,16 @@ export async function POST(request: Request) {
               console.log("[v0] WEBHOOK_USERID - userId encontrado:", payment.externalReference)
             }
 
-            await adminDb.collection("payments").doc(payment.id).set(updateData, { merge: true })
+            console.log("[v0] WEBHOOK_FIRESTORE_DATA - Dados a serem salvos:", JSON.stringify(updateData))
+            
+            const docRef = adminDb.collection("payments").doc(payment.id)
+            console.log("[v0] WEBHOOK_FIRESTORE_DOC - Referência doc:", payment.id)
+            
+            await docRef.set(updateData, { merge: true })
             console.log("[v0] WEBHOOK_UPDATED_SUCCESS - Status atualizado para:", payment.status)
           } catch (error) {
-            console.error("[v0] WEBHOOK_FIRESTORE_ERROR - Erro ao atualizar Firestore:", error)
+            console.error("[v0] WEBHOOK_FIRESTORE_ERROR - Erro ao atualizar Firestore:", error instanceof Error ? error.message : String(error))
+            console.error("[v0] WEBHOOK_FIRESTORE_STACK - Stack:", error instanceof Error ? error.stack : "")
           }
         }
 
