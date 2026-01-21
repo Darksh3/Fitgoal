@@ -298,13 +298,24 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
 
       exercises.push({
         name: exercise.name,
-        sets: getSmartSets(exercise.type || "compound", isProblematicArea), // Use smart sets calculation
-        reps: quizData.goal?.includes("ganhar-massa")
-          ? "6-10"
-          : quizData.goal?.includes("perder-peso")
-            ? "12-20"
-            : "8-12",
-        rest: quizData.experience === "iniciante" ? "60s" : quizData.experience === "avancado" ? "120s" : "90s",
+        sets: (() => {
+  const type = (exercise.type ?? "compound") as "compound" | "isolation"
+  const exp = (quizData.experience || "intermediario") as "iniciante" | "intermediario" | "avancado"
+  return getSmartSets(type, exp, quizData.workoutTime || "45-60min", isProblematicArea)
+})(), // Use smart sets calculation
+        reps: (() => {
+          const goals = Array.isArray(quizData.goal) ? quizData.goal : [quizData.goal].filter(Boolean)
+          const isCutting = goals.includes("perder-peso") || goals.includes("emagrecer")
+          const isBulking = goals.includes("ganhar-massa") || goals.includes("ganhar-peso")
+
+          const type = (exercise.type ?? "compound") as "compound" | "isolation"
+          return getRepRange(isBulking, isCutting, type)
+        })(),
+        rest: (() => {
+          const type = (exercise.type ?? "compound") as "compound" | "isolation"
+          const exp = (quizData.experience || "intermediario") as "iniciante" | "intermediario" | "avancado"
+          return getRest(exp, type)
+        })(),
         description: exercise.description,
       })
     }
@@ -334,25 +345,41 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
   return days
 }
 
-const getSmartSets = (exerciseType: string, isProblematicArea = false) => {
-  let baseSets = exerciseType === "compound" ? 4 : 3 // Compostos: 4 séries, Isoladores: 3 séries
+function getSmartSets(
+  type: "compound" | "isolation",
+  experience: "iniciante" | "intermediario" | "avancado",
+  workoutTime: string,
+  isProblemArea: boolean
+) {
+  let sets = type === "compound" ? 4 : 3
 
-  // Ajustes baseados na experiência
-  if (exerciseType === "compound") {
-    baseSets = Math.min(5, baseSets + 1) // Adiciona 1 série para avançados em compostos
-  }
+  // experiência
+  if (experience === "iniciante") sets -= 1
+  if (experience === "avancado" && type === "compound") sets += 1
 
-  // Ajuste para áreas problemáticas
-  if (isProblematicArea && exerciseType === "compound") {
-    baseSets = Math.min(5, baseSets + 1) // +1 série para áreas problemáticas em exercícios compostos
-  }
+  // tempo disponível
+  if (workoutTime === "30min") sets -= 1
+  if (workoutTime === "mais-1h" && type === "compound") sets += 1
 
-  // Ajuste baseado no tempo disponível
-  if (exerciseType === "compound") {
-    baseSets = Math.min(5, baseSets + 1) // Aumenta para treinos longos
-  }
+  // ênfase (somente em compostos)
+  if (isProblemArea && type === "compound") sets += 1
 
-  return baseSets
+  // limites
+  const min = 2
+  const max = type === "compound" ? 5 : 4
+  return Math.max(min, Math.min(max, sets))
+}
+
+function getRepRange(isBulking: boolean, isCutting: boolean, type: "compound" | "isolation") {
+  if (isBulking) return type === "compound" ? "6-10" : "10-15"
+  if (isCutting) return type === "compound" ? "8-12" : "12-20"
+  return type === "compound" ? "6-12" : "10-15"
+}
+
+function getRest(experience: "iniciante" | "intermediario" | "avancado", type: "compound" | "isolation") {
+  if (experience === "iniciante") return type === "compound" ? "90s" : "60s"
+  if (experience === "avancado") return type === "compound" ? "120-180s" : "60-90s"
+  return type === "compound" ? "90-120s" : "60-90s"
 }
 
 /**
@@ -390,60 +417,57 @@ function getMealCountByBodyType(bodyType: string) {
 export async function POST(req: Request) {
   try {
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error("Request timeout after 180 seconds")), 180000)
+      setTimeout(() => reject(new Error("Request timeout after 90 seconds")), 90000)
     })
 
     const mainLogic = async () => {
-      try {
-        // Replacing the original JSON parsing with specific checks
-        const body = await req.json()
-        const userId = body.userId
-        const providedQuizData = body.quizData
-        const forceRegenerate = body.forceRegenerate
+      // Replacing the original JSON parsing with specific checks
+      const body = await req.json()
+      const userId = body.userId
+      const providedQuizData = body.quizData
+      const forceRegenerate = body.forceRegenerate
 
-        console.log("🔍 [DEBUG] Starting plan generation for userId:", userId)
+      console.log("🔍 [DEBUG] Starting plan generation for userId:", userId)
 
-        if (!userId) {
-          return new Response(JSON.stringify({ error: "userId is required." }), {
-            status: 400,
-            headers: { "Content-Type": "application/json" },
-          })
-        }
+      if (!userId) {
+        return new Response(JSON.stringify({ error: "userId is required." }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        })
+      }
 
-        const userDocRef = adminDb.collection("users").doc(userId)
-        const userDoc = await userDocRef.get()
+      const userDocRef = adminDb.collection("users").doc(userId)
+      const userDoc = await userDocRef.get()
 
-        if (!userDoc.exists) {
-          console.error("❌ [ERROR] User not found:", userId)
-          return new Response(JSON.stringify({ error: "User not found" }), {
+      if (!userDoc.exists) {
+        return new Response(JSON.stringify({ error: "User not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        })
+      }
+
+      const userData = userDoc.data()
+      let quizData = providedQuizData
+      if (!quizData) {
+        if (!userData?.quizData) {
+          return new Response(JSON.stringify({ error: "Quiz data not found." }), {
             status: 404,
             headers: { "Content-Type": "application/json" },
           })
         }
+        quizData = userData.quizData
+      }
 
-        const userData = userDoc.data()
-        let quizData = providedQuizData
-        if (!quizData) {
-          if (!userData?.quizData) {
-            console.error("❌ [ERROR] Quiz data not found for user:", userId)
-            return new Response(JSON.stringify({ error: "Quiz data not found." }), {
-              status: 404,
-              headers: { "Content-Type": "application/json" },
-            })
-          }
-          quizData = userData.quizData
-        }
+      console.log("📋 [DEBUG] Full quizData received:", JSON.stringify(quizData, null, 2))
+      console.log("💊 [DEBUG] wantsSupplement value:", quizData.wantsSupplement)
+      console.log("💊 [DEBUG] wantsSupplement type:", typeof quizData.wantsSupplement)
+      console.log("💊 [DEBUG] supplementType value:", quizData.supplementType)
+      console.log("💊 [DEBUG] supplementType type:", typeof quizData.supplementType)
+      console.log("💊 [DEBUG] Condition check (wantsSupplement === 'sim'):", quizData.wantsSupplement === "sim")
+      console.log("💊 [DEBUG] Condition check (supplementType exists):", !!quizData.supplementType)
 
-        console.log("📋 [DEBUG] Full quizData received:", JSON.stringify(quizData, null, 2))
-        console.log("💊 [DEBUG] wantsSupplement value:", quizData.wantsSupplement)
-        console.log("💊 [DEBUG] wantsSupplement type:", typeof quizData.wantsSupplement)
-        console.log("💊 [DEBUG] supplementType value:", quizData.supplementType)
-        console.log("💊 [DEBUG] supplementType type:", typeof quizData.supplementType)
-        console.log("💊 [DEBUG] Condition check (wantsSupplement === 'sim'):", quizData.wantsSupplement === "sim")
-        console.log("💊 [DEBUG] Condition check (supplementType exists):", !!quizData.supplementType)
-
-        const requestedDays = quizData.trainingDays || 5
-        console.log(`🎯 [CRITICAL] User ${userId} requested EXACTLY ${requestedDays} training days`)
+      const requestedDays = quizData.trainingDays || 5
+      console.log(`🎯 [CRITICAL] User ${userId} requested EXACTLY ${requestedDays} training days`)
 
       const scientificCalcs = calculateScientificCalories(quizData)
       console.log(`🧮 [SCIENTIFIC CALCULATION] Target: ${scientificCalcs.finalCalories} kcal`)
@@ -730,8 +754,7 @@ ${
 ${
   quizData.problemAreas?.includes("Corpo inteiro") || !quizData.problemAreas?.length
     ? "- DESENVOLVIMENTO EQUILIBRADO: Volume igual para todos os grupos musculares"
-    : `- ÊNFASE EXTRA: +1 série APENAS nos exercícios COMPOSTOS que trabalhem ${quizData.problemAreas.join(", ")}
-- IMPORTANTE: Ainda treinar todos os grupos musculares, apenas dar mais volume para as áreas problemáticas`
+    : "- ÊNFASE EXTRA: +1 série APENAS nos exercícios COMPOSTOS que trabalhem " + quizData.problemAreas.join(", ") + "\n- IMPORTANTE: Ainda treinar todos os grupos musculares, apenas dar mais volume para as áreas problemáticas"
 }
 
 VOLUME SEMANAL OTIMIZADO:
@@ -749,36 +772,25 @@ JSON OBRIGATÓRIO:
 }`
 
       const generateWithTimeout = async (prompt: string, type: string) => {
-        console.log(`🔄 [${type.toUpperCase()}] Starting generation with 120s timeout...`)
         const timeout = new Promise((_, reject) => {
-          setTimeout(() => {
-            console.error(`❌ [${type.toUpperCase()}] TIMEOUT: Generation took longer than 120 seconds`)
-            reject(new Error(`${type} generation timeout after 120s`))
-          }, 120000) // Increased to 120s
+          setTimeout(() => reject(new Error(`${type} generation timeout`)), 120000) // Increased to 120s
         })
 
-        try {
-          console.log(`📤 [${type.toUpperCase()}] Sending request to OpenAI...`)
-          const generation = openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [
-              {
-                role: "system",
-                content: `Você é um ${type === "diet" ? "nutricionista experiente" : "personal trainer experiente"}. Seja preciso com calorias.`,
-              },
-              { role: "user", content: prompt },
-            ],
-            temperature: 0.1,
-            response_format: { type: "json_object" },
-            max_tokens: 4000,
-          })
+        const generation = openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content: `Você é um ${type === "diet" ? "nutricionista experiente" : "personal trainer experiente"}. Seja preciso com calorias.`,
+            },
+            { role: "user", content: prompt },
+          ],
+          temperature: 0.1,
+          response_format: { type: "json_object" },
+          max_tokens: 4000, // Increased tokens
+        })
 
-          console.log(`✅ [${type.toUpperCase()}] Request sent, waiting for response...`)
-          return Promise.race([generation, timeout])
-        } catch (error) {
-          console.error(`❌ [${type.toUpperCase()}] Error in generation:`, error instanceof Error ? error.message : String(error))
-          throw error
-        }
+        return Promise.race([generation, timeout])
       }
 
       let dietPlan = null
@@ -840,8 +852,7 @@ JSON OBRIGATÓRIO:
             console.log("⚠️ [DIET] Parse error:", e)
           }
         } else if (dietResponse.status === "rejected") {
-          console.error("❌ [DIET] Generation failed:", dietResponse.reason?.message || String(dietResponse.reason))
-          console.error("❌ [DIET] Full error:", JSON.stringify(dietResponse.reason))
+          console.error("❌ [DIET] Generation failed:", dietResponse.reason)
         }
 
         // Process workout response
@@ -860,8 +871,7 @@ JSON OBRIGATÓRIO:
             console.log("⚠️ [WORKOUT] Parse error, using fallback")
           }
         } else if (workoutResponse.status === "rejected") {
-          console.error("❌ [WORKOUT] Generation failed:", workoutResponse.reason?.message || String(workoutResponse.reason))
-          console.error("❌ [WORKOUT] Full error:", JSON.stringify(workoutResponse.reason))
+          console.error("❌ [WORKOUT] Generation failed:", workoutResponse.reason)
         }
       } catch (error) {
         console.log("⚠️ [PARALLEL] Generation failed, using fallbacks")
