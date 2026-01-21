@@ -13,6 +13,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Fitness Website",
   description: "Seu parceiro para uma vida mais saudável",
+  viewport: "width=device-width, initial-scale=0.8, maximum-scale=5, user-scalable=yes",
     generator: 'v0.app'
 }
 

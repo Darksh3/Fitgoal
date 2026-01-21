@@ -298,13 +298,24 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
 
       exercises.push({
         name: exercise.name,
-        sets: getSmartSets(exercise.type || "compound", isProblematicArea), // Use smart sets calculation
-        reps: quizData.goal?.includes("ganhar-massa")
-          ? "6-10"
-          : quizData.goal?.includes("perder-peso")
-            ? "12-20"
-            : "8-12",
-        rest: quizData.experience === "iniciante" ? "60s" : quizData.experience === "avancado" ? "120s" : "90s",
+        sets: (() => {
+  const type = (exercise.type ?? "compound") as "compound" | "isolation"
+  const exp = (quizData.experience || "intermediario") as "iniciante" | "intermediario" | "avancado"
+  return getSmartSets(type, exp, quizData.workoutTime || "45-60min", isProblematicArea)
+})(), // Use smart sets calculation
+        reps: (() => {
+          const goals = Array.isArray(quizData.goal) ? quizData.goal : [quizData.goal].filter(Boolean)
+          const isCutting = goals.includes("perder-peso") || goals.includes("emagrecer")
+          const isBulking = goals.includes("ganhar-massa") || goals.includes("ganhar-peso")
+
+          const type = (exercise.type ?? "compound") as "compound" | "isolation"
+          return getRepRange(isBulking, isCutting, type)
+        })(),
+        rest: (() => {
+          const type = (exercise.type ?? "compound") as "compound" | "isolation"
+          const exp = (quizData.experience || "intermediario") as "iniciante" | "intermediario" | "avancado"
+          return getRest(exp, type)
+        })(),
         description: exercise.description,
       })
     }
@@ -334,25 +345,41 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
   return days
 }
 
-const getSmartSets = (exerciseType: string, isProblematicArea = false) => {
-  let baseSets = exerciseType === "compound" ? 4 : 3 // Compostos: 4 séries, Isoladores: 3 séries
+function getSmartSets(
+  type: "compound" | "isolation",
+  experience: "iniciante" | "intermediario" | "avancado",
+  workoutTime: string,
+  isProblemArea: boolean
+) {
+  let sets = type === "compound" ? 4 : 3
 
-  // Ajustes baseados na experiência
-  if (exerciseType === "compound") {
-    baseSets = Math.min(5, baseSets + 1) // Adiciona 1 série para avançados em compostos
-  }
+  // experiência
+  if (experience === "iniciante") sets -= 1
+  if (experience === "avancado" && type === "compound") sets += 1
 
-  // Ajuste para áreas problemáticas
-  if (isProblematicArea && exerciseType === "compound") {
-    baseSets = Math.min(5, baseSets + 1) // +1 série para áreas problemáticas em exercícios compostos
-  }
+  // tempo disponível
+  if (workoutTime === "30min") sets -= 1
+  if (workoutTime === "mais-1h" && type === "compound") sets += 1
 
-  // Ajuste baseado no tempo disponível
-  if (exerciseType === "compound") {
-    baseSets = Math.min(5, baseSets + 1) // Aumenta para treinos longos
-  }
+  // ênfase (somente em compostos)
+  if (isProblemArea && type === "compound") sets += 1
 
-  return baseSets
+  // limites
+  const min = 2
+  const max = type === "compound" ? 5 : 4
+  return Math.max(min, Math.min(max, sets))
+}
+
+function getRepRange(isBulking: boolean, isCutting: boolean, type: "compound" | "isolation") {
+  if (isBulking) return type === "compound" ? "6-10" : "10-15"
+  if (isCutting) return type === "compound" ? "8-12" : "12-20"
+  return type === "compound" ? "6-12" : "10-15"
+}
+
+function getRest(experience: "iniciante" | "intermediario" | "avancado", type: "compound" | "isolation") {
+  if (experience === "iniciante") return type === "compound" ? "90s" : "60s"
+  if (experience === "avancado") return type === "compound" ? "120-180s" : "60-90s"
+  return type === "compound" ? "90-120s" : "60-90s"
 }
 
 /**
@@ -387,6 +414,26 @@ function getMealCountByBodyType(bodyType: string) {
   }
 }
 
+function safeJsonParseFromModel(content: string) {
+  if (!content) throw new Error("Empty AI response")
+
+  // Remove code fences tipo ```json ... ```
+  let text = content.trim()
+  text = text.replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim()
+
+  // Tenta pegar o maior bloco JSON entre { ... }
+  const firstBrace = text.indexOf("{")
+  const lastBrace = text.lastIndexOf("}")
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    text = text.slice(firstBrace, lastBrace + 1)
+  }
+
+  // Remove trailing commas: { "a": 1, } e [1,2,]
+  text = text.replace(/,\s*([}\]])/g, "$1")
+
+  return JSON.parse(text)
+}
+
 export async function POST(req: Request) {
   try {
     const timeoutPromise = new Promise((_, reject) => {
@@ -413,7 +460,7 @@ export async function POST(req: Request) {
       const userDoc = await userDocRef.get()
 
       if (!userDoc.exists) {
-        return new Response(JSON.JSON.stringify({ error: "User not found" }), {
+        return new Response(JSON.stringify({ error: "User not found" }), {
           status: 404,
           headers: { "Content-Type": "application/json" },
         })
@@ -538,7 +585,11 @@ NÃO adicione o suplemento nas refeições! Ele será incluído automaticamente.
 `
 }
 
-CLIENTE: ${quizData.gender}, ${quizData.age} anos, ${quizData.currentWeight}kg, objetivo: ${quizData.goal?.join(", ")}, biotipo: ${quizData.bodyType}, prazo: ${quizData.timeToGoal}
+     const goalsArray = Array.isArray(quizData.goal) ? quizData.goal : [quizData.goal].filter(Boolean)
+
+// ...
+
+CLIENTE: ${quizData.gender}, ${quizData.age} anos, ${quizData.currentWeight}kg, objetivo: ${goalsArray.join(", ")}, biotipo: ${quizData.bodyType}, prazo: ${quizData.timeToGoal}
 ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
 ${
   quizData.diet
@@ -727,7 +778,7 @@ ${
 ${
   quizData.problemAreas?.includes("Corpo inteiro") || !quizData.problemAreas?.length
     ? "- DESENVOLVIMENTO EQUILIBRADO: Volume igual para todos os grupos musculares"
-    : `- ÊNFASE EXTRA: +1 série APENAS nos exercícios COMPOSTOS que trabalhem ${quizData.problemAreas.join(", ")}\n- IMPORTANTE: Ainda treinar todos os grupos musculares, apenas dar mais volume para as áreas problemáticas`
+    : "- ÊNFASE EXTRA: +1 série APENAS nos exercícios COMPOSTOS que trabalhem " + quizData.problemAreas.join(", ") + "\n- IMPORTANTE: Ainda treinar todos os grupos musculares, apenas dar mais volume para as áreas problemáticas"
 }
 
 VOLUME SEMANAL OTIMIZADO:
@@ -746,7 +797,7 @@ JSON OBRIGATÓRIO:
 
       const generateWithTimeout = async (prompt: string, type: string) => {
         const timeout = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error(`${type} generation timeout`)), 60000) // Increased to 60s
+          setTimeout(() => reject(new Error(`${type} generation timeout`)), 120000) // Increased to 120s
         })
 
         const generation = openai.chat.completions.create({
@@ -780,8 +831,8 @@ JSON OBRIGATÓRIO:
         // Process diet response
         if (dietResponse.status === "fulfilled") {
           try {
-            const rawContent = dietResponse.value.choices[0].message?.content || "{}"
-            const parsed = JSON.parse(rawContent)
+            const rawContent = dietResponse.value.choices[0].message?.content || ""
+            const parsed = safeJsonParseFromModel(rawContent)
 
             if (parsed.meals && Array.isArray(parsed.meals) && parsed.meals.length === mealConfig.count) {
               // Calculate real total from AI-generated foods
@@ -831,7 +882,8 @@ JSON OBRIGATÓRIO:
         // Process workout response
         if (workoutResponse.status === "fulfilled") {
           try {
-            const parsed = JSON.parse(workoutResponse.value.choices[0].message?.content || "{}")
+            const rawContent = workoutResponse.value.choices[0].message?.content || ""
+            const parsed = safeJsonParseFromModel(rawContent)
             if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === requestedDays) {
               workoutPlan = parsed
               console.log("✅ [WORKOUT SUCCESS] Generated successfully")

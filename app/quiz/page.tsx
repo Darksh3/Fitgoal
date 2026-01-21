@@ -340,8 +340,8 @@ export default function QuizPage() {
     belly: { top: 31, left: 49, width: 22, height: 13, rotate: 0 },
     leg_upper_left: { top: 54, left: 34, width: 11, height: 14, rotate: -2 },
     leg_lower_left: { top: 73, left: 42, width: 5, height: 9, rotate: -17 },
-    leg_upper_right: { top: 54, right: 36, width: 11, height: 14, rotate: 2 },
-    leg_lower_right: { top: 73, right: 43, width: 5, height: 9, rotate: 17 },
+    leg_upper_right: { top: 54, right: 40, width: 10, height: 14, rotate: 6 },
+    leg_lower_right: { top: 72, right: 44, width: 6, height: 14, rotate: 9 },
     // Masculine markings
     m_chest_left: { top: 21, left: 34, width: 21, height: 11, rotate: -90 },
     m_chest_right: { top: 21, right: 32, width: 21, height: 11, rotate: -89 },
@@ -837,6 +837,10 @@ export default function QuizPage() {
         setCurrentStep(29) // Skip to email
       }
       return
+    } else if (currentStep === totalSteps) {
+      // When reaching the final step, redirect to results
+      router.push("/quiz/results")
+      return
     } else if (currentStep < totalSteps) {
       const nextStepNumber = currentStep + 1
       setCurrentStep(nextStepNumber)
@@ -963,8 +967,6 @@ export default function QuizPage() {
       )
 
       if (imc > 0) {
-        setShowIMCResult(true)
-      } else {
         setShowSuccess(true)
       }
     } catch (error) {
@@ -1645,73 +1647,6 @@ export default function QuizPage() {
               }
             }
           `}</style>
-        </div>
-      </div>
-    )
-  }
-
-  if (showIMCResult) {
-    const { imc, classification, status } = calculateIMC(
-      Number.parseFloat(quizData.weight), // Use quizData.weight for IMC calculation
-      Number.parseFloat(quizData.height),
-    )
-
-    const getIMCBodyImage = () => {
-      const isWoman = quizData.gender === "mulher"
-      const bodyType = quizData.bodyType
-
-      if (!bodyType) {
-        // Fallback to generic image if bodyType is not set
-        return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
-      }
-
-      switch (bodyType) {
-        case "ectomorfo":
-          return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
-        case "mesomorfo":
-          return isWoman ? "/images/female-mesomorph-real-new.webp" : "/images/male-mesomorph-real-new.webp"
-        case "endomorfo":
-          return isWoman ? "/images/female-endomorph-real-new.webp" : "/images/male-endomorph-real-new.webp"
-        default:
-          return isWoman ? "/images/female-ectomorph-real-new.webp" : "/images/male-ectomorph-real-new.webp"
-      }
-    }
-
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="text-center space-y-6 max-w-md">
-          <img
-            src={getIMCBodyImage() || "/placeholder.svg"}
-            alt={`${quizData.bodyType} body type`}
-            className="w-48 h-64 mx-auto object-contain"
-            onError={(e) => {
-              e.currentTarget.src = "/placeholder.svg"
-            }}
-          />
-          <h2 className="text-3xl font-bold">Resultado do seu IMC</h2>
-          <div className="bg-gray-800 rounded-lg p-6">
-            <p className="text-gray-300 text-lg mb-4">
-              Calculamos o seu IMC e ele é de <span className="text-lime-400 font-bold">{imc}</span>
-            </p>
-            <p className="text-white text-xl mb-4">
-              Você está com <span className="text-lime-400 font-bold">{classification}</span>
-            </p>
-          </div>
-          <Button
-            onClick={() => {
-              setShowIMCResult(false)
-              setShowSuccess(true)
-            }}
-            className="group relative"
-          >
-            {/* Botão principal */}
-            <div className="relative px-16 py-6 bg-gradient-to-r from-lime-400 to-lime-500 rounded-full font-bold text-gray-900 text-2xl shadow-2xl hover:shadow-lime-500/50 transform hover:scale-105 transition-all duration-300">
-              <span className="relative z-10">Continuar</span>
-
-              {/* Efeito de brilho animado */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-lime-300 to-lime-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-            </div>
-          </Button>
         </div>
       </div>
     )
@@ -2727,12 +2662,12 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `${debugValues.m_leg_lower_right.top}%`,
-                          right: `${debugValues.m_leg_lower_right.right}%`,
-                          width: `${debugValues.m_leg_lower_right.width}%`,
-                          height: `${debugValues.m_leg_lower_right.height}%`,
+                          top: `${debugValues.leg_lower_right.top}%`,
+                          right: `${debugValues.leg_lower_right.right}%`,
+                          width: `${debugValues.leg_lower_right.width}%`,
+                          height: `${debugValues.leg_lower_right.height}%`,
                           borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
-                          transform: `rotate(${debugValues.m_leg_lower_right.rotate}deg)`,
+                          transform: `rotate(${debugValues.leg_lower_right.rotate}deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
