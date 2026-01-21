@@ -389,9 +389,8 @@ function getMealCountByBodyType(bodyType: string) {
 
 export async function POST(req: Request) {
   try {
-    // Aumentar timeout para 180 segundos (3 minutos) para dar tempo à IA de processar
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error("Request timeout after 180 seconds")), 180000)
+      setTimeout(() => reject(new Error("Request timeout after 90 seconds")), 90000)
     })
 
     const mainLogic = async () => {
@@ -781,46 +780,22 @@ JSON OBRIGATÓRIO:
         // Process diet response
         if (dietResponse.status === "fulfilled") {
           try {
-            const responseContent = dietResponse.value.choices[0].message?.content || "{}"
-            console.log("[DIET] Raw response content length:", responseContent.length)
-            
-            // Tentar fazer parse do JSON
-            let parsed
-            try {
-              parsed = JSON.parse(responseContent)
-            } catch (parseError) {
-              console.warn("[DIET] JSON parse error on first attempt, trying to extract JSON...")
-              // Tentar extrair JSON válido da resposta
-              const jsonMatch = responseContent.match(/\{[\s\S]*\}/)
-              if (jsonMatch) {
-                try {
-                  parsed = JSON.parse(jsonMatch[0])
-                  console.log("[DIET] Successfully extracted JSON from response")
-                } catch (retryParseError) {
-                  console.error("[DIET] Failed to parse extracted JSON:", retryParseError.message)
-                  throw parseError
-                }
-              } else {
-                throw parseError
-              }
-            }
-            
+            const rawContent = dietResponse.value.choices[0].message?.content || "{}"
+            const parsed = JSON.parse(rawContent)
+
             if (parsed.meals && Array.isArray(parsed.meals) && parsed.meals.length === mealConfig.count) {
-              dietPlan = parsed
-              console.log("[DIET] Target for meals: ", mealConfig.count, "Received: ", parsed.meals?.length)
+              // Calculate real total from AI-generated foods
+              const realTotal = parsed.meals.reduce((total, meal) => {
+                return total + meal.foods.reduce((mealTotal, food) => mealTotal + (food.calories || 0), 0)
+              }, 0)
 
-              // Calculate totals
-              const totalCalories = parsed.meals.reduce((sum, meal) => sum + (meal.totalCalories || 0), 0)
-              const caloriesForMeals = totalCalories
-              const proteinForMeals = Math.round(caloriesForMeals * 0.3 / 4)
-              const carbsForMeals = Math.round(caloriesForMeals * 0.5 / 4)
-              const fatsForMeals = Math.round(caloriesForMeals * 0.2 / 9)
+              console.log(`[DIET] Target for meals: ${caloriesForMeals} kcal, AI Generated: ${realTotal} kcal`)
 
-              // Adjust calorie distribution if needed
-              const targetCalories = scientificCalcs.finalCalories
-              if (caloriesForMeals !== targetCalories) {
-                const adjustmentRatio = targetCalories / (caloriesForMeals || 1)
-                const adjustmentPerMeal = (targetCalories - caloriesForMeals) / mealConfig.count
+              // Check if difference is significant and adjust if needed
+              const difference = caloriesForMeals - realTotal
+              if (Math.abs(difference) > 50) {
+                console.log(`[DIET] Adjusting foods by ${difference} kcal`)
+                const adjustmentPerMeal = Math.round(difference / parsed.meals.length)
 
                 parsed.meals.forEach((meal, index) => {
                   if (meal.foods && meal.foods.length > 0) {
@@ -847,30 +822,7 @@ JSON OBRIGATÓRIO:
               )
             }
           } catch (e) {
-            console.log("⚠️ [DIET] Parse error:", e.message)
-          }
-        } else if (dietResponse.status === "rejected") {
-          console.error("❌ [DIET] Generation failed:", dietResponse.reason)
-        }
-                  }
-                })
-              }
-
-              // Update totals to reflect meal-only values for the diet plan structure
-              parsed.totalDailyCalories = `${caloriesForMeals} kcal`
-              parsed.totalProtein = `${proteinForMeals}g`
-              parsed.totalCarbs = `${carbsForMeals}g`
-              parsed.totalFats = `${fatsForMeals}g`
-
-              dietPlan = parsed
-              console.log("✅ [DIET SUCCESS] Generated and corrected for meals")
-            } else {
-              console.log(
-                `[DIET] Meal count mismatch. Expected ${mealConfig.count}, got ${parsed.meals?.length || "undefined"}`,
-              )
-            }
-          } catch (e) {
-            console.log("⚠️ [DIET] Parse error:", e.message)
+            console.log("⚠️ [DIET] Parse error:", e)
           }
         } else if (dietResponse.status === "rejected") {
           console.error("❌ [DIET] Generation failed:", dietResponse.reason)
@@ -879,30 +831,7 @@ JSON OBRIGATÓRIO:
         // Process workout response
         if (workoutResponse.status === "fulfilled") {
           try {
-            const responseContent = workoutResponse.value.choices[0].message?.content || "{}"
-            console.log("[WORKOUT] Raw response content length:", responseContent.length)
-            
-            // Tentar fazer parse do JSON
-            let parsed
-            try {
-              parsed = JSON.parse(responseContent)
-            } catch (parseError) {
-              console.warn("[WORKOUT] JSON parse error on first attempt, trying to extract JSON...")
-              // Tentar extrair JSON válido da resposta
-              const jsonMatch = responseContent.match(/\{[\s\S]*\}/)
-              if (jsonMatch) {
-                try {
-                  parsed = JSON.parse(jsonMatch[0])
-                  console.log("[WORKOUT] Successfully extracted JSON from response")
-                } catch (retryParseError) {
-                  console.error("[WORKOUT] Failed to parse extracted JSON:", retryParseError.message)
-                  throw parseError
-                }
-              } else {
-                throw parseError
-              }
-            }
-            
+            const parsed = JSON.parse(workoutResponse.value.choices[0].message?.content || "{}")
             if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === requestedDays) {
               workoutPlan = parsed
               console.log("✅ [WORKOUT SUCCESS] Generated successfully")
@@ -912,7 +841,7 @@ JSON OBRIGATÓRIO:
               )
             }
           } catch (e) {
-            console.log("⚠️ [WORKOUT] Parse error, using fallback:", e.message)
+            console.log("⚠️ [WORKOUT] Parse error, using fallback")
           }
         } else if (workoutResponse.status === "rejected") {
           console.error("❌ [WORKOUT] Generation failed:", workoutResponse.reason)
