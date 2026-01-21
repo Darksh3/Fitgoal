@@ -329,7 +329,7 @@ export default function QuizPage() {
   const [analyzingStep, setAnalyzingStep] = useState(0)
   // </CHANGE>
 
-  const [debugMode, setDebugMode] = useState(true) // Enabled debug mode for alignment
+  const [debugMode, setDebugMode] = useState(false) // Disabled debug mode
   const [debugValues, setDebugValues] = useState({
     chest_left: { top: 23, left: 33, width: 14, height: 6, rotate: -90 },
     chest_right: { top: 23, right: 38, width: 14, height: 6, rotate: -90 },
@@ -362,7 +362,6 @@ export default function QuizPage() {
   })
 
   const updateDebugValue = (key: string, property: string, value: number) => {
-    console.log("[v0] Debug update:", key, property, value)
     setDebugValues((prev) => ({
       ...prev,
       [key]: { ...prev[key], [property]: value },
@@ -2573,12 +2572,12 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `${debugValues.leg_lower_right.top}%`,
-                          right: `${debugValues.leg_lower_right.right}%`,
-                          width: `${debugValues.leg_lower_right.width}%`,
-                          height: `${debugValues.leg_lower_right.height}%`,
+                          top: `${debugValues.m_leg_lower_right.top}%`,
+                          right: `${debugValues.m_leg_lower_right.right}%`,
+                          width: `${debugValues.m_leg_lower_right.width}%`,
+                          height: `${debugValues.m_leg_lower_right.height}%`,
                           borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
-                          transform: `rotate(${debugValues.leg_lower_right.rotate}deg)`,
+                          transform: `rotate(${debugValues.m_leg_lower_right.rotate}deg)`,
                           boxShadow: "inset 0 0 12px rgba(0, 255, 255, 0.3)",
                         }}
                       ></div>
@@ -2728,12 +2727,12 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `${debugValues.leg_lower_right.top}%`,
-                          right: `${debugValues.leg_lower_right.right}%`,
-                          width: `${debugValues.leg_lower_right.width}%`,
-                          height: `${debugValues.leg_lower_right.height}%`,
+                          top: `${debugValues.m_leg_lower_right.top}%`,
+                          right: `${debugValues.m_leg_lower_right.right}%`,
+                          width: `${debugValues.m_leg_lower_right.width}%`,
+                          height: `${debugValues.m_leg_lower_right.height}%`,
                           borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
-                          transform: `rotate(${debugValues.leg_lower_right.rotate}deg)`,
+                          transform: `rotate(${debugValues.m_leg_lower_right.rotate}deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
@@ -2756,11 +2755,7 @@ export default function QuizPage() {
                   </div>
 
                   {Object.entries(debugValues)
-                    .filter(([key]) => {
-                      const isFemale = quizData.gender === "mulher"
-                      const isMaleKey = key.startsWith("m_")
-                      return isFemale ? !isMaleKey : isMaleKey
-                    })
+                    .filter(([key]) => (quizData.gender === "mulher" ? !key.startsWith("m_") : key.startsWith("m_")))
                     .map(([key, values]) => (
                       <div key={key} className="space-y-2 border-b border-gray-700 pb-3">
                         <h4 className="text-sm font-semibold text-purple-300">
