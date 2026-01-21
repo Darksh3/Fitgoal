@@ -136,15 +136,24 @@ export default function DashboardPage() {
   }, [router])
 
   useEffect(() => {
-    if (quizData?.currentWeight) {
+    if (quizData) {
+      console.log("[v0] Loading quiz data for weights:", { currentWeight: quizData.currentWeight, initialWeight: (quizData as any).initialWeight })
+      
       // Usar initialWeight do Firestore (fixo), se não tiver, usar currentWeight como fallback
-      const initialW = Number.parseFloat((quizData as any).initialWeight || quizData.currentWeight)
-      setInitialWeight(initialW)
+      const currentW = Number.parseFloat(quizData.currentWeight || "0") || 0
+      const initialW = Number.parseFloat((quizData as any).initialWeight || quizData.currentWeight || "0") || 0
+      
+      console.log("[v0] Parsed weights:", { initialW, currentW, currentWeightSlider })
+      
+      if (initialW > 0) {
+        setInitialWeight(initialW)
+      }
 
       // Peso atual do slider deve começar no currentWeight do quizData
       // Só atualiza se ainda não foi modificado pelo usuário
-      if (currentWeightSlider === 0) {
-        setCurrentWeightSlider(Number.parseFloat(quizData.currentWeight))
+      if (currentWeightSlider === 0 && currentW > 0) {
+        console.log("[v0] Setting currentWeightSlider to:", currentW)
+        setCurrentWeightSlider(currentW)
       }
     }
     if (quizData?.height) {
@@ -479,22 +488,23 @@ export default function DashboardPage() {
   }
 
   const calculateOverallProgress = () => {
-    if (!quizData?.currentWeight || !quizData?.targetWeight) {
+    const currentW = Number.parseFloat(quizData?.currentWeight || "0") || currentWeightSlider || 0
+    const targetW = Number.parseFloat(quizData?.targetWeight || "0") || 0
+    
+    if (!currentW || !targetW) {
+      console.log("[v0] Missing weight data for progress:", { currentW, targetW, currentWeightSlider })
       return photoProgressBonus // Se não tem dados de peso, retorna apenas o bônus de fotos
     }
 
-    const currentWeight = currentWeightSlider || Number.parseFloat(quizData.currentWeight)
-    const targetWeight = Number.parseFloat(quizData.targetWeight)
-
     if (
-      (initialWeight > targetWeight && currentWeight <= targetWeight) ||
-      (initialWeight < targetWeight && currentWeight >= targetWeight)
+      (initialWeight > targetW && currentW <= targetW) ||
+      (initialWeight < targetW && currentW >= targetW)
     ) {
       return 100
     }
 
-    const totalWeightToChange = Math.abs(targetWeight - initialWeight)
-    const weightChanged = Math.abs(currentWeight - initialWeight)
+    const totalWeightToChange = Math.abs(targetW - initialWeight)
+    const weightChanged = Math.abs(currentW - initialWeight)
     const weightProgress = (weightChanged / totalWeightToChange) * 100
 
     const totalProgress = Math.min(100, weightProgress + photoProgressBonus)
@@ -793,19 +803,19 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between mb-10">
                       <div className="text-center flex-1">
                         <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Peso Inicial</p>
-                        <p className="text-xl font-bold text-gray-400 dark:text-gray-500">{start.toFixed(1)} kg</p>
+                        <p className="text-xl font-bold text-gray-400 dark:text-gray-500">{(initialWeight || 70).toFixed(1)} kg</p>
                       </div>
                       <div className="text-center flex-1">
                         <p className={`text-xs mb-2 font-semibold ${isRegression ? "text-red-500 dark:text-red-400" : "text-gray-500 dark:text-gray-400"}`}>
                           Peso Atual
                         </p>
                         <p className={`text-3xl font-bold ${isRegression ? "text-red-500 dark:text-red-400" : "text-white"}`}>
-                          {current.toFixed(1)} kg
+                          {(current || 70).toFixed(1)} kg
                         </p>
                       </div>
                       <div className="text-center flex-1">
                         <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Meta</p>
-                        <p className="text-xl font-bold text-green-500 dark:text-green-400">{goal.toFixed(1)} kg</p>
+                        <p className="text-xl font-bold text-green-500 dark:text-green-400">{(goal || 85).toFixed(1)} kg</p>
                       </div>
                     </div>
 
