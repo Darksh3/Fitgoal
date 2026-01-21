@@ -413,17 +413,6 @@ export default function QuizPage() {
   // </CHANGE>
 
   useEffect(() => {
-    if (showSuccess) {
-      const timer = setTimeout(() => {
-        setShowSuccess(false)
-        router.push("/quiz/results")
-      }, 4000) // 4 segundos
-
-      return () => clearTimeout(timer)
-    }
-  }, [showSuccess, router])
-
-  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setCurrentUser(user)

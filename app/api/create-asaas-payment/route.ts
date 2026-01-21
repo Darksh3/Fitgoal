@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import { adminDb } from "@/lib/firebaseAdmin"
 
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY
 const ASAAS_ENVIRONMENT = process.env.ASAAS_ENVIRONMENT || "production"
@@ -184,27 +183,6 @@ export async function POST(req: Request) {
     }
 
     console.log("[v0] Step 7 DONE - Payment created with ID:", paymentResult.id)
-
-    // SALVAR NO FIRESTORE IMEDIATAMENTE
-    console.log("[v0] Step 7.5: Saving payment to Firestore...")
-    try {
-      const paymentDocData = {
-        paymentId: paymentResult.id,
-        userId: clientUid || null,
-        status: paymentResult.status,
-        billingType: billingType,
-        value: amount,
-        customerId: customerId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-      
-      await adminDb.collection("payments").doc(paymentResult.id).set(paymentDocData, { merge: true })
-      console.log("[v0] Step 7.5 DONE - Payment saved to Firestore with status:", paymentResult.status)
-    } catch (firebaseError) {
-      console.error("[v0] Step 7.5 WARNING - Error saving to Firestore (non-blocking):", firebaseError)
-      // Não interromper o fluxo se Firestore falhar
-    }
 
     // 3. Retornar dados específicos do método de pagamento
     console.log("[v0] Step 8: Preparing response...")
