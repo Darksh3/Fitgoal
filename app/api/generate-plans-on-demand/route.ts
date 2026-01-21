@@ -414,6 +414,26 @@ function getMealCountByBodyType(bodyType: string) {
   }
 }
 
+function safeJsonParseFromModel(content: string) {
+  if (!content) throw new Error("Empty AI response")
+
+  // Remove code fences tipo ```json ... ```
+  let text = content.trim()
+  text = text.replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim()
+
+  // Tenta pegar o maior bloco JSON entre { ... }
+  const firstBrace = text.indexOf("{")
+  const lastBrace = text.lastIndexOf("}")
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    text = text.slice(firstBrace, lastBrace + 1)
+  }
+
+  // Remove trailing commas: { "a": 1, } e [1,2,]
+  text = text.replace(/,\s*([}\]])/g, "$1")
+
+  return JSON.parse(text)
+}
+
 export async function POST(req: Request) {
   try {
     const timeoutPromise = new Promise((_, reject) => {
@@ -807,8 +827,8 @@ JSON OBRIGATÓRIO:
         // Process diet response
         if (dietResponse.status === "fulfilled") {
           try {
-            const rawContent = dietResponse.value.choices[0].message?.content || "{}"
-            const parsed = JSON.parse(rawContent)
+            const rawContent = dietResponse.value.choices[0].message?.content || ""
+            const parsed = safeJsonParseFromModel(rawContent)
 
             if (parsed.meals && Array.isArray(parsed.meals) && parsed.meals.length === mealConfig.count) {
               // Calculate real total from AI-generated foods
@@ -858,7 +878,8 @@ JSON OBRIGATÓRIO:
         // Process workout response
         if (workoutResponse.status === "fulfilled") {
           try {
-            const parsed = JSON.parse(workoutResponse.value.choices[0].message?.content || "{}")
+            const rawContent = workoutResponse.value.choices[0].message?.content || ""
+            const parsed = safeJsonParseFromModel(rawContent)
             if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === requestedDays) {
               workoutPlan = parsed
               console.log("✅ [WORKOUT SUCCESS] Generated successfully")
