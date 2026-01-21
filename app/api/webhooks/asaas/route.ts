@@ -11,19 +11,51 @@ export async function POST(request: Request) {
     const payment = body.payment
 
     console.log("[v0] WEBHOOK_EVENT - Event:", event, "PaymentID:", payment?.id, "Status:", payment?.status)
+    console.log("[v0] WEBHOOK_DATA - Full payment object:", JSON.stringify(payment, null, 2))
+
+    // Tentar extrair userId de várias fontes possíveis
+    let userId = payment?.externalReference || payment?.customer?.id || null
+    
+    // Se temos um customer object, buscar do Firestore
+    if (!userId && payment?.customer) {
+      try {
+        const customerEmail = payment.customer.email
+        if (customerEmail) {
+          console.log("[v0] WEBHOOK_SEARCHING_USER - Buscando usuário por email:", customerEmail)
+          const userSnap = await adminDb.collection("users")
+            .where("email", "==", customerEmail)
+            .limit(1)
+            .get()
+          
+          if (!userSnap.empty) {
+            userId = userSnap.docs[0].id
+            console.log("[v0] WEBHOOK_USER_FOUND - Usuário encontrado por email:", userId)
+          }
+        }
+      } catch (searchError) {
+        console.warn("[v0] WEBHOOK_SEARCH_ERROR - Erro ao buscar usuário:", searchError)
+      }
+    }
 
     // ATUALIZAR FIRESTORE IMEDIATAMENTE (rápido, síncrono)
     if (payment?.id && payment?.status) {
       try {
-        console.log("[v0] WEBHOOK_UPDATING_PAYMENT - Atualizando Firestore")
-        await adminDb.collection("payments").doc(payment.id).set({
+        console.log("[v0] WEBHOOK_UPDATING_PAYMENT - Atualizando Firestore com userId:", userId)
+        const paymentData: any = {
           paymentId: payment.id,
-          userId: payment?.externalReference || null, // Adicionar userId para RLS
           status: payment.status,
           billingType: payment.billingType,
           value: payment.value,
           updatedAt: new Date(),
-        }, { merge: true })
+          asaasData: payment, // Armazenar todos os dados do Asaas para debug
+        }
+        
+        // Apenas adicionar userId se não for null
+        if (userId) {
+          paymentData.userId = userId
+        }
+        
+        await adminDb.collection("payments").doc(payment.id).set(paymentData, { merge: true })
         console.log("[v0] WEBHOOK_UPDATED - Firestore atualizado com status:", payment.status)
       } catch (error) {
         console.error("[v0] WEBHOOK_FIRESTORE_ERROR - Erro:", error)
@@ -32,13 +64,14 @@ export async function POST(request: Request) {
 
     // DISPARAR PROCESSAMENTO EM BACKGROUND (sem await, sem bloquear a resposta)
     if (payment?.status === "RECEIVED" || payment?.status === "CONFIRMED") {
-      const userId = payment?.externalReference
       if (userId) {
-        console.log("[v0] WEBHOOK_BACKGROUND_START - Processamento iniciado em background")
+        console.log("[v0] WEBHOOK_BACKGROUND_START - Processamento iniciado em background para userId:", userId)
         // Disparar sem await
         processPaymentBackground(payment, userId).catch(err => {
           console.error("[v0] WEBHOOK_BACKGROUND_CATCH - Erro capturado:", err)
         })
+      } else {
+        console.warn("[v0] WEBHOOK_NO_USERID - Não foi possível encontrar userId, pulando processamento em background")
       }
     }
 
