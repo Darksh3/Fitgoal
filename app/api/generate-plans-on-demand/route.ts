@@ -486,7 +486,15 @@ export async function POST(req: Request) {
       console.log("💊 [DEBUG] Condition check (wantsSupplement === 'sim'):", quizData.wantsSupplement === "sim")
       console.log("💊 [DEBUG] Condition check (supplementType exists):", !!quizData.supplementType)
 
-      const requestedDays = quizData.trainingDays || 5
+      const requestedDaysRaw = quizData.trainingDays ?? quizData.trainingDaysPerWeek ?? 5
+      const requestedDays = Number.parseInt(String(requestedDaysRaw), 10) || 5
+
+      console.log("[WORKOUT] requestedDays debug:", {
+        requestedDaysRaw,
+        requestedDaysRawType: typeof requestedDaysRaw,
+        requestedDays,
+        requestedDaysType: typeof requestedDays,
+      })  
       console.log(`🎯 [CRITICAL] User ${userId} requested EXACTLY ${requestedDays} training days`)
 
       const scientificCalcs = calculateScientificCalories(quizData)
@@ -712,7 +720,7 @@ Crie EXATAMENTE ${requestedDays} dias de treino para ${quizData.gender}, ${quizD
 
 DADOS DO CLIENTE PARA PERSONALIZAÇÃO:
 - Experiência: ${quizData.experience}
-- Objetivo: ${quizData.goal?.join(", ")}
+- Objetivo: ${goalsArray.join(", ")}
 - Biotipo: ${quizData.bodyType}
 - Tempo para atingir o objetivo: ${quizData.timeToGoal}
 - Áreas problemáticas: ${quizData.problemAreas?.join(", ") || "Nenhuma específica"}
@@ -790,7 +798,7 @@ NUNCA USE VALORES FIXOS! CATEGORIZE CADA EXERCÍCIO E APLIQUE AS REGRAS ACIMA!
 
 JSON OBRIGATÓRIO:
 {
-  "days": [${Array.from({ length: requestedDays }, (_, i) => `{"day": "Dia ${i + 1}", "title": "[nome da divisão - ex: Push, Pull, Legs, Upper, Lower]", "focus": "[grupos musculares do dia]", "duration": "${quizData.workoutTime || "45-60min"}", "exercises": [{"name": "[exercício específico]", "sets": "[4 para COMPOSTOS, 3 para ISOLADORES + ajustes do perfil]", "reps": "[PERSONALIZADO: ${quizData.goal?.includes("ganhar-massa") ? "6-10" : quizData.goal?.includes("perder-peso") ? "12-20" : "8-12"}]", "rest": "[PERSONALIZADO: ${quizData.experience === "iniciante" ? "60-90s" : quizData.experience === "avancado" ? "120s" : "60-120s"}]", "description": "[descrição detalhada]"}]}`).join(",")}],
+  "days": [${Array.from({ length: requestedDays }, (_, i) => `{"day": "Dia ${i + 1}", "title": "[nome da divisão - ex: Push, Pull, Legs, Upper, Lower]", "focus": "[grupos musculares do dia]", "duration": "${quizData.workoutTime || "45-60min"}", "exercises": [{"name": "[exercício específico]", "sets": "[4 para COMPOSTOS, 3 para ISOLADORES + ajustes do perfil]", "reps": "[PERSONALIZADO: ${goalsArray.includes("ganhar-massa") ? "6-10" : goalsArray.includes("perder-peso") ? "12-20" : "8-12"}]", "rest": "[PERSONALIZADO: ${quizData.experience === "iniciante" ? "60-90s" : quizData.experience === "avancado" ? "120s" : "60-120s"}]", "description": "[descrição detalhada]"}]}`).join(",")}],
   "weeklySchedule": "Treino ${requestedDays}x por semana"
 }`
 
@@ -878,25 +886,35 @@ JSON OBRIGATÓRIO:
           console.error("❌ [DIET] Generation failed:", dietResponse.reason)
         }
 
-        // Process workout response
-        if (workoutResponse.status === "fulfilled") {
-          try {
-            const rawContent = workoutResponse.value.choices[0].message?.content || ""
-            const parsed = safeJsonParseFromModel(rawContent)
-            if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === requestedDays) {
-              workoutPlan = parsed
-              console.log("✅ [WORKOUT SUCCESS] Generated successfully")
-            } else {
-              console.log(
-                `[WORKOUT] Days count mismatch. Expected ${requestedDays}, got ${parsed.days?.length || "undefined"}`,
-              )
-            }
-          } catch (e) {
-            console.log("⚠️ [WORKOUT] Parse error, using fallback")
-          }
-        } else if (workoutResponse.status === "rejected") {
-          console.error("❌ [WORKOUT] Generation failed:", workoutResponse.reason)
-        }
+// Process workout response
+if (workoutResponse.status === "fulfilled") {
+  try {
+    const rawContent = workoutResponse.value.choices[0].message?.content || ""
+    const parsed = safeJsonParseFromModel(rawContent)
+
+    if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === requestedDays) {
+      workoutPlan = parsed
+      console.log("✅ [WORKOUT SUCCESS] Generated successfully")
+    } else {
+      console.log("[WORKOUT] mismatch debug:", {
+        expected: requestedDays,
+        expectedType: typeof requestedDays,
+        got: parsed.days?.length,
+        gotType: typeof parsed.days?.length,
+        isArray: Array.isArray(parsed.days),
+        keys: parsed ? Object.keys(parsed) : null,
+      })
+
+      console.log(
+        `[WORKOUT] Days count mismatch. Expected ${requestedDays}, got ${parsed.days?.length || "undefined"}`
+      )
+    }
+  } catch (e) {
+    console.log("⚠️ [WORKOUT] Parse error, using fallback")
+  }
+} else if (workoutResponse.status === "rejected") {
+  console.error("❌ [WORKOUT] Generation failed:", workoutResponse.reason)
+}
       } catch (error) {
         console.log("⚠️ [PARALLEL] Generation failed, using fallbacks")
       }

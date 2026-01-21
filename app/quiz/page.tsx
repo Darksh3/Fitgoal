@@ -913,7 +913,7 @@ export default function QuizPage() {
         // </CHANGE> Renaming fields for consistency with the canProceed updates
         sweetsFrequency: quizData.sugarFrequency, // Use sweetsFrequency
         trainingDays: quizData.trainingDays, // Use trainingDays as string from slider
-        trainingDaysPerWeek: Number.parseInt(quizData.trainingDays || "5"), // Add trainingDaysPerWeek synchronized with trainingDays
+        trainingDaysPerWeek: Number(quizData.trainingDays ?? 5), // Add trainingDaysPerWeek synchronized with trainingDays
         cardioFeeling: quizData.exercisePreferences.cardio,
         strengthFeeling: quizData.exercisePreferences.pullups,
         stretchingFeeling: quizData.exercisePreferences.yoga,
@@ -3609,7 +3609,7 @@ export default function QuizPage() {
                 <div className="flex justify-center">
                   <div className="bg-white/10 rounded-full px-8 py-3">
                     <span className="text-xl md:text-2xl font-bold text-white">
-                      {quizData.trainingDays || "5"} {(quizData.trainingDays || "5") === "1" ? "dia" : "dias"}
+                      {quizData.trainingDays || 5} {(quizData.trainingDays || 5) === "1" ? "dia" : "dias"}
                     </span>
                   </div>
                 </div>
@@ -3620,11 +3620,11 @@ export default function QuizPage() {
                     type="range"
                     min="1"
                     max="7"
-                    value={quizData.trainingDays || "5"}
-                    onChange={(e) => updateQuizData("trainingDays", e.target.value)}
+                    value={quizData.trainingDays || 5}
+                    onChange={(e) => updateQuizData("trainingDays", Number(e.target.value))}
                     className="w-full h-2 rounded-full appearance-none cursor-pointer"
                     style={{
-                      background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || "5") - 1) / 6) * 100}%, #374151 100%)`,
+                      background: `linear-gradient(to right, #84cc16 0%, #84cc16 ${((Number.parseInt(quizData.trainingDays || 5) - 1) / 6) * 100}%, #374151 ${((Number.parseInt(quizData.trainingDays || 5) - 1) / 6) * 100}%, #374151 100%)`,
                     }}
                   />
 
