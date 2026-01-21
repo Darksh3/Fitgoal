@@ -390,57 +390,60 @@ function getMealCountByBodyType(bodyType: string) {
 export async function POST(req: Request) {
   try {
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error("Request timeout after 90 seconds")), 90000)
+      setTimeout(() => reject(new Error("Request timeout after 180 seconds")), 180000)
     })
 
     const mainLogic = async () => {
-      // Replacing the original JSON parsing with specific checks
-      const body = await req.json()
-      const userId = body.userId
-      const providedQuizData = body.quizData
-      const forceRegenerate = body.forceRegenerate
+      try {
+        // Replacing the original JSON parsing with specific checks
+        const body = await req.json()
+        const userId = body.userId
+        const providedQuizData = body.quizData
+        const forceRegenerate = body.forceRegenerate
 
-      console.log("🔍 [DEBUG] Starting plan generation for userId:", userId)
+        console.log("🔍 [DEBUG] Starting plan generation for userId:", userId)
 
-      if (!userId) {
-        return new Response(JSON.stringify({ error: "userId is required." }), {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        })
-      }
+        if (!userId) {
+          return new Response(JSON.stringify({ error: "userId is required." }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          })
+        }
 
-      const userDocRef = adminDb.collection("users").doc(userId)
-      const userDoc = await userDocRef.get()
+        const userDocRef = adminDb.collection("users").doc(userId)
+        const userDoc = await userDocRef.get()
 
-      if (!userDoc.exists) {
-        return new Response(JSON.JSON.stringify({ error: "User not found" }), {
-          status: 404,
-          headers: { "Content-Type": "application/json" },
-        })
-      }
-
-      const userData = userDoc.data()
-      let quizData = providedQuizData
-      if (!quizData) {
-        if (!userData?.quizData) {
-          return new Response(JSON.stringify({ error: "Quiz data not found." }), {
+        if (!userDoc.exists) {
+          console.error("❌ [ERROR] User not found:", userId)
+          return new Response(JSON.stringify({ error: "User not found" }), {
             status: 404,
             headers: { "Content-Type": "application/json" },
           })
         }
-        quizData = userData.quizData
-      }
 
-      console.log("📋 [DEBUG] Full quizData received:", JSON.stringify(quizData, null, 2))
-      console.log("💊 [DEBUG] wantsSupplement value:", quizData.wantsSupplement)
-      console.log("💊 [DEBUG] wantsSupplement type:", typeof quizData.wantsSupplement)
-      console.log("💊 [DEBUG] supplementType value:", quizData.supplementType)
-      console.log("💊 [DEBUG] supplementType type:", typeof quizData.supplementType)
-      console.log("💊 [DEBUG] Condition check (wantsSupplement === 'sim'):", quizData.wantsSupplement === "sim")
-      console.log("💊 [DEBUG] Condition check (supplementType exists):", !!quizData.supplementType)
+        const userData = userDoc.data()
+        let quizData = providedQuizData
+        if (!quizData) {
+          if (!userData?.quizData) {
+            console.error("❌ [ERROR] Quiz data not found for user:", userId)
+            return new Response(JSON.stringify({ error: "Quiz data not found." }), {
+              status: 404,
+              headers: { "Content-Type": "application/json" },
+            })
+          }
+          quizData = userData.quizData
+        }
 
-      const requestedDays = quizData.trainingDays || 5
-      console.log(`🎯 [CRITICAL] User ${userId} requested EXACTLY ${requestedDays} training days`)
+        console.log("📋 [DEBUG] Full quizData received:", JSON.stringify(quizData, null, 2))
+        console.log("💊 [DEBUG] wantsSupplement value:", quizData.wantsSupplement)
+        console.log("💊 [DEBUG] wantsSupplement type:", typeof quizData.wantsSupplement)
+        console.log("💊 [DEBUG] supplementType value:", quizData.supplementType)
+        console.log("💊 [DEBUG] supplementType type:", typeof quizData.supplementType)
+        console.log("💊 [DEBUG] Condition check (wantsSupplement === 'sim'):", quizData.wantsSupplement === "sim")
+        console.log("💊 [DEBUG] Condition check (supplementType exists):", !!quizData.supplementType)
+
+        const requestedDays = quizData.trainingDays || 5
+        console.log(`🎯 [CRITICAL] User ${userId} requested EXACTLY ${requestedDays} training days`)
 
       const scientificCalcs = calculateScientificCalories(quizData)
       console.log(`🧮 [SCIENTIFIC CALCULATION] Target: ${scientificCalcs.finalCalories} kcal`)
@@ -727,7 +730,8 @@ ${
 ${
   quizData.problemAreas?.includes("Corpo inteiro") || !quizData.problemAreas?.length
     ? "- DESENVOLVIMENTO EQUILIBRADO: Volume igual para todos os grupos musculares"
-    : `- ÊNFASE EXTRA: +1 série APENAS nos exercícios COMPOSTOS que trabalhem ${quizData.problemAreas.join(", ")}\n- IMPORTANTE: Ainda treinar todos os grupos musculares, apenas dar mais volume para as áreas problemáticas`
+    : `- ÊNFASE EXTRA: +1 série APENAS nos exercícios COMPOSTOS que trabalhem ${quizData.problemAreas.join(", ")}
+- IMPORTANTE: Ainda treinar todos os grupos musculares, apenas dar mais volume para as áreas problemáticas`
 }
 
 VOLUME SEMANAL OTIMIZADO:
@@ -745,25 +749,36 @@ JSON OBRIGATÓRIO:
 }`
 
       const generateWithTimeout = async (prompt: string, type: string) => {
+        console.log(`🔄 [${type.toUpperCase()}] Starting generation with 120s timeout...`)
         const timeout = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error(`${type} generation timeout`)), 60000) // Increased to 60s
+          setTimeout(() => {
+            console.error(`❌ [${type.toUpperCase()}] TIMEOUT: Generation took longer than 120 seconds`)
+            reject(new Error(`${type} generation timeout after 120s`))
+          }, 120000) // Increased to 120s
         })
 
-        const generation = openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          messages: [
-            {
-              role: "system",
-              content: `Você é um ${type === "diet" ? "nutricionista experiente" : "personal trainer experiente"}. Seja preciso com calorias.`,
-            },
-            { role: "user", content: prompt },
-          ],
-          temperature: 0.1,
-          response_format: { type: "json_object" },
-          max_tokens: 4000, // Increased tokens
-        })
+        try {
+          console.log(`📤 [${type.toUpperCase()}] Sending request to OpenAI...`)
+          const generation = openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+              {
+                role: "system",
+                content: `Você é um ${type === "diet" ? "nutricionista experiente" : "personal trainer experiente"}. Seja preciso com calorias.`,
+              },
+              { role: "user", content: prompt },
+            ],
+            temperature: 0.1,
+            response_format: { type: "json_object" },
+            max_tokens: 4000,
+          })
 
-        return Promise.race([generation, timeout])
+          console.log(`✅ [${type.toUpperCase()}] Request sent, waiting for response...`)
+          return Promise.race([generation, timeout])
+        } catch (error) {
+          console.error(`❌ [${type.toUpperCase()}] Error in generation:`, error instanceof Error ? error.message : String(error))
+          throw error
+        }
       }
 
       let dietPlan = null
@@ -825,7 +840,8 @@ JSON OBRIGATÓRIO:
             console.log("⚠️ [DIET] Parse error:", e)
           }
         } else if (dietResponse.status === "rejected") {
-          console.error("❌ [DIET] Generation failed:", dietResponse.reason)
+          console.error("❌ [DIET] Generation failed:", dietResponse.reason?.message || String(dietResponse.reason))
+          console.error("❌ [DIET] Full error:", JSON.stringify(dietResponse.reason))
         }
 
         // Process workout response
@@ -844,7 +860,8 @@ JSON OBRIGATÓRIO:
             console.log("⚠️ [WORKOUT] Parse error, using fallback")
           }
         } else if (workoutResponse.status === "rejected") {
-          console.error("❌ [WORKOUT] Generation failed:", workoutResponse.reason)
+          console.error("❌ [WORKOUT] Generation failed:", workoutResponse.reason?.message || String(workoutResponse.reason))
+          console.error("❌ [WORKOUT] Full error:", JSON.stringify(workoutResponse.reason))
         }
       } catch (error) {
         console.log("⚠️ [PARALLEL] Generation failed, using fallbacks")

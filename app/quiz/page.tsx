@@ -413,6 +413,17 @@ export default function QuizPage() {
   // </CHANGE>
 
   useEffect(() => {
+    if (showSuccess) {
+      const timer = setTimeout(() => {
+        setShowSuccess(false)
+        router.push("/quiz/results")
+      }, 4000) // 4 segundos
+
+      return () => clearTimeout(timer)
+    }
+  }, [showSuccess, router])
+
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setCurrentUser(user)
@@ -1653,6 +1664,15 @@ export default function QuizPage() {
   }
 
   if (showSuccess) {
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setShowSuccess(false)
+        router.push("/quiz/results")
+      }, 4000) // 4 segundos
+
+      return () => clearTimeout(timer)
+    }, [showSuccess])
+
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-center p-4">
         <div className="text-center space-y-8 max-w-lg w-full">
