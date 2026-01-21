@@ -362,6 +362,7 @@ export default function QuizPage() {
   })
 
   const updateDebugValue = (key: string, property: string, value: number) => {
+    console.log("[v0] Debug update:", key, property, value)
     setDebugValues((prev) => ({
       ...prev,
       [key]: { ...prev[key], [property]: value },
@@ -2755,7 +2756,11 @@ export default function QuizPage() {
                   </div>
 
                   {Object.entries(debugValues)
-                    .filter(([key]) => (quizData.gender === "mulher" ? !key.startsWith("m_") : key.startsWith("m_")))
+                    .filter(([key]) => {
+                      const isFemale = quizData.gender === "mulher"
+                      const isMaleKey = key.startsWith("m_")
+                      return isFemale ? !isMaleKey : isMaleKey
+                    })
                     .map(([key, values]) => (
                       <div key={key} className="space-y-2 border-b border-gray-700 pb-3">
                         <h4 className="text-sm font-semibold text-purple-300">
