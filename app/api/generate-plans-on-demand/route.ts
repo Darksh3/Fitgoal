@@ -972,21 +972,21 @@ JSON OBRIGATÓRIO:
             plans: { 
               dietPlan: JSON.parse(JSON.stringify(dietPlan)), // Sanitizar
               workoutPlan: JSON.parse(JSON.stringify(workoutPlan)) // Sanitizar
-            },\
+            },
             dietPlan: JSON.parse(JSON.stringify(dietPlan)), // Sanitizar
             workoutPlan: JSON.parse(JSON.stringify(workoutPlan)), // Sanitizar
-            finalResults: {\
-              scientificTarget: savedCalcs.finalCalories,\
+            finalResults: {
+              scientificTarget: savedCalcs.finalCalories,
               // The actual generated calories here will be the sum of meal calories and supplement calories
               actualGenerated: `${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
               valuesMatch:
-                \`${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal` ===
-                `${savedCalcs.finalCalories} kcal`,\
+                `${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal` ===
+                `${savedCalcs.finalCalories} kcal`,
               generatedAt: admin.firestore.FieldValue.serverTimestamp(),
             },
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           },
-          { merge: true },\
+          { merge: true },
         )
         console.log(
           `✅ Plans saved - Scientific: ${savedCalcs.finalCalories} kcal, Saved: ${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
@@ -994,7 +994,7 @@ JSON OBRIGATÓRIO:
       } catch (firestoreError) {
         console.error("⚠️ Firestore error:", firestoreError)
       }
-\
+
       return new Response(
         JSON.stringify({
           success: true,
@@ -1022,12 +1022,12 @@ JSON OBRIGATÓRIO:
  * Considera: Tipo Corporal (Somatótipo) + Gênero + Objetivo
  */
 function calculateScientificCalories(data: any) {
-  // Se o calorieGoal já foi calculado no quiz, use-o\
+  // Se o calorieGoal já foi calculado no quiz, use-o
   if (data.calorieGoal && data.calorieGoal > 0) {
-    console.log(\`✅ [CALORIE_GOAL] Usando calorieGoal do quiz: ${Math.round(data.calorieGoal)} kcal`)
+    console.log(`✅ [CALORIE_GOAL] Usando calorieGoal do quiz: ${Math.round(data.calorieGoal)} kcal`)
     
     const dailyCalories = Math.round(data.calorieGoal)
-    const weight = Number.parseFloat(data.currentWeight) || 70\
+    const weight = Number.parseFloat(data.currentWeight) || 70
     const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
     const effectiveGoals = goals
     const bodyType = data.bodyType || ""
