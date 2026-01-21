@@ -2727,12 +2727,12 @@ export default function QuizPage() {
                       <div
                         className="absolute pointer-events-none z-20 bg-cyan-600/90"
                         style={{
-                          top: `${debugValues.leg_lower_right.top}%`,
-                          right: `${debugValues.leg_lower_right.right}%`,
-                          width: `${debugValues.leg_lower_right.width}%`,
-                          height: `${debugValues.leg_lower_right.height}%`,
+                          top: `${debugValues.m_leg_lower_right.top}%`,
+                          right: `${debugValues.m_leg_lower_right.right}%`,
+                          width: `${debugValues.m_leg_lower_right.width}%`,
+                          height: `${debugValues.m_leg_lower_right.height}%`,
                           borderRadius: "50% 50% 60% 40% / 60% 60% 50% 50%",
-                          transform: `rotate(${debugValues.leg_lower_right.rotate}deg)`,
+                          transform: `rotate(${debugValues.m_leg_lower_right.rotate}deg)`,
                           boxShadow: "inset 0 0 18px rgba(0, 255, 255, 0.4)",
                         }}
                       ></div>
