@@ -340,8 +340,8 @@ export default function QuizPage() {
     belly: { top: 31, left: 49, width: 22, height: 13, rotate: 0 },
     leg_upper_left: { top: 54, left: 34, width: 11, height: 14, rotate: -2 },
     leg_lower_left: { top: 73, left: 42, width: 5, height: 9, rotate: -17 },
-    leg_upper_right: { top: 54, right: 36, width: 11, height: 14, rotate: 2 },
-    leg_lower_right: { top: 73, right: 43, width: 5, height: 9, rotate: 17 },
+    leg_upper_right: { top: 54, right: 40, width: 10, height: 14, rotate: 6 },
+    leg_lower_right: { top: 72, right: 44, width: 6, height: 14, rotate: 9 },
     // Masculine markings
     m_chest_left: { top: 21, left: 34, width: 21, height: 11, rotate: -90 },
     m_chest_right: { top: 21, right: 32, width: 21, height: 11, rotate: -89 },
