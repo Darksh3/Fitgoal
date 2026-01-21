@@ -16,6 +16,9 @@ export async function POST(request: Request) {
     // Tentar extrair userId de várias fontes possíveis
     let userId = payment?.externalReference || payment?.customer?.id || null
     
+    console.log("[v0] WEBHOOK_USERID_ATTEMPT_1 - userId from externalReference:", payment?.externalReference)
+    console.log("[v0] WEBHOOK_USERID_ATTEMPT_2 - userId from customer.id:", payment?.customer?.id)
+    
     // Se temos um customer object, buscar do Firestore
     if (!userId && payment?.customer) {
       try {
@@ -30,6 +33,8 @@ export async function POST(request: Request) {
           if (!userSnap.empty) {
             userId = userSnap.docs[0].id
             console.log("[v0] WEBHOOK_USER_FOUND - Usuário encontrado por email:", userId)
+          } else {
+            console.log("[v0] WEBHOOK_USER_NOT_FOUND - Nenhum usuário encontrado com email:", customerEmail)
           }
         }
       } catch (searchError) {
@@ -40,7 +45,7 @@ export async function POST(request: Request) {
     // ATUALIZAR FIRESTORE IMEDIATAMENTE (rápido, síncrono)
     if (payment?.id && payment?.status) {
       try {
-        console.log("[v0] WEBHOOK_UPDATING_PAYMENT - Atualizando Firestore com userId:", userId)
+        console.log("[v0] WEBHOOK_UPDATING_PAYMENT - Atualizando Firestore com userId:", userId, "paymentId:", payment.id)
         const paymentData: any = {
           paymentId: payment.id,
           status: payment.status,
@@ -56,9 +61,9 @@ export async function POST(request: Request) {
         }
         
         await adminDb.collection("payments").doc(payment.id).set(paymentData, { merge: true })
-        console.log("[v0] WEBHOOK_UPDATED - Firestore atualizado com status:", payment.status)
+        console.log("[v0] WEBHOOK_UPDATED - Firestore atualizado com sucesso")
       } catch (error) {
-        console.error("[v0] WEBHOOK_FIRESTORE_ERROR - Erro:", error)
+        console.error("[v0] WEBHOOK_FIRESTORE_ERROR - Erro ao atualizar Firestore:", error)
       }
     }
 
@@ -88,6 +93,19 @@ async function processPaymentBackground(payment: any, userId: string) {
   try {
     console.log("[v0] WEBHOOK_BG - Processando para userId:", userId)
     
+    // 1. ATUALIZAR STATUS DO USUÁRIO IMEDIATAMENTE
+    try {
+      console.log("[v0] WEBHOOK_BG - Atualizando status do usuário para isPaid=true")
+      await adminDb.collection("users").doc(userId).update({
+        isPaid: true,
+        paidAt: new Date(),
+        lastPaymentId: payment.id,
+      })
+      console.log("[v0] WEBHOOK_BG - Usuário atualizado para isPaid=true")
+    } catch (updateError) {
+      console.error("[v0] WEBHOOK_BG_UPDATE_ERROR - Erro ao atualizar usuário:", updateError)
+    }
+    
     let customerName = payment?.customer?.name
     let customerEmail = payment?.customer?.email
     let customerPhone = payment?.customer?.phone
@@ -109,9 +127,13 @@ async function processPaymentBackground(payment: any, userId: string) {
       }
     }
     
+    // 2. TENTAR CHAMAR handle-post-checkout PARA GERAR PLANOS
     try {
-      console.log("[v0] WEBHOOK_BG - Chamando handle-post-checkout")
-      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/handle-post-checkout`, {
+      console.log("[v0] WEBHOOK_BG - Chamando handle-post-checkout com NEXT_PUBLIC_URL:", process.env.NEXT_PUBLIC_URL)
+      const checkoutUrl = `${process.env.NEXT_PUBLIC_URL}/api/handle-post-checkout`
+      console.log("[v0] WEBHOOK_BG - URL completa:", checkoutUrl)
+      
+      const response = await fetch(checkoutUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -124,9 +146,16 @@ async function processPaymentBackground(payment: any, userId: string) {
           customerCpf,
         }),
       })
+      
       console.log("[v0] WEBHOOK_BG - handle-post-checkout status:", response.status)
+      const responseText = await response.text()
+      console.log("[v0] WEBHOOK_BG - handle-post-checkout response:", responseText)
+      
+      if (!response.ok) {
+        console.error("[v0] WEBHOOK_BG_CHECKOUT_FAILED - Status não OK:", response.status)
+      }
     } catch (error) {
-      console.error("[v0] WEBHOOK_BG_POST_CHECKOUT_ERROR - Erro:", error)
+      console.error("[v0] WEBHOOK_BG_POST_CHECKOUT_ERROR - Erro ao chamar handle-post-checkout:", error)
     }
   } catch (error) {
     console.error("[v0] WEBHOOK_BG_FATAL_ERROR - Erro fatal:", error)

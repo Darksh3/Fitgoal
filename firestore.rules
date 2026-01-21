@@ -2,11 +2,21 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
+      // Permitir leitura e escrita própria
       allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Permitir para admin ou servidor
+      allow write: if request.auth.token.admin == true;
       
       match /measurements/{measurementId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+    }
+
+    match /payments/{paymentId} {
+      // Permitir criação/atualização via webhook (admin)
+      allow read, write: if request.auth.token.admin == true;
+      // Permitir leitura própria
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
     }
 
     match /progressPhotos/{photoId} {
