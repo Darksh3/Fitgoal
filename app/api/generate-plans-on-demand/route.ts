@@ -563,6 +563,9 @@ export async function POST(req: Request) {
       console.log("   - Carbs for meals:", carbsForMeals)
       console.log("   - Fats for meals:", fatsForMeals)
 
+const goalsArray = Array.isArray(quizData.goal) ? quizData.goal : [quizData.goal].filter(Boolean)
+const goalsText = goalsArray.length ? goalsArray.join(", ") : "Não informado"
+
       const dietPrompt = `
 Você é um nutricionista especializado em criar planos alimentares personalizados.
 
@@ -584,10 +587,6 @@ NÃO adicione o suplemento nas refeições! Ele será incluído automaticamente.
 - VOCÊ DEVE CRIAR AS REFEIÇÕES COM: ${savedCalcs.finalCalories} kcal
 `
 }
-
-     const goalsArray = Array.isArray(quizData.goal) ? quizData.goal : [quizData.goal].filter(Boolean)
-
-// ...
 
 CLIENTE: ${quizData.gender}, ${quizData.age} anos, ${quizData.currentWeight}kg, objetivo: ${goalsArray.join(", ")}, biotipo: ${quizData.bodyType}, prazo: ${quizData.timeToGoal}
 ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
