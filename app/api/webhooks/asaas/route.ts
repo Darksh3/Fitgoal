@@ -8,37 +8,64 @@ export async function POST(request: Request) {
     console.log("[v0] WEBHOOK_RECEIVED - Webhook Asaas recebido")
     const body = await request.json()
     const event = body.event
-    const payment = body.payment
+    const paymentId = body.id // O ID do pagamento vem em "id", não em "payment.id"
 
-    console.log("[v0] WEBHOOK_EVENT - Event:", event, "PaymentID:", payment?.id, "Status:", payment?.status)
+    console.log("[v0] WEBHOOK_EVENT - Event:", event, "PaymentID:", paymentId)
 
-    // ATUALIZAR FIRESTORE IMEDIATAMENTE (rápido, síncrono)
-    if (payment?.id && payment?.status) {
+    // Se for PAYMENT_RECEIVED, buscar o pagamento completo do Asaas
+    if (event === "PAYMENT_RECEIVED" && paymentId) {
       try {
-        console.log("[v0] WEBHOOK_UPDATING_PAYMENT - Atualizando Firestore")
-        await adminDb.collection("payments").doc(payment.id).set({
-          paymentId: payment.id,
-          userId: payment?.externalReference || null, // Adicionar userId para RLS
-          status: payment.status,
-          billingType: payment.billingType,
-          value: payment.value,
-          updatedAt: new Date(),
-        }, { merge: true })
-        console.log("[v0] WEBHOOK_UPDATED - Firestore atualizado com status:", payment.status)
-      } catch (error) {
-        console.error("[v0] WEBHOOK_FIRESTORE_ERROR - Erro:", error)
-      }
-    }
-
-    // DISPARAR PROCESSAMENTO EM BACKGROUND (sem await, sem bloquear a resposta)
-    if (payment?.status === "RECEIVED" || payment?.status === "CONFIRMED") {
-      const userId = payment?.externalReference
-      if (userId) {
-        console.log("[v0] WEBHOOK_BACKGROUND_START - Processamento iniciado em background")
-        // Disparar sem await
-        processPaymentBackground(payment, userId).catch(err => {
-          console.error("[v0] WEBHOOK_BACKGROUND_CATCH - Erro capturado:", err)
+        console.log("[v0] WEBHOOK_FETCHING_PAYMENT - Buscando dados completos do pagamento")
+        const asaasResponse = await fetch(`https://api.asaas.com/v3/payments/${paymentId}`, {
+          headers: {
+            "accept": "application/json",
+            "access_token": ASAAS_API_KEY,
+          },
         })
+        
+        if (!asaasResponse.ok) {
+          console.error("[v0] WEBHOOK_ASAAS_ERROR - Erro ao buscar pagamento:", asaasResponse.status)
+          return NextResponse.json({ received: true }, { status: 200 })
+        }
+
+        const payment = await asaasResponse.json()
+        console.log("[v0] WEBHOOK_PAYMENT_FETCHED - Pagamento encontrado:", {
+          id: payment.id,
+          status: payment.status,
+          externalReference: payment.externalReference,
+          value: payment.value,
+        })
+
+        // ATUALIZAR FIRESTORE IMEDIATAMENTE
+        if (payment.id && payment.status) {
+          try {
+            console.log("[v0] WEBHOOK_UPDATING_PAYMENT - Atualizando Firestore")
+            await adminDb.collection("payments").doc(payment.id).set({
+              paymentId: payment.id,
+              userId: payment.externalReference || null,
+              status: payment.status,
+              billingType: payment.billingType,
+              value: payment.value,
+              updatedAt: new Date(),
+            }, { merge: true })
+            console.log("[v0] WEBHOOK_UPDATED - Firestore atualizado com status:", payment.status)
+          } catch (error) {
+            console.error("[v0] WEBHOOK_FIRESTORE_ERROR - Erro:", error)
+          }
+        }
+
+        // DISPARAR PROCESSAMENTO EM BACKGROUND
+        if (payment.status === "RECEIVED" || payment.status === "CONFIRMED") {
+          const userId = payment.externalReference
+          if (userId) {
+            console.log("[v0] WEBHOOK_BACKGROUND_START - Processamento iniciado em background para userId:", userId)
+            processPaymentBackground(payment, userId).catch(err => {
+              console.error("[v0] WEBHOOK_BACKGROUND_CATCH - Erro capturado:", err)
+            })
+          }
+        }
+      } catch (error) {
+        console.error("[v0] WEBHOOK_FETCH_ERROR - Erro ao buscar pagamento:", error)
       }
     }
 
