@@ -785,22 +785,47 @@ export default function DashboardPage() {
                 return (
                   <>
                     <div className="flex items-center justify-between mb-10">
-                      <div className="text-center flex-1">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Peso Inicial</p>
-                        <p className="text-xl font-bold text-gray-400 dark:text-gray-500">{start.toFixed(1)} kg</p>
-                      </div>
-                      <div className="text-center flex-1">
-                        <p className={`text-xs mb-2 font-semibold ${isRegression ? "text-red-500 dark:text-red-400" : "text-gray-500 dark:text-gray-400"}`}>
-                          Peso Atual
-                        </p>
-                        <p className={`text-3xl font-bold ${isRegression ? "text-red-500 dark:text-red-400" : "text-white"}`}>
-                          {current.toFixed(1)} kg
-                        </p>
-                      </div>
-                      <div className="text-center flex-1">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Meta</p>
-                        <p className="text-xl font-bold text-green-500 dark:text-green-400">{goal.toFixed(1)} kg</p>
-                      </div>
+                      {/* Para CUTTING: Meta fica à esquerda, Inicial à direita */}
+                      {/* Para BULKING: Inicial fica à esquerda, Meta à direita */}
+                      {isCutting ? (
+                        <>
+                          <div className="text-center flex-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Meta</p>
+                            <p className="text-xl font-bold text-green-500 dark:text-green-400">{goal.toFixed(1)} kg</p>
+                          </div>
+                          <div className="text-center flex-1">
+                            <p className={`text-xs mb-2 font-semibold ${isRegression ? "text-red-500 dark:text-red-400" : "text-gray-500 dark:text-gray-400"}`}>
+                              Peso Atual
+                            </p>
+                            <p className={`text-3xl font-bold ${isRegression ? "text-red-500 dark:text-red-400" : "text-white"}`}>
+                              {current.toFixed(1)} kg
+                            </p>
+                          </div>
+                          <div className="text-center flex-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Peso Inicial</p>
+                            <p className="text-xl font-bold text-gray-400 dark:text-gray-500">{start.toFixed(1)} kg</p>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-center flex-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Peso Inicial</p>
+                            <p className="text-xl font-bold text-gray-400 dark:text-gray-500">{start.toFixed(1)} kg</p>
+                          </div>
+                          <div className="text-center flex-1">
+                            <p className={`text-xs mb-2 font-semibold ${isRegression ? "text-red-500 dark:text-red-400" : "text-gray-500 dark:text-gray-400"}`}>
+                              Peso Atual
+                            </p>
+                            <p className={`text-3xl font-bold ${isRegression ? "text-red-500 dark:text-red-400" : "text-white"}`}>
+                              {current.toFixed(1)} kg
+                            </p>
+                          </div>
+                          <div className="text-center flex-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Meta</p>
+                            <p className="text-xl font-bold text-green-500 dark:text-green-400">{goal.toFixed(1)} kg</p>
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     {/* Barra de progresso com 3 segmentos */}
