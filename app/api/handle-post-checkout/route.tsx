@@ -728,9 +728,7 @@ export async function POST(req: Request) {
         ...initialQuizData,
         ...quizAnswersFromMetadata,
         // Garantir que initialWeight sempre tem um valor válido
-        // Primeira prioridade: initialWeight do initialQuizData (se houver)
-        // Segunda: currentWeight ou weight do quizAnswersFromMetadata
-        initialWeight: initialQuizData.initialWeight || quizAnswersFromMetadata.currentWeight || quizAnswersFromMetadata.weight || "0",
+        initialWeight: initialQuizData.initialWeight || quizAnswersFromMetadata.weight || quizAnswersFromMetadata.currentWeight || "0",
         currentWeight: quizAnswersFromMetadata.currentWeight || quizAnswersFromMetadata.weight || "0",
       },
       personalData: existingUserData.personalData || {},

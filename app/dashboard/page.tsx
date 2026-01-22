@@ -137,28 +137,33 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (quizData) {
-      console.log("[v0] Loading quiz data for weights:", { currentWeight: quizData.currentWeight, initialWeight: (quizData as any).initialWeight })
-      
-      // Usar initialWeight do Firestore (fixo), se não tiver, usar currentWeight como fallback
-      const currentW = Number.parseFloat(quizData.currentWeight || "0") || 0
-      const initialW = Number.parseFloat((quizData as any).initialWeight || quizData.currentWeight || "0") || 0
-      
-      console.log("[v0] Parsed weights:", { initialW, currentW, currentWeightSlider })
-      
+      console.log("[v0] Loading quizData weights:", {
+        initialWeight: (quizData as any).initialWeight,
+        currentWeight: quizData.currentWeight,
+        targetWeight: quizData.targetWeight,
+      })
+
+      // Garantir que temos um peso válido
+      const currentW = Number.parseFloat(quizData.currentWeight || "0") || 70
+      const initialW = Number.parseFloat((quizData as any).initialWeight || quizData.currentWeight || "0") || currentW
+
+      console.log("[v0] Parsed weights:", { initialW, currentW })
+
       if (initialW > 0) {
         setInitialWeight(initialW)
       }
 
-      // Peso atual do slider deve começar no currentWeight do quizData
-      // Só atualiza se ainda não foi modificado pelo usuário
       if (currentWeightSlider === 0 && currentW > 0) {
         console.log("[v0] Setting currentWeightSlider to:", currentW)
         setCurrentWeightSlider(currentW)
       }
-    }
-    if (quizData?.height) {
-      const initialH = Number.parseFloat(quizData.height)
-      setInitialHeight(initialH)
+
+      if (quizData.height) {
+        const initialH = Number.parseFloat(quizData.height)
+        if (initialH > 0) {
+          setInitialHeight(initialH)
+        }
+      }
     }
   }, [quizData])
 
@@ -488,23 +493,22 @@ export default function DashboardPage() {
   }
 
   const calculateOverallProgress = () => {
-    const currentW = Number.parseFloat(quizData?.currentWeight || "0") || currentWeightSlider || 0
-    const targetW = Number.parseFloat(quizData?.targetWeight || "0") || 0
-    
-    if (!currentW || !targetW) {
-      console.log("[v0] Missing weight data for progress:", { currentW, targetW, currentWeightSlider })
+    if (!quizData?.currentWeight || !quizData?.targetWeight) {
       return photoProgressBonus // Se não tem dados de peso, retorna apenas o bônus de fotos
     }
 
+    const currentWeight = currentWeightSlider || Number.parseFloat(quizData.currentWeight)
+    const targetWeight = Number.parseFloat(quizData.targetWeight)
+
     if (
-      (initialWeight > targetW && currentW <= targetW) ||
-      (initialWeight < targetW && currentW >= targetW)
+      (initialWeight > targetWeight && currentWeight <= targetWeight) ||
+      (initialWeight < targetWeight && currentWeight >= targetWeight)
     ) {
       return 100
     }
 
-    const totalWeightToChange = Math.abs(targetW - initialWeight)
-    const weightChanged = Math.abs(currentW - initialWeight)
+    const totalWeightToChange = Math.abs(targetWeight - initialWeight)
+    const weightChanged = Math.abs(currentWeight - initialWeight)
     const weightProgress = (weightChanged / totalWeightToChange) * 100
 
     const totalProgress = Math.min(100, weightProgress + photoProgressBonus)
@@ -788,9 +792,9 @@ export default function DashboardPage() {
             <div className="mb-12 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-8 shadow-sm">
               {/* Labels dos 3 pontos */}
               {(() => {
-                const start = initialWeight
-                const current = currentWeightSlider
-                const goal = Number.parseFloat(quizData.targetWeight)
+                const start = initialWeight || Number.parseFloat(quizData.currentWeight || "70") || 70
+                const current = currentWeightSlider || Number.parseFloat(quizData.currentWeight || "70") || 70
+                const goal = Number.parseFloat(quizData.targetWeight) || 70
                 const isBulking = goal > start
                 const isCutting = goal < start
                 const isRegression = (isBulking && current < start) || (isCutting && current > start)
@@ -803,19 +807,19 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between mb-10">
                       <div className="text-center flex-1">
                         <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Peso Inicial</p>
-                        <p className="text-xl font-bold text-gray-400 dark:text-gray-500">{(initialWeight || 70).toFixed(1)} kg</p>
+                        <p className="text-xl font-bold text-gray-400 dark:text-gray-500">{start.toFixed(1)} kg</p>
                       </div>
                       <div className="text-center flex-1">
                         <p className={`text-xs mb-2 font-semibold ${isRegression ? "text-red-500 dark:text-red-400" : "text-gray-500 dark:text-gray-400"}`}>
                           Peso Atual
                         </p>
                         <p className={`text-3xl font-bold ${isRegression ? "text-red-500 dark:text-red-400" : "text-white"}`}>
-                          {(current || 70).toFixed(1)} kg
+                          {current.toFixed(1)} kg
                         </p>
                       </div>
                       <div className="text-center flex-1">
                         <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Meta</p>
-                        <p className="text-xl font-bold text-green-500 dark:text-green-400">{(goal || 85).toFixed(1)} kg</p>
+                        <p className="text-xl font-bold text-green-500 dark:text-green-400">{goal.toFixed(1)} kg</p>
                       </div>
                     </div>
 
