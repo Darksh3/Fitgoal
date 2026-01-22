@@ -137,36 +137,23 @@ export default function DashboardPage() {
   }, [router])
 
   useEffect(() => {
-    if (quizData) {
-      console.log("[v0] Loading quizData weights:", {
-        initialWeight: (quizData as any).initialWeight,
-        currentWeight: quizData.currentWeight,
-        targetWeight: quizData.targetWeight,
-      })
+  if (!quizData) return
 
-      // Garantir que temos um peso válido
-      const currentW = Number.parseFloat(quizData.currentWeight || "0") || 70
-      const initialW = Number.parseFloat((quizData as any).initialWeight || quizData.currentWeight || "0") || currentW
+  const currentW = Number.parseFloat(quizData.currentWeight || "0") || 70
+  const initialW = Number.parseFloat((quizData as any).initialWeight || quizData.currentWeight || "0") || currentW
 
-      console.log("[v0] Parsed weights:", { initialW, currentW })
+  if (initialW > 0) setInitialWeight(initialW)
 
-      if (initialW > 0) {
-        setInitialWeight(initialW)
-      }
+  // ✅ Só inicializa o slider UMA vez, e nunca sobrescreve se o usuário já mexeu
+  if (!weightDirty && currentWeightSlider == null && currentW > 0) {
+    setCurrentWeightSlider(currentW)
+  }
 
-      if (currentWeightSlider === 0 && currentW > 0) {
-        console.log("[v0] Setting currentWeightSlider to:", currentW)
-        setCurrentWeightSlider(currentW)
-      }
-
-      if (quizData.height) {
-        const initialH = Number.parseFloat(quizData.height)
-        if (initialH > 0) {
-          setInitialHeight(initialH)
-        }
-      }
-    }
-  }, [quizData])
+  if (quizData.height) {
+    const initialH = Number.parseFloat(quizData.height)
+    if (initialH > 0) setInitialHeight(initialH)
+  }
+}, [quizData, weightDirty, currentWeightSlider])
 
   const loadQuizDataAndGeneratePlans = async (user: any) => {
     let foundQuizData = null
@@ -435,48 +422,38 @@ export default function DashboardPage() {
   }
 
   const handleWeightChange = async (newWeight: number) => {
-    setCurrentWeightSlider(newWeight)
+  setWeightDirty(true)
+  setCurrentWeightSlider(newWeight)
 
-    if (isDemoMode) {
-      return
+  if (isDemoMode) return
+  if (!user || !db) return
+
+  setIsSaving(true)
+
+  try {
+    const userRef = doc(db, "users", user.uid)
+
+    await updateDoc(userRef, {
+      currentWeight: newWeight.toString(),
+      "quizData.currentWeight": newWeight.toString(),
+    })
+
+    if (quizData) {
+      setQuizData({ ...quizData, currentWeight: newWeight.toString() })
     }
 
-    if (!user || !db) return
-
-    setIsSaving(true)
-
-    try {
-      const userRef = doc(db, "users", user.uid)
-      
-      // Atualizar currentWeight e quizData.currentWeight ao mesmo tempo
-      await updateDoc(userRef, {
-        currentWeight: newWeight.toString(),
-        "quizData.currentWeight": newWeight.toString(),
-      })
-
-      // Atualizar estado local
-      if (quizData) {
-        setQuizData({
-          ...quizData,
-          currentWeight: newWeight.toString(),
-        })
-      }
-
-      // Atualizar localStorage também para sincronizar com outras abas
-      const savedQuizData = localStorage.getItem("quizData")
-      if (savedQuizData) {
-        const parsed = JSON.parse(savedQuizData)
-        parsed.currentWeight = newWeight.toString()
-        localStorage.setItem("quizData", JSON.stringify(parsed))
-      }
-
-      console.log("[v0] Peso atualizado no Firestore:", newWeight)
-    } catch (error) {
-      console.error("[v0] Erro ao salvar peso:", error)
-    } finally {
-      setIsSaving(false)
+    const savedQuizData = localStorage.getItem("quizData")
+    if (savedQuizData) {
+      const parsed = JSON.parse(savedQuizData)
+      parsed.currentWeight = newWeight.toString()
+      localStorage.setItem("quizData", JSON.stringify(parsed))
     }
+  } catch (error) {
+    console.error("[v0] Erro ao salvar peso:", error)
+  } finally {
+    setIsSaving(false)
   }
+}
 
   const loadPhotoProgressBonus = async (userId: string) => {
     if (!db) return
@@ -494,28 +471,30 @@ export default function DashboardPage() {
   }
 
   const calculateOverallProgress = () => {
-    if (!quizData?.currentWeight || !quizData?.targetWeight) {
-      return photoProgressBonus // Se não tem dados de peso, retorna apenas o bônus de fotos
-    }
-
-    const currentWeight = (currentWeightSlider ?? Number.parseFloat(quizData.currentWeight))
-    const targetWeight = Number.parseFloat(quizData.targetWeight)
-
-    if (
-      (initialWeight > targetWeight && currentWeight <= targetWeight) ||
-      (initialWeight < targetWeight && currentWeight >= targetWeight)
-    ) {
-      return 100
-    }
-
-    const totalWeightToChange = Math.abs(targetWeight - initialWeight)
-    const weightChanged = Math.abs(currentWeight - initialWeight)
-    const weightProgress = (weightChanged / totalWeightToChange) * 100
-
-    const totalProgress = Math.min(100, weightProgress + photoProgressBonus)
-
-    return Math.round(totalProgress)
+  if (!quizData?.currentWeight || !quizData?.targetWeight) {
+    return photoProgressBonus
   }
+
+  const startW =
+    initialWeight ?? Number.parseFloat(quizData.currentWeight || "70") || 70
+
+  const currentW =
+    currentWeightSlider ?? Number.parseFloat(quizData.currentWeight || "70") || 70
+
+  const targetW = Number.parseFloat(quizData.targetWeight || "70") || 70
+
+  if (
+    (startW > targetW && currentW <= targetW) ||
+    (startW < targetW && currentW >= targetW)
+  ) {
+    return 100
+  }
+
+  const totalWeightToChange = Math.abs(targetW - startW)
+  const weightChanged = Math.abs(currentW - startW)
+  const weightProgress = (weightChanged / totalWeightToChange) * 100
+  return Math.round(Math.min(100, weightProgress + photoProgressBonus))
+}
 
   useEffect(() => {
     const newProgress = calculateOverallProgress()
@@ -834,7 +813,6 @@ export default function DashboardPage() {
                         step="0.1"
                         value={current}
                         onChange={(e) => {
-                          setWeightDirty(true)
                           handleWeightChange(Number.parseFloat(e.target.value))
                         }}
                         className="w-full h-3 rounded-full appearance-none bg-transparent cursor-pointer absolute top-4 left-0"
