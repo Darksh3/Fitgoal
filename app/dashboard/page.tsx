@@ -71,8 +71,9 @@ export default function DashboardPage() {
   const [currentTime, setCurrentTime] = useState("")
   const [isDemoMode, setIsDemoMode] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [initialWeight, setInitialWeight] = useState<number>(0)
-  const [currentWeightSlider, setCurrentWeightSlider] = useState<number>(0)
+  const [initialWeight, setInitialWeight] = useState<number | null>(null)
+  const [currentWeightSlider, setCurrentWeightSlider] = useState<number | null>(null)
+  const [weightDirty, setWeightDirty] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [subscriptionExpired, setSubscriptionExpired] = useState(false)
   const [subscriptionExpiresAt, setSubscriptionExpiresAt] = useState<Date | null>(null)
@@ -497,7 +498,7 @@ export default function DashboardPage() {
       return photoProgressBonus // Se não tem dados de peso, retorna apenas o bônus de fotos
     }
 
-    const currentWeight = currentWeightSlider || Number.parseFloat(quizData.currentWeight)
+    const currentWeight = (currentWeightSlider ?? Number.parseFloat(quizData.currentWeight))
     const targetWeight = Number.parseFloat(quizData.targetWeight)
 
     if (
@@ -792,8 +793,8 @@ export default function DashboardPage() {
             <div className="mb-12 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-8 shadow-sm">
               {/* Labels dos 3 pontos */}
               {(() => {
-                const start = initialWeight || Number.parseFloat(quizData.currentWeight || "70") || 70
-                const current = currentWeightSlider || Number.parseFloat(quizData.currentWeight || "70") || 70
+                const start = (initialWeight ?? Number.parseFloat(quizData.currentWeight || "70") || 70)
+                const current = (currentWeightSlider ?? Number.parseFloat(quizData.currentWeight || "70") || 70)
                 const goal = Number.parseFloat(quizData.targetWeight) || 70
                 const isBulking = goal > start
                 const isCutting = goal < start
@@ -832,7 +833,10 @@ export default function DashboardPage() {
                         max={Math.max(start, goal) * 1.3}
                         step="0.1"
                         value={current}
-                        onChange={(e) => handleWeightChange(Number.parseFloat(e.target.value))}
+                        onChange={(e) => {
+                          setWeightDirty(true)
+                          handleWeightChange(Number.parseFloat(e.target.value))
+                        }}
                         className="w-full h-3 rounded-full appearance-none bg-transparent cursor-pointer absolute top-4 left-0"
                         style={{
                           zIndex: 10,
