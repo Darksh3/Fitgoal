@@ -137,23 +137,30 @@ export default function DashboardPage() {
   }, [router])
 
   useEffect(() => {
-  if (!quizData) return
+    if (!quizData) return
 
-  const currentW = Number.parseFloat(quizData.currentWeight || "0") || 70
-  const initialW = Number.parseFloat((quizData as any).initialWeight || quizData.currentWeight || "0") || currentW
+    const currentW = Number.parseFloat(quizData.currentWeight || "0") || 70
+    const initialW = Number.parseFloat((quizData as any).initialWeight || quizData.currentWeight || "0") || currentW
 
-  if (initialW > 0) setInitialWeight(initialW)
+    // ✅ SEMPRE seta initialWeight na primeira vez que carrega
+    if (initialWeight === 0 && initialW > 0) {
+      console.log("[v0] Setting initialWeight to:", initialW)
+      setInitialWeight(initialW)
+    }
 
-  // ✅ Só inicializa o slider UMA vez, e nunca sobrescreve se o usuário já mexeu
-  if (!weightDirty && currentWeightSlider == null && currentW > 0) {
-    setCurrentWeightSlider(currentW)
-  }
+    // ✅ Só inicializa o slider UMA vez, e nunca sobrescreve se o usuário já mexeu
+    if (!weightDirty && currentWeightSlider === 0 && currentW > 0) {
+      console.log("[v0] Setting currentWeightSlider to:", currentW)
+      setCurrentWeightSlider(currentW)
+    }
 
-  if (quizData.height) {
-    const initialH = Number.parseFloat(quizData.height)
-    if (initialH > 0) setInitialHeight(initialH)
-  }
-}, [quizData, weightDirty, currentWeightSlider])
+    if (quizData.height) {
+      const initialH = Number.parseFloat(quizData.height)
+      if (initialH > 0 && initialHeight === 0) {
+        setInitialHeight(initialH)
+      }
+    }
+  }, [quizData])
 
   const loadQuizDataAndGeneratePlans = async (user: any) => {
     let foundQuizData = null
@@ -422,38 +429,38 @@ export default function DashboardPage() {
   }
 
   const handleWeightChange = async (newWeight: number) => {
-  setWeightDirty(true)
-  setCurrentWeightSlider(newWeight)
+    setWeightDirty(true)
+    setCurrentWeightSlider(newWeight)
 
-  if (isDemoMode) return
-  if (!user || !db) return
+    if (isDemoMode) return
+    if (!user || !db) return
 
-  setIsSaving(true)
+    setIsSaving(true)
 
-  try {
-    const userRef = doc(db, "users", user.uid)
+    try {
+      const userRef = doc(db, "users", user.uid)
 
-    await updateDoc(userRef, {
-      currentWeight: newWeight.toString(),
-      "quizData.currentWeight": newWeight.toString(),
-    })
+      await updateDoc(userRef, {
+        currentWeight: newWeight.toString(),
+        "quizData.currentWeight": newWeight.toString(),
+      })
 
-    if (quizData) {
-      setQuizData({ ...quizData, currentWeight: newWeight.toString() })
+      if (quizData) {
+        setQuizData({ ...quizData, currentWeight: newWeight.toString() })
+      }
+
+      const savedQuizData = localStorage.getItem("quizData")
+      if (savedQuizData) {
+        const parsed = JSON.parse(savedQuizData)
+        parsed.currentWeight = newWeight.toString()
+        localStorage.setItem("quizData", JSON.stringify(parsed))
+      }
+    } catch (error) {
+      console.error("[v0] Erro ao salvar peso:", error)
+    } finally {
+      setIsSaving(false)
     }
-
-    const savedQuizData = localStorage.getItem("quizData")
-    if (savedQuizData) {
-      const parsed = JSON.parse(savedQuizData)
-      parsed.currentWeight = newWeight.toString()
-      localStorage.setItem("quizData", JSON.stringify(parsed))
-    }
-  } catch (error) {
-    console.error("[v0] Erro ao salvar peso:", error)
-  } finally {
-    setIsSaving(false)
   }
-}
 
   const loadPhotoProgressBonus = async (userId: string) => {
     if (!db) return
@@ -471,30 +478,30 @@ export default function DashboardPage() {
   }
 
   const calculateOverallProgress = () => {
-  if (!quizData?.currentWeight || !quizData?.targetWeight) {
-    return photoProgressBonus
+    if (!quizData?.currentWeight || !quizData?.targetWeight) {
+      return photoProgressBonus
+    }
+
+    const startW =
+      (initialWeight ?? Number.parseFloat(quizData.currentWeight || "70")) || 70
+
+    const currentW =
+      (currentWeightSlider ?? Number.parseFloat(quizData.currentWeight || "70")) || 70
+
+    const targetW = Number.parseFloat(quizData.targetWeight || "70") || 70
+
+    if (
+      (startW > targetW && currentW <= targetW) ||
+      (startW < targetW && currentW >= targetW)
+    ) {
+      return 100
+    }
+
+    const totalWeightToChange = Math.abs(targetW - startW)
+    const weightChanged = Math.abs(currentW - startW)
+    const weightProgress = (weightChanged / totalWeightToChange) * 100
+    return Math.round(Math.min(100, weightProgress + photoProgressBonus))
   }
-
-  const startW =
-    (initialWeight ?? Number.parseFloat(quizData.currentWeight || "70")) || 70
-
-  const currentW =
-    (currentWeightSlider ?? Number.parseFloat(quizData.currentWeight || "70")) || 70
-
-  const targetW = Number.parseFloat(quizData.targetWeight || "70") || 70
-
-  if (
-    (startW > targetW && currentW <= targetW) ||
-    (startW < targetW && currentW >= targetW)
-  ) {
-    return 100
-  }
-
-  const totalWeightToChange = Math.abs(targetW - startW)
-  const weightChanged = Math.abs(currentW - startW)
-  const weightProgress = (weightChanged / totalWeightToChange) * 100
-  return Math.round(Math.min(100, weightProgress + photoProgressBonus))
-}
 
   useEffect(() => {
     const newProgress = calculateOverallProgress()
@@ -772,8 +779,9 @@ export default function DashboardPage() {
             <div className="mb-12 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-8 shadow-sm">
               {/* Labels dos 3 pontos */}
               {(() => {
-                const start = ((initialWeight ?? Number.parseFloat(quizData.currentWeight || "70")) || 70)
-                const current = ((currentWeightSlider ?? Number.parseFloat(quizData.currentWeight || "70")) || 70)
+                // start é FIXO (peso inicial), current muda com o slider
+                const start = initialWeight > 0 ? initialWeight : 70
+                const current = currentWeightSlider > 0 ? currentWeightSlider : 70
                 const goal = Number.parseFloat(quizData.targetWeight) || 70
                 const isBulking = goal > start
                 const isCutting = goal < start
