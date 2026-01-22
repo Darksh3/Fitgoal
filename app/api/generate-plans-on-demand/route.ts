@@ -818,7 +818,7 @@ JSON OBRIGATÓRIO:
           ],
           temperature: 0.1,
           response_format: { type: "json_object" },
-          max_tokens: 4000, // Increased tokens
+          max_tokens: 7000, // Increased tokens
         })
 
         return Promise.race([generation, timeout])
