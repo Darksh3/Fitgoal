@@ -942,18 +942,37 @@ export default function DashboardPage() {
 
                     {/* Informações abaixo */}
                     <div className="flex items-center justify-between text-sm mt-8 gap-4">
-                      <div>
-                        <p className={`font-semibold ${diffFromStart < 0 ? "text-orange-500" : "text-blue-500"}`}>
-                          {diffFromStart < 0 ? "-" : "+"}{Math.abs(diffFromStart).toFixed(1)} kg desde o início
-                        </p>
-                      </div>
-                      <div className="flex-1" />
-                      <div className="text-right">
-                        <p className="text-gray-400">Faltam {remainingToGoal.toFixed(1)} kg pra meta</p>
-                        {metaAtingida && (
-                          <p className="text-green-500 font-semibold">Meta atingida!</p>
-                        )}
-                      </div>
+                      {isCutting ? (
+                        <>
+                          <div className="text-left">
+                            <p className="text-gray-400">Faltam {remainingToGoal.toFixed(1)} kg pra meta</p>
+                            {metaAtingida && (
+                              <p className="text-green-500 font-semibold">Meta atingida!</p>
+                            )}
+                          </div>
+                          <div className="flex-1" />
+                          <div className="text-right">
+                            <p className={`font-semibold ${diffFromStart < 0 ? "text-orange-500" : "text-blue-500"}`}>
+                              {diffFromStart < 0 ? "-" : "+"}{Math.abs(diffFromStart).toFixed(1)} kg desde o início
+                            </p>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-left">
+                            <p className={`font-semibold ${diffFromStart < 0 ? "text-orange-500" : "text-blue-500"}`}>
+                              {diffFromStart < 0 ? "-" : "+"}{Math.abs(diffFromStart).toFixed(1)} kg desde o início
+                            </p>
+                          </div>
+                          <div className="flex-1" />
+                          <div className="text-right">
+                            <p className="text-gray-400">Faltam {remainingToGoal.toFixed(1)} kg pra meta</p>
+                            {metaAtingida && (
+                              <p className="text-green-500 font-semibold">Meta atingida!</p>
+                            )}
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     {isSaving && <p className="text-xs text-blue-600 dark:text-blue-400 text-center mt-4">Salvando...</p>}
