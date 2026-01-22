@@ -117,7 +117,18 @@ async function processPaymentBackground(payment: any, userId: string) {
       }),
     })
 
+    const responseText = await response.text()
     console.log("[v0] WEBHOOK_BG - handle-post-checkout status:", response.status)
+    console.log("[v0] WEBHOOK_BG - handle-post-checkout response:", responseText)
+    
+    if (!response.ok) {
+      console.error("[v0] WEBHOOK_BG - Erro no handle-post-checkout:", {
+        status: response.status,
+        body: responseText,
+        billingType: payment.billingType,
+        email: customerEmail,
+      })
+    }
   } catch (error) {
     console.error("[v0] WEBHOOK_BG_FATAL_ERROR - Erro fatal:", error)
   }
