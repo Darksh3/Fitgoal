@@ -305,21 +305,25 @@ export async function POST(req: Request) {
 
     if (!plansAlreadyGenerated && clientUidFromSource) {
       console.log("[v0] Gerando planos pois não foram encontrados planos recentes...")
-      try {
-        const generateResponse = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/generate-plans-on-demand`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: clientUidFromSource }),
+      
+      // NÃO ESPERAR pela geração de planos - fazer em background
+      fetch(`${process.env.NEXT_PUBLIC_URL}/api/generate-plans-on-demand`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: clientUidFromSource }),
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log("[v0] Planos gerados com sucesso em background")
+          } else {
+            console.error("[v0] Erro ao gerar planos em background")
+          }
         })
-
-        if (!generateResponse.ok) {
-          console.error("[v0] Erro ao gerar planos após pagamento")
-        } else {
-          console.log("[v0] Planos gerados com sucesso após pagamento")
-        }
-      } catch (error) {
-        console.error("[v0] Erro na chamada de geração de planos:", error)
-      }
+        .catch((error) => {
+          console.error("[v0] Erro na chamada de geração de planos em background:", error)
+        })
+      
+      console.log("[v0] Continuando checkout sem esperar geração de planos...")
     }
 
     if (!dietPlan || !workoutPlan) {
