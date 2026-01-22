@@ -330,7 +330,12 @@ export async function POST(req: Request) {
         const height = Number.parseFloat(userData.height) || 175
         const age = Number.parseInt(userData.age) || 25
         const gender = userData.gender || "masculino"
-        const trainingDays = Number.parseInt(userData.trainingDaysPerWeek) || 5
+        const trainingDaysRaw = userData.trainingDays ?? userData.trainingDaysPerWeek ?? 5
+        const trainingDaysParsed = Number.parseInt(String(trainingDaysRaw), 10)
+        const trainingDays =
+          Number.isFinite(trainingDaysParsed) && trainingDaysParsed >= 1 && trainingDaysParsed <= 7
+            ? trainingDaysParsed
+            : 5        
         const goal = userData.goal || "Ganho de massa muscular"
         const experience = userData.experience || "Iniciante"
         const bodyType = userData.bodyType || "mesomorfo"
@@ -660,7 +665,12 @@ export async function POST(req: Request) {
           ]
         }
       `
-
+      const requestedDaysRaw = quizAnswersFromMetadata.trainingDays ?? quizAnswersFromMetadata.trainingDaysPerWeek ?? 5
+      const requestedDaysParsed = Number.parseInt(String(requestedDaysRaw), 10)
+      const requestedDays =
+        Number.isFinite(requestedDaysParsed) && requestedDaysParsed >= 1 && requestedDaysParsed <= 7
+          ? requestedDaysParsed
+          : 5
       const workoutPrompt = `
         Com base nas seguintes informações do usuário, crie um plano de treino personalizado em português brasileiro.
         Dados do usuário:
@@ -670,17 +680,17 @@ export async function POST(req: Request) {
         - Tipo corporal: ${quizAnswersFromMetadata.bodyType}
         - Experiência: ${quizAnswersFromMetadata.experience || "Iniciante"}
         - Tempo disponível: ${quizAnswersFromMetadata.workoutTime || "1 hora"}
-        - Dias de treino por semana: ${quizAnswersFromMetadata.trainingDaysPerWeek || 5}
+        - Dias de treino por semana: ${requestedDays}
         
         Responda APENAS com um JSON válido.
         {
           "days": [{"day": "Segunda-feira", "focus": "Peito e Tríceps", "exercises": [{"name": "Supino Reto", "sets": "3", "reps": "10", "rest": "60s", "instructions": "..."}], "duration": "60 min"}],
-          "weeklySchedule": "Treino ${quizAnswersFromMetadata.trainingDaysPerWeek || 5}x por semana",
+          "weeklySchedule": "Treino ${requestedDays}x por semana",
           "tips": ["Aqueça por 10 minutos.", "Mantenha a postura correta."]
         }
         
         IMPORTANTE:
-        - Crie um plano para EXATAMENTE ${quizAnswersFromMetadata.trainingDaysPerWeek || 5} dias da semana.
+        - Crie um plano para EXATAMENTE ${requestedDays} dias da semana.
         - CADA dia deve ter OBRIGATORIAMENTE 7-9 exercícios completos com séries, repetições, descanso e instruções detalhadas.
         - NUNCA crie dias com menos de 7 exercícios - isso é inaceitável para um treino profissional.
       `

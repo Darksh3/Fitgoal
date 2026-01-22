@@ -1112,7 +1112,13 @@ function calculateScientificCalories(data: any) {
   const height = Number.parseFloat(data.height) || 170
   const age = Number.parseFloat(data.age) || 25
   const gender = data.gender || "masculino"
-  const trainingDaysPerWeek = data.trainingDaysPerWeek || 5
+  const trainingDaysRaw = data.trainingDays ?? data.trainingDaysPerWeek ?? 5
+  const trainingDaysParsed = Number.parseInt(String(trainingDaysRaw), 10)
+
+  const safeDays =
+  Number.isFinite(trainingDaysParsed) && trainingDaysParsed >= 1 && trainingDaysParsed <= 7
+    ? trainingDaysParsed
+    : 5
   const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
 
   const targetWeight = Number.parseFloat(data.targetWeight) || weight
