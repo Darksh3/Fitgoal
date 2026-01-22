@@ -476,10 +476,10 @@ export default function DashboardPage() {
   }
 
   const startW =
-    initialWeight ?? Number.parseFloat(quizData.currentWeight || "70") || 70
+    (initialWeight ?? Number.parseFloat(quizData.currentWeight || "70")) || 70
 
   const currentW =
-    currentWeightSlider ?? Number.parseFloat(quizData.currentWeight || "70") || 70
+    (currentWeightSlider ?? Number.parseFloat(quizData.currentWeight || "70")) || 70
 
   const targetW = Number.parseFloat(quizData.targetWeight || "70") || 70
 
@@ -772,8 +772,8 @@ export default function DashboardPage() {
             <div className="mb-12 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-8 shadow-sm">
               {/* Labels dos 3 pontos */}
               {(() => {
-                const start = (initialWeight ?? Number.parseFloat(quizData.currentWeight || "70") || 70)
-                const current = (currentWeightSlider ?? Number.parseFloat(quizData.currentWeight || "70") || 70)
+                const start = ((initialWeight ?? Number.parseFloat(quizData.currentWeight || "70")) || 70)
+                const current = ((currentWeightSlider ?? Number.parseFloat(quizData.currentWeight || "70")) || 70)
                 const goal = Number.parseFloat(quizData.targetWeight) || 70
                 const isBulking = goal > start
                 const isCutting = goal < start
