@@ -35,32 +35,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 2) Validar dados antes de fazer cleanup (só se achou o usuário)
-    if (authUser) {
-      try {
-        const userDoc = await adminDb.collection("users").doc(authUser.uid).get()
-        if (userDoc.exists) {
-          const userData = userDoc.data()
-
-          // ⚠️ sua validação atual (mantida)
-          if (userData?.workoutPlan && (!userData.workoutPlan.email || !userData.workoutPlan.name)) {
-            console.log(`[CLEANUP] Dados incompletos - aguardando geração completa dos planos`)
-            return NextResponse.json(
-              {
-                success: false,
-                error: "Dados do plano ainda estão sendo gerados. Tente novamente em alguns segundos.",
-                code: "INCOMPLETE_DATA",
-              },
-              { status: 202 },
-            )
-          }
-        }
-      } catch (err) {
-        console.log(`[CLEANUP] Erro ao validar dados: ${err}`)
-      }
-    }
-
-    // 3) Limpar dados do Firestore
+    // 2) Limpar dados do Firestore
     const collections = ["users", "leads"]
 
     for (const collectionName of collections) {
@@ -99,7 +74,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 4) Deletar usuário do Firebase Auth (se achou)
+    // 3) Deletar usuário do Firebase Auth (se achou)
     if (authUser) {
       try {
         await adminAuth.deleteUser(authUser.uid)
