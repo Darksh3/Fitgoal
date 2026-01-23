@@ -474,61 +474,7 @@ export default function QuizResultsPage() {
               <div className="col-span-2">
                 <p className="text-gray-400 text-sm mb-2">Data para atingir objetivo</p>
                 <p className="text-white text-xl font-semibold">
-                  {(() => {
-                    const timeToGoalStr = getDataValue("timeToGoal") || ""
-                    
-                    if (!timeToGoalStr) return "—"
-                    
-                    try {
-                      let goalDate: Date
-                      
-                      // Se tem " de " é formato português (ex: "10 de fevereiro de 2025")
-                      if (timeToGoalStr.includes(" de ")) {
-                        const monthMap: { [key: string]: number } = {
-                          janeiro: 0, jan: 0,
-                          fevereiro: 1, fev: 1,
-                          março: 2, mar: 2,
-                          abril: 3, abr: 3,
-                          maio: 4, mai: 4,
-                          junho: 5, jun: 5,
-                          julho: 6, jul: 6,
-                          agosto: 7, ago: 7,
-                          setembro: 8, set: 8,
-                          outubro: 9, out: 9,
-                          novembro: 10, nov: 10,
-                          dezembro: 11, dez: 11,
-                        }
-                        
-                        const parts = timeToGoalStr.split(" de ")
-                        if (parts.length === 3) {
-                          const day = Number.parseInt(parts[0])
-                          const monthStr = parts[1].toLowerCase()
-                          const year = Number.parseInt(parts[2])
-                          const month = monthMap[monthStr]
-                          
-                          if (!isNaN(day) && !isNaN(year) && month !== undefined) {
-                            goalDate = new Date(year, month, day)
-                          } else {
-                            return "—"
-                          }
-                        } else {
-                          return "—"
-                        }
-                      } else {
-                        // Se não, tenta como data ISO
-                        goalDate = new Date(timeToGoalStr)
-                      }
-                      
-                      if (isNaN(goalDate.getTime())) {
-                        return "—"
-                      }
-                      
-                      return goalDate.toLocaleDateString("pt-BR")
-                    } catch (error) {
-                      console.error("Erro ao parsear timeToGoal:", error)
-                      return "—"
-                    }
-                  })()}
+                  {new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}
                 </p>
               </div>
             </div>
