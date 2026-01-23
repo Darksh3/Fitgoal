@@ -142,15 +142,11 @@ export default function DashboardPage() {
     const currentW = Number.parseFloat(quizData.currentWeight || "0") || 70
     const initialW = Number.parseFloat((quizData as any).initialWeight || quizData.currentWeight || "0") || currentW
 
-    // ✅ SEMPRE seta initialWeight na primeira vez que carrega
-    if (initialWeight === 0 && initialW > 0) {
-      console.log("[v0] Setting initialWeight to:", initialW)
+    if (initialWeight === null && initialW > 0) {
       setInitialWeight(initialW)
     }
 
-    // ✅ Só inicializa o slider UMA vez, e nunca sobrescreve se o usuário já mexeu
-    if (!weightDirty && currentWeightSlider === 0 && currentW > 0) {
-      console.log("[v0] Setting currentWeightSlider to:", currentW)
+    if (!weightDirty && currentWeightSlider === null && currentW > 0) {
       setCurrentWeightSlider(currentW)
     }
 
@@ -194,6 +190,14 @@ export default function DashboardPage() {
           
           if (data.quizData) {
             foundQuizData = data.quizData as QuizData
+            // Se houver um currentWeight separado (mais atualizado), usar ele
+            if (data.currentWeight) {
+              foundQuizData.currentWeight = data.currentWeight.toString()
+            }
+            // Se houver um initialWeight separado (mais atualizado), usar ele
+            if (data.initialWeight) {
+              (foundQuizData as any).initialWeight = data.initialWeight.toString()
+            }
             setQuizData(foundQuizData)
           }
 
