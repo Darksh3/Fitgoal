@@ -45,11 +45,9 @@ export async function POST(request: Request) {
       if (userId && payment?.id) {
         console.log("[v0] WEBHOOK_BG_START - Disparando processamento async")
 
-        try {
-          await processPaymentBackground(payment, userId)
-        } catch (err) {
+        processPaymentBackground(payment, userId).catch((err) => {
           console.error("[v0] WEBHOOK_BG_ERROR - Erro:", err)
-        }
+        })
       } else {
         console.warn("[v0] WEBHOOK_BG_SKIP - Sem userId ou payment.id")
       }
@@ -119,18 +117,7 @@ async function processPaymentBackground(payment: any, userId: string) {
       }),
     })
 
-    const responseText = await response.text()
     console.log("[v0] WEBHOOK_BG - handle-post-checkout status:", response.status)
-    console.log("[v0] WEBHOOK_BG - handle-post-checkout response:", responseText)
-    
-    if (!response.ok) {
-      console.error("[v0] WEBHOOK_BG - Erro no handle-post-checkout:", {
-        status: response.status,
-        body: responseText,
-        billingType: payment.billingType,
-        email: customerEmail,
-      })
-    }
   } catch (error) {
     console.error("[v0] WEBHOOK_BG_FATAL_ERROR - Erro fatal:", error)
   }
