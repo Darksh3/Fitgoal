@@ -651,8 +651,11 @@ MACROS TOTAIS:
 2. NÃO faça sua própria distribuição de macros - use os valores fornecidos
 3. Distribua os macros proporcionalmente entre as ${mealConfig.count} refeições
 4. Cada refeição deve contribuir para atingir os totais especificados
-5. Priorize alimentos brasileiros comuns e acessíveis (arroz, feijão, frango, ovos, batata, etc.)
-6. Evite alimentos caros ou incomuns no Brasil (salmão, quinoa, aspargos, etc.)
+5. Priorize alimentos brasileiros comuns e acessíveis (arroz, feijão, frango, ovos, batata, macarrao etc.)
+6. Evite alimentos caros ou incomuns no Brasil (salmão, quinoa, aspargos, grãos de bico, cevada etc.)
+7. Tente criar um dieta que não seja muito cara para os padrões brasileiros
+8. Coloque alguma proteina animal na janta e almoço (Carne, Frango, Sardinha).
+9- Almoço ou janta pode ter salada a vontade
 ${
   quizData.diet
     ? `7. ⚠️ RESPEITE RIGOROSAMENTE A PREFERÊNCIA ALIMENTAR: ${quizData.diet.toUpperCase()} - Não inclua alimentos proibidos!`

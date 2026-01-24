@@ -474,7 +474,7 @@ export default function QuizResultsPage() {
               <div className="col-span-2">
                 <p className="text-gray-400 text-sm mb-2">Data para atingir objetivo</p>
                 <p className="text-white text-xl font-semibold">
-                  {new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}
+                  {getDataValue("timeToGoal") || new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}
                 </p>
               </div>
             </div>
