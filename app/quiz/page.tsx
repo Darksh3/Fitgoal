@@ -3682,7 +3682,7 @@ export default function QuizPage() {
               <div>
                 <h3 className="text-white font-bold mb-3">Vegetais</h3>
                 <div className="flex flex-wrap gap-2">
-                  {["Brócolis", "Alface", "Cebola", "Pimentão", "Repolho", "Cenoura", "Tomate"].map((item) => (
+                  {["Brócolis", "Alface", "Cenoura", "Tomate"].map((item) => (
                     <button
                       key={item}
                       onClick={() => {
@@ -3706,7 +3706,7 @@ export default function QuizPage() {
               <div>
                 <h3 className="text-white font-bold mb-3">Grão</h3>
                 <div className="flex flex-wrap gap-2">
-                  {["Arroz", "Quinoa", "Cuscuz", "Fubá", "Farinha"].map((item) => (
+                  {["Arroz", "Quinoa", "Aveia", "Pão"].map((item) => (
                     <button
                       key={item}
                       onClick={() => {
@@ -3730,7 +3730,7 @@ export default function QuizPage() {
               <div>
                 <h3 className="text-white font-bold mb-3">Ingredientes</h3>
                 <div className="flex flex-wrap gap-2">
-                  {["Abacate", "Feijões", "Ovos", "Aveia", "Granola", "Queijo", "Leite", "Leite vegetal"].map(
+                  {["Ovos", "Abacate", "Frutos secos", "Queijo"].map(
                     (item) => (
                       <button
                         key={item}
@@ -3762,7 +3762,7 @@ export default function QuizPage() {
                   <span className="text-gray-400 text-sm">Opcional</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {["Carne moida", "Carne bovina", "Frango", "Carne de porco", "Peixe"].map((item) => (
+                  {["Frango", "Carne bovina", "Peixe", "Carne de porco"].map((item) => (
                     <button
                       key={item}
                       onClick={() => {
@@ -3791,15 +3791,9 @@ export default function QuizPage() {
                 <div className="flex flex-wrap gap-2">
                   {[
                     "Maçã",
-                    "Pera",
+                    "Banana",
                     "Kiwi",
-                    "Bananas",
-                    "Caqui",
-                    "Pêssego",
                     "Frutas vermelhas",
-                    "Uva",
-                    "Romã",
-                    "Frutas tropicais (abacaxi, mamão, pitaya)",
                   ].map((item) => (
                     <button
                       key={item}
