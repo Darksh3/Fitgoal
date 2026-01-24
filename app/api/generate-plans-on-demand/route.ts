@@ -622,12 +622,6 @@ REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
 INSTRUÇÕES CRÍTICAS - DISTRIBUIÇÃO DE MACROS:
 ⚠️ VOCÊ DEVE SEGUIR EXATAMENTE ESTES VALORES CALCULADOS CIENTIFICAMENTE:
 
-ℹ️ NOTA IMPORTANTE: Os valores de proteína e gordura foram calculados de forma PERSONALIZADA levando em conta:
-   • Objetivo do usuário (ganho, perda ou manutenção de peso)
-   • Somatótipo (${quizData.bodyType || "não especificado"})
-   • Gênero
-   • Diferença entre peso atual e meta
-
 ${
   quizData.wantsSupplement === "sim" && quizData.supplementType
     ? `
@@ -657,8 +651,9 @@ MACROS TOTAIS:
 2. NÃO faça sua própria distribuição de macros - use os valores fornecidos
 3. Distribua os macros proporcionalmente entre as ${mealConfig.count} refeições
 4. Cada refeição deve contribuir para atingir os totais especificados
-5. Priorize alimentos brasileiros comuns e acessíveis (arroz, feijão, frango, ovos, batata, etc.)
-6. Evite alimentos caros ou incomuns no Brasil (salmão, quinoa, aspargos, etc.)
+5. Priorize alimentos brasileiros comuns e acessíveis (arroz, feijão, frango, ovos, batata, macarrao etc.)
+6. Evite alimentos caros ou incomuns no Brasil (salmão, quinoa, aspargos, grãos de bico, cevada etc.)
+7. Tente criar um dieta que não seja muito cara para os padrões brasileiros
 ${
   quizData.diet
     ? `7. ⚠️ RESPEITE RIGOROSAMENTE A PREFERÊNCIA ALIMENTAR: ${quizData.diet.toUpperCase()} - Não inclua alimentos proibidos!`
@@ -1032,7 +1027,6 @@ function calculateScientificCalories(data: any) {
     
     const dailyCalories = Math.round(data.calorieGoal)
     const weight = Number.parseFloat(data.currentWeight) || 70
-    const targetWeight = Number.parseFloat(data.targetWeight) || weight
     const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
     const effectiveGoals = goals
     const bodyType = data.bodyType || ""
@@ -1061,38 +1055,17 @@ function calculateScientificCalories(data: any) {
     // Calorias para refeições (sem suplemento)
     const caloriesForMeals = dailyCalories - supplementCalories
     
-    // PROTEÍNA baseada em objetivo + somatótipo + gênero + weight difference (SOFISTICADA)
-    let proteinBase = 1.6
-    const weightDifference = targetWeight - weight
-    
-    if (weightDifference < -0.5) {
-      // PERDA DE PESO - mais proteína para preservar massa
-      if (bodyType.toLowerCase() === "ectomorfo") {
-        proteinBase = isFemale ? 2.0 : 2.2 // Preserva massa facilmente
-      } else if (bodyType.toLowerCase() === "mesomorfo") {
-        proteinBase = isFemale ? 2.2 : 2.4
-      } else if (bodyType.toLowerCase() === "endomorfo") {
-        proteinBase = isFemale ? 2.4 : 2.6 // Precisa mais para preservar
-      } else {
-        proteinBase = isFemale ? 2.0 : 2.2
-      }
-    } else if (weightDifference > 0.5) {
-      // GANHO DE PESO - proteína para construção
-      if (bodyType.toLowerCase() === "ectomorfo") {
-        proteinBase = isFemale ? 2.3 : 2.5 // Mais difícil ganhar
-      } else if (bodyType.toLowerCase() === "mesomorfo") {
-        proteinBase = isFemale ? 2.0 : 2.2 // Responde bem
-      } else if (bodyType.toLowerCase() === "endomorfo") {
-        proteinBase = isFemale ? 1.9 : 2.0 // Ganha mais fácil
-      } else {
-        proteinBase = isFemale ? 2.0 : 2.2
-      }
+    // PROTEÍNA baseada em objetivo + gênero (igual ao fallback)
+    let proteinBase = 1.8
+    if (effectiveGoals.includes("ganhar-massa")) {
+      proteinBase = isFemale ? 2.0 : 2.2
+    } else if (effectiveGoals.includes("emagrecer")) {
+      proteinBase = isFemale ? 1.8 : 2.0
     } else {
-      // MANUTENÇÃO/RECOMPOSIÇÃO
       proteinBase = isFemale ? 1.8 : 2.0
     }
     
-    // GORDURAS baseadas em SOMATÓTIPO + gênero (SOFISTICADA)
+    // GORDURAS baseadas em SOMATÓTIPO (igual ao fallback)
     let fatsBase = 1.0
     if (bodyType.toLowerCase() === "ectomorfo") {
       fatsBase = isFemale ? 1.3 : 1.2 // Tolera bem
@@ -1104,9 +1077,9 @@ function calculateScientificCalories(data: any) {
       fatsBase = isFemale ? 1.1 : 1.0
     }
     
-    // ATENÇÃO: Mulheres precisam mínimo de gordura para função hormonal
+    // Mínimo de gordura para mulheres (segurança hormonal)
     if (isFemale && fatsBase < 0.8) {
-      fatsBase = 0.8 // Mínimo absoluto para mulheres
+      fatsBase = 0.8
     }
     
     const protein = Math.round(weight * proteinBase)
@@ -1152,8 +1125,6 @@ function calculateScientificCalories(data: any) {
   const targetWeight = Number.parseFloat(data.targetWeight) || weight
   const timeToGoal = data.timeToGoal || ""
   const bodyType = data.bodyType || ""
-  
-  const isFemale = gender.toLowerCase().includes("fem") || gender.toLowerCase().includes("mulher")
 
   // ========== DETECTOR DE CONTRADIÇÃO: OBJETIVO vs META DE PESO ==========
   let effectiveGoals = goals
