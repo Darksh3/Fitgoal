@@ -1,23 +1,38 @@
 ## 📚 ÍNDICE - Sistema de Salvamento de Leads via Quiz
 
+## ⚡ TL;DR (Muito Curto)
+
+**O QUE FUNCIONA AGORA:**
+- ✅ Leads capturados no passo 30 do quiz
+- ✅ Salvos automaticamente em Firestore (`leads/{uid}`)
+- ✅ 50+ dados por lead (nome, email, objetivo, experiência, biótipo, IMC, etc)
+- ✅ Pronto para usar
+
+**O QUE NÃO FUNCIONA AINDA:**
+- ⏳ Dashboard admin para visualizar/filtrar
+- ⏳ Integração com email marketing
+- ⏳ Analytics avançado
+
 ---
 
-## 🚀 COMECE AQUI
+## 🚀 COMECE AQUI (3 Escolhas)
 
-### Para Começar Rápido (5 min)
-1. Leia: `README_LEADS_SYSTEM.md`
-2. Veja: Seção "O que foi feito"
-3. Entenda: Fluxo completo em 3 linhas
+### 1️⃣ "Quero entender rapidamente" (5 min)
+→ Leia: `QUICK_SUMMARY.md`
+- O que foi feito
+- Como funciona
+- Dashboard admin explicado
 
-### Para Testar (15 min)
-1. Siga: `TESTING_LEADS_GUIDE.md`
-2. Complete: Teste 1 ao Teste 8
-3. Confirme: Dados no Firebase
+### 2️⃣ "Quero testar agora" (15 min)
+→ Siga: `TECHNICAL_VERIFICATION.md`
+- 5 testes práticos
+- Como verificar dados
+- Troubleshooting
 
-### Para Implementar (Integração)
-1. Veja: `LEADS_QUERIES_EXAMPLES.md`
-2. Copie: Exemplos de código
-3. Use: Em seu sistema
+### 3️⃣ "Quero ver o código" (10 min)
+→ Veja: `LEADS_QUERIES_EXAMPLES.md`
+- 14+ exemplos prontos
+- Copy-paste em seu projeto
 
 ---
 
