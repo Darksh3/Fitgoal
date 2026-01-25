@@ -22,9 +22,9 @@ Adicionado código no arquivo `/app/api/handle-post-checkout/route.tsx` para **s
 - `app/api/webhooks/nowpayments/route.ts` (para criptomoedas)
 
 **O que acontece:**
-```
+\`\`\`
 Pagamento confirmado → Webhook recebido → Dispara processamento
-```
+\`\`\`
 
 ---
 
@@ -37,7 +37,7 @@ Pagamento confirmado → Webhook recebido → Dispara processamento
 2. ✅ Recupera dados do lead se existir em `leads` collection
 3. ✅ Chama `handle-post-checkout` com dados do pagamento
 
-```javascript
+\`\`\`javascript
 // Dados recuperados do webhook ou do documento 'leads'
 {
   userId,
@@ -48,7 +48,7 @@ Pagamento confirmado → Webhook recebido → Dispara processamento
   customerPhone,
   customerCpf,
 }
-```
+\`\`\`
 
 ---
 
@@ -79,7 +79,7 @@ Pagamento confirmado → Webhook recebido → Dispara processamento
 ## 📁 Estrutura de Dados no Firestore
 
 ### **Collection: `users`**
-```javascript
+\`\`\`javascript
 users/{uid}
   ├── uid: string
   ├── name: string
@@ -95,10 +95,10 @@ users/{uid}
   ├── createdAt: timestamp
   ├── updatedAt: timestamp
   └── ...
-```
+\`\`\`
 
 ### **Collection: `leads` (🆕 Agora salvo após pagamento!)**
-```javascript
+\`\`\`javascript
 leads/{uid}
   ├── uid: string                    // Mesmo ID do usuário
   ├── name: string
@@ -115,10 +115,10 @@ leads/{uid}
   ├── source: "checkout"             // De onde veio
   ├── createdAt: timestamp
   └── updatedAt: timestamp
-```
+\`\`\`
 
 ### **Collection: `payments`**
-```javascript
+\`\`\`javascript
 payments/{paymentId}
   ├── paymentId: string
   ├── userId: string
@@ -126,13 +126,13 @@ payments/{paymentId}
   ├── billingType: "PIX" | "CREDIT_CARD" | "CRYPTO"
   ├── value: number
   └── updatedAt: timestamp
-```
+\`\`\`
 
 ---
 
 ## 🔀 Fluxo Passo a Passo
 
-```
+\`\`\`
 ┌─────────────────────────────────────┐
 │   Usuário Faz Pagamento             │
 └────────────┬────────────────────────┘
@@ -161,21 +161,21 @@ payments/{paymentId}
                                ├──► ✅ Salva em users collection
                                └──► ✅ Salva em leads collection (NOVO!)
                                     └──► Envia email de confirmação
-```
+\`\`\`
 
 ---
 
 ## 🐛 O Que Estava Faltando
 
 ### **ANTES (Incompleto):**
-```typescript
+\`\`\`typescript
 // Somente salvava user, não o lead
 await userDocRef.set(userData, { merge: true })
 // E pronto! Lead não era salvo.
-```
+\`\`\`
 
 ### **DEPOIS (Completo):**
-```typescript
+\`\`\`typescript
 // 1. Salva user
 await userDocRef.set(userData, { merge: true })
 
@@ -193,7 +193,7 @@ const leadData = {
   // ... outros dados
 }
 await adminDb.collection("leads").doc(finalUserUid).set(leadData, { merge: true })
-```
+\`\`\`
 
 ---
 

@@ -4,7 +4,7 @@
 
 Você agora tem um **sistema completo de captura de leads** que funciona da seguinte forma:
 
-```
+\`\`\`
 USUÁRIO ACESSA QUIZ
     ↓
 COMPLETA 30 PASSOS
@@ -14,7 +14,7 @@ CLICA "CONTINUAR" NO PASSO 30
 ✅ DADOS SALVOS AUTOMATICAMENTE COMO LEAD
     ↓
 REDIRECIONA PARA RESULTADOS
-```
+\`\`\`
 
 ---
 
@@ -91,7 +91,7 @@ REDIRECIONA PARA RESULTADOS
 ## Localização dos Dados
 
 ### Firebase Firestore Structure
-```
+\`\`\`
 leads/
 ├── {uid1}/
 │   ├── name: "João Silva"
@@ -106,7 +106,7 @@ leads/
 │
 ├── {uid2}/
 └── {uid3}/
-```
+\`\`\`
 
 ---
 
@@ -119,7 +119,7 @@ leads/
 4. Você verá todos os leads com seus dados
 
 ### 2. Consultar via Código
-```javascript
+\`\`\`javascript
 // Buscar lead específico
 const lead = await fetchLead(userUid)
 console.log(lead.name, lead.email, lead.goals)
@@ -130,7 +130,7 @@ console.log(`Total: ${allLeads.length}`)
 
 // Filtrar leads por objetivo
 const lossingWeightLeads = await fetchLeadsLosingWeight()
-```
+\`\`\`
 
 ### 3. Próximas Integrações
 Você pode agora:
@@ -158,10 +158,10 @@ Você pode agora:
 
 ### Passo 3: Verificar nos Logs
 Abra a console do navegador (F12) e procure por logs:
-```
+\`\`\`
 [v0] SAVE_LEAD - Starting to save lead for user: {uid}
 [v0] SAVE_LEAD - Success: { leadId: {uid}, ... }
-```
+\`\`\`
 
 ---
 
@@ -202,30 +202,30 @@ Abra a console do navegador (F12) e procure por logs:
 ## Exemplos Práticos de Uso
 
 ### Email Segmentado
-```javascript
+\`\`\`javascript
 // Enviar email apenas para leads que querem suplemento
 const supplementLeads = await fetchSupplementInterestedLeads()
 supplementLeads.forEach(lead => {
   sendEmail(lead.email, 
     `${lead.name}, conheça nosso ${lead.supplementType}!`)
 })
-```
+\`\`\`
 
 ### Dashboard de Conversão
-```javascript
+\`\`\`javascript
 // Rastrear conversão de leads para clientes
 const totalLeads = await fetchAllLeads()
 const customers = totalLeads.filter(l => l.status === "customer")
 const conversionRate = (customers.length / totalLeads.length) * 100
 console.log(`Taxa de conversão: ${conversionRate}%`)
-```
+\`\`\`
 
 ### Análise de Padrões
-```javascript
+\`\`\`javascript
 // Descobrir qual objetivo tem melhor conversão
 const leadsByGoal = {}
 // ... agrupe e analise
-```
+\`\`\`
 
 ---
 
@@ -253,7 +253,7 @@ const leadsByGoal = {}
 
 ### Regras de Firestore Recomendadas
 
-```javascript
+\`\`\`javascript
 // Permitir que usuários vejam apenas seus próprios dados
 match /leads/{uid} {
   allow read, write: if request.auth.uid == uid;
@@ -265,7 +265,7 @@ match /leads/{uid} {
   allow create: if request.auth != null;
   allow update: if request.auth.uid == uid || request.auth.token.admin == true;
 }
-```
+\`\`\`
 
 ---
 

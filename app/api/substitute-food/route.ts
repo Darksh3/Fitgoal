@@ -57,6 +57,25 @@ export async function POST(request: NextRequest) {
       // Continue without user data
     }
 
+    const expensiveIngredientsInBrazil = [
+      "grão-de-bico",
+      "grão de bico",
+      "chickpea",
+      "quinoa",
+      "cogumelo",
+      "cogumelos",
+      "mushroom",
+      "mushrooms",
+      "açaí",
+      "acai",
+    ]
+
+    const allergiesAndRestrictions = [
+      ...(userPreferences?.allergies ? [userPreferences.allergies] : []),
+      `IMPORTANTE: Evite COMPLETAMENTE estes ingredientes (caros no Brasil): ${expensiveIngredientsInBrazil.join(", ")}. 
+      Prefira alimentos acessíveis e comuns no Brasil como: ovos, frango, arroz, feijão, batata, banana, maçã, cenoura, brócolis, carne vermelha, iogurte, leite, pão, batata doce.`,
+    ].filter(Boolean)
+
     const prompt =
       type === "food"
         ? `Substitua este alimento por outro equivalente em macros:
@@ -64,7 +83,7 @@ export async function POST(request: NextRequest) {
 ALIMENTO: ${currentItem.name || currentItem} (${targetMacros.calories} kcal)
 MACROS ALVO: ${targetMacros.protein}g proteína, ${targetMacros.carbs}g carboidratos, ${targetMacros.fats}g gorduras
 REFEIÇÃO: ${mealContext}
-RESTRIÇÕES: ${userPreferences?.allergies || "Nenhuma"}
+RESTRIÇÕES: ${allergiesAndRestrictions.join(" | ")}
 
 Retorne JSON:
 {
@@ -85,7 +104,7 @@ Retorne JSON:
 REFEIÇÃO ATUAL: ${mealContext}
 ALIMENTOS: ${JSON.stringify(currentItem)}
 MACROS TOTAIS: ${targetMacros.calories} kcal, ${targetMacros.protein}g proteína, ${targetMacros.carbs}g carboidratos, ${targetMacros.fats}g gorduras
-RESTRIÇÕES: ${userPreferences?.allergies || "Nenhuma"}
+RESTRIÇÕES: ${allergiesAndRestrictions.join(" | ")}
 
 Retorne JSON com nova refeição equivalente:
 {

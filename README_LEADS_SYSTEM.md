@@ -54,7 +54,7 @@ Implementei um **sistema completo de captura de leads** onde todos os usuários 
 
 ## 📁 Estrutura de Arquivos
 
-```
+\`\`\`
 Firestore Database
 ├── leads/
 │   └── {uid}/
@@ -75,7 +75,7 @@ Firestore Database
         ├── name: "João Silva"
         ├── email: "joao@email.com"
         └── ... (outros dados)
-```
+\`\`\`
 
 ---
 
@@ -85,17 +85,17 @@ Firestore Database
 
 Siga o **Guia de Teste** (`/TESTING_LEADS_GUIDE.md`):
 
-```bash
+\`\`\`bash
 1. Acesse http://localhost:3000/quiz
 2. Complete os 30 passos
 3. Clique "Continuar" no último passo
 4. Verifique no Firebase Console (collection "leads")
 5. Confirm logs no console: "[v0] SAVE_LEAD - Success"
-```
+\`\`\`
 
 ### 2. Buscar Leads (Exemplos)
 
-```javascript
+\`\`\`javascript
 // Todos os leads
 const allLeads = await fetchAllLeads()
 
@@ -110,13 +110,13 @@ const womenBeginners = await fetchLeads(
 
 // Leads interessados em suplemento
 const supplementUsers = await fetchSupplementInterestedLeads()
-```
+\`\`\`
 
 Veja `LEADS_QUERIES_EXAMPLES.md` para 14+ exemplos práticos.
 
 ### 3. Usar em Seu Código
 
-```javascript
+\`\`\`javascript
 // Dashboard de leads
 import { useLeads } from "@/hooks/useLeads"
 
@@ -137,7 +137,7 @@ export default function LeadsDashboard() {
     </div>
   )
 }
-```
+\`\`\`
 
 ---
 
@@ -169,7 +169,7 @@ export default function LeadsDashboard() {
 
 ## ✨ Fluxo Completo
 
-```
+\`\`\`
 USUÁRIO ACESSA QUIZ
     ↓
 RESPONDE 30 PERGUNTAS
@@ -192,7 +192,7 @@ CLICA "CONTINUAR" (PASSO 30)
     - Analytics
     - Remarketing
     - Segmentação
-```
+\`\`\`
 
 ---
 
@@ -230,7 +230,7 @@ Após o teste, você verá:
 
 ## 📈 Dados Disponíveis para Cada Lead
 
-```javascript
+\`\`\`javascript
 {
   // Identificação
   uid: string,
@@ -275,7 +275,7 @@ Após o teste, você verá:
   createdAt: Timestamp,
   updatedAt: Timestamp
 }
-```
+\`\`\`
 
 ---
 
@@ -305,7 +305,7 @@ Após o teste, você verá:
 
 ### Firestore Rules Recomendadas
 
-```javascript
+\`\`\`javascript
 // Usuários veem apenas seus dados
 match /leads/{uid} {
   allow read, write: if request.auth.uid == uid;
@@ -315,36 +315,36 @@ match /leads/{uid} {
 match /leads/{uid} {
   allow read: if request.auth.token.admin == true;
 }
-```
+\`\`\`
 
 ---
 
 ## 💡 Casos de Uso
 
 ### Email Marketing
-```javascript
+\`\`\`javascript
 // Enviar email para leads que querem perder peso
 const leads = await query(where("goals", "array-contains", "perder-peso"))
 leads.forEach(l => sendEmail(l.email, "Plano para Perder Peso"))
-```
+\`\`\`
 
 ### Análise
-```javascript
+\`\`\`javascript
 // Taxa de conversão
 const total = await fetchAllLeads()
 const customers = total.filter(l => l.status === "customer")
 console.log(`Conversão: ${customers.length / total.length * 100}%`)
-```
+\`\`\`
 
 ### Remarketing
-```javascript
+\`\`\`javascript
 // Segmentar anúncios por objetivo
 const gainMass = await query(where("goals", "array-contains", "ganhar-massa"))
 // Mostrar anúncos de proteína para este grupo
-```
+\`\`\`
 
 ### CRM
-```javascript
+\`\`\`javascript
 // Sincronizar com CRM externo
 const leads = await fetchAllLeads()
 leads.forEach(l => crm.create({
@@ -352,7 +352,7 @@ leads.forEach(l => crm.create({
   email: l.email,
   tags: l.goals
 }))
-```
+\`\`\`
 
 ---
 

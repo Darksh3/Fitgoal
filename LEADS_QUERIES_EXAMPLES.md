@@ -6,7 +6,7 @@
 
 ## 1. Buscar um Lead Específico
 
-```javascript
+\`\`\`javascript
 import { doc, getDoc } from "firebase/firestore"
 import { db } from "@/lib/firebaseClient"
 
@@ -23,13 +23,13 @@ const fetchLead = async (uid) => {
     return null
   }
 }
-```
+\`\`\`
 
 ---
 
 ## 2. Listar Todos os Leads
 
-```javascript
+\`\`\`javascript
 import { collection, getDocs } from "firebase/firestore"
 import { db } from "@/lib/firebaseClient"
 
@@ -48,13 +48,13 @@ const fetchAllLeads = async () => {
   console.log("Total de leads:", leads.length)
   return leads
 }
-```
+\`\`\`
 
 ---
 
 ## 3. Filtrar Leads por Objetivo
 
-```javascript
+\`\`\`javascript
 import { collection, query, where, getDocs } from "firebase/firestore"
 import { db } from "@/lib/firebaseClient"
 
@@ -75,13 +75,13 @@ const fetchLeadsLosingWeight = async () => {
   
   return leads
 }
-```
+\`\`\`
 
 ---
 
 ## 4. Filtrar Leads por Experiência
 
-```javascript
+\`\`\`javascript
 // Buscar leads iniciantes
 const fetchBeginnerLeads = async () => {
   const leadsRef = collection(db, "leads")
@@ -111,13 +111,13 @@ const fetchAdvancedLeads = async () => {
   
   return leads
 }
-```
+\`\`\`
 
 ---
 
 ## 5. Filtrar Leads por Gênero
 
-```javascript
+\`\`\`javascript
 // Buscar leads mulheres
 const fetchFemaleLeads = async () => {
   const leadsRef = collection(db, "leads")
@@ -147,13 +147,13 @@ const fetchMaleLeads = async () => {
   
   return leads
 }
-```
+\`\`\`
 
 ---
 
 ## 6. Filtrar Leads por IMC (Sobrepeso)
 
-```javascript
+\`\`\`javascript
 // Buscar leads com sobrepeso
 const fetchOverweightLeads = async () => {
   const leadsRef = collection(db, "leads")
@@ -183,13 +183,13 @@ const fetchObeseLeads = async () => {
   
   return leads
 }
-```
+\`\`\`
 
 ---
 
 ## 7. Filtrar Leads por Biótipo
 
-```javascript
+\`\`\`javascript
 // Buscar leads ectomorfos
 const fetchEctomorphLeads = async () => {
   const leadsRef = collection(db, "leads")
@@ -234,13 +234,13 @@ const fetchEndomorphLeads = async () => {
   
   return leads
 }
-```
+\`\`\`
 
 ---
 
 ## 8. Filtrar Leads que Querem Suplemento
 
-```javascript
+\`\`\`javascript
 import { collection, query, where, getDocs } from "firebase/firestore"
 
 // Buscar leads interessados em suplementos
@@ -262,13 +262,13 @@ const fetchSupplementInterestedLeads = async () => {
   
   return leads
 }
-```
+\`\`\`
 
 ---
 
 ## 9. Filtrar Leads por Dias de Treino
 
-```javascript
+\`\`\`javascript
 // Buscar leads que treinam 5+ dias por semana
 const fetchHeavyTrainerLeads = async () => {
   const leadsRef = collection(db, "leads")
@@ -298,13 +298,13 @@ const fetchLightTrainerLeads = async () => {
   
   return leads
 }
-```
+\`\`\`
 
 ---
 
 ## 10. Queries Complexas (Múltiplos Filtros)
 
-```javascript
+\`\`\`javascript
 // Buscar mulheres iniciantes que querem perder peso
 const fetchTargetedLeads = async () => {
   const leadsRef = collection(db, "leads")
@@ -344,13 +344,13 @@ const fetchMuscleGainers = async () => {
   
   return leads
 }
-```
+\`\`\`
 
 ---
 
 ## 11. Contar Leads por Categoria
 
-```javascript
+\`\`\`javascript
 // Contar leads por objetivo
 const countLeadsByGoal = async () => {
   const allLeads = await fetchAllLeads()
@@ -409,13 +409,13 @@ const countLeadsByGender = async () => {
   
   return genderCounts
 }
-```
+\`\`\`
 
 ---
 
 ## 12. Atualizar Status de um Lead
 
-```javascript
+\`\`\`javascript
 import { doc, updateDoc } from "firebase/firestore"
 import { db } from "@/lib/firebaseClient"
 
@@ -444,13 +444,13 @@ const markLeadAsInactive = async (uid) => {
   
   console.log("Lead marcado como inativo:", uid)
 }
-```
+\`\`\`
 
 ---
 
 ## 13. Segmentação Avançada para Marketing
 
-```javascript
+\`\`\`javascript
 // Buscar leads de alto potencial
 const fetchHighValueLeads = async () => {
   // Critérios: avançados, interessados em suplemento, treinam 4+ dias
@@ -486,13 +486,13 @@ const fetchAtRiskLeads = async () => {
     lead.previousProblems.length > 2
   )
 }
-```
+\`\`\`
 
 ---
 
 ## 14. Exportar Leads para CSV
 
-```javascript
+\`\`\`javascript
 const exportLeadsToCSV = async () => {
   const allLeads = await fetchAllLeads()
   
@@ -525,13 +525,13 @@ const exportLeadsToCSV = async () => {
   a.download = "leads.csv"
   a.click()
 }
-```
+\`\`\`
 
 ---
 
 ## Exemplo Completo: Dashboard de Leads
 
-```javascript
+\`\`\`javascript
 // Hook customizado para gerenciar leads
 import { useState, useEffect } from "react"
 
@@ -626,7 +626,7 @@ function LeadsDashboard() {
     </div>
   )
 }
-```
+\`\`\`
 
 ---
 

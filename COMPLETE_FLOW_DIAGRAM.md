@@ -2,7 +2,7 @@
 
 ## 🔄 Fluxo de Dados Passo a Passo
 
-```
+\`\`\`
 ┌──────────────────────────────────────────────────────────────────┐
 │                                                                  │
 │  1️⃣  USUÁRIO ACESSA /quiz                                       │
@@ -40,13 +40,13 @@
 │     └─ Dados salvos em users e em payment/lead records          │
 │                                                                  │
 └──────────────────────────────────────────────────────────────────┘
-```
+\`\`\`
 
 ---
 
 ## 📊 Estrutura de Collections no Firebase
 
-```
+\`\`\`
 Firebase Firestore
 │
 ├── 📁 users/                          (usuários do sistema)
@@ -96,7 +96,7 @@ Firebase Firestore
     │
     └── 📄 payment-002/
         └── ...
-```
+\`\`\`
 
 ---
 
@@ -163,7 +163,7 @@ Firebase Firestore
 
 ## 🔐 Permissões no Firestore (RLS)
 
-```javascript
+\`\`\`javascript
 // firestore.rules
 rules_version = '2';
 service cloud.firestore {
@@ -186,13 +186,13 @@ service cloud.firestore {
     }
   }
 }
-```
+\`\`\`
 
 ---
 
 ## 💾 Exemplo Real de um Lead Salvo
 
-```json
+\`\`\`json
 {
   "uid": "user-12345",
   "name": "João Silva",
@@ -243,61 +243,61 @@ service cloud.firestore {
   "createdAt": "2026-01-25T14:30:00Z",
   "updatedAt": "2026-01-25T14:30:00Z"
 }
-```
+\`\`\`
 
 ---
 
 ## 🔍 Queries Úteis para o Admin Dashboard
 
 ### 1. Buscar todos os leads
-```typescript
+\`\`\`typescript
 const allLeads = await db.collection('leads').get()
-```
+\`\`\`
 
 ### 2. Buscar leads por objetivo (emagrecer)
-```typescript
+\`\`\`typescript
 const losingWeight = await db
   .collection('leads')
   .where('goals', 'array-contains', 'emagrecer')
   .get()
-```
+\`\`\`
 
 ### 3. Buscar leads iniciantes
-```typescript
+\`\`\`typescript
 const beginners = await db
   .collection('leads')
   .where('experience', '==', 'iniciante')
   .get()
-```
+\`\`\`
 
 ### 4. Buscar leads com sobrepeso
-```typescript
+\`\`\`typescript
 const overweight = await db
   .collection('leads')
   .where('imcClassification', '==', 'sobrepeso')
   .get()
-```
+\`\`\`
 
 ### 5. Buscar leads por tipo de corpo
-```typescript
+\`\`\`typescript
 const endomorphs = await db
   .collection('leads')
   .where('bodyType', '==', 'endomorfo')
   .get()
-```
+\`\`\`
 
 ### 6. Buscar leads dos últimos 7 dias
-```typescript
+\`\`\`typescript
 const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
 const recentLeads = await db
   .collection('leads')
   .where('completedQuizAt', '>=', sevenDaysAgo)
   .orderBy('completedQuizAt', 'desc')
   .get()
-```
+\`\`\`
 
 ### 7. Contar leads por objetivo
-```typescript
+\`\`\`typescript
 const countByGoal = {}
 const allLeads = await db.collection('leads').get()
 allLeads.forEach(doc => {
@@ -305,7 +305,7 @@ allLeads.forEach(doc => {
     countByGoal[goal] = (countByGoal[goal] || 0) + 1
   })
 })
-```
+\`\`\`
 
 ---
 

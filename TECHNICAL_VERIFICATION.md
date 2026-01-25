@@ -37,15 +37,15 @@
 ## 🧪 Como Testar
 
 ### **Teste 1: Verificar Firestore Rules**
-```javascript
+\`\`\`javascript
 // Seu Firestore deve permitir:
 1. Qualquer usuário autenticado criar lead
 2. Admin ler todos os leads
 3. Admin atualizar status
-```
+\`\`\`
 
 ### **Teste 2: Simular Quiz Completo**
-```bash
+\`\`\`bash
 1. Abra o navegador
 2. Vá para http://localhost:3000/quiz
 3. Complete todos os 30 passos
@@ -57,10 +57,10 @@
 6. Verifique no Firebase Console:
    - Collection: leads
    - Document: {uid}
-```
+\`\`\`
 
 ### **Teste 3: Verificar Dados Salvos**
-```javascript
+\`\`\`javascript
 // No Firebase Console, vá em:
 Firestore → Collections → leads → Clique em um UID
 
@@ -75,19 +75,19 @@ Deve ter:
 ✅ status: "lead"
 ✅ completedQuizAt (timestamp)
 ... mais 40+ campos
-```
+\`\`\`
 
 ### **Teste 4: Verificar Logs**
 No console do navegador (F12):
-```javascript
+\`\`\`javascript
 // Deve aparecer em sequência:
 [v0] SAVE_LEAD - Starting to save lead for: user-123
 [v0] LEAD_SAVED_SUCCESSFULLY - Lead saved for: user-123
 [v0] USER_QUIZ_DATA_SAVED - Quiz data saved in user document for: user-123
-```
+\`\`\`
 
 ### **Teste 5: Verificar Colections**
-```javascript
+\`\`\`javascript
 // No Firebase Console:
 
 Collection: users/{uid}
@@ -102,7 +102,7 @@ Collection: leads/{uid}
 ├── goals: ["emagrecer", "definir"]
 ├── status: "lead"
 └── completedQuizAt: timestamp
-```
+\`\`\`
 
 ---
 
@@ -133,22 +133,22 @@ Collection: leads/{uid}
 Significa que `uid` ou `quizData` não foi enviado.
 
 Verificar:
-```typescript
+\`\`\`typescript
 // Em /app/quiz/page.tsx, função saveLead()
 console.log("[v0] saveLead - uid:", currentUser?.uid)
 console.log("[v0] saveLead - quizData:", quizData)
 
 // Deve não ser null/undefined
-```
+\`\`\`
 
 ### **Problema: Erro 500 na API**
 
-```typescript
+\`\`\`typescript
 // Verificar /app/api/save-lead/route.ts
 1. Firebase Admin SDK está inicializado?
 2. Credenciais de admin estão corretas?
 3. Collection "leads" existe?
-```
+\`\`\`
 
 ---
 
@@ -188,7 +188,7 @@ console.log("[v0] saveLead - quizData:", quizData)
 
 Exemplo de um lead que completou o quiz:
 
-```json
+\`\`\`json
 {
   "uid": "gPJ8xK2mN9Yq1R4sT7vW",
   "name": "João Silva Santos",
@@ -223,7 +223,7 @@ Exemplo de um lead que completou o quiz:
   "createdAt": "2026-01-25T14:35:22.123Z",
   "updatedAt": "2026-01-25T14:35:22.123Z"
 }
-```
+\`\`\`
 
 ---
 
