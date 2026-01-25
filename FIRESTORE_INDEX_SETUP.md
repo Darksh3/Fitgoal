@@ -4,10 +4,10 @@ O histórico de fotos precisa de um índice composto para funcionar corretamente
 
 ## ⚠️ Erro que você está vendo:
 
-```
+\`\`\`
 FirebaseError: Missing or insufficient permissions.
 "9 FAILED_PRECONDITION: The query requires an index"
-```
+\`\`\`
 
 ## ✅ Solução: Criar Índice Composto
 
@@ -33,13 +33,13 @@ Quando você vir o erro no console, o Firebase geralmente fornece um link direto
 ## 📝 Por que isso é necessário?
 
 O código faz esta query:
-```typescript
+\`\`\`typescript
 query(
   collection(db, "progressPhotos"),
   where("userId", "==", user.uid),
   orderBy("createdAt", "desc")
 )
-```
+\`\`\`
 
 Queries com `where` + `orderBy` em campos diferentes precisam de índices compostos no Firestore.
 
@@ -53,7 +53,7 @@ Após criar o índice:
 
 ## 📊 Estrutura Esperada no Firestore
 
-```
+\`\`\`
 progressPhotos/
 ├── [photoId1]
 │   ├── userId: "user123"
@@ -63,7 +63,7 @@ progressPhotos/
 │   └── batchAnalysis: true
 ├── [photoId2]
 │   └── ...
-```
+\`\`\`
 
 ## 🆘 Ainda com Problemas?
 

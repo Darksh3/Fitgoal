@@ -5,17 +5,17 @@ Este documento explica os logs adicionados para debugar o fluxo de dados do quiz
 ## Fluxo de Logs
 
 ### 1️⃣ Autenticação (auth-form.tsx)
-```
+\`\`\`
 [v0] AUTH_FORM_LOGIN_ATTEMPT - Email: usuario@email.com
 [v0] AUTH_FORM_LOGIN_SUCCESS - User authenticated
 [v0] AUTH_FORM_REDIRECTING_TO_DASHBOARD
-```
+\`\`\`
 
 ### 2️⃣ Envio do Quiz (quiz/page.tsx - case 30)
 
 Quando o usuário clica em "Continuar" no final do quiz:
 
-```
+\`\`\`
 [v0] QUIZ_SUBMIT_START - User ID: <UID>
 [v0] QUIZ_DATA_PREPARED - Updated data keys: [array de chaves]
 [v0] QUIZ_DATA_EMAIL: usuario@email.com
@@ -25,32 +25,32 @@ Quando o usuário clica em "Continuar" no final do quiz:
 [v0] FIREBASE_USER_DOC_SAVED - User doc saved to /users/<UID>
 [v0] FIREBASE_LEAD_DOC_SAVED - Lead doc saved to /leads/<UID>
 [v0] CASE_30_BUTTON_CLICKED - Redirecting to results page
-```
+\`\`\`
 
 ### 3️⃣ Página de Resultados (quiz/results/page.tsx)
 
 Quando a página de resultados carrega:
 
-```
+\`\`\`
 [v0] RESULTS_DATA_FOUND_IN_LOCALSTORAGE - Keys: [array de chaves]
-```
+\`\`\`
 
 OU
 
-```
+\`\`\`
 [v0] RESULTS_NO_DATA_IN_LOCALSTORAGE
 [v0] RESULTS_FETCHING_FROM_FIREBASE - User ID: <UID>
 [v0] RESULTS_DATA_FOUND_IN_FIREBASE - Keys: [array de chaves]
 [v0] RESULTS_FIREBASE_DATA_EMAIL: usuario@email.com
 [v0] RESULTS_FIREBASE_DATA_NAME: Nome Completo
 [v0] RESULTS_DATA_LOADED_SUCCESSFULLY
-```
+\`\`\`
 
 OU (Erro)
 
-```
+\`\`\`
 [v0] RESULTS_NO_DATA_FOUND - REDIRECTING_TO_QUIZ after 2 seconds
-```
+\`\`\`
 
 ## ✅ Checklist de Debug
 

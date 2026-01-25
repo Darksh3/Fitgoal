@@ -43,6 +43,7 @@
     "@sendgrid/mail": "8.1.5",
     "@vercel/blob": "1.1.1",
     "ai": "5.0.31",
+    "bufferutil": "latest",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
@@ -71,6 +72,7 @@
     "stripe": "20.0.0",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "1.0.7",
+    "utf-8-validate": "latest",
     "vaul": "^0.9.6",
     "ws": "latest",
     "zod": "^3.25.76"

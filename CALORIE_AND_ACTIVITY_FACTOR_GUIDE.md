@@ -6,7 +6,7 @@
 **Arquivo:** `/lib/calorieCalculator.ts` - Função `calculateScientificCalories()`
 
 **Linhas 85-100: Fator de Atividade Base**
-```typescript
+\`\`\`typescript
 let baseActivityMultiplier
 const trainingDaysNum = Number.parseInt(String(trainingDaysPerWeek))
 if (trainingDaysNum <= 1) {
@@ -20,22 +20,22 @@ if (trainingDaysNum <= 1) {
 } else {
     baseActivityMultiplier = 1.9    // Extremamente ativo
 }
-```
+\`\`\`
 
 ### 2. **Ajuste do Fator por Somatótipo (Biotipo)**
 **Linhas 102-108: Multiplicador de Atividade Ajustado**
-```typescript
+\`\`\`typescript
 let activityMultiplier = baseActivityMultiplier
 if (bodyType.toLowerCase() === "ectomorfo") {
     activityMultiplier = baseActivityMultiplier * 1.05  // +5%
 } else if (bodyType.toLowerCase() === "endomorfo") {
     activityMultiplier = baseActivityMultiplier * 0.95  // -5%
 }
-```
+\`\`\`
 
 ### 3. **Cálculo da Taxa Metabólica Basal (TMB)**
 **Linhas 70-78: Fórmula de Mifflin-St Jeor**
-```typescript
+\`\`\`typescript
 const isFemale = gender.toLowerCase().includes("fem") || gender.toLowerCase().includes("mulher")
 
 // TMB (Mifflin-St Jeor)
@@ -45,11 +45,11 @@ if (isFemale) {
 } else {
     tmb = 10 * weight + 6.25 * height - 5 * age + 5
 }
-```
+\`\`\`
 
 ### 4. **Cálculo Final de Calorias (TDEE)**
 **Linhas 110-111: Total Daily Energy Expenditure**
-```typescript
+\`\`\`typescript
 let tdee = tmb * activityMultiplier
 let metabolicAdjustment = 1.0
 
@@ -61,7 +61,7 @@ if (bodyType.toLowerCase() === "ectomorfo") {
 }
 
 tdee = tdee * metabolicAdjustment
-```
+\`\`\`
 
 ---
 
@@ -86,7 +86,7 @@ Dados salvos em Firestore via `/app/api/handle-post-checkout/route.tsx`
 ### **Etapa 3: Cálculo Científico de Calorias**
 **Arquivo:** `/app/api/generate-plans-on-demand/route.ts` - Linhas 1020-1450
 
-```typescript
+\`\`\`typescript
 // Linha 1027: Usa a função calculateScientificCalories
 const dailyCalories = Math.round(data.calorieGoal)
 
@@ -94,7 +94,7 @@ const dailyCalories = Math.round(data.calorieGoal)
 const protein = Math.round((dailyCalories * 0.3) / 4)  // 30% das calorias
 const carbs = Math.round((dailyCalories * 0.45) / 4)   // 45% das calorias
 const fats = Math.round((dailyCalories * 0.25) / 9)    // 25% das calorias
-```
+\`\`\`
 
 ### **Etapa 4: Ajustes por Objetivo**
 **Linhas 1120-1300: Ajustes calóricos baseado em:**
@@ -104,7 +104,7 @@ const fats = Math.round((dailyCalories * 0.25) / 9)    // 25% das calorias
 - Somatótipo (ectomorfo, mesomorfo, endomorfo)
 
 **Exemplos:**
-```typescript
+\`\`\`typescript
 // Ganho de peso (bulking)
 if (weightDifference > 0.5) {
     // Ectomorfo: +600-700 kcal (ganha massa fácil)
@@ -118,18 +118,18 @@ if (weightDifference < -0.5) {
     // Endomorfo: -600 kcal (pode fazer deficit maior)
     // Mesomorfo: -500 kcal (balanced)
 }
-```
+\`\`\`
 
 ### **Etapa 5: Tratamento de Suplementação**
 **Linhas 1050-1055: Se cliente quer suplemento**
-```typescript
+\`\`\`typescript
 const supplementCalories = (quizData.supplementType === "hipercalorico") ? 615 : 119
 const caloriesForMeals = dailyCalories - supplementCalories
 
 // Macros do suplemento
 // Hipercalórico: 615 kcal, 37g proteína, 108g carbs, 3.7g gorduras
 // Whey Protein: 119 kcal, 24g proteína, 2.3g carbs, 1.5g gorduras
-```
+\`\`\`
 
 ---
 
@@ -141,7 +141,7 @@ const caloriesForMeals = dailyCalories - supplementCalories
 
 A IA recebe um prompt detalhado com:
 
-```typescript
+\`\`\`typescript
 // Linha 585: Calorias totais
 "Valor científico TOTAL: ${savedCalcs.finalCalories} kcal"
 
@@ -158,11 +158,11 @@ A IA recebe um prompt detalhado com:
 2. NÃO faça sua própria distribuição de macros - use os valores fornecidos
 3. Distribua os macros proporcionalmente entre as refeições
 4. Cada refeição deve contribuir para atingir os totais especificados"
-```
+\`\`\`
 
 ### **Linhas 678-716: JSON Enviado à IA**
 
-```json
+\`\`\`json
 {
   "totalDailyCalories": "2378 kcal",
   "totalProtein": "713g",
@@ -186,13 +186,13 @@ A IA recebe um prompt detalhado com:
     }
   ]
 }
-```
+\`\`\`
 
 ---
 
 ## 🔄 Resumo do Fluxo
 
-```
+\`\`\`
 1️⃣ QUIZ
    └─ trainingDaysPerWeek, bodyType, currentWeight, height, age, gender
 
@@ -219,7 +219,7 @@ A IA recebe um prompt detalhado com:
    └─ Cria refeições que somam exatamente as calorias/macros calculadas
    └─ Respeita restrições (alergias, dieta, equipamentos)
    └─ Prioriza alimentos brasileiros acessíveis
-```
+\`\`\`
 
 ---
 
