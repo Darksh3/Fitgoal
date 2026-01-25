@@ -14,7 +14,6 @@ export default function SuccessPage() {
 
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [secondsRemaining, setSecondsRemaining] = useState<number>(5)
 
   useEffect(() => {
     const handlePostCheckout = async () => {
@@ -61,22 +60,6 @@ export default function SuccessPage() {
     handlePostCheckout()
   }, [sessionId, embedded])
 
-  // Timer para redirecionamento automático
-  useEffect(() => {
-    if (status !== "success") return
-
-    if (secondsRemaining === 0) {
-      window.location.href = "/dashboard"
-      return
-    }
-
-    const timer = setTimeout(() => {
-      setSecondsRemaining(secondsRemaining - 1)
-    }, 1000)
-
-    return () => clearTimeout(timer)
-  }, [status, secondsRemaining])
-
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] bg-gray-100 dark:bg-gray-900 p-4">
       <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg text-center max-w-md w-full">
@@ -90,19 +73,12 @@ export default function SuccessPage() {
         {status === "success" && (
           <>
             <CheckCircle className="text-green-500 w-16 h-16 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Pagamento Confirmado!</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">Obrigado por sua compra</p>
-            <p className="text-gray-700 dark:text-gray-300 font-semibold mb-4">
-              Seu plano foi ativado com sucesso!
-            </p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Assinatura Confirmada!</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Você receberá um email com todos os detalhes e seus dados de acesso em instantes.
-            </p>
-            <p className="text-sm text-gray-700 dark:text-gray-300 font-semibold mb-6">
-              Redirecionando para seu dashboard em {secondsRemaining}s...
+              Sua assinatura foi processada com sucesso. Bem-vindo(a) à comunidade FitGoal!
             </p>
             <Link href="/dashboard" passHref>
-              <Button className="w-full">Bem-vindo à FitGoal! 🚀</Button>
+              <Button className="w-full">Ir para o Dashboard</Button>
             </Link>
           </>
         )}
