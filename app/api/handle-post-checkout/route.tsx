@@ -294,6 +294,15 @@ export async function POST(req: Request) {
     const leadInitialWeight = leadData?.initialWeight || leadData?.quizData?.initialWeight || null
     const leadCurrentWeight = leadData?.currentWeight || leadData?.quizData?.currentWeight || leadData?.weight || null
 
+    console.log("[v0] LEAD_WEIGHTS - Pesos extraídos do lead:", {
+      leadFound: !!leadResult?.id,
+      leadId: leadResult?.id,
+      leadInitialWeight,
+      leadCurrentWeight,
+      leadDataRootKeys: leadData ? Object.keys(leadData).slice(0, 20) : [],
+      leadQuizDataKeys: leadData?.quizData ? Object.keys(leadData.quizData).slice(0, 10) : [],
+    })
+
     // Se quizAnswersFromMetadata estiver vazio (PIX/ASAAS normalmente vem vazio),
     // usa o quiz do lead como fonte de verdade.
     if (isEmptyObject(quizAnswersFromMetadata) && leadQuizData) {
@@ -408,6 +417,17 @@ export async function POST(req: Request) {
       existingUserData.initialWeight ||
       null
 
+    console.log("[v0] WEIGHTS_MERGE - Pesos após merge:", {
+      mergedInitialWeight,
+      mergedCurrentWeight,
+      quizDataInitialWeight: mergedQuizData.initialWeight,
+      quizDataCurrentWeight: mergedQuizData.currentWeight,
+      leadInitialWeight,
+      leadCurrentWeight,
+      existingInitialWeight: existingUserData.initialWeight,
+      existingCurrentWeight: existingUserData.currentWeight,
+    })
+
     const userData = {
       ...existingUserData,
 
@@ -464,11 +484,27 @@ export async function POST(req: Request) {
       await userDocRef.set(userData, { merge: true })
       console.log(`DEBUG: Dados salvos com sucesso no Firestore para usuário: ${finalUserUid}`)
 
+      console.log("[v0] WEIGHTS_SAVED - Pesos salvos no userData:", {
+        initialWeight: userData.initialWeight,
+        currentWeight: userData.currentWeight,
+        quizDataInitialWeight: userData.quizData?.initialWeight,
+        quizDataCurrentWeight: userData.quizData?.currentWeight,
+      })
+
       const verificationDoc = await userDocRef.get()
       if (!verificationDoc.exists) {
         throw new Error("Documento do usuário não foi criado corretamente no Firestore")
       }
       console.log(`DEBUG: Verificação confirmada - documento existe no Firestore para: ${finalUserUid}`)
+
+      // Verificar o que foi realmente salvo
+      const savedData = verificationDoc.data()
+      console.log("[v0] WEIGHTS_VERIFIED - Pesos verificados após save:", {
+        savedInitialWeight: savedData?.initialWeight,
+        savedCurrentWeight: savedData?.currentWeight,
+        savedQuizDataInitialWeight: savedData?.quizData?.initialWeight,
+        savedQuizDataCurrentWeight: savedData?.quizData?.currentWeight,
+      })
 
       // ==================== MARK LEAD AS CONVERTED ====================
       if (leadResult?.id) {
