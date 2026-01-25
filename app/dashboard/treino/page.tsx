@@ -389,7 +389,7 @@ export default function TreinoPage() {
       }
 
       // Generate and download PDF
-      await html2pdf.set(options).from(tempDiv).save()
+      await html2pdf().set(options).from(tempDiv).save()
 
       // Clean up
       document.body.removeChild(tempDiv)
