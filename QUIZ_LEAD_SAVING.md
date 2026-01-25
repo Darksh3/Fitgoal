@@ -19,7 +19,7 @@ Quando o usuário clica em "Continuar" no passo 30:
    - Aguarda a confirmação
    - Redireciona para `/quiz/results`
 
-```javascript
+\`\`\`javascript
 const saveLead = async () => {
   // Coleta dados do quiz
   const response = await fetch("/api/save-lead", {
@@ -35,7 +35,7 @@ const saveLead = async () => {
   // Redireciona para resultados
   router.push("/quiz/results")
 }
-```
+\`\`\`
 
 ---
 
@@ -46,7 +46,7 @@ Esta rota recebe os dados do quiz e os salva em dois lugares:
 ### Collection `leads`
 Documento salvo com ID = UID do usuário
 
-```javascript
+\`\`\`javascript
 {
   uid: "user123",
   name: "João Silva",
@@ -94,19 +94,19 @@ Documento salvo com ID = UID do usuário
   createdAt: Timestamp,
   updatedAt: Timestamp
 }
-```
+\`\`\`
 
 ### Collection `users`
 Também atualiza o documento do usuário com os dados do quiz para referência:
 
-```javascript
+\`\`\`javascript
 {
   quizData: { /* todos os dados acima */ },
   quizCompletedAt: Timestamp,
   name: "João Silva",
   email: "joao@example.com"
 }
-```
+\`\`\`
 
 ---
 
@@ -182,7 +182,7 @@ Todos esses campos são salvos automaticamente:
 
 ## 4. **Estrutura de Collections no Firebase**
 
-```
+\`\`\`
 Firestore Database
 ├── leads/
 │   └── {uid}/
@@ -205,13 +205,13 @@ Firestore Database
 ├── payments/
 │   └── {paymentId}/
 │       └── ...
-```
+\`\`\`
 
 ---
 
 ## 5. **Fluxo de Dados Completo**
 
-```
+\`\`\`
 QUIZ (passo 30)
     ↓
 usuário clica "Continuar"
@@ -227,7 +227,7 @@ Firebase Firestore
 ├── users/{uid} ← DADOS DO QUIZ ATUALIZADOS
     ↓
 redirect → /quiz/results
-```
+\`\`\`
 
 ---
 
@@ -241,17 +241,17 @@ redirect → /quiz/results
 5. Você deve ver documentos com IDs dos usuários que completaram o quiz
 
 ### Via CLI
-```bash
+\`\`\`bash
 firebase firestore:get leads/{uid}
-```
+\`\`\`
 
 ### No seu código
-```javascript
+\`\`\`javascript
 // Depois do quiz, você pode consultar:
 const leadRef = doc(db, "leads", userUid)
 const leadSnap = await getDoc(leadRef)
 console.log("Lead data:", leadSnap.data())
-```
+\`\`\`
 
 ---
 

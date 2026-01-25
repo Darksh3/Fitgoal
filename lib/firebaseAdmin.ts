@@ -40,5 +40,10 @@ if (!admin.apps.length) {
 const adminDb = admin.firestore()
 const auth = admin.auth()
 
+// Função para obter a instância do Firebase Admin
+export function getFirebaseAdmin() {
+  return admin
+}
+
 // Exporta todas as instâncias necessárias
 export { adminDb, auth, admin, admin as firebaseAdmin, adminDb as db }

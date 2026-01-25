@@ -15,7 +15,7 @@
 
 ### Quando Exatamente Serão Criados?
 
-```
+\`\`\`
 ┌─ QUIZ COMEÇAR ─┐
 │                ↓
 │          Passo 1-29
@@ -35,20 +35,20 @@
 │          ↓
 │     Redireciona para /results
 └────────────────┘
-```
+\`\`\`
 
 ### Estrutura no Firebase
 
 **Antes (problema):**
-```
+\`\`\`
 Firestore
 ├── users/uid-123
 │   └── dados dispersos
 └── (nada de leads!)
-```
+\`\`\`
 
 **Agora (completo):**
-```
+\`\`\`
 Firestore
 ├── users/uid-123
 │   ├── uid
@@ -65,7 +65,7 @@ Firestore
     ├── experience
     ├── status: "lead"
     └── 45+ outros campos
-```
+\`\`\`
 
 ---
 
@@ -77,7 +77,7 @@ Um **Dashboard Admin** é uma **página administrativa** (`/admin/leads`) **só 
 
 ### 📊 VER Todos os Leads em Uma Tabela
 
-```
+\`\`\`
 ┌─────────────────────────────────────────────────┐
 │ ADMIN DASHBOARD - Leads Fitgoal                 │
 ├─────────────────────────────────────────────────┤
@@ -91,7 +91,7 @@ Um **Dashboard Admin** é uma **página administrativa** (`/admin/leads`) **só 
 │ u004  │ Ana     │ ana@email     │ Emagrec│ lead │
 │ ...   │ ...     │ ...           │ ...    │ ...  │
 └─────────────────────────────────────────────────┘
-```
+\`\`\`
 
 ### 🔍 FILTRAR Leads
 
@@ -105,20 +105,20 @@ Um **Dashboard Admin** é uma **página administrativa** (`/admin/leads`) **só 
 - Por equipamento: "Dumbbells", "Barra", "Esteira", etc.
 
 **Exemplo prático:**
-```
+\`\`\`
 Você clica em Filtros → 
   Goal: "Emagrecer"
   Experience: "Iniciante"
   IMC: "Sobrepeso"
 → Sistema mostra: 47 leads que querem emagrecer, são iniciantes e têm sobrepeso
 → Você envia email marketing específico para eles
-```
+\`\`\`
 
 ### 📋 VER Detalhes Completos de Um Lead
 
 Ao clicar em um lead, você vê:
 
-```
+\`\`\`
 ┌─────────────────────────────────────┐
 │ LEAD: João Silva (u001)             │
 ├─────────────────────────────────────┤
@@ -145,7 +145,7 @@ Ao clicar em um lead, você vê:
 │                                     │
 │ [Mudou para Contacted] [Exportar]   │
 └─────────────────────────────────────┘
-```
+\`\`\`
 
 ### 📧 ENVIAR Emails para Grupos
 
@@ -154,7 +154,7 @@ Imagine você quer enviar email de Black Friday APENAS para:
 - Que querem emagrecer
 - Com IMC > 25
 
-```
+\`\`\`
 Dashboard Admin → Filtros → 
   Experience: "Iniciante"
   Goal: "Emagrecer"  
@@ -165,11 +165,11 @@ Dashboard Admin → Filtros →
 → Copia emails para Mailchimp
 → Envia campaign de Black Friday
 → RESULTADO: 12 conversões! 💰
-```
+\`\`\`
 
 ### 📊 VER Análises
 
-```
+\`\`\`
 ┌────────────────────────────────┐
 │ ANALYTICS - LEADS              │
 ├────────────────────────────────┤
@@ -197,11 +197,11 @@ Dashboard Admin → Filtros →
 │ • Taxa: 13.3%                  │
 │                                │
 └────────────────────────────────┘
-```
+\`\`\`
 
 ### 💾 EXPORTAR Dados
 
-```
+\`\`\`
 Dashboard Admin → 
   [Seleciona filtros]
   → [Clica "Exportar"]
@@ -213,7 +213,7 @@ João,joao@email,Emagrecer,Intermediário,Endomorfo,26.2,28
 Maria,maria@email,Ganhar,Iniciante,Mesomorfo,19.5,25
 Pedro,pedro@email,Definir,Avançado,Ectomorfo,22.1,32
 ...
-```
+\`\`\`
 
 Depois você:
 - Importa em Mailchimp
@@ -225,7 +225,7 @@ Depois você:
 
 ## 🏗️ Estrutura do Dashboard Admin
 
-```
+\`\`\`
 /admin                     ← Área administrativa (protegida)
 ├── /admin/leads           ← Página principal (LISTA todos)
 │   ├── Tabela com 256 leads
@@ -239,44 +239,44 @@ Depois você:
     ├── Status atual
     ├── Anotações
     └── Botões de ação (mudar status, exportar, etc)
-```
+\`\`\`
 
 ---
 
 ## 🎯 Use Cases Práticos
 
 ### **Caso 1: Encontrar Leads Qualificados**
-```
+\`\`\`
 1. Dashboard → Filtros
 2. Goal: "Emagrecer" + IMC: "Sobrepeso" + Age: "25-35"
 3. Resultado: 18 leads
 4. Todos perfeitos para vender plano de emagrecimento
-```
+\`\`\`
 
 ### **Caso 2: Segmentação por Experiência**
-```
+\`\`\`
 1. Dashboard → Filtros
 2. Experience: "Iniciante"
 3. Resultado: 189 leads
 4. Prepara conteúdo educativo para iniciantes
 5. Envia emails com: "Guia para Iniciantes no Treino"
-```
+\`\`\`
 
 ### **Caso 3: Encontrar Falta de Equipamento**
-```
+\`\`\`
 1. Dashboard → Filtros
 2. Equipment: "Nenhum" + Goal: "Treinar em casa"
 3. Resultado: 23 leads
 4. Envia email: "Treinar em casa sem equipamento"
-```
+\`\`\`
 
 ### **Caso 4: Analisar Biótipo**
-```
+\`\`\`
 1. Dashboard → Analytics
 2. Ver que 43% são endomorfo (tendem acumular gordura)
 3. Cria plano específico para endomorfo
 4. Marketing focado nessa maioria
-```
+\`\`\`
 
 ---
 
