@@ -1153,7 +1153,7 @@ export default function DietPage() {
 
     try {
       // Dynamically import html2pdf to avoid SSR issues
-      const html2pdf = (await import("html2pdf.js")).default
+      const html2pdf = await import("html2pdf.js")
 
       // Create PDF content as HTML string
       const pdfContent = `

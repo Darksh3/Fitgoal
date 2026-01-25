@@ -8,12 +8,9 @@ import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import ProtectedRoute from "@/components/protected-route"
-import dynamic from "next/dynamic"
 import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download, AlertCircle, ArrowLeft } from "lucide-react"
 import React from "react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-
-const html2pdf = dynamic(() => import("html2pdf.js"), { ssr: false })
 
 interface Exercise {
   name: string
@@ -269,7 +266,7 @@ export default function TreinoPage() {
 
     try {
       // Dynamically import html2pdf to avoid SSR issues
-      const html2pdf = (await import("html2pdf.js")).default
+      const html2pdf = await import("html2pdf.js")
 
       const workoutPlan = userData.workoutPlan
 
