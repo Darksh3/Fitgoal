@@ -13,7 +13,7 @@ import { StyledButton } from "@/components/ui/styled-button"
 import { useRouter } from "next/navigation"
 import type { Meal, DietPlan } from "@/types"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { generatePDF } from "@/lib/generate-pdf"
+import { generatePdf } from "@/lib/generate-pdf"
 
 export default function DietPage() {
   const [isHydrated, setIsHydrated] = useState(false)
@@ -1355,8 +1355,8 @@ export default function DietPage() {
       tempDiv.style.left = "-9999px"
       document.body.appendChild(tempDiv)
 
-      // Use the generate PDF utility
-      await generatePDF(
+      // Use the generatePdf function with fallback filename
+      await generatePdf(
         tempDiv,
         `plano-dieta-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`
       )

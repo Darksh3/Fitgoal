@@ -11,7 +11,7 @@ import ProtectedRoute from "@/components/protected-route"
 import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download, AlertCircle, ArrowLeft } from "lucide-react"
 import React from "react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { generatePDF } from "@/lib/generate-pdf"
+import { generatePdf } from "@/lib/generate-pdf"
 
 interface Exercise {
   name: string
@@ -378,8 +378,8 @@ export default function TreinoPage() {
       tempDiv.style.left = "-9999px"
       document.body.appendChild(tempDiv)
 
-      // Use the generate PDF utility
-      await generatePDF(
+      // Use the generatePdf function with fallback filename
+      await generatePdf(
         tempDiv,
         `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`
       )
