@@ -652,7 +652,7 @@ MACROS TOTAIS:
 3. Distribua os macros proporcionalmente entre as ${mealConfig.count} refeições
 4. Cada refeição deve contribuir para atingir os totais especificados
 5. Priorize alimentos brasileiros comuns e acessíveis (arroz, feijão, frango, ovos, batata, macarrao etc.)
-6. ⚠️ NUNCA use alimentos caros no Brasil: grão-de-bico, quinoa, cogumelos, salmão, aspargos, cevada, açaí. EVITE COMPLETAMENTE!
+6. ⚠️ NUNCA use alimentos caros no Brasil: grão-de-bico, quinoa, cogumelos, salmão, aspargos, cevada. EVITE COMPLETAMENTE!
 7. Tente criar um dieta que não seja muito cara para os padrões brasileiros
 8. Coloque alguma proteina animal na janta e almoço (Carne, Frango, Sardinha, Ovo).
 9. Almoço ou janta pode ter salada a vontade
