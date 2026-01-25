@@ -12,7 +12,7 @@
 ### **O Que Será Salvo?**
 
 #### Collection: `leads/{uid}` (50+ campos)
-```javascript
+\`\`\`javascript
 {
   uid: "user-123",
   name: "João Silva",
@@ -30,10 +30,10 @@
   createdAt: <timestamp>,
   // ... mais 40+ campos
 }
-```
+\`\`\`
 
 #### Collection: `users/{uid}` (já salva)
-```javascript
+\`\`\`javascript
 {
   uid: "user-123",
   email: "joao@email.com",
@@ -42,7 +42,7 @@
   quizCompletedAt: <timestamp>,
   // ... outros dados
 }
-```
+\`\`\`
 
 ---
 
@@ -81,7 +81,7 @@
 
 ## 🏗️ Estrutura do Admin Dashboard
 
-```
+\`\`\`
 /admin/leads                    ← Lista todos os leads
   ├── Tabela com 50+ leads
   ├── Filtros avançados
@@ -100,7 +100,7 @@
   ├── Leads por objetivo
   ├── Taxa de conversão
   └── Gráficos
-```
+\`\`\`
 
 ---
 

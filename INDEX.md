@@ -41,7 +41,7 @@
 ### 🎓 Entender o Sistema
 **Arquivos recomendados nesta ordem:**
 
-```
+\`\`\`
 1. README_LEADS_SYSTEM.md        ← Começa aqui
    └─ Visão geral de tudo
 
@@ -50,44 +50,44 @@
 
 3. IMPLEMENTATION_CHECKLIST.md   ← Veja o status
    └─ Tudo que foi implementado
-```
+\`\`\`
 
 ### 💻 Usar em Código
 **Arquivos práticos:**
 
-```
+\`\`\`
 1. LEADS_QUERIES_EXAMPLES.md     ← Copie o código
    └─ 14+ exemplos prontos
    
 2. PAYMENT_DATA_FLOW.md          ← Integração com checkout
    └─ Fluxo após pagamento
-```
+\`\`\`
 
 ### 🧪 Testar o Sistema
 **Arquivo de testes:**
 
-```
+\`\`\`
 1. TESTING_LEADS_GUIDE.md        ← Teste passo-a-passo
    └─ 8 testes completos
    └─ Checklist de validação
    └─ Troubleshooting
-```
+\`\`\`
 
 ### 📊 Resumo Executivo
 **Para apresentações:**
 
-```
+\`\`\`
 1. LEADS_SUMMARY.md              ← Para gerenciamento
    └─ O que foi feito
    └─ Próximos passos
    └─ ROI potencial
-```
+\`\`\`
 
 ---
 
 ## 📂 ESTRUTURA DE ARQUIVOS
 
-```
+\`\`\`
 DOCUMENTAÇÃO PRINCIPAL (Leia na ordem)
 ├── README_LEADS_SYSTEM.md              ⭐ INÍCIO
 │   └─ Overview completo do sistema
@@ -113,7 +113,7 @@ ADMINISTRATIVOS
 │
 └── INDEX.md (este arquivo)             📚 ÍNDICE
     └─ Guia de navegação
-```
+\`\`\`
 
 ---
 
@@ -263,23 +263,23 @@ ADMINISTRATIVOS
 ## 🎯 CAMINHOS RÁPIDOS
 
 ### "Tenho 5 minutos"
-```
+\`\`\`
 README_LEADS_SYSTEM.md
 ├─ Leia a visão geral
 └─ Entenda o fluxo
-```
+\`\`\`
 
 ### "Tenho 15 minutos"
-```
+\`\`\`
 README_LEADS_SYSTEM.md (5 min)
   ↓
 TESTING_LEADS_GUIDE.md Teste 1-3 (10 min)
   ↓
 Você sabe se funciona!
-```
+\`\`\`
 
 ### "Tenho 30 minutos"
-```
+\`\`\`
 README_LEADS_SYSTEM.md (5 min)
   ↓
 QUIZ_LEAD_SAVING.md (10 min)
@@ -287,21 +287,21 @@ QUIZ_LEAD_SAVING.md (10 min)
 TESTING_LEADS_GUIDE.md (15 min)
   ↓
 Você entende TUDO
-```
+\`\`\`
 
 ### "Preciso implementar agora"
-```
+\`\`\`
 LEADS_QUERIES_EXAMPLES.md
 ├─ Encontre o exemplo que precisa
 └─ Copie e cole no seu código
-```
+\`\`\`
 
 ### "Estou em produção"
-```
+\`\`\`
 IMPLEMENTATION_CHECKLIST.md
 ├─ Verifique status
 └─ Veja próximos passos
-```
+\`\`\`
 
 ---
 
@@ -356,14 +356,14 @@ IMPLEMENTATION_CHECKLIST.md
 
 ## ✅ VOCÊ ESTÁ PRONTO!
 
-```
+\`\`\`
 ✅ Sistema implementado
 ✅ Documentado
 ✅ Testado
 ✅ Pronto para produção
 
 👉 Próximo passo: TESTING_LEADS_GUIDE.md
-```
+\`\`\`
 
 ---
 

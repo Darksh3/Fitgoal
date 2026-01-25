@@ -372,7 +372,7 @@ export default function Home() {
             </div>
 
             <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tight">
-              Treinos e Dietas <span className="text-lime-400 block md:inline">100% Personalizados</span>
+               <span className="text-lime-400 block md:inline">100% Personalizados</span>
               <span className="block text-3xl md:text-5xl font-bold text-gray-100 mt-2">Para Você</span>
             </h1>
 

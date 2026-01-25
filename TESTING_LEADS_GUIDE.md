@@ -47,15 +47,15 @@ Testar todo o fluxo de salvamento de lead via quiz
 ### Passos
 
 #### 1. Abrir Console do Desenvolvedor
-```
+\`\`\`
 Pressione F12 ou Cmd+Option+I (Mac)
 Abra a aba "Console"
-```
+\`\`\`
 
 #### 2. Acessar o Quiz
-```
+\`\`\`
 Acesse: http://localhost:3000/quiz
-```
+\`\`\`
 
 #### 3. Completar o Quiz
 - Responda todas as 30 perguntas
@@ -64,11 +64,11 @@ Acesse: http://localhost:3000/quiz
 
 #### 4. Monitorar os Logs
 Enquanto completa, veja os logs aparecendo:
-```
+\`\`\`
 [QUIZ] Frequency selected: 4
 [v0] Initializing clientUid from quiz: abc123xyz
 [DATA_FLOW] [stage]: { ... }
-```
+\`\`\`
 
 #### 5. Último Passo (Passo 30)
 - Insira seu email no último campo
@@ -76,10 +76,10 @@ Enquanto completa, veja os logs aparecendo:
 
 #### 6. Observar Salvamento
 Você deve ver estes logs na console:
-```
+\`\`\`
 [v0] SAVE_LEAD - Starting to save lead for user: abc123xyz
 [v0] SAVE_LEAD - Success: { leadId: 'abc123xyz', ... }
-```
+\`\`\`
 
 #### 7. Verificar Redirecionamento
 - Você deve ser redirecionado para `/quiz/results`
@@ -95,34 +95,34 @@ Confirmar que os dados foram realmente salvos no Firestore
 ### Passos
 
 #### 1. Abrir Firebase Console
-```
+\`\`\`
 Acesse: https://console.firebase.google.com
 Selecione projeto: Fitgoal
-```
+\`\`\`
 
 #### 2. Abrir Firestore Database
-```
+\`\`\`
 No menu esquerdo: Build → Firestore Database
-```
+\`\`\`
 
 #### 3. Navegar até Collection "leads"
-```
+\`\`\`
 Clique em "leads" na lista de collections
-```
+\`\`\`
 
 #### 4. Procurar pelo seu UID
 - Você precisa saber qual foi seu UID
 - Ele está no localStorage como "clientUid"
 - Para verificar no console: 
-  ```javascript
+  \`\`\`javascript
   console.log(localStorage.getItem("clientUid"))
-  ```
+  \`\`\`
 - Procure este ID na collection "leads"
 
 #### 5. Verificar Documento
 - Clique no documento com seu UID
 - Você deve ver todos seus dados:
-  ```
+  \`\`\`
   name: "Seu Nome"
   email: "seu@email.com"
   age: 25
@@ -131,7 +131,7 @@ Clique em "leads" na lista de collections
   bodyType: "ectomorfo"
   experience: "iniciante"
   ... (50+ campos)
-  ```
+  \`\`\`
 
 #### 6. Verificar Fields Importantes
 - ✅ name: deve ter seu nome
@@ -150,14 +150,14 @@ Confirmar que os dados do quiz também foram salvos em "users"
 ### Passos
 
 #### 1. Na Firestore, abra collection "users"
-```
+\`\`\`
 Clique em "users" na lista de collections
-```
+\`\`\`
 
 #### 2. Procurar pelo seu UID
-```
+\`\`\`
 Procure o documento com seu UID
-```
+\`\`\`
 
 #### 3. Verificar Dados
 - Deve ter campo "quizData"
@@ -174,13 +174,13 @@ Confirmar que você pode buscar leads por objetivo
 ### Passos
 
 #### 1. Abrir Console do Navegador
-```
+\`\`\`
 Pressione F12
 Abra aba "Console"
-```
+\`\`\`
 
 #### 2. Copie e cole este código:
-```javascript
+\`\`\`javascript
 import { collection, query, where, getDocs } from "firebase/firestore"
 import { db } from "@/lib/firebaseClient"
 
@@ -197,13 +197,13 @@ const testQuery = async () => {
 }
 
 testQuery()
-```
+\`\`\`
 
 #### 3. Você deve ver:
-```
+\`\`\`
 Leads que querem perder peso: 1
 Nome: Seu Nome
-```
+\`\`\`
 
 ---
 
@@ -215,13 +215,13 @@ Confirmar que você pode contar quantos leads existem
 ### Passos
 
 #### 1. Abrir Console
-```
+\`\`\`
 Pressione F12
 Abra aba "Console"
-```
+\`\`\`
 
 #### 2. Cole este código:
-```javascript
+\`\`\`javascript
 import { collection, getDocs } from "firebase/firestore"
 import { db } from "@/lib/firebaseClient"
 
@@ -252,10 +252,10 @@ const countLeads = async () => {
 }
 
 countLeads()
-```
+\`\`\`
 
 #### 3. Você deve ver:
-```
+\`\`\`
 Total de leads: 1
 Estatísticas: {
   homens: 1,
@@ -264,7 +264,7 @@ Estatísticas: {
   intermediarios: 0,
   avancados: 0
 }
-```
+\`\`\`
 
 ---
 
@@ -276,16 +276,16 @@ Confirmar que múltiplos leads podem ser salvos
 ### Passos
 
 #### 1. Abrir Navegador Privado
-```
+\`\`\`
 Ctrl+Shift+N (Windows)
 ou
 Cmd+Shift+N (Mac)
-```
+\`\`\`
 
 #### 2. Acessar o Quiz Novamente
-```
+\`\`\`
 Acesse: http://localhost:3000/quiz
-```
+\`\`\`
 
 #### 3. Completar com Dados Diferentes
 - Use nome diferente: "Maria Silva"
@@ -333,7 +333,7 @@ Marque cada item ao testar:
 
 ### Problema 1: Redirecionamento não funciona
 **Solução:**
-```javascript
+\`\`\`javascript
 // Verificar se o router está correto
 console.log("[v0] Router disponível?", router)
 
@@ -341,7 +341,7 @@ console.log("[v0] Router disponível?", router)
 setTimeout(() => {
   window.location.href = "/quiz/results"
 }, 1000)
-```
+\`\`\`
 
 ### Problema 2: Dados não salvam
 **Verificar:**
@@ -350,11 +350,11 @@ setTimeout(() => {
 3. Usuário está autenticado?
 4. Firebase iniciado corretamente?
 
-```javascript
+\`\`\`javascript
 // Testar autenticação
 import { auth } from "@/lib/firebaseClient"
 console.log("User:", auth.currentUser)
-```
+\`\`\`
 
 ### Problema 3: Collection "leads" não existe
 **Solução:**
@@ -368,11 +368,11 @@ console.log("User:", auth.currentUser)
 2. `quizData` tem todos os campos?
 3. Erro durante o salvamento?
 
-```javascript
+\`\`\`javascript
 // Verificar dados antes de salvar
 console.log("Quiz data keys:", Object.keys(quizData).length)
 console.log("Quiz data:", quizData)
-```
+\`\`\`
 
 ---
 
@@ -422,7 +422,7 @@ Próximo passo: Ver `/LEADS_SUMMARY.md` para próximos passos recomendados!
 
 Durante o teste completo, você deve ver:
 
-```
+\`\`\`
 [v0] Initializing clientUid from quiz: abc123xyz
 [QUIZ] Frequency selected: 4
 [DATA_FLOW] [stage]: {...}
@@ -433,6 +433,6 @@ Durante o teste completo, você deve ver:
   leadId: 'abc123xyz', 
   message: 'Lead saved successfully'
 }
-```
+\`\`\`
 
 Se ver "[v0] SAVE_LEAD_ERROR", procure no arquivo `/QUIZ_LEAD_SAVING.md` para solução.

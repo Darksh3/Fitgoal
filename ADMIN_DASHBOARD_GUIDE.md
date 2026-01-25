@@ -13,7 +13,7 @@
 - Ver nome, email, objetivo, experiência, biótipo, etc
 - Ordenação e busca
 
-```
+\`\`\`
 ┌─────────────────────────────────────────────┐
 │ Admin Dashboard - Leads                     │
 ├─────────────────────────────────────────────┤
@@ -26,7 +26,7 @@
 │ u-002 | Maria     | maria@email  | Ganhar  │
 │ u-003 | Pedro     | pedro@email  | Definir │
 └─────────────────────────────────────────────┘
-```
+\`\`\`
 
 ### 2. **Filtrar e Segmentar Leads**
 - Por objetivo (emagrecer, ganhar massa, definir, etc)
@@ -35,7 +35,7 @@
 - Por biótipo (ectomorfo, mesomorfo, endomorfo)
 - Por idade, gênero, etc
 
-```javascript
+\`\`\`javascript
 // Exemplo: Buscar leads que querem emagrecer e são iniciantes
 const leavesToEmailBlackFriday = await db
   .collection('leads')
@@ -44,7 +44,7 @@ const leavesToEmailBlackFriday = await db
   .get()
 
 // Enviar email para essa segmentação específica
-```
+\`\`\`
 
 ### 3. **Gerenciar Status do Lead**
 - **lead** → Lead novo do quiz
@@ -77,7 +77,7 @@ const leavesToEmailBlackFriday = await db
 
 ## 📁 Estrutura de um Dashboard Admin
 
-```
+\`\`\`
 app/
 ├── admin/
 │   ├── layout.tsx              (layout protegido)
@@ -103,7 +103,7 @@ app/
         │   ├── route.ts        (GET todos os leads)
         │   └── [id]/route.ts   (GET/PUT um lead específico)
         └── analytics/route.ts  (dados para gráficos)
-```
+\`\`\`
 
 ---
 
@@ -111,13 +111,13 @@ app/
 
 O dashboard deve ser **protegido** para que apenas admins possam acessar:
 
-```typescript
+\`\`\`typescript
 // middleware.ts ou em /app/admin/layout.tsx
 const isAdmin = currentUser.role === 'admin'
 if (!isAdmin) {
   redirect('/auth')
 }
-```
+\`\`\`
 
 ---
 
@@ -170,7 +170,7 @@ if (!isAdmin) {
 
 ## 📊 Exemplo de Query para o Dashboard
 
-```typescript
+\`\`\`typescript
 // app/api/admin/leads/route.ts
 
 export async function GET(request: NextRequest) {
@@ -195,43 +195,43 @@ export async function GET(request: NextRequest) {
     leads: leads
   })
 }
-```
+\`\`\`
 
 ---
 
 ## 🎨 Componentes Necessários
 
 ### 1. **Tabela de Leads**
-```tsx
+\`\`\`tsx
 <LeadsTable 
   leads={leads}
   onRowClick={(lead) => setSelectedLead(lead)}
 />
-```
+\`\`\`
 
 ### 2. **Filtros**
-```tsx
+\`\`\`tsx
 <LeadFilters 
   onFilter={(filters) => fetchLeads(filters)}
 />
-```
+\`\`\`
 
 ### 3. **Detalhe do Lead**
-```tsx
+\`\`\`tsx
 <LeadDetail 
   lead={selectedLead}
   onStatusChange={(newStatus) => updateLead(newStatus)}
 />
-```
+\`\`\`
 
 ### 4. **Estatísticas**
-```tsx
+\`\`\`tsx
 <AdminStats 
   totalLeads={123}
   conversionRate={15}
   averageAge={28}
 />
-```
+\`\`\`
 
 ---
 
