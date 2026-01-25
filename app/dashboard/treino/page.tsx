@@ -11,6 +11,7 @@ import ProtectedRoute from "@/components/protected-route"
 import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download, AlertCircle, ArrowLeft } from "lucide-react"
 import React from "react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { generatePDF } from "@/lib/generate-pdf"
 
 interface Exercise {
   name: string
@@ -265,9 +266,7 @@ export default function TreinoPage() {
     if (!userData?.workoutPlan) return
 
     try {
-      // Dynamically import html2pdf to avoid SSR issues
-      const html2pdfModule = await import("html2pdf.js")
-      const html2pdf = html2pdfModule.default
+      if (!userData?.workoutPlan) return
 
       const workoutPlan = userData.workoutPlan
 
@@ -379,17 +378,11 @@ export default function TreinoPage() {
       tempDiv.style.left = "-9999px"
       document.body.appendChild(tempDiv)
 
-      // Configure PDF options
-      const options = {
-        margin: 10,
-        filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      }
-
-      // Generate and download PDF
-      await html2pdf().set(options).from(tempDiv).save()
+      // Use the generate PDF utility
+      await generatePDF(
+        tempDiv,
+        `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`
+      )
 
       // Clean up
       document.body.removeChild(tempDiv)
