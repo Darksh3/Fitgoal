@@ -404,6 +404,15 @@ export async function POST(req: Request) {
         source: "checkout", // Origem do lead
         createdAt: existingUserData.createdAt || admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        // Transferir dados do quiz para o lead (currentWeight, initialWeight, etc)
+        currentWeight: quizAnswersFromMetadata.currentWeight || quizAnswersFromMetadata.weight || null,
+        initialWeight: quizAnswersFromMetadata.initialWeight || quizAnswersFromMetadata.currentWeight || quizAnswersFromMetadata.weight || null,
+        quizData: quizAnswersFromMetadata, // Salvar todo o quizData também
+        height: quizAnswersFromMetadata.height || null,
+        goal: quizAnswersFromMetadata.goal || null,
+        gender: quizAnswersFromMetadata.gender || null,
+        age: quizAnswersFromMetadata.age || null,
+        activityLevel: quizAnswersFromMetadata.activityLevel || null,
       }
       
       // Salvar no collection 'leads' com o finalUserUid como ID
