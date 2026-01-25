@@ -90,15 +90,19 @@ export default function SuccessPage() {
         {status === "success" && (
           <>
             <CheckCircle className="text-green-500 w-16 h-16 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Assinatura Confirmada!</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Sua assinatura foi processada com sucesso. Bem-vindo(a) à comunidade FitGoal!
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Pagamento Confirmado!</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">Obrigado por sua compra</p>
+            <p className="text-gray-700 dark:text-gray-300 font-semibold mb-4">
+              Seu plano foi ativado com sucesso!
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-500 mb-4">
-              Redirecionando em <span className="font-bold text-gray-900 dark:text-gray-100">{secondsRemaining}</span> segundo{secondsRemaining !== 1 ? "s" : ""}...
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Você receberá um email com todos os detalhes e seus dados de acesso em instantes.
+            </p>
+            <p className="text-sm text-gray-700 dark:text-gray-300 font-semibold mb-6">
+              Redirecionando para seu dashboard em {secondsRemaining}s...
             </p>
             <Link href="/dashboard" passHref>
-              <Button className="w-full">Ir para o Dashboard Agora</Button>
+              <Button className="w-full">Bem-vindo à FitGoal! 🚀</Button>
             </Link>
           </>
         )}
