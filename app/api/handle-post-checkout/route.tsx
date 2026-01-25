@@ -290,6 +290,10 @@ export async function POST(req: Request) {
         cpf: leadData?.cpf || leadData?.customerCpf || null,
       }
 
+    // Extrair pesos do lead (podem estar em quizData ou em nível raiz)
+    const leadInitialWeight = leadData?.initialWeight || leadData?.quizData?.initialWeight || null
+    const leadCurrentWeight = leadData?.currentWeight || leadData?.quizData?.currentWeight || leadData?.weight || null
+
     // Se quizAnswersFromMetadata estiver vazio (PIX/ASAAS normalmente vem vazio),
     // usa o quiz do lead como fonte de verdade.
     if (isEmptyObject(quizAnswersFromMetadata) && leadQuizData) {
@@ -391,11 +395,17 @@ export async function POST(req: Request) {
       ...(quizAnswersFromMetadata || {}),
     }
 
-    // Se currentWeight existir em caminhos diferentes, prioriza o mais confiável
+    // Prioridade para pesos: quizData > lead > null
     const mergedCurrentWeight =
       mergedQuizData.currentWeight ||
-      mergedQuizData.weight ||
+      leadCurrentWeight ||
       existingUserData.currentWeight ||
+      null
+
+    const mergedInitialWeight =
+      mergedQuizData.initialWeight ||
+      leadInitialWeight ||
+      existingUserData.initialWeight ||
       null
 
     const userData = {
@@ -405,16 +415,23 @@ export async function POST(req: Request) {
       name: userName || existingUserData.name || leadData?.name || null,
       email: userEmail || existingUserData.email || leadData?.email || null,
 
+      // Pesos em nível raiz (mesmo local que no lead)
+      initialWeight: mergedInitialWeight,
+      currentWeight: mergedCurrentWeight,
+
       // Salva quiz tanto em quizData quanto em quizAnswers
       quizData: {
         ...mergedQuizData,
         currentWeight: mergedCurrentWeight,
+        initialWeight: mergedInitialWeight,
       },
       quizAnswers: {
         ...(existingUserData.quizAnswers || {}),
         ...(leadData?.quizData || {}),
         ...(leadData?.quizAnswers || {}),
         ...(quizAnswersFromMetadata || {}),
+        currentWeight: mergedCurrentWeight,
+        initialWeight: mergedInitialWeight,
       },
 
       // Personal data (trazer do lead tbm)
