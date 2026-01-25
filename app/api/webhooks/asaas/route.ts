@@ -116,6 +116,9 @@ async function processPaymentBackground(payment: any, userId: string) {
         customerEmail,
         customerPhone,
         customerCpf,
+        // Dados adicionais do pagamento Asaas
+        value: payment.value,
+        description: payment.description,
       }),
     })
 

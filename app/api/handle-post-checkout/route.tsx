@@ -4,6 +4,20 @@ import { adminDb, admin, auth } from "@/lib/firebaseAdmin"
 import { Resend } from "resend"
 import sgMail from "@sendgrid/mail"
 
+// ==================== HELPERS ====================
+async function getLeadDoc(adminDb: any, ids: Array<string | null | undefined>) {
+  for (const id of ids) {
+    if (!id) continue
+    const snap = await adminDb.collection("leads").doc(id).get()
+    if (snap.exists) return { id, data: snap.data() }
+  }
+  return null
+}
+
+function isEmptyObject(obj: any) {
+  return !obj || typeof obj !== "object" || Array.isArray(obj) || Object.keys(obj).length === 0
+}
+
 // Configura a chave da API do Resend
 const resendApiKey = process.env.RESEND_API_KEY
 const resend = new Resend(resendApiKey)
@@ -46,6 +60,19 @@ export async function POST(req: Request) {
       userName = customerName || null
       clientUidFromSource = userId
       console.log("[v0] HANDLE_POST_CHECKOUT - Dados do Asaas webhook:", { userEmail, userName, clientUidFromSource })
+      
+      // Buscar quizAnswers do Firebase usando o userId (já é o lead ou user anterior)
+      try {
+        const userDocRef = adminDb.collection("users").doc(userId)
+        const userDocSnap = await userDocRef.get()
+        if (userDocSnap.exists) {
+          const userData = userDocSnap.data()
+          quizAnswersFromMetadata = userData?.quizData || userData?.quizAnswers || {}
+          console.log("[v0] HANDLE_POST_CHECKOUT - Quiz extraído do user:", { hasQuiz: !!quizAnswersFromMetadata })
+        }
+      } catch (error) {
+        console.warn("[v0] HANDLE_POST_CHECKOUT - Erro ao buscar quiz do Asaas:", error)
+      }
     } else if (userId && !userEmail) {
       // Se não tem email do Asaas, buscar do Firebase usando o userId
       console.log("[v0] HANDLE_POST_CHECKOUT - Email não recebido do Asaas, buscando do Firebase:", userId)
@@ -240,21 +267,65 @@ export async function POST(req: Request) {
       }
     }
 
-    let existingUserData: admin.firestore.DocumentData = {}
-    if (clientUidFromSource) {
-      try {
-        const clientDocRef = adminDb.collection("users").doc(clientUidFromSource)
-        const clientDocSnap = await clientDocRef.get()
+    // ==================== LEAD -> USER MIGRATION ====================
+    const leadResult = await getLeadDoc(adminDb, [
+      clientUidFromSource, // normalmente é o uid do lead/anônimo
+      userId,              // externalReference do Asaas (se você usou isso como docId)
+      finalUserUid,        // fallback
+    ])
 
-        if (clientDocSnap && clientDocSnap.exists && clientDocSnap.data()) {
-          existingUserData = clientDocSnap.data() || {}
-          console.log(`Dados existentes do UID do cliente (${clientUidFromSource}) recuperados.`)
-        } else {
-          console.warn(`Nenhum documento encontrado para o clientUid: ${clientUidFromSource}.`)
-        }
-      } catch (firestoreError: any) {
-        console.error(`Erro ao buscar documento do clientUid ${clientUidFromSource}:`, firestoreError.message)
+    const leadData = leadResult?.data || null
+
+    // Tentativas comuns de onde o quiz pode estar salvo no lead
+    const leadQuizData =
+      leadData?.quizData ||
+      leadData?.quizAnswers ||
+      leadData?.quiz ||
+      null
+
+    const leadPersonalData =
+      leadData?.personalData ||
+      {
+        phone: leadData?.phone || leadData?.customerPhone || null,
+        cpf: leadData?.cpf || leadData?.customerCpf || null,
       }
+
+    // Extrair pesos do lead (podem estar em quizData ou em nível raiz)
+    const leadInitialWeight = leadData?.initialWeight || leadData?.quizData?.initialWeight || null
+    const leadCurrentWeight = leadData?.currentWeight || leadData?.quizData?.currentWeight || leadData?.weight || null
+
+    console.log("[v0] LEAD_WEIGHTS - Pesos extraídos do lead:", {
+      leadFound: !!leadResult?.id,
+      leadId: leadResult?.id,
+      leadInitialWeight,
+      leadCurrentWeight,
+      leadDataRootKeys: leadData ? Object.keys(leadData).slice(0, 20) : [],
+      leadQuizDataKeys: leadData?.quizData ? Object.keys(leadData.quizData).slice(0, 10) : [],
+    })
+
+    // Se quizAnswersFromMetadata estiver vazio (PIX/ASAAS normalmente vem vazio),
+    // usa o quiz do lead como fonte de verdade.
+    if (isEmptyObject(quizAnswersFromMetadata) && leadQuizData) {
+      console.log("[v0] LEAD_MIGRATION - Usando quizData do lead:", leadResult?.id)
+      quizAnswersFromMetadata = leadQuizData
+    }
+
+    let existingUserData: admin.firestore.DocumentData = {}
+
+    try {
+      // Primeiro tenta pegar dados do user antigo (clientUid), depois do user final
+      const tryIds = [clientUidFromSource, finalUserUid].filter(Boolean) as string[]
+
+      for (const id of tryIds) {
+        const snap = await adminDb.collection("users").doc(id).get()
+        if (snap.exists && snap.data()) {
+          existingUserData = snap.data() || {}
+          console.log(`[v0] USER_EXISTING_DATA - Dados existentes recuperados de users/${id}`)
+          break
+        }
+      }
+    } catch (err: any) {
+      console.error("[v0] USER_EXISTING_DATA_ERROR - Erro ao buscar user:", err?.message || err)
     }
 
     let dietPlan = existingUserData.dietPlan
@@ -324,30 +395,77 @@ export async function POST(req: Request) {
     })
 
     const userDocRef = adminDb.collection("users").doc(finalUserUid)
-    // Se é novo usuário, seta initialWeight (peso inicial fixo)
-    const initialQuizData = isNewUser 
-      ? { ...quizAnswersFromMetadata, initialWeight: quizAnswersFromMetadata.currentWeight }
-      : existingUserData.quizData
-    
+
+    // Merge inteligente: existingUserData -> leadData -> quizAnswersFromMetadata
+    const mergedQuizData = {
+      ...(existingUserData.quizData || {}),
+      ...(leadData?.quizData || {}),
+      ...(leadData?.quizAnswers || {}),
+      ...(quizAnswersFromMetadata || {}),
+    }
+
+    // Prioridade para pesos: quizData > lead > null
+    const mergedCurrentWeight =
+      mergedQuizData.currentWeight ||
+      leadCurrentWeight ||
+      existingUserData.currentWeight ||
+      null
+
+    const mergedInitialWeight =
+      mergedQuizData.initialWeight ||
+      leadInitialWeight ||
+      existingUserData.initialWeight ||
+      null
+
+    console.log("[v0] WEIGHTS_MERGE - Pesos após merge:", {
+      mergedInitialWeight,
+      mergedCurrentWeight,
+      quizDataInitialWeight: mergedQuizData.initialWeight,
+      quizDataCurrentWeight: mergedQuizData.currentWeight,
+      leadInitialWeight,
+      leadCurrentWeight,
+      existingInitialWeight: existingUserData.initialWeight,
+      existingCurrentWeight: existingUserData.currentWeight,
+    })
+
     const userData = {
       ...existingUserData,
-      name: userName,
-      email: userEmail,
-      quizAnswers: { ...existingUserData.quizAnswers, ...quizAnswersFromMetadata },
+
+      // Identidade / contato
+      name: userName || existingUserData.name || leadData?.name || null,
+      email: userEmail || existingUserData.email || leadData?.email || null,
+
+      // Pesos em nível raiz (mesmo local que no lead)
+      initialWeight: mergedInitialWeight,
+      currentWeight: mergedCurrentWeight,
+
+      // Salva quiz tanto em quizData quanto em quizAnswers
       quizData: {
-        ...initialQuizData,
-        ...quizAnswersFromMetadata,
-        // Garantir que initialWeight sempre tem um valor válido
-        initialWeight: initialQuizData.initialWeight || quizAnswersFromMetadata.weight || quizAnswersFromMetadata.currentWeight || "0",
-        currentWeight: quizAnswersFromMetadata.currentWeight || quizAnswersFromMetadata.weight || "0",
+        ...mergedQuizData,
+        currentWeight: mergedCurrentWeight,
+        initialWeight: mergedInitialWeight,
       },
-      personalData: existingUserData.personalData || {},
+      quizAnswers: {
+        ...(existingUserData.quizAnswers || {}),
+        ...(leadData?.quizData || {}),
+        ...(leadData?.quizAnswers || {}),
+        ...(quizAnswersFromMetadata || {}),
+        currentWeight: mergedCurrentWeight,
+        initialWeight: mergedInitialWeight,
+      },
+
+      // Personal data (trazer do lead tbm)
+      personalData: {
+        ...(existingUserData.personalData || {}),
+        ...(leadPersonalData || {}),
+      },
+
+      // Flags e assinatura
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       createdAt: existingUserData.createdAt || admin.firestore.FieldValue.serverTimestamp(),
       isSetupComplete: true,
-      hasGeneratedPlans: !!(dietPlan && workoutPlan),
+      hasGeneratedPlans: !!(existingUserData.dietPlan && existingUserData.workoutPlan),
       subscriptionStatus: "active",
-      // Calculando data de expiração baseada na duração do plano
       subscriptionExpiresAt: admin.firestore.Timestamp.fromDate(
         new Date(Date.now() + subscriptionDuration * 24 * 60 * 60 * 1000),
       ),
@@ -356,17 +474,51 @@ export async function POST(req: Request) {
       planType: planType,
       isPremium: true,
       role: "client",
+
+      // Rastreio da migração
+      leadId: leadResult?.id || null,
+      leadMigratedAt: leadResult?.id ? admin.firestore.FieldValue.serverTimestamp() : null,
     }
 
     try {
       await userDocRef.set(userData, { merge: true })
       console.log(`DEBUG: Dados salvos com sucesso no Firestore para usuário: ${finalUserUid}`)
 
+      console.log("[v0] WEIGHTS_SAVED - Pesos salvos no userData:", {
+        initialWeight: userData.initialWeight,
+        currentWeight: userData.currentWeight,
+        quizDataInitialWeight: userData.quizData?.initialWeight,
+        quizDataCurrentWeight: userData.quizData?.currentWeight,
+      })
+
       const verificationDoc = await userDocRef.get()
       if (!verificationDoc.exists) {
         throw new Error("Documento do usuário não foi criado corretamente no Firestore")
       }
       console.log(`DEBUG: Verificação confirmada - documento existe no Firestore para: ${finalUserUid}`)
+
+      // Verificar o que foi realmente salvo
+      const savedData = verificationDoc.data()
+      console.log("[v0] WEIGHTS_VERIFIED - Pesos verificados após save:", {
+        savedInitialWeight: savedData?.initialWeight,
+        savedCurrentWeight: savedData?.currentWeight,
+        savedQuizDataInitialWeight: savedData?.quizData?.initialWeight,
+        savedQuizDataCurrentWeight: savedData?.quizData?.currentWeight,
+      })
+
+      // ==================== MARK LEAD AS CONVERTED ====================
+      if (leadResult?.id) {
+        await adminDb.collection("leads").doc(leadResult.id).set(
+          {
+            status: "customer",
+            convertedAt: admin.firestore.FieldValue.serverTimestamp(),
+            userUid: finalUserUid,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        )
+        console.log("[v0] LEAD_MARKED_CONVERTED -", leadResult.id)
+      }
     } catch (firestoreError: any) {
       console.error("ERRO FATAL: Falha ao salvar dados no Firestore:", {
         error: firestoreError.message,
@@ -404,6 +556,15 @@ export async function POST(req: Request) {
         source: "checkout", // Origem do lead
         createdAt: existingUserData.createdAt || admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        // Transferir dados do quiz para o lead (currentWeight, initialWeight, etc)
+        currentWeight: quizAnswersFromMetadata.currentWeight || quizAnswersFromMetadata.weight || null,
+        initialWeight: quizAnswersFromMetadata.initialWeight || quizAnswersFromMetadata.currentWeight || quizAnswersFromMetadata.weight || null,
+        quizData: quizAnswersFromMetadata, // Salvar todo o quizData também
+        height: quizAnswersFromMetadata.height || null,
+        goal: quizAnswersFromMetadata.goal || null,
+        gender: quizAnswersFromMetadata.gender || null,
+        age: quizAnswersFromMetadata.age || null,
+        activityLevel: quizAnswersFromMetadata.activityLevel || null,
       }
       
       // Salvar no collection 'leads' com o finalUserUid como ID
