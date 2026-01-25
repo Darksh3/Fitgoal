@@ -655,7 +655,7 @@ MACROS TOTAIS:
 6. ⚠️ NUNCA use alimentos caros no Brasil: grão-de-bico, quinoa, cogumelos, salmão, aspargos, cevada. EVITE COMPLETAMENTE!
 7. Tente criar um dieta que não seja muito cara para os padrões brasileiros
 8. Coloque alguma proteina animal na janta e almoço (Carne, Frango, Sardinha, Ovo).
-9. Almoço ou janta pode ter salada a vontade
+9. Almoço ou janta pode ter salada a vontade, os macros da salada não precisam ser inclusos na dieta, não precisa mencionar gramas e nem macros dela.
 10. Substitua proteínas caras por: ovos, frango, carnes vermelhas baratas, feijão, lentilha, sardinha, atum em lata
 ${
   quizData.diet
