@@ -3384,7 +3384,7 @@ export default function QuizPage() {
             </div>
             <div className="space-y-4">
               {[
-                { value: "no-motivation", label: "Falta de motivação", icon: "🎯" },
+                { value: "no-motivation", label: "Falta de motivação", icon: "�����" },
                 { value: "no-plan", label: "Não tinha um plano claro", icon: "📅" },
                 { value: "too-hard", label: "Meus treinos eram muito difíceis", icon: "🏋️" },
                 { value: "bad-training", label: "Treinamento ruim", icon: "👤" },
