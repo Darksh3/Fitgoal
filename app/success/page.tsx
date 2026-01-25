@@ -14,6 +14,7 @@ export default function SuccessPage() {
 
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(5)
 
   useEffect(() => {
     const handlePostCheckout = async () => {
@@ -60,6 +61,22 @@ export default function SuccessPage() {
     handlePostCheckout()
   }, [sessionId, embedded])
 
+  // Timer para redirecionamento automático
+  useEffect(() => {
+    if (status !== "success") return
+
+    if (secondsRemaining === 0) {
+      window.location.href = "/dashboard"
+      return
+    }
+
+    const timer = setTimeout(() => {
+      setSecondsRemaining(secondsRemaining - 1)
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [status, secondsRemaining])
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] bg-gray-100 dark:bg-gray-900 p-4">
       <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg text-center max-w-md w-full">
@@ -77,8 +94,11 @@ export default function SuccessPage() {
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               Sua assinatura foi processada com sucesso. Bem-vindo(a) à comunidade FitGoal!
             </p>
+            <p className="text-sm text-gray-500 dark:text-gray-500 mb-4">
+              Redirecionando em <span className="font-bold text-gray-900 dark:text-gray-100">{secondsRemaining}</span> segundo{secondsRemaining !== 1 ? "s" : ""}...
+            </p>
             <Link href="/dashboard" passHref>
-              <Button className="w-full">Ir para o Dashboard</Button>
+              <Button className="w-full">Ir para o Dashboard Agora</Button>
             </Link>
           </>
         )}
