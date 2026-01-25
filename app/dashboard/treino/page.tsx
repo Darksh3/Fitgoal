@@ -266,7 +266,8 @@ export default function TreinoPage() {
 
     try {
       // Dynamically import html2pdf to avoid SSR issues
-      const html2pdf = await import("html2pdf.js")
+      const html2pdfModule = await import("html2pdf.js")
+      const html2pdf = html2pdfModule.default
 
       const workoutPlan = userData.workoutPlan
 
