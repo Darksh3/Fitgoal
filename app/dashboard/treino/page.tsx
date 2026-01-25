@@ -268,6 +268,9 @@ export default function TreinoPage() {
     if (!userData?.workoutPlan) return
 
     try {
+      // Dynamically import html2pdf to avoid SSR issues
+      const html2pdf = (await import("html2pdf.js")).default
+
       const workoutPlan = userData.workoutPlan
 
       // Create PDF content as HTML string
@@ -388,7 +391,7 @@ export default function TreinoPage() {
       }
 
       // Generate and download PDF
-      await html2pdf().set(options).from(tempDiv).save()
+      await html2pdf.set(options).from(tempDiv).save()
 
       // Clean up
       document.body.removeChild(tempDiv)
