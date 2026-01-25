@@ -1,4 +1,4 @@
-"use client"
+o"use client"
 
 import { useState, useEffect, useRef } from "react"
 
@@ -2061,7 +2061,7 @@ export default function QuizPage() {
         return (
           <div className="relative space-y-4 sm:space-y-8">
             <div className="relative z-10 text-center space-y-2 sm:space-y-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual o seu gênera?</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">Qual o seu gênero?</h2>
             </div>
             <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 max-w-lg mx-auto">
               {[

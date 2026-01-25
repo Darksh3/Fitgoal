@@ -31,15 +31,27 @@ export function LeadsAnalytics() {
   useEffect(() => {
     const fetchLeads = async () => {
       try {
+        console.log("[v0] Firebase DB instance:", db)
+        
+        if (!db) {
+          console.error("[v0] Firebase DB not initialized - check environment variables")
+          setIsLoading(false)
+          return
+        }
+
         const leadsCollection = collection(db, "leads")
         const leadsQuery = query(leadsCollection)
         const snapshot = await getDocs(leadsQuery)
 
+        console.log("[v0] Firestore query result - Total docs:", snapshot.size)
+
         const leadsData: Lead[] = []
         snapshot.forEach((doc) => {
+          console.log("[v0] Lead document:", doc.id, doc.data())
           leadsData.push(doc.data() as Lead)
         })
 
+        console.log("[v0] Processed leads:", leadsData)
         setLeads(leadsData)
         calculateStats(leadsData)
       } catch (error) {
