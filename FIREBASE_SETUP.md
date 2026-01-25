@@ -14,7 +14,7 @@ As regras do Firestore precisam ser implantadas manualmente no console do Fireba
 
 ### Regras necessárias para progressPhotos:
 
-```rules
+\`\`\`rules
 match /progressPhotos/{photoId} {
   // Permitir que usuários leiam suas próprias fotos
   allow read: if request.auth != null && 

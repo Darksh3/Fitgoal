@@ -817,6 +817,53 @@ export default function QuizPage() {
     }
   }
 
+  const saveLead = async () => {
+    try {
+      if (!currentUser || !currentUser.uid) {
+        console.error("[v0] SAVE_LEAD - No user ID available")
+        return
+      }
+
+      console.log("[v0] SAVE_LEAD - Starting to save lead for user:", currentUser.uid)
+      setShowAnalyzingData(true)
+      setAnalyzingStep(0)
+
+      // Make API call to save lead with all quiz data
+      const response = await fetch("/api/save-lead", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          uid: currentUser.uid,
+          quizData: quizData,
+          name: quizData.name,
+          email: quizData.email,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error("[v0] SAVE_LEAD - API error:", errorData)
+        throw new Error(errorData.details || "Failed to save lead")
+      }
+
+      const result = await response.json()
+      console.log("[v0] SAVE_LEAD - Success:", result)
+
+      // Redirect to results after a short delay
+      setTimeout(() => {
+        router.push("/quiz/results")
+      }, 500)
+    } catch (error: any) {
+      console.error("[v0] SAVE_LEAD - Error:", error.message)
+      // Still redirect even if lead saving fails, as the quiz is complete
+      setTimeout(() => {
+        router.push("/quiz/results")
+      }, 500)
+    }
+  }
+
   const nextStep = () => {
     // Handle specific step logic
     if (currentStep === 5) {
@@ -838,8 +885,8 @@ export default function QuizPage() {
       }
       return
     } else if (currentStep === totalSteps) {
-      // When reaching the final step, redirect to results
-      router.push("/quiz/results")
+      // When reaching the final step, save the lead and redirect to results
+      saveLead()
       return
     } else if (currentStep < totalSteps) {
       const nextStepNumber = currentStep + 1

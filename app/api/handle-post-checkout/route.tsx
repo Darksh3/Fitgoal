@@ -382,6 +382,42 @@ export async function POST(req: Request) {
       )
     }
 
+    // ==================== SALVAR LEAD NO FIRESTORE ====================
+    try {
+      console.log("[v0] SAVING_LEAD - Iniciando salvamento do lead para:", finalUserUid)
+      
+      const leadData = {
+        uid: finalUserUid,
+        name: userName,
+        email: userEmail,
+        phone: customerPhone || null,
+        cpf: customerCpf || null,
+        status: "customer", // Agora é um cliente, não mais um lead
+        convertedAt: admin.firestore.FieldValue.serverTimestamp(),
+        paymentDate: admin.firestore.FieldValue.serverTimestamp(),
+        planType: planType,
+        planName: planNames[planType!] || "Plano Premium",
+        subscriptionStatus: "active",
+        subscriptionExpiresAt: admin.firestore.Timestamp.fromDate(
+          new Date(Date.now() + subscriptionDuration * 24 * 60 * 60 * 1000),
+        ),
+        source: "checkout", // Origem do lead
+        createdAt: existingUserData.createdAt || admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      }
+      
+      // Salvar no collection 'leads' com o finalUserUid como ID
+      await adminDb.collection("leads").doc(finalUserUid).set(leadData, { merge: true })
+      console.log("[v0] LEAD_SAVED - Lead salvo com sucesso para:", finalUserUid)
+    } catch (leadError: any) {
+      console.error("[v0] LEAD_SAVE_ERROR - Erro ao salvar lead:", {
+        error: leadError.message,
+        uid: finalUserUid,
+        email: userEmail,
+      })
+      // Continua mesmo se falhar o lead, pois o usuário já foi salvo
+    }
+
     let passwordResetLink = ""
     if (isNewUser) {
       try {
