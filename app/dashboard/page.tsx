@@ -139,8 +139,12 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!quizData) return
 
+    // currentWeight é o peso atual do quizz (pode mudar)
     const currentW = Number.parseFloat(quizData.currentWeight || "0") || 70
-    const initialW = Number.parseFloat((quizData as any).initialWeight || quizData.currentWeight || "0") || currentW
+    
+    // initialWeight é o peso inicial fixo (de quando o quiz foi feito)
+    // Se não existir, usar currentWeight como fallback (primeira vez)
+    const initialW = Number.parseFloat((quizData as any).initialWeight || "0") || 70
 
     if (initialWeight === null && initialW > 0) {
       setInitialWeight(initialW)
@@ -198,6 +202,23 @@ export default function DashboardPage() {
             if (data.initialWeight) {
               (foundQuizData as any).initialWeight = data.initialWeight.toString()
             }
+            
+            // Se não houver initialWeight, usar currentWeight e salvar
+            if (!data.initialWeight && foundQuizData.currentWeight) {
+              console.log("[v0] Setando initialWeight pela primeira vez para usuário:", user.uid)
+              (foundQuizData as any).initialWeight = foundQuizData.currentWeight
+              
+              // Salvar no Firestore
+              try {
+                await updateDoc(userDocRef, {
+                  initialWeight: foundQuizData.currentWeight,
+                  "quizData.initialWeight": foundQuizData.currentWeight,
+                })
+              } catch (error) {
+                console.error("[v0] Erro ao salvar initialWeight:", error)
+              }
+            }
+            
             setQuizData(foundQuizData)
           }
 
