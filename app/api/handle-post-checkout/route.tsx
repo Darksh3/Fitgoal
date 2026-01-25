@@ -60,6 +60,19 @@ export async function POST(req: Request) {
       userName = customerName || null
       clientUidFromSource = userId
       console.log("[v0] HANDLE_POST_CHECKOUT - Dados do Asaas webhook:", { userEmail, userName, clientUidFromSource })
+      
+      // Buscar quizAnswers do Firebase usando o userId (já é o lead ou user anterior)
+      try {
+        const userDocRef = adminDb.collection("users").doc(userId)
+        const userDocSnap = await userDocRef.get()
+        if (userDocSnap.exists) {
+          const userData = userDocSnap.data()
+          quizAnswersFromMetadata = userData?.quizData || userData?.quizAnswers || {}
+          console.log("[v0] HANDLE_POST_CHECKOUT - Quiz extraído do user:", { hasQuiz: !!quizAnswersFromMetadata })
+        }
+      } catch (error) {
+        console.warn("[v0] HANDLE_POST_CHECKOUT - Erro ao buscar quiz do Asaas:", error)
+      }
     } else if (userId && !userEmail) {
       // Se não tem email do Asaas, buscar do Firebase usando o userId
       console.log("[v0] HANDLE_POST_CHECKOUT - Email não recebido do Asaas, buscando do Firebase:", userId)
