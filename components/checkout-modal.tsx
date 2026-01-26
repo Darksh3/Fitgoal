@@ -597,7 +597,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                       setAddressData({ ...addressData, postalCode: value })
                     }}
                     placeholder="00000-000"
-                    className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
+                    className="bg-gray-700 border-gray-600 text-white [&::placeholder]:text-gray-500"
                     maxLength={9}
                     required
                   />
@@ -608,7 +608,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                     value={addressData.addressNumber}
                     onChange={(e) => setAddressData({ ...addressData, addressNumber: e.target.value })}
                     placeholder="123"
-                    className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
+                    className="bg-gray-700 border-gray-600 text-white [&::placeholder]:text-gray-500"
                     required
                   />
                 </div>
