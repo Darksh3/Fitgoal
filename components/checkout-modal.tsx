@@ -453,7 +453,13 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   // Formulário de cartão
   if (paymentMethod === "card") {
     return (
-      <form onSubmit={handleAsaasPayment} className="space-y-6">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          handleAsaasPayment()
+        }}
+        className="space-y-6"
+     >
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader>
             <CardTitle className="text-white flex items-center">

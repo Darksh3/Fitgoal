@@ -594,7 +594,7 @@ export default function QuizResultsPage() {
 
               <div className="flex gap-4 items-center">
                 <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
-                  <p className="text-white font-mono text-lg">cleber_jan26</p>
+                  <p className="text-white font-mono text-lg">SHAPE50OFF</p>
                 </div>
                 <div className="text-orange-400 font-bold text-right">
                   <p className="text-2xl">02:08</p>
@@ -1003,7 +1003,7 @@ export default function QuizResultsPage() {
 
                   <div className="flex gap-4 items-center">
                     <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
-                      <p className="text-white font-mono text-lg">cleber_jan26</p>
+                      <p className="text-white font-mono text-lg">SHAPE50OFF</p>
                     </div>
                     <div className="text-orange-400 font-bold text-right">
                       <p className="text-2xl">02:08</p>
