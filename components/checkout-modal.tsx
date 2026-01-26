@@ -74,46 +74,51 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
   const [redirectCountdown, setRedirectCountdown] = useState(90)
+  const [cardPaymentId, setCardPaymentId] = useState<string | null>(null)
 
-  // Listener real-time para PIX - escuta mudanças do Firestore em tempo real
+  // Listener real-time para PIX e CARTÃO (Asaas) - escuta mudanças do Firestore em tempo real
+  // Funciona para ambos os métodos de pagamento do Asaas
   useEffect(() => {
-    if (!pixData?.paymentId || paymentMethod !== "pix") return
+    const paymentId = pixData?.paymentId || cardPaymentId
+    const method = pixData?.paymentId ? "pix" : cardPaymentId ? "card" : null
 
-    console.log("[v0] PIX_LISTENER_START - Iniciando onSnapshot para:", pixData.paymentId)
+    if (!paymentId || !method) return
+
+    console.log(`[v0] ${method.toUpperCase()}_LISTENER_START - Iniciando onSnapshot para:`, paymentId)
 
     try {
-      const paymentDocRef = doc(db, "payments", pixData.paymentId)
+      const paymentDocRef = doc(db, "payments", paymentId)
       const unsubscribe = onSnapshot(
         paymentDocRef,
         (snapshot) => {
           if (!snapshot.exists()) {
-            console.log("[v0] PIX_LISTENER - Documento não encontrado ainda")
+            console.log(`[v0] ${method.toUpperCase()}_LISTENER - Documento não encontrado ainda`)
             return
           }
 
           const paymentData = snapshot.data()
-          console.log("[v0] PIX_LISTENER_UPDATE - Status atualizado:", paymentData?.status)
+          console.log(`[v0] ${method.toUpperCase()}_LISTENER_UPDATE - Status atualizado:`, paymentData?.status)
 
-          // Se pagamento foi confirmado, mostrar sucesso
+          // Se pagamento foi confirmado pelo webhook da Asaas, mostrar animação de sucesso
           if (paymentData?.status === "RECEIVED" || paymentData?.status === "CONFIRMED") {
-            console.log("[v0] PIX_LISTENER_CONFIRMED - Pagamento confirmado! Mostrando animação...")
+            console.log(`[v0] ${method.toUpperCase()}_LISTENER_CONFIRMED - Pagamento confirmado! Mostrando animação...`)
             setPaymentConfirmed(true)
             unsubscribe()
           }
         },
         (error) => {
-          console.error("[v0] PIX_LISTENER_ERROR - Erro ao escutar documento:", error)
+          console.error(`[v0] ${method.toUpperCase()}_LISTENER_ERROR - Erro ao escutar documento:`, error)
         }
       )
 
       return () => {
-        console.log("[v0] PIX_LISTENER_CLEANUP - Limpando listener")
+        console.log(`[v0] ${method.toUpperCase()}_LISTENER_CLEANUP - Limpando listener`)
         unsubscribe()
       }
     } catch (error) {
-      console.error("[v0] PIX_LISTENER_SETUP_ERROR - Erro ao configurar listener:", error)
+      console.error(`[v0] ${method?.toUpperCase()}_LISTENER_SETUP_ERROR - Erro ao configurar listener:`, error)
     }
-  }, [pixData?.paymentId, paymentMethod])
+  }, [pixData?.paymentId, cardPaymentId])
 
   // Countdown para redirecionamento
   useEffect(() => {
@@ -346,11 +351,25 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
           throw new Error(errorData.error || "Erro ao processar cartão")
         }
 
-        // Pagamento com cartão confirmado
-        setPaymentConfirmed(true)
-        setTimeout(() => {
-          onSuccess()
-        }, 3000)
+        // Salvar documento no Firestore para monitorar confirmação via webhook Stripe
+        try {
+          console.log("[v0] CARD_SAVING_TO_FIRESTORE - Salvando pagamento do cartão no Firestore com userId")
+          await setDoc(doc(db, "payments", paymentResult.paymentId), {
+            paymentId: paymentResult.paymentId,
+            userId: clientUid,
+            status: "PENDING",
+            billingType: "CARD",
+            createdAt: new Date(),
+          })
+          console.log("[v0] CARD_SAVED_FIRESTORE - Documento criado no Firestore para monitorar")
+        } catch (error) {
+          console.error("[v0] CARD_FIRESTORE_ERROR - Erro ao salvar no Firestore:", error)
+        }
+
+        // Salvar paymentId para ativar o listener real-time
+        setCardPaymentId(paymentResult.paymentId)
+        setProcessing(false)
+        return
       }
     } catch (err: any) {
       console.error("Erro no pagamento:", err)
@@ -506,7 +525,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                 value={cardData.holderName}
                 onChange={(e) => setCardData({ ...cardData, holderName: e.target.value })}
                 placeholder="NOME COMO ESTÁ NO CARTÃO"
-                className="bg-gray-700 border-gray-600 text-white"
+                className="bg-gray-700 border-gray-600 text-white [&::placeholder]:text-gray-500"
                 required
               />
             </div>
@@ -520,7 +539,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                   setCardData({ ...cardData, number: formatted })
                 }}
                 placeholder="0000 0000 0000 0000"
-                className="bg-gray-700 border-gray-600 text-white"
+                className="bg-gray-700 border-gray-600 text-white [&::placeholder]:text-gray-500"
                 maxLength={19}
                 required
               />
@@ -534,7 +553,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                     setCardData({ ...cardData, expiryMonth: e.target.value.replace(/\D/g, "").slice(0, 2) })
                   }
                   placeholder="MM"
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-gray-700 border-gray-600 text-white [&::placeholder]:text-gray-500"
                   maxLength={2}
                   required
                 />
@@ -547,7 +566,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                     setCardData({ ...cardData, expiryYear: e.target.value.replace(/\D/g, "").slice(0, 4) })
                   }
                   placeholder="AAAA"
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-gray-700 border-gray-600 text-white [&::placeholder]:text-gray-500"
                   maxLength={4}
                   required
                 />
@@ -558,7 +577,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                   value={cardData.ccv}
                   onChange={(e) => setCardData({ ...cardData, ccv: e.target.value.replace(/\D/g, "").slice(0, 4) })}
                   placeholder="000"
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-gray-700 border-gray-600 text-white [&::placeholder]:text-gray-500"
                   maxLength={4}
                   required
                 />
@@ -821,17 +840,22 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
   }
 
   const handleSuccess = () => {
-    console.log("[v0] CHECKOUT_SUCCESS - Aguardando processamento do webhook...")
-    // Espera 3 segundos para o webhook processar o pagamento antes de redirecionar
-    setTimeout(() => {
-      console.log("[v0] CHECKOUT_REDIRECT - Redirecionando para /success")
-      window.location.href = "/success"
-    }, 3000)
-    onClose()
+    console.log("[v0] CHECKOUT_SUCCESS - Aguardando processamento do webhook e animação de sucesso...")
+    // Não fecha o modal aqui - deixa a animação de sucesso aparecer
+    // O modal só fecha quando o countdown chegar a 0 e redirecionar para /success
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(newOpen) => {
+      // Não fechar o modal se o pagamento foi confirmado (deixa a animação aparecer)
+      if (paymentConfirmed) {
+        return
+      }
+      // Fechar normalmente se não foi confirmado
+      if (!newOpen) {
+        onClose()
+      }
+    }}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-800">
         <DialogHeader className="flex justify-center items-center relative">
           {currentStep === 2 && (

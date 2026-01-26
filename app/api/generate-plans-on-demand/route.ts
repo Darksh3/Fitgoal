@@ -1422,14 +1422,14 @@ function calculateScientificCalories(data: any) {
     } else if (bodyType.toLowerCase() === "mesomorfo") {
       proteinBase = isFemale ? 2.2 : 2.4
     } else if (bodyType.toLowerCase() === "endomorfo") {
-      proteinBase = isFemale ? 2.4 : 2.6 // Precisa mais para preservar
+      proteinBase = isFemale ? 2.4 : 2.5 // Precisa mais para preservar
     } else {
       proteinBase = isFemale ? 2.0 : 2.2
     }
   } else if (weightDifference > 0.5) {
     // GANHO DE PESO - proteína para construção
     if (bodyType.toLowerCase() === "ectomorfo") {
-      proteinBase = isFemale ? 2.3 : 2.5 // Mais difícil ganhar
+      proteinBase = isFemale ? 2.3 : 2.3 // Mais difícil ganhar
     } else if (bodyType.toLowerCase() === "mesomorfo") {
       proteinBase = isFemale ? 2.0 : 2.2 // Responde bem
     } else if (bodyType.toLowerCase() === "endomorfo") {
