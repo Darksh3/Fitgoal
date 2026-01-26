@@ -525,7 +525,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                 value={cardData.holderName}
                 onChange={(e) => setCardData({ ...cardData, holderName: e.target.value })}
                 placeholder="NOME COMO ESTÁ NO CARTÃO"
-                className="bg-gray-700 border-gray-600 text-white"
+                className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                 required
               />
             </div>
@@ -539,7 +539,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                   setCardData({ ...cardData, number: formatted })
                 }}
                 placeholder="0000 0000 0000 0000"
-                className="bg-gray-700 border-gray-600 text-white"
+                className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                 maxLength={19}
                 required
               />
@@ -553,7 +553,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                     setCardData({ ...cardData, expiryMonth: e.target.value.replace(/\D/g, "").slice(0, 2) })
                   }
                   placeholder="MM"
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                   maxLength={2}
                   required
                 />
@@ -566,7 +566,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                     setCardData({ ...cardData, expiryYear: e.target.value.replace(/\D/g, "").slice(0, 4) })
                   }
                   placeholder="AAAA"
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                   maxLength={4}
                   required
                 />
@@ -577,7 +577,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                   value={cardData.ccv}
                   onChange={(e) => setCardData({ ...cardData, ccv: e.target.value.replace(/\D/g, "").slice(0, 4) })}
                   placeholder="000"
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                   maxLength={4}
                   required
                 />
