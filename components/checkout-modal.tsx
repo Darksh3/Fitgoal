@@ -59,7 +59,6 @@ function PaymentMethodSelector({
 function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, paymentMethod, onError, onSuccess, setPaymentConfirmed }: any) {
   const [processing, setProcessing] = useState(false)
   const [installments, setInstallments] = useState(1)
-  const [paymentConfirmed, setPaymentConfirmed] = useState(false)
   const [cardData, setCardData] = useState({
     holderName: "",
     number: "",
