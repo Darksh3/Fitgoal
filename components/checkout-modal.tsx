@@ -56,7 +56,7 @@ function PaymentMethodSelector({
   )
 }
 
-function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, paymentMethod, onError, onSuccess }: any) {
+function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, paymentMethod, onError, onSuccess, setPaymentConfirmed }: any) {
   const [processing, setProcessing] = useState(false)
   const [installments, setInstallments] = useState(1)
   const [paymentConfirmed, setPaymentConfirmed] = useState(false)
@@ -84,39 +84,33 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
 
     if (!paymentId || !method) return
 
-    console.log(`[v0] ${method.toUpperCase()}_LISTENER_START - Iniciando onSnapshot para:`, paymentId)
-
     try {
       const paymentDocRef = doc(db, "payments", paymentId)
       const unsubscribe = onSnapshot(
         paymentDocRef,
         (snapshot) => {
           if (!snapshot.exists()) {
-            console.log(`[v0] ${method.toUpperCase()}_LISTENER - Documento não encontrado ainda`)
             return
           }
 
           const paymentData = snapshot.data()
-          console.log(`[v0] ${method.toUpperCase()}_LISTENER_UPDATE - Status atualizado:`, paymentData?.status)
 
           // Se pagamento foi confirmado pelo webhook da Asaas, mostrar animação de sucesso
           if (paymentData?.status === "RECEIVED" || paymentData?.status === "CONFIRMED") {
-            console.log(`[v0] ${method.toUpperCase()}_LISTENER_CONFIRMED - Pagamento confirmado! Mostrando animação...`)
             setPaymentConfirmed(true)
             unsubscribe()
           }
         },
         (error) => {
-          console.error(`[v0] ${method.toUpperCase()}_LISTENER_ERROR - Erro ao escutar documento:`, error)
+          console.error("Erro ao escutar documento de pagamento:", error)
         }
       )
 
       return () => {
-        console.log(`[v0] ${method.toUpperCase()}_LISTENER_CLEANUP - Limpando listener`)
         unsubscribe()
       }
     } catch (error) {
-      console.error(`[v0] ${method?.toUpperCase()}_LISTENER_SETUP_ERROR - Erro ao configurar listener:`, error)
+      console.error("Erro ao configurar listener de pagamento:", error)
     }
   }, [pixData?.paymentId, cardPaymentId])
 
@@ -154,8 +148,6 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
     try {
       setProcessing(true)
 
-      console.log("[v0] === COMPREHENSIVE FIELD VALIDATION START ===")
-
       const missingFields = []
 
       if (!formData.email?.trim()) missingFields.push("Email")
@@ -163,22 +155,11 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
       if (!formData.cpf?.trim()) missingFields.push("CPF")
       if (!formData.phone?.trim()) missingFields.push("Telefone")
 
-      console.log("[v0] Email:", formData.email, "| Valid:", !!formData.email?.trim())
-      console.log("[v0] Name:", formData.name, "| Valid:", !!formData.name?.trim())
-      console.log("[v0] CPF:", formData.cpf, "| Valid:", !!formData.cpf?.trim())
-      console.log("[v0] Phone:", formData.phone, "| Valid:", !!formData.phone?.trim())
-      console.log("[v0] Plan Type:", currentPlan?.key, "| Valid:", !!currentPlan?.key)
-      console.log("[v0] Payment Method:", paymentMethod, "| Valid:", !!paymentMethod)
-      console.log("[v0] Client UID:", clientUid, "| Valid:", !!clientUid)
-
       if (missingFields.length > 0) {
         throw new Error(`Campos obrigatórios faltando: ${missingFields.join(", ")}`)
       }
 
-      console.log("[v0] === ALL BASIC FIELDS VALID ===")
-
       if (paymentMethod === "card") {
-        console.log("[v0] === CARD PAYMENT VALIDATION START ===")
         const cardMissingFields = []
 
         if (!cardData.holderName?.trim()) cardMissingFields.push("Nome no Cartão")
@@ -189,32 +170,20 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         if (!addressData.postalCode?.replace(/\D/g, "")) cardMissingFields.push("CEP")
         if (!addressData.addressNumber?.trim()) cardMissingFields.push("Número do Endereço")
 
-        console.log("[v0] Card Fields Valid:", {
-          holderName: !!cardData.holderName?.trim(),
-          number: !!cardData.number?.replace(/\s/g, ""),
-          expiryMonth: !!cardData.expiryMonth,
-          expiryYear: !!cardData.expiryYear,
-          ccv: !!cardData.ccv,
-          postalCode: !!addressData.postalCode?.replace(/\D/g, ""),
-          addressNumber: !!addressData.addressNumber?.trim(),
-        })
-
         if (cardMissingFields.length > 0) {
           throw new Error(`Campos do cartão faltando: ${cardMissingFields.join(", ")}`)
         }
-
-        console.log("[v0] === ALL CARD FIELDS VALID ===")
       }
 
       const paymentPayload: Record<string, any> = {
         email: formData.email,
         name: formData.name,
-        cpf: formData.cpf.replace(/\D/g, ""), // Send only numbers for CPF
-        phone: formData.phone.replace(/\D/g, ""), // Send only numbers for phone
+        cpf: formData.cpf.replace(/\D/g, ""),
+        phone: formData.phone.replace(/\D/g, ""),
         planType: currentPlan.key,
-        paymentMethod: paymentMethod === "card" ? "card" : paymentMethod, // Keep as "pix", "boleto", or "card"
+        paymentMethod: paymentMethod === "card" ? "card" : paymentMethod,
         description: `${currentPlan.name} - Fitgoal Fitness`,
-        clientUid: clientUid, // Include userId so webhook can identify user
+        clientUid: clientUid,
       }
 
       if (paymentMethod === "card") {
@@ -240,47 +209,32 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         }
       }
 
-      console.log("[v0] === PAYMENT PAYLOAD READY ===")
-      console.log("[v0] Complete Payload:", paymentPayload)
-
       const paymentResponse = await fetch("/api/create-asaas-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(paymentPayload),
       })
 
-      console.log("[v0] API Response Status:", paymentResponse.status)
-
       if (!paymentResponse.ok) {
         const errorData = await paymentResponse.json()
-        console.log("[v0] === API ERROR ===")
-        console.log("[v0] Full Error Response:", errorData)
-        console.log("[v0] Error Message:", errorData.error || "Erro desconhecido")
-        console.log("[v0] Error Details:", errorData.details || "Sem detalhes")
         throw new Error(errorData.error || "Erro ao criar cobrança")
       }
 
       const paymentResult = await paymentResponse.json()
-      console.log("[v0] Payment Result:", paymentResult)
 
       if (paymentMethod === "pix") {
-        // Sempre guardar paymentId no localStorage para persistência
         localStorage.setItem("lastPaymentId", paymentResult.paymentId)
-        console.log("[v0] PIX_PAYMENT_CREATED - paymentId salvo:", paymentResult.paymentId)
 
-        // Salvar documento no Firestore com userId ANTES do webhook chegar
         try {
-          console.log("[v0] PIX_SAVING_TO_FIRESTORE - Salvando pagamento no Firestore com userId")
           await setDoc(doc(db, "payments", paymentResult.paymentId), {
             paymentId: paymentResult.paymentId,
-            userId: clientUid, // ESSENCIAL: userId para RLS do Firestore
+            userId: clientUid,
             status: "PENDING",
             billingType: "PIX",
             createdAt: new Date(),
           })
-          console.log("[v0] PIX_SAVED_FIRESTORE - Documento criado no Firestore")
         } catch (error) {
-          console.error("[v0] PIX_FIRESTORE_ERROR - Erro ao salvar no Firestore:", error)
+          console.error("Erro ao salvar PIX no Firestore:", error)
         }
 
         const qrCodeResponse = await fetch(`/api/get-pix-qrcode?paymentId=${paymentResult.paymentId}`)
@@ -290,13 +244,13 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
           setPixData({
             qrCode: qrCodeResult.encodedImage || qrCodeResult.qrCode,
             copyPaste: qrCodeResult.payload,
-            paymentId: paymentResult.paymentId, // ESSENCIAL: sempre salvar paymentId
+            paymentId: paymentResult.paymentId,
           })
         } else {
           setPixData({
             qrCode: paymentResult.pixQrCode,
             copyPaste: paymentResult.pixCopyPaste,
-            paymentId: paymentResult.paymentId, // ESSENCIAL: sempre salvar paymentId
+            paymentId: paymentResult.paymentId,
           })
         }
 
@@ -332,10 +286,6 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
             phone: formData.phone.replace(/\D/g, ""),
           },
         }
-        console.log("[v0] Card Payment Payload:", cardPayload)
-        console.log("[v0] Address Data Being Sent:", addressData)
-        console.log("[v0] Postal Code Value:", addressData.postalCode)
-        console.log("[v0] Address Number Value:", addressData.addressNumber)
 
         const cardResponse = await fetch("/api/process-asaas-card", {
           method: "POST",
@@ -343,17 +293,12 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
           body: JSON.stringify(cardPayload),
         })
 
-        console.log("[v0] Card API Response Status:", cardResponse.status)
-
         if (!cardResponse.ok) {
           const errorData = await cardResponse.json()
-          console.log("[v0] Card API Error Response:", errorData)
           throw new Error(errorData.error || "Erro ao processar cartão")
         }
 
-        // Salvar documento no Firestore para monitorar confirmação via webhook Stripe
         try {
-          console.log("[v0] CARD_SAVING_TO_FIRESTORE - Salvando pagamento do cartão no Firestore com userId")
           await setDoc(doc(db, "payments", paymentResult.paymentId), {
             paymentId: paymentResult.paymentId,
             userId: clientUid,
@@ -361,12 +306,10 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
             billingType: "CARD",
             createdAt: new Date(),
           })
-          console.log("[v0] CARD_SAVED_FIRESTORE - Documento criado no Firestore para monitorar")
         } catch (error) {
-          console.error("[v0] CARD_FIRESTORE_ERROR - Erro ao salvar no Firestore:", error)
+          console.error("Erro ao salvar cartão no Firestore:", error)
         }
 
-        // Salvar paymentId para ativar o listener real-time
         setCardPaymentId(paymentResult.paymentId)
         setProcessing(false)
         return
@@ -597,7 +540,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                       setAddressData({ ...addressData, postalCode: value })
                     }}
                     placeholder="00000-000"
-                    className="bg-gray-800 border-gray-600 text-gray-100 [&::placeholder]:text-gray-500"
+                    className="bg-gray-700 border-gray-600 text-white [&::placeholder]:text-gray-500"
                     maxLength={9}
                     required
                   />
@@ -608,7 +551,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
                     value={addressData.addressNumber}
                     onChange={(e) => setAddressData({ ...addressData, addressNumber: e.target.value })}
                     placeholder="123"
-                    className="bg-gray-800 border-gray-600 text-gray-100 [&::placeholder]:text-gray-500"
+                    className="bg-gray-700 border-gray-600 text-white [&::placeholder]:text-gray-500"
                     required
                   />
                 </div>
@@ -744,6 +687,7 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
   const [quizAnswers, setQuizAnswers] = useState<any>(null)
   const [clientUid, setClientUid] = useState<string | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false)
 
   const plans = [
     {
@@ -784,14 +728,11 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
 
         if (stored) {
           const parsed = JSON.parse(stored)
-          setQuizAnswers(parsed)
-          console.log("[v0] Initializing formData - Email from quiz:", parsed.email)
-          console.log("[v0] Initializing clientUid from quiz:", parsed.uid)
-          setClientUid(parsed.uid || null) // Set the clientUid from quiz data
+          setClientUid(parsed.uid || null)
           setFormData((prev) => ({
             ...prev,
             name: parsed.name || "",
-            email: parsed.email || "", // Ensure email is set
+            email: parsed.email || "",
             cpf: parsed.cpf || "",
             phone: parsed.phone || "",
           }))
@@ -809,28 +750,15 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
   }, [isOpen])
 
   const handleFormChange = (field: string, value: string) => {
-    console.log(`[v0] Form field changed - ${field}: ${value}`) // Adding debug log to track form changes
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleNextStep = () => {
-    console.log("[v0] Form Data:", {
-      name: formData.name,
-      email: formData.email,
-      cpf: formData.cpf,
-      phone: formData.phone,
-    })
-
     if (!formData.name || !formData.cpf || !formData.phone) {
-      console.log("[v0] Validation failed - Missing fields:")
-      console.log("[v0] - Name:", !formData.name ? "MISSING" : "OK")
-      console.log("[v0] - CPF:", !formData.cpf ? "MISSING" : "OK")
-      console.log("[v0] - Phone:", !formData.phone ? "MISSING" : "OK")
       setError("Por favor, preencha todos os campos")
       return
     }
 
-    console.log("[v0] Validation passed - Moving to step 2")
     setError(null)
     setCurrentStep(2)
   }
@@ -840,9 +768,8 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
   }
 
   const handleSuccess = () => {
-    console.log("[v0] CHECKOUT_SUCCESS - Aguardando processamento do webhook e animação de sucesso...")
     // Não fecha o modal aqui - deixa a animação de sucesso aparecer
-    // O modal só fecha quando o countdown chegar a 0 e redirecionar para /success
+    // O modal só fecha quando o countdown chegar a 0 e redirecionar para /dashboard
   }
 
   return (
@@ -1001,6 +928,7 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
                   paymentMethod={paymentMethod}
                   onError={handleError}
                   onSuccess={handleSuccess}
+                  setPaymentConfirmed={setPaymentConfirmed}
                 />
               )}
             </motion.div>
