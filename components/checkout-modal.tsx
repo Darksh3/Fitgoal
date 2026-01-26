@@ -311,6 +311,9 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         }
 
         setCardPaymentId(paymentResult.paymentId)
+
+        onSuccess?.()
+        
         setProcessing(false)
         return
       }
