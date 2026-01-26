@@ -76,7 +76,8 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   const [redirectCountdown, setRedirectCountdown] = useState(90)
   const [cardPaymentId, setCardPaymentId] = useState<string | null>(null)
 
-  // Listener real-time para PIX e CARTÃO - escuta mudanças do Firestore em tempo real
+  // Listener real-time para PIX e CARTÃO (Asaas) - escuta mudanças do Firestore em tempo real
+  // Funciona para ambos os métodos de pagamento do Asaas
   useEffect(() => {
     const paymentId = pixData?.paymentId || cardPaymentId
     const method = pixData?.paymentId ? "pix" : cardPaymentId ? "card" : null
@@ -98,7 +99,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
           const paymentData = snapshot.data()
           console.log(`[v0] ${method.toUpperCase()}_LISTENER_UPDATE - Status atualizado:`, paymentData?.status)
 
-          // Se pagamento foi confirmado, mostrar sucesso (funciona para PIX e CARTÃO)
+          // Se pagamento foi confirmado pelo webhook da Asaas, mostrar animação de sucesso
           if (paymentData?.status === "RECEIVED" || paymentData?.status === "CONFIRMED") {
             console.log(`[v0] ${method.toUpperCase()}_LISTENER_CONFIRMED - Pagamento confirmado! Mostrando animação...`)
             setPaymentConfirmed(true)
