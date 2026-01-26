@@ -13,7 +13,6 @@ import { StyledButton } from "@/components/ui/styled-button"
 import { useRouter } from "next/navigation"
 import type { Meal, DietPlan } from "@/types"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { generatePdf } from "@/lib/generate-pdf"
 
 export default function DietPage() {
   const [isHydrated, setIsHydrated] = useState(false)
@@ -1153,7 +1152,8 @@ export default function DietPage() {
     if (!dietPlan) return
 
     try {
-      if (!dietPlan) return
+      // Dynamically import html2pdf to avoid SSR issues
+      const html2pdf = (await import("html2pdf.js")).default
 
       // Create PDF content as HTML string
       const pdfContent = `
@@ -1355,11 +1355,17 @@ export default function DietPage() {
       tempDiv.style.left = "-9999px"
       document.body.appendChild(tempDiv)
 
-      // Use the generatePdf function with fallback filename
-      await generatePdf(
-        tempDiv,
-        `plano-dieta-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`
-      )
+      // Configure PDF options
+      const options = {
+        margin: 10,
+        filename: `plano-dieta-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      }
+
+      // Generate and download PDF
+      await html2pdf.set(options).from(tempDiv).save()
 
       // Clean up
       document.body.removeChild(tempDiv)

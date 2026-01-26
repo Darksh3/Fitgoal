@@ -74,46 +74,50 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
   const [redirectCountdown, setRedirectCountdown] = useState(90)
+  const [cardPaymentId, setCardPaymentId] = useState<string | null>(null)
 
-  // Listener real-time para PIX - escuta mudanças do Firestore em tempo real
+  // Listener real-time para PIX e CARTÃO - escuta mudanças do Firestore em tempo real
   useEffect(() => {
-    if (!pixData?.paymentId || paymentMethod !== "pix") return
+    const paymentId = pixData?.paymentId || cardPaymentId
+    const method = pixData?.paymentId ? "pix" : cardPaymentId ? "card" : null
 
-    console.log("[v0] PIX_LISTENER_START - Iniciando onSnapshot para:", pixData.paymentId)
+    if (!paymentId || !method) return
+
+    console.log(`[v0] ${method.toUpperCase()}_LISTENER_START - Iniciando onSnapshot para:`, paymentId)
 
     try {
-      const paymentDocRef = doc(db, "payments", pixData.paymentId)
+      const paymentDocRef = doc(db, "payments", paymentId)
       const unsubscribe = onSnapshot(
         paymentDocRef,
         (snapshot) => {
           if (!snapshot.exists()) {
-            console.log("[v0] PIX_LISTENER - Documento não encontrado ainda")
+            console.log(`[v0] ${method.toUpperCase()}_LISTENER - Documento não encontrado ainda`)
             return
           }
 
           const paymentData = snapshot.data()
-          console.log("[v0] PIX_LISTENER_UPDATE - Status atualizado:", paymentData?.status)
+          console.log(`[v0] ${method.toUpperCase()}_LISTENER_UPDATE - Status atualizado:`, paymentData?.status)
 
-          // Se pagamento foi confirmado, mostrar sucesso
+          // Se pagamento foi confirmado, mostrar sucesso (funciona para PIX e CARTÃO)
           if (paymentData?.status === "RECEIVED" || paymentData?.status === "CONFIRMED") {
-            console.log("[v0] PIX_LISTENER_CONFIRMED - Pagamento confirmado! Mostrando animação...")
+            console.log(`[v0] ${method.toUpperCase()}_LISTENER_CONFIRMED - Pagamento confirmado! Mostrando animação...`)
             setPaymentConfirmed(true)
             unsubscribe()
           }
         },
         (error) => {
-          console.error("[v0] PIX_LISTENER_ERROR - Erro ao escutar documento:", error)
+          console.error(`[v0] ${method.toUpperCase()}_LISTENER_ERROR - Erro ao escutar documento:`, error)
         }
       )
 
       return () => {
-        console.log("[v0] PIX_LISTENER_CLEANUP - Limpando listener")
+        console.log(`[v0] ${method.toUpperCase()}_LISTENER_CLEANUP - Limpando listener`)
         unsubscribe()
       }
     } catch (error) {
-      console.error("[v0] PIX_LISTENER_SETUP_ERROR - Erro ao configurar listener:", error)
+      console.error(`[v0] ${method?.toUpperCase()}_LISTENER_SETUP_ERROR - Erro ao configurar listener:`, error)
     }
-  }, [pixData?.paymentId, paymentMethod])
+  }, [pixData?.paymentId, cardPaymentId])
 
   // Countdown para redirecionamento
   useEffect(() => {
@@ -327,6 +331,45 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
             phone: formData.phone.replace(/\D/g, ""),
           },
         }
+        console.log("[v0] Card Payment Payload:", cardPayload)
+        console.log("[v0] Address Data Being Sent:", addressData)
+        console.log("[v0] Postal Code Value:", addressData.postalCode)
+        console.log("[v0] Address Number Value:", addressData.addressNumber)
+
+        const cardResponse = await fetch("/api/process-asaas-card", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(cardPayload),
+        })
+
+        console.log("[v0] Card API Response Status:", cardResponse.status)
+
+        if (!cardResponse.ok) {
+          const errorData = await cardResponse.json()
+          console.log("[v0] Card API Error Response:", errorData)
+          throw new Error(errorData.error || "Erro ao processar cartão")
+        }
+
+        // Salvar documento no Firestore para monitorar confirmação via webhook Stripe
+        try {
+          console.log("[v0] CARD_SAVING_TO_FIRESTORE - Salvando pagamento do cartão no Firestore com userId")
+          await setDoc(doc(db, "payments", paymentResult.paymentId), {
+            paymentId: paymentResult.paymentId,
+            userId: clientUid,
+            status: "PENDING",
+            billingType: "CARD",
+            createdAt: new Date(),
+          })
+          console.log("[v0] CARD_SAVED_FIRESTORE - Documento criado no Firestore para monitorar")
+        } catch (error) {
+          console.error("[v0] CARD_FIRESTORE_ERROR - Erro ao salvar no Firestore:", error)
+        }
+
+        // Salvar paymentId para ativar o listener real-time
+        setCardPaymentId(paymentResult.paymentId)
+        setProcessing(false)
+        return
+      }
         console.log("[v0] Card Payment Payload:", cardPayload)
         console.log("[v0] Address Data Being Sent:", addressData)
         console.log("[v0] Postal Code Value:", addressData.postalCode)
