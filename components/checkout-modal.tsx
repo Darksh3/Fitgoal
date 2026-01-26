@@ -371,31 +371,6 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         setProcessing(false)
         return
       }
-        console.log("[v0] Card Payment Payload:", cardPayload)
-        console.log("[v0] Address Data Being Sent:", addressData)
-        console.log("[v0] Postal Code Value:", addressData.postalCode)
-        console.log("[v0] Address Number Value:", addressData.addressNumber)
-
-        const cardResponse = await fetch("/api/process-asaas-card", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(cardPayload),
-        })
-
-        console.log("[v0] Card API Response Status:", cardResponse.status)
-
-        if (!cardResponse.ok) {
-          const errorData = await cardResponse.json()
-          console.log("[v0] Card API Error Response:", errorData)
-          throw new Error(errorData.error || "Erro ao processar cartão")
-        }
-
-        // Pagamento com cartão confirmado
-        setPaymentConfirmed(true)
-        setTimeout(() => {
-          onSuccess()
-        }, 3000)
-      }
     } catch (err: any) {
       console.error("Erro no pagamento:", err)
       onError(err.message || "Ocorreu um erro durante o pagamento")
