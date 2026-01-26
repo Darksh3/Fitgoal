@@ -494,3 +494,39 @@ input[type="range"].slider-thumb:focus::-moz-range-thumb {
   background: #84cc16;
   border-radius: 9999px;
 }
+
+/* Input placeholder styling - make it visible with gray-purple color */
+input::placeholder {
+  color: rgba(148, 163, 184, 0.8) !important;
+  opacity: 1 !important;
+}
+
+input::-webkit-input-placeholder {
+  color: rgba(148, 163, 184, 0.8) !important;
+  opacity: 1 !important;
+}
+
+input::-moz-placeholder {
+  color: rgba(148, 163, 184, 0.8) !important;
+  opacity: 1 !important;
+}
+
+input:-ms-input-placeholder {
+  color: rgba(148, 163, 184, 0.8) !important;
+  opacity: 1 !important;
+}
+
+textarea::placeholder {
+  color: rgba(148, 163, 184, 0.8) !important;
+  opacity: 1 !important;
+}
+
+textarea::-webkit-input-placeholder {
+  color: rgba(148, 163, 184, 0.8) !important;
+  opacity: 1 !important;
+}
+
+textarea::-moz-placeholder {
+  color: rgba(148, 163, 184, 0.8) !important;
+  opacity: 1 !important;
+}
