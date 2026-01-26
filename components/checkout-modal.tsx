@@ -840,13 +840,9 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
   }
 
   const handleSuccess = () => {
-    console.log("[v0] CHECKOUT_SUCCESS - Aguardando processamento do webhook...")
-    // Espera 3 segundos para o webhook processar o pagamento antes de redirecionar
-    setTimeout(() => {
-      console.log("[v0] CHECKOUT_REDIRECT - Redirecionando para /success")
-      window.location.href = "/success"
-    }, 3000)
-    onClose()
+    console.log("[v0] CHECKOUT_SUCCESS - Aguardando processamento do webhook e animação de sucesso...")
+    // Não fecha o modal aqui - deixa a animação de sucesso aparecer
+    // O modal só fecha quando o countdown chegar a 0 e redirecionar para /success
   }
 
   return (
