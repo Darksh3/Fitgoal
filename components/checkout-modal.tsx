@@ -56,7 +56,7 @@ function PaymentMethodSelector({
   )
 }
 
-function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, paymentMethod, onError, onSuccess, setPaymentConfirmed }: any) {
+function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, paymentMethod, onError, onSuccess, paymentConfirmed, setPaymentConfirmed }: any) {
   const [processing, setProcessing] = useState(false)
   const [installments, setInstallments] = useState(1)
   const [cardData, setCardData] = useState({
@@ -144,6 +144,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   const installmentOptions = Array.from({ length: availableInstallments }, (_, i) => i + 1)
 
   const handleAsaasPayment = async () => {
+    if (processing) return
     try {
       setProcessing(true)
 
@@ -933,6 +934,7 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
                   paymentMethod={paymentMethod}
                   onError={handleError}
                   onSuccess={handleSuccess}
+                  paymentConfirmed={paymentConfirmed}
                   setPaymentConfirmed={setPaymentConfirmed}
                 />
               )}
