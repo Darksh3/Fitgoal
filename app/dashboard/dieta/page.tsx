@@ -1499,154 +1499,6 @@ export default function DietPage() {
         </body>
         </html>
       `
-          <div class="header">
-            <h1>Plano de Dieta Personalizado</h1>
-            <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
-            <p>Plano científico baseado em suas necessidades individuais</p>
-          </div>
-
-          <div class="macros-grid">
-            <div class="macro-card">
-              <div class="macro-title">Calorias Totais</div>
-              <div class="macro-value calories">${displayTotals.calories}</div>
-            </div>
-            <div class="macro-card">
-              <div class="macro-title">Proteína</div>
-              <div class="macro-value protein">${displayTotals.protein}</div>
-            </div>
-            <div class="macro-card">
-              <div class="macro-title">Carboidratos</div>
-              <div class="macro-value carbs">${displayTotals.carbs}</div>
-            </div>
-            <div class="macro-card">
-              <div class="macro-title">Gorduras</div>
-              <div class="macro-value fats">${displayTotals.fats}</div>
-            </div>
-          </div>
-
-          ${dietPlan.meals
-            .map((meal, index) => {
-              if (!meal || typeof meal !== "object") return ""
-
-              return `
-            <div class="meal">
-              <div class="meal-header">
-                <div>
-                  <div class="meal-title">${meal.name || `Refeição ${index + 1}`}</div>
-                  <div class="meal-calories">${meal.calories || "0 kcal"}</div>
-                </div>
-                <div class="meal-time">${meal.time || "Horário não definido"}</div>
-              </div>
-              
-              ${
-                Array.isArray(meal.foods) && meal.foods.length > 0
-                  ? meal.foods
-                      .map((food, foodIndex) => {
-                        let foodName = ""
-                        let foodQuantity = ""
-                        let foodCalories = ""
-                        let macros = ""
-
-                        if (typeof food === "string") {
-                          const patterns = [
-                            /(\d+g?)\s*de?\s*(.+)/i,
-                            /(.+?)\s*-\s*(\d+g?)/i,
-                            /(\d+)\s*unidades?\s*de?\s*(.+)/i,
-                            /(\d+)\s*(.+)/i,
-                          ]
-
-                          let matched = false
-                          for (const pattern of patterns) {
-                            const match = food.match(pattern)
-                            if (match) {
-                              if (/\d/.test(match[1])) {
-                                foodQuantity = match[1]
-                                foodName = match[2]?.trim()
-                              } else {
-                                foodName = match[1]?.trim()
-                                foodQuantity = match[2]
-                              }
-                              matched = true
-                              break
-                            }
-                          }
-
-                          if (!matched) {
-                            foodName = food.trim()
-                          }
-
-                          foodName = foodName
-                            .replace(/^(de\s+|da\s+|do\s+)/i, "")
-                            .replace(/\s+/g, " ")
-                            .trim()
-                        } else if (food && typeof food === "object") {
-                          foodName = food.name || `Alimento ${foodIndex + 1}`
-                          foodQuantity = food.quantity || ""
-                          foodCalories = food.calories ? `${food.calories} kcal` : ""
-
-                          if (food.protein || food.carbs || food.fats) {
-                            const macrosParts = []
-                            if (food.protein) macrosParts.push(`P: ${food.protein}g`)
-                            if (food.carbs) macrosParts.push(`C: ${food.carbs}g`)
-                            if (food.fats) macrosParts.push(`G: ${food.fats}g`)
-                            macros = macrosParts.join(" | ")
-                          }
-                        } else {
-                          foodName = `Alimento ${foodIndex + 1}`
-                        }
-
-                        if (!foodName || foodName.trim() === "") {
-                          foodName = `Alimento ${foodIndex + 1}`
-                        }
-
-                        return `
-                    <div class="food-item">
-                      <div>
-                        <div class="food-name">${foodName}</div>
-                        ${foodQuantity ? `<div class="food-quantity">${foodQuantity}</div>` : ""}
-                        ${macros ? `<div class="food-macros">${macros}</div>` : ""}
-                      </div>
-                      ${foodCalories ? `<div class="food-calories">${foodCalories}</div>` : ""}
-                    </div>
-                  `
-                      })
-                      .join("")
-                  : '<div class="food-item"><div class="food-name">Nenhum alimento especificado</div></div>'
-              }
-            </div>
-          `
-            })
-            .join("")}
-
-          ${
-            dietPlan.tips && Array.isArray(dietPlan.tips) && dietPlan.tips.length > 0
-              ? `
-            <div class="tips">
-              <h2 style="color: #1e293b; margin-bottom: 10px;">Dicas Importantes</h2>
-              <div class="tips-grid">
-                ${dietPlan.tips
-                  .map(
-                    (tip, index) => `
-                  <div class="tip tip-${(index % 4) + 1}">
-                    <div class="tip-title">Dica ${index + 1}</div>
-                    <div>${tip}</div>
-                  </div>
-                `,
-                  )
-                  .join("")}
-              </div>
-            </div>
-          `
-              : ""
-          }
-
-          <div class="footer">
-            <p><strong>FitGoal</strong> - Seu plano de dieta personalizado</p>
-            <p>Este plano foi criado especificamente para você com base em seus objetivos e necessidades.</p>
-          </div>
-        </body>
-        </html>
-      `
 
       // Import html2canvas and jsPDF
       const html2canvas = (await import("html2canvas")).default
@@ -1711,6 +1563,43 @@ export default function DietPage() {
   }
 
   const calculateTotals = (meals: any[]) => {
+    console.log("[v0] Calculating totals for meals:", meals)
+
+    if (!meals || !Array.isArray(meals) || meals.length === 0) {
+      return { calories: "0", protein: "0g", carbs: "0g", fats: "0g" }
+    }
+
+    let totalCalories = 0
+    let totalProtein = 0
+    let totalCarbs = 0
+    let totalFats = 0
+
+    meals.forEach((meal) => {
+      if (meal && typeof meal === "object") {
+        const mealCalories = parseInt(meal.calories?.toString().replace(/\D/g, "") || "0")
+        totalCalories += mealCalories || 0
+
+        if (Array.isArray(meal.foods)) {
+          meal.foods.forEach((food) => {
+            if (food && typeof food === "object") {
+              totalProtein += food.protein || 0
+              totalCarbs += food.carbs || 0
+              totalFats += food.fats || 0
+            }
+          })
+        }
+      }
+    })
+
+    return {
+      calories: totalCalories.toString(),
+      protein: totalProtein > 0 ? totalProtein.toFixed(1) + "g" : "0g",
+      carbs: totalCarbs > 0 ? totalCarbs.toFixed(1) + "g" : "0g",
+      fats: totalFats > 0 ? totalFats.toFixed(1) + "g" : "0g",
+    }
+  }
+
+  return (
     console.log("[v0] Calculating totals for meals:", meals)
 
     if (!meals || !Array.isArray(meals) || meals.length === 0) {
