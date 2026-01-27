@@ -534,6 +534,48 @@ export default function TreinoPage() {
   }
   }
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user) {
+        try {
+          const [leadsDoc, userDoc] = await Promise.all([
+            getDoc(doc(db, "leads", user.uid)),
+            getDoc(doc(db, "users", user.uid)),
+          ])
+
+          let data: UserData = {}
+
+          if (leadsDoc.exists()) {
+            data.quizData = leadsDoc.data()
+          }
+
+          if (userDoc.exists()) {
+            const userData = userDoc.data()
+            if (userData.workoutPlan) {
+              data.workoutPlan = userData.workoutPlan
+            }
+          }
+
+          const needsCleanup = await detectAndCleanInconsistentData(data, user.email || "")
+          if (needsCleanup) {
+            return
+          }
+
+          data = await syncUserData(data)
+          setUserData(data)
+          setIsLoading(false)
+        } catch (error) {
+          console.error("[TREINO] Erro ao buscar dados:", error)
+          setIsLoading(false)
+        }
+      }
+    }
+
+    if (!loading) {
+      fetchUserData()
+    }
+  }, [user, loading])
+
 
   if (loading || isLoading) {
     return (
