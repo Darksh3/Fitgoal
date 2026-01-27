@@ -60,8 +60,6 @@ export default function DietPage() {
   } | null>(null)
   const router = useRouter()
 
-  console.log("[v0] Component state:", { user: !!user, loading, error, dietPlan: !!dietPlan, quizData: !!quizData })
-
   useEffect(() => {
     setIsHydrated(true)
   }, [])
@@ -383,6 +381,49 @@ export default function DietPage() {
       carbs: `${Math.round(adjustedCarbs)}g`,
       fats: `${Math.round(adjustedFats)}g`,
     }
+  }
+
+  const calculateMealCalories = (meal: Meal) => {
+    if (!meal || !Array.isArray(meal.foods)) return "0 kcal"
+
+    let totalCalories = 0
+
+    meal.foods.forEach((food: any) => {
+      let foodCalories = 0
+
+      if (typeof food === "object" && food.calories) {
+        const caloriesStr = food.calories.toString()
+        const match = caloriesStr.match(/(\d+(?:\.\d+)?)/)
+        if (match) {
+          foodCalories = Number.parseFloat(match[1])
+        }
+      } else if (typeof food === "string") {
+        const match = food.match(/(\d+(?:\.\d+)?)\s*kcal/i)
+        if (match) {
+          foodCalories = Number.parseFloat(match[1])
+        }
+      }
+
+      if (!isNaN(foodCalories) && foodCalories > 0) {
+        totalCalories += foodCalories
+      }
+    })
+
+    // Add manually added foods for this meal
+    manualAdjustments.addedFoods.forEach((food) => {
+      if (food.mealIndex === meal && food.calories > 0) {
+        totalCalories += food.calories
+      }
+    })
+
+    // Subtract removed foods for this meal
+    manualAdjustments.removedFoods.forEach((food) => {
+      if (food.mealIndex === meal && food.calories > 0) {
+        totalCalories -= food.calories
+      }
+    })
+
+    return totalCalories > 0 ? `${Math.round(totalCalories)} kcal` : "0 kcal"
   }
 
   useEffect(() => {
@@ -2255,7 +2296,7 @@ export default function DietPage() {
                               {meal.name || `Refeição ${index + 1}`}
                             </h3>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                              {filteredFoods.length + manualFoodsForMeal.length} alimentos • {meal.calories || "0 kcal"}
+                              {filteredFoods.length + manualFoodsForMeal.length} alimentos • {calculateMealCalories(meal)}
                             </p>
                           </div>
                         </div>
