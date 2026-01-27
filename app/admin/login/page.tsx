@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { validateAdminCredentials, setAdminToken } from "@/lib/adminAuth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -20,14 +19,32 @@ export default function AdminLogin() {
     setError("")
     setIsLoading(true)
 
-    if (validateAdminCredentials(email, password)) {
-      setAdminToken("admin_authenticated_fitgoal")
-      router.push("/admin/dashboard")
-    } else {
-      setError("Email ou senha incorretos")
-    }
+    try {
+      // opcional: validar email no front só pra UX (não é segurança)
+      if (!email.trim()) {
+        setError("Informe o email")
+        return
+      }
 
-    setIsLoading(false)
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // se você quiser checar email no server também, mande email junto
+        body: JSON.stringify({ password, email }),
+        credentials: "include",
+      })
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || "Email ou senha incorretos")
+      }
+
+      router.push("/admin/dashboard")
+    } catch (err: any) {
+      setError(err.message || "Falha ao autenticar")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -40,9 +57,7 @@ export default function AdminLogin() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-300">
-                Email
-              </Label>
+              <Label htmlFor="email" className="text-slate-300">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -55,9 +70,7 @@ export default function AdminLogin() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-slate-300">
-                Senha
-              </Label>
+              <Label htmlFor="password" className="text-slate-300">Senha</Label>
               <Input
                 id="password"
                 type="password"
