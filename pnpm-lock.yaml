@@ -104,6 +104,12 @@ importers:
       '@sendgrid/mail':
         specifier: 8.1.5
         version: 8.1.5
+      '@types/jsonwebtoken':
+        specifier: ^9.0.0
+        version: 9.0.10
+      '@types/node':
+        specifier: ^22
+        version: 22.19.7
       '@vercel/blob':
         specifier: 1.1.1
         version: 1.1.1
@@ -191,6 +197,9 @@ importers:
       resend:
         specifier: 6.7.0
         version: 6.7.0(@react-email/render@2.0.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
+      server-only:
+        specifier: 0.0.1
+        version: 0.0.1
       sonner:
         specifier: ^1.7.1
         version: 1.7.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -219,9 +228,6 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.9
         version: 4.1.18
-      '@types/node':
-        specifier: ^22
-        version: 22.19.7
       '@types/react':
         specifier: ^18
         version: 18.3.27
@@ -2602,6 +2608,9 @@ packages:
     resolution: {integrity: sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q==}
     engines: {node: '>=10'}
     hasBin: true
+
+  server-only@0.0.1:
+    resolution: {integrity: sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA==}
 
   sharp@0.34.5:
     resolution: {integrity: sha512-Ou9I5Ft9WNcCbXrU9cMgPBcCK8LiwLqcbywW3t4oDV37n1pzpuNLsYiAV8eODnjbtQlSDwZ2cUEeQz4E54Hltg==}
@@ -5386,6 +5395,8 @@ snapshots:
       parseley: 0.12.1
 
   semver@7.7.3: {}
+
+  server-only@0.0.1: {}
 
   sharp@0.34.5:
     dependencies:
