@@ -45,18 +45,41 @@ function ExerciseSubstituteButton({
   exerciseIndex,
   onSubstitute,
 }: {
-  exercise: any
+  exercise: Exercise
   dayIndex: number
   exerciseIndex: number
-  onSubstitute: (dayIndex: number, exerciseIndex: number, exercise: any) => void
+  onSubstitute: (dayIndex: number, exerciseIndex: number, exercise: Exercise) => Promise<void>
 }) {
   const [isSubstituting, setIsSubstituting] = React.useState(false)
 
   const handleSubstitute = async () => {
-    setIsSubstituting(true)
-    await onSubstitute(dayIndex, exerciseIndex, exercise)
+  setIsSubstituting(true)
+  try {
+    const res = await fetch("/api/substitute-exercise", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ exercise }),
+    })
+
+    if (!res.ok) {
+      throw new Error(`substitute-exercise failed: ${res.status}`)
+    }
+
+    const data = await res.json()
+    const newExercise: Exercise = data?.newExercise
+
+    if (!newExercise?.name || !newExercise?.sets || !newExercise?.reps || !newExercise?.rest || !newExercise?.description) {
+      throw new Error("API did not return a valid newExercise")
+    }
+
+    await onSubstitute(dayIndex, exerciseIndex, newExercise)
+  } catch (err) {
+    console.error("[TREINO] Substitute error:", err)
+    alert("Não foi possível substituir o exercício. Tente novamente.")
+  } finally {
     setIsSubstituting(false)
   }
+}
 
   return (
     <button
@@ -744,4 +767,3 @@ export default function TreinoPage() {
       </div>
     </ProtectedRoute>
   )
-}
