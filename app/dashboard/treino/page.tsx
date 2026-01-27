@@ -356,80 +356,91 @@ export default function TreinoPage() {
           font-family: Arial, sans-serif; 
           color: #000; 
           background: white; 
-          padding: 15px;
-          line-height: 1.2;
-          font-size: 12px;
+          padding: 8px;
+          line-height: 1.1;
+          font-size: 11px;
         }
         
         .header { 
           text-align: center; 
-          margin-bottom: 12px;
+          margin-bottom: 8px;
           border: 2px solid #000;
-          padding: 8px;
+          padding: 6px;
         }
         
         .header h1 { 
-          font-size: 18px;
+          font-size: 16px;
           font-weight: bold;
           margin: 0;
-          letter-spacing: 2px;
+          letter-spacing: 1px;
         }
         
         .header p {
-          font-size: 11px;
-          margin: 3px 0 0 0;
+          font-size: 10px;
+          margin: 2px 0 0 0;
         }
         
-        .exercise-grid {
+        .exercises-container {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          gap: 8px;
-          margin-bottom: 8px;
+          gap: 6px;
+          margin-bottom: 6px;
         }
         
         .exercise-section {
           border: 2px solid #000;
+          display: flex;
+          flex-direction: column;
         }
         
         .section-title {
-          background: #f0f0f0;
+          background: #e0e0e0;
           border-bottom: 2px solid #000;
-          padding: 6px 8px;
+          padding: 4px;
           font-weight: bold;
-          font-size: 12px;
+          font-size: 10px;
           text-align: center;
           text-transform: uppercase;
+          flex-shrink: 0;
         }
         
         .exercise-table {
           width: 100%;
           border-collapse: collapse;
+          flex: 1;
+        }
+        
+        .exercise-table thead {
+          position: sticky;
+          top: 0;
         }
         
         .exercise-table th {
           border: 1px solid #000;
-          padding: 4px 3px;
+          padding: 3px 2px;
           font-weight: bold;
-          font-size: 11px;
+          font-size: 9px;
           text-align: center;
-          background: #f9f9f9;
+          background: #f5f5f5;
+          height: 18px;
         }
         
         .exercise-table td {
           border: 1px solid #000;
-          padding: 4px 3px;
-          font-size: 11px;
-          height: 20px;
+          padding: 2px 2px;
+          font-size: 9px;
+          height: 16px;
         }
         
         .exercise-name {
-          width: 45%;
+          width: 55%;
           text-align: left;
           font-weight: 500;
+          word-break: break-word;
         }
         
         .exercise-col {
-          width: 18%;
+          width: 15%;
           text-align: center;
         }
         
@@ -450,21 +461,21 @@ export default function TreinoPage() {
         
         .footer {
           text-align: center;
-          font-size: 10px;
-          color: #666;
-          margin-top: 15px;
-          border-top: 1px solid #ddd;
-          padding-top: 8px;
+          font-size: 9px;
+          color: #333;
+          border-top: 1px solid #ccc;
+          padding-top: 4px;
+          margin-top: 6px;
         }
       </style>
     </head>
     <body>
       <div class="header">
-        <h1>FICHA DE TREINO PERSONALIZADO</h1>
+        <h1>EXERCÍCIOS LOCALIZADOS</h1>
         <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
       </div>
       
-      <div class="exercise-grid">
+      <div class="exercises-container">
         ${filledGroups
           .map(([groupName, exercises]) => {
             if (exercises.length === 0) return ""
@@ -517,11 +528,11 @@ export default function TreinoPage() {
     
     const pdf = html2pdf()
       .set({
-        margin: 5,
+        margin: 3,
         filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
         image: { type: "png", quality: 0.98 },
         html2canvas: { scale: 2 },
-        jsPDF: { orientation: "portrait", unit: "mm", format: "a4" },
+        jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
       })
       .from(element)
       .save()
