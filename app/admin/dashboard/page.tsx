@@ -40,18 +40,26 @@ export default function AdminDashboard() {
         {/* Content */}
         <div className="max-w-7xl mx-auto px-4 py-8">
           {/* Tabs */}
-          <div className="flex gap-4 mb-6 border-b border-slate-700">
+          <div className="flex gap-4 mb-6 border-b border-slate-700 overflow-x-auto">
             <button
               onClick={() => setActiveTab("analytics")}
-              className={`px-4 py-2 font-medium transition-colors ${
+              className={`px-4 py-2 font-medium transition-colors whitespace-nowrap ${
                 activeTab === "analytics" ? "text-green-500 border-b-2 border-green-500" : "text-slate-400 hover:text-slate-300"
               }`}
             >
-              Analytics
+              Leads
+            </button>
+            <button
+              onClick={() => setActiveTab("usuarios")}
+              className={`px-4 py-2 font-medium transition-colors whitespace-nowrap ${
+                activeTab === "usuarios" ? "text-green-500 border-b-2 border-green-500" : "text-slate-400 hover:text-slate-300"
+              }`}
+            >
+              Usuários
             </button>
             <button
               onClick={() => setActiveTab("settings")}
-              className={`px-4 py-2 font-medium transition-colors ${
+              className={`px-4 py-2 font-medium transition-colors whitespace-nowrap ${
                 activeTab === "settings" ? "text-green-500 border-b-2 border-green-500" : "text-slate-400 hover:text-slate-300"
               }`}
             >
@@ -61,6 +69,19 @@ export default function AdminDashboard() {
 
           {/* Tab Content */}
           {activeTab === "analytics" && <LeadsAnalytics />}
+
+          {activeTab === "usuarios" && (
+            <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
+              <h2 className="text-white text-lg font-semibold mb-4">Gerenciar Usuários</h2>
+              <p className="text-slate-300 mb-4">Aqui você pode gerenciar todos os usuários, editar emails, senhas, bloquear acesso, modificar planos e editar dietas/treinos.</p>
+              <Button
+                onClick={() => router.push("/admin/users")}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                Ir para Gerenciamento de Usuários
+              </Button>
+            </div>
+          )}
 
           {activeTab === "settings" && (
             <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
