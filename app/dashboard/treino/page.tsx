@@ -304,269 +304,235 @@ export default function TreinoPage() {
 
   const workoutPlan = userData.workoutPlan
 
+  // Group exercises by muscle group
+  const groupedExercises: { [key: string]: any[] } = {
+    "Peitorais": [],
+    "Dorsais": [],
+    "Ombros": [],
+    "Tríceps": [],
+    "Bíceps": [],
+    "Antebraços": [],
+    "Abdômen": [],
+    "Costas": [],
+    "Pernas": [],
+    "Glúteos": [],
+    "Outros": []
+  }
+
+  // Populate grouped exercises
+  workoutPlan.days?.forEach((day: any) => {
+    day.exercises?.forEach((exercise: any) => {
+      const muscleGroup = exercise.muscleGroup || "Outros"
+      if (groupedExercises[muscleGroup]) {
+        groupedExercises[muscleGroup].push({
+          name: exercise.name,
+          sets: exercise.sets,
+          reps: exercise.reps
+        })
+      } else {
+        groupedExercises["Outros"].push({
+          name: exercise.name,
+          sets: exercise.sets,
+          reps: exercise.reps
+        })
+      }
+    })
+  })
+
+  // Filter out empty groups
+  const filledGroups = Object.entries(groupedExercises).filter(([_, exercises]) => exercises.length > 0)
+
   // Create PDF content as HTML string
   const pdfContent = `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="UTF-8">
-      <title>Plano de Treino Personalizado</title>
+      <title>Ficha de Treino</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; }
         body { 
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-          color: #1f2937; 
+          font-family: Arial, sans-serif; 
+          color: #000; 
           background: white; 
-          padding: 20px 18px;
-          line-height: 1.4;
-          font-size: 13px;
+          padding: 15px;
+          line-height: 1.2;
+          font-size: 12px;
         }
         
         .header { 
           text-align: center; 
-          margin-bottom: 15px; 
-          padding: 12px 15px;
-          background: linear-gradient(135deg, #f0f9ff 0%, #ecf0f1 100%);
-          border-radius: 8px;
-          border-bottom: 2px solid #0ea5e9;
+          margin-bottom: 12px;
+          border: 2px solid #000;
+          padding: 8px;
         }
         
         .header h1 { 
-          color: #0284c7; 
-          margin: 0; 
-          font-size: 22px;
-          font-weight: 700;
-          margin-bottom: 6px;
-          letter-spacing: -0.5px;
+          font-size: 18px;
+          font-weight: bold;
+          margin: 0;
+          letter-spacing: 2px;
         }
         
-        .header-meta {
-          display: flex;
-          justify-content: center;
-          gap: 15px;
-          margin-top: 6px;
-          flex-wrap: wrap;
-        }
-        
-        .meta-item {
+        .header p {
           font-size: 11px;
-          color: #475569;
-          display: flex;
-          align-items: center;
-          gap: 3px;
+          margin: 3px 0 0 0;
         }
         
-        .meta-label {
-          font-weight: 600;
-          color: #0284c7;
-        }
-        
-        .workout-day { 
-          margin: 12px 0; 
-          padding: 0;
-          page-break-inside: avoid;
-        }
-        
-        .day-header { 
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 8px;
-          padding: 10px 12px;
-          background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
-          border-radius: 6px;
-          color: white;
-        }
-        
-        .day-title { 
-          font-size: 15px; 
-          font-weight: 700; 
-          color: white;
-          flex: 1;
-        }
-        
-        .day-meta {
-          text-align: right;
-          font-size: 10px;
-        }
-        
-        .day-focus { 
-          background: rgba(255, 255, 255, 0.2);
-          color: white; 
-          padding: 3px 8px; 
-          border-radius: 4px; 
-          font-size: 10px;
-          font-weight: 600;
-          margin-bottom: 3px;
-          display: inline-block;
-        }
-        
-        .day-duration { 
-          color: rgba(255, 255, 255, 0.9); 
-          font-size: 10px;
-          display: block;
-        }
-        
-        .exercise { 
-          padding: 10px 10px; 
-          margin: 6px 0; 
-          background: white;
-          border: 1px solid #e5e7eb;
-          border-left: 4px solid #0284c7;
-          border-radius: 6px;
-        }
-        
-        .exercise-name { 
-          font-weight: 700; 
-          font-size: 13px; 
-          color: #0f172a;
-          margin-bottom: 6px;
-          padding-bottom: 4px;
-          border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .exercise-details { 
-          display: grid; 
-          grid-template-columns: repeat(3, 1fr); 
-          gap: 8px; 
-          margin: 6px 0; 
-        }
-        
-        .detail { 
-          font-size: 11px; 
-          color: #374151;
-          padding: 5px;
-          background: #f9fafb;
-          border-radius: 4px;
-        }
-        
-        .detail-label { 
-          font-weight: 700; 
-          color: #0284c7;
-          display: block;
-          font-size: 9px;
-          margin-bottom: 2px;
-          text-transform: uppercase;
-          letter-spacing: 0.3px;
-        }
-        
-        .exercise-description { 
-          font-size: 11px; 
-          color: #4b5563; 
-          margin-top: 6px; 
-          line-height: 1.4;
-          font-style: italic;
-          padding: 6px 8px;
-          background: #f0f9ff;
-          border-radius: 4px;
-          border-left: 2px solid #0ea5e9;
-        }
-        
-        .tips { 
-          margin: 15px 0;
-          padding: 12px;
-          background: #f9fafb;
-          border-radius: 8px;
-          border-top: 2px solid #0284c7;
-        }
-        
-        .tips h2 {
-          color: #0f172a;
-          margin-bottom: 10px;
-          font-size: 14px;
-          font-weight: 700;
-        }
-        
-        .tips-grid { 
-          display: grid; 
-          grid-template-columns: repeat(2, 1fr); 
+        .exercise-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
           gap: 8px;
+          margin-bottom: 8px;
         }
         
-        .tip { 
-          padding: 8px 10px; 
-          border-radius: 6px;
-          border-left: 3px solid;
-          background: white;
+        .exercise-section {
+          border: 2px solid #000;
         }
         
-        .tip-1 { 
-          background: #ecf0f1;
-          border-left-color: #0284c7;
+        .section-title {
+          background: #f0f0f0;
+          border-bottom: 2px solid #000;
+          padding: 6px 8px;
+          font-weight: bold;
+          font-size: 12px;
+          text-align: center;
+          text-transform: uppercase;
         }
         
-        .tip-2 { 
-          background: #d1f8e8;
-          border-left-color: #059669;
+        .exercise-table {
+          width: 100%;
+          border-collapse: collapse;
         }
         
-        .tip-3 { 
-          background: #fef3c7;
-          border-left-color: #d97706;
-        }
-        
-        .tip-4 { 
-          background: #fee2e2;
-          border-left-color: #dc2626;
-        }
-        
-        .tip-title { 
-          font-weight: 700;
-          margin-bottom: 3px;
+        .exercise-table th {
+          border: 1px solid #000;
+          padding: 4px 3px;
+          font-weight: bold;
           font-size: 11px;
-          color: #1f2937;
+          text-align: center;
+          background: #f9f9f9;
         }
         
-        .tip-text {
+        .exercise-table td {
+          border: 1px solid #000;
+          padding: 4px 3px;
+          font-size: 11px;
+          height: 20px;
+        }
+        
+        .exercise-name {
+          width: 45%;
+          text-align: left;
+          font-weight: 500;
+        }
+        
+        .exercise-col {
+          width: 18%;
+          text-align: center;
+        }
+        
+        .series-col {
+          text-align: center;
+          font-weight: 500;
+        }
+        
+        .reps-col {
+          text-align: center;
+          font-weight: 500;
+        }
+        
+        .load-col {
+          text-align: center;
+          background: #fafafa;
+        }
+        
+        .footer {
+          text-align: center;
           font-size: 10px;
-          color: #4b5563;
-          line-height: 1.3;
-        }
-        
-        .footer { 
-          margin-top: 15px; 
-          text-align: center; 
-          color: #6b7280; 
-          font-size: 9px; 
-          border-top: 1px solid #e5e7eb; 
-          padding-top: 10px;
-        }
-        
-        .logo {
-          font-size: 10px;
-          font-weight: 700;
-          color: #0284c7;
-          margin-bottom: 3px;
+          color: #666;
+          margin-top: 15px;
+          border-top: 1px solid #ddd;
+          padding-top: 8px;
         }
       </style>
     </head>
     <body>
       <div class="header">
-        <h1>💪 Plano de Treino Personalizado</h1>
-        <div class="header-meta">
-          <div class="meta-item">
-            <span class="meta-label">📅 Data:</span> 
-            ${new Date().toLocaleDateString("pt-BR")}
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">📋 Frequência:</span> 
-            ${workoutPlan.weeklySchedule || "Plano semanal"}
-          </div>
-        </div>
+        <h1>FICHA DE TREINO PERSONALIZADO</h1>
+        <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
       </div>
-
-      ${workoutPlan.days
-        .map(
-          (day, dayIdx) => `
-        <div class="workout-day">
-          <div class="day-header">
-            <div>
-              <div class="day-title">${day.day} - ${day.title}</div>
-              <div class="day-meta">
-                <div class="day-focus">🎯 ${day.focus}</div>
-                <div class="day-duration">⏱️ ${day.duration}</div>
+      
+      <div class="exercise-grid">
+        ${filledGroups
+          .map(([groupName, exercises]) => {
+            if (exercises.length === 0) return ""
+            
+            return `
+              <div class="exercise-section">
+                <div class="section-title">${groupName.toUpperCase()}</div>
+                <table class="exercise-table">
+                  <thead>
+                    <tr>
+                      <th class="exercise-name">EXERCÍCIO</th>
+                      <th class="exercise-col">SÉR</th>
+                      <th class="exercise-col">REP</th>
+                      <th class="exercise-col">CARGA</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${exercises
+                      .map((ex: any) => `
+                        <tr>
+                          <td class="exercise-name">${ex.name}</td>
+                          <td class="series-col">${ex.sets}</td>
+                          <td class="reps-col">${ex.reps}</td>
+                          <td class="load-col"></td>
+                        </tr>
+                      `)
+                      .join("")}
+                  </tbody>
+                </table>
               </div>
+            `
+          })
+          .join("")}
+      </div>
+      
+      <div class="footer">
+        Preencha a coluna "CARGA" com o peso utilizado em cada série
+      </div>
+    </body>
+    </html>
+  `
+
+  try {
+    // Convert HTML to PDF using html2pdf library
+    const element = document.createElement("div")
+    element.innerHTML = pdfContent
+    
+    // Dynamic import of html2pdf
+    const html2pdf = (await import("html2pdf.js")).default
+    
+    const pdf = html2pdf()
+      .set({
+        margin: 5,
+        filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
+        image: { type: "png", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { orientation: "portrait", unit: "mm", format: "a4" },
+      })
+      .from(element)
+      .save()
+
+    // Download
+    pdf.save(`plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`)
+  } catch (error) {
+    console.error("[v0] Erro ao gerar PDF:", error)
+    alert("Erro ao gerar PDF. Tente novamente.")
+  }
+}
             </div>
           </div>
           
