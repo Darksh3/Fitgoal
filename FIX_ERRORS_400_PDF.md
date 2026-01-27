@@ -8,7 +8,7 @@
 
 **Solução:**
 Atualizei `handleSubstitute()` em `/app/dashboard/treino/page.tsx` para enviar todos os parâmetros esperados:
-```typescript
+\`\`\`typescript
 body: JSON.stringify({
   userId: user.uid,
   dayIndex,
@@ -16,7 +16,7 @@ body: JSON.stringify({
   currentExercise: exercise,
   userPreferences: userData?.quizData || {},
 })
-```
+\`\`\`
 
 **Melhorias adicionadas:**
 - Validação de parâmetros antes da requisição

@@ -33,15 +33,15 @@ You need to add the `ADMIN_JWT_SECRET` environment variable:
    - **Value**: Generate a strong random secret (e.g., using `openssl rand -base64 32`)
    
 Example:
-```
+\`\`\`
 ADMIN_JWT_SECRET=your-super-secret-key-here-minimum-32-chars
-```
+\`\`\`
 
 ### Step 2: Generate Admin Token
 
 When a user logs in as admin, you need to generate a JWT token and set it as a cookie:
 
-```typescript
+\`\`\`typescript
 import jwt from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 
@@ -59,18 +59,18 @@ cookieStore.set('admin_token', token, {
   sameSite: 'lax',
   maxAge: 24 * 60 * 60, // 24 hours
 })
-```
+\`\`\`
 
 ### Step 3: Test the Setup
 
 1. Login to the admin dashboard
 2. Open browser DevTools → Console
 3. Run this command:
-```javascript
+\`\`\`javascript
 fetch("/api/admin/leads", { credentials: "include" })
   .then(r => r.json())
   .then(console.log)
-```
+\`\`\`
 
 You should see a response with `{leads: [...]}`.
 
