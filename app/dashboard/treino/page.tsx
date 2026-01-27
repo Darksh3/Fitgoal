@@ -44,30 +44,34 @@ function ExerciseSubstituteButton({
   dayIndex,
   exerciseIndex,
   onSubstitute,
+  userId,
+  userPreferences,
 }: {
   exercise: Exercise
   dayIndex: number
   exerciseIndex: number
   onSubstitute: (dayIndex: number, exerciseIndex: number, exercise: Exercise) => Promise<void>
+  userId: string
+  userPreferences?: any
 }) {
   const [isSubstituting, setIsSubstituting] = React.useState(false)
 
   const handleSubstitute = async () => {
   setIsSubstituting(true)
   try {
-    if (!user?.uid || dayIndex === undefined || exerciseIndex === undefined) {
-      throw new Error("Missing required parameters: user.uid, dayIndex, or exerciseIndex")
+    if (!userId || dayIndex === undefined || exerciseIndex === undefined) {
+      throw new Error("Missing required parameters: userId, dayIndex, or exerciseIndex")
     }
 
     const res = await fetch("/api/substitute-exercise", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: user.uid,
+        userId,
         dayIndex,
         exerciseIndex,
         currentExercise: exercise,
-        userPreferences: userData?.quizData || {},
+        userPreferences: userPreferences || {},
       }),
     })
 
@@ -760,6 +764,8 @@ export default function TreinoPage() {
                                 dayIndex={dayIndex}
                                 exerciseIndex={exerciseIndex}
                                 onSubstitute={handleExerciseSubstitution}
+                                userId={user?.uid || ""}
+                                userPreferences={userData?.quizData}
                               />
                             </div>
                             <div className="flex flex-wrap gap-2 mb-3">
