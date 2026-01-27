@@ -55,21 +55,33 @@ function ExerciseSubstituteButton({
   const handleSubstitute = async () => {
   setIsSubstituting(true)
   try {
+    if (!user?.uid || dayIndex === undefined || exerciseIndex === undefined) {
+      throw new Error("Missing required parameters: user.uid, dayIndex, or exerciseIndex")
+    }
+
     const res = await fetch("/api/substitute-exercise", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ exercise }),
+      body: JSON.stringify({
+        userId: user.uid,
+        dayIndex,
+        exerciseIndex,
+        currentExercise: exercise,
+        userPreferences: userData?.quizData || {},
+      }),
     })
 
     if (!res.ok) {
-      throw new Error(`substitute-exercise failed: ${res.status}`)
+      const errorText = await res.text()
+      console.error("[v0] substitute-exercise 400 body:", errorText)
+      throw new Error(`substitute-exercise failed: ${res.status} - ${errorText}`)
     }
 
     const data = await res.json()
-    const newExercise: Exercise = data?.newExercise
+    const newExercise: Exercise = data?.substitution || data?.newExercise
 
     if (!newExercise?.name || !newExercise?.sets || !newExercise?.reps || !newExercise?.rest || !newExercise?.description) {
-      throw new Error("API did not return a valid newExercise")
+      throw new Error("API did not return a valid substitution")
     }
 
     await onSubstitute(dayIndex, exerciseIndex, newExercise)
@@ -296,11 +308,13 @@ export default function TreinoPage() {
       <meta charset="UTF-8">
       <title>Plano de Treino Personalizado</title>
       <style>
-        body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; }
+        body { font-family: Arial, sans-serif; color: #333; background: white; padding: 40px; }
         .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3b82f6; padding-bottom: 20px; }
         .header h1 { color: #3b82f6; margin: 0; font-size: 28px; }
         .header p { color: #666; margin: 5px 0; }
-        .workout-day { margin: 20px 0; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; page-break-inside: avoid; }
+        .workout-day { margin: 20px 0; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; }
         .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
         .day-title { font-size: 20px; font-weight: bold; color: #1e293b; }
         .day-focus { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
@@ -311,7 +325,7 @@ export default function TreinoPage() {
         .detail { font-size: 14px; color: #475569; }
         .detail-label { font-weight: 600; color: #3b82f6; }
         .exercise-description { font-size: 14px; color: #666; margin-top: 8px; line-height: 1.5; }
-        .tips { margin-top: 30px; page-break-before: always; }
+        .tips { margin-top: 30px; }
         .tips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
         .tip { padding: 15px; border-radius: 8px; }
         .tip-1 { background: #dbeafe; border-left: 4px solid #3b82f6; }
@@ -389,30 +403,63 @@ export default function TreinoPage() {
     </html>
   `
 
-  const tempDiv = document.createElement("div")
-  tempDiv.innerHTML = pdfContent
-  tempDiv.style.position = "absolute"
-  tempDiv.style.left = "-9999px"
-  document.body.appendChild(tempDiv)
-
-  const options = {
-    margin: 10,
-    filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
-    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-  }
-
   try {
-    const mod = await import("html2pdf.js")
-    const html2pdf: any = (mod as any).default || mod
+    // Import html2canvas and jsPDF
+    const html2canvas = (await import("html2canvas")).default
+    const jsPDF = (await import("jspdf")).jsPDF
 
-    await html2pdf().set(options).from(tempDiv).save()
+    // Create a container with proper dimensions
+    const container = document.createElement("div")
+    container.innerHTML = pdfContent
+    container.style.position = "fixed"
+    container.style.top = "0"
+    container.style.left = "0"
+    container.style.width = "800px"
+    container.style.height = "auto"
+    container.style.backgroundColor = "white"
+    container.style.zIndex = "-9999"
+    document.body.appendChild(container)
+
+    // Wait for layout to settle
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    // Capture canvas
+    const canvas = await html2canvas(container, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      logging: false,
+    })
+
+    // Create PDF
+    const pdf = new jsPDF({
+      unit: "mm",
+      format: "a4",
+      orientation: "portrait",
+    })
+
+    const imgWidth = 210 // A4 width in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
+    let heightLeft = imgHeight
+    let position = 0
+
+    const imgData = canvas.toDataURL("image/jpeg", 0.98)
+
+    // Add pages as needed
+    while (heightLeft > 0) {
+      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
+      heightLeft -= 297 // A4 height in mm
+      if (heightLeft > 0) {
+        pdf.addPage()
+        position = -297
+      }
+    }
+
+    // Download
+    pdf.save(`plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`)
   } catch (error) {
-    console.error("Erro ao gerar PDF:", error)
+    console.error("[v0] Erro ao gerar PDF:", error)
     alert("Erro ao gerar PDF. Tente novamente.")
-  } finally {
-    document.body.removeChild(tempDiv)
   }
 }
 
