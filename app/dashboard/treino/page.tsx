@@ -304,7 +304,7 @@ export default function TreinoPage() {
 
   const workoutPlan = userData.workoutPlan
 
-  // Create PDF content as HTML string with premium design
+  // Create PDF content as HTML string
   const pdfContent = `
     <!DOCTYPE html>
     <html>
@@ -317,252 +317,288 @@ export default function TreinoPage() {
         body { 
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
           color: #1f2937; 
-          background: #ffffff; 
+          background: white; 
+          padding: 50px 40px;
           line-height: 1.6;
         }
         
-        /* Header Styles */
-        .header {
-          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-          color: white;
-          padding: 50px 40px;
-          margin: -40px -40px 50px -40px;
-          text-align: center;
+        .header { 
+          text-align: center; 
+          margin-bottom: 40px; 
+          padding-bottom: 30px; 
+          border-bottom: 3px solid #0ea5e9;
+          background: linear-gradient(135deg, #f0f9ff 0%, #ecf0f1 100%);
+          padding: 30px;
+          border-radius: 12px;
         }
-        .header h1 {
-          font-size: 42px;
+        
+        .header h1 { 
+          color: #0284c7; 
+          margin: 0; 
+          font-size: 32px;
           font-weight: 700;
-          margin-bottom: 12px;
+          margin-bottom: 10px;
           letter-spacing: -0.5px;
         }
-        .header-subtitle {
-          font-size: 18px;
-          opacity: 0.95;
-          font-weight: 300;
-        }
+        
         .header-meta {
           display: flex;
-          gap: 30px;
           justify-content: center;
-          margin-top: 20px;
-          padding-top: 20px;
-          border-top: 1px solid rgba(255,255,255,0.2);
-          font-size: 15px;
+          gap: 25px;
+          margin-top: 15px;
+          flex-wrap: wrap;
         }
         
-        /* Workout Day Styles */
-        .workout-day {
-          margin: 0 0 35px 0;
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-          border: 1px solid #e5e7eb;
-        }
-        .day-header {
-          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-          color: white;
-          padding: 24px 30px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .day-title {
-          font-size: 24px;
-          font-weight: 700;
-          letter-spacing: -0.3px;
-        }
-        .day-badge {
-          background: rgba(255,255,255,0.25);
-          padding: 8px 16px;
-          border-radius: 20px;
+        .meta-item {
           font-size: 13px;
+          color: #475569;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
+        
+        .meta-label {
           font-weight: 600;
-          backdrop-filter: blur(10px);
+          color: #0284c7;
         }
         
-        /* Exercises Container */
-        .exercises-container {
-          padding: 30px;
-          background: #f9fafb;
+        .workout-day { 
+          margin: 35px 0; 
+          padding: 0;
+          page-break-inside: avoid;
         }
         
-        /* Exercise Card */
-        .exercise {
-          background: white;
-          padding: 24px;
-          margin-bottom: 18px;
-          border-radius: 10px;
-          border-left: 4px solid #3b82f6;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .exercise:last-child {
-          margin-bottom: 0;
-        }
-        .exercise-header {
+        .day-header { 
           display: flex;
           justify-content: space-between;
-          align-items: start;
-          margin-bottom: 16px;
+          align-items: flex-start;
+          margin-bottom: 20px;
+          padding: 18px 20px;
+          background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+          border-radius: 10px;
+          color: white;
         }
-        .exercise-name {
-          font-size: 18px;
-          font-weight: 700;
-          color: #1f2937;
+        
+        .day-title { 
+          font-size: 22px; 
+          font-weight: 700; 
+          color: white;
           flex: 1;
         }
-        .exercise-intensity {
-          background: #dbeafe;
-          color: #1e40af;
-          padding: 6px 12px;
-          border-radius: 6px;
+        
+        .day-meta {
+          text-align: right;
+          font-size: 12px;
+        }
+        
+        .day-focus { 
+          background: rgba(255, 255, 255, 0.2);
+          color: white; 
+          padding: 6px 14px; 
+          border-radius: 6px; 
           font-size: 12px;
           font-weight: 600;
-          white-space: nowrap;
-          margin-left: 12px;
+          margin-bottom: 6px;
+          display: inline-block;
         }
-        .exercise-details {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 20px;
-          margin: 16px 0;
-          padding: 16px 0;
-          border-top: 1px solid #f3f4f6;
-          border-bottom: 1px solid #f3f4f6;
-        }
-        .detail {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-        .detail-label {
+        
+        .day-duration { 
+          color: rgba(255, 255, 255, 0.9); 
           font-size: 12px;
-          font-weight: 700;
-          color: #3b82f6;
+          display: block;
+        }
+        
+        .exercise { 
+          padding: 16px 18px; 
+          margin: 12px 0; 
+          background: white;
+          border: 1px solid #e5e7eb;
+          border-left: 5px solid #0284c7;
+          border-radius: 8px;
+          transition: box-shadow 0.2s;
+        }
+        
+        .exercise-name { 
+          font-weight: 700; 
+          font-size: 15px; 
+          color: #0f172a;
+          margin-bottom: 10px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .exercise-details { 
+          display: grid; 
+          grid-template-columns: repeat(3, 1fr); 
+          gap: 12px; 
+          margin: 10px 0; 
+        }
+        
+        .detail { 
+          font-size: 13px; 
+          color: #374151;
+          padding: 8px;
+          background: #f9fafb;
+          border-radius: 6px;
+        }
+        
+        .detail-label { 
+          font-weight: 700; 
+          color: #0284c7;
+          display: block;
+          font-size: 11px;
+          margin-bottom: 3px;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
-        .detail-value {
-          font-size: 16px;
-          font-weight: 600;
-          color: #1f2937;
-        }
-        .exercise-description {
-          font-size: 14px;
-          color: #4b5563;
-          line-height: 1.7;
-          margin-top: 12px;
-          background: #f9fafb;
-          padding: 14px;
-          border-radius: 6px;
-          border-left: 3px solid #e5e7eb;
-        }
         
-        /* Tips Section */
-        .tips-section {
-          margin-top: 40px;
-          padding: 40px;
-          background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-          border-radius: 12px;
-          border: 1px solid #e5e7eb;
-        }
-        .tips-title {
-          font-size: 20px;
-          font-weight: 700;
-          color: #1f2937;
-          margin-bottom: 24px;
-        }
-        .tips-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 16px;
-        }
-        .tip {
-          padding: 20px;
-          border-radius: 10px;
-          font-size: 14px;
+        .exercise-description { 
+          font-size: 13px; 
+          color: #4b5563; 
+          margin-top: 10px; 
           line-height: 1.6;
-          color: #374151;
+          font-style: italic;
+          padding: 10px 12px;
+          background: #f0f9ff;
+          border-radius: 6px;
+          border-left: 3px solid #0ea5e9;
         }
-        .tip-1 { background: #dbeafe; border-left: 4px solid #3b82f6; }
-        .tip-2 { background: #dcfce7; border-left: 4px solid #059669; }
-        .tip-3 { background: #fef3c7; border-left: 4px solid #d97706; }
-        .tip-4 { background: #fee2e2; border-left: 4px solid #dc2626; }
         
-        /* Footer */
-        .footer {
-          margin-top: 50px;
-          padding-top: 30px;
-          text-align: center;
-          color: #6b7280;
-          font-size: 13px;
-          border-top: 1px solid #e5e7eb;
+        .tips { 
+          margin: 40px 0;
+          padding: 25px;
+          background: #f9fafb;
+          border-radius: 12px;
+          border-top: 3px solid #0284c7;
         }
-        .footer-logo {
-          font-size: 16px;
+        
+        .tips h2 {
+          color: #0f172a;
+          margin-bottom: 20px;
+          font-size: 18px;
           font-weight: 700;
-          color: #3b82f6;
+        }
+        
+        .tips-grid { 
+          display: grid; 
+          grid-template-columns: repeat(2, 1fr); 
+          gap: 15px;
+        }
+        
+        .tip { 
+          padding: 14px 16px; 
+          border-radius: 8px;
+          border-left: 4px solid;
+          background: white;
+        }
+        
+        .tip-1 { 
+          background: #ecf0f1;
+          border-left-color: #0284c7;
+        }
+        
+        .tip-2 { 
+          background: #d1f8e8;
+          border-left-color: #059669;
+        }
+        
+        .tip-3 { 
+          background: #fef3c7;
+          border-left-color: #d97706;
+        }
+        
+        .tip-4 { 
+          background: #fee2e2;
+          border-left-color: #dc2626;
+        }
+        
+        .tip-title { 
+          font-weight: 700;
+          margin-bottom: 6px;
+          font-size: 13px;
+          color: #1f2937;
+        }
+        
+        .tip-text {
+          font-size: 12px;
+          color: #4b5563;
+          line-height: 1.5;
+        }
+        
+        .footer { 
+          margin-top: 50px; 
+          text-align: center; 
+          color: #6b7280; 
+          font-size: 11px; 
+          border-top: 2px solid #e5e7eb; 
+          padding-top: 25px;
+        }
+        
+        .logo {
+          font-size: 12px;
+          font-weight: 700;
+          color: #0284c7;
           margin-bottom: 8px;
         }
       </style>
     </head>
-    <body style="padding: 40px;">
+    <body>
       <div class="header">
-        <h1>🏋️ Plano de Treino Personalizado</h1>
-        <div class="header-subtitle">Seu guia completo para resultados máximos</div>
+        <h1>💪 Plano de Treino Personalizado</h1>
         <div class="header-meta">
-          <div>📅 ${new Date().toLocaleDateString("pt-BR")}</div>
-          <div>📋 ${workoutPlan.weeklySchedule || "Plano semanal personalizado"}</div>
+          <div class="meta-item">
+            <span class="meta-label">📅 Data:</span> 
+            ${new Date().toLocaleDateString("pt-BR")}
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">📋 Frequência:</span> 
+            ${workoutPlan.weeklySchedule || "Plano semanal"}
+          </div>
         </div>
       </div>
 
       ${workoutPlan.days
         .map(
-          (day) => `
+          (day, dayIdx) => `
         <div class="workout-day">
           <div class="day-header">
             <div>
-              <div class="day-title">${day.day}</div>
-              <div style="font-size: 14px; opacity: 0.9; margin-top: 4px;">${day.title}</div>
-            </div>
-            <div style="text-align: right;">
-              <div class="day-badge">${day.focus}</div>
-              <div style="font-size: 13px; opacity: 0.85; margin-top: 6px; color: rgba(255,255,255,0.8);">⏱️ ${day.duration}</div>
+              <div class="day-title">${day.day} - ${day.title}</div>
+              <div class="day-meta">
+                <div class="day-focus">🎯 ${day.focus}</div>
+                <div class="day-duration">⏱️ ${day.duration}</div>
+              </div>
             </div>
           </div>
-          <div class="exercises-container">
-            ${day.exercises
-              .map(
-                (exercise, idx) => {
-                  const intensity = exercise.sets >= 5 ? "Alta" : exercise.sets >= 4 ? "Média" : "Baixa";
-                  return `
-                  <div class="exercise">
-                    <div class="exercise-header">
-                      <div class="exercise-name">${idx + 1}. ${exercise.name}</div>
-                      <div class="exercise-intensity">${intensity} Intensidade</div>
-                    </div>
-                    <div class="exercise-details">
-                      <div class="detail">
-                        <div class="detail-label">Séries</div>
-                        <div class="detail-value">${exercise.sets}x</div>
-                      </div>
-                      <div class="detail">
-                        <div class="detail-label">Repetições</div>
-                        <div class="detail-value">${exercise.reps}</div>
-                      </div>
-                      <div class="detail">
-                        <div class="detail-label">Descanso</div>
-                        <div class="detail-value">${exercise.rest}</div>
-                      </div>
-                    </div>
-                    <div class="exercise-description">
-                      💡 ${exercise.description}
-                    </div>
-                  </div>
-                `;
-                },
-              )
-              .join("")}
-          </div>
+          
+          ${day.exercises
+            .map(
+              (exercise, exIdx) => `
+            <div class="exercise">
+              <div class="exercise-name">
+                <span style="color: #0284c7; margin-right: 8px;">💪</span>${exercise.name}
+              </div>
+              <div class="exercise-details">
+                <div class="detail">
+                  <span class="detail-label">Séries</span>
+                  <strong style="color: #0f172a; font-size: 14px;">${exercise.sets}</strong>
+                </div>
+                <div class="detail">
+                  <span class="detail-label">Repetições</span>
+                  <strong style="color: #0f172a; font-size: 14px;">${exercise.reps}</strong>
+                </div>
+                <div class="detail">
+                  <span class="detail-label">Descanso</span>
+                  <strong style="color: #0f172a; font-size: 14px;">${exercise.rest}</strong>
+                </div>
+              </div>
+              <div class="exercise-description">
+                📝 ${exercise.description}
+              </div>
+            </div>
+          `,
+            )
+            .join("")}
         </div>
       `,
         )
@@ -571,20 +607,20 @@ export default function TreinoPage() {
       ${
         workoutPlan.tips && Array.isArray(workoutPlan.tips) && workoutPlan.tips.length > 0
           ? `
-        <div class="tips-section">
-          <div class="tips-title">⚡ Dicas Importantes para Sucesso</div>
+        <div class="tips">
+          <h2>✨ Dicas Importantes</h2>
           <div class="tips-grid">
             ${workoutPlan.tips
               .map(
                 (tip, index) => {
-                  const icons = ["💪", "🎯", "⚡", "🔥"];
+                  const icons = ["💡", "🔥", "⚡", "🎯"];
                   return `
-                  <div class="tip tip-${(index % 4) + 1}">
-                    <div style="font-size: 24px; margin-bottom: 8px;">${icons[index % 4]}</div>
-                    <div>${tip}</div>
-                  </div>
-                `;
-                },
+              <div class="tip tip-${(index % 4) + 1}">
+                <div class="tip-title">${icons[index % 4]} Dica ${index + 1}</div>
+                <div class="tip-text">${tip}</div>
+              </div>
+            `;
+                }
               )
               .join("")}
           </div>
@@ -594,9 +630,21 @@ export default function TreinoPage() {
       }
 
       <div class="footer">
-        <div class="footer-logo">FitGoal</div>
-        <p>Seu plano de treino foi personalizado especificamente para seus objetivos e nível de experiência.</p>
-        <p style="margin-top: 12px; color: #9ca3af;">Gerado em ${new Date().toLocaleString("pt-BR")}</p>
+        <div class="logo">🏋️ FitGoal</div>
+        <p>Seu plano de treino personalizado e progressivo</p>
+        <p style="margin-top: 10px; font-size: 10px; color: #9ca3af;">
+          Gerado em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+          : ""
+      }
+
+      <div class="footer">
+        <p><strong>FitGoal</strong> - Seu plano de treino personalizado</p>
+        <p>Este plano foi criado especificamente para você com base em seus objetivos e experiência.</p>
       </div>
     </body>
     </html>
@@ -656,9 +704,6 @@ export default function TreinoPage() {
 
     // Download
     pdf.save(`plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`)
-    
-    // Clean up
-    document.body.removeChild(container)
   } catch (error) {
     console.error("[v0] Erro ao gerar PDF:", error)
     alert("Erro ao gerar PDF. Tente novamente.")
