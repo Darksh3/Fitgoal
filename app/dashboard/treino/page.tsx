@@ -628,6 +628,9 @@ export default function TreinoPage() {
       `
           : ""
       }
+    </body>
+    </html>
+  `
 
   try {
     // Import html2canvas and jsPDF
