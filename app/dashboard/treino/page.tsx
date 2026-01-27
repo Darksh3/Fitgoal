@@ -13,8 +13,6 @@ import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download, AlertCircle
 import React from "react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
-const html2pdf = dynamic(() => import("html2pdf.js"), { ssr: false })
-
 interface Exercise {
   name: string
   sets: string
@@ -269,7 +267,10 @@ export default function TreinoPage() {
 
     try {
       // Dynamically import html2pdf to avoid SSR issues
-      const html2pdf = (await import("html2pdf.js")).default
+      const mod = await import("html2pdf.js")
+      const html2pdf: any = (mod as any).default || mod
+
+      await html2pdf().set(options).from(tempDiv).save()
 
       const workoutPlan = userData.workoutPlan
 
@@ -380,6 +381,15 @@ export default function TreinoPage() {
       tempDiv.style.position = "absolute"
       tempDiv.style.left = "-9999px"
       document.body.appendChild(tempDiv)
+
+      try {
+        const mod = await import("html2pdf.js")
+        const html2pdf: any = (mod as any).default || mod
+
+        await html2pdf().set(options).from(tempDiv).save()
+      } finally {
+        document.body.removeChild(tempDiv)
+      }
 
       // Configure PDF options
       const options = {
