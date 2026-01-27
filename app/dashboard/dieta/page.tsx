@@ -1379,7 +1379,7 @@ export default function DietPage() {
             <div class="meal">
               <div class="meal-header">
                 <div>
-                  <div class="meal-title">${meal.name || \`Refeição \${index + 1}\`}</div>
+                  <div class="meal-title">${meal.name || "Refeição " + (index + 1)}</div>
                   <div class="meal-calories">${meal.calories || "0 kcal"}</div>
                 </div>
                 <div class="meal-time">${meal.time || "Horário não definido"}</div>
@@ -1429,13 +1429,13 @@ export default function DietPage() {
                           } else if (food && typeof food === "object") {
                             foodName = food.name || "Alimento"
                             foodQuantity = food.quantity || ""
-                            foodCalories = food.calories ? \`\${food.calories} kcal\` : ""
+                            foodCalories = food.calories ? food.calories + " kcal" : ""
 
                             if (food.protein || food.carbs || food.fats) {
                               const macrosParts = []
-                              if (food.protein) macrosParts.push(\`P: \${food.protein}g\`)
-                              if (food.carbs) macrosParts.push(\`C: \${food.carbs}g\`)
-                              if (food.fats) macrosParts.push(\`G: \${food.fats}g\`)
+                              if (food.protein) macrosParts.push("P: " + food.protein + "g")
+                              if (food.carbs) macrosParts.push("C: " + food.carbs + "g")
+                              if (food.fats) macrosParts.push("G: " + food.fats + "g")
                               macros = macrosParts.join(" | ")
                             }
                           } else {
@@ -1446,48 +1446,48 @@ export default function DietPage() {
                             foodName = "Alimento"
                           }
 
-                          return \`
+                          return `
                             <div class="food-item">
                               <div>
-                                <div class="food-name">\${foodName}</div>
-                                \${foodQuantity ? \`<div class="food-quantity">\${foodQuantity}</div>\` : ""}
-                                \${macros ? \`<div class="food-macros">\${macros}</div>\` : ""}
+                                <div class="food-name">${foodName}</div>
+                                ${foodQuantity ? '<div class="food-quantity">' + foodQuantity + '</div>' : ""}
+                                ${macros ? '<div class="food-macros">' + macros + '</div>' : ""}
                               </div>
-                              \${foodCalories ? \`<div class="food-calories">\${foodCalories}</div>\` : ""}
+                              ${foodCalories ? '<div class="food-calories">' + foodCalories + '</div>' : ""}
                             </div>
-                          \`
+                          `
                         })
                         .join("")
                     : '<div class="food-item"><div class="food-name">Nenhum alimento especificado</div></div>'
                 }
               </div>
             </div>
-          \`
+          `
             })
             .join("")}
 
           ${
             dietPlan.tips && Array.isArray(dietPlan.tips) && dietPlan.tips.length > 0
-              ? \`
+              ? `
             <div class="tips-section">
               <div class="tips-title">💡 Dicas Nutricionais Importantes</div>
               <div class="tips-grid">
-                \${dietPlan.tips
+                ${dietPlan.tips
                   .map(
                     (tip, index) => {
                       const icons = ["🥤", "🍗", "🥕", "⚡"];
-                      return \`
-                      <div class="tip tip-\${(index % 4) + 1}">
-                        <div style="font-size: 24px; margin-bottom: 8px;">\${icons[index % 4]}</div>
-                        <div>\${tip}</div>
+                      return `
+                      <div class="tip tip-${(index % 4) + 1}">
+                        <div style="font-size: 24px; margin-bottom: 8px;">${icons[index % 4]}</div>
+                        <div>${tip}</div>
                       </div>
-                    \`;
+                    `;
                     },
                   )
                   .join("")}
               </div>
             </div>
-          \`
+          `
               : ""
           }
 
@@ -1498,7 +1498,7 @@ export default function DietPage() {
           </div>
         </body>
         </html>
-      \`
+      `
           <div class="header">
             <h1>Plano de Dieta Personalizado</h1>
             <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
