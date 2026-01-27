@@ -532,9 +532,15 @@ export default function TreinoPage() {
     console.error("[v0] Erro ao gerar PDF:", error)
     alert("Erro ao gerar PDF. Tente novamente.")
   }
-}
+  }
 
 export default function WorkoutPage() {
+  const [user] = useAuthState(auth)
+  const [userData, setUserData] = useState<UserData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+
   useEffect(() => {
     const fetchUserData = async () => {
       if (user) {
