@@ -304,7 +304,7 @@ export default function TreinoPage() {
 
   const workoutPlan = userData.workoutPlan
 
-  // Create PDF content as HTML string
+  // Create PDF content as HTML string with premium design
   const pdfContent = `
     <!DOCTYPE html>
     <html>
@@ -314,37 +314,205 @@ export default function TreinoPage() {
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; }
-        body { font-family: Arial, sans-serif; color: #333; background: white; padding: 40px; }
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3b82f6; padding-bottom: 20px; }
-        .header h1 { color: #3b82f6; margin: 0; font-size: 28px; }
-        .header p { color: #666; margin: 5px 0; }
-        .workout-day { margin: 20px 0; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; }
-        .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
-        .day-title { font-size: 20px; font-weight: bold; color: #1e293b; }
-        .day-focus { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
-        .day-duration { color: #666; font-size: 14px; margin-top: 5px; }
-        .exercise { padding: 15px; margin: 10px 0; background: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 4px; }
-        .exercise-name { font-weight: bold; font-size: 16px; color: #1e293b; margin-bottom: 8px; }
-        .exercise-details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 8px 0; }
-        .detail { font-size: 14px; color: #475569; }
-        .detail-label { font-weight: 600; color: #3b82f6; }
-        .exercise-description { font-size: 14px; color: #666; margin-top: 8px; line-height: 1.5; }
-        .tips { margin-top: 30px; }
-        .tips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-        .tip { padding: 15px; border-radius: 8px; }
+        body { 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+          color: #1f2937; 
+          background: #ffffff; 
+          line-height: 1.6;
+        }
+        
+        /* Header Styles */
+        .header {
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          color: white;
+          padding: 50px 40px;
+          margin: -40px -40px 50px -40px;
+          text-align: center;
+        }
+        .header h1 {
+          font-size: 42px;
+          font-weight: 700;
+          margin-bottom: 12px;
+          letter-spacing: -0.5px;
+        }
+        .header-subtitle {
+          font-size: 18px;
+          opacity: 0.95;
+          font-weight: 300;
+        }
+        .header-meta {
+          display: flex;
+          gap: 30px;
+          justify-content: center;
+          margin-top: 20px;
+          padding-top: 20px;
+          border-top: 1px solid rgba(255,255,255,0.2);
+          font-size: 15px;
+        }
+        
+        /* Workout Day Styles */
+        .workout-day {
+          margin: 0 0 35px 0;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+          border: 1px solid #e5e7eb;
+        }
+        .day-header {
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          color: white;
+          padding: 24px 30px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .day-title {
+          font-size: 24px;
+          font-weight: 700;
+          letter-spacing: -0.3px;
+        }
+        .day-badge {
+          background: rgba(255,255,255,0.25);
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-size: 13px;
+          font-weight: 600;
+          backdrop-filter: blur(10px);
+        }
+        
+        /* Exercises Container */
+        .exercises-container {
+          padding: 30px;
+          background: #f9fafb;
+        }
+        
+        /* Exercise Card */
+        .exercise {
+          background: white;
+          padding: 24px;
+          margin-bottom: 18px;
+          border-radius: 10px;
+          border-left: 4px solid #3b82f6;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .exercise:last-child {
+          margin-bottom: 0;
+        }
+        .exercise-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: start;
+          margin-bottom: 16px;
+        }
+        .exercise-name {
+          font-size: 18px;
+          font-weight: 700;
+          color: #1f2937;
+          flex: 1;
+        }
+        .exercise-intensity {
+          background: #dbeafe;
+          color: #1e40af;
+          padding: 6px 12px;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 600;
+          white-space: nowrap;
+          margin-left: 12px;
+        }
+        .exercise-details {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+          margin: 16px 0;
+          padding: 16px 0;
+          border-top: 1px solid #f3f4f6;
+          border-bottom: 1px solid #f3f4f6;
+        }
+        .detail {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .detail-label {
+          font-size: 12px;
+          font-weight: 700;
+          color: #3b82f6;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .detail-value {
+          font-size: 16px;
+          font-weight: 600;
+          color: #1f2937;
+        }
+        .exercise-description {
+          font-size: 14px;
+          color: #4b5563;
+          line-height: 1.7;
+          margin-top: 12px;
+          background: #f9fafb;
+          padding: 14px;
+          border-radius: 6px;
+          border-left: 3px solid #e5e7eb;
+        }
+        
+        /* Tips Section */
+        .tips-section {
+          margin-top: 40px;
+          padding: 40px;
+          background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+        }
+        .tips-title {
+          font-size: 20px;
+          font-weight: 700;
+          color: #1f2937;
+          margin-bottom: 24px;
+        }
+        .tips-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 16px;
+        }
+        .tip {
+          padding: 20px;
+          border-radius: 10px;
+          font-size: 14px;
+          line-height: 1.6;
+          color: #374151;
+        }
         .tip-1 { background: #dbeafe; border-left: 4px solid #3b82f6; }
         .tip-2 { background: #dcfce7; border-left: 4px solid #059669; }
         .tip-3 { background: #fef3c7; border-left: 4px solid #d97706; }
         .tip-4 { background: #fee2e2; border-left: 4px solid #dc2626; }
-        .tip-title { font-weight: bold; margin-bottom: 5px; }
-        .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+        
+        /* Footer */
+        .footer {
+          margin-top: 50px;
+          padding-top: 30px;
+          text-align: center;
+          color: #6b7280;
+          font-size: 13px;
+          border-top: 1px solid #e5e7eb;
+        }
+        .footer-logo {
+          font-size: 16px;
+          font-weight: 700;
+          color: #3b82f6;
+          margin-bottom: 8px;
+        }
       </style>
     </head>
-    <body>
+    <body style="padding: 40px;">
       <div class="header">
-        <h1>Plano de Treino Personalizado</h1>
-        <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
-        <p>${workoutPlan.weeklySchedule || "Plano semanal personalizado"}</p>
+        <h1>🏋️ Plano de Treino Personalizado</h1>
+        <div class="header-subtitle">Seu guia completo para resultados máximos</div>
+        <div class="header-meta">
+          <div>📅 ${new Date().toLocaleDateString("pt-BR")}</div>
+          <div>📋 ${workoutPlan.weeklySchedule || "Plano semanal personalizado"}</div>
+        </div>
       </div>
 
       ${workoutPlan.days
@@ -352,26 +520,49 @@ export default function TreinoPage() {
           (day) => `
         <div class="workout-day">
           <div class="day-header">
-            <div class="day-title">${day.day} - ${day.title}</div>
-            <div class="day-focus">${day.focus}</div>
-            <div class="day-duration">Duração: ${day.duration}</div>
-          </div>
-          
-          ${day.exercises
-            .map(
-              (exercise) => `
-            <div class="exercise">
-              <div class="exercise-name">${exercise.name}</div>
-              <div class="exercise-details">
-                <div class="detail"><span class="detail-label">Séries:</span> ${exercise.sets}</div>
-                <div class="detail"><span class="detail-label">Repetições:</span> ${exercise.reps}</div>
-                <div class="detail"><span class="detail-label">Descanso:</span> ${exercise.rest}</div>
-              </div>
-              <div class="exercise-description">${exercise.description}</div>
+            <div>
+              <div class="day-title">${day.day}</div>
+              <div style="font-size: 14px; opacity: 0.9; margin-top: 4px;">${day.title}</div>
             </div>
-          `,
-            )
-            .join("")}
+            <div style="text-align: right;">
+              <div class="day-badge">${day.focus}</div>
+              <div style="font-size: 13px; opacity: 0.85; margin-top: 6px; color: rgba(255,255,255,0.8);">⏱️ ${day.duration}</div>
+            </div>
+          </div>
+          <div class="exercises-container">
+            ${day.exercises
+              .map(
+                (exercise, idx) => {
+                  const intensity = exercise.sets >= 5 ? "Alta" : exercise.sets >= 4 ? "Média" : "Baixa";
+                  return `
+                  <div class="exercise">
+                    <div class="exercise-header">
+                      <div class="exercise-name">${idx + 1}. ${exercise.name}</div>
+                      <div class="exercise-intensity">${intensity} Intensidade</div>
+                    </div>
+                    <div class="exercise-details">
+                      <div class="detail">
+                        <div class="detail-label">Séries</div>
+                        <div class="detail-value">${exercise.sets}x</div>
+                      </div>
+                      <div class="detail">
+                        <div class="detail-label">Repetições</div>
+                        <div class="detail-value">${exercise.reps}</div>
+                      </div>
+                      <div class="detail">
+                        <div class="detail-label">Descanso</div>
+                        <div class="detail-value">${exercise.rest}</div>
+                      </div>
+                    </div>
+                    <div class="exercise-description">
+                      💡 ${exercise.description}
+                    </div>
+                  </div>
+                `;
+                },
+              )
+              .join("")}
+          </div>
         </div>
       `,
         )
@@ -380,17 +571,20 @@ export default function TreinoPage() {
       ${
         workoutPlan.tips && Array.isArray(workoutPlan.tips) && workoutPlan.tips.length > 0
           ? `
-        <div class="tips">
-          <h2 style="color: #1e293b; margin-bottom: 10px;">Dicas Importantes</h2>
+        <div class="tips-section">
+          <div class="tips-title">⚡ Dicas Importantes para Sucesso</div>
           <div class="tips-grid">
             ${workoutPlan.tips
               .map(
-                (tip, index) => `
-              <div class="tip tip-${(index % 4) + 1}">
-                <div class="tip-title">Dica ${index + 1}</div>
-                <div>${tip}</div>
-              </div>
-            `,
+                (tip, index) => {
+                  const icons = ["💪", "🎯", "⚡", "🔥"];
+                  return `
+                  <div class="tip tip-${(index % 4) + 1}">
+                    <div style="font-size: 24px; margin-bottom: 8px;">${icons[index % 4]}</div>
+                    <div>${tip}</div>
+                  </div>
+                `;
+                },
               )
               .join("")}
           </div>
@@ -400,8 +594,9 @@ export default function TreinoPage() {
       }
 
       <div class="footer">
-        <p><strong>FitGoal</strong> - Seu plano de treino personalizado</p>
-        <p>Este plano foi criado especificamente para você com base em seus objetivos e experiência.</p>
+        <div class="footer-logo">FitGoal</div>
+        <p>Seu plano de treino foi personalizado especificamente para seus objetivos e nível de experiência.</p>
+        <p style="margin-top: 12px; color: #9ca3af;">Gerado em ${new Date().toLocaleString("pt-BR")}</p>
       </div>
     </body>
     </html>
@@ -461,6 +656,9 @@ export default function TreinoPage() {
 
     // Download
     pdf.save(`plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`)
+    
+    // Clean up
+    document.body.removeChild(container)
   } catch (error) {
     console.error("[v0] Erro ao gerar PDF:", error)
     alert("Erro ao gerar PDF. Tente novamente.")

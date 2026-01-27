@@ -1152,7 +1152,7 @@ export default function DietPage() {
     if (!dietPlan) return
 
     try {
-      // Create PDF content as HTML string
+      // Create PDF content as HTML string with premium design
       const pdfContent = `
         <!DOCTYPE html>
         <html>
@@ -1162,41 +1162,343 @@ export default function DietPage() {
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             html, body { width: 100%; height: 100%; }
-            body { font-family: Arial, sans-serif; color: #333; background: white; padding: 40px; }
-            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3b82f6; padding-bottom: 20px; }
-            .header h1 { color: #3b82f6; margin: 0; font-size: 28px; }
-            .header p { color: #666; margin: 5px 0; }
-            .macros-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
-            .macro-card { background: #f8fafc; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0; }
-            .macro-title { font-weight: bold; color: #475569; font-size: 14px; margin-bottom: 5px; }
-            .macro-value { font-size: 24px; font-weight: bold; }
+            body { 
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+              color: #1f2937; 
+              background: #ffffff; 
+              line-height: 1.6;
+            }
+            
+            /* Header Styles */
+            .header {
+              background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+              color: white;
+              padding: 50px 40px;
+              margin: -40px -40px 50px -40px;
+              text-align: center;
+            }
+            .header h1 {
+              font-size: 42px;
+              font-weight: 700;
+              margin-bottom: 12px;
+              letter-spacing: -0.5px;
+            }
+            .header-subtitle {
+              font-size: 18px;
+              opacity: 0.95;
+              font-weight: 300;
+            }
+            
+            /* Macros Grid */
+            .macros-grid {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 20px;
+              margin: 40px 0;
+              padding: 30px;
+              background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+              border-radius: 12px;
+              border: 1px solid #d1fae5;
+            }
+            .macro-card {
+              background: white;
+              padding: 24px;
+              border-radius: 10px;
+              text-align: center;
+              box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+              border: 1px solid #e5e7eb;
+            }
+            .macro-title {
+              font-weight: 700;
+              color: #6b7280;
+              font-size: 12px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              margin-bottom: 8px;
+            }
+            .macro-value {
+              font-size: 32px;
+              font-weight: 700;
+            }
             .calories { color: #3b82f6; }
             .protein { color: #dc2626; }
             .carbs { color: #d97706; }
             .fats { color: #059669; }
-            .meal { margin: 20px 0; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; }
-            .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
-            .meal-title { font-size: 18px; font-weight: bold; color: #1e293b; }
-            .meal-time { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
-            .meal-calories { color: #666; font-size: 14px; }
-            .food-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
-            .food-item:last-child { border-bottom: none; }
-            .food-name { font-weight: 500; }
-            .food-quantity { color: #3b82f6; font-size: 14px; }
-            .food-calories { color: #666; font-size: 14px; }
-            .food-macros { font-size: 12px; color: #666; margin-top: 2px; }
-            .tips { margin-top: 30px; }
-            .tips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-            .tip { padding: 15px; border-radius: 8px; }
+            
+            /* Meal Section */
+            .meal {
+              margin: 0 0 28px 0;
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+              border: 1px solid #e5e7eb;
+            }
+            .meal-header {
+              background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+              color: white;
+              padding: 20px 24px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            .meal-title {
+              font-size: 20px;
+              font-weight: 700;
+            }
+            .meal-time {
+              background: rgba(255,255,255,0.25);
+              padding: 6px 12px;
+              border-radius: 20px;
+              font-size: 13px;
+              font-weight: 600;
+              backdrop-filter: blur(10px);
+            }
+            .meal-calories {
+              color: rgba(255,255,255,0.8);
+              font-size: 13px;
+              margin-top: 4px;
+            }
+            .meal-foods {
+              padding: 24px;
+              background: #f9fafb;
+            }
+            
+            /* Food Item */
+            .food-item {
+              display: flex;
+              justify-content: space-between;
+              padding: 16px;
+              margin-bottom: 12px;
+              background: white;
+              border-radius: 8px;
+              border-left: 3px solid #10b981;
+            }
+            .food-item:last-child {
+              margin-bottom: 0;
+            }
+            .food-name {
+              font-weight: 600;
+              color: #1f2937;
+              font-size: 15px;
+            }
+            .food-quantity {
+              color: #10b981;
+              font-size: 13px;
+              font-weight: 600;
+              margin-top: 4px;
+            }
+            .food-macros {
+              font-size: 12px;
+              color: #6b7280;
+              margin-top: 4px;
+            }
+            .food-calories {
+              color: #4b5563;
+              font-size: 14px;
+              font-weight: 600;
+            }
+            
+            /* Tips Section */
+            .tips-section {
+              margin: 40px 0;
+              padding: 40px;
+              background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+              border-radius: 12px;
+              border: 1px solid #e5e7eb;
+            }
+            .tips-title {
+              font-size: 20px;
+              font-weight: 700;
+              color: #1f2937;
+              margin-bottom: 24px;
+            }
+            .tips-grid {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 16px;
+            }
+            .tip {
+              padding: 20px;
+              border-radius: 10px;
+              font-size: 14px;
+              line-height: 1.6;
+              color: #374151;
+            }
             .tip-1 { background: #dbeafe; border-left: 4px solid #3b82f6; }
-            .tip-2 { background: #dcfce7; border-left: 4px solid #059669; }
+            .tip-2 { background: #dcfce7; border-left: 4px solid #10b981; }
             .tip-3 { background: #fef3c7; border-left: 4px solid #d97706; }
             .tip-4 { background: #fee2e2; border-left: 4px solid #dc2626; }
-            .tip-title { font-weight: bold; margin-bottom: 5px; }
-            .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+            
+            /* Footer */
+            .footer {
+              margin-top: 50px;
+              padding-top: 30px;
+              text-align: center;
+              color: #6b7280;
+              font-size: 13px;
+              border-top: 1px solid #e5e7eb;
+            }
+            .footer-logo {
+              font-size: 16px;
+              font-weight: 700;
+              color: #10b981;
+              margin-bottom: 8px;
+            }
           </style>
         </head>
-        <body>
+        <body style="padding: 40px;">
+          <div class="header">
+            <h1>🥗 Plano de Dieta Personalizado</h1>
+            <div class="header-subtitle">Seu guia nutricional completo para alcançar seus objetivos</div>
+          </div>
+
+          <div class="macros-grid">
+            <div class="macro-card">
+              <div class="macro-title">Calorias Totais</div>
+              <div class="macro-value calories">${displayTotals.calories}</div>
+            </div>
+            <div class="macro-card">
+              <div class="macro-title">Proteína</div>
+              <div class="macro-value protein">${displayTotals.protein}</div>
+            </div>
+            <div class="macro-card">
+              <div class="macro-title">Carboidratos</div>
+              <div class="macro-value carbs">${displayTotals.carbs}</div>
+            </div>
+            <div class="macro-card">
+              <div class="macro-title">Gorduras</div>
+              <div class="macro-value fats">${displayTotals.fats}</div>
+            </div>
+          </div>
+
+          ${dietPlan.meals
+            .map((meal, index) => {
+              if (!meal || typeof meal !== "object") return ""
+
+              return `
+            <div class="meal">
+              <div class="meal-header">
+                <div>
+                  <div class="meal-title">${meal.name || \`Refeição \${index + 1}\`}</div>
+                  <div class="meal-calories">${meal.calories || "0 kcal"}</div>
+                </div>
+                <div class="meal-time">${meal.time || "Horário não definido"}</div>
+              </div>
+              <div class="meal-foods">
+                ${
+                  Array.isArray(meal.foods) && meal.foods.length > 0
+                    ? meal.foods
+                        .map((food) => {
+                          let foodName = ""
+                          let foodQuantity = ""
+                          let foodCalories = ""
+                          let macros = ""
+
+                          if (typeof food === "string") {
+                            const patterns = [
+                              /(\d+g?)\s*de?\s*(.+)/i,
+                              /(.+?)\s*-\s*(\d+g?)/i,
+                              /(\d+)\s*unidades?\s*de?\s*(.+)/i,
+                              /(\d+)\s*(.+)/i,
+                            ]
+
+                            let matched = false
+                            for (const pattern of patterns) {
+                              const match = food.match(pattern)
+                              if (match) {
+                                if (/\d/.test(match[1])) {
+                                  foodQuantity = match[1]
+                                  foodName = match[2]?.trim()
+                                } else {
+                                  foodName = match[1]?.trim()
+                                  foodQuantity = match[2]
+                                }
+                                matched = true
+                                break
+                              }
+                            }
+
+                            if (!matched) {
+                              foodName = food.trim()
+                            }
+
+                            foodName = foodName
+                              .replace(/^(de\s+|da\s+|do\s+)/i, "")
+                              .replace(/\s+/g, " ")
+                              .trim()
+                          } else if (food && typeof food === "object") {
+                            foodName = food.name || "Alimento"
+                            foodQuantity = food.quantity || ""
+                            foodCalories = food.calories ? \`\${food.calories} kcal\` : ""
+
+                            if (food.protein || food.carbs || food.fats) {
+                              const macrosParts = []
+                              if (food.protein) macrosParts.push(\`P: \${food.protein}g\`)
+                              if (food.carbs) macrosParts.push(\`C: \${food.carbs}g\`)
+                              if (food.fats) macrosParts.push(\`G: \${food.fats}g\`)
+                              macros = macrosParts.join(" | ")
+                            }
+                          } else {
+                            foodName = "Alimento"
+                          }
+
+                          if (!foodName || foodName.trim() === "") {
+                            foodName = "Alimento"
+                          }
+
+                          return \`
+                            <div class="food-item">
+                              <div>
+                                <div class="food-name">\${foodName}</div>
+                                \${foodQuantity ? \`<div class="food-quantity">\${foodQuantity}</div>\` : ""}
+                                \${macros ? \`<div class="food-macros">\${macros}</div>\` : ""}
+                              </div>
+                              \${foodCalories ? \`<div class="food-calories">\${foodCalories}</div>\` : ""}
+                            </div>
+                          \`
+                        })
+                        .join("")
+                    : '<div class="food-item"><div class="food-name">Nenhum alimento especificado</div></div>'
+                }
+              </div>
+            </div>
+          \`
+            })
+            .join("")}
+
+          ${
+            dietPlan.tips && Array.isArray(dietPlan.tips) && dietPlan.tips.length > 0
+              ? \`
+            <div class="tips-section">
+              <div class="tips-title">💡 Dicas Nutricionais Importantes</div>
+              <div class="tips-grid">
+                \${dietPlan.tips
+                  .map(
+                    (tip, index) => {
+                      const icons = ["🥤", "🍗", "🥕", "⚡"];
+                      return \`
+                      <div class="tip tip-\${(index % 4) + 1}">
+                        <div style="font-size: 24px; margin-bottom: 8px;">\${icons[index % 4]}</div>
+                        <div>\${tip}</div>
+                      </div>
+                    \`;
+                    },
+                  )
+                  .join("")}
+              </div>
+            </div>
+          \`
+              : ""
+          }
+
+          <div class="footer">
+            <div class="footer-logo">FitGoal</div>
+            <p>Seu plano de dieta foi personalizado especificamente para seus objetivos e preferências alimentares.</p>
+            <p style="margin-top: 12px; color: #9ca3af;">Gerado em ${new Date().toLocaleString("pt-BR")}</p>
+          </div>
+        </body>
+        </html>
+      \`
           <div class="header">
             <h1>Plano de Dieta Personalizado</h1>
             <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
