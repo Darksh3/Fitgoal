@@ -56,7 +56,7 @@ function PaymentMethodSelector({
   )
 }
 
-function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, paymentMethod, onError, onSuccess, setPaymentConfirmed }: any) {
+function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, paymentMethod, onError, onSuccess, paymentConfirmed, setPaymentConfirmed }: any) {
   const [processing, setProcessing] = useState(false)
   const [installments, setInstallments] = useState(1)
   const [cardData, setCardData] = useState({
@@ -144,6 +144,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   const installmentOptions = Array.from({ length: availableInstallments }, (_, i) => i + 1)
 
   const handleAsaasPayment = async () => {
+    if (processing) return
     try {
       setProcessing(true)
 
@@ -310,6 +311,9 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         }
 
         setCardPaymentId(paymentResult.paymentId)
+
+        onSuccess?.()
+        
         setProcessing(false)
         return
       }
@@ -453,7 +457,13 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
   // Formulário de cartão
   if (paymentMethod === "card") {
     return (
-      <form onSubmit={handleAsaasPayment} className="space-y-6">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          handleAsaasPayment()
+        }}
+        className="space-y-6"
+     >
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
@@ -927,6 +937,7 @@ export default function CheckoutModal({ isOpen, onClose, selectedPlan }: Checkou
                   paymentMethod={paymentMethod}
                   onError={handleError}
                   onSuccess={handleSuccess}
+                  paymentConfirmed={paymentConfirmed}
                   setPaymentConfirmed={setPaymentConfirmed}
                 />
               )}

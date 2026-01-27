@@ -1,8 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { collection, query, getDocs } from "firebase/firestore"
-import { db } from "@/lib/firebaseClient"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 
@@ -19,6 +17,7 @@ interface Lead {
 export function LeadsAnalytics() {
   const [leads, setLeads] = useState<Lead[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [stats, setStats] = useState({
     totalLeads: 0,
     avgAge: 0,
@@ -31,31 +30,19 @@ export function LeadsAnalytics() {
   useEffect(() => {
     const fetchLeads = async () => {
       try {
-        console.log("[v0] Firebase DB instance:", db)
+        setError(null)
+        const res = await fetch("/api/admin/leads", { credentials: "include" })
         
-        if (!db) {
-          console.error("[v0] Firebase DB not initialized - check environment variables")
-          setIsLoading(false)
-          return
+        if (!res.ok) {
+          throw new Error(`Falha ao carregar leads: ${res.status}`)
         }
 
-        const leadsCollection = collection(db, "leads")
-        const leadsQuery = query(leadsCollection)
-        const snapshot = await getDocs(leadsQuery)
-
-        console.log("[v0] Firestore query result - Total docs:", snapshot.size)
-
-        const leadsData: Lead[] = []
-        snapshot.forEach((doc) => {
-          console.log("[v0] Lead document:", doc.id, doc.data())
-          leadsData.push(doc.data() as Lead)
-        })
-
-        console.log("[v0] Processed leads:", leadsData)
-        setLeads(leadsData)
-        calculateStats(leadsData)
+        const data = await res.json()
+        setLeads(data.leads)
+        calculateStats(data.leads)
       } catch (error) {
         console.error("[v0] Error fetching leads:", error)
+        setError(error instanceof Error ? error.message : "Erro desconhecido")
       } finally {
         setIsLoading(false)
       }
@@ -132,6 +119,10 @@ export function LeadsAnalytics() {
 
   if (isLoading) {
     return <div className="text-white">Carregando dados...</div>
+  }
+
+  if (error) {
+    return <div className="text-red-500">Erro: {error}</div>
   }
 
   return (

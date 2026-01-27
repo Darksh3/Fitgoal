@@ -60,8 +60,6 @@ export default function DietPage() {
   } | null>(null)
   const router = useRouter()
 
-  console.log("[v0] Component state:", { user: !!user, loading, error, dietPlan: !!dietPlan, quizData: !!quizData })
-
   useEffect(() => {
     setIsHydrated(true)
   }, [])
@@ -383,6 +381,49 @@ export default function DietPage() {
       carbs: `${Math.round(adjustedCarbs)}g`,
       fats: `${Math.round(adjustedFats)}g`,
     }
+  }
+
+  const calculateMealCalories = (meal: Meal) => {
+    if (!meal || !Array.isArray(meal.foods)) return "0 kcal"
+
+    let totalCalories = 0
+
+    meal.foods.forEach((food: any) => {
+      let foodCalories = 0
+
+      if (typeof food === "object" && food.calories) {
+        const caloriesStr = food.calories.toString()
+        const match = caloriesStr.match(/(\d+(?:\.\d+)?)/)
+        if (match) {
+          foodCalories = Number.parseFloat(match[1])
+        }
+      } else if (typeof food === "string") {
+        const match = food.match(/(\d+(?:\.\d+)?)\s*kcal/i)
+        if (match) {
+          foodCalories = Number.parseFloat(match[1])
+        }
+      }
+
+      if (!isNaN(foodCalories) && foodCalories > 0) {
+        totalCalories += foodCalories
+      }
+    })
+
+    // Add manually added foods for this meal
+    manualAdjustments.addedFoods.forEach((food) => {
+      if (food.mealIndex === meal && food.calories > 0) {
+        totalCalories += food.calories
+      }
+    })
+
+    // Subtract removed foods for this meal
+    manualAdjustments.removedFoods.forEach((food) => {
+      if (food.mealIndex === meal && food.calories > 0) {
+        totalCalories -= food.calories
+      }
+    })
+
+    return totalCalories > 0 ? `${Math.round(totalCalories)} kcal` : "0 kcal"
   }
 
   useEffect(() => {
@@ -1152,9 +1193,6 @@ export default function DietPage() {
     if (!dietPlan) return
 
     try {
-      // Dynamically import html2pdf to avoid SSR issues
-      const html2pdf = (await import("html2pdf.js")).default
-
       // Create PDF content as HTML string
       const pdfContent = `
         <!DOCTYPE html>
@@ -1163,61 +1201,271 @@ export default function DietPage() {
           <meta charset="UTF-8">
           <title>Plano de Dieta Personalizado</title>
           <style>
-            body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
-            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3b82f6; padding-bottom: 20px; }
-            .header h1 { color: #3b82f6; margin: 0; font-size: 28px; }
-            .header p { color: #666; margin: 5px 0; }
-            .macros-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
-            .macro-card { background: #f8fafc; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0; }
-            .macro-title { font-weight: bold; color: #475569; font-size: 14px; margin-bottom: 5px; }
-            .macro-value { font-size: 24px; font-weight: bold; }
-            .calories { color: #3b82f6; }
-            .protein { color: #dc2626; }
-            .carbs { color: #d97706; }
-            .fats { color: #059669; }
-            .meal { margin: 20px 0; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; page-break-inside: avoid; }
-            .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
-            .meal-title { font-size: 18px; font-weight: bold; color: #1e293b; }
-            .meal-time { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
-            .meal-calories { color: #666; font-size: 14px; }
-            .food-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
-            .food-item:last-child { border-bottom: none; }
-            .food-name { font-weight: 500; }
-            .food-quantity { color: #3b82f6; font-size: 14px; }
-            .food-calories { color: #666; font-size: 14px; }
-            .food-macros { font-size: 12px; color: #666; margin-top: 2px; }
-            .tips { margin-top: 30px; page-break-inside: avoid; }
-            .tips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-            .tip { padding: 15px; border-radius: 8px; }
-            .tip-1 { background: #dbeafe; border-left: 4px solid #3b82f6; }
-            .tip-2 { background: #dcfce7; border-left: 4px solid #059669; }
-            .tip-3 { background: #fef3c7; border-left: 4px solid #d97706; }
-            .tip-4 { background: #fee2e2; border-left: 4px solid #dc2626; }
-            .tip-title { font-weight: bold; margin-bottom: 5px; }
-            .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            html, body { width: 100%; height: 100%; }
+            body { 
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+              color: #1f2937; 
+              background: white; 
+              padding: 20px 18px;
+              line-height: 1.4;
+              font-size: 13px;
+            }
+            
+            .header { 
+              text-align: center; 
+              margin-bottom: 15px; 
+              padding: 12px 15px;
+              background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+              border-radius: 8px;
+              border-bottom: 2px solid #f59e0b;
+            }
+            
+            .header h1 { 
+              color: #b45309; 
+              margin: 0; 
+              font-size: 22px;
+              font-weight: 700;
+              margin-bottom: 6px;
+              letter-spacing: -0.5px;
+            }
+            
+            .header-subtitle {
+              color: #92400e;
+              font-size: 11px;
+              margin-top: 4px;
+            }
+            
+            .macros-grid { 
+              display: grid; 
+              grid-template-columns: repeat(4, 1fr); 
+              gap: 10px; 
+              margin: 12px 0;
+            }
+            
+            .macro-card { 
+              background: white;
+              padding: 10px; 
+              border-radius: 8px; 
+              text-align: center; 
+              border: 1px solid #e5e7eb;
+              box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            }
+            
+            .macro-card.active {
+              border-color: #f59e0b;
+              background: #fffbeb;
+            }
+            
+            .macro-title { 
+              font-weight: 600; 
+              color: #6b7280; 
+              font-size: 10px; 
+              margin-bottom: 4px;
+              text-transform: uppercase;
+              letter-spacing: 0.3px;
+            }
+            
+            .macro-value { 
+              font-size: 20px; 
+              font-weight: 700;
+            }
+            
+            .macro-icon {
+              font-size: 16px;
+              margin-bottom: 3px;
+            }
+            
+            .calories { color: #f59e0b; }
+            .protein { color: #ef4444; }
+            .carbs { color: #f97316; }
+            .fats { color: #10b981; }
+            
+            .meal { 
+              margin: 10px 0; 
+              padding: 10px; 
+              border: 1px solid #e5e7eb;
+              border-radius: 6px;
+              background: white;
+              page-break-inside: avoid;
+            }
+            
+            .meal-header { 
+              display: flex; 
+              justify-content: space-between; 
+              align-items: center;
+              margin-bottom: 8px; 
+              border-bottom: 1px solid #f59e0b; 
+              padding-bottom: 6px;
+            }
+            
+            .meal-info{
+              flex: 1;
+            }
+            
+            .meal-title { 
+              font-size: 13px; 
+              font-weight: 700; 
+              color: #1f2937;
+              margin-bottom: 2px;
+            }
+            
+            .meal-calories { 
+              color: #9ca3af; 
+              font-size: 11px;
+              font-weight: 500;
+            }
+            
+            .meal-time { 
+              background: #fbbf24;
+              color: #78350f; 
+              padding: 3px 8px; 
+              border-radius: 4px; 
+              font-size: 10px;
+              font-weight: 600;
+              white-space: nowrap;
+              display: inline-block;
+            }
+            
+            .meal-foods{
+              padding: 6px 0;
+            }
+            
+            .food-item { 
+              display: flex; 
+              justify-content: space-between;
+              align-items: flex-start;
+              padding: 6px 8px; 
+              border-radius: 4px;
+              background: #f9fafb;
+              margin-bottom: 4px;
+              border-left: 2px solid #f59e0b;
+              font-size: 11px;
+            }
+            
+            .food-item:last-child {
+              margin-bottom: 0;
+            }
+            
+            .food-info{
+              flex: 1;
+            }
+            
+            .food-name { 
+              font-weight: 600;
+              color: #1f2937;
+              font-size: 11px;
+              margin-bottom: 2px;
+            }
+            
+            .food-quantity { 
+              color: #f59e0b; 
+              font-size: 10px;
+              font-weight: 600;
+              margin-bottom: 1px;
+            }
+            
+            .food-macros { 
+              font-size: 9px; 
+              color: #6b7280;
+            }
+            
+            .food-calories { 
+              color: #f59e0b; 
+              font-size: 11px;
+              font-weight: 700;
+              text-align: right;
+            }
+            
+            .tips { 
+              margin: 12px 0;
+              padding: 10px;
+              background: #fffbeb;
+              border-radius: 8px;
+              border-top: 2px solid #f59e0b;
+            }
+            
+            .tips h2 {
+              color: #1f2937;
+              margin-bottom: 8px;
+              font-size: 13px;
+              font-weight: 700;
+            }
+            
+            .tips-grid { 
+              display: grid; 
+              grid-template-columns: repeat(2, 1fr); 
+              gap: 8px;
+            }
+            
+            .tip { 
+              padding: 8px 10px; 
+              border-radius: 6px;
+              border-left: 3px solid #f59e0b;
+              background: white;
+            }
+            
+            .tip-1 { background: #ecf0f1; border-left-color: #3b82f6; }
+            .tip-2 { background: #d1f8e8; border-left-color: #10b981; }
+            .tip-3 { background: #fef3c7; border-left-color: #f59e0b; }
+            .tip-4 { background: #fee2e2; border-left-color: #ef4444; }
+            
+            .tip-title { 
+              font-weight: 700;
+              margin-bottom: 3px;
+              font-size: 11px;
+              color: #1f2937;
+            }
+            
+            .tip-text{
+              font-size: 10px;
+              color: #4b5563;
+              line-height: 1.3;
+            }
+            
+            .footer { 
+              margin-top: 12px; 
+              text-align: center; 
+              color: #6b7280; 
+              font-size: 9px; 
+              border-top: 1px solid #e5e7eb; 
+              padding-top: 8px;
+            }
+            
+            .logo{
+              font-size: 10px;
+              font-weight: 700;
+              color: #f59e0b;
+              margin-bottom: 3px;
+            }
           </style>
         </head>
         <body>
           <div class="header">
-            <h1>Plano de Dieta Personalizado</h1>
-            <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
-            <p>Plano científico baseado em suas necessidades individuais</p>
+            <h1>🍽️ Plano de Dieta Personalizado</h1>
+            <div class="header-subtitle">
+              Gerado em ${new Date().toLocaleDateString("pt-BR")} • Plano científico e personalizado
+            </div>
           </div>
 
           <div class="macros-grid">
-            <div class="macro-card">
-              <div class="macro-title">Calorias Totais</div>
+            <div class="macro-card active">
+              <div class="macro-icon">🔥</div>
+              <div class="macro-title">Calorias</div>
               <div class="macro-value calories">${displayTotals.calories}</div>
             </div>
             <div class="macro-card">
+              <div class="macro-icon">🍗</div>
               <div class="macro-title">Proteína</div>
               <div class="macro-value protein">${displayTotals.protein}</div>
             </div>
             <div class="macro-card">
-              <div class="macro-title">Carboidratos</div>
+              <div class="macro-icon">🌾</div>
+              <div class="macro-title">Carbos</div>
               <div class="macro-value carbs">${displayTotals.carbs}</div>
             </div>
             <div class="macro-card">
+              <div class="macro-icon">🥑</div>
               <div class="macro-title">Gorduras</div>
               <div class="macro-value fats">${displayTotals.fats}</div>
             </div>
@@ -1230,89 +1478,90 @@ export default function DietPage() {
               return `
             <div class="meal">
               <div class="meal-header">
-                <div>
-                  <div class="meal-title">${meal.name || `Refeição ${index + 1}`}</div>
+                <div class="meal-info">
+                  <div class="meal-title">🍴 ${meal.name || "Refeição " + (index + 1)}</div>
                   <div class="meal-calories">${meal.calories || "0 kcal"}</div>
                 </div>
-                <div class="meal-time">${meal.time || "Horário não definido"}</div>
+                <div class="meal-time">⏰ ${meal.time || "Horário não definido"}</div>
               </div>
               
-              ${
-                Array.isArray(meal.foods) && meal.foods.length > 0
-                  ? meal.foods
-                      .map((food, foodIndex) => {
-                        let foodName = ""
-                        let foodQuantity = ""
-                        let foodCalories = ""
-                        let macros = ""
+              <div class="meal-foods">
+                ${
+                  Array.isArray(meal.foods) && meal.foods.length > 0
+                    ? meal.foods
+                        .map((food) => {
+                          let foodName = ""
+                          let foodQuantity = ""
+                          let foodCalories = ""
+                          let macros = ""
 
-                        if (typeof food === "string") {
-                          const patterns = [
-                            /(\d+g?)\s*de?\s*(.+)/i,
-                            /(.+?)\s*-\s*(\d+g?)/i,
-                            /(.+?)\s*$$(\d+g?)$$/i,
-                            /(\d+)\s*unidades?\s*de?\s*(.+)/i,
-                            /(\d+)\s*(.+)/i,
-                          ]
+                          if (typeof food === "string") {
+                            const patterns = [
+                              /(\d+g?)\s*de?\s*(.+)/i,
+                              /(.+?)\s*-\s*(\d+g?)/i,
+                              /(\d+)\s*unidades?\s*de?\s*(.+)/i,
+                              /(\d+)\s*(.+)/i,
+                            ]
 
-                          let matched = false
-                          for (const pattern of patterns) {
-                            const match = food.match(pattern)
-                            if (match) {
-                              if (/\d/.test(match[1])) {
-                                foodQuantity = match[1]
-                                foodName = match[2]?.trim()
-                              } else {
-                                foodName = match[1]?.trim()
-                                foodQuantity = match[2]
+                            let matched = false
+                            for (const pattern of patterns) {
+                              const match = food.match(pattern)
+                              if (match) {
+                                if (/\d/.test(match[1])) {
+                                  foodQuantity = match[1]
+                                  foodName = match[2]?.trim()
+                                } else {
+                                  foodName = match[1]?.trim()
+                                  foodQuantity = match[2]
+                                }
+                                matched = true
+                                break
                               }
-                              matched = true
-                              break
                             }
+
+                            if (!matched) {
+                              foodName = food.trim()
+                            }
+
+                            foodName = foodName
+                              .replace(/^(de\s+|da\s+|do\s+)/i, "")
+                              .replace(/\s+/g, " ")
+                              .trim()
+                          } else if (food && typeof food === "object") {
+                            foodName = food.name || "Alimento"
+                            foodQuantity = food.quantity || ""
+                            foodCalories = food.calories ? food.calories + " kcal" : ""
+
+                            if (food.protein || food.carbs || food.fats) {
+                              const macrosParts = []
+                              if (food.protein) macrosParts.push("P: " + food.protein + "g")
+                              if (food.carbs) macrosParts.push("C: " + food.carbs + "g")
+                              if (food.fats) macrosParts.push("G: " + food.fats + "g")
+                              macros = macrosParts.join(" | ")
+                            }
+                          } else {
+                            foodName = "Alimento"
                           }
 
-                          if (!matched) {
-                            foodName = food.trim()
+                          if (!foodName || foodName.trim() === "") {
+                            foodName = "Alimento"
                           }
 
-                          foodName = foodName
-                            .replace(/^(de\s+|da\s+|do\s+)/i, "")
-                            .replace(/\s+/g, " ")
-                            .trim()
-                        } else if (food && typeof food === "object") {
-                          foodName = food.name || `Alimento ${foodIndex + 1}`
-                          foodQuantity = food.quantity || ""
-                          foodCalories = food.calories ? `${food.calories} kcal` : ""
-
-                          if (food.protein || food.carbs || food.fats) {
-                            const macrosParts = []
-                            if (food.protein) macrosParts.push(`P: ${food.protein}g`)
-                            if (food.carbs) macrosParts.push(`C: ${food.carbs}g`)
-                            if (food.fats) macrosParts.push(`G: ${food.fats}g`)
-                            macros = macrosParts.join(" | ")
-                          }
-                        } else {
-                          foodName = `Alimento ${foodIndex + 1}`
-                        }
-
-                        if (!foodName || foodName.trim() === "") {
-                          foodName = `Alimento ${foodIndex + 1}`
-                        }
-
-                        return `
-                    <div class="food-item">
-                      <div>
-                        <div class="food-name">${foodName}</div>
-                        ${foodQuantity ? `<div class="food-quantity">${foodQuantity}</div>` : ""}
-                        ${macros ? `<div class="food-macros">${macros}</div>` : ""}
-                      </div>
-                      ${foodCalories ? `<div class="food-calories">${foodCalories}</div>` : ""}
-                    </div>
-                  `
-                      })
-                      .join("")
-                  : '<div class="food-item"><div class="food-name">Nenhum alimento especificado</div></div>'
-              }
+                          return `
+                            <div class="food-item">
+                              <div class="food-info">
+                                <div class="food-name">${foodName}</div>
+                                ${foodQuantity ? '<div class="food-quantity">' + foodQuantity + '</div>' : ""}
+                                ${macros ? '<div class="food-macros">' + macros + '</div>' : ""}
+                              </div>
+                              ${foodCalories ? '<div class="food-calories">' + foodCalories + '</div>' : ""}
+                            </div>
+                          `
+                        })
+                        .join("")
+                    : '<div class="food-item"><div class="food-info"><div class="food-name">Nenhum alimento especificado</div></div></div>'
+                }
+              </div>
             </div>
           `
             })
@@ -1322,16 +1571,19 @@ export default function DietPage() {
             dietPlan.tips && Array.isArray(dietPlan.tips) && dietPlan.tips.length > 0
               ? `
             <div class="tips">
-              <h2 style="color: #1e293b; margin-bottom: 10px;">Dicas Importantes</h2>
+              <h2>💡 Dicas Nutricionais Importantes</h2>
               <div class="tips-grid">
                 ${dietPlan.tips
                   .map(
-                    (tip, index) => `
+                    (tip, index) => {
+                      const icons = ["💡", "🥗", "⚡", "🎯"];
+                      return `
                   <div class="tip tip-${(index % 4) + 1}">
-                    <div class="tip-title">Dica ${index + 1}</div>
-                    <div>${tip}</div>
+                    <div class="tip-title">${icons[index % 4]} Dica ${index + 1}</div>
+                    <div class="tip-text">${tip}</div>
                   </div>
-                `,
+                `;
+                    }
                   )
                   .join("")}
               </div>
@@ -1341,36 +1593,74 @@ export default function DietPage() {
           }
 
           <div class="footer">
-            <p><strong>FitGoal</strong> - Seu plano de dieta personalizado</p>
-            <p>Este plano foi criado especificamente para você com base em seus objetivos e necessidades.</p>
+            <div class="logo">🍽️ FitGoal</div>
+            <p>Seu plano de dieta personalizado e otimizado para seus objetivos</p>
+            <p style="margin-top: 10px; font-size: 10px; color: #9ca3af;">
+              Gerado em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+            </p>
           </div>
         </body>
         </html>
       `
 
-      // Create a temporary div to hold the HTML content
-      const tempDiv = document.createElement("div")
-      tempDiv.innerHTML = pdfContent
-      tempDiv.style.position = "absolute"
-      tempDiv.style.left = "-9999px"
-      document.body.appendChild(tempDiv)
+      // Import html2canvas and jsPDF
+      const html2canvas = (await import("html2canvas")).default
+      const jsPDF = (await import("jspdf")).jsPDF
 
-      // Configure PDF options
-      const options = {
-        margin: 10,
-        filename: `plano-dieta-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      // Create a container with proper dimensions
+      const container = document.createElement("div")
+      container.innerHTML = pdfContent
+      container.style.position = "fixed"
+      container.style.top = "0"
+      container.style.left = "0"
+      container.style.width = "800px"
+      container.style.height = "auto"
+      container.style.backgroundColor = "white"
+      container.style.zIndex = "-9999"
+      document.body.appendChild(container)
+
+      // Wait for layout to settle
+      await new Promise((resolve) => setTimeout(resolve, 50))
+
+      // Capture canvas
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+      })
+
+      // Create PDF
+      const pdf = new jsPDF({
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
+      })
+
+      const imgWidth = 210 // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      let heightLeft = imgHeight
+      let position = 0
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.98)
+
+      // Add pages as needed
+      while (heightLeft > 0) {
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
+        heightLeft -= 297 // A4 height in mm
+        if (heightLeft > 0) {
+          pdf.addPage()
+          position = -297
+        }
       }
 
-      // Generate and download PDF
-      await html2pdf.set(options).from(tempDiv).save()
+      // Download
+      pdf.save(`plano-dieta-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`)
 
       // Clean up
-      document.body.removeChild(tempDiv)
+      document.body.removeChild(container)
     } catch (error) {
-      console.error("Erro ao gerar PDF:", error)
+      console.error("[v0] Erro ao gerar PDF:", error)
       alert("Erro ao gerar PDF. Tente novamente.")
     }
   }
@@ -2006,7 +2296,7 @@ export default function DietPage() {
                               {meal.name || `Refeição ${index + 1}`}
                             </h3>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                              {filteredFoods.length + manualFoodsForMeal.length} alimentos • {meal.calories || "0 kcal"}
+                              {filteredFoods.length + manualFoodsForMeal.length} alimentos • {calculateMealCalories(meal)}
                             </p>
                           </div>
                         </div>

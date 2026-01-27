@@ -8,12 +8,9 @@ import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import ProtectedRoute from "@/components/protected-route"
-import dynamic from "next/dynamic"
 import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download, AlertCircle, ArrowLeft } from "lucide-react"
 import React from "react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-
-const html2pdf = dynamic(() => import("html2pdf.js"), { ssr: false })
 
 interface Exercise {
   name: string
@@ -47,19 +44,58 @@ function ExerciseSubstituteButton({
   dayIndex,
   exerciseIndex,
   onSubstitute,
+  userId,
+  userPreferences,
 }: {
-  exercise: any
+  exercise: Exercise
   dayIndex: number
   exerciseIndex: number
-  onSubstitute: (dayIndex: number, exerciseIndex: number, exercise: any) => void
+  onSubstitute: (dayIndex: number, exerciseIndex: number, exercise: Exercise) => Promise<void>
+  userId: string
+  userPreferences?: any
 }) {
   const [isSubstituting, setIsSubstituting] = React.useState(false)
 
   const handleSubstitute = async () => {
-    setIsSubstituting(true)
-    await onSubstitute(dayIndex, exerciseIndex, exercise)
+  setIsSubstituting(true)
+  try {
+    if (!userId || dayIndex === undefined || exerciseIndex === undefined) {
+      throw new Error("Missing required parameters: userId, dayIndex, or exerciseIndex")
+    }
+
+    const res = await fetch("/api/substitute-exercise", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        dayIndex,
+        exerciseIndex,
+        currentExercise: exercise,
+        userPreferences: userPreferences || {},
+      }),
+    })
+
+    if (!res.ok) {
+      const errorText = await res.text()
+      console.error("[v0] substitute-exercise 400 body:", errorText)
+      throw new Error(`substitute-exercise failed: ${res.status} - ${errorText}`)
+    }
+
+    const data = await res.json()
+    const newExercise: Exercise = data?.substitution || data?.newExercise
+
+    if (!newExercise?.name || !newExercise?.sets || !newExercise?.reps || !newExercise?.rest || !newExercise?.description) {
+      throw new Error("API did not return a valid substitution")
+    }
+
+    await onSubstitute(dayIndex, exerciseIndex, newExercise)
+  } catch (err) {
+    console.error("[TREINO] Substitute error:", err)
+    alert("Não foi possível substituir o exercício. Tente novamente.")
+  } finally {
     setIsSubstituting(false)
   }
+}
 
   return (
     <button
@@ -97,9 +133,8 @@ export default function TreinoPage() {
   const [user, loading] = useAuthState(auth)
   const [userData, setUserData] = useState<UserData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [actualTrainingFrequency, setActualTrainingFrequency] = useState<string>("Carregando...")
+  const [actualTrainingFrequency, setActualTrainingFrequency] = useState<string>("")
   const [isRegenerating, setIsRegenerating] = useState(false)
-  const [showRegenerateModal, setShowRegenerateModal] = useState(false)
   const router = useRouter()
 
   // Helper para obter trainingDaysPerWeek com fallback seguro
@@ -265,147 +300,271 @@ export default function TreinoPage() {
   }
 
   const downloadWorkoutPDF = async () => {
-    if (!userData?.workoutPlan) return
+  if (!userData?.workoutPlan) return
 
-    try {
-      // Dynamically import html2pdf to avoid SSR issues
-      const html2pdf = (await import("html2pdf.js")).default
+  const workoutPlan = userData.workoutPlan
 
-      const workoutPlan = userData.workoutPlan
-
-      // Create PDF content as HTML string
-      const pdfContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="UTF-8">
-          <title>Plano de Treino Personalizado</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
-            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3b82f6; padding-bottom: 20px; }
-            .header h1 { color: #3b82f6; margin: 0; font-size: 28px; }
-            .header p { color: #666; margin: 5px 0; }
-            .workout-day { margin: 20px 0; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; page-break-inside: avoid; }
-            .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
-            .day-title { font-size: 20px; font-weight: bold; color: #1e293b; }
-            .day-focus { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
-            .day-duration { color: #666; font-size: 14px; margin-top: 5px; }
-            .exercise { padding: 15px; margin: 10px 0; background: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 4px; }
-            .exercise-name { font-weight: bold; font-size: 16px; color: #1e293b; margin-bottom: 8px; }
-            .exercise-details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 8px 0; }
-            .detail { font-size: 14px; color: #475569; }
-            .detail-label { font-weight: 600; color: #3b82f6; }
-            .exercise-description { font-size: 14px; color: #666; margin-top: 8px; line-height: 1.5; }
-            .tips { margin-top: 30px; page-break-before: always; }
-            .tips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-            .tip { padding: 15px; border-radius: 8px; }
-            .tip-1 { background: #dbeafe; border-left: 4px solid #3b82f6; }
-            .tip-2 { background: #dcfce7; border-left: 4px solid #059669; }
-            .tip-3 { background: #fef3c7; border-left: 4px solid #d97706; }
-            .tip-4 { background: #fee2e2; border-left: 4px solid #dc2626; }
-            .tip-title { font-weight: bold; margin-bottom: 5px; }
-            .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>Plano de Treino Personalizado</h1>
-            <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
-            <p>${workoutPlan.weeklySchedule || "Plano semanal personalizado"}</p>
-          </div>
-
-          ${workoutPlan.days
-            .map(
-              (day) => `
-            <div class="workout-day">
-              <div class="day-header">
-                <div class="day-title">${day.day} - ${day.title}</div>
-                <div class="day-focus">${day.focus}</div>
-                <div class="day-duration">Duração: ${day.duration}</div>
-              </div>
-              
-              ${day.exercises
-                .map(
-                  (exercise) => `
-                <div class="exercise">
-                  <div class="exercise-name">${exercise.name}</div>
-                  <div class="exercise-details">
-                    <div class="detail"><span class="detail-label">Séries:</span> ${exercise.sets}</div>
-                    <div class="detail"><span class="detail-label">Repetições:</span> ${exercise.reps}</div>
-                    <div class="detail"><span class="detail-label">Descanso:</span> ${exercise.rest}</div>
-                  </div>
-                  <div class="exercise-description">${exercise.description}</div>
-                </div>
-              `,
-                )
-                .join("")}
-            </div>
-          `,
-            )
-            .join("")}
-
-          ${
-            workoutPlan.tips && Array.isArray(workoutPlan.tips) && workoutPlan.tips.length > 0
-              ? `
-            <div class="tips">
-              <h2 style="color: #1e293b; margin-bottom: 10px;">Dicas Importantes</h2>
-              <div class="tips-grid">
-                ${workoutPlan.tips
-                  .map(
-                    (tip, index) => `
-                  <div class="tip tip-${(index % 4) + 1}">
-                    <div class="tip-title">Dica ${index + 1}</div>
-                    <div>${tip}</div>
-                  </div>
-                `,
-                  )
-                  .join("")}
-              </div>
-            </div>
-          `
-              : ""
-          }
-
-          <div class="footer">
-            <p><strong>FitGoal</strong> - Seu plano de treino personalizado</p>
-            <p>Este plano foi criado especificamente para você com base em seus objetivos e experiência.</p>
-          </div>
-        </body>
-        </html>
-      `
-
-      // Create a temporary div to hold the HTML content
-      const tempDiv = document.createElement("div")
-      tempDiv.innerHTML = pdfContent
-      tempDiv.style.position = "absolute"
-      tempDiv.style.left = "-9999px"
-      document.body.appendChild(tempDiv)
-
-      // Configure PDF options
-      const options = {
-        margin: 10,
-        filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      }
-
-      // Generate and download PDF
-      await html2pdf.set(options).from(tempDiv).save()
-
-      // Clean up
-      document.body.removeChild(tempDiv)
-    } catch (error) {
-      console.error("Erro ao gerar PDF:", error)
-      alert("Erro ao gerar PDF. Tente novamente.")
+  // Detect structure: check if exercises have muscleGroup or if they're organized by days
+  let filledGroups: [string, any[]][] = []
+  
+  // Collect all exercises from all days
+  const allExercises: any[] = []
+  const dayTitles: { [key: string]: string } = {}
+  
+  (workoutPlan.days || []).forEach((day: any, index: number) => {
+    if (day && day.exercises && Array.isArray(day.exercises)) {
+      day.exercises.forEach((exercise: any) => {
+        allExercises.push({
+          ...exercise,
+          dayIndex: index,
+          dayTitle: day.title || day.day || `Dia ${index + 1}`
+        })
+      })
+      dayTitles[index] = day.title || day.day || `Dia ${index + 1}`
     }
+  })
+
+  // Check if exercises have muscleGroup property
+  const hasMuscleGroups = allExercises.some((ex: any) => ex.muscleGroup && ex.muscleGroup.trim().length > 0)
+
+  if (hasMuscleGroups) {
+    // Group by muscleGroup
+    const groupedByMuscle: { [key: string]: any[] } = {}
+    allExercises.forEach((exercise: any) => {
+      const group = exercise.muscleGroup || "Outros"
+      if (!groupedByMuscle[group]) {
+        groupedByMuscle[group] = []
+      }
+      groupedByMuscle[group].push({
+        name: exercise.name,
+        sets: exercise.sets,
+        reps: exercise.reps
+      })
+    })
+    
+    filledGroups = Object.entries(groupedByMuscle).filter(([_, exercises]) => exercises.length > 0)
+  } else {
+    // Group by day (default structure)
+    filledGroups = (workoutPlan.days || [])
+      .filter((day: any) => day && day.exercises && day.exercises.length > 0)
+      .map((day: any) => [
+        day.title || day.day || "Treino",
+        day.exercises.map((exercise: any) => ({
+          name: exercise.name,
+          sets: exercise.sets,
+          reps: exercise.reps
+        }))
+      ])
+  }
+
+  // Create PDF content as HTML string
+  const pdfContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>Ficha de Treino</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; }
+        body { 
+          font-family: Arial, sans-serif; 
+          color: #000; 
+          background: white; 
+          padding: 8px;
+          line-height: 1.1;
+          font-size: 11px;
+        }
+        
+        .header { 
+          text-align: center; 
+          margin-bottom: 8px;
+          border: 2px solid #000;
+          padding: 6px;
+        }
+        
+        .header h1 { 
+          font-size: 16px;
+          font-weight: bold;
+          margin: 0;
+          letter-spacing: 1px;
+        }
+        
+        .header p {
+          font-size: 10px;
+          margin: 2px 0 0 0;
+        }
+        
+        .exercises-container {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 6px;
+          margin-bottom: 6px;
+        }
+        
+        .exercise-section {
+          border: 2px solid #000;
+          display: flex;
+          flex-direction: column;
+          min-height: 300px;
+        }
+        
+        .section-title {
+          background: #e0e0e0;
+          border-bottom: 2px solid #000;
+          padding: 4px;
+          font-weight: bold;
+          font-size: 10px;
+          text-align: center;
+          text-transform: uppercase;
+          flex-shrink: 0;
+        }
+        
+        .exercise-table {
+          width: 100%;
+          border-collapse: collapse;
+          flex: 1;
+        }
+        
+        .exercise-table thead {
+          position: sticky;
+          top: 0;
+        }
+        
+        .exercise-table th {
+          border: 1px solid #000;
+          padding: 3px 2px;
+          font-weight: bold;
+          font-size: 9px;
+          text-align: center;
+          background: #f5f5f5;
+          height: 18px;
+        }
+        
+        .exercise-table td {
+          border: 1px solid #000;
+          padding: 2px 2px;
+          font-size: 9px;
+          height: 16px;
+        }
+        
+        .exercise-name {
+          width: 55%;
+          text-align: left;
+          font-weight: 500;
+          word-break: break-word;
+        }
+        
+        .exercise-col {
+          width: 15%;
+          text-align: center;
+        }
+        
+        .series-col {
+          text-align: center;
+          font-weight: 500;
+        }
+        
+        .reps-col {
+          text-align: center;
+          font-weight: 500;
+        }
+        
+        .load-col {
+          text-align: center;
+          background: #fafafa;
+        }
+        
+        .footer {
+          text-align: center;
+          font-size: 9px;
+          color: #333;
+          border-top: 1px solid #ccc;
+          padding-top: 4px;
+          margin-top: 6px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>EXERCÍCIOS LOCALIZADOS</h1>
+        <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
+      </div>
+      
+      <div class="exercises-container">
+        ${filledGroups
+          .map(([groupName, exercises]) => {
+            if (exercises.length === 0) return ""
+            
+            return `
+              <div class="exercise-section">
+                <div class="section-title">${groupName.toUpperCase()}</div>
+                <table class="exercise-table">
+                  <thead>
+                    <tr>
+                      <th class="exercise-name">EXERCÍCIO</th>
+                      <th class="exercise-col">SÉR</th>
+                      <th class="exercise-col">REP</th>
+                      <th class="exercise-col">CARGA</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${exercises
+                      .map((ex: any) => `
+                        <tr>
+                          <td class="exercise-name">${ex.name}</td>
+                          <td class="series-col">${ex.sets}</td>
+                          <td class="reps-col">${ex.reps}</td>
+                          <td class="load-col"></td>
+                        </tr>
+                      `)
+                      .join("")}
+                  </tbody>
+                </table>
+              </div>
+            `
+          })
+          .join("")}
+      </div>
+      
+      <div class="footer">
+        Preencha a coluna "CARGA" com o peso utilizado em cada série
+      </div>
+    </body>
+    </html>
+  `
+
+  try {
+    // Convert HTML to PDF using html2pdf library
+    const element = document.createElement("div")
+    element.innerHTML = pdfContent
+    
+    // Dynamic import of html2pdf
+    const html2pdf = (await import("html2pdf.js")).default
+    
+    const pdf = html2pdf()
+      .set({
+        margin: 3,
+        filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
+        image: { type: "png", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
+      })
+      .from(element)
+      .save()
+
+    // Download
+    pdf.save(`plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`)
+  } catch (error) {
+    console.error("[v0] Erro ao gerar PDF:", error)
+    alert("Erro ao gerar PDF. Tente novamente.")
+  }
   }
 
   useEffect(() => {
     const fetchUserData = async () => {
       if (user) {
         try {
-          console.log("[DASHBOARD] Loading user preferences for:", user.uid)
           const [leadsDoc, userDoc] = await Promise.all([
             getDoc(doc(db, "leads", user.uid)),
             getDoc(doc(db, "users", user.uid)),
@@ -413,116 +572,32 @@ export default function TreinoPage() {
 
           let data: UserData = {}
 
-          // Get quiz data from leads collection
           if (leadsDoc.exists()) {
-            const leadsData = leadsDoc.data()
-            console.log("[DASHBOARD] Quiz data from leads:", leadsData)
-            data.quizData = leadsData
+            data.quizData = leadsDoc.data()
           }
 
-          // Get workout plan from users collection
           if (userDoc.exists()) {
             const userData = userDoc.data()
-            console.log("[DASHBOARD] Workout plan from users:", userData)
             if (userData.workoutPlan) {
               data.workoutPlan = userData.workoutPlan
             }
           }
 
-          console.log("[DASHBOARD] Combined user data:", data)
-
           const needsCleanup = await detectAndCleanInconsistentData(data, user.email || "")
           if (needsCleanup) {
-            return // Page will reload after cleanup
+            return
           }
 
           data = await syncUserData(data)
-
-          let frequency = "Frequência não especificada"
-          let frequencySource = "none"
-
-          // Priority 1: Use actual workout plan days count
-          if (data.workoutPlan?.days?.length) {
-            frequency = `${data.workoutPlan.days.length}x por semana`
-            frequencySource = "workoutPlan.days"
-            console.log("[DASHBOARD] Using actual workout plan days count:", frequency)
-          }
-          // Priority 2: Get from quiz data (from leads collection)
-          else if (data.quizData?.trainingDaysPerWeek) {
-            frequency = `${data.quizData.trainingDaysPerWeek}x por semana`
-            frequencySource = "quizData"
-            console.log("[DASHBOARD] Found training frequency from quiz:", frequency)
-          }
-          // Priority 3: Parse from weeklySchedule string (last resort)
-          else if (data.workoutPlan?.weeklySchedule) {
-            const match = data.workoutPlan.weeklySchedule.match(/(\d+)x?\s*por\s*semana/i)
-            if (match) {
-              frequency = `${match[1]}x por semana`
-              frequencySource = "weeklySchedule"
-              console.log("[DASHBOARD] Parsed from weeklySchedule:", frequency)
-            }
-          }
-
-          console.log(`[DASHBOARD] Final frequency: ${frequency} (source: ${frequencySource})`)
-          setActualTrainingFrequency(frequency)
-
-          debugDataFlow("DASHBOARD_LOAD", data)
           setUserData(data)
-
-          const expectedFrequency = Number(data.quizData?.trainingDaysPerWeek ?? 5)
-          const actualDays = Number(data.workoutPlan?.days?.length ?? 0)
-
-          console.log("[DASHBOARD] Frequency types:", {
-            expectedFrequency,
-            expectedType: typeof expectedFrequency,
-            actualDays,
-            actualType: typeof actualDays,
-          })
-
-          const hasMinimumExercises =
-            data.workoutPlan?.days?.every((day: any) => day.exercises && day.exercises.length >= 5) || false
-
-          const needsRegeneration =
-            !data.workoutPlan ||
-            !Array.isArray(data.workoutPlan.days) ||
-            actualDays === 0 ||
-            actualDays !== expectedFrequency ||
-            !hasMinimumExercises
-
-          console.log(`[DASHBOARD] Regeneration check:`, {
-            hasWorkoutPlan: !!data.workoutPlan,
-            hasDays: !!data.workoutPlan?.days,
-            actualDays,
-            expectedFrequency,
-            hasMinimumExercises,
-            needsRegeneration,
-          })
- // Regenerate if any difference
-
-          console.log(`[DASHBOARD] Regeneration check:`, {
-            hasWorkoutPlan: !!data.workoutPlan,
-            hasDays: !!data.workoutPlan?.days,
-            actualDays,
-            expectedFrequency,
-            hasMinimumExercises,
-            needsRegeneration,
-          })
-
-          if (needsRegeneration) {
-            console.log("[DASHBOARD] Plan needs regeneration - generating new plan...")
-            await generatePlans()
-          } else {
-            debugDataFlow("DASHBOARD_EXISTING_PLAN", data.workoutPlan)
-            console.log(`[DASHBOARD] Using existing plan with ${actualDays} days`)
-            data.workoutPlan.days.forEach((day: any, index: number) => {
-              console.log(
-                `[DASHBOARD] Day ${index + 1} (${day.title || day.day}): ${day.exercises?.length || 0} exercises`,
-              )
-            })
-          }
+          
+          // Calculate and set training frequency
+          const frequency = `${data.workoutPlan?.days?.length || 0}x por semana`
+          setActualTrainingFrequency(frequency)
+          
+          setIsLoading(false)
         } catch (error) {
-          console.error("[DASHBOARD] Erro ao buscar dados do usuário:", error)
-        } finally {
+          console.error("[TREINO] Erro ao buscar dados:", error)
           setIsLoading(false)
         }
       }
@@ -532,6 +607,7 @@ export default function TreinoPage() {
       fetchUserData()
     }
   }, [user, loading])
+
 
   if (loading || isLoading) {
     return (
@@ -698,6 +774,8 @@ export default function TreinoPage() {
                                 dayIndex={dayIndex}
                                 exerciseIndex={exerciseIndex}
                                 onSubstitute={handleExerciseSubstitution}
+                                userId={user?.uid || ""}
+                                userPreferences={userData?.quizData}
                               />
                             </div>
                             <div className="flex flex-wrap gap-2 mb-3">
@@ -752,4 +830,4 @@ export default function TreinoPage() {
       </div>
     </ProtectedRoute>
   )
-}
+ }
