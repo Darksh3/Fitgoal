@@ -133,7 +133,7 @@ export default function TreinoPage() {
   const [user, loading] = useAuthState(auth)
   const [userData, setUserData] = useState<UserData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [actualTrainingFrequency, setActualTrainingFrequency] = useState<string>("Carregando...")
+  const [actualTrainingFrequency, setActualTrainingFrequency] = useState<string>("")
   const [isRegenerating, setIsRegenerating] = useState(false)
   const router = useRouter()
 
@@ -397,7 +397,7 @@ export default function TreinoPage() {
         
         .exercises-container {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
           gap: 6px;
           margin-bottom: 6px;
         }
@@ -406,6 +406,7 @@ export default function TreinoPage() {
           border: 2px solid #000;
           display: flex;
           flex-direction: column;
+          min-height: 300px;
         }
         
         .section-title {
@@ -589,6 +590,11 @@ export default function TreinoPage() {
 
           data = await syncUserData(data)
           setUserData(data)
+          
+          // Calculate and set training frequency
+          const frequency = `${data.workoutPlan?.days?.length || 0}x por semana`
+          setActualTrainingFrequency(frequency)
+          
           setIsLoading(false)
         } catch (error) {
           console.error("[TREINO] Erro ao buscar dados:", error)
