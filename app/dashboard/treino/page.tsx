@@ -318,43 +318,43 @@ export default function TreinoPage() {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
           color: #1f2937; 
           background: white; 
-          padding: 50px 40px;
-          line-height: 1.6;
+          padding: 20px 18px;
+          line-height: 1.4;
+          font-size: 13px;
         }
         
         .header { 
           text-align: center; 
-          margin-bottom: 40px; 
-          padding-bottom: 30px; 
-          border-bottom: 3px solid #0ea5e9;
+          margin-bottom: 15px; 
+          padding: 12px 15px;
           background: linear-gradient(135deg, #f0f9ff 0%, #ecf0f1 100%);
-          padding: 30px;
-          border-radius: 12px;
+          border-radius: 8px;
+          border-bottom: 2px solid #0ea5e9;
         }
         
         .header h1 { 
           color: #0284c7; 
           margin: 0; 
-          font-size: 32px;
+          font-size: 22px;
           font-weight: 700;
-          margin-bottom: 10px;
+          margin-bottom: 6px;
           letter-spacing: -0.5px;
         }
         
         .header-meta {
           display: flex;
           justify-content: center;
-          gap: 25px;
-          margin-top: 15px;
+          gap: 15px;
+          margin-top: 6px;
           flex-wrap: wrap;
         }
         
         .meta-item {
-          font-size: 13px;
+          font-size: 11px;
           color: #475569;
           display: flex;
           align-items: center;
-          gap: 5px;
+          gap: 3px;
         }
         
         .meta-label {
@@ -363,7 +363,7 @@ export default function TreinoPage() {
         }
         
         .workout-day { 
-          margin: 35px 0; 
+          margin: 12px 0; 
           padding: 0;
           page-break-inside: avoid;
         }
@@ -372,15 +372,15 @@ export default function TreinoPage() {
           display: flex;
           justify-content: space-between;
           align-items: flex-start;
-          margin-bottom: 20px;
-          padding: 18px 20px;
+          margin-bottom: 8px;
+          padding: 10px 12px;
           background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
-          border-radius: 10px;
+          border-radius: 6px;
           color: white;
         }
         
         .day-title { 
-          font-size: 22px; 
+          font-size: 15px; 
           font-weight: 700; 
           color: white;
           flex: 1;
@@ -388,107 +388,106 @@ export default function TreinoPage() {
         
         .day-meta {
           text-align: right;
-          font-size: 12px;
+          font-size: 10px;
         }
         
         .day-focus { 
           background: rgba(255, 255, 255, 0.2);
           color: white; 
-          padding: 6px 14px; 
-          border-radius: 6px; 
-          font-size: 12px;
+          padding: 3px 8px; 
+          border-radius: 4px; 
+          font-size: 10px;
           font-weight: 600;
-          margin-bottom: 6px;
+          margin-bottom: 3px;
           display: inline-block;
         }
         
         .day-duration { 
           color: rgba(255, 255, 255, 0.9); 
-          font-size: 12px;
+          font-size: 10px;
           display: block;
         }
         
         .exercise { 
-          padding: 16px 18px; 
-          margin: 12px 0; 
+          padding: 10px 10px; 
+          margin: 6px 0; 
           background: white;
           border: 1px solid #e5e7eb;
-          border-left: 5px solid #0284c7;
-          border-radius: 8px;
-          transition: box-shadow 0.2s;
+          border-left: 4px solid #0284c7;
+          border-radius: 6px;
         }
         
         .exercise-name { 
           font-weight: 700; 
-          font-size: 15px; 
+          font-size: 13px; 
           color: #0f172a;
-          margin-bottom: 10px;
-          padding-bottom: 8px;
+          margin-bottom: 6px;
+          padding-bottom: 4px;
           border-bottom: 1px solid #e5e7eb;
         }
         
         .exercise-details { 
           display: grid; 
           grid-template-columns: repeat(3, 1fr); 
-          gap: 12px; 
-          margin: 10px 0; 
+          gap: 8px; 
+          margin: 6px 0; 
         }
         
         .detail { 
-          font-size: 13px; 
+          font-size: 11px; 
           color: #374151;
-          padding: 8px;
+          padding: 5px;
           background: #f9fafb;
-          border-radius: 6px;
+          border-radius: 4px;
         }
         
         .detail-label { 
           font-weight: 700; 
           color: #0284c7;
           display: block;
-          font-size: 11px;
-          margin-bottom: 3px;
+          font-size: 9px;
+          margin-bottom: 2px;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
+          letter-spacing: 0.3px;
         }
         
         .exercise-description { 
-          font-size: 13px; 
+          font-size: 11px; 
           color: #4b5563; 
-          margin-top: 10px; 
-          line-height: 1.6;
+          margin-top: 6px; 
+          line-height: 1.4;
           font-style: italic;
-          padding: 10px 12px;
+          padding: 6px 8px;
           background: #f0f9ff;
-          border-radius: 6px;
-          border-left: 3px solid #0ea5e9;
+          border-radius: 4px;
+          border-left: 2px solid #0ea5e9;
         }
         
         .tips { 
-          margin: 40px 0;
-          padding: 25px;
+          margin: 15px 0;
+          padding: 12px;
           background: #f9fafb;
-          border-radius: 12px;
-          border-top: 3px solid #0284c7;
+          border-radius: 8px;
+          border-top: 2px solid #0284c7;
         }
         
         .tips h2 {
           color: #0f172a;
-          margin-bottom: 20px;
-          font-size: 18px;
+          margin-bottom: 10px;
+          font-size: 14px;
           font-weight: 700;
         }
         
         .tips-grid { 
           display: grid; 
           grid-template-columns: repeat(2, 1fr); 
-          gap: 15px;
+          gap: 8px;
         }
         
         .tip { 
-          padding: 14px 16px; 
-          border-radius: 8px;
-          border-left: 4px solid;
+          padding: 8px 10px; 
+          border-radius: 6px;
+          border-left: 3px solid;
           background: white;
         }
         
@@ -514,31 +513,31 @@ export default function TreinoPage() {
         
         .tip-title { 
           font-weight: 700;
-          margin-bottom: 6px;
-          font-size: 13px;
+          margin-bottom: 3px;
+          font-size: 11px;
           color: #1f2937;
         }
         
         .tip-text {
-          font-size: 12px;
+          font-size: 10px;
           color: #4b5563;
-          line-height: 1.5;
+          line-height: 1.3;
         }
         
         .footer { 
-          margin-top: 50px; 
+          margin-top: 15px; 
           text-align: center; 
           color: #6b7280; 
-          font-size: 11px; 
-          border-top: 2px solid #e5e7eb; 
-          padding-top: 25px;
+          font-size: 9px; 
+          border-top: 1px solid #e5e7eb; 
+          padding-top: 10px;
         }
         
         .logo {
-          font-size: 12px;
+          font-size: 10px;
           font-weight: 700;
           color: #0284c7;
-          margin-bottom: 8px;
+          margin-bottom: 3px;
         }
       </style>
     </head>

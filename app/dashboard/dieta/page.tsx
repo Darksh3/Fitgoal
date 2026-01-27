@@ -1166,48 +1166,49 @@ export default function DietPage() {
               font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
               color: #1f2937; 
               background: white; 
-              padding: 50px 40px;
-              line-height: 1.6;
+              padding: 20px 18px;
+              line-height: 1.4;
+              font-size: 13px;
             }
             
             .header { 
               text-align: center; 
-              margin-bottom: 40px; 
-              padding: 30px;
+              margin-bottom: 15px; 
+              padding: 12px 15px;
               background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-              border-radius: 12px;
-              border-bottom: 3px solid #f59e0b;
+              border-radius: 8px;
+              border-bottom: 2px solid #f59e0b;
             }
             
             .header h1 { 
               color: #b45309; 
               margin: 0; 
-              font-size: 32px;
+              font-size: 22px;
               font-weight: 700;
-              margin-bottom: 10px;
+              margin-bottom: 6px;
               letter-spacing: -0.5px;
             }
             
             .header-subtitle {
               color: #92400e;
-              font-size: 14px;
-              margin-top: 8px;
+              font-size: 11px;
+              margin-top: 4px;
             }
             
             .macros-grid { 
               display: grid; 
               grid-template-columns: repeat(4, 1fr); 
-              gap: 15px; 
-              margin: 30px 0;
+              gap: 10px; 
+              margin: 12px 0;
             }
             
             .macro-card { 
               background: white;
-              padding: 18px; 
-              border-radius: 10px; 
+              padding: 10px; 
+              border-radius: 8px; 
               text-align: center; 
-              border: 2px solid #e5e7eb;
-              box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+              border: 1px solid #e5e7eb;
+              box-shadow: 0 1px 2px rgba(0,0,0,0.02);
             }
             
             .macro-card.active {
@@ -1218,20 +1219,20 @@ export default function DietPage() {
             .macro-title { 
               font-weight: 600; 
               color: #6b7280; 
-              font-size: 12px; 
-              margin-bottom: 8px;
+              font-size: 10px; 
+              margin-bottom: 4px;
               text-transform: uppercase;
-              letter-spacing: 0.5px;
+              letter-spacing: 0.3px;
             }
             
             .macro-value { 
-              font-size: 26px; 
+              font-size: 20px; 
               font-weight: 700;
             }
             
             .macro-icon {
-              font-size: 20px;
-              margin-bottom: 6px;
+              font-size: 16px;
+              margin-bottom: 3px;
             }
             
             .calories { color: #f59e0b; }
@@ -1240,10 +1241,10 @@ export default function DietPage() {
             .fats { color: #10b981; }
             
             .meal { 
-              margin: 25px 0; 
-              padding: 20px; 
+              margin: 10px 0; 
+              padding: 10px; 
               border: 1px solid #e5e7eb;
-              border-radius: 10px;
+              border-radius: 6px;
               background: white;
               page-break-inside: avoid;
             }
@@ -1252,113 +1253,114 @@ export default function DietPage() {
               display: flex; 
               justify-content: space-between; 
               align-items: center;
-              margin-bottom: 15px; 
-              border-bottom: 2px solid #f59e0b; 
-              padding-bottom: 12px;
+              margin-bottom: 8px; 
+              border-bottom: 1px solid #f59e0b; 
+              padding-bottom: 6px;
             }
             
-            .meal-info {
+            .meal-info{
               flex: 1;
             }
             
             .meal-title { 
-              font-size: 18px; 
+              font-size: 13px; 
               font-weight: 700; 
               color: #1f2937;
-              margin-bottom: 4px;
+              margin-bottom: 2px;
             }
             
             .meal-calories { 
               color: #9ca3af; 
-              font-size: 13px;
+              font-size: 11px;
               font-weight: 500;
             }
             
             .meal-time { 
               background: #fbbf24;
               color: #78350f; 
-              padding: 6px 14px; 
-              border-radius: 6px; 
-              font-size: 12px;
+              padding: 3px 8px; 
+              border-radius: 4px; 
+              font-size: 10px;
               font-weight: 600;
               white-space: nowrap;
               display: inline-block;
             }
             
-            .meal-foods {
-              padding: 12px 0;
+            .meal-foods{
+              padding: 6px 0;
             }
             
             .food-item { 
               display: flex; 
               justify-content: space-between;
               align-items: flex-start;
-              padding: 10px 12px; 
-              border-radius: 6px;
+              padding: 6px 8px; 
+              border-radius: 4px;
               background: #f9fafb;
-              margin-bottom: 8px;
-              border-left: 3px solid #f59e0b;
+              margin-bottom: 4px;
+              border-left: 2px solid #f59e0b;
+              font-size: 11px;
             }
             
             .food-item:last-child {
               margin-bottom: 0;
             }
             
-            .food-info {
+            .food-info{
               flex: 1;
             }
             
             .food-name { 
               font-weight: 600;
               color: #1f2937;
-              font-size: 14px;
-              margin-bottom: 4px;
+              font-size: 11px;
+              margin-bottom: 2px;
             }
             
             .food-quantity { 
               color: #f59e0b; 
-              font-size: 12px;
+              font-size: 10px;
               font-weight: 600;
-              margin-bottom: 3px;
+              margin-bottom: 1px;
             }
             
             .food-macros { 
-              font-size: 11px; 
+              font-size: 9px; 
               color: #6b7280;
             }
             
             .food-calories { 
               color: #f59e0b; 
-              font-size: 13px;
+              font-size: 11px;
               font-weight: 700;
               text-align: right;
             }
             
             .tips { 
-              margin: 40px 0;
-              padding: 25px;
+              margin: 12px 0;
+              padding: 10px;
               background: #fffbeb;
-              border-radius: 12px;
-              border-top: 3px solid #f59e0b;
+              border-radius: 8px;
+              border-top: 2px solid #f59e0b;
             }
             
             .tips h2 {
               color: #1f2937;
-              margin-bottom: 20px;
-              font-size: 18px;
+              margin-bottom: 8px;
+              font-size: 13px;
               font-weight: 700;
             }
             
             .tips-grid { 
               display: grid; 
               grid-template-columns: repeat(2, 1fr); 
-              gap: 15px;
+              gap: 8px;
             }
             
             .tip { 
-              padding: 14px 16px; 
-              border-radius: 8px;
-              border-left: 4px solid #f59e0b;
+              padding: 8px 10px; 
+              border-radius: 6px;
+              border-left: 3px solid #f59e0b;
               background: white;
             }
             
@@ -1369,31 +1371,31 @@ export default function DietPage() {
             
             .tip-title { 
               font-weight: 700;
-              margin-bottom: 6px;
-              font-size: 13px;
+              margin-bottom: 3px;
+              font-size: 11px;
               color: #1f2937;
             }
             
-            .tip-text {
-              font-size: 12px;
+            .tip-text{
+              font-size: 10px;
               color: #4b5563;
-              line-height: 1.5;
+              line-height: 1.3;
             }
             
             .footer { 
-              margin-top: 50px; 
+              margin-top: 12px; 
               text-align: center; 
               color: #6b7280; 
-              font-size: 11px; 
-              border-top: 2px solid #e5e7eb; 
-              padding-top: 25px;
+              font-size: 9px; 
+              border-top: 1px solid #e5e7eb; 
+              padding-top: 8px;
             }
             
-            .logo {
-              font-size: 12px;
+            .logo{
+              font-size: 10px;
               font-weight: 700;
               color: #f59e0b;
-              margin-bottom: 8px;
+              margin-bottom: 3px;
             }
           </style>
         </head>
