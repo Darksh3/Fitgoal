@@ -1600,11 +1600,7 @@ export default function DietPage() {
   }
 
   return (
-    console.log("[v0] Calculating totals for meals:", meals)
-
-    if (!meals || !Array.isArray(meals) || meals.length === 0) {
-      return { calories: "0", protein: "0g", carbs: "0g", fats: "0g" }
-    }
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white py-8 px-4">
 
     let totalCalories = 0
     let totalProtein = 0
