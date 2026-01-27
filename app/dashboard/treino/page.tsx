@@ -607,29 +607,26 @@ export default function TreinoPage() {
       ${
         workoutPlan.tips && Array.isArray(workoutPlan.tips) && workoutPlan.tips.length > 0
           ? `
-        <div class="tips">
-          <h2>✨ Dicas Importantes</h2>
-          <div class="tips-grid">
-            ${workoutPlan.tips
-              .map(
-                (tip, index) => {
-                  const icons = ["💡", "🔥", "⚡", "🎯"];
-                  return `
-              <div class="tip tip-${(index % 4) + 1}">
-                <div class="tip-title">${icons[index % 4]} Dica ${index + 1}</div>
-                <div class="tip-text">${tip}</div>
+            <div class="tips">
+              <h2>Dicas Importantes</h2>
+              <div class="tips-grid">
+                ${workoutPlan.tips
+                  .map(
+                    (tip, index) => `
+                      <div class="tip tip-${(index % 4) + 1}">
+                        <div class="tip-title">Dica ${index + 1}</div>
+                        <div>${tip}</div>
+                      </div>
+                   `,
+                  )
+                  .join("")}
               </div>
-            `;
-                }
-              )
-              .join("")}
-          </div>
-        </div>
+            </div>
+           `
+           : ""
+       }
+       <div class="footer">...</div>
       `
-          : ""
-      }
-
-      <div class="footer">
         <div class="logo">🏋️ FitGoal</div>
         <p>Seu plano de treino personalizado e progressivo</p>
         <p style="margin-top: 10px; font-size: 10px; color: #9ca3af;">
