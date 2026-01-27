@@ -8,7 +8,6 @@ import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import ProtectedRoute from "@/components/protected-route"
-import dynamic from "next/dynamic"
 import { Dumbbell, Calendar, Lightbulb, Target, RefreshCw, Download, AlertCircle, ArrowLeft } from "lucide-react"
 import React from "react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -97,7 +96,6 @@ export default function TreinoPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [actualTrainingFrequency, setActualTrainingFrequency] = useState<string>("Carregando...")
   const [isRegenerating, setIsRegenerating] = useState(false)
-  const [showRegenerateModal, setShowRegenerateModal] = useState(false)
   const router = useRouter()
 
   // Helper para obter trainingDaysPerWeek com fallback seguro
