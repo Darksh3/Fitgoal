@@ -304,43 +304,17 @@ export default function TreinoPage() {
 
   const workoutPlan = userData.workoutPlan
 
-  // Group exercises by muscle group
-  const groupedExercises: { [key: string]: any[] } = {
-    "Peitorais": [],
-    "Dorsais": [],
-    "Ombros": [],
-    "Tríceps": [],
-    "Bíceps": [],
-    "Antebraços": [],
-    "Abdômen": [],
-    "Costas": [],
-    "Pernas": [],
-    "Glúteos": [],
-    "Outros": []
-  }
-
-  // Populate grouped exercises
-  workoutPlan.days?.forEach((day: any) => {
-    day.exercises?.forEach((exercise: any) => {
-      const muscleGroup = exercise.muscleGroup || "Outros"
-      if (groupedExercises[muscleGroup]) {
-        groupedExercises[muscleGroup].push({
-          name: exercise.name,
-          sets: exercise.sets,
-          reps: exercise.reps
-        })
-      } else {
-        groupedExercises["Outros"].push({
-          name: exercise.name,
-          sets: exercise.sets,
-          reps: exercise.reps
-        })
-      }
-    })
-  })
-
-  // Filter out empty groups
-  const filledGroups = Object.entries(groupedExercises).filter(([_, exercises]) => exercises.length > 0)
+  // Group exercises by day (using the existing day structure)
+  const filledGroups = (workoutPlan.days || [])
+    .filter((day: any) => day && day.exercises && day.exercises.length > 0)
+    .map((day: any) => [
+      day.title || day.day || "Treino",
+      day.exercises.map((exercise: any) => ({
+        name: exercise.name,
+        sets: exercise.sets,
+        reps: exercise.reps
+      }))
+    ])
 
   // Create PDF content as HTML string
   const pdfContent = `
@@ -382,7 +356,7 @@ export default function TreinoPage() {
         
         .exercises-container {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
           gap: 6px;
           margin-bottom: 6px;
         }
