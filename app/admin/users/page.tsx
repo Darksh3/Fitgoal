@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { ProtectedAdminRoute } from "@/components/admin/protected-admin-route"
+import { AdminDataExport } from "@/components/admin/data-export"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function AdminUsersPage() {
   const router = useRouter()
@@ -114,6 +116,12 @@ export default function AdminUsersPage() {
               <p className="text-slate-300 text-sm">Usuários Bloqueados</p>
               <p className="text-red-400 text-2xl font-bold">{users.filter(u => u.blocked).length}</p>
             </Card>
+          </div>
+
+          {/* Data Export Section */}
+          <div className="mt-8">
+            <h2 className="text-white text-xl font-bold mb-4">Exportar Dados</h2>
+            <AdminDataExport />
           </div>
         </div>
       </div>
