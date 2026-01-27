@@ -304,17 +304,58 @@ export default function TreinoPage() {
 
   const workoutPlan = userData.workoutPlan
 
-  // Group exercises by day (using the existing day structure)
-  const filledGroups = (workoutPlan.days || [])
-    .filter((day: any) => day && day.exercises && day.exercises.length > 0)
-    .map((day: any) => [
-      day.title || day.day || "Treino",
-      day.exercises.map((exercise: any) => ({
+  // Detect structure: check if exercises have muscleGroup or if they're organized by days
+  let filledGroups: [string, any[]][] = []
+  
+  // Collect all exercises from all days
+  const allExercises: any[] = []
+  const dayTitles: { [key: string]: string } = {}
+  
+  (workoutPlan.days || []).forEach((day: any, index: number) => {
+    if (day && day.exercises && Array.isArray(day.exercises)) {
+      day.exercises.forEach((exercise: any) => {
+        allExercises.push({
+          ...exercise,
+          dayIndex: index,
+          dayTitle: day.title || day.day || `Dia ${index + 1}`
+        })
+      })
+      dayTitles[index] = day.title || day.day || `Dia ${index + 1}`
+    }
+  })
+
+  // Check if exercises have muscleGroup property
+  const hasMuscleGroups = allExercises.some((ex: any) => ex.muscleGroup && ex.muscleGroup.trim().length > 0)
+
+  if (hasMuscleGroups) {
+    // Group by muscleGroup
+    const groupedByMuscle: { [key: string]: any[] } = {}
+    allExercises.forEach((exercise: any) => {
+      const group = exercise.muscleGroup || "Outros"
+      if (!groupedByMuscle[group]) {
+        groupedByMuscle[group] = []
+      }
+      groupedByMuscle[group].push({
         name: exercise.name,
         sets: exercise.sets,
         reps: exercise.reps
-      }))
-    ])
+      })
+    })
+    
+    filledGroups = Object.entries(groupedByMuscle).filter(([_, exercises]) => exercises.length > 0)
+  } else {
+    // Group by day (default structure)
+    filledGroups = (workoutPlan.days || [])
+      .filter((day: any) => day && day.exercises && day.exercises.length > 0)
+      .map((day: any) => [
+        day.title || day.day || "Treino",
+        day.exercises.map((exercise: any) => ({
+          name: exercise.name,
+          sets: exercise.sets,
+          reps: exercise.reps
+        }))
+      ])
+  }
 
   // Create PDF content as HTML string
   const pdfContent = `
