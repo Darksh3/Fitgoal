@@ -746,6 +746,9 @@ export default function DietPage() {
           // Use the first substitute (could add UI to let user choose)
           let newFood = result.substitution.substitutes[0]
 
+          // Criar cópia dos alimentos para atualizar
+          const updatedMeals = [...dietPlan.meals]
+          
           // Aplicar macroCredit ao novo alimento
           const currentMealWithCredit = updatedMeals[mealIndex]
           if (currentMealWithCredit.macroCredit) {
@@ -754,7 +757,6 @@ export default function DietPage() {
           }
 
           // Update the diet plan with the new food
-          const updatedMeals = [...dietPlan.meals]
           updatedMeals[mealIndex] = {
             ...updatedMeals[mealIndex],
             foods: [
