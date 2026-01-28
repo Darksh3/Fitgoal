@@ -14,6 +14,8 @@ import { useRouter } from "next/navigation"
 import type { Meal, DietPlan } from "@/types"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { FoodAutocomplete } from "@/components/food-autocomplete"
+import { extractFoodMacros, addToMacroCredit, resetMacroCredit, applyMacroCreditToFood, getMacroCreditDisplay } from "@/lib/macroCreditUtils"
+import { MacroCreditDisplay } from "@/components/macro-credit-display"
 
 export default function DietPage() {
   const [isHydrated, setIsHydrated] = useState(false)
@@ -124,29 +126,25 @@ export default function DietPage() {
     if (!dietPlan?.meals[mealIndex]?.foods[foodIndex]) return
 
     const foodToRemove = dietPlan.meals[mealIndex].foods[foodIndex]
-    let foodName = ""
-    let foodCalories = 0
+    const foodMacros = extractFoodMacros(foodToRemove)
 
-    if (typeof foodToRemove === "string") {
-      foodName = foodToRemove
-      const match = foodToRemove.match(/(\d+(?:\.\d+)?)\s*kcal/i)
-      if (match) {
-        foodCalories = Number.parseFloat(match[1])
-      }
-    } else if (foodToRemove && typeof foodToRemove === "object") {
-      foodName = foodToRemove.name || `Alimento ${foodIndex + 1}`
-      const caloriesStr = foodToRemove.calories?.toString() || "0"
-      const match = caloriesStr.match(/(\d+(?:\.\d+)?)/)
-      if (match) {
-        foodCalories = Number.parseFloat(match[1])
-      }
-    }
+    // Atualizar a refeição com o macroCredit
+    const updatedMeals = [...(dietPlan?.meals || [])]
+    updatedMeals[mealIndex] = addToMacroCredit(updatedMeals[mealIndex], foodMacros)
+
+    // Remover o alimento da refeição
+    updatedMeals[mealIndex].foods = updatedMeals[mealIndex].foods.filter((_, i) => i !== foodIndex)
+
+    // Atualizar o estado
+    const updatedDietPlan = { ...dietPlan, meals: updatedMeals }
+    setDietPlan(updatedDietPlan)
 
     const removedFood = {
       mealIndex,
       foodIndex,
-      name: foodName,
-      calories: foodCalories,
+      name: typeof foodToRemove === "string" ? foodToRemove : (foodToRemove as any).name || `Alimento ${foodIndex + 1}`,
+      calories: foodMacros.calories,
+      macros: foodMacros,
     }
 
     const updatedAdjustments = {
@@ -156,15 +154,18 @@ export default function DietPage() {
 
     setManualAdjustments(updatedAdjustments)
 
-    // Save to Firebase
+    console.log("[v0] Food removed. macroCredit added to meal:", mealIndex, foodMacros)
+
+    // Salvar no Firebase
     if (user) {
       try {
         const userDocRef = doc(db, "users", user.uid)
         await updateDoc(userDocRef, {
           manualDietAdjustments: updatedAdjustments,
+          dietPlan: updatedDietPlan,
         })
       } catch (error) {
-        console.error("Error saving manual adjustments:", error)
+        console.error("[v0] Erro ao salvar ajustes de dieta:", error)
       }
     }
   }
@@ -708,7 +709,14 @@ export default function DietPage() {
         const result = await response.json()
         if (result.success && result.substitution?.substitutes?.length > 0) {
           // Use the first substitute (could add UI to let user choose)
-          const newFood = result.substitution.substitutes[0]
+          let newFood = result.substitution.substitutes[0]
+
+          // Aplicar macroCredit ao novo alimento
+          const currentMealWithCredit = updatedMeals[mealIndex]
+          if (currentMealWithCredit.macroCredit) {
+            newFood = applyMacroCreditToFood(newFood, currentMealWithCredit.macroCredit)
+            console.log("[v0] macroCredit applied to new food:", currentMealWithCredit.macroCredit)
+          }
 
           // Update the diet plan with the new food
           const updatedMeals = [...dietPlan.meals]
@@ -719,6 +727,13 @@ export default function DietPage() {
               newFood,
               ...updatedMeals[mealIndex].foods.slice(foodIndex + 1),
             ],
+            // Reseta o macroCredit após usar
+            macroCredit: {
+              calories: 0,
+              protein: 0,
+              carbs: 0,
+              fats: 0,
+            },
           }
 
           const updatedDietPlan = {
@@ -730,7 +745,7 @@ export default function DietPage() {
 
           await saveDietPlan(updatedDietPlan)
 
-          console.log("[v0] Food replacement completed and saved")
+          console.log("[v0] Food replacement completed with macroCredit applied and reset")
         }
       } else {
         setError("Erro ao substituir alimento. Tente novamente.")
@@ -2337,6 +2352,9 @@ export default function DietPage() {
                     </AccordionTrigger>
                     <AccordionContent className="px-6 pb-4">
                       <div className="space-y-3">
+                        {/* macroCredit Display */}
+                        <MacroCreditDisplay meal={meal} />
+                        
                         {filteredFoods.length > 0 ? (
                           filteredFoods.map((food, foodIndex) => {
                             const originalIndex =
