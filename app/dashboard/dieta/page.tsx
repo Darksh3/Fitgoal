@@ -29,6 +29,9 @@ export default function DietPage() {
   const [error, setError] = useState<string | null>(null)
   const [replacingMeal, setReplacingMeal] = useState<number | null>(null)
   const [replacingFood, setReplacingFood] = useState<{ mealIndex: number; foodIndex: number } | null>(null)
+  const [addingFood, setAddingFood] = useState<{ mealIndex: number; foodIndex: number } | null>(null)
+  const [addFoodInput, setAddFoodInput] = useState("")
+  const [addFoodMessage, setAddFoodMessage] = useState<{ text: string; type: "success" | "error" } | null>(null)
   const [userPreferences, setUserPreferences] = useState<any>(null)
   const [quizData, setQuizData] = useState<any>(null)
   const [manualAdjustments, setManualAdjustments] = useState<{
@@ -777,6 +780,103 @@ export default function DietPage() {
       setError("Erro ao substituir alimento. Tente novamente.")
     } finally {
       setReplacingFood(null)
+    }
+  }
+
+  const handleAddFoodToMeal = async (mealIndex: number, foodIndex: number) => {
+    if (!addFoodInput.trim() || !user) return
+
+    setAddingFood({ mealIndex, foodIndex })
+    setAddFoodMessage(null)
+
+    try {
+      const currentMeal = dietPlan.meals[mealIndex]
+      const currentFood = currentMeal.foods[foodIndex]
+
+      // Calcular macroCredit disponível
+      const availableMacros = currentMeal.macroCredit || {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fats: 0,
+      }
+
+      const token = await user.getIdToken()
+
+      const response = await fetch("/api/add-food-to-meal", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          foodName: addFoodInput,
+          mealContext: currentMeal.name || `Refeição ${mealIndex + 1}`,
+          mealFoods: currentMeal.foods,
+          availableMacros,
+          userPreferences: userPreferences || {},
+        }),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+
+        if (result.canAdd && result.food) {
+          // Adicionar o alimento
+          const newFood = result.food
+          const updatedMeals = [...dietPlan.meals]
+
+          // Adicionar à lista de alimentos
+          updatedMeals[mealIndex].foods.push(newFood)
+
+          // Resetar macroCredit após usar
+          updatedMeals[mealIndex].macroCredit = {
+            calories: 0,
+            protein: 0,
+            carbs: 0,
+            fats: 0,
+          }
+
+          const updatedDietPlan = {
+            ...dietPlan,
+            meals: updatedMeals,
+          }
+
+          setDietPlan(updatedDietPlan)
+          await saveDietPlan(updatedDietPlan)
+
+          setAddFoodMessage({
+            text: `${result.message} "${newFood.name}" adicionado com sucesso!`,
+            type: "success",
+          })
+
+          setAddFoodInput("")
+          setTimeout(() => {
+            setAddingFood(null)
+            setAddFoodMessage(null)
+          }, 2000)
+
+          console.log("[v0] Food added to meal:", newFood)
+        } else {
+          setAddFoodMessage({
+            text: result.message || "Não foi possível adicionar este alimento",
+            type: "error",
+          })
+        }
+      } else {
+        setAddFoodMessage({
+          text: "Erro ao processar o alimento. Tente novamente.",
+          type: "error",
+        })
+      }
+    } catch (err) {
+      console.error("[v0] Error adding food:", err)
+      setAddFoodMessage({
+        text: "Erro ao adicionar alimento. Tente novamente.",
+        type: "error",
+      })
+    } finally {
+      setAddingFood(null)
     }
   }
 
@@ -2110,6 +2210,72 @@ export default function DietPage() {
             </div>
           )}
 
+          {addingFood && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Incluir Alimento</h3>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                      Qual alimento você quer incluir?
+                    </label>
+                    <input
+                      type="text"
+                      value={addFoodInput}
+                      onChange={(e) => setAddFoodInput(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          handleAddFoodToMeal(addingFood.mealIndex, addingFood.foodIndex)
+                        }
+                      }}
+                      placeholder="Ex: Batata inglesa, Banana, etc"
+                      className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      autoFocus
+                    />
+                  </div>
+
+                  {addFoodMessage && (
+                    <div
+                      className={`p-3 rounded-md text-sm ${
+                        addFoodMessage.type === "success"
+                          ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200"
+                          : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200"
+                      }`}
+                    >
+                      {addFoodMessage.text}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2 mt-6">
+                  <StyledButton
+                    onClick={() => handleAddFoodToMeal(addingFood.mealIndex, addingFood.foodIndex)}
+                    disabled={!addFoodInput.trim() || addFoodMessage?.type === "error"}
+                    className="flex-1"
+                  >
+                    {addingFood && addFoodMessage ? "Incluindo..." : "Analisar"}
+                  </StyledButton>
+                  <StyledButton
+                    onClick={() => {
+                      setAddingFood(null)
+                      setAddFoodInput("")
+                      setAddFoodMessage(null)
+                    }}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Cancelar
+                  </StyledButton>
+                </div>
+
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
+                  💡 A IA analisará se o alimento encaixa nos macros da sua refeição
+                </p>
+              </div>
+            </div>
+          )}
+
           {editingFood && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
@@ -2532,6 +2698,14 @@ export default function DietPage() {
                                       className="h-8 w-8 rounded-full flex items-center justify-center text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-all"
                                     >
                                       <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button
+                                      onClick={() => setAddingFood({ mealIndex: index, foodIndex: originalIndex })}
+                                      disabled={addingFood?.mealIndex === index && addingFood?.foodIndex === originalIndex}
+                                      className="h-8 px-3 rounded-full flex items-center justify-center bg-green-200/60 dark:bg-green-700/30 text-green-700 dark:text-green-300 hover:bg-green-300/60 dark:hover:bg-green-700/50 border border-green-300/50 dark:border-green-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      <Plus className="h-3 w-3 mr-1.5" />
+                                      Incluir
                                     </button>
                                     <button
                                       onClick={() => handleReplaceFood(index, originalIndex)}
