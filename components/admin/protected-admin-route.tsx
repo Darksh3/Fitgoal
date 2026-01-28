@@ -11,9 +11,7 @@ export function ProtectedAdminRoute({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     const authenticated = isAdminAuthenticated()
-    console.log("[v0] isAdminAuthenticated:", authenticated)
     if (!authenticated) {
-      console.log("[v0] Não autenticado, redirecionando para login...")
       router.push("/admin/login")
     } else {
       setIsAuthenticated(true)
