@@ -1,6 +1,20 @@
-import { db } from "@/lib/firebaseClient"
-import { collection, query, where, getDocs, limit, QueryConstraint } from "firebase/firestore"
+import { getFirestore, collection, query, where, getDocs, limit, QueryConstraint } from "firebase/firestore"
+import { initializeApp, getApps, cert } from "firebase-admin"
 import { NextResponse } from "next/server"
+
+// Inicializar Firebase Admin
+const apps = getApps()
+const adminApp = apps.length === 0 ? initializeApp(
+  {
+    credential: cert({
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+    } as any),
+  },
+) : apps[0]
+
+const db = getFirestore(adminApp)
 
 export async function GET(request: Request) {
   try {
@@ -9,10 +23,6 @@ export async function GET(request: Request) {
 
     if (!searchTerm || searchTerm.length < 2) {
       return NextResponse.json([])
-    }
-
-    if (!db) {
-      return NextResponse.json({ error: "Database not initialized" }, { status: 500 })
     }
 
     // Search in Firestore for foods matching the search term
@@ -35,7 +45,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(foods)
   } catch (error) {
-    console.error("Error searching foods:", error)
+    console.error("[v0] Error searching foods:", error)
     return NextResponse.json({ error: "Failed to search foods" }, { status: 500 })
   }
 }

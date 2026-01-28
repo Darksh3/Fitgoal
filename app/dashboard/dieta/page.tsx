@@ -631,9 +631,10 @@ export default function DietPage() {
         body: JSON.stringify({
           type: "meal",
           currentItem: currentMeal,
-          targetMacros,
+          targetMacros: targetMacros || { calories: 0, protein: 0, carbs: 0, fats: 0 },
           userPreferences: userPreferences || {},
           mealContext: currentMeal.name || `Refeição ${mealIndex + 1}`,
+          mealFoods: currentMeal.foods || [], // Passar alimentos da refeição
         }),
       })
 
