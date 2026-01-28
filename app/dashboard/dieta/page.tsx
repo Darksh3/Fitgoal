@@ -13,6 +13,7 @@ import { StyledButton } from "@/components/ui/styled-button"
 import { useRouter } from "next/navigation"
 import type { Meal, DietPlan } from "@/types"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { FoodAutocomplete } from "@/components/food-autocomplete"
 
 export default function DietPage() {
   const [isHydrated, setIsHydrated] = useState(false)
@@ -44,6 +45,7 @@ export default function DietPage() {
     }>
   }>({ addedFoods: [], removedFoods: [] })
   const [showAddFoodModal, setShowAddFoodModal] = useState(false)
+  const [foodSearchInput, setFoodSearchInput] = useState("")
   const [newFood, setNewFood] = useState({
     name: "",
     calories: "",
@@ -62,6 +64,19 @@ export default function DietPage() {
 
   useEffect(() => {
     setIsHydrated(true)
+    
+    // Initialize foods database on component mount
+    const initFoodsDB = async () => {
+      try {
+        const response = await fetch("/api/foods/init")
+        const data = await response.json()
+        console.log("[v0] Foods DB initialized:", data)
+      } catch (error) {
+        console.error("[v0] Error initializing foods DB:", error)
+      }
+    }
+    
+    initFoodsDB()
   }, [])
 
   const handleAddFood = async () => {
@@ -86,7 +101,10 @@ export default function DietPage() {
 
     setManualAdjustments(updatedAdjustments)
 
-    // Save to Firebase
+    // Reset form
+    setNewFood({ name: "", calories: "", protein: "", carbs: "", fats: "", mealIndex: 0 })
+    setFoodSearchInput("")
+    setShowAddFoodModal(false)
     if (user) {
       try {
         const userDocRef = doc(db, "users", user.uid)
@@ -1940,12 +1958,21 @@ export default function DietPage() {
                     <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                       Nome do Alimento *
                     </label>
-                    <input
-                      type="text"
-                      value={newFood.name}
-                      onChange={(e) => setNewFood({ ...newFood, name: e.target.value })}
-                      className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      placeholder="Ex: Banana"
+                    <FoodAutocomplete
+                      value={foodSearchInput}
+                      onChange={setFoodSearchInput}
+                      onSelectFood={(food) => {
+                        setNewFood({
+                          ...newFood,
+                          name: food.name,
+                          calories: String(food.calories),
+                          protein: String(food.protein),
+                          carbs: String(food.carbs),
+                          fats: String(food.fats),
+                        })
+                        setFoodSearchInput("")
+                      }}
+                      placeholder="Digite para buscar alimentos..."
                     />
                   </div>
 
