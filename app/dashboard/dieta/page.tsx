@@ -784,14 +784,23 @@ export default function DietPage() {
   }
 
   const handleAddFoodToMeal = async (mealIndex: number, foodIndex: number) => {
-    if (!addFoodInput.trim() || !user) return
+    if (!addFoodInput.trim() || !user || !dietPlan) {
+      console.log("[v0] Invalid state for adding food")
+      return
+    }
 
     setAddingFood({ mealIndex, foodIndex })
     setAddFoodMessage(null)
 
     try {
       const currentMeal = dietPlan.meals[mealIndex]
-      const currentFood = currentMeal.foods[foodIndex]
+      if (!currentMeal) {
+        setAddFoodMessage({
+          text: "Erro: Refeição não encontrada",
+          type: "error",
+        })
+        return
+      }
 
       // Calcular macroCredit disponível
       const availableMacros = currentMeal.macroCredit || {
@@ -800,6 +809,12 @@ export default function DietPage() {
         carbs: 0,
         fats: 0,
       }
+
+      console.log("[v0] Requesting food addition:", {
+        food: addFoodInput,
+        meal: currentMeal.name,
+        availableMacros,
+      })
 
       const token = await user.getIdToken()
 
@@ -818,56 +833,69 @@ export default function DietPage() {
         }),
       })
 
-      if (response.ok) {
-        const result = await response.json()
-
-        if (result.canAdd && result.food) {
-          // Adicionar o alimento
-          const newFood = result.food
-          const updatedMeals = [...dietPlan.meals]
-
-          // Adicionar à lista de alimentos
-          updatedMeals[mealIndex].foods.push(newFood)
-
-          // Resetar macroCredit após usar
-          updatedMeals[mealIndex].macroCredit = {
-            calories: 0,
-            protein: 0,
-            carbs: 0,
-            fats: 0,
-          }
-
-          const updatedDietPlan = {
-            ...dietPlan,
-            meals: updatedMeals,
-          }
-
-          setDietPlan(updatedDietPlan)
-          await saveDietPlan(updatedDietPlan)
-
-          setAddFoodMessage({
-            text: `${result.message} "${newFood.name}" adicionado com sucesso!`,
-            type: "success",
-          })
-
-          setAddFoodInput("")
-          setTimeout(() => {
-            setAddingFood(null)
-            setAddFoodMessage(null)
-          }, 2000)
-
-          console.log("[v0] Food added to meal:", newFood)
-        } else {
-          setAddFoodMessage({
-            text: result.message || "Não foi possível adicionar este alimento",
-            type: "error",
-          })
-        }
-      } else {
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error("[v0] API error response:", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        })
         setAddFoodMessage({
-          text: "Erro ao processar o alimento. Tente novamente.",
+          text: errorData.error || `Erro na requisição: ${response.statusText}`,
           type: "error",
         })
+        setAddingFood(null)
+        return
+      }
+
+      const result = await response.json()
+      console.log("[v0] Add-food API response:", result)
+
+      if (result.success && result.canAdd && result.food) {
+        // Adicionar o alimento
+        const newFood = result.food
+        const updatedMeals = [...dietPlan.meals]
+
+        // Adicionar à lista de alimentos
+        updatedMeals[mealIndex].foods.push(newFood)
+
+        // Resetar macroCredit após usar
+        updatedMeals[mealIndex].macroCredit = {
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fats: 0,
+        }
+
+        const updatedDietPlan = {
+          ...dietPlan,
+          meals: updatedMeals,
+        }
+
+        setDietPlan(updatedDietPlan)
+        await saveDietPlan(updatedDietPlan)
+
+        setAddFoodMessage({
+          text: `${result.message} "${newFood.name}" adicionado com sucesso!`,
+          type: "success",
+        })
+
+        setAddFoodInput("")
+
+        console.log("[v0] Food added to meal:", newFood)
+
+        // Fechar modal após 2 segundos
+        setTimeout(() => {
+          setAddingFood(null)
+          setAddFoodMessage(null)
+        }, 2000)
+      } else {
+        console.warn("[v0] AI rejected food:", result)
+        setAddFoodMessage({
+          text: result.message || "Não foi possível adicionar este alimento",
+          type: "error",
+        })
+        setAddingFood(null)
       }
     } catch (err) {
       console.error("[v0] Error adding food:", err)
@@ -875,7 +903,6 @@ export default function DietPage() {
         text: "Erro ao adicionar alimento. Tente novamente.",
         type: "error",
       })
-    } finally {
       setAddingFood(null)
     }
   }

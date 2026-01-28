@@ -128,22 +128,31 @@ Se REJEITAR, retorne JSON:
       maxTokens: 500,
     })
 
+    console.log("[v0] AI response text:", response.text)
+
     let result
     try {
       const jsonMatch = response.text.match(/\{[\s\S]*\}/)
-      result = jsonMatch ? JSON.parse(jsonMatch[0]) : null
+      if (!jsonMatch) {
+        console.error("[v0] No JSON found in response:", response.text)
+        throw new Error("Sem JSON na resposta")
+      }
+      result = JSON.parse(jsonMatch[0])
+      console.log("[v0] Parsed AI response:", result)
     } catch (e) {
-      console.error("[v0] JSON parse error in add-food response:", e)
+      console.error("[v0] JSON parse error in add-food response:", e, "Response:", response.text)
       result = null
     }
 
     if (!result) {
+      console.error("[v0] Invalid result from AI")
       return NextResponse.json(
-        { error: "Resposta inválida da IA" },
+        { error: "Resposta inválida da IA", details: response.text },
         { status: 500 }
       )
     }
 
+    console.log("[v0] Returning success response:", result)
     return NextResponse.json({
       success: true,
       ...result,
