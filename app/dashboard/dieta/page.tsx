@@ -1902,7 +1902,7 @@ export default function DietPage() {
           )}
 
           {dietPlan && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Calorias Reais</CardTitle>
@@ -1912,6 +1912,21 @@ export default function DietPage() {
                   {(manualAdjustments.addedFoods.length > 0 || manualAdjustments.removedFoods.length > 0) && (
                     <p className="text-xs text-gray-500 mt-1">(Original: {calculatedTotals.calories} kcal)</p>
                   )}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Calorias Recomendadas</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {quizData?.calorieGoal ? (
+                    <p className="text-2xl font-bold text-purple-600">
+                      {Math.round(quizData.calorieGoal - 50)} - {Math.round(quizData.calorieGoal + 50)} kcal
+                    </p>
+                  ) : (
+                    <p className="text-2xl font-bold text-gray-400">—</p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">Meta: {quizData?.calorieGoal ? Math.round(quizData.calorieGoal) : "—"} kcal</p>
                 </CardContent>
               </Card>
               <Card>
