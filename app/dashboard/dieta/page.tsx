@@ -127,17 +127,27 @@ export default function DietPage() {
   }
 
   const handleRemoveFood = async (mealIndex: number, foodIndex: number) => {
-    if (!dietPlan?.meals[mealIndex]?.foods[foodIndex]) return
+    console.log("[v0] Removing food:", { mealIndex, foodIndex, mealFoodsCount: dietPlan?.meals[mealIndex]?.foods.length })
+    
+    if (!dietPlan?.meals[mealIndex]?.foods[foodIndex]) {
+      console.warn("[v0] Food not found at index:", { mealIndex, foodIndex })
+      return
+    }
 
     const foodToRemove = dietPlan.meals[mealIndex].foods[foodIndex]
     const foodMacros = extractFoodMacros(foodToRemove)
+
+    console.log("[v0] Food to remove:", { foodToRemove, foodMacros })
 
     // Atualizar a refeição com o macroCredit
     const updatedMeals = [...(dietPlan?.meals || [])]
     updatedMeals[mealIndex] = addToMacroCredit(updatedMeals[mealIndex], foodMacros)
 
-    // Remover o alimento da refeição
-    updatedMeals[mealIndex].foods = updatedMeals[mealIndex].foods.filter((_, i) => i !== foodIndex)
+    // Remover o alimento da refeição - usando slice para ser mais seguro
+    const foodsToKeep = updatedMeals[mealIndex].foods.filter((_, i) => i !== foodIndex)
+    console.log("[v0] Foods before removal:", updatedMeals[mealIndex].foods.length, "Foods after removal:", foodsToKeep.length)
+    
+    updatedMeals[mealIndex].foods = foodsToKeep
 
     // Atualizar o estado
     const updatedDietPlan = { ...dietPlan, meals: updatedMeals }
@@ -2587,14 +2597,8 @@ export default function DietPage() {
                         
                         {filteredFoods.length > 0 ? (
                           filteredFoods.map((food, foodIndex) => {
-                            const originalIndex =
-                              meal.foods?.findIndex(
-                                (originalFood, idx) =>
-                                  originalFood === food &&
-                                  !manualAdjustments.removedFoods.some(
-                                    (removed) => removed.mealIndex === index && removed.foodIndex <= idx,
-                                  ),
-                              ) ?? foodIndex
+                            // Encontrar o índice real do alimento na lista original
+                            const originalIndex = meal.foods.indexOf(food)
 
                             let foodName = ""
                             let foodQuantity = ""
