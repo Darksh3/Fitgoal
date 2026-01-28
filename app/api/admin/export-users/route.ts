@@ -1,12 +1,11 @@
-import { NextRequest, NextResponse } from "next/server"
-import * as admin from "firebase-admin"
+import { NextResponse } from "next/server"
 import { getFirebaseAdmin } from "@/lib/firebaseAdmin"
-import { verifyAdminToken } from "@/lib/adminServerVerify"
+import { isAdminRequest } from "@/lib/adminServerVerify"
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const token = request.headers.get("authorization")?.replace("Bearer ", "")
-    if (!token || !verifyAdminToken(token)) {
+    const isAdmin = await isAdminRequest()
+    if (!isAdmin) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
