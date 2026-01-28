@@ -1,9 +1,20 @@
-import { NextRequest, NextResponse } from "next/server"
-import { getAIModel } from "@/lib/getAIModel"
+import { type NextRequest, NextResponse } from "next/server"
+import { adminAuth } from "@/lib/firebase-admin"
+import { generateText } from "ai"
+import { openai } from "@ai-sdk/openai"
 
 export async function POST(request: NextRequest) {
   try {
-    const requestData = await request.json()
+    console.log("[v0] Add-food-to-meal API called")
+
+    let requestData
+    try {
+      requestData = await request.json()
+    } catch (jsonError) {
+      console.error("[v0] Invalid JSON in request:", jsonError)
+      return NextResponse.json({ error: "JSON inválido na requisição" }, { status: 400 })
+    }
+
     const { foodName, mealContext, mealFoods, availableMacros, userPreferences } = requestData
 
     if (!foodName || !mealContext || !availableMacros) {
@@ -13,7 +24,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const model = getAIModel()
+    // Verificar autenticação
+    const authHeader = request.headers.get("authorization")
+    if (!authHeader?.startsWith("Bearer ")) {
+      console.log("[v0] Missing or invalid auth header")
+      return NextResponse.json({ error: "Token de autorização necessário" }, { status: 401 })
+    }
+
+    const token = authHeader.split("Bearer ")[1]
+    let decodedToken
+    try {
+      decodedToken = await adminAuth.verifyIdToken(token)
+    } catch (authError) {
+      console.error("[v0] Auth token verification failed:", authError)
+      return NextResponse.json({ error: "Token inválido" }, { status: 401 })
+    }
+
+    const userId = decodedToken.uid
+    console.log("[v0] User authenticated:", userId)
 
     // Extrair nomes dos alimentos já presentes
     const existingFoodNames = (mealFoods || [])
@@ -69,6 +97,7 @@ REGRAS:
 3. Se já existe algo similar na refeição, REJEITE
 4. Se é algo NÃO SAUDÁVEL (frituras, ultra processado, muito açúcar), REJEITE com "Alimento não é saudável"
 5. Se precisa de MUITA quantidade e não cabe nos macros, REJEITE
+6. Prefira alimentos simples e individuais para fácil medição
 
 Se ACEITAR, retorne JSON:
 {
@@ -92,7 +121,8 @@ Se REJEITAR, retorne JSON:
   "reason": "motivo específico"
 }`
 
-    const response = await model.generateText({
+    const response = await generateText({
+      model: openai("gpt-4o"),
       prompt,
       temperature: 0.3,
       maxTokens: 500,
@@ -100,7 +130,7 @@ Se REJEITAR, retorne JSON:
 
     let result
     try {
-      const jsonMatch = response.match(/\{[\s\S]*\}/)
+      const jsonMatch = response.text.match(/\{[\s\S]*\}/)
       result = jsonMatch ? JSON.parse(jsonMatch[0]) : null
     } catch (e) {
       console.error("[v0] JSON parse error in add-food response:", e)
