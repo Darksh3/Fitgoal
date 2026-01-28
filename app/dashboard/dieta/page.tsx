@@ -16,6 +16,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { FoodAutocomplete } from "@/components/food-autocomplete"
 import { extractFoodMacros, addToMacroCredit, resetMacroCredit, applyMacroCreditToFood, getMacroCreditDisplay } from "@/lib/macroCreditUtils"
 import { MacroCreditDisplay } from "@/components/macro-credit-display"
+import { validateAISuggestions } from "@/lib/foodValidation"
 
 export default function DietPage() {
   const [isHydrated, setIsHydrated] = useState(false)
@@ -702,12 +703,33 @@ export default function DietPage() {
           targetMacros,
           userPreferences: userPreferences || {},
           mealContext: currentMeal.name || `Refeição ${mealIndex + 1}`,
+          mealFoods: currentMeal.foods, // Passar alimentos já na refeição
         }),
       })
 
       if (response.ok) {
         const result = await response.json()
         if (result.success && result.substitution?.substitutes?.length > 0) {
+          // Validar sugestões da IA
+          const validation = validateAISuggestions(
+            result.substitution.substitutes,
+            dietPlan.meals[mealIndex].foods
+          )
+
+          if (!validation.valid) {
+            console.warn("[v0] IA suggested invalid foods:", validation.invalidFoods)
+            if (validation.validFoods.length === 0) {
+              setError(
+                "A IA sugeriu alimentos inválidos (compostos ou repetidos). " +
+                  validation.invalidFoods.map((f) => f.reason).join("; ")
+              )
+              setReplacingFood(null)
+              return
+            }
+            // Se houver válidos, continua com eles
+            result.substitution.substitutes = validation.validFoods
+          }
+
           // Use the first substitute (could add UI to let user choose)
           let newFood = result.substitution.substitutes[0]
 

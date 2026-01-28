@@ -15,15 +15,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "JSON inválido na requisição" }, { status: 400 })
     }
 
-    const { type, currentItem, targetMacros, userPreferences, mealContext } = requestData
+    const { type, currentItem, targetMacros, userPreferences, mealContext, mealFoods } = requestData
 
-    console.log("[v0] Request data:", { type, mealContext, targetMacros })
+    console.log("[v0] Request data:", { type, mealContext, targetMacros, mealFoods })
 
-    if (!type || !currentItem || !targetMacros || !mealContext) {
+    if (!type || !currentItem || !targetMacros || !mealContext || !mealFoods) {
       return NextResponse.json(
         {
           error: "Parâmetros obrigatórios ausentes",
-          required: ["type", "currentItem", "targetMacros", "mealContext"],
+          required: ["type", "currentItem", "targetMacros", "mealContext", "mealFoods"],
         },
         { status: 400 },
       )
@@ -76,20 +76,36 @@ export async function POST(request: NextRequest) {
       Prefira alimentos acessíveis e comuns no Brasil como: ovos, frango, arroz, feijão, batata, banana, maçã, cenoura, brócolis, carne vermelha, iogurte, leite, pão, batata doce.`,
     ].filter(Boolean)
 
+    // Extrair nomes dos alimentos já presentes na refeição
+    const existingFoodNames = (mealFoods || [])
+      .map((food) => (typeof food === "string" ? food : food?.name || ""))
+      .filter(Boolean)
+      .map((name) => name.toLowerCase())
+
+    const foodsInMealStr = existingFoodNames.length > 0 ? existingFoodNames.join(", ") : "nenhum"
+
     const prompt =
       type === "food"
         ? `Substitua este alimento por outro equivalente em macros:
 
-ALIMENTO: ${currentItem.name || currentItem} (${targetMacros.calories} kcal)
+ALIMENTO ATUAL: ${currentItem.name || currentItem} (${targetMacros.calories} kcal)
 MACROS ALVO: ${targetMacros.protein}g proteína, ${targetMacros.carbs}g carboidratos, ${targetMacros.fats}g gorduras
 REFEIÇÃO: ${mealContext}
-RESTRIÇÕES: ${allergiesAndRestrictions.join(" | ")}
+ALIMENTOS JÁ NA REFEIÇÃO: ${foodsInMealStr}
+
+REGRAS OBRIGATÓRIAS:
+1. NÃO REPITA alimentos já presentes na refeição (${foodsInMealStr})
+2. NÃO SUGIRA alimentos compostos (Ex: "iogurte com mel", "pão com queijo", "frango com brócolis")
+   - Sugestões devem ser de UM ÚNICO alimento apenas
+   - Se o alimento é uma mistura, retorne apenas o componente principal
+3. Prefira alimentos simples e individuais para fácil medição
+4. RESTRIÇÕES: ${allergiesAndRestrictions.join(" | ")}
 
 Retorne JSON:
 {
   "substitutes": [
     {
-      "name": "Nome do alimento",
+      "name": "Nome do alimento SIMPLES (um único item)",
       "quantity": "50g",
       "calories": ${targetMacros.calories},
       "protein": "${targetMacros.protein}g",
@@ -106,6 +122,11 @@ ALIMENTOS: ${JSON.stringify(currentItem)}
 MACROS TOTAIS: ${targetMacros.calories} kcal, ${targetMacros.protein}g proteína, ${targetMacros.carbs}g carboidratos, ${targetMacros.fats}g gorduras
 RESTRIÇÕES: ${allergiesAndRestrictions.join(" | ")}
 
+REGRAS OBRIGATÓRIAS:
+1. Cada alimento deve ser SIMPLES e INDIVIDUAL (nunca compostos como "iogurte com mel")
+2. Facilitar a medição - cada item deve ser mensurável separadamente
+3. Evite alimentos caros no Brasil
+
 Retorne JSON com nova refeição equivalente:
 {
   "meal": {
@@ -113,7 +134,7 @@ Retorne JSON com nova refeição equivalente:
     "time": "07:00",
     "foods": [
       {
-        "name": "Nome do alimento 1",
+        "name": "Nome do alimento SIMPLES 1",
         "quantity": "100g",
         "calories": 200,
         "protein": "15g",
@@ -121,7 +142,7 @@ Retorne JSON com nova refeição equivalente:
         "fats": "5g"
       },
       {
-        "name": "Nome do alimento 2", 
+        "name": "Nome do alimento SIMPLES 2", 
         "quantity": "50g",
         "calories": 150,
         "protein": "10g",
