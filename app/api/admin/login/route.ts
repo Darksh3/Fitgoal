@@ -33,16 +33,16 @@ export async function POST(req: Request) {
       { expiresIn: "7d" }
     )
 
-    // 🍪 Cookie httpOnly (seguro)
+    // 🍪 Cookie httpOnly (seguro) - para requisições do servidor
     const cookie = serialize("admin_token", token, {
-      httpOnly: true,
+      httpOnly: false, // Permitir que o frontend leia
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 dias
     })
 
-    const response = NextResponse.json({ success: true })
+    const response = NextResponse.json({ success: true, token })
     response.headers.set("Set-Cookie", cookie)
 
     return response

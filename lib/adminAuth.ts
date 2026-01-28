@@ -1,33 +1,27 @@
-// Simple admin authentication (stored securely)
-const ADMIN_CREDENTIALS = {
-  email: "fitgoalcontato@gmail.com",
-  passwordHash: "Vercelv0", // In production, this should be hashed
-}
-
-export function validateAdminCredentials(email: string, password: string): boolean {
-  return email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.passwordHash
-}
-
-export function setAdminToken(token: string): void {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("admin_token", token)
-  }
-}
-
-export function getAdminToken(): string | null {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("admin_token")
+// Admin authentication via cookies (JWT)
+export function getAdminCookie(): string | null {
+  if (typeof document === "undefined") return null
+  
+  const cookies = document.cookie.split("; ")
+  for (const cookie of cookies) {
+    const [name, value] = cookie.split("=")
+    if (name === "admin_token") {
+      return decodeURIComponent(value)
+    }
   }
   return null
 }
 
-export function clearAdminToken(): void {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("admin_token")
-  }
+export function isAdminAuthenticated(): boolean {
+  const token = getAdminCookie()
+  // Se o cookie admin_token existe, o usuário está autenticado
+  // (o backend garante que ele é um JWT válido)
+  return !!token
 }
 
-export function isAdminAuthenticated(): boolean {
-  const token = getAdminToken()
-  return token === "admin_authenticated_fitgoal"
+export function clearAdminToken(): void {
+  // Limpar o cookie setando maxAge = 0
+  if (typeof document !== "undefined") {
+    document.cookie = "admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;"
+  }
 }
