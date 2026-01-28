@@ -39,6 +39,7 @@ export default function AdminLogin() {
         throw new Error(data.error || "Email ou senha incorretos")
       }
 
+      console.log("[v0] Login bem-sucedido, redirecionando...")
       router.push("/admin/dashboard")
     } catch (err: any) {
       setError(err.message || "Falha ao autenticar")
