@@ -2746,14 +2746,6 @@ export default function DietPage() {
                                       <Trash2 className="h-3.5 w-3.5" />
                                     </button>
                                     <button
-                                      onClick={() => setAddingFood({ mealIndex: index, foodIndex: originalIndex })}
-                                      disabled={addingFood?.mealIndex === index && addingFood?.foodIndex === originalIndex}
-                                      className="h-8 px-3 rounded-full flex items-center justify-center bg-green-200/60 dark:bg-green-700/30 text-green-700 dark:text-green-300 hover:bg-green-300/60 dark:hover:bg-green-700/50 border border-green-300/50 dark:border-green-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                      <Plus className="h-3 w-3 mr-1.5" />
-                                      Recomendar
-                                    </button>
-                                    <button
                                       onClick={() => handleReplaceFood(index, originalIndex)}
                                       disabled={
                                         replacingFood?.mealIndex === index && replacingFood?.foodIndex === originalIndex
@@ -2828,7 +2820,7 @@ export default function DietPage() {
                           </div>
                         ))}
 
-                        <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <div className="pt-3 border-t border-gray-200 dark:border-gray-700 flex gap-2">
                           <button
                             onClick={() => handleReplaceMeal(index)}
                             disabled={replacingMeal === index}
@@ -2845,6 +2837,14 @@ export default function DietPage() {
                                 Substituir Refeição
                               </>
                             )}
+                          </button>
+                          <button
+                            onClick={() => setAddingFood({ mealIndex: index, foodIndex: -1 })}
+                            disabled={addingFood?.mealIndex === index && addingFood?.foodIndex === -1}
+                            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-green-200/60 dark:bg-green-700/30 text-green-700 dark:text-green-300 hover:bg-green-300/60 dark:hover:bg-green-700/50 border border-green-300/50 dark:border-green-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <Plus className="h-4 w-4" />
+                            Recomendar Alimento
                           </button>
                         </div>
                         {meal.macros && typeof meal.macros === "object" && (
