@@ -127,7 +127,7 @@ export default function DietPage() {
   }
 
   const handleRemoveFood = async (mealIndex: number, foodIndex: number) => {
-    console.log("[v0] Removing food:", { mealIndex, foodIndex, mealFoodsCount: dietPlan?.meals[mealIndex]?.foods.length })
+    console.log("[v0] Removing food at indices:", { mealIndex, foodIndex, totalFoods: dietPlan?.meals[mealIndex]?.foods.length })
     
     if (!dietPlan?.meals[mealIndex]?.foods[foodIndex]) {
       console.warn("[v0] Food not found at index:", { mealIndex, foodIndex })
@@ -137,17 +137,15 @@ export default function DietPage() {
     const foodToRemove = dietPlan.meals[mealIndex].foods[foodIndex]
     const foodMacros = extractFoodMacros(foodToRemove)
 
-    console.log("[v0] Food to remove:", { foodToRemove, foodMacros })
+    console.log("[v0] Food to remove:", { foodToRemove, foodMacros, foodIndex })
 
     // Atualizar a refeição com o macroCredit
     const updatedMeals = [...(dietPlan?.meals || [])]
     updatedMeals[mealIndex] = addToMacroCredit(updatedMeals[mealIndex], foodMacros)
 
-    // Remover o alimento da refeição - usando slice para ser mais seguro
-    const foodsToKeep = updatedMeals[mealIndex].foods.filter((_, i) => i !== foodIndex)
-    console.log("[v0] Foods before removal:", updatedMeals[mealIndex].foods.length, "Foods after removal:", foodsToKeep.length)
-    
-    updatedMeals[mealIndex].foods = foodsToKeep
+    // Remover o alimento da refeição - usar splice para ser mais direto
+    const removedFoods = updatedMeals[mealIndex].foods.splice(foodIndex, 1)
+    console.log("[v0] Removed foods:", removedFoods, "Remaining:", updatedMeals[mealIndex].foods.length)
 
     // Atualizar o estado
     const updatedDietPlan = { ...dietPlan, meals: updatedMeals }
@@ -155,7 +153,7 @@ export default function DietPage() {
 
     const removedFood = {
       mealIndex,
-      foodIndex,
+      foodIndex: -1, // Usar -1 para indicar que foi removido permanentemente
       name: typeof foodToRemove === "string" ? foodToRemove : (foodToRemove as any).name || `Alimento ${foodIndex + 1}`,
       calories: foodMacros.calories,
       macros: foodMacros,
@@ -2600,8 +2598,15 @@ export default function DietPage() {
                         
                         {filteredFoods.length > 0 ? (
                           filteredFoods.map((food, foodIndex) => {
-                            // Encontrar o índice real do alimento na lista original
-                            const originalIndex = meal.foods.indexOf(food)
+                            // Calcular o índice original na lista meal.foods
+                            // Usando uma busca linear porque indexOf pode retornar duplicatas
+                            let originalIndex = foodIndex
+                            for (let i = 0; i < meal.foods.length; i++) {
+                              if (meal.foods[i] === food) {
+                                originalIndex = i
+                                break
+                              }
+                            }
 
                             let foodName = ""
                             let foodQuantity = ""
