@@ -889,7 +889,6 @@ export default function DietPage() {
           text: `${errorMessage}${reasonText}`,
           type: "error",
         })
-        setAddingFood(null)
         setIsSubmittingFood(false)
       }
     } catch (err) {
