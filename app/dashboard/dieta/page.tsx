@@ -32,6 +32,7 @@ export default function DietPage() {
   const [addingFood, setAddingFood] = useState<{ mealIndex: number; foodIndex: number } | null>(null)
   const [addFoodInput, setAddFoodInput] = useState("")
   const [addFoodMessage, setAddFoodMessage] = useState<{ text: string; type: "success" | "error" } | null>(null)
+  const [isSubmittingFood, setIsSubmittingFood] = useState(false)
   const [userPreferences, setUserPreferences] = useState<any>(null)
   const [quizData, setQuizData] = useState<any>(null)
   const [manualAdjustments, setManualAdjustments] = useState<{
@@ -800,6 +801,7 @@ export default function DietPage() {
       return
     }
 
+    setIsSubmittingFood(true)
     setAddingFood({ mealIndex, foodIndex })
     setAddFoodMessage(null)
 
@@ -810,6 +812,7 @@ export default function DietPage() {
           text: "Erro: Refeição não encontrada",
           type: "error",
         })
+        setIsSubmittingFood(false)
         return
       }
 
@@ -856,6 +859,7 @@ export default function DietPage() {
           type: "error",
         })
         setAddingFood(null)
+        setIsSubmittingFood(false)
         return
       }
 
@@ -899,6 +903,7 @@ export default function DietPage() {
         setTimeout(() => {
           setAddingFood(null)
           setAddFoodMessage(null)
+          setIsSubmittingFood(false)
         }, 2000)
       } else {
         console.warn("[v0] AI rejected food:", result)
@@ -907,6 +912,7 @@ export default function DietPage() {
           type: "error",
         })
         setAddingFood(null)
+        setIsSubmittingFood(false)
       }
     } catch (err) {
       console.error("[v0] Error adding food:", err)
@@ -915,6 +921,7 @@ export default function DietPage() {
         type: "error",
       })
       setAddingFood(null)
+      setIsSubmittingFood(false)
     }
   }
 
@@ -2273,7 +2280,7 @@ export default function DietPage() {
                     />
                   </div>
 
-                  {addingFood && !addFoodMessage && (
+                  {isSubmittingFood && !addFoodMessage && (
                     <div className="p-3 rounded-md text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 flex items-center gap-2">
                       <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
                       <span>Analisando alimento...</span>
@@ -2306,6 +2313,7 @@ export default function DietPage() {
                       setAddingFood(null)
                       setAddFoodInput("")
                       setAddFoodMessage(null)
+                      setIsSubmittingFood(false)
                     }}
                     variant="outline"
                     className="flex-1"
