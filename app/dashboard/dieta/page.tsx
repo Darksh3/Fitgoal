@@ -76,9 +76,19 @@ export default function DietPage() {
     // Initialize foods database on component mount
     const initFoodsDB = async () => {
       try {
-        const response = await fetch("/api/foods/init")
-        const data = await response.json()
-        console.log("[v0] Foods DB initialized:", data)
+        console.log("[v0] Checking foods database status...")
+        const checkResponse = await fetch("/api/foods/init")
+        const checkData = await checkResponse.json()
+        console.log("[v0] Foods DB status:", checkData)
+        
+        if (!checkData.initialized) {
+          console.log("[v0] Foods database not populated, populating now...")
+          const populateResponse = await fetch("/api/foods/init", { method: "POST" })
+          const populateData = await populateResponse.json()
+          console.log("[v0] Foods DB populated:", populateData)
+        } else {
+          console.log("[v0] Foods database already has", checkData.count, "foods")
+        }
       } catch (error) {
         console.error("[v0] Error initializing foods DB:", error)
       }
