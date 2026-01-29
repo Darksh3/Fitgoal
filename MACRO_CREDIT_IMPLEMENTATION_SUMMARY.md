@@ -28,22 +28,22 @@ Componente visual que exibe:
 
 ### 1. **types.tsx**
 Adicionado ao `Meal`:
-```typescript
+\`\`\`typescript
 macroCredit?: {
   calories: number
   protein: number
   carbs: number
   fats: number
 }
-```
+\`\`\`
 
 ### 2. **app/dashboard/dieta/page.tsx**
 
 #### Imports adicionados:
-```typescript
+\`\`\`typescript
 import { extractFoodMacros, addToMacroCredit, resetMacroCredit, applyMacroCreditToFood } from "@/lib/macroCreditUtils"
 import { MacroCreditDisplay } from "@/components/macro-credit-display"
-```
+\`\`\`
 
 #### Funções modificadas:
 
@@ -65,7 +65,7 @@ import { MacroCreditDisplay } from "@/components/macro-credit-display"
 ## Fluxo Operacional
 
 ### Remover Alimento
-```
+\`\`\`
 Usuário clica X (remover)
           ↓
 Extrai macros do alimento
@@ -77,10 +77,10 @@ Remove alimento
 Salva no Firebase
           ↓
 UI atualiza (macroCredit visível)
-```
+\`\`\`
 
 ### Substituir Alimento
-```
+\`\`\`
 Usuário clica "Substituir"
           ↓
 IA sugere novo alimento
@@ -93,30 +93,30 @@ Insere novo alimento com macros aumentados
 macroCredit = 0
           ↓
 Salva no Firebase
-```
+\`\`\`
 
 ## Como Funciona na Prática
 
 ### Cenário Real
 
 **Situação inicial:**
-```
+\`\`\`
 Almoço - 500kcal total
 ├─ Frango peito cozido: 165kcal, 31g proteína
 ├─ Arroz integral: 130kcal, 2.6g proteína
 └─ Brócolis: 34kcal, 2.8g proteína
-```
+\`\`\`
 
 **Ação 1: Remove Frango**
-```
+\`\`\`
 Resultado:
 - Almoço agora tem: 164kcal (arroz + brócolis)
 - macroCredit: {165kcal, 31g proteína, 0g carbs, 3.6g fats}
 - UI mostra: "Crédito disponível: 165kcal | 31g proteína..."
-```
+\`\`\`
 
 **Ação 2: Substitui Brócolis por Salmão**
-```
+\`\`\`
 Sistema:
 1. Obtém Salmão da IA: 206kcal, 25.4g proteína
 2. Soma com macroCredit:
@@ -130,7 +130,7 @@ Resultado:
 - Proteína: 56.4 + 2.6 = 59g (aumentou!)
 - macroCredit: {0, 0, 0, 0} - Consumido
 - UI: Badge desaparece (crédito zerado)
-```
+\`\`\`
 
 ## Validações e Safeguards
 
@@ -163,11 +163,11 @@ Para testar o sistema:
 ## Logs de Debug
 
 Sistema registra tudo com `[v0]`:
-```
+\`\`\`
 [v0] Food removed. macroCredit added to meal: 0 {calories: 165, ...}
 [v0] macroCredit applied to new food: {calories: 165, ...}
 [v0] Food replacement completed with macroCredit applied and reset
-```
+\`\`\`
 
 ## Próximas Melhorias (Futuro)
 

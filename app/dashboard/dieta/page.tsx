@@ -2251,12 +2251,12 @@ export default function DietPage() {
           {addingFood && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
-                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Incluir Alimento</h3>
+                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Recomendar Alimento</h3>
 
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                      Qual alimento você quer incluir?
+                      Qual alimento você quer recomendar?
                     </label>
                     <input
                       type="text"
@@ -2299,7 +2299,7 @@ export default function DietPage() {
                     disabled={!addFoodInput.trim() || !!addFoodMessage}
                     className="flex-1"
                   >
-                    {!addFoodMessage ? "Analisar" : addFoodMessage.type === "success" ? "✓ Adicionado" : "Tentar Novamente"}
+                    {!addFoodMessage ? "Recomendar" : addFoodMessage.type === "success" ? "✓ Adicionado" : "Tentar Novamente"}
                   </StyledButton>
                   <StyledButton
                     onClick={() => {
@@ -2751,7 +2751,7 @@ export default function DietPage() {
                                       className="h-8 px-3 rounded-full flex items-center justify-center bg-green-200/60 dark:bg-green-700/30 text-green-700 dark:text-green-300 hover:bg-green-300/60 dark:hover:bg-green-700/50 border border-green-300/50 dark:border-green-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                       <Plus className="h-3 w-3 mr-1.5" />
-                                      Incluir
+                                      Recomendar
                                     </button>
                                     <button
                                       onClick={() => handleReplaceFood(index, originalIndex)}
