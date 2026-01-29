@@ -9,7 +9,7 @@ if (!admin.apps.length) {
     const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY
 
     if (!serviceAccountKey) {
-      console.error("FIREBASE_SERVICE_ACCOUNT_KEY não está definida nas variáveis de ambiente.")
+      console.error("[v0] FIREBASE_SERVICE_ACCOUNT_KEY não está definida nas variáveis de ambiente.")
       throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY is not defined.")
     }
 
@@ -23,7 +23,7 @@ if (!admin.apps.length) {
       try {
         serviceAccount = JSON.parse(serviceAccountKey)
       } catch (parseError) {
-        console.error("Erro ao parsear FIREBASE_SERVICE_ACCOUNT_KEY:", parseError)
+        console.error("[v0] Erro ao parsear FIREBASE_SERVICE_ACCOUNT_KEY:", parseError)
         throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY não é um JSON válido ou não está em base64.")
       }
     }
@@ -31,14 +31,23 @@ if (!admin.apps.length) {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     })
-    console.log("Firebase Admin SDK inicializado com sucesso.")
+    console.log("[v0] Firebase Admin SDK inicializado com sucesso.")
   } catch (error) {
-    console.error("Erro ao inicializar Firebase Admin SDK:", error)
+    console.error("[v0] Erro ao inicializar Firebase Admin SDK:", error)
+    throw error
   }
 }
 
-const adminDb = admin.firestore()
-const auth = admin.auth()
+let adminDb: any = null
+let auth: any = null
+
+try {
+  adminDb = admin.firestore()
+  auth = admin.auth()
+  console.log("[v0] Firebase Admin instances initialized")
+} catch (error) {
+  console.error("[v0] Erro ao inicializar instâncias Firebase:", error)
+}
 
 // Função para obter a instância do Firebase Admin
 export function getFirebaseAdmin() {
