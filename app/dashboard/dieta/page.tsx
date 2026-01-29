@@ -2273,6 +2273,13 @@ export default function DietPage() {
                     />
                   </div>
 
+                  {addingFood && !addFoodMessage && (
+                    <div className="p-3 rounded-md text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 flex items-center gap-2">
+                      <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                      <span>Analisando alimento...</span>
+                    </div>
+                  )}
+
                   {addFoodMessage && (
                     <div
                       className={`p-3 rounded-md text-sm ${
@@ -2289,10 +2296,10 @@ export default function DietPage() {
                 <div className="flex gap-2 mt-6">
                   <StyledButton
                     onClick={() => handleAddFoodToMeal(addingFood.mealIndex, addingFood.foodIndex)}
-                    disabled={!addFoodInput.trim() || addFoodMessage?.type === "error"}
+                    disabled={!addFoodInput.trim() || !!addFoodMessage}
                     className="flex-1"
                   >
-                    {addingFood && addFoodMessage ? "Incluindo..." : "Analisar"}
+                    {!addFoodMessage ? "Analisar" : addFoodMessage.type === "success" ? "✓ Adicionado" : "Tentar Novamente"}
                   </StyledButton>
                   <StyledButton
                     onClick={() => {
