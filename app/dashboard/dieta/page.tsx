@@ -543,6 +543,8 @@ export default function DietPage() {
     return null
   }
 
+  console.log("[v0] About to render, loading:", loading, "error:", error)
+
   const saveDietPlan = async (updatedDietPlan: DietPlan) => {
     if (!user) return
 
@@ -1377,6 +1379,8 @@ export default function DietPage() {
 
   const calculatedTotals = calculateTotalMacros(dietPlan?.meals || [])
   const adjustedTotals = calculateAdjustedTotals(calculatedTotals)
+
+  console.log("[v0] About to render, loading:", loading, "error:", error)
 
   const downloadDietPDF = async () => {
     if (!dietPlan) return
