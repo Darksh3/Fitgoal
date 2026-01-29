@@ -950,6 +950,7 @@ export default function DietPage() {
     setAddFoodMessage(null)
     setIsSubmittingFood(false)
     setRecommendedFood(null)
+  }
 
   const generatePlans = async () => {
     if (!user) return
