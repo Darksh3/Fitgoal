@@ -1,20 +1,22 @@
-import { getFirestore, collection, query, where, getDocs, limit, QueryConstraint } from "firebase/firestore"
-import { initializeApp, getApps, cert } from "firebase-admin"
+import * as admin from "firebase-admin"
 import { NextResponse } from "next/server"
 
 // Inicializar Firebase Admin
-const apps = getApps()
-const adminApp = apps.length === 0 ? initializeApp(
-  {
-    credential: cert({
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-    } as any),
-  },
-) : apps[0]
-
-const db = getFirestore(adminApp)
+let db: any
+try {
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+      } as any),
+    })
+  }
+  db = admin.firestore()
+} catch (error) {
+  console.error("[v0] Firebase Admin initialization error:", error)
+}
 
 export async function GET(request: Request) {
   try {
@@ -25,20 +27,20 @@ export async function GET(request: Request) {
       return NextResponse.json([])
     }
 
+    if (!db) {
+      return NextResponse.json({ error: "Database not initialized" }, { status: 500 })
+    }
+
     // Search in Firestore for foods matching the search term
-    const foodsRef = collection(db, "foods")
+    const foodsRef = db.collection("foods")
     
-    // Create query constraints
-    const constraints: QueryConstraint[] = [
-      where("nameLowercase", ">=", searchTerm),
-      where("nameLowercase", "<=", searchTerm + "\uf8ff"),
-      limit(20),
-    ]
+    const querySnapshot = await foodsRef
+      .where("nameLowercase", ">=", searchTerm)
+      .where("nameLowercase", "<=", searchTerm + "\uf8ff")
+      .limit(20)
+      .get()
 
-    const q = query(foodsRef, ...constraints)
-    const querySnapshot = await getDocs(q)
-
-    const foods = querySnapshot.docs.map((doc) => ({
+    const foods = querySnapshot.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data(),
     }))
