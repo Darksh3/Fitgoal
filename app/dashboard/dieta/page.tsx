@@ -33,6 +33,7 @@ export default function DietPage() {
   const [addFoodInput, setAddFoodInput] = useState("")
   const [addFoodMessage, setAddFoodMessage] = useState<{ text: string; type: "success" | "error" } | null>(null)
   const [isSubmittingFood, setIsSubmittingFood] = useState(false)
+  const [recommendedFood, setRecommendedFood] = useState<any>(null)
   const [userPreferences, setUserPreferences] = useState<any>(null)
   const [quizData, setQuizData] = useState<any>(null)
   const [manualAdjustments, setManualAdjustments] = useState<{
@@ -867,48 +868,23 @@ export default function DietPage() {
       console.log("[v0] Add-food API response:", result)
 
       if (result.success && result.canAdd && result.food) {
-        // Adicionar o alimento
+        // NÃO adicionar automaticamente - apenas mostrar mensagem de sucesso
         const newFood = result.food
-        const updatedMeals = [...dietPlan.meals]
-
-        // Adicionar à lista de alimentos
-        updatedMeals[mealIndex].foods.push(newFood)
-
-        // Resetar macroCredit após usar
-        updatedMeals[mealIndex].macroCredit = {
-          calories: 0,
-          protein: 0,
-          carbs: 0,
-          fats: 0,
-        }
-
-        const updatedDietPlan = {
-          ...dietPlan,
-          meals: updatedMeals,
-        }
-
-        setDietPlan(updatedDietPlan)
-        await saveDietPlan(updatedDietPlan)
-
+        
+        setRecommendedFood(newFood)
         setAddFoodMessage({
-          text: `${result.message} "${newFood.name}" adicionado com sucesso!`,
+          text: `✓ Esse alimento se encaixa na sua dieta!\n\nRecomendado: ${newFood.quantity || '1 porção'} de ${newFood.name}`,
           type: "success",
         })
 
         setAddFoodInput("")
+        setIsSubmittingFood(false)
 
-        console.log("[v0] Food added to meal:", newFood)
-
-        // Fechar modal após 2 segundos
-        setTimeout(() => {
-          setAddingFood(null)
-          setAddFoodMessage(null)
-          setIsSubmittingFood(false)
-        }, 2000)
+        console.log("[v0] Food accepted by AI:", newFood)
       } else {
         console.warn("[v0] AI rejected food:", result)
         setAddFoodMessage({
-          text: result.message || "Não foi possível adicionar este alimento",
+          text: result.message || "Infelizmente esse alimento não encaixa",
           type: "error",
         })
         setAddingFood(null)
@@ -924,6 +900,56 @@ export default function DietPage() {
       setIsSubmittingFood(false)
     }
   }
+
+  const handleIncludeRecommendedFood = async () => {
+    if (!addingFood || !recommendedFood || !dietPlan) return
+
+    try {
+      const mealIndex = addingFood.mealIndex
+      const updatedMeals = [...dietPlan.meals]
+
+      // Adicionar o alimento recomendado
+      updatedMeals[mealIndex].foods.push(recommendedFood)
+
+      // Resetar macroCredit após usar
+      updatedMeals[mealIndex].macroCredit = {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fats: 0,
+      }
+
+      const updatedDietPlan = {
+        ...dietPlan,
+        meals: updatedMeals,
+      }
+
+      setDietPlan(updatedDietPlan)
+      await saveDietPlan(updatedDietPlan)
+
+      console.log("[v0] Food included in meal:", recommendedFood)
+
+      // Fechar modal
+      setAddingFood(null)
+      setAddFoodInput("")
+      setAddFoodMessage(null)
+      setIsSubmittingFood(false)
+      setRecommendedFood(null)
+    } catch (err) {
+      console.error("[v0] Error including food:", err)
+      setAddFoodMessage({
+        text: "Erro ao incluir alimento. Tente novamente.",
+        type: "error",
+      })
+    }
+  }
+
+  const handleCancelRecommendedFood = () => {
+    setAddingFood(null)
+    setAddFoodInput("")
+    setAddFoodMessage(null)
+    setIsSubmittingFood(false)
+    setRecommendedFood(null)
 
   const generatePlans = async () => {
     if (!user) return
@@ -2301,25 +2327,46 @@ export default function DietPage() {
                 </div>
 
                 <div className="flex gap-2 mt-6">
-                  <StyledButton
-                    onClick={() => handleAddFoodToMeal(addingFood.mealIndex, addingFood.foodIndex)}
-                    disabled={!addFoodInput.trim() || !!addFoodMessage}
-                    className="flex-1"
-                  >
-                    {!addFoodMessage ? "Recomendar" : addFoodMessage.type === "success" ? "✓ Adicionado" : "Tentar Novamente"}
-                  </StyledButton>
-                  <StyledButton
-                    onClick={() => {
-                      setAddingFood(null)
-                      setAddFoodInput("")
-                      setAddFoodMessage(null)
-                      setIsSubmittingFood(false)
-                    }}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    Cancelar
-                  </StyledButton>
+                  {addFoodMessage?.type === "success" ? (
+                    <>
+                      <StyledButton
+                        onClick={handleIncludeRecommendedFood}
+                        className="flex-1"
+                      >
+                        Incluir
+                      </StyledButton>
+                      <StyledButton
+                        onClick={handleCancelRecommendedFood}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        Cancelar
+                      </StyledButton>
+                    </>
+                  ) : (
+                    <>
+                      <StyledButton
+                        onClick={() => handleAddFoodToMeal(addingFood.mealIndex, addingFood.foodIndex)}
+                        disabled={!addFoodInput.trim() || isSubmittingFood}
+                        className="flex-1"
+                      >
+                        {isSubmittingFood ? "Analisando..." : addFoodMessage?.type === "error" ? "Tentar Novamente" : "Recomendar"}
+                      </StyledButton>
+                      <StyledButton
+                        onClick={() => {
+                          setAddingFood(null)
+                          setAddFoodInput("")
+                          setAddFoodMessage(null)
+                          setIsSubmittingFood(false)
+                          setRecommendedFood(null)
+                        }}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        Cancelar
+                      </StyledButton>
+                    </>
+                  )}
                 </div>
 
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
