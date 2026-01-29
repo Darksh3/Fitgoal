@@ -44,13 +44,15 @@ export function FoodAutocomplete({
 
       setIsLoading(true)
       try {
+        console.log("[v0] Searching foods with term:", value)
         const response = await fetch(`/api/foods/search?q=${encodeURIComponent(value)}`)
         const data = await response.json()
+        console.log("[v0] Food search response:", data)
         setSuggestions(data)
         setIsOpen(data.length > 0)
         setSelectedIndex(-1)
       } catch (error) {
-        console.error("Error fetching food suggestions:", error)
+        console.error("[v0] Error fetching food suggestions:", error)
         setSuggestions([])
       } finally {
         setIsLoading(false)

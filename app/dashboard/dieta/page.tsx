@@ -548,10 +548,7 @@ export default function DietPage() {
   console.log("[v0] About to render, loading:", loading, "error:", error)
 
   const saveDietPlan = async (updatedDietPlan: DietPlan) => {
-    if (!user) {
-      console.error("[v0] saveDietPlan: No user found")
-      return
-    }
+    if (!user) return
 
     try {
       console.log("[v0] Saving updated diet plan to Firestore:", updatedDietPlan)
@@ -566,10 +563,6 @@ export default function DietPage() {
       setError(null)
     } catch (error) {
       console.error("[v0] Error saving diet plan:", error)
-      console.error("[v0] Error details:", {
-        errorMessage: error instanceof Error ? error.message : String(error),
-        errorCode: error instanceof Error && 'code' in error ? (error as any).code : 'unknown'
-      })
       throw new Error("Erro ao salvar alterações. Tente novamente.")
     }
   }
