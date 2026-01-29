@@ -883,8 +883,10 @@ export default function DietPage() {
         console.log("[v0] Food accepted by AI:", newFood)
       } else {
         console.warn("[v0] AI rejected food:", result)
+        const errorMessage = result.message || "Infelizmente esse alimento não encaixa"
+        const reasonText = result.reason ? `\n\n${result.reason}` : ""
         setAddFoodMessage({
-          text: result.message || "Infelizmente esse alimento não encaixa",
+          text: `${errorMessage}${reasonText}`,
           type: "error",
         })
         setAddingFood(null)
