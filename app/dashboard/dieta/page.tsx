@@ -13,6 +13,10 @@ import { StyledButton } from "@/components/ui/styled-button"
 import { useRouter } from "next/navigation"
 import type { Meal, DietPlan } from "@/types"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { FoodAutocomplete } from "@/components/food-autocomplete"
+import { extractFoodMacros, addToMacroCredit, resetMacroCredit, applyMacroCreditToFood, getMacroCreditDisplay } from "@/lib/macroCreditUtils"
+import { MacroCreditDisplay } from "@/components/macro-credit-display"
+import { validateAISuggestions } from "@/lib/foodValidation"
 
 export default function DietPage() {
   const [isHydrated, setIsHydrated] = useState(false)
@@ -25,6 +29,9 @@ export default function DietPage() {
   const [error, setError] = useState<string | null>(null)
   const [replacingMeal, setReplacingMeal] = useState<number | null>(null)
   const [replacingFood, setReplacingFood] = useState<{ mealIndex: number; foodIndex: number } | null>(null)
+  const [addingFood, setAddingFood] = useState<{ mealIndex: number; foodIndex: number } | null>(null)
+  const [addFoodInput, setAddFoodInput] = useState("")
+  const [addFoodMessage, setAddFoodMessage] = useState<{ text: string; type: "success" | "error" } | null>(null)
   const [userPreferences, setUserPreferences] = useState<any>(null)
   const [quizData, setQuizData] = useState<any>(null)
   const [manualAdjustments, setManualAdjustments] = useState<{
@@ -44,6 +51,7 @@ export default function DietPage() {
     }>
   }>({ addedFoods: [], removedFoods: [] })
   const [showAddFoodModal, setShowAddFoodModal] = useState(false)
+  const [foodSearchInput, setFoodSearchInput] = useState("")
   const [newFood, setNewFood] = useState({
     name: "",
     calories: "",
@@ -62,6 +70,19 @@ export default function DietPage() {
 
   useEffect(() => {
     setIsHydrated(true)
+    
+    // Initialize foods database on component mount
+    const initFoodsDB = async () => {
+      try {
+        const response = await fetch("/api/foods/init")
+        const data = await response.json()
+        console.log("[v0] Foods DB initialized:", data)
+      } catch (error) {
+        console.error("[v0] Error initializing foods DB:", error)
+      }
+    }
+    
+    initFoodsDB()
   }, [])
 
   const handleAddFood = async () => {
@@ -86,7 +107,10 @@ export default function DietPage() {
 
     setManualAdjustments(updatedAdjustments)
 
-    // Save to Firebase
+    // Reset form
+    setNewFood({ name: "", calories: "", protein: "", carbs: "", fats: "", mealIndex: 0 })
+    setFoodSearchInput("")
+    setShowAddFoodModal(false)
     if (user) {
       try {
         const userDocRef = doc(db, "users", user.uid)
@@ -103,32 +127,36 @@ export default function DietPage() {
   }
 
   const handleRemoveFood = async (mealIndex: number, foodIndex: number) => {
-    if (!dietPlan?.meals[mealIndex]?.foods[foodIndex]) return
+    console.log("[v0] Removing food at indices:", { mealIndex, foodIndex, totalFoods: dietPlan?.meals[mealIndex]?.foods.length })
+    
+    if (!dietPlan?.meals[mealIndex]?.foods[foodIndex]) {
+      console.warn("[v0] Food not found at index:", { mealIndex, foodIndex })
+      return
+    }
 
     const foodToRemove = dietPlan.meals[mealIndex].foods[foodIndex]
-    let foodName = ""
-    let foodCalories = 0
+    const foodMacros = extractFoodMacros(foodToRemove)
 
-    if (typeof foodToRemove === "string") {
-      foodName = foodToRemove
-      const match = foodToRemove.match(/(\d+(?:\.\d+)?)\s*kcal/i)
-      if (match) {
-        foodCalories = Number.parseFloat(match[1])
-      }
-    } else if (foodToRemove && typeof foodToRemove === "object") {
-      foodName = foodToRemove.name || `Alimento ${foodIndex + 1}`
-      const caloriesStr = foodToRemove.calories?.toString() || "0"
-      const match = caloriesStr.match(/(\d+(?:\.\d+)?)/)
-      if (match) {
-        foodCalories = Number.parseFloat(match[1])
-      }
-    }
+    console.log("[v0] Food to remove:", { foodToRemove, foodMacros, foodIndex })
+
+    // Atualizar a refeição com o macroCredit
+    const updatedMeals = [...(dietPlan?.meals || [])]
+    updatedMeals[mealIndex] = addToMacroCredit(updatedMeals[mealIndex], foodMacros)
+
+    // Remover o alimento da refeição - usar splice para ser mais direto
+    const removedFoods = updatedMeals[mealIndex].foods.splice(foodIndex, 1)
+    console.log("[v0] Removed foods:", removedFoods, "Remaining:", updatedMeals[mealIndex].foods.length)
+
+    // Atualizar o estado
+    const updatedDietPlan = { ...dietPlan, meals: updatedMeals }
+    setDietPlan(updatedDietPlan)
 
     const removedFood = {
       mealIndex,
-      foodIndex,
-      name: foodName,
-      calories: foodCalories,
+      foodIndex: -1, // Usar -1 para indicar que foi removido permanentemente
+      name: typeof foodToRemove === "string" ? foodToRemove : (foodToRemove as any).name || `Alimento ${foodIndex + 1}`,
+      calories: foodMacros.calories,
+      macros: foodMacros,
     }
 
     const updatedAdjustments = {
@@ -138,15 +166,18 @@ export default function DietPage() {
 
     setManualAdjustments(updatedAdjustments)
 
-    // Save to Firebase
+    console.log("[v0] Food removed. macroCredit added to meal:", mealIndex, foodMacros)
+
+    // Salvar no Firebase
     if (user) {
       try {
         const userDocRef = doc(db, "users", user.uid)
         await updateDoc(userDocRef, {
           manualDietAdjustments: updatedAdjustments,
+          dietPlan: updatedDietPlan,
         })
       } catch (error) {
-        console.error("Error saving manual adjustments:", error)
+        console.error("[v0] Erro ao salvar ajustes de dieta:", error)
       }
     }
   }
@@ -598,9 +629,10 @@ export default function DietPage() {
         body: JSON.stringify({
           type: "meal",
           currentItem: currentMeal,
-          targetMacros,
+          targetMacros: targetMacros || { calories: 0, protein: 0, carbs: 0, fats: 0 },
           userPreferences: userPreferences || {},
           mealContext: currentMeal.name || `Refeição ${mealIndex + 1}`,
+          mealFoods: currentMeal.foods || [], // Passar alimentos da refeição
         }),
       })
 
@@ -683,17 +715,47 @@ export default function DietPage() {
           targetMacros,
           userPreferences: userPreferences || {},
           mealContext: currentMeal.name || `Refeição ${mealIndex + 1}`,
+          mealFoods: currentMeal.foods, // Passar alimentos já na refeição
         }),
       })
 
       if (response.ok) {
         const result = await response.json()
         if (result.success && result.substitution?.substitutes?.length > 0) {
+          // Validar sugestões da IA
+          const validation = validateAISuggestions(
+            result.substitution.substitutes,
+            dietPlan.meals[mealIndex].foods
+          )
+
+          if (!validation.valid) {
+            console.warn("[v0] IA suggested invalid foods:", validation.invalidFoods)
+            if (validation.validFoods.length === 0) {
+              setError(
+                "A IA sugeriu alimentos inválidos (compostos ou repetidos). " +
+                  validation.invalidFoods.map((f) => f.reason).join("; ")
+              )
+              setReplacingFood(null)
+              return
+            }
+            // Se houver válidos, continua com eles
+            result.substitution.substitutes = validation.validFoods
+          }
+
           // Use the first substitute (could add UI to let user choose)
-          const newFood = result.substitution.substitutes[0]
+          let newFood = result.substitution.substitutes[0]
+
+          // Criar cópia dos alimentos para atualizar
+          const updatedMeals = [...dietPlan.meals]
+          
+          // Aplicar macroCredit ao novo alimento
+          const currentMealWithCredit = updatedMeals[mealIndex]
+          if (currentMealWithCredit.macroCredit) {
+            newFood = applyMacroCreditToFood(newFood, currentMealWithCredit.macroCredit)
+            console.log("[v0] macroCredit applied to new food:", currentMealWithCredit.macroCredit)
+          }
 
           // Update the diet plan with the new food
-          const updatedMeals = [...dietPlan.meals]
           updatedMeals[mealIndex] = {
             ...updatedMeals[mealIndex],
             foods: [
@@ -701,6 +763,13 @@ export default function DietPage() {
               newFood,
               ...updatedMeals[mealIndex].foods.slice(foodIndex + 1),
             ],
+            // Reseta o macroCredit após usar
+            macroCredit: {
+              calories: 0,
+              protein: 0,
+              carbs: 0,
+              fats: 0,
+            },
           }
 
           const updatedDietPlan = {
@@ -712,7 +781,7 @@ export default function DietPage() {
 
           await saveDietPlan(updatedDietPlan)
 
-          console.log("[v0] Food replacement completed and saved")
+          console.log("[v0] Food replacement completed with macroCredit applied and reset")
         }
       } else {
         setError("Erro ao substituir alimento. Tente novamente.")
@@ -722,6 +791,130 @@ export default function DietPage() {
       setError("Erro ao substituir alimento. Tente novamente.")
     } finally {
       setReplacingFood(null)
+    }
+  }
+
+  const handleAddFoodToMeal = async (mealIndex: number, foodIndex: number) => {
+    if (!addFoodInput.trim() || !user || !dietPlan) {
+      console.log("[v0] Invalid state for adding food")
+      return
+    }
+
+    setAddingFood({ mealIndex, foodIndex })
+    setAddFoodMessage(null)
+
+    try {
+      const currentMeal = dietPlan.meals[mealIndex]
+      if (!currentMeal) {
+        setAddFoodMessage({
+          text: "Erro: Refeição não encontrada",
+          type: "error",
+        })
+        return
+      }
+
+      // Calcular macroCredit disponível
+      const availableMacros = currentMeal.macroCredit || {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fats: 0,
+      }
+
+      console.log("[v0] Requesting food addition:", {
+        food: addFoodInput,
+        meal: currentMeal.name,
+        availableMacros,
+      })
+
+      const token = await user.getIdToken()
+
+      const response = await fetch("/api/add-food-to-meal", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          foodName: addFoodInput,
+          mealContext: currentMeal.name || `Refeição ${mealIndex + 1}`,
+          mealFoods: currentMeal.foods,
+          availableMacros,
+          userPreferences: userPreferences || {},
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error("[v0] API error response:", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        })
+        setAddFoodMessage({
+          text: errorData.error || `Erro na requisição: ${response.statusText}`,
+          type: "error",
+        })
+        setAddingFood(null)
+        return
+      }
+
+      const result = await response.json()
+      console.log("[v0] Add-food API response:", result)
+
+      if (result.success && result.canAdd && result.food) {
+        // Adicionar o alimento
+        const newFood = result.food
+        const updatedMeals = [...dietPlan.meals]
+
+        // Adicionar à lista de alimentos
+        updatedMeals[mealIndex].foods.push(newFood)
+
+        // Resetar macroCredit após usar
+        updatedMeals[mealIndex].macroCredit = {
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fats: 0,
+        }
+
+        const updatedDietPlan = {
+          ...dietPlan,
+          meals: updatedMeals,
+        }
+
+        setDietPlan(updatedDietPlan)
+        await saveDietPlan(updatedDietPlan)
+
+        setAddFoodMessage({
+          text: `${result.message} "${newFood.name}" adicionado com sucesso!`,
+          type: "success",
+        })
+
+        setAddFoodInput("")
+
+        console.log("[v0] Food added to meal:", newFood)
+
+        // Fechar modal após 2 segundos
+        setTimeout(() => {
+          setAddingFood(null)
+          setAddFoodMessage(null)
+        }, 2000)
+      } else {
+        console.warn("[v0] AI rejected food:", result)
+        setAddFoodMessage({
+          text: result.message || "Não foi possível adicionar este alimento",
+          type: "error",
+        })
+        setAddingFood(null)
+      }
+    } catch (err) {
+      console.error("[v0] Error adding food:", err)
+      setAddFoodMessage({
+        text: "Erro ao adicionar alimento. Tente novamente.",
+        type: "error",
+      })
+      setAddingFood(null)
     }
   }
 
@@ -1869,7 +2062,7 @@ export default function DietPage() {
           )}
 
           {dietPlan && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Calorias Reais</CardTitle>
@@ -1879,6 +2072,21 @@ export default function DietPage() {
                   {(manualAdjustments.addedFoods.length > 0 || manualAdjustments.removedFoods.length > 0) && (
                     <p className="text-xs text-gray-500 mt-1">(Original: {calculatedTotals.calories} kcal)</p>
                   )}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Calorias Recomendadas</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {quizData?.calorieGoal ? (
+                    <p className="text-2xl font-bold text-purple-600">
+                      {Math.round(quizData.calorieGoal - 50)} - {Math.round(quizData.calorieGoal + 50)} kcal
+                    </p>
+                  ) : (
+                    <p className="text-2xl font-bold text-gray-400">—</p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">Meta: {quizData?.calorieGoal ? Math.round(quizData.calorieGoal) : "—"} kcal</p>
                 </CardContent>
               </Card>
               <Card>
@@ -1940,12 +2148,21 @@ export default function DietPage() {
                     <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                       Nome do Alimento *
                     </label>
-                    <input
-                      type="text"
-                      value={newFood.name}
-                      onChange={(e) => setNewFood({ ...newFood, name: e.target.value })}
-                      className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      placeholder="Ex: Banana"
+                    <FoodAutocomplete
+                      value={foodSearchInput}
+                      onChange={setFoodSearchInput}
+                      onSelectFood={(food) => {
+                        setNewFood({
+                          ...newFood,
+                          name: food.name,
+                          calories: String(food.calories),
+                          protein: String(food.protein),
+                          carbs: String(food.carbs),
+                          fats: String(food.fats),
+                        })
+                        setFoodSearchInput("")
+                      }}
+                      placeholder="Digite para buscar alimentos..."
                     />
                   </div>
 
@@ -2027,6 +2244,79 @@ export default function DietPage() {
                     Cancelar
                   </StyledButton>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {addingFood && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Incluir Alimento</h3>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                      Qual alimento você quer incluir?
+                    </label>
+                    <input
+                      type="text"
+                      value={addFoodInput}
+                      onChange={(e) => setAddFoodInput(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          handleAddFoodToMeal(addingFood.mealIndex, addingFood.foodIndex)
+                        }
+                      }}
+                      placeholder="Ex: Batata inglesa, Banana, etc"
+                      className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      autoFocus
+                    />
+                  </div>
+
+                  {addingFood && !addFoodMessage && (
+                    <div className="p-3 rounded-md text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 flex items-center gap-2">
+                      <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                      <span>Analisando alimento...</span>
+                    </div>
+                  )}
+
+                  {addFoodMessage && (
+                    <div
+                      className={`p-3 rounded-md text-sm ${
+                        addFoodMessage.type === "success"
+                          ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200"
+                          : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200"
+                      }`}
+                    >
+                      {addFoodMessage.text}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2 mt-6">
+                  <StyledButton
+                    onClick={() => handleAddFoodToMeal(addingFood.mealIndex, addingFood.foodIndex)}
+                    disabled={!addFoodInput.trim() || !!addFoodMessage}
+                    className="flex-1"
+                  >
+                    {!addFoodMessage ? "Analisar" : addFoodMessage.type === "success" ? "✓ Adicionado" : "Tentar Novamente"}
+                  </StyledButton>
+                  <StyledButton
+                    onClick={() => {
+                      setAddingFood(null)
+                      setAddFoodInput("")
+                      setAddFoodMessage(null)
+                    }}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Cancelar
+                  </StyledButton>
+                </div>
+
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
+                  💡 A IA analisará se o alimento encaixa nos macros da sua refeição
+                </p>
               </div>
             </div>
           )}
@@ -2310,16 +2600,20 @@ export default function DietPage() {
                     </AccordionTrigger>
                     <AccordionContent className="px-6 pb-4">
                       <div className="space-y-3">
+                        {/* macroCredit Display */}
+                        <MacroCreditDisplay meal={meal} />
+                        
                         {filteredFoods.length > 0 ? (
                           filteredFoods.map((food, foodIndex) => {
-                            const originalIndex =
-                              meal.foods?.findIndex(
-                                (originalFood, idx) =>
-                                  originalFood === food &&
-                                  !manualAdjustments.removedFoods.some(
-                                    (removed) => removed.mealIndex === index && removed.foodIndex <= idx,
-                                  ),
-                              ) ?? foodIndex
+                            // Calcular o índice original na lista meal.foods
+                            // Usando uma busca linear porque indexOf pode retornar duplicatas
+                            let originalIndex = foodIndex
+                            for (let i = 0; i < meal.foods.length; i++) {
+                              if (meal.foods[i] === food) {
+                                originalIndex = i
+                                break
+                              }
+                            }
 
                             let foodName = ""
                             let foodQuantity = ""
@@ -2450,6 +2744,14 @@ export default function DietPage() {
                                       className="h-8 w-8 rounded-full flex items-center justify-center text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-all"
                                     >
                                       <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button
+                                      onClick={() => setAddingFood({ mealIndex: index, foodIndex: originalIndex })}
+                                      disabled={addingFood?.mealIndex === index && addingFood?.foodIndex === originalIndex}
+                                      className="h-8 px-3 rounded-full flex items-center justify-center bg-green-200/60 dark:bg-green-700/30 text-green-700 dark:text-green-300 hover:bg-green-300/60 dark:hover:bg-green-700/50 border border-green-300/50 dark:border-green-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      <Plus className="h-3 w-3 mr-1.5" />
+                                      Incluir
                                     </button>
                                     <button
                                       onClick={() => handleReplaceFood(index, originalIndex)}

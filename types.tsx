@@ -14,6 +14,12 @@ export interface Meal {
     carbs: string
     fats: string
   }
+  macroCredit?: {
+    calories: number
+    protein: number
+    carbs: number
+    fats: number
+  }
 }
 
 export interface DietPlan {

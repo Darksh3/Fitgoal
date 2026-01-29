@@ -41,6 +41,7 @@
     "@radix-ui/react-tooltip": "1.1.6",
     "@react-email/render": "latest",
     "@sendgrid/mail": "8.1.5",
+    "@supabase/supabase-js": "2.93.2",
     "@types/jsonwebtoken": "^9.0.0",
     "@types/node": "^22",
     "@vercel/blob": "1.1.1",
