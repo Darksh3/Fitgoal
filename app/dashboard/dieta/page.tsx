@@ -2192,13 +2192,13 @@ export default function DietPage() {
                     <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                       Calorias *
                     </label>
-                  <input
-                    type="number"
-                    value={substitutionFood.quantity || ""}
-                    onChange={(e) => setSubstitutionFood({ ...substitutionFood, quantity: e.target.value })}
-                    className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:focus:ring-offset-background"
-                    placeholder="Ex: 100"
-                  />
+                    <input
+                      type="number"
+                      value={newFood.calories}
+                      onChange={(e) => setNewFood({ ...newFood, calories: e.target.value })}
+                      className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:focus:ring-offset-background"
+                      placeholder="Ex: 105"
+                    />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -2210,7 +2210,7 @@ export default function DietPage() {
                         type="number"
                         value={newFood.protein}
                         onChange={(e) => setNewFood({ ...newFood, protein: e.target.value })}
-                        className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:focus:ring-offset-background"
+                        className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="0"
                       />
                     </div>
@@ -2218,25 +2218,25 @@ export default function DietPage() {
                       <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                         Carboidratos (g)
                       </label>
-                  <input
-                    type="number"
-                    value={optimizationData.fats || ""}
-                    onChange={(e) => setOptimizationData({ ...optimizationData, fats: e.target.value })}
-                    className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:focus:ring-offset-background"
-                    placeholder="0"
-                  />
+                      <input
+                        type="number"
+                        value={newFood.carbs}
+                        onChange={(e) => setNewFood({ ...newFood, carbs: e.target.value })}
+                        className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="0"
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                         Gorduras (g)
                       </label>
-                  <input
-                    type="text"
-                    value={fiber || ""}
-                    onChange={(e) => setFiber(e.target.value)}
-                    className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:focus:ring-offset-background"
-                    placeholder="Ex: 5"
-                  />
+                      <input
+                        type="number"
+                        value={newFood.fats}
+                        onChange={(e) => setNewFood({ ...newFood, fats: e.target.value })}
+                        className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="0"
+                      />
                     </div>
                   </div>
 
