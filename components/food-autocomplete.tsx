@@ -104,8 +104,9 @@ export function FoodAutocomplete({
   }
 
   const handleSelectFood = (food: FoodOption) => {
+    console.log("[v0] Selected food:", food)
+    onChange(food.name)
     onSelectFood(food)
-    onChange("")
     setIsOpen(false)
     setSuggestions([])
   }
