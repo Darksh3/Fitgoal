@@ -18,6 +18,7 @@ interface FoodAutocompleteProps {
   onChange: (value: string) => void
   onSelectFood: (food: FoodOption) => void
   placeholder?: string
+  inputClassName?: string
 }
 
 export function FoodAutocomplete({
@@ -25,6 +26,7 @@ export function FoodAutocomplete({
   onChange,
   onSelectFood,
   placeholder = "Digite o nome do alimento...",
+  inputClassName,
 }: FoodAutocompleteProps) {
   const [suggestions, setSuggestions] = useState<FoodOption[]>([])
   const [isOpen, setIsOpen] = useState(false)
@@ -113,15 +115,28 @@ export function FoodAutocomplete({
 
   return (
     <div ref={wrapperRef} className="relative w-full">
-      <Input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onFocus={() => value.length >= 2 && suggestions.length > 0 && setIsOpen(true)}
-        placeholder={placeholder}
-        autoComplete="off"
-      />
+      {inputClassName ? (
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onFocus={() => value.length >= 2 && suggestions.length > 0 && setIsOpen(true)}
+          placeholder={placeholder}
+          autoComplete="off"
+          className={inputClassName}
+        />
+      ) : (
+        <Input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onFocus={() => value.length >= 2 && suggestions.length > 0 && setIsOpen(true)}
+          placeholder={placeholder}
+          autoComplete="off"
+        />
+      )}
 
       {isOpen && suggestions.length > 0 && (
         <div

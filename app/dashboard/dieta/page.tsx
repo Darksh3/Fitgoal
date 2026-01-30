@@ -2186,6 +2186,7 @@ export default function DietPage() {
                         setFoodSearchInput("")
                       }}
                       placeholder="Digite para buscar alimentos..."
+                      inputClassName="w-full px-3 py-2 border border-gray-600 dark:border-gray-600 rounded-md bg-gray-800 dark:bg-gray-800 text-white dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
@@ -2193,11 +2194,12 @@ export default function DietPage() {
                     <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                       Calorias *
                     </label>
-                    <Input
+                    <input
                       type="number"
                       value={newFood.calories}
                       onChange={(e) => setNewFood({ ...newFood, calories: e.target.value })}
                       placeholder="Ex: 105"
+                      className="w-full px-3 py-2 border border-gray-600 dark:border-gray-600 rounded-md bg-gray-800 dark:bg-gray-800 text-white dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
@@ -2206,33 +2208,36 @@ export default function DietPage() {
                       <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                         Proteína (g)
                       </label>
-                      <Input
+                      <input
                         type="number"
                         value={newFood.protein}
                         onChange={(e) => setNewFood({ ...newFood, protein: e.target.value })}
                         placeholder="0"
+                        className="w-full px-3 py-2 border border-gray-600 dark:border-gray-600 rounded-md bg-gray-800 dark:bg-gray-800 text-white dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                         Carboidratos (g)
                       </label>
-                      <Input
+                      <input
                         type="number"
                         value={newFood.carbs}
                         onChange={(e) => setNewFood({ ...newFood, carbs: e.target.value })}
                         placeholder="0"
+                        className="w-full px-3 py-2 border border-gray-600 dark:border-gray-600 rounded-md bg-gray-800 dark:bg-gray-800 text-white dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
                         Gorduras (g)
                       </label>
-                      <Input
+                      <input
                         type="number"
                         value={newFood.fats}
                         onChange={(e) => setNewFood({ ...newFood, fats: e.target.value })}
                         placeholder="0"
+                        className="w-full px-3 py-2 border border-gray-600 dark:border-gray-600 rounded-md bg-gray-800 dark:bg-gray-800 text-white dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                   </div>
