@@ -2182,7 +2182,6 @@ export default function DietPage() {
                           carbs: String(food.carbs),
                           fats: String(food.fats),
                         })
-                        setFoodSearchInput("")
                       }}
                       placeholder="Digite para buscar alimentos..."
                     />
