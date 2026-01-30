@@ -1,8 +1,6 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 
 interface FoodOption {
   id: string
@@ -18,7 +16,6 @@ interface FoodAutocompleteProps {
   onChange: (value: string) => void
   onSelectFood: (food: FoodOption) => void
   placeholder?: string
-  inputClassName?: string
 }
 
 export function FoodAutocomplete({
@@ -26,7 +23,6 @@ export function FoodAutocomplete({
   onChange,
   onSelectFood,
   placeholder = "Digite o nome do alimento...",
-  inputClassName,
 }: FoodAutocompleteProps) {
   const [suggestions, setSuggestions] = useState<FoodOption[]>([])
   const [isOpen, setIsOpen] = useState(false)
@@ -115,28 +111,16 @@ export function FoodAutocomplete({
 
   return (
     <div ref={wrapperRef} className="relative w-full">
-      {inputClassName ? (
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={() => value.length >= 2 && suggestions.length > 0 && setIsOpen(true)}
-          placeholder={placeholder}
-          autoComplete="off"
-          className={inputClassName}
-        />
-      ) : (
-        <Input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={() => value.length >= 2 && suggestions.length > 0 && setIsOpen(true)}
-          placeholder={placeholder}
-          autoComplete="off"
-        />
-      )}
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onFocus={() => value.length >= 2 && suggestions.length > 0 && setIsOpen(true)}
+        placeholder={placeholder}
+        autoComplete="off"
+        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+      />
 
       {isOpen && suggestions.length > 0 && (
         <div

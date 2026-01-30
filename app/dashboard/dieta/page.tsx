@@ -10,7 +10,6 @@ import { Clock, RefreshCw, Replace, Download, Plus, RotateCcw, Trash2 } from "lu
 import ProtectedRoute from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { StyledButton } from "@/components/ui/styled-button"
-import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import type { Meal, DietPlan } from "@/types"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -2186,7 +2185,6 @@ export default function DietPage() {
                         setFoodSearchInput("")
                       }}
                       placeholder="Digite para buscar alimentos..."
-                      inputClassName="w-full px-3 py-2 border border-gray-600 dark:border-gray-600 rounded-md bg-gray-800 dark:bg-gray-800 text-white dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
@@ -2198,8 +2196,8 @@ export default function DietPage() {
                       type="number"
                       value={newFood.calories}
                       onChange={(e) => setNewFood({ ...newFood, calories: e.target.value })}
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                       placeholder="Ex: 105"
-                      className="w-full px-3 py-2 border border-gray-600 dark:border-gray-600 rounded-md bg-gray-800 dark:bg-gray-800 text-white dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
@@ -2212,8 +2210,8 @@ export default function DietPage() {
                         type="number"
                         value={newFood.protein}
                         onChange={(e) => setNewFood({ ...newFood, protein: e.target.value })}
+                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                         placeholder="0"
-                        className="w-full px-3 py-2 border border-gray-600 dark:border-gray-600 rounded-md bg-gray-800 dark:bg-gray-800 text-white dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                     <div>
@@ -2224,8 +2222,8 @@ export default function DietPage() {
                         type="number"
                         value={newFood.carbs}
                         onChange={(e) => setNewFood({ ...newFood, carbs: e.target.value })}
+                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                         placeholder="0"
-                        className="w-full px-3 py-2 border border-gray-600 dark:border-gray-600 rounded-md bg-gray-800 dark:bg-gray-800 text-white dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                     <div>
@@ -2236,8 +2234,8 @@ export default function DietPage() {
                         type="number"
                         value={newFood.fats}
                         onChange={(e) => setNewFood({ ...newFood, fats: e.target.value })}
+                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                         placeholder="0"
-                        className="w-full px-3 py-2 border border-gray-600 dark:border-gray-600 rounded-md bg-gray-800 dark:bg-gray-800 text-white dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                   </div>
@@ -2249,7 +2247,7 @@ export default function DietPage() {
                     <select
                       value={newFood.mealIndex}
                       onChange={(e) => setNewFood({ ...newFood, mealIndex: Number(e.target.value) })}
-                      className="w-full p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                     >
                       {dietPlan?.meals.map((meal, index) => (
                         <option key={index} value={index}>
