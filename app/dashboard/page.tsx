@@ -178,17 +178,28 @@ export default function DashboardPage() {
           
           // VERIFICAR EXPIRAÇÃO DA ASSINATURA
           if (data.subscriptionExpiresAt) {
-            let expiresAt = new Date(data.subscriptionExpiresAt)
+            let expiresAt: Date
             
-            // Validar se a data é válida
-            if (isNaN(expiresAt.getTime())) {
-              console.error("[v0] Data de expiração inválida:", data.subscriptionExpiresAt)
-              expiresAt = new Date(0) // Data inválida = já expirou
+            // Converter Firestore Timestamp para Date
+            if (data.subscriptionExpiresAt.toDate && typeof data.subscriptionExpiresAt.toDate === 'function') {
+              // É um Firestore Timestamp
+              expiresAt = data.subscriptionExpiresAt.toDate()
+            } else if (data.subscriptionExpiresAt instanceof Date) {
+              expiresAt = data.subscriptionExpiresAt
+            } else if (typeof data.subscriptionExpiresAt === 'string') {
+              expiresAt = new Date(data.subscriptionExpiresAt)
+            } else if (typeof data.subscriptionExpiresAt === 'number') {
+              // Se for número (timestamp em ms)
+              expiresAt = new Date(data.subscriptionExpiresAt)
+            } else {
+              console.error("[v0] Formato de data inválido:", data.subscriptionExpiresAt)
+              expiresAt = new Date(0) // Data no passado = expirada
             }
             
             const now = new Date()
+            const daysRemaining = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
             
-            console.log("[v0] SUBSCRIPTION_CHECK - Expires:", expiresAt.toISOString(), "Now:", now.toISOString(), "Expired:", expiresAt < now)
+            console.log("[v0] SUBSCRIPTION_CHECK - Expires:", expiresAt.toISOString(), "Now:", now.toISOString(), "Expired:", expiresAt < now, "Days:", daysRemaining)
             
             if (expiresAt < now) {
               console.log("[v0] SUBSCRIPTION_EXPIRED - Bloqueando acesso ao usuário")
@@ -198,7 +209,6 @@ export default function DashboardPage() {
               return // Não carregar mais dados, bloquear aqui
             } else {
               setSubscriptionExpiresAt(expiresAt)
-              const daysRemaining = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
               console.log("[v0] SUBSCRIPTION_ACTIVE - Dias restantes:", daysRemaining)
             }
           }
