@@ -535,25 +535,60 @@ export default function TreinoPage() {
   `
 
   try {
-    // Convert HTML to PDF using html2pdf library
+    // Dynamic imports
+    const html2canvas = (await import("html2canvas")).default
+    const { jsPDF } = await import("jspdf")
+    
+    // Create temporary container
     const element = document.createElement("div")
     element.innerHTML = pdfContent
-    
-    // Dynamic import of html2pdf
-    const html2pdf = (await import("html2pdf.js")).default
-    
-    const pdf = html2pdf()
-      .set({
-        margin: 3,
-        filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
-        image: { type: "png", quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
-      })
-      .from(element)
-      .save()
+    element.style.position = "absolute"
+    element.style.left = "-9999px"
+    element.style.top = "-9999px"
+    element.style.width = "210mm"
+    element.style.backgroundColor = "white"
+    document.body.appendChild(element)
 
-    // Download
+    // Wait for rendering
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    // Convert to canvas
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      logging: false,
+    })
+
+    // Remove temporary element
+    document.body.removeChild(element)
+
+    // Create PDF
+    const imgData = canvas.toDataURL("image/png")
+    const imgWidth = 297 // A4 landscape width in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
+    
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: "a4",
+    })
+
+    let heightLeft = imgHeight
+    let position = 0
+
+    // Add image to PDF (with pagination if needed)
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
+    heightLeft -= 210
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight
+      pdf.addPage()
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
+      heightLeft -= 210
+    }
+
+    // Save PDF
     pdf.save(`plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`)
   } catch (error) {
     console.error("[v0] Erro ao gerar PDF:", error)
