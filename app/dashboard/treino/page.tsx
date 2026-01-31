@@ -535,6 +535,16 @@ export default function TreinoPage() {
   `
 
   try {
+    // Importar bibliotecas dinamicamente
+    const html2canvasModule = await import("html2canvas")
+    const html2canvas = html2canvasModule.default || html2canvasModule
+    
+    const jsPDFModule = await import("jspdf")
+    const jsPDF = jsPDFModule.jsPDF
+    
+    console.log("[v0] html2canvas carregado:", typeof html2canvas)
+    console.log("[v0] jsPDF carregado:", typeof jsPDF)
+
     // Criar elemento temporário com o conteúdo HTML
     const element = document.createElement("div")
     element.innerHTML = pdfContent
@@ -543,14 +553,11 @@ export default function TreinoPage() {
     element.style.top = "-9999px"
     element.style.width = "297mm"
     element.style.backgroundColor = "white"
+    element.style.padding = "20px"
     document.body.appendChild(element)
 
     // Aguardar renderização
     await new Promise(resolve => setTimeout(resolve, 100))
-
-    // Importar bibliotecas dinamicamente
-    const html2canvas = (await import("html2canvas")).default
-    const { jsPDF } = await import("jspdf")
 
     // Converter HTML para canvas
     const canvas = await html2canvas(element, {
@@ -560,36 +567,41 @@ export default function TreinoPage() {
       logging: false,
     })
 
+    console.log("[v0] Canvas gerado com sucesso")
+
     // Remover elemento temporário
     document.body.removeChild(element)
 
     // Criar PDF
     const imgData = canvas.toDataURL("image/png")
-    const imgWidth = 297 // Largura A4 landscape em mm
+    const imgWidth = 210 // Largura A4 em mm
     const imgHeight = (canvas.height * imgWidth) / canvas.width
     
     const pdf = new jsPDF({
-      orientation: "landscape",
+      orientation: "portrait",
       unit: "mm",
       format: "a4",
     })
 
-    let heightLeft = imgHeight
     let position = 0
+    let heightLeft = imgHeight
 
     // Adicionar imagem ao PDF (com paginação se necessário)
     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
-    heightLeft -= 210
+    heightLeft -= 297
 
     while (heightLeft > 0) {
       position = heightLeft - imgHeight
       pdf.addPage()
       pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
-      heightLeft -= 210
+      heightLeft -= 297
     }
+
+    console.log("[v0] PDF gerado com sucesso")
 
     // Fazer download
     pdf.save(`plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`)
+    console.log("[v0] Download iniciado")
   } catch (error) {
     console.error("[v0] Erro ao gerar PDF:", error)
     alert("Erro ao gerar PDF. Tente novamente.")
