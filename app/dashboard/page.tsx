@@ -820,7 +820,7 @@ export default function DashboardPage() {
 
                 return (
                   <>
-                    <div className="flex items-center justify-between mb-10">
+                    <div className="flex items-center justify-between mb-10 relative">
                       {/* Para CUTTING: Meta fica à esquerda, Inicial à direita */}
                       {/* Para BULKING: Inicial fica à esquerda, Meta à direita */}
                       {isCutting ? (
@@ -837,9 +837,21 @@ export default function DashboardPage() {
                               {current.toFixed(1)} kg
                             </p>
                           </div>
-                          <div className="text-center flex-1">
+                          <div className="text-center flex-1 relative">
                             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Peso Inicial</p>
                             <p className="text-xl font-bold text-gray-400 dark:text-gray-500">{start.toFixed(1)} kg</p>
+                            {/* Botão de cadeado */}
+                            <button
+                              onClick={() => setIsWeightSliderLocked(!isWeightSliderLocked)}
+                              className="absolute top-0 right-0 p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                              title={isWeightSliderLocked ? "Clique para desbloquear" : "Clique para bloquear"}
+                            >
+                              {isWeightSliderLocked ? (
+                                <Lock className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                              ) : (
+                                <LockOpen className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                              )}
+                            </button>
                           </div>
                         </>
                       ) : (
@@ -856,9 +868,21 @@ export default function DashboardPage() {
                               {current.toFixed(1)} kg
                             </p>
                           </div>
-                          <div className="text-center flex-1">
+                          <div className="text-center flex-1 relative">
                             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Meta</p>
                             <p className="text-xl font-bold text-green-500 dark:text-green-400">{goal.toFixed(1)} kg</p>
+                            {/* Botão de cadeado */}
+                            <button
+                              onClick={() => setIsWeightSliderLocked(!isWeightSliderLocked)}
+                              className="absolute top-0 right-0 p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                              title={isWeightSliderLocked ? "Clique para desbloquear" : "Clique para bloquear"}
+                            >
+                              {isWeightSliderLocked ? (
+                                <Lock className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                              ) : (
+                                <LockOpen className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                              )}
+                            </button>
                           </div>
                         </>
                       )}
@@ -979,19 +1003,6 @@ export default function DashboardPage() {
                           </>
                         )
                       })()}
-
-                      {/* Botão de cadeado no canto direito */}
-                      <button
-                        onClick={() => setIsWeightSliderLocked(!isWeightSliderLocked)}
-                        className="absolute top-0 right-0 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        title={isWeightSliderLocked ? "Clique para desbloquear" : "Clique para bloquear"}
-                      >
-                        {isWeightSliderLocked ? (
-                          <Lock className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                        ) : (
-                          <LockOpen className="h-5 w-5 text-blue-500 dark:text-blue-400" />
-                        )}
-                      </button>
                     </div>
 
                     {/* Informações abaixo */}
