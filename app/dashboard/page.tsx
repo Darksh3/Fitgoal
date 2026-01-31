@@ -21,6 +21,8 @@ import {
   Dumbbell,
   BarChart3,
   Menu,
+  Lock,
+  LockOpen,
 } from "lucide-react"
 
 interface QuizData {
@@ -73,6 +75,7 @@ export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [initialWeight, setInitialWeight] = useState<number | null>(null)
   const [currentWeightSlider, setCurrentWeightSlider] = useState<number | null>(null)
+  const [isWeightSliderLocked, setIsWeightSliderLocked] = useState(true)
   const [weightDirty, setWeightDirty] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [subscriptionExpired, setSubscriptionExpired] = useState(false)
@@ -871,12 +874,17 @@ export default function DashboardPage() {
                         step="0.1"
                         value={current}
                         onChange={(e) => {
-                          handleWeightChange(Number.parseFloat(e.target.value))
+                          if (!isWeightSliderLocked) {
+                            handleWeightChange(Number.parseFloat(e.target.value))
+                          }
                         }}
+                        disabled={isWeightSliderLocked}
                         className="w-full h-3 rounded-full appearance-none bg-transparent cursor-pointer absolute top-4 left-0"
                         style={{
                           zIndex: 10,
                           WebkitAppearance: "none",
+                          opacity: isWeightSliderLocked ? 0.5 : 1,
+                          cursor: isWeightSliderLocked ? "not-allowed" : "pointer",
                         }}
                       />
 
@@ -971,6 +979,19 @@ export default function DashboardPage() {
                           </>
                         )
                       })()}
+
+                      {/* Botão de cadeado no canto direito */}
+                      <button
+                        onClick={() => setIsWeightSliderLocked(!isWeightSliderLocked)}
+                        className="absolute top-0 right-0 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        title={isWeightSliderLocked ? "Clique para desbloquear" : "Clique para bloquear"}
+                      >
+                        {isWeightSliderLocked ? (
+                          <Lock className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                        ) : (
+                          <LockOpen className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                        )}
+                      </button>
                     </div>
 
                     {/* Informações abaixo */}
