@@ -178,10 +178,17 @@ export default function DashboardPage() {
           
           // VERIFICAR EXPIRAÇÃO DA ASSINATURA
           if (data.subscriptionExpiresAt) {
-            const expiresAt = new Date(data.subscriptionExpiresAt)
+            let expiresAt = new Date(data.subscriptionExpiresAt)
+            
+            // Validar se a data é válida
+            if (isNaN(expiresAt.getTime())) {
+              console.error("[v0] Data de expiração inválida:", data.subscriptionExpiresAt)
+              expiresAt = new Date(0) // Data inválida = já expirou
+            }
+            
             const now = new Date()
             
-            console.log("[v0] SUBSCRIPTION_CHECK - Expires:", expiresAt, "Now:", now, "Expired:", expiresAt < now)
+            console.log("[v0] SUBSCRIPTION_CHECK - Expires:", expiresAt.toISOString(), "Now:", now.toISOString(), "Expired:", expiresAt < now)
             
             if (expiresAt < now) {
               console.log("[v0] SUBSCRIPTION_EXPIRED - Bloqueando acesso ao usuário")
@@ -191,7 +198,8 @@ export default function DashboardPage() {
               return // Não carregar mais dados, bloquear aqui
             } else {
               setSubscriptionExpiresAt(expiresAt)
-              console.log("[v0] SUBSCRIPTION_ACTIVE - Dias restantes:", Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+              const daysRemaining = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+              console.log("[v0] SUBSCRIPTION_ACTIVE - Dias restantes:", daysRemaining)
             }
           }
           

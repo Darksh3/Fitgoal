@@ -535,59 +535,25 @@ export default function TreinoPage() {
   `
 
   try {
-    // Convert HTML to PDF using html2canvas + jsPDF
+    // Convert HTML to PDF using html2pdf library
     const element = document.createElement("div")
     element.innerHTML = pdfContent
-    element.style.position = "fixed"
-    element.style.left = "0"
-    element.style.top = "0"
-    element.style.width = "800px"
-    element.style.height = "auto"
-    element.style.backgroundColor = "white"
-    element.style.zIndex = "-9999"
-    document.body.appendChild(element)
+    
+    // Dynamic import of html2pdf
+    const html2pdf = (await import("html2pdf.js")).default
+    
+    const pdf = html2pdf()
+      .set({
+        margin: 3,
+        filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
+        image: { type: "png", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
+      })
+      .from(element)
+      .save()
 
-    // Wait for layout to be calculated
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Import libraries
-    const html2canvas = (await import("html2canvas")).default
-    const jsPDF = (await import("jspdf")).jsPDF
-
-    // Capture canvas from HTML
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-    })
-
-    // Remove temporary element
-    document.body.removeChild(element)
-
-    // Convert canvas to PDF
-    const imgData = canvas.toDataURL("image/png")
-    const imgWidth = 297 // A4 landscape width in mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width
-    const pdf = new jsPDF({
-      orientation: "landscape",
-      unit: "mm",
-      format: "a4",
-    })
-
-    let heightLeft = imgHeight
-    let position = 0
-
-    // Add multiple pages if needed
-    while (heightLeft >= 0) {
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
-      heightLeft -= 210 // A4 landscape height in mm
-      if (heightLeft > 0) {
-        pdf.addPage()
-        position = -210
-      }
-    }
-
-    // Save PDF
+    // Download
     pdf.save(`plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`)
   } catch (error) {
     console.error("[v0] Erro ao gerar PDF:", error)
