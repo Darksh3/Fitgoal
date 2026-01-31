@@ -589,9 +589,6 @@ export default function TreinoPage() {
 
     // Save PDF
     pdf.save(`plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`)
-
-    // Remove temporary element
-    document.body.removeChild(element)
   } catch (error) {
     console.error("[v0] Erro ao gerar PDF:", error)
     alert("Erro ao gerar PDF. Tente novamente.")
