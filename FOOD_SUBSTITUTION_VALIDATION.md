@@ -9,7 +9,7 @@ Implementação de validação de alimentos para substituição na dieta. Garant
 
 ## Fluxo de Validação
 
-```
+\`\`\`
 1. Usuário clica "Substituir" em um alimento
    ↓
 2. Lista de alimentos da refeição é enviada à IA
@@ -23,7 +23,7 @@ Implementação de validação de alimentos para substituição na dieta. Garant
 5. Se inválida, mostra erro ou usa válidos
    ↓
 6. Alimento é substituído com macroCredit aplicado
-```
+\`\`\`
 
 ## Validações Implementadas
 
@@ -43,7 +43,7 @@ Implementação de validação de alimentos para substituição na dieta. Garant
 
 Funções principais:
 
-```typescript
+\`\`\`typescript
 // Extrai nome base do alimento
 extractBaseFoodName("Banana (100g)") → "banana"
 
@@ -58,7 +58,7 @@ validateSubstituteFood("Frango", existingFoods)
 // Valida lista de sugestões da IA
 validateAISuggestions(suggestions, existingFoods)
 → { valid, invalidFoods, validFoods }
-```
+\`\`\`
 
 ### 3. Detecção de Alimentos Compostos
 
@@ -78,13 +78,13 @@ Extrai nome base e compara com existentes:
 
 ### Cenário: Refeição com Frango + Arroz + Brócolis
 
-```
+\`\`\`
 REFEIÇÃO: Almoço
 ALIMENTOS PRESENTES:
 - Frango (150g)
 - Arroz (100g)
 - Brócolis (100g)
-```
+\`\`\`
 
 **Usuário clica substituir Frango:**
 
@@ -100,25 +100,25 @@ ALIMENTOS PRESENTES:
 - "Tofu (200g)"
 
 **Validação Frontend:**
-```typescript
+\`\`\`typescript
 const suggestion = "Salmão"
 const existing = ["Frango", "Arroz", "Brócolis"]
 
 validateSubstituteFood(suggestion, existing)
 // { valid: true } ✅
-```
+\`\`\`
 
 ## Mensagens de Erro
 
 Quando alimento é inválido, o usuário vê:
 
-```
+\`\`\`
 ❌ "Iogurte e mel" é um alimento composto. 
 Use alimentos simples e individuais (ex: iogurte, mel, frango - separados)
 
 ❌ "Frango" já está incluído nesta refeição. 
 Escolha outro alimento.
-```
+\`\`\`
 
 ## Tratamento de Erro na Substituição
 
@@ -127,7 +127,7 @@ Se a IA sugerir alimentos inválidos:
 1. **Se nenhum for válido:** Mostra erro ao usuário
 2. **Se alguns forem válidos:** Usa os válidos e ignora inválidos (com log)
 
-```javascript
+\`\`\`javascript
 // Validar sugestões
 const validation = validateAISuggestions(
   suggestions,
@@ -142,7 +142,7 @@ if (!validation.valid) {
   }
   // Usar validFoods
 }
-```
+\`\`\`
 
 ## Próximas Melhorias
 
@@ -155,7 +155,7 @@ if (!validation.valid) {
 
 Para testar localmente:
 
-```bash
+\`\`\`bash
 # Teste 1: Alimento composto
 validateSubstituteFood("Frango com brócolis", [])
 // { valid: false, reason: "...é um alimento composto" }
@@ -167,15 +167,15 @@ validateSubstituteFood("Banana", ["Banana (100g)"])
 # Teste 3: Válido
 validateSubstituteFood("Maçã", ["Banana"])
 // { valid: true }
-```
+\`\`\`
 
 ## Integração com MacroCredit
 
 A validação funciona junto com o sistema de macroCredit:
 
-```
+\`\`\`
 1. Usuário remove Frango → macroCredit com 165kcal
 2. Substitui por Salmão → Validação
 3. Se válido → Salmão recebe crédito (206 + 165kcal)
 4. macroCredit reseta para 0
-```
+\`\`\`

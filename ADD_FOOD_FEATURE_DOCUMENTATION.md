@@ -21,26 +21,26 @@ Sistema inteligente que permite o usuário **incluir um novo alimento** na refei
 ### Estados Possíveis de Resposta
 
 #### Aceito (✅ Sim, é possível)
-```
+\`\`\`
 Alimento: Batata inglesa
 Quantidade: 150g
 Calorias: 120 kcal
 Resposta: "Sim, é possível! Batata inglesa adicionado com sucesso!"
-```
+\`\`\`
 
 #### Rejeitado - Não Saudável (❌)
-```
+\`\`\`
 Alimento: Refrigerante de cola
 Resposta: "Infelizmente esse alimento não encaixa. 
           Escolha algo mais saudável!"
-```
+\`\`\`
 
 #### Rejeitado - Não Encaixa
-```
+\`\`\`
 Alimento: Bife com batata frita
 Resposta: "Infelizmente esse alimento não encaixa. 
           Alimento composto não é permitido"
-```
+\`\`\`
 
 ## Arquivos Criados/Modificados
 
@@ -79,14 +79,14 @@ Resposta: "Infelizmente esse alimento não encaixa.
 
 ### Lógica de Resposta da IA
 
-```
+\`\`\`
 Se alimento é ruim/composto/ultra-processado
   → Retorna canAdd: false com motivo
 Senão se alimento cabe nos macros
   → Retorna canAdd: true + alimento com quantidade
 Senão
   → Retorna canAdd: false com motivo "não encaixa"
-```
+\`\`\`
 
 ## Integração com MacroCredit
 
@@ -97,7 +97,7 @@ Quando um alimento é incluído com sucesso:
 
 ### Exemplo
 
-```
+\`\`\`
 Refeição: Café da Manhã
 MacroCredit: 150 kcal, 10g proteína
 
@@ -105,7 +105,7 @@ Usuário quer incluir: "Banana"
 → IA: Tá bom, vou usar 1 banana (89 kcal, 1.1g proteína)
 → Refeição atualizada
 → MacroCredit resetado para 0
-```
+\`\`\`
 
 ## UI/UX
 
@@ -131,7 +131,7 @@ Usuário quer incluir: "Banana"
 ### POST `/api/add-food-to-meal`
 
 **Request:**
-```json
+\`\`\`json
 {
   "foodName": "Batata inglesa",
   "mealContext": "Almoço",
@@ -144,10 +144,10 @@ Usuário quer incluir: "Banana"
   },
   "userPreferences": {}
 }
-```
+\`\`\`
 
 **Response - Sucesso:**
-```json
+\`\`\`json
 {
   "success": true,
   "canAdd": true,
@@ -162,17 +162,17 @@ Usuário quer incluir: "Banana"
     "reason": "Encaixa perfeitamente nos macros"
   }
 }
-```
+\`\`\`
 
 **Response - Erro:**
-```json
+\`\`\`json
 {
   "success": true,
   "canAdd": false,
   "message": "Infelizmente esse alimento não encaixa",
   "reason": "unhealthy"
 }
-```
+\`\`\`
 
 ## Fluxo Técnico Completo
 

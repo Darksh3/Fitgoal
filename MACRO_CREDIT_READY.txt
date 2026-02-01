@@ -25,14 +25,14 @@ Um sistema inteligente que **preserva o balanço nutricional das refeições** q
 
 #### 1. **types.tsx**
 Adicionado campo `macroCredit?` ao tipo `Meal`:
-```typescript
+\`\`\`typescript
 macroCredit: {
   calories: number
   protein: number
   carbs: number
   fats: number
 }
-```
+\`\`\`
 
 #### 2. **app/dashboard/dieta/page.tsx**
 - ✅ Imports de utilitários e componente
@@ -45,7 +45,7 @@ macroCredit: {
 ### 🎯 Como Funciona
 
 #### Passo 1: Remover Alimento
-```
+\`\`\`
 User clica ❌ (remover)
          ↓
 Extrai macros completos
@@ -55,16 +55,16 @@ Adiciona ao macroCredit da refeição
 Remove alimento
          ↓
 Atualiza Firebase
-```
+\`\`\`
 
 #### Passo 2: Visualizar Crédito
-```
+\`\`\`
 Badge azul aparece em cada refeição com:
 📊 165 kcal | 31g proteína | 0g carbs | 3.6g gordura
-```
+\`\`\`
 
 #### Passo 3: Substituir com Crédito
-```
+\`\`\`
 User clica "Substituir"
          ↓
 IA sugere novo alimento
@@ -76,30 +76,30 @@ Insere com macros aumentados
 macroCredit resetado para 0
          ↓
 Salva no Firebase
-```
+\`\`\`
 
 ---
 
 ### 💡 Exemplo Real
 
 **Almoço Inicial (500 kcal):**
-```
+\`\`\`
 ├─ Frango (165 kcal, 31g proteína)
 ├─ Arroz (130 kcal)
 └─ Brócolis (34 kcal)
-```
+\`\`\`
 
 **Remove Frango:**
-```
+\`\`\`
 Almoço (164 kcal):
 ├─ Arroz (130 kcal)
 └─ Brócolis (34 kcal)
 
 ✨ CRÉDITO: 165 kcal + 31g proteína
-```
+\`\`\`
 
 **Substitui Brócolis por Salmão:**
-```
+\`\`\`
 Salmão base: 206 kcal, 25.4g proteína
 + Crédito: 165 kcal, 31g proteína
 = NOVO Salmão: 371 kcal, 56.4g proteína ✅
@@ -109,7 +109,7 @@ Almoço Final (501 kcal):
 ├─ Arroz (130 kcal)
 
 ✅ Recuperou + melhorou qualidade!
-```
+\`\`\`
 
 ---
 
@@ -125,7 +125,7 @@ Almoço Final (501 kcal):
 
 ### 📊 Estado da Implementação
 
-```
+\`\`\`
 ✅ Tipos TypeScript atualizados
 ✅ Funções utilitárias criadas
 ✅ Componente visual implementado
@@ -136,7 +136,7 @@ Almoço Final (501 kcal):
 ✅ Documentação completa
 ✅ Exemplos práticos fornecidos
 ✅ Sistema pronto para produção
-```
+\`\`\`
 
 ---
 

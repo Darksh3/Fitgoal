@@ -6,7 +6,10 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const searchTerm = searchParams.get("q")?.toLowerCase() || ""
 
+    console.log("[v0] Food search API called with term:", searchTerm)
+
     if (!searchTerm || searchTerm.length < 2) {
+      console.log("[v0] Search term too short, returning empty")
       return NextResponse.json([])
     }
 
@@ -24,7 +27,7 @@ export async function GET(request: Request) {
       ...doc.data(),
     }))
 
-    console.log("[v0] Food search results:", { searchTerm, count: foods.length })
+    console.log("[v0] Food search results:", { searchTerm, count: foods.length, foods })
     return NextResponse.json(foods)
   } catch (error) {
     console.error("[v0] Error searching foods:", error)

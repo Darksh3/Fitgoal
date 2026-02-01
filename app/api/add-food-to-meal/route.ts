@@ -118,7 +118,7 @@ Se REJEITAR, retorne JSON:
 {
   "canAdd": false,
   "message": "Infelizmente esse alimento não encaixa",
-  "reason": "motivo específico"
+  "reason": "Motivo breve (ex: Alimento composto, Muito calórico, Muito similar ao já adicionado, etc)"
 }`
 
     const response = await generateText({
