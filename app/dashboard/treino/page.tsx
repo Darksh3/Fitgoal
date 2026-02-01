@@ -535,31 +535,40 @@ export default function TreinoPage() {
   `
 
   try {
-    // Importar bibliotecas dinamicamente
-    const html2canvasModule = await import("html2canvas")
-    const html2canvas = html2canvasModule.default || html2canvasModule
+    console.log("[v0] Iniciando download PDF")
     
-    const jsPDFModule = await import("jspdf")
-    const jsPDF = jsPDFModule.jsPDF
+    // Importar html2canvas
+    const html2canvas = (await import("html2canvas")).default
+    console.log("[v0] html2canvas tipo:", typeof html2canvas)
     
-    console.log("[v0] html2canvas carregado:", typeof html2canvas)
-    console.log("[v0] jsPDF carregado:", typeof jsPDF)
+    // Importar jsPDF - tentar múltiplas formas
+    let jsPDF
+    try {
+      const module = await import("jspdf")
+      jsPDF = module.jsPDF || module.default
+    } catch (e) {
+      console.error("[v0] Erro ao importar jsPDF:", e)
+      throw e
+    }
+    
+    console.log("[v0] jsPDF tipo:", typeof jsPDF)
 
-    // Criar elemento temporário com o conteúdo HTML
+    // Criar elemento temporário
     const element = document.createElement("div")
     element.innerHTML = pdfContent
     element.style.position = "absolute"
     element.style.left = "-9999px"
     element.style.top = "-9999px"
-    element.style.width = "297mm"
+    element.style.width = "210mm"
     element.style.backgroundColor = "white"
-    element.style.padding = "20px"
     document.body.appendChild(element)
 
-    // Aguardar renderização
-    await new Promise(resolve => setTimeout(resolve, 100))
+    console.log("[v0] Elemento criado, aguardando renderização")
 
-    // Converter HTML para canvas
+    // Aguardar renderização
+    await new Promise(resolve => setTimeout(resolve, 200))
+
+    // Converter para canvas
     const canvas = await html2canvas(element, {
       scale: 2,
       useCORS: true,
@@ -567,14 +576,14 @@ export default function TreinoPage() {
       logging: false,
     })
 
-    console.log("[v0] Canvas gerado com sucesso")
+    console.log("[v0] Canvas criado com dimensões:", canvas.width, "x", canvas.height)
 
-    // Remover elemento temporário
+    // Remover elemento
     document.body.removeChild(element)
 
     // Criar PDF
     const imgData = canvas.toDataURL("image/png")
-    const imgWidth = 210 // Largura A4 em mm
+    const imgWidth = 210
     const imgHeight = (canvas.height * imgWidth) / canvas.width
     
     const pdf = new jsPDF({
@@ -586,7 +595,6 @@ export default function TreinoPage() {
     let position = 0
     let heightLeft = imgHeight
 
-    // Adicionar imagem ao PDF (com paginação se necessário)
     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
     heightLeft -= 297
 
@@ -597,14 +605,15 @@ export default function TreinoPage() {
       heightLeft -= 297
     }
 
-    console.log("[v0] PDF gerado com sucesso")
+    console.log("[v0] PDF criado com sucesso")
 
-    // Fazer download
+    // Download
     pdf.save(`plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`)
     console.log("[v0] Download iniciado")
   } catch (error) {
     console.error("[v0] Erro ao gerar PDF:", error)
-    alert("Erro ao gerar PDF. Tente novamente.")
+    console.error("[v0] Stack:", error instanceof Error ? error.stack : "sem stack")
+    alert("Erro ao gerar PDF: " + (error instanceof Error ? error.message : String(error)))
   }
   }
 
