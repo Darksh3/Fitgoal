@@ -27,23 +27,23 @@ Você tem as variáveis de ambiente configuradas:
 
 ### 2. Instalar Dependências
 
-```bash
+\`\`\`bash
 npm install
-```
+\`\`\`
 
 ### 3. Testar a Integração
 
 Após criar a tabela, você pode:
 
 1. **Buscar um alimento:**
-```bash
+\`\`\`bash
 curl "http://localhost:3000/api/foods/search-supabase?q=frango"
-```
+\`\`\`
 
 2. **Buscar por categoria:**
-```bash
+\`\`\`bash
 curl "http://localhost:3000/api/foods/search-supabase?category=Proteína"
-```
+\`\`\`
 
 ## Arquivos Criados
 

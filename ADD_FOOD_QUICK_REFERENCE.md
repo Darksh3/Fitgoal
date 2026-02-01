@@ -14,26 +14,26 @@
 ### Exemplos de Resposta
 
 **Aceito:**
-```
+\`\`\`
 ✅ "Sim, é possível! Batata inglesa adicionado com sucesso!"
-```
+\`\`\`
 
 **Rejeitado - Insalubre:**
-```
+\`\`\`
 ❌ "Infelizmente esse alimento não encaixa. 
     Escolha algo mais saudável!"
-```
+\`\`\`
 
 **Rejeitado - Composto:**
-```
+\`\`\`
 ❌ "Infelizmente esse alimento não encaixa. 
     Alimento composto não é permitido"
-```
+\`\`\`
 
 **Rejeitado - Não cabe nos macros:**
-```
+\`\`\`
 ❌ "Infelizmente esse alimento não encaixa"
-```
+\`\`\`
 
 ## Para o Developer
 
@@ -46,25 +46,25 @@
 
 ### Estados Adicionados
 
-```typescript
+\`\`\`typescript
 const [addingFood, setAddingFood] = useState(null) // Modal aberto?
 const [addFoodInput, setAddFoodInput] = useState("") // Texto digitado
 const [addFoodMessage, setAddFoodMessage] = useState(null) // Resposta IA
-```
+\`\`\`
 
 ### Handler Principal
 
-```typescript
+\`\`\`typescript
 handleAddFoodToMeal(mealIndex, foodIndex)
   1. Valida input
   2. Chama API /add-food-to-meal
   3. Se sucesso: Adiciona alimento + reseta macroCredit
   4. Se erro: Mostra mensagem
-```
+\`\`\`
 
 ### Fluxo de Dados
 
-```
+\`\`\`
 User Input
     ↓
 handleAddFoodToMeal()
@@ -78,7 +78,7 @@ Resposta {canAdd, food, message}
 Frontend Processa
     ↓
 Adiciona à Refeição ou Mostra Erro
-```
+\`\`\`
 
 ## Validações
 

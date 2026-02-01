@@ -26,8 +26,22 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    console.log('[v0] Returning results count:', results?.length)
-    return NextResponse.json({ foods: results })
+    // Map Supabase field names to frontend expectations
+    const mappedResults = (results || []).map((food: any) => ({
+      id: food.id,
+      name: food.name,
+      calories: food.calories,
+      protein: food.protein,
+      carbs: food.carbs,
+      fats: food.fat || food.fats || 0, // Handle both 'fat' and 'fats' field names
+      fiber: food.fiber,
+      serving_size: food.serving_size,
+      unit: food.unit,
+      category: food.category,
+    }))
+
+    console.log('[v0] Returning results count:', mappedResults?.length)
+    return NextResponse.json({ foods: mappedResults })
   } catch (error) {
     console.error('[v0] Error in foods API:', error)
     return NextResponse.json(

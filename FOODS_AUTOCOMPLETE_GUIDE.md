@@ -37,7 +37,7 @@ Sistema de autocomplete de alimentos integrado ao dashboard de dieta. Os dados s
 
 ### Firebase Collection
 
-```
+\`\`\`
 Collection: foods
 Documentos: {
   name: string (lowercase para busca),
@@ -49,7 +49,7 @@ Documentos: {
   category: string,
   createdAt: timestamp
 }
-```
+\`\`\`
 
 ## Dados TACO Inclusos (60+ alimentos)
 
@@ -174,7 +174,7 @@ Documentos: {
 
 ### Exemplo Prático
 
-```
+\`\`\`
 Usuário digita: "fran"
 
 Sugestões TACO aparecem:
@@ -191,7 +191,7 @@ Ao selecionar "Frango peito cozido":
 Se o usuário comeu 150g ao invés de 100g:
 - Edita Calorias: 247 (165 * 1.5)
 - Edita Proteína: 46.5 (31 * 1.5)
-```
+\`\`\`
 
 ## APIs Disponíveis
 
@@ -199,7 +199,7 @@ Se o usuário comeu 150g ao invés de 100g:
 
 Busca alimentos por termo.
 
-```
+\`\`\`
 Query: ?search=termo
 Exemplo: /api/foods/search?search=frango
 
@@ -220,26 +220,26 @@ Response:
   ],
   "count": 1
 }
-```
+\`\`\`
 
 ### GET /api/foods/init
 
 Inicializa a base de dados TACO na primeira execução.
 
-```
+\`\`\`
 Response:
 {
   "success": true,
   "count": 60,
   "message": "Foods populated from TACO"
 }
-```
+\`\`\`
 
 ## Adicionando Novos Alimentos TACO
 
 Edite `/lib/populateFoods.ts` e adicione ao array `TACO_FOODS`:
 
-```typescript
+\`\`\`typescript
 {
   name: "Nome do alimento", 
   calories: 100,
@@ -248,7 +248,7 @@ Edite `/lib/populateFoods.ts` e adicione ao array `TACO_FOODS`:
   fats: 5.0,
   category: "proteína" // ou "carboidrato", "gordura", "vegetal", "fruta"
 }
-```
+\`\`\`
 
 Após editar:
 1. Delete a collection "foods" do Firebase Console

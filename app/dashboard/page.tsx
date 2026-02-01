@@ -21,6 +21,8 @@ import {
   Dumbbell,
   BarChart3,
   Menu,
+  Lock,
+  LockOpen,
 } from "lucide-react"
 
 interface QuizData {
@@ -73,6 +75,7 @@ export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [initialWeight, setInitialWeight] = useState<number | null>(null)
   const [currentWeightSlider, setCurrentWeightSlider] = useState<number | null>(null)
+  const [isWeightSliderLocked, setIsWeightSliderLocked] = useState(true)
   const [weightDirty, setWeightDirty] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [subscriptionExpired, setSubscriptionExpired] = useState(false)
@@ -175,10 +178,28 @@ export default function DashboardPage() {
           
           // VERIFICAR EXPIRAÇÃO DA ASSINATURA
           if (data.subscriptionExpiresAt) {
-            const expiresAt = new Date(data.subscriptionExpiresAt)
-            const now = new Date()
+            let expiresAt: Date
             
-            console.log("[v0] SUBSCRIPTION_CHECK - Expires:", expiresAt, "Now:", now, "Expired:", expiresAt < now)
+            // Converter Firestore Timestamp para Date
+            if (data.subscriptionExpiresAt.toDate && typeof data.subscriptionExpiresAt.toDate === 'function') {
+              // É um Firestore Timestamp
+              expiresAt = data.subscriptionExpiresAt.toDate()
+            } else if (data.subscriptionExpiresAt instanceof Date) {
+              expiresAt = data.subscriptionExpiresAt
+            } else if (typeof data.subscriptionExpiresAt === 'string') {
+              expiresAt = new Date(data.subscriptionExpiresAt)
+            } else if (typeof data.subscriptionExpiresAt === 'number') {
+              // Se for número (timestamp em ms)
+              expiresAt = new Date(data.subscriptionExpiresAt)
+            } else {
+              console.error("[v0] Formato de data inválido:", data.subscriptionExpiresAt)
+              expiresAt = new Date(0) // Data no passado = expirada
+            }
+            
+            const now = new Date()
+            const daysRemaining = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+            
+            console.log("[v0] SUBSCRIPTION_CHECK - Expires:", expiresAt.toISOString(), "Now:", now.toISOString(), "Expired:", expiresAt < now, "Days:", daysRemaining)
             
             if (expiresAt < now) {
               console.log("[v0] SUBSCRIPTION_EXPIRED - Bloqueando acesso ao usuário")
@@ -188,7 +209,7 @@ export default function DashboardPage() {
               return // Não carregar mais dados, bloquear aqui
             } else {
               setSubscriptionExpiresAt(expiresAt)
-              console.log("[v0] SUBSCRIPTION_ACTIVE - Dias restantes:", Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+              console.log("[v0] SUBSCRIPTION_ACTIVE - Dias restantes:", daysRemaining)
             }
           }
           
@@ -817,7 +838,7 @@ export default function DashboardPage() {
 
                 return (
                   <>
-                    <div className="flex items-center justify-between mb-10">
+                    <div className="flex items-center justify-between mb-10 relative">
                       {/* Para CUTTING: Meta fica à esquerda, Inicial à direita */}
                       {/* Para BULKING: Inicial fica à esquerda, Meta à direita */}
                       {isCutting ? (
@@ -834,9 +855,21 @@ export default function DashboardPage() {
                               {current.toFixed(1)} kg
                             </p>
                           </div>
-                          <div className="text-center flex-1">
+                          <div className="text-center flex-1 relative">
                             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Peso Inicial</p>
                             <p className="text-xl font-bold text-gray-400 dark:text-gray-500">{start.toFixed(1)} kg</p>
+                            {/* Botão de cadeado */}
+                            <button
+                              onClick={() => setIsWeightSliderLocked(!isWeightSliderLocked)}
+                              className="absolute top-0 right-0 p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                              title={isWeightSliderLocked ? "Clique para desbloquear" : "Clique para bloquear"}
+                            >
+                              {isWeightSliderLocked ? (
+                                <Lock className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                              ) : (
+                                <LockOpen className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                              )}
+                            </button>
                           </div>
                         </>
                       ) : (
@@ -853,9 +886,21 @@ export default function DashboardPage() {
                               {current.toFixed(1)} kg
                             </p>
                           </div>
-                          <div className="text-center flex-1">
+                          <div className="text-center flex-1 relative">
                             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Meta</p>
                             <p className="text-xl font-bold text-green-500 dark:text-green-400">{goal.toFixed(1)} kg</p>
+                            {/* Botão de cadeado */}
+                            <button
+                              onClick={() => setIsWeightSliderLocked(!isWeightSliderLocked)}
+                              className="absolute top-0 right-0 p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                              title={isWeightSliderLocked ? "Clique para desbloquear" : "Clique para bloquear"}
+                            >
+                              {isWeightSliderLocked ? (
+                                <Lock className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                              ) : (
+                                <LockOpen className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                              )}
+                            </button>
                           </div>
                         </>
                       )}
@@ -871,12 +916,17 @@ export default function DashboardPage() {
                         step="0.1"
                         value={current}
                         onChange={(e) => {
-                          handleWeightChange(Number.parseFloat(e.target.value))
+                          if (!isWeightSliderLocked) {
+                            handleWeightChange(Number.parseFloat(e.target.value))
+                          }
                         }}
+                        disabled={isWeightSliderLocked}
                         className="w-full h-3 rounded-full appearance-none bg-transparent cursor-pointer absolute top-4 left-0"
                         style={{
                           zIndex: 10,
                           WebkitAppearance: "none",
+                          opacity: isWeightSliderLocked ? 0.5 : 1,
+                          cursor: isWeightSliderLocked ? "not-allowed" : "pointer",
                         }}
                       />
 

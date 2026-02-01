@@ -1,8 +1,6 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 
 interface FoodOption {
   id: string
@@ -44,13 +42,18 @@ export function FoodAutocomplete({
 
       setIsLoading(true)
       try {
-        const response = await fetch(`/api/foods/search?q=${encodeURIComponent(value)}`)
-        const data = await response.json()
-        setSuggestions(data)
-        setIsOpen(data.length > 0)
+        console.log("[v0] Searching foods with term:", value)
+        const response = await fetch(`/api/foods/search-supabase?q=${encodeURIComponent(value)}`)
+        const result = await response.json()
+        console.log("[v0] Food search response:", result)
+        
+        // Handle both formats: { foods: [...] } and [...]
+        const data = result.foods || result
+        setSuggestions(Array.isArray(data) ? data : [])
+        setIsOpen(data && data.length > 0)
         setSelectedIndex(-1)
       } catch (error) {
-        console.error("Error fetching food suggestions:", error)
+        console.error("[v0] Error fetching food suggestions:", error)
         setSuggestions([])
       } finally {
         setIsLoading(false)
@@ -99,29 +102,30 @@ export function FoodAutocomplete({
   }
 
   const handleSelectFood = (food: FoodOption) => {
+    console.log("[v0] Selected food:", food)
+    onChange(food.name)
     onSelectFood(food)
-    onChange("")
     setIsOpen(false)
     setSuggestions([])
   }
 
   return (
     <div ref={wrapperRef} className="relative w-full">
-      <Input
+      <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
         onFocus={() => value.length >= 2 && suggestions.length > 0 && setIsOpen(true)}
         placeholder={placeholder}
-        className="w-full"
         autoComplete="off"
+        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
       />
 
       {isOpen && suggestions.length > 0 && (
         <div
           ref={suggestionsRef}
-          className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
+          className="absolute top-full left-0 right-0 mt-1 bg-background border border-input rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto dark:bg-slate-900"
         >
           {suggestions.map((food, index) => (
             <div
@@ -129,12 +133,12 @@ export function FoodAutocomplete({
               onClick={() => handleSelectFood(food)}
               className={`px-4 py-3 cursor-pointer transition-colors ${
                 index === selectedIndex
-                  ? "bg-green-50 text-green-900"
-                  : "hover:bg-gray-100 text-gray-900"
+                  ? "bg-blue-50 dark:bg-blue-900/30 text-foreground"
+                  : "hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground"
               }`}
             >
               <div className="font-medium">{food.name}</div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 {food.calories}cal | P:{food.protein}g | C:{food.carbs}g | G:{food.fats}g
               </div>
             </div>
@@ -143,7 +147,7 @@ export function FoodAutocomplete({
       )}
 
       {isLoading && value.length >= 2 && (
-        <div className="absolute top-full left-0 right-0 mt-1 px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-lg text-gray-500">
+        <div className="absolute top-full left-0 right-0 mt-1 px-4 py-2 bg-background border border-input rounded-lg shadow-lg text-muted-foreground dark:bg-slate-900">
           Buscando alimentos...
         </div>
       )}

@@ -24,7 +24,7 @@ O novo alimento recebe **AUTOMATICAMENTE** os macros do crédito!
 
 ## Exemplo Prático
 
-```
+\`\`\`
 ANTES (Almoço):
 ├─ Frango (165 kcal, 31g proteína)
 ├─ Arroz (130 kcal, 2.6g proteína)
@@ -49,13 +49,13 @@ DEPOIS (Almoço):
 TOTAL: 501 kcal ✅
 
 ✨ CRÉDITO CONSUMIDO: 0
-```
+\`\`\`
 
 ## Onde Vejo o Crédito?
 
 Em cada refeição (Almoço, Café, Jantar, etc):
 
-```
+\`\`\`
 ┌─────────────────────────────────────┐
 │ 🔷 Almoço - 500 kcal               │
 ├─────────────────────────────────────┤
@@ -71,7 +71,7 @@ Em cada refeição (Almoço, Café, Jantar, etc):
 │ └─ Brócolis (34 kcal) [✎ 🗑 ↔]   │
 │                                     │
 └─────────────────────────────────────┘
-```
+\`\`\`
 
 ## Pontos Importantes
 
@@ -93,7 +93,7 @@ Em cada refeição (Almoço, Café, Jantar, etc):
 
 ### Cenário 1: Acha um alimento que não gosta
 
-```
+\`\`\`
 Almoço tem: Frango (165 kcal)
 
 Ação:
@@ -102,22 +102,22 @@ Ação:
 3. Clica "Substituir"
 4. Escolhe Salmão
 5. Salmão recebe 165 kcal EXTRA (bônus!)
-```
+\`\`\`
 
 ### Cenário 2: Remove múltiplos alimentos
 
-```
+\`\`\`
 Almoço tem: Frango (165) + Arroz (130) + Brócolis (34)
 
 Ações:
 1. Remove Frango → Crédito: 165 kcal
 2. Remove Arroz → Crédito: 165 + 130 = 295 kcal
 3. Substitui Brócolis → Recebe 295 kcal EXTRA!
-```
+\`\`\`
 
 ### Cenário 3: Não quer perder as calorias
 
-```
+\`\`\`
 Almoço: Frango (165 kcal) não vai comer mais
 
 Ação:
@@ -125,7 +125,7 @@ Ação:
 2. Deixa lá por enquanto
 3. Quando achar outro alimento legal → Substitui
 4. Novo alimento = 165 kcal extras! 🎉
-```
+\`\`\`
 
 ## Dúvidas Frequentes
 
@@ -155,7 +155,7 @@ Para maximizar o macroCredit:
 5. **Obtenha BÔNUS de calorias** enquanto melhora a qualidade
 
 Exemplo:
-```
+\`\`\`
 Frango + Arroz refinado = 295 kcal (baixa qualidade)
 ↓
 Remove ambos → Crédito: 295 kcal
@@ -163,7 +163,7 @@ Remove ambos → Crédito: 295 kcal
 Substitui por Salmão + Aveia = 206 + 389 = 595 kcal + 295 BÔNUS!
 ↓
 Novo Salmão = 890 kcal (MUITO melhor qualidade!)
-```
+\`\`\`
 
 ## Resumo Rápido
 

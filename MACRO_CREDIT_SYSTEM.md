@@ -16,7 +16,7 @@ Cada refeição possui um acumulador temporário chamado `macroCredit` que armaz
 
 Quando um usuário remove um alimento de uma refeição:
 
-```
+\`\`\`
 Ação: Clica em Remover (X) no alimento
 ↓
 Sistema extrai os macros completos do alimento:
@@ -30,10 +30,10 @@ Macros são ADICIONADOS ao macroCredit da refeição
 Alimento é removido da lista
 ↓
 Estado é salvo no Firebase
-```
+\`\`\`
 
 **Exemplo:**
-```
+\`\`\`
 Refeição: Almoço
 Alimento removido: Frango peito cozido (165 kcal, 31g proteína, 0g carbs, 3.6g gordura)
 
@@ -44,13 +44,13 @@ macroCredit = {
   carbs: 0,
   fats: 3.6
 }
-```
+\`\`\`
 
 ### 2. Substituição de Alimento
 
 Quando um usuário substitui um alimento por outro na mesma refeição:
 
-```
+\`\`\`
 Ação: Clica em Substituir → Seleciona novo alimento da IA
 ↓
 Sistema obtém o novo alimento da API
@@ -64,10 +64,10 @@ Novo alimento é inserido no lugar do antigo
 macroCredit é RESETADO para ZERO
 ↓
 Estado é salvo no Firebase
-```
+\`\`\`
 
 **Exemplo:**
-```
+\`\`\`
 Refeição: Almoço
 Novo alimento sugerido: Salmão (206 kcal, 25.4g proteína, 0g carbs, 11g gordura)
 macroCredit disponível: {calories: 165, protein: 31, carbs: 0, fats: 3.6}
@@ -82,7 +82,7 @@ Resultado do novo alimento:
 
 Após aplicação:
 macroCredit = { calories: 0, protein: 0, carbs: 0, fats: 0 }
-```
+\`\`\`
 
 ## Isolamento por Refeição
 
@@ -94,7 +94,7 @@ macroCredit = { calories: 0, protein: 0, carbs: 0, fats: 0 }
 
 ### Exemplo de Isolamento
 
-```
+\`\`\`
 Dia 1:
 ├─ Café da manhã
 │  └─ macroCredit: {calories: 100, ...}
@@ -106,13 +106,13 @@ Dia 1:
 Dia 2:
 ├─ Café da manhã
 │  └─ macroCredit: {calories: 0, ...}  ← Resetado! Não carrega do dia anterior
-```
+\`\`\`
 
 ## Componentes Técnicos
 
 ### 1. Tipo TypeScript (types.tsx)
 
-```typescript
+\`\`\`typescript
 export interface Meal {
   name: string
   time: string
@@ -124,7 +124,7 @@ export interface Meal {
     fats: number
   }
 }
-```
+\`\`\`
 
 ### 2. Utilitários (lib/macroCreditUtils.ts)
 
@@ -147,41 +147,41 @@ Formata o macroCredit para exibição
 
 Exibe um badge com o macroCredit disponível em cada refeição:
 
-```
+\`\`\`
 Crédito de Macros Disponível
 📊 165 kcal | 31g proteína | 0g carbs | 3.6g gordura
 
 Mensagem: "Este crédito será aplicado ao próximo alimento 
 que você adicionar ou substituir nesta refeição."
-```
+\`\`\`
 
 ## Fluxo de Código
 
 ### Remoção: handleRemoveFood()
 
-```typescript
+\`\`\`typescript
 1. Extrai macros do alimento: extractFoodMacros(foodToRemove)
 2. Adiciona ao macroCredit: addToMacroCredit(meal, foodMacros)
 3. Remove alimento da refeição
 4. Salva no Firebase com novo macroCredit
-```
+\`\`\`
 
 ### Substituição: handleReplaceFood()
 
-```typescript
+\`\`\`typescript
 1. Chama API para obter novo alimento
 2. Se macroCredit > 0:
    - Aplica macroCredit: applyMacroCreditToFood(newFood, macroCredit)
 3. Insere novo alimento com macros aumentados
 4. Reseta macroCredit: resetMacroCredit(meal)
 5. Salva no Firebase
-```
+\`\`\`
 
 ## Persistência no Firebase
 
 O macroCredit é salvo junto com o dietPlan:
 
-```
+\`\`\`
 users/{uid}/
 ├─ dietPlan: {
 │  ├─ meals: [
@@ -196,7 +196,7 @@ users/{uid}/
 │  │  }
 │  ]
 │  }
-```
+\`\`\`
 
 ## Estados Possíveis
 
@@ -215,7 +215,7 @@ users/{uid}/
 
 ### Caso 1: Remover e depois Adicionar outro
 
-```
+\`\`\`
 Estado inicial:
 Almoço: [Frango 165kcal, Arroz 130kcal]
 
@@ -227,11 +227,11 @@ Ação 2: Clica "Substituir" → Seleciona Salmão
 Resultado: Salmão recebe 165kcal extras
 Almoço: [Salmão 371kcal, Arroz 130kcal]
 macroCredit = {calories: 0, ...}
-```
+\`\`\`
 
 ### Caso 2: Múltiplas Remoções antes de Substituir
 
-```
+\`\`\`
 Estado inicial:
 Almoço: [Frango 165kcal, Arroz 130kcal, Brócolis 34kcal]
 
@@ -244,17 +244,17 @@ macroCredit = {calories: 165 + 130 = 295, ...}
 Ação 3: Substitui Brócolis por Salmão
 Salmão recebe 295kcal extras
 Resultado: Salmão 501kcal, macroCredit = 0
-```
+\`\`\`
 
 ## Debug e Logging
 
 O sistema registra todas as operações no console com `[v0]`:
 
-```
+\`\`\`
 [v0] Food removed. macroCredit added to meal: 0 {calories: 165, ...}
 [v0] macroCredit applied to new food: {calories: 165, ...}
 [v0] Food replacement completed with macroCredit applied and reset
-```
+\`\`\`
 
 ## Considerações de Negócio
 
