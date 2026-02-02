@@ -542,7 +542,7 @@ export default function TreinoPage() {
     // Dynamic import of html2pdf
     const html2pdf = (await import("html2pdf.js")).default
     
-    const pdf = html2pdf()
+    await html2pdf()
       .set({
         margin: 3,
         filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
@@ -552,9 +552,6 @@ export default function TreinoPage() {
       })
       .from(element)
       .save()
-
-    // Download
-    pdf.save(`plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`)
   } catch (error) {
     console.error("[v0] Erro ao gerar PDF:", error)
     alert("Erro ao gerar PDF. Tente novamente.")
