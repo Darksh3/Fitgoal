@@ -535,42 +535,42 @@ export default function TreinoPage() {
   `
 
   try {
-    // Convert HTML to PDF using html2pdf library
-    const element = document.createElement("div")
-    element.innerHTML = pdfContent
-    
-    // Import html2pdf
-    const { html2pdf } = window as any
-    
-    if (!html2pdf) {
-      // If html2pdf is not available globally, try dynamic import
-      const mod = await import("html2pdf.js")
-      const html2pdfLib = mod.default || mod
-      
-      html2pdfLib()
-        .set({
-          margin: 3,
-          filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
-          image: { type: "png", quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
-        })
-        .from(element)
-        .save()
-    } else {
-      html2pdf()
-        .set({
-          margin: 3,
-          filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
-          image: { type: "png", quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
-        })
-        .from(element)
-        .save()
+    // 1) cria um container e coloca no DOM (importante pro html2canvas)
+    const container = document.createElement("div")
+    container.style.position = "fixed"
+    container.style.left = "-99999px"
+    container.style.top = "0"
+    container.style.width = "1123px" // ~ A4 landscape em px (aprox), ajuda layout
+    container.innerHTML = pdfContent
+    document.body.appendChild(container)
+
+    // 2) importa html2pdf pegando o export correto (ESM/CJS safe)
+    const mod: any = await import("html2pdf.js")
+    const html2pdf = mod?.default ?? mod
+
+    if (typeof html2pdf !== "function") {
+      console.error("[PDF] html2pdf import retornou:", mod)
+      document.body.removeChild(container)
+      throw new Error("html2pdf não carregou como função (export incompatível).")
     }
+
+    // 3) configura e gera
+    const opt = {
+      margin: 3,
+      filename: `plano-treino-${new Date()
+        .toLocaleDateString("pt-BR")
+        .replace(/\//g, "-")}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
+    }
+
+    await html2pdf().set(opt).from(container).save()
+
+    // 4) limpa
+    document.body.removeChild(container)
   } catch (error) {
-    console.error("[v0] Erro ao gerar PDF:", error)
+    console.error("[PDF] Erro ao gerar PDF:", error)
     alert("Erro ao gerar PDF. Tente novamente.")
   }
 }
