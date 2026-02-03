@@ -544,8 +544,8 @@ export default function TreinoPage() {
     container.innerHTML = pdfContent
     document.body.appendChild(container)
 
-    // 2) importa html2pdf pegando o export correto (ESM/CJS safe)
-    const mod: any = await import("html2pdf.js")
+    // 2) importa html2pdf do dist/html2pdf.min (mais estável com Next.js 16 ESM)
+    const mod: any = await import("html2pdf.js/dist/html2pdf.min")
     const html2pdf = mod?.default ?? mod
 
     if (typeof html2pdf !== "function") {
