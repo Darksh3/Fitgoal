@@ -817,7 +817,7 @@ export default function DashboardPage() {
               {currentTime}, {getUserName()}!
             </h1>
             <p className="text-gray-400 text-lg">
-              {isDemoMode ? "Bem-vindo ao modo demonstração" : "Vamos continuar sua jornada fitness hoje"}
+              {isDemoMode ? "Bem-vindo ao modo demonstração" : "Hoje, avançamos mais um nível na sua jornada fitness"}
             </p>
           </div>
 

@@ -535,87 +535,45 @@ export default function TreinoPage() {
   `
 
   try {
-    console.log("[v0] Iniciando download PDF")
-    
-    // Importar html2canvas
-    const html2canvas = (await import("html2canvas")).default
-    console.log("[v0] html2canvas tipo:", typeof html2canvas)
-    
-    // Importar jsPDF - tentar múltiplas formas
-    let jsPDF
-    try {
-      const module = await import("jspdf")
-      jsPDF = module.jsPDF || module.default
-    } catch (e) {
-      console.error("[v0] Erro ao importar jsPDF:", e)
-      throw e
-    }
-    
-    console.log("[v0] jsPDF tipo:", typeof jsPDF)
+    // 1) cria um container e coloca no DOM (importante pro html2canvas)
+    const container = document.createElement("div")
+    container.style.position = "fixed"
+    container.style.left = "-99999px"
+    container.style.top = "0"
+    container.style.width = "1123px" // ~ A4 landscape em px (aprox), ajuda layout
+    container.innerHTML = pdfContent
+    document.body.appendChild(container)
 
-    // Criar elemento temporário
-    const element = document.createElement("div")
-    element.innerHTML = pdfContent
-    element.style.position = "absolute"
-    element.style.left = "-9999px"
-    element.style.top = "-9999px"
-    element.style.width = "210mm"
-    element.style.backgroundColor = "white"
-    document.body.appendChild(element)
+    // 2) importa html2pdf pegando o export correto (ESM/CJS safe)
+    const mod: any = await import("html2pdf.js")
+    const html2pdf = mod?.default ?? mod
 
-    console.log("[v0] Elemento criado, aguardando renderização")
-
-    // Aguardar renderização
-    await new Promise(resolve => setTimeout(resolve, 200))
-
-    // Converter para canvas
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      logging: false,
-    })
-
-    console.log("[v0] Canvas criado com dimensões:", canvas.width, "x", canvas.height)
-
-    // Remover elemento
-    document.body.removeChild(element)
-
-    // Criar PDF
-    const imgData = canvas.toDataURL("image/png")
-    const imgWidth = 210
-    const imgHeight = (canvas.height * imgWidth) / canvas.width
-    
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-    })
-
-    let position = 0
-    let heightLeft = imgHeight
-
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
-    heightLeft -= 297
-
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight
-      pdf.addPage()
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
-      heightLeft -= 297
+    if (typeof html2pdf !== "function") {
+      console.error("[PDF] html2pdf import retornou:", mod)
+      document.body.removeChild(container)
+      throw new Error("html2pdf não carregou como função (export incompatível).")
     }
 
-    console.log("[v0] PDF criado com sucesso")
+    // 3) configura e gera
+    const opt = {
+      margin: 3,
+      filename: `plano-treino-${new Date()
+        .toLocaleDateString("pt-BR")
+        .replace(/\//g, "-")}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
+    }
 
-    // Download
-    pdf.save(`plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`)
-    console.log("[v0] Download iniciado")
+    await html2pdf().set(opt).from(container).save()
+
+    // 4) limpa
+    document.body.removeChild(container)
   } catch (error) {
-    console.error("[v0] Erro ao gerar PDF:", error)
-    console.error("[v0] Stack:", error instanceof Error ? error.stack : "sem stack")
-    alert("Erro ao gerar PDF: " + (error instanceof Error ? error.message : String(error)))
+    console.error("[PDF] Erro ao gerar PDF:", error)
+    alert("Erro ao gerar PDF. Tente novamente.")
   }
-  }
+}
 
   useEffect(() => {
     const fetchUserData = async () => {

@@ -1,5 +1,5 @@
 import type React from "react"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import "../styles/buttons.css"
@@ -10,11 +10,17 @@ import FloatingChat from "@/components/floating-chat"
 
 const inter = Inter({ subsets: ["latin"] })
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 0.8,
+  maximumScale: 5,
+  userScalable: true,
+}
+
 export const metadata: Metadata = {
   title: "Fitness Website",
   description: "Seu parceiro para uma vida mais saudável",
-  viewport: "width=device-width, initial-scale=0.8, maximum-scale=5, user-scalable=yes",
-    generator: 'v0.app'
+  generator: 'v0.app'
 }
 
 export default function RootLayout({
