@@ -539,19 +539,36 @@ export default function TreinoPage() {
     const element = document.createElement("div")
     element.innerHTML = pdfContent
     
-    // Dynamic import of html2pdf - wait for the module to load
-    const html2pdf = (await import("html2pdf.js")).default
+    // Import html2pdf
+    const { html2pdf } = window as any
     
-    // Call html2pdf with proper configuration
-    const opt = {
-      margin: 3,
-      filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
-      image: { type: "png", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
+    if (!html2pdf) {
+      // If html2pdf is not available globally, try dynamic import
+      const mod = await import("html2pdf.js")
+      const html2pdfLib = mod.default || mod
+      
+      html2pdfLib()
+        .set({
+          margin: 3,
+          filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
+          image: { type: "png", quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
+        })
+        .from(element)
+        .save()
+    } else {
+      html2pdf()
+        .set({
+          margin: 3,
+          filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
+          image: { type: "png", quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
+        })
+        .from(element)
+        .save()
     }
-    
-    html2pdf().set(opt).from(element).save()
   } catch (error) {
     console.error("[v0] Erro ao gerar PDF:", error)
     alert("Erro ao gerar PDF. Tente novamente.")
