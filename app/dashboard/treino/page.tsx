@@ -300,115 +300,88 @@ export default function TreinoPage() {
   }
 
   const downloadWorkoutPDF = async () => {
-  if (!userData?.workoutPlan) return
+    if (!userData?.workoutPlan) return
 
-  const workoutPlan = userData.workoutPlan
+    const workoutPlan = userData.workoutPlan
 
-  // Detect structure: check if exercises have muscleGroup or if they're organized by days
-  let filledGroups: [string, any[]][] = []
-  
-  // Collect all exercises from all days
-  const allExercises: any[] = []
-  const dayTitles: { [key: string]: string } = {}
-  
-  (workoutPlan.days || []).forEach((day: any, index: number) => {
-    if (day && day.exercises && Array.isArray(day.exercises)) {
-      day.exercises.forEach((exercise: any) => {
-        allExercises.push({
-          ...exercise,
-          dayIndex: index,
-          dayTitle: day.title || day.day || `Dia ${index + 1}`
+    // ---- Monta grupos (seu código está ok) ----
+    let filledGroups: [string, any[]][] = []
+
+    const allExercises: any[] = []
+    ;(workoutPlan.days || []).forEach((day: any, index: number) => {
+      if (day?.exercises && Array.isArray(day.exercises)) {
+        day.exercises.forEach((exercise: any) => {
+          allExercises.push({
+            ...exercise,
+            dayIndex: index,
+            dayTitle: day.title || day.day || `Dia ${index + 1}`,
+          })
         })
-      })
-      dayTitles[index] = day.title || day.day || `Dia ${index + 1}`
-    }
-  })
-
-  // Check if exercises have muscleGroup property
-  const hasMuscleGroups = allExercises.some((ex: any) => ex.muscleGroup && ex.muscleGroup.trim().length > 0)
-
-  if (hasMuscleGroups) {
-    // Group by muscleGroup
-    const groupedByMuscle: { [key: string]: any[] } = {}
-    allExercises.forEach((exercise: any) => {
-      const group = exercise.muscleGroup || "Outros"
-      if (!groupedByMuscle[group]) {
-        groupedByMuscle[group] = []
       }
-      groupedByMuscle[group].push({
-        name: exercise.name,
-        sets: exercise.sets,
-        reps: exercise.reps
-      })
     })
-    
-    filledGroups = Object.entries(groupedByMuscle).filter(([_, exercises]) => exercises.length > 0)
-  } else {
-    // Group by day (default structure)
-    filledGroups = (workoutPlan.days || [])
-      .filter((day: any) => day && day.exercises && day.exercises.length > 0)
-      .map((day: any) => [
-        day.title || day.day || "Treino",
-        day.exercises.map((exercise: any) => ({
+
+    const hasMuscleGroups = allExercises.some(
+      (ex: any) => typeof ex.muscleGroup === "string" && ex.muscleGroup.trim().length > 0
+    )
+
+    if (hasMuscleGroups) {
+      const groupedByMuscle: Record<string, any[]> = {}
+      allExercises.forEach((exercise: any) => {
+        const group = exercise.muscleGroup || "Outros"
+        groupedByMuscle[group] ||= []
+        groupedByMuscle[group].push({
           name: exercise.name,
           sets: exercise.sets,
-          reps: exercise.reps
-        }))
-      ])
-  }
+          reps: exercise.reps,
+        })
+      })
+      filledGroups = Object.entries(groupedByMuscle).filter(([_, exercises]) => exercises.length > 0)
+    } else {
+      filledGroups = (workoutPlan.days || [])
+        .filter((day: any) => day?.exercises?.length > 0)
+        .map((day: any) => [
+          day.title || day.day || "Treino",
+          day.exercises.map((exercise: any) => ({
+            name: exercise.name,
+            sets: exercise.sets,
+            reps: exercise.reps,
+          })),
+        ])
+    }
 
-  // Create PDF content as HTML string
-  const pdfContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>Ficha de Treino</title>
+    // ⚠️ IMPORTANTE: NÃO use <html><head><body> dentro do container.
+    // Deixe CSS + conteúdo dentro de um wrapper.
+    const pdfInner = `
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; }
-        body { 
-          font-family: Arial, sans-serif; 
-          color: #000; 
-          background: white; 
+        body { font-family: Arial, sans-serif; }
+        .pdf-root {
+          color: #000;
+          background: white;
           padding: 8px;
           line-height: 1.1;
           font-size: 11px;
         }
-        
-        .header { 
-          text-align: center; 
+        .header {
+          text-align: center;
           margin-bottom: 8px;
           border: 2px solid #000;
           padding: 6px;
         }
-        
-        .header h1 { 
-          font-size: 16px;
-          font-weight: bold;
-          margin: 0;
-          letter-spacing: 1px;
-        }
-        
-        .header p {
-          font-size: 10px;
-          margin: 2px 0 0 0;
-        }
-        
+        .header h1 { font-size: 16px; font-weight: bold; letter-spacing: 1px; }
+        .header p { font-size: 10px; margin-top: 2px; }
         .exercises-container {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
           gap: 6px;
           margin-bottom: 6px;
         }
-        
         .exercise-section {
           border: 2px solid #000;
           display: flex;
           flex-direction: column;
           min-height: 300px;
         }
-        
         .section-title {
           background: #e0e0e0;
           border-bottom: 2px solid #000;
@@ -419,62 +392,13 @@ export default function TreinoPage() {
           text-transform: uppercase;
           flex-shrink: 0;
         }
-        
-        .exercise-table {
-          width: 100%;
-          border-collapse: collapse;
-          flex: 1;
-        }
-        
-        .exercise-table thead {
-          position: sticky;
-          top: 0;
-        }
-        
-        .exercise-table th {
-          border: 1px solid #000;
-          padding: 3px 2px;
-          font-weight: bold;
-          font-size: 9px;
-          text-align: center;
-          background: #f5f5f5;
-          height: 18px;
-        }
-        
-        .exercise-table td {
-          border: 1px solid #000;
-          padding: 2px 2px;
-          font-size: 9px;
-          height: 16px;
-        }
-        
-        .exercise-name {
-          width: 55%;
-          text-align: left;
-          font-weight: 500;
-          word-break: break-word;
-        }
-        
-        .exercise-col {
-          width: 15%;
-          text-align: center;
-        }
-        
-        .series-col {
-          text-align: center;
-          font-weight: 500;
-        }
-        
-        .reps-col {
-          text-align: center;
-          font-weight: 500;
-        }
-        
-        .load-col {
-          text-align: center;
-          background: #fafafa;
-        }
-        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #000; padding: 2px; font-size: 9px; }
+        th { font-weight: bold; text-align: center; background: #f5f5f5; height: 18px; }
+        td { height: 16px; }
+        .exercise-name { width: 55%; text-align: left; font-weight: 500; word-break: break-word; }
+        .exercise-col { width: 15%; text-align: center; }
+        .load-col { background: #fafafa; }
         .footer {
           text-align: center;
           font-size: 9px;
@@ -484,96 +408,100 @@ export default function TreinoPage() {
           margin-top: 6px;
         }
       </style>
-    </head>
-    <body>
-      <div class="header">
-        <h1>EXERCÍCIOS LOCALIZADOS</h1>
-        <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
-      </div>
-      
-      <div class="exercises-container">
-        ${filledGroups
-          .map(([groupName, exercises]) => {
-            if (exercises.length === 0) return ""
-            
-            return `
-              <div class="exercise-section">
-                <div class="section-title">${groupName.toUpperCase()}</div>
-                <table class="exercise-table">
-                  <thead>
-                    <tr>
-                      <th class="exercise-name">EXERCÍCIO</th>
-                      <th class="exercise-col">SÉR</th>
-                      <th class="exercise-col">REP</th>
-                      <th class="exercise-col">CARGA</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${exercises
-                      .map((ex: any) => `
-                        <tr>
-                          <td class="exercise-name">${ex.name}</td>
-                          <td class="series-col">${ex.sets}</td>
-                          <td class="reps-col">${ex.reps}</td>
-                          <td class="load-col"></td>
-                        </tr>
-                      `)
-                      .join("")}
-                  </tbody>
-                </table>
-              </div>
-            `
-          })
-          .join("")}
-      </div>
-      
-      <div class="footer">
-        Preencha a coluna "CARGA" com o peso utilizado em cada série
-      </div>
-    </body>
-    </html>
-  `
 
-  try {
-    // 1) cria um container e coloca no DOM (importante pro html2canvas)
-    const container = document.createElement("div")
-    container.style.position = "fixed"
-    container.style.left = "-99999px"
-    container.style.top = "0"
-    container.style.width = "1123px" // ~ A4 landscape em px (aprox), ajuda layout
-    container.innerHTML = pdfContent
-    document.body.appendChild(container)
+      <div class="pdf-root">
+        <div class="header">
+          <h1>EXERCÍCIOS LOCALIZADOS</h1>
+          <p>Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
+        </div>
 
-    // 2) importa html2pdf do dist/html2pdf.min (mais estável com Next.js 16 ESM)
-    const mod: any = await import("html2pdf.js/dist/html2pdf.min")
-    const html2pdf = mod?.default ?? mod
+        <div class="exercises-container">
+          ${filledGroups
+            .map(([groupName, exercises]) => {
+              if (!exercises?.length) return ""
+              return `
+                <div class="exercise-section">
+                  <div class="section-title">${String(groupName).toUpperCase()}</div>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th class="exercise-name">EXERCÍCIO</th>
+                        <th class="exercise-col">SÉR</th>
+                        <th class="exercise-col">REP</th>
+                        <th class="exercise-col">CARGA</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${exercises
+                        .map(
+                          (ex: any) => `
+                            <tr>
+                              <td class="exercise-name">${ex.name ?? ""}</td>
+                              <td class="exercise-col">${ex.sets ?? ""}</td>
+                              <td class="exercise-col">${ex.reps ?? ""}</td>
+                              <td class="exercise-col load-col"></td>
+                            </tr>
+                          `
+                        )
+                        .join("")}
+                    </tbody>
+                  </table>
+                </div>
+              `
+            })
+            .join("")}
+        </div>
 
-    if (typeof html2pdf !== "function") {
-      console.error("[PDF] html2pdf import retornou:", mod)
-      document.body.removeChild(container)
-      throw new Error("html2pdf não carregou como função (export incompatível).")
+        <div class="footer">
+          Preencha a coluna "CARGA" com o peso utilizado em cada série
+        </div>
+      </div>
+    `
+
+    let container: HTMLDivElement | null = null
+
+    try {
+      // 1) cria container invisível no DOM
+      container = document.createElement("div")
+      container.style.position = "fixed"
+      container.style.left = "-99999px"
+      container.style.top = "0"
+      container.style.width = "1123px"
+      container.innerHTML = pdfInner
+      document.body.appendChild(container)
+
+      // 2) espera 1 frame para layout/CSS aplicar
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+
+      // 3) import robusto do html2pdf (Next/ESM/CJS)
+      const mod: any = await import("html2pdf.js/dist/html2pdf.min")
+      const html2pdfFn =
+        (typeof mod === "function" ? mod : null) ||
+        (typeof mod?.default === "function" ? mod.default : null) ||
+        (typeof mod?.html2pdf === "function" ? mod.html2pdf : null) ||
+        (typeof (window as any)?.html2pdf === "function" ? (window as any)?.html2pdf : null)
+
+      if (!html2pdfFn) {
+        console.error("[PDF] html2pdf module:", mod)
+        throw new Error("html2pdf não foi carregado como função.")
+      }
+
+      const opt = {
+        margin: 3,
+        filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
+      }
+
+      await html2pdfFn().set(opt).from(container).save()
+    } catch (error) {
+      console.error("[PDF] Erro ao gerar PDF:", error)
+      alert("Erro ao gerar PDF. Tente novamente.")
+    } finally {
+      if (container?.parentNode) container.parentNode.removeChild(container)
     }
-
-    // 3) configura e gera
-    const opt = {
-      margin: 3,
-      filename: `plano-treino-${new Date()
-        .toLocaleDateString("pt-BR")
-        .replace(/\//g, "-")}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
-    }
-
-    await html2pdf().set(opt).from(container).save()
-
-    // 4) limpa
-    document.body.removeChild(container)
-  } catch (error) {
-    console.error("[PDF] Erro ao gerar PDF:", error)
-    alert("Erro ao gerar PDF. Tente novamente.")
   }
-}
 
   useEffect(() => {
     const fetchUserData = async () => {
