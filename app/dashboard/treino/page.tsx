@@ -556,7 +556,7 @@ export default function TreinoPage() {
     console.error("[v0] Erro ao gerar PDF:", error)
     alert("Erro ao gerar PDF. Tente novamente.")
   }
-  }
+}
 
   useEffect(() => {
     const fetchUserData = async () => {
