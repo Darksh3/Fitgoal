@@ -461,19 +461,24 @@ export default function TreinoPage() {
     let container: HTMLDivElement | null = null
 
     try {
-      // 1) cria container invisível no DOM
+      // 1) cria container temporariamente visível (html2canvas precisa renderizar)
       container = document.createElement("div")
       container.style.position = "fixed"
-      container.style.left = "-99999px"
-      container.style.top = "0"
-      container.style.width = "1123px"
+      container.style.top = "-9999px"
+      container.style.left = "0"
+      container.style.width = "1000px"
+      container.style.backgroundColor = "#ffffff"
       container.innerHTML = pdfInner
       document.body.appendChild(container)
 
-      // 2) espera 1 frame para layout/CSS aplicar
-      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+      // 2) aguarda render
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          requestAnimationFrame(() => resolve())
+        }, 100)
+      })
 
-      // 3) import robusto do html2pdf (Next/ESM/CJS)
+      // 3) import html2pdf
       const mod: any = await import("html2pdf.js/dist/html2pdf.min")
       const html2pdfFn =
         (typeof mod === "function" ? mod : null) ||
@@ -482,15 +487,21 @@ export default function TreinoPage() {
         (typeof (window as any)?.html2pdf === "function" ? (window as any)?.html2pdf : null)
 
       if (!html2pdfFn) {
-        console.error("[PDF] html2pdf module:", mod)
+        console.error("[PDF] html2pdf não foi exportado:", mod)
         throw new Error("html2pdf não foi carregado como função.")
       }
 
       const opt = {
-        margin: 3,
+        margin: [3, 3, 3, 3],
         filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        image: { type: "png", quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          logging: false,
+          allowTaint: true,
+        },
         jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
       }
 
@@ -499,7 +510,9 @@ export default function TreinoPage() {
       console.error("[PDF] Erro ao gerar PDF:", error)
       alert("Erro ao gerar PDF. Tente novamente.")
     } finally {
-      if (container?.parentNode) container.parentNode.removeChild(container)
+      if (container?.parentNode) {
+        document.body.removeChild(container)
+      }
     }
   }
 
