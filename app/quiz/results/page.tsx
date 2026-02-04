@@ -125,14 +125,8 @@ export default function QuizResultsPage() {
     const isMale = gender === "male" || gender === "homem"
 
     if (isMale) {
-      if (bodyFat <= 10) return "/images/mone.webp"
-      if (bodyFat <= 15) return "/images/mone.webp"
-      if (bodyFat <= 20) return "/images/mtwo.webp"
-      if (bodyFat <= 25) return "/images/mthree.webp"
-      if (bodyFat <= 30) return "/images/mfour.webp"
-      if (bodyFat <= 35) return "/images/mfive.webp"
-      if (bodyFat <= 39) return "/images/msix.webp"
-      return "/images/mseven.webp"
+      // Use new target image for males showing ideal physique
+      return "/images/target-male-fit.webp"
     } else {
       if (bodyFat <= 10) return "/images/bodyfat-one.webp"
       if (bodyFat <= 15) return "/images/bodyfat-one.webp"

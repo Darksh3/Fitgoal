@@ -299,10 +299,10 @@ function generateFallbackWorkoutDays(trainingDays: number, quizData: any) {
       exercises.push({
         name: exercise.name,
         sets: (() => {
-  const type = (exercise.type ?? "compound") as "compound" | "isolation"
-  const exp = (quizData.experience || "intermediario") as "iniciante" | "intermediario" | "avancado"
-  return getSmartSets(type, exp, quizData.workoutTime || "45-60min", isProblematicArea)
-})(), // Use smart sets calculation
+          const type = (exercise.type ?? "compound") as "compound" | "isolation"
+          const exp = (quizData.experience || "intermediario") as "iniciante" | "intermediario" | "avancado"
+          return getSmartSets(type, exp, quizData.workoutTime || "45-60min", isProblematicArea)
+        })(), // Use smart sets calculation
         reps: (() => {
           const goals = Array.isArray(quizData.goal) ? quizData.goal : [quizData.goal].filter(Boolean)
           const isCutting = goals.includes("perder-peso") || goals.includes("emagrecer")
@@ -494,7 +494,7 @@ export async function POST(req: Request) {
         requestedDaysRawType: typeof requestedDaysRaw,
         requestedDays,
         requestedDaysType: typeof requestedDays,
-      })  
+      })
       console.log(`🎯 [CRITICAL] User ${userId} requested EXACTLY ${requestedDays} training days`)
 
       const scientificCalcs = calculateScientificCalories(quizData)
@@ -571,16 +571,15 @@ export async function POST(req: Request) {
       console.log("   - Carbs for meals:", carbsForMeals)
       console.log("   - Fats for meals:", fatsForMeals)
 
-const goalsArray = Array.isArray(quizData.goal) ? quizData.goal : [quizData.goal].filter(Boolean)
-const goalsText = goalsArray.length ? goalsArray.join(", ") : "Não informado"
+      const goalsArray = Array.isArray(quizData.goal) ? quizData.goal : [quizData.goal].filter(Boolean)
+      const goalsText = goalsArray.length ? goalsArray.join(", ") : "Não informado"
 
       const dietPrompt = `
 Você é um nutricionista especializado em criar planos alimentares personalizados.
 
 IMPORTANTE - CÁLCULO DE CALORIAS E MACROS:
-${
-  quizData.wantsSupplement === "sim" && quizData.supplementType
-    ? `
+${quizData.wantsSupplement === "sim" && quizData.supplementType
+          ? `
 ⚠️ O CLIENTE ACEITOU SUPLEMENTAÇÃO!
 - Valor científico TOTAL: ${savedCalcs.finalCalories} kcal
 - Suplemento (${quizData.supplementType}): ${savedCalcs.supplementCalories} kcal (${savedCalcs.supplementProtein}g proteína, ${savedCalcs.supplementCarbs}g carboidratos, ${savedCalcs.supplementFats}g gorduras)
@@ -589,42 +588,39 @@ ${
 
 NÃO adicione o suplemento nas refeições! Ele será incluído automaticamente.
 `
-    : `
+          : `
 - Valor científico TOTAL: ${savedCalcs.finalCalories} kcal
 - Sem suplementação
 - VOCÊ DEVE CRIAR AS REFEIÇÕES COM: ${savedCalcs.finalCalories} kcal
 `
-}
+        }
 
 CLIENTE: ${quizData.gender}, ${quizData.age} anos, ${quizData.currentWeight}kg, objetivo: ${goalsArray.join(", ")}, biotipo: ${quizData.bodyType}, prazo: ${quizData.timeToGoal}
 ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
-${
-  quizData.diet
-    ? `
+${quizData.diet
+          ? `
 ⚠️ PREFERÊNCIA ALIMENTAR CRÍTICA: ${quizData.diet.toUpperCase()}
-${
-  quizData.diet === "vegetariano"
-    ? "- NÃO INCLUA: Carne bovina, frango, porco, peixe, frutos do mar\n- PERMITIDO: Ovos, laticínios, leguminosas, tofu, proteína vegetal"
-    : quizData.diet === "vegano"
-      ? "- NÃO INCLUA: Qualquer produto de origem animal (carne, frango, peixe, ovos, laticínios, mel)\n- USE: Proteínas vegetais (leguminosas, tofu, tempeh, seitan), leites vegetais"
-      : quizData.diet === "keto"
-        ? "- FOCO: Baixo carboidrato (máx 50g/dia), alto teor de gorduras saudáveis\n- EVITE: Arroz, pão, massas, açúcar, frutas ricas em açúcar"
-        : quizData.diet === "mediterraneo"
-          ? "- FOCO: Azeite, peixes, vegetais, grãos integrais, frutas\n- LIMITE: Carne vermelha, alimentos processados"
-          : ""
-}
+${quizData.diet === "vegetariano"
+            ? "- NÃO INCLUA: Carne bovina, frango, porco, peixe, frutos do mar\n- PERMITIDO: Ovos, laticínios, leguminosas, tofu, proteína vegetal"
+            : quizData.diet === "vegano"
+              ? "- NÃO INCLUA: Qualquer produto de origem animal (carne, frango, peixe, ovos, laticínios, mel)\n- USE: Proteínas vegetais (leguminosas, tofu, tempeh, seitan), leites vegetais"
+              : quizData.diet === "keto"
+                ? "- FOCO: Baixo carboidrato (máx 50g/dia), alto teor de gorduras saudáveis\n- EVITE: Arroz, pão, massas, açúcar, frutas ricas em açúcar"
+                : quizData.diet === "mediterraneo"
+                  ? "- FOCO: Azeite, peixes, vegetais, grãos integrais, frutas\n- LIMITE: Carne vermelha, alimentos processados"
+                  : ""
+          }
 `
-    : ""
-}
+          : ""
+        }
 
 REFEIÇÕES (${mealConfig.count}): ${mealConfig.names.join(", ")}
 
 INSTRUÇÕES CRÍTICAS - DISTRIBUIÇÃO DE MACROS:
 ⚠️ VOCÊ DEVE SEGUIR EXATAMENTE ESTES VALORES CALCULADOS CIENTIFICAMENTE:
 
-${
-  quizData.wantsSupplement === "sim" && quizData.supplementType
-    ? `
+${quizData.wantsSupplement === "sim" && quizData.supplementType
+          ? `
 MACROS PARA AS REFEIÇÕES (sem suplemento):
 - Calorias: ${Math.round(caloriesForMeals)} kcal
 - Proteínas: ${Math.round(proteinForMeals)}g (${(((proteinForMeals * 4) / caloriesForMeals) * 100).toFixed(1)}%)
@@ -637,17 +633,21 @@ MACROS TOTAIS (refeições + suplemento):
 - Carboidratos: ${savedCalcs.carbs}g
 - Gorduras: ${savedCalcs.fats}g
 `
-    : `
+          : `
 MACROS TOTAIS:
 - Calorias: ${savedCalcs.finalCalories} kcal
 - Proteínas: ${savedCalcs.protein}g (${(((savedCalcs.protein * 4) / savedCalcs.finalCalories) * 100).toFixed(1)}%)
 - Carboidratos: ${savedCalcs.carbs}g (${(((savedCalcs.carbs * 4) / savedCalcs.finalCalories) * 100).toFixed(1)}%)
 - Gorduras: ${savedCalcs.fats}g (${(((savedCalcs.fats * 9) / savedCalcs.finalCalories) * 100).toFixed(1)}%)
 `
-}
+        }
 
 🎯 REGRAS OBRIGATÓRIAS:
-1. A soma das REFEIÇÕES deve atingir EXATAMENTE os valores acima
+1. A soma das REFEIÇÕES deve atingir os valores acima dentro da tolerância:
+   - Calorias: ±2%
+   - Proteína: ±5g
+   - Carboidratos: ±5g
+   - Gorduras: ±5g
 2. NÃO faça sua própria distribuição de macros - use os valores fornecidos
 3. Distribua os macros proporcionalmente entre as ${mealConfig.count} refeições
 4. Cada refeição deve contribuir para atingir os totais especificados
@@ -655,13 +655,28 @@ MACROS TOTAIS:
 6. ⚠️ NUNCA use alimentos caros no Brasil: grão-de-bico, quinoa, cogumelos, salmão, aspargos, cevada. EVITE COMPLETAMENTE!
 7. Tente criar um dieta que não seja muito cara para os padrões brasileiros
 8. Coloque alguma proteina animal na janta e almoço (Carne, Frango, Sardinha, Ovo).
-9. Almoço ou janta pode ter salada a vontade
+9. Almoço ou janta pode ter salada a vontade, não precisa citar as gramas, e pode ignorar os macros da salada.
 10. Substitua proteínas caras por: ovos, frango, carnes vermelhas baratas, feijão, lentilha, sardinha, atum em lata
-${
-  quizData.diet
-    ? `7. ⚠️ RESPEITE RIGOROSAMENTE A PREFERÊNCIA ALIMENTAR: ${quizData.diet.toUpperCase()} - Não inclua alimentos proibidos!`
-    : ""
-}
+${quizData.diet
+          ? `7. ⚠️ RESPEITE RIGOROSAMENTE A PREFERÊNCIA ALIMENTAR: ${quizData.diet.toUpperCase()} - Não inclua alimentos proibidos!`
+          : ""
+        }
+
+CAMADA DE ADERÊNCIA (OBRIGATÓRIA):
+- Objetivo: dieta executável no mundo real (trabalho/rotina).
+- Limites por refeição:
+  1) Máx. 4 alimentos por refeição (ideal 2-3).
+  2) Se uma refeição ficar muito grande: transforme parte em shake (líquido).
+  3) Máximos por refeição:
+     - Aveia: 80g
+     - Granola: 60g
+     - Pão: 100g
+- Praticidade:
+  4) Pelo menos 2 refeições devem ser "rápidas" (≤5 min).
+  5) Almoço e jantar devem ser "marmita-friendly".
+- Flexibilidade:
+  6) Para cada refeição, forneça 2 substituições equivalentes (mesma faixa de calorias e macros aproximados).
+  7) Forneça 1 opção de emergência (quando não der tempo).
 
 FONTES DE DADOS NUTRICIONAIS:
 1. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO
@@ -686,12 +701,14 @@ JSON OBRIGATÓRIO:
   "totalCarbs": "${savedCalcs.carbs}g",
   "totalFats": "${savedCalcs.fats}g",
   "meals": [${mealConfig.names
-    .map((name, i) => {
-      const targetCals = Math.round(caloriesForMeals * mealConfig.distribution[i])
-      return `{
+          .map((name, i) => {
+            const targetCals = Math.round(caloriesForMeals * mealConfig.distribution[i])
+            return `{
         "name": "${name}",
         "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}",
         "totalCalories": ${targetCals},
+        "prepTimeMinutes": ${i === 2 || i === 4 ? 15 : 5},
+        "portable": ${i === 2 || i === 4 ? "false" : "true"},
         "foods": [
           {
             "name": "[alimento específico]",
@@ -701,13 +718,20 @@ JSON OBRIGATÓRIO:
             "carbs": "[carboidratos que VOCÊ calculou]",
             "fats": "[gorduras que VOCÊ calculou]"
           }
-        ]
+        ],
+        "alternatives": [
+          { "swap": "[opção equivalente 1]", "notes": "Macros semelhantes" },
+          { "swap": "[opção equivalente 2]", "notes": "Macros semelhantes" }
+        ],
+        "emergencyOption": {
+          "swap": "[opção rápida]",
+          "notes": "Usar quando não houver tempo"
+        }
       }`
-    })
-    .join(",")}],
-  "supplements": ${
-    quizData.wantsSupplement === "sim" && quizData.supplementType
-      ? `[{
+          })
+          .join(",")}],
+  "supplements": ${quizData.wantsSupplement === "sim" && quizData.supplementType
+          ? `[{
     "name": "${quizData.supplementType === "hipercalorico" ? "Hipercalórico Growth" : "Whey Protein Growth"}",
     "quantity": "${quizData.supplementType === "hipercalorico" ? "170g (12 dosadores)" : "30g (2 dosadores)"}",
     "calories": ${quizData.supplementType === "hipercalorico" ? 615 : 119},
@@ -715,8 +739,8 @@ JSON OBRIGATÓRIO:
     "carbs": ${quizData.supplementType === "hipercalorico" ? 108 : 2.3},
     "fats": ${quizData.supplementType === "hipercalorico" ? 3.7 : 1.5}
   }]`
-      : "[]"
-  }
+          : "[]"
+        }
 }`
 
       const workoutPrompt = `
@@ -768,29 +792,26 @@ REGRA FUNDAMENTAL DE SÉRIES:
 AJUSTES BASEADOS NO PERFIL:
 
 EXPERIÊNCIA ${quizData.experience?.toUpperCase()}:
-${
-  quizData.experience === "iniciante"
-    ? "- AJUSTE: -1 série em todos os exercícios (Compostos: 3 séries, Isoladores: 2 séries)\n- REPETIÇÕES: 12-15 repetições\n- DESCANSO: 60-90 segundos"
-    : quizData.experience === "avancado"
-      ? "- AJUSTE: +1 série apenas em compostos (Compostos: 5 séries, Isoladores: 3 séries)\n- REPETIÇÕES: 6-10 repetições\n- DESCANSO: 90-180 segundos"
-      : "- AJUSTE: Manter base (Compostos: 4 séries, Isoladores: 3 séries)\n- REPETIÇÕES: 8-12 repetições\n- DESCANSO: 60-120 segundos"
-}
+${quizData.experience === "iniciante"
+          ? "- AJUSTE: -1 série em todos os exercícios (Compostos: 3 séries, Isoladores: 2 séries)\n- REPETIÇÕES: 12-15 repetições\n- DESCANSO: 60-90 segundos"
+          : quizData.experience === "avancado"
+            ? "- AJUSTE: +1 série apenas em compostos (Compostos: 5 séries, Isoladores: 3 séries)\n- REPETIÇÕES: 6-10 repetições\n- DESCANSO: 90-180 segundos"
+            : "- AJUSTE: Manter base (Compostos: 4 séries, Isoladores: 3 séries)\n- REPETIÇÕES: 8-12 repetições\n- DESCANSO: 60-120 segundos"
+        }
 
 TEMPO DISPONÍVEL ${quizData.workoutTime?.toUpperCase()}:
-${
-  quizData.workoutTime === "30min"
-    ? "- AJUSTE: -1 série em todos (volume reduzido para treino rápido)"
-    : quizData.workoutTime === "mais-1h"
-      ? "- AJUSTE: +1 série em compostos (mais volume para treino longo)"
-      : "- AJUSTE: Manter séries base"
-}
+${quizData.workoutTime === "30min"
+          ? "- AJUSTE: -1 série em todos (volume reduzido para treino rápido)"
+          : quizData.workoutTime === "mais-1h"
+            ? "- AJUSTE: +1 série em compostos (mais volume para treino longo)"
+            : "- AJUSTE: Manter séries base"
+        }
 
 ÁREAS DE FOCO PARA ÊNFASE EXTRA: ${quizData.problemAreas?.join(", ") || "Desenvolvimento equilibrado"}
-${
-  quizData.problemAreas?.includes("Corpo inteiro") || !quizData.problemAreas?.length
-    ? "- DESENVOLVIMENTO EQUILIBRADO: Volume igual para todos os grupos musculares"
-    : "- ÊNFASE EXTRA: +1 série APENAS nos exercícios COMPOSTOS que trabalhem " + quizData.problemAreas.join(", ") + "\n- IMPORTANTE: Ainda treinar todos os grupos musculares, apenas dar mais volume para as áreas problemáticas"
-}
+${quizData.problemAreas?.includes("Corpo inteiro") || !quizData.problemAreas?.length
+          ? "- DESENVOLVIMENTO EQUILIBRADO: Volume igual para todos os grupos musculares"
+          : "- ÊNFASE EXTRA: +1 série APENAS nos exercícios COMPOSTOS que trabalhem " + quizData.problemAreas.join(", ") + "\n- IMPORTANTE: Ainda treinar todos os grupos musculares, apenas dar mais volume para as áreas problemáticas"
+        }
 
 VOLUME SEMANAL OTIMIZADO:
 - Mantenha 10-20 séries por grupo muscular por semana
@@ -846,6 +867,43 @@ JSON OBRIGATÓRIO:
             const parsed = safeJsonParseFromModel(rawContent)
 
             if (parsed.meals && Array.isArray(parsed.meals) && parsed.meals.length === mealConfig.count) {
+
+              // ===============================
+              // POLIDOR DE ADERÊNCIA (V1)
+              // ===============================
+              parsed.meals.forEach((meal: any) => {
+                if (!meal.foods || !Array.isArray(meal.foods)) return
+
+                // 1) manter os 4 alimentos mais calóricos
+                meal.foods = meal.foods
+                  .slice()
+                  .sort((a: any, b: any) => (b.calories || 0) - (a.calories || 0))
+                  .slice(0, 4)
+
+                // 2) limitar alimentos "travadores" COM escala de macros
+                meal.foods.forEach((food: any) => {
+                  const name = (food.name || "").toLowerCase()
+
+                  if (name.includes("granola")) {
+                    const q = parseGrams(food.quantity)
+                    if (q && q > 60) scaleFoodToQuantity(food, 60)
+                  }
+
+                  if (name.includes("aveia")) {
+                    const q = parseGrams(food.quantity)
+                    if (q && q > 80) scaleFoodToQuantity(food, 80)
+                  }
+
+                  if (name.includes("pão")) {
+                    const q = parseGrams(food.quantity)
+                    if (q && q > 100) scaleFoodToQuantity(food, 100)
+                  }
+                })
+
+                // ✅ recalcula total da refeição após polir (DENTRO do loop)
+                meal.totalCalories = meal.foods.reduce((sum: number, f: any) => sum + (f.calories || 0), 0)
+              })
+
               // Calculate real total from AI-generated foods
               const realTotal = parsed.meals.reduce((total, meal) => {
                 return total + meal.foods.reduce((mealTotal, food) => mealTotal + (food.calories || 0), 0)
@@ -859,17 +917,31 @@ JSON OBRIGATÓRIO:
                 console.log(`[DIET] Adjusting foods by ${difference} kcal`)
                 const adjustmentPerMeal = Math.round(difference / parsed.meals.length)
 
-                parsed.meals.forEach((meal, index) => {
-                  if (meal.foods && meal.foods.length > 0) {
-                    const mainFood = meal.foods[0]
-                    if (mainFood) {
-                      mainFood.calories = Math.max(50, (mainFood.calories || 0) + adjustmentPerMeal)
-                      meal.totalCalories = meal.foods.reduce((sum, food) => sum + (food.calories || 0), 0)
-                    }
-                  }
+                parsed.meals.forEach((meal: any) => {
+                  if (!meal.foods?.length) return
+
+                  const mainFood = meal.foods
+                    .slice()
+                    .sort((a: any, b: any) => (b.calories || 0) - (a.calories || 0))[0]
+                  if (!mainFood) return
+
+                  const currentCalories = typeof mainFood.calories === "number" ? mainFood.calories : null
+                  const currentGrams = parseGrams(mainFood.quantity)
+
+                  // Se não tiver calorias/gramas válidos, cai fora (não inventa)
+                  if (!currentCalories || !currentGrams || currentCalories <= 0 || currentGrams <= 0) return
+
+                  // Ajusta quantidade proporcionalmente para somar/subtrair calorias
+                  const targetCalories = Math.max(50, currentCalories + adjustmentPerMeal)
+                  const ratio = targetCalories / currentCalories
+                  const newGrams = Math.max(10, Math.round(currentGrams * ratio))
+
+                  scaleFoodToQuantity(mainFood, newGrams)
+
+                  // Recalcula totalCalories da refeição a partir dos foods
+                  meal.totalCalories = meal.foods.reduce((sum: number, f: any) => sum + (f.calories || 0), 0)
                 })
               }
-
               // Update totals to reflect meal-only values for the diet plan structure
               parsed.totalDailyCalories = `${caloriesForMeals} kcal`
               parsed.totalProtein = `${proteinForMeals}g`
@@ -890,35 +962,35 @@ JSON OBRIGATÓRIO:
           console.error("❌ [DIET] Generation failed:", dietResponse.reason)
         }
 
-// Process workout response
-if (workoutResponse.status === "fulfilled") {
-  try {
-    const rawContent = workoutResponse.value.choices[0].message?.content || ""
-    const parsed = safeJsonParseFromModel(rawContent)
+        // Process workout response
+        if (workoutResponse.status === "fulfilled") {
+          try {
+            const rawContent = workoutResponse.value.choices[0].message?.content || ""
+            const parsed = safeJsonParseFromModel(rawContent)
 
-    if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === requestedDays) {
-      workoutPlan = parsed
-      console.log("✅ [WORKOUT SUCCESS] Generated successfully")
-    } else {
-      console.log("[WORKOUT] mismatch debug:", {
-        expected: requestedDays,
-        expectedType: typeof requestedDays,
-        got: parsed.days?.length,
-        gotType: typeof parsed.days?.length,
-        isArray: Array.isArray(parsed.days),
-        keys: parsed ? Object.keys(parsed) : null,
-      })
+            if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === requestedDays) {
+              workoutPlan = parsed
+              console.log("✅ [WORKOUT SUCCESS] Generated successfully")
+            } else {
+              console.log("[WORKOUT] mismatch debug:", {
+                expected: requestedDays,
+                expectedType: typeof requestedDays,
+                got: parsed.days?.length,
+                gotType: typeof parsed.days?.length,
+                isArray: Array.isArray(parsed.days),
+                keys: parsed ? Object.keys(parsed) : null,
+              })
 
-      console.log(
-        `[WORKOUT] Days count mismatch. Expected ${requestedDays}, got ${parsed.days?.length || "undefined"}`
-      )
-    }
-  } catch (e) {
-    console.log("⚠️ [WORKOUT] Parse error, using fallback")
-  }
-} else if (workoutResponse.status === "rejected") {
-  console.error("❌ [WORKOUT] Generation failed:", workoutResponse.reason)
-}
+              console.log(
+                `[WORKOUT] Days count mismatch. Expected ${requestedDays}, got ${parsed.days?.length || "undefined"}`
+              )
+            }
+          } catch (e) {
+            console.log("⚠️ [WORKOUT] Parse error, using fallback")
+          }
+        } else if (workoutResponse.status === "rejected") {
+          console.error("❌ [WORKOUT] Generation failed:", workoutResponse.reason)
+        }
       } catch (error) {
         console.log("⚠️ [PARALLEL] Generation failed, using fallbacks")
       }
@@ -971,7 +1043,7 @@ if (workoutResponse.status === "fulfilled") {
       try {
         await userDocRef.set(
           {
-            plans: { 
+            plans: {
               dietPlan: JSON.parse(JSON.stringify(dietPlan)), // Sanitizar
               workoutPlan: JSON.parse(JSON.stringify(workoutPlan)) // Sanitizar
             },
@@ -1027,20 +1099,20 @@ function calculateScientificCalories(data: any) {
   // Se o calorieGoal já foi calculado no quiz, use-o
   if (data.calorieGoal && data.calorieGoal > 0) {
     console.log(`✅ [CALORIE_GOAL] Usando calorieGoal do quiz: ${Math.round(data.calorieGoal)} kcal`)
-    
+
     const dailyCalories = Math.round(data.calorieGoal)
     const weight = Number.parseFloat(data.currentWeight) || 70
     const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
     const effectiveGoals = goals
     const bodyType = data.bodyType || ""
     const isFemale = (data.gender || "").toLowerCase().includes("fem") || (data.gender || "").toLowerCase().includes("mulher")
-    
+
     // Calcular suplementação
     let supplementCalories = 0
     let supplementProtein = 0
     let supplementCarbs = 0
     let supplementFats = 0
-    
+
     if (data.wantsSupplement === "sim" && data.supplementType) {
       if (data.supplementType === "hipercalorico") {
         supplementCalories = 615
@@ -1054,10 +1126,10 @@ function calculateScientificCalories(data: any) {
         supplementFats = 1.5
       }
     }
-    
+
     // Calorias para refeições (sem suplemento)
     const caloriesForMeals = dailyCalories - supplementCalories
-    
+
     // PROTEÍNA baseada em objetivo + gênero (igual ao fallback)
     let proteinBase = 1.8
     if (effectiveGoals.includes("ganhar-massa")) {
@@ -1067,7 +1139,7 @@ function calculateScientificCalories(data: any) {
     } else {
       proteinBase = isFemale ? 1.8 : 2.0
     }
-    
+
     // GORDURAS baseadas em SOMATÓTIPO (igual ao fallback)
     let fatsBase = 1.0
     if (bodyType.toLowerCase() === "ectomorfo") {
@@ -1079,23 +1151,23 @@ function calculateScientificCalories(data: any) {
     } else {
       fatsBase = isFemale ? 1.1 : 1.0
     }
-    
+
     // Mínimo de gordura para mulheres (segurança hormonal)
     if (isFemale && fatsBase < 0.8) {
       fatsBase = 0.8
     }
-    
+
     const protein = Math.round(weight * proteinBase)
     const fats = Math.round(weight * fatsBase)
-    
+
     // Proteína mínima
     const minProtein = Math.round(weight * (isFemale ? 1.6 : 1.8))
     const finalProtein = Math.max(protein, minProtein)
-    
+
     // Carboidratos = resto das calorias (dinâmico)
     const carbs = Math.round((caloriesForMeals - finalProtein * 4 - fats * 9) / 4)
     const finalCarbs = Math.max(carbs, 50) // Mínimo 50g
-    
+
     return {
       tmb: Math.round(data.tmb || 0),
       tdee: Math.round(data.tdee || 0),
@@ -1120,9 +1192,9 @@ function calculateScientificCalories(data: any) {
   const trainingDaysParsed = Number.parseInt(String(trainingDaysRaw), 10)
 
   const safeDays =
-  Number.isFinite(trainingDaysParsed) && trainingDaysParsed >= 1 && trainingDaysParsed <= 7
-    ? trainingDaysParsed
-    : 5
+    Number.isFinite(trainingDaysParsed) && trainingDaysParsed >= 1 && trainingDaysParsed <= 7
+      ? trainingDaysParsed
+      : 5
   const goals = Array.isArray(data.goal) ? data.goal : [data.goal || "ganhar-massa"]
 
   const targetWeight = Number.parseFloat(data.targetWeight) || weight

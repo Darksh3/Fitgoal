@@ -461,24 +461,39 @@ export default function TreinoPage() {
     let container: HTMLDivElement | null = null
 
     try {
-      // 1) cria container temporariamente visível (html2canvas precisa renderizar)
+      console.log("[PDF] Iniciando download com filledGroups:", filledGroups)
+
+      // 1) Criar container visível temporariamente (html2canvas precisa de elemento renderizado)
       container = document.createElement("div")
-      container.style.position = "fixed"
-      container.style.top = "-9999px"
+      container.style.position = "absolute"
+      container.style.top = "0"
       container.style.left = "0"
-      container.style.width = "1000px"
+      container.style.width = "1123px"
       container.style.backgroundColor = "#ffffff"
+      container.style.zIndex = "-1000"
+      container.style.opacity = "0.01" // Quase invisível mas renderizável
       container.innerHTML = pdfInner
       document.body.appendChild(container)
 
-      // 2) aguarda render
+      console.log("[PDF] Container adicionado ao DOM")
+      console.log("[PDF] Container innerHTML:", container.innerHTML.substring(0, 200))
+
+      // 2) Aguarda múltiplos frames para layout ser calculado
       await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          requestAnimationFrame(() => resolve())
-        }, 100)
+        let frameCount = 0
+        const checkRender = () => {
+          frameCount++
+          if (frameCount > 3) {
+            console.log("[PDF] Frames aguardados:", frameCount)
+            resolve()
+          } else {
+            requestAnimationFrame(checkRender)
+          }
+        }
+        requestAnimationFrame(checkRender)
       })
 
-      // 3) import html2pdf
+      // 3) Importar e validar html2pdf
       const mod: any = await import("html2pdf.js/dist/html2pdf.min")
       const html2pdfFn =
         (typeof mod === "function" ? mod : null) ||
@@ -486,11 +501,14 @@ export default function TreinoPage() {
         (typeof mod?.html2pdf === "function" ? mod.html2pdf : null) ||
         (typeof (window as any)?.html2pdf === "function" ? (window as any)?.html2pdf : null)
 
+      console.log("[PDF] html2pdf importado, tipo:", typeof html2pdfFn)
+
       if (!html2pdfFn) {
-        console.error("[PDF] html2pdf não foi exportado:", mod)
+        console.error("[PDF] html2pdf não foi carregado:", mod)
         throw new Error("html2pdf não foi carregado como função.")
       }
 
+      // 4) Configurar e gerar PDF
       const opt = {
         margin: [3, 3, 3, 3],
         filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
@@ -499,18 +517,22 @@ export default function TreinoPage() {
           scale: 2,
           useCORS: true,
           backgroundColor: "#ffffff",
-          logging: false,
+          logging: true,
           allowTaint: true,
+          windowHeight: container.scrollHeight,
         },
         jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
       }
 
+      console.log("[PDF] Iniciando html2pdf.from()")
       await html2pdfFn().set(opt).from(container).save()
+      console.log("[PDF] PDF salvo com sucesso!")
     } catch (error) {
       console.error("[PDF] Erro ao gerar PDF:", error)
       alert("Erro ao gerar PDF. Tente novamente.")
     } finally {
       if (container?.parentNode) {
+        console.log("[PDF] Removendo container do DOM")
         document.body.removeChild(container)
       }
     }
