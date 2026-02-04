@@ -218,15 +218,40 @@ export default function DietPage() {
         // Edit regular food
         const updatedMeals = [...dietPlan.meals]
         const meal = updatedMeals[editingFood.mealIndex]
+        const originalFood = meal.foods[editingFood.foodIndex]
 
         const calories = validateNumber(editingFood.food.calories, "calorias")
         const protein = validateNumber(editingFood.food.protein, "proteínas")
         const carbs = validateNumber(editingFood.food.carbs, "carboidratos")
         const fats = validateNumber(editingFood.food.fats, "gorduras")
 
-        if (typeof meal.foods[editingFood.foodIndex] === "string") {
+        // Calculate the difference in macros (for macro credit)
+        const originalMacros = extractFoodMacros(originalFood)
+        const macrosDifference = {
+          calories: originalMacros.calories - calories,
+          protein: originalMacros.protein - protein,
+          carbs: originalMacros.carbs - carbs,
+          fats: originalMacros.fats - fats,
+        }
+
+        console.log("[v0] Macros difference (original - new):", macrosDifference)
+
+        // If any macro was reduced, add the difference to macroCredit
+        if (
+          macrosDifference.calories > 0 ||
+          macrosDifference.protein > 0 ||
+          macrosDifference.carbs > 0 ||
+          macrosDifference.fats > 0
+        ) {
+          console.log("[v0] Adding macro credit due to quantity reduction:", macrosDifference)
+          updatedMeals[editingFood.mealIndex] = addToMacroCredit(meal, macrosDifference)
+        }
+
+        // Update the food with new values
+        const updatedMeal = updatedMeals[editingFood.mealIndex]
+        if (typeof updatedMeal.foods[editingFood.foodIndex] === "string") {
           // Convert string to object format
-          meal.foods[editingFood.foodIndex] = {
+          updatedMeal.foods[editingFood.foodIndex] = {
             name: editingFood.food.name,
             quantity: editingFood.food.quantity,
             calories,
@@ -236,8 +261,8 @@ export default function DietPage() {
           }
         } else {
           // Update existing object
-          meal.foods[editingFood.foodIndex] = {
-            ...meal.foods[editingFood.foodIndex],
+          updatedMeal.foods[editingFood.foodIndex] = {
+            ...updatedMeal.foods[editingFood.foodIndex],
             name: editingFood.food.name,
             quantity: editingFood.food.quantity,
             calories,
@@ -247,7 +272,8 @@ export default function DietPage() {
           }
         }
 
-        console.log("[v0] Updated food:", meal.foods[editingFood.foodIndex])
+        console.log("[v0] Updated food:", updatedMeal.foods[editingFood.foodIndex])
+        console.log("[v0] Meal macroCredit after edit:", updatedMeal.macroCredit)
 
         const updatedDietPlan = {
           ...dietPlan,
