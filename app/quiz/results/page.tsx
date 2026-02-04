@@ -128,14 +128,8 @@ export default function QuizResultsPage() {
       // Use new target image for males showing ideal physique
       return "/images/target-male-fit.webp"
     } else {
-      if (bodyFat <= 10) return "/images/bodyfat-one.webp"
-      if (bodyFat <= 15) return "/images/bodyfat-one.webp"
-      if (bodyFat <= 20) return "/images/bodyfat-two.webp"
-      if (bodyFat <= 25) return "/images/bodyfat-three.webp"
-      if (bodyFat <= 30) return "/images/bodyfat-four.webp"
-      if (bodyFat <= 35) return "/images/bodyfat-five.webp"
-      if (bodyFat <= 39) return "/images/bodyfat-six.webp"
-      return "/images/bodyfat-seven.webp"
+      // Use new target image for females showing ideal physique
+      return "/images/target-female-fit.webp"
     }
   }
 
