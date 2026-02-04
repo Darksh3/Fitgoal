@@ -461,19 +461,29 @@ export default function TreinoPage() {
     let container: HTMLDivElement | null = null
 
     try {
-      // 1) cria container invisível no DOM
+      // 1) cria container com visibilidade hidden (mas renderizável)
       container = document.createElement("div")
-      container.style.position = "fixed"
-      container.style.left = "-99999px"
+      container.style.position = "absolute"
+      container.style.left = "0"
       container.style.top = "0"
       container.style.width = "1123px"
+      container.style.visibility = "hidden"
+      container.style.pointerEvents = "none"
       container.innerHTML = pdfInner
       document.body.appendChild(container)
 
-      // 2) espera 1 frame para layout/CSS aplicar
-      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+      // 2) espera 2 frames para layout/CSS aplicar completamente
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => resolve())
+        })
+      })
 
-      // 3) import robusto do html2pdf (Next/ESM/CJS)
+      // 3) log para debug (remover depois)
+      console.log("[PDF] Container pronto, tamanho:", container.offsetWidth, "x", container.offsetHeight)
+      console.log("[PDF] innerHTML length:", container.innerHTML.length)
+
+      // 4) import robusto do html2pdf (Next/ESM/CJS)
       const mod: any = await import("html2pdf.js/dist/html2pdf.min")
       const html2pdfFn =
         (typeof mod === "function" ? mod : null) ||
@@ -490,11 +500,13 @@ export default function TreinoPage() {
         margin: 3,
         filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
         jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
       }
 
+      console.log("[PDF] Iniciando geração do PDF...")
       await html2pdfFn().set(opt).from(container).save()
+      console.log("[PDF] PDF gerado com sucesso!")
     } catch (error) {
       console.error("[PDF] Erro ao gerar PDF:", error)
       alert("Erro ao gerar PDF. Tente novamente.")
