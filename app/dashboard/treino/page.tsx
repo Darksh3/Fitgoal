@@ -458,30 +458,36 @@ export default function TreinoPage() {
       </div>
     `
 
-    let container: HTMLDivElement | null = null
+    let iframe: HTMLIFrameElement | null = null
 
     try {
-      // 1) Criar container VISÍVEL no viewport (html2canvas precisa renderizar normalmente)
-      container = document.createElement("div")
-      container.style.position = "fixed"
-      container.style.top = "0"
-      container.style.left = "0"
-      container.style.width = "1123px"
-      container.style.backgroundColor = "#ffffff"
-      container.style.maxHeight = "100vh"
-      container.style.overflowY = "auto"
-      container.style.zIndex = "9999"
-      container.innerHTML = pdfInner
-      document.body.appendChild(container)
+      // 1) Criar um iframe invisível para renderizar o PDF
+      iframe = document.createElement("iframe")
+      iframe.style.position = "fixed"
+      iframe.style.top = "0"
+      iframe.style.left = "0"
+      iframe.style.width = "1123px"
+      iframe.style.height = "0"
+      iframe.style.border = "none"
+      iframe.style.visibility = "hidden"
+      document.body.appendChild(iframe)
 
-      // 2) Aguarda renderização
+      // 2) Escrever HTML no iframe
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document
+      if (iframeDoc) {
+        iframeDoc.open()
+        iframeDoc.write(pdfInner)
+        iframeDoc.close()
+      }
+
+      // 3) Aguardar renderização completa
       await new Promise<void>((resolve) => {
         setTimeout(() => {
           requestAnimationFrame(() => resolve())
-        }, 200)
+        }, 500)
       })
 
-      // 3) Importar html2pdf
+      // 4) Importar html2pdf
       const mod: any = await import("html2pdf.js/dist/html2pdf.min")
       const html2pdfFn =
         (typeof mod === "function" ? mod : null) ||
@@ -493,28 +499,33 @@ export default function TreinoPage() {
         throw new Error("html2pdf não foi carregado como função.")
       }
 
-      // 4) Gerar PDF com conteúdo do container VISÍVEL
+      // 5) Pegar o body do iframe
+      const bodyElement = iframeDoc?.body
+      if (!bodyElement) {
+        throw new Error("Não foi possível acessar o conteúdo do iframe.")
+      }
+
+      // 6) Gerar PDF
       const opt = {
         margin: 3,
         filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
-          scale: 1.5,
+          scale: 2,
           useCORS: true,
           backgroundColor: "#ffffff",
           logging: false,
-          windowHeight: 2000,
         },
         jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
       }
 
-      await html2pdfFn().set(opt).from(container).save()
+      await html2pdfFn().set(opt).from(bodyElement).save()
     } catch (error) {
       console.error("[PDF] Erro ao gerar PDF:", error)
       alert("Erro ao gerar PDF. Tente novamente.")
     } finally {
-      if (container?.parentNode) {
-        document.body.removeChild(container)
+      if (iframe?.parentNode) {
+        document.body.removeChild(iframe)
       }
     }
   }
