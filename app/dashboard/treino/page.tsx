@@ -354,58 +354,96 @@ export default function TreinoPage() {
     const pdfInner = `
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; }
+        html, body { font-family: 'Arial', sans-serif; width: 100%; height: 100%; }
         .pdf-root {
           color: #000;
           background: white;
-          padding: 8px;
-          line-height: 1.1;
-          font-size: 11px;
+          padding: 15px;
+          line-height: 1.2;
+          font-size: 12px;
+          width: 100%;
+          height: 100%;
         }
         .header {
           text-align: center;
-          margin-bottom: 8px;
-          border: 2px solid #000;
-          padding: 6px;
+          margin-bottom: 15px;
+          border: 3px solid #000;
+          padding: 10px;
+          background: #fff;
         }
-        .header h1 { font-size: 16px; font-weight: bold; letter-spacing: 1px; }
-        .header p { font-size: 10px; margin-top: 2px; }
+        .header h1 { font-size: 18px; font-weight: bold; letter-spacing: 2px; margin-bottom: 4px; }
+        .header p { font-size: 11px; color: #333; }
         .exercises-container {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 6px;
-          margin-bottom: 6px;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 8px;
+          margin-bottom: 10px;
         }
         .exercise-section {
           border: 2px solid #000;
           display: flex;
           flex-direction: column;
-          min-height: 300px;
+          min-height: 350px;
+          background: #fff;
         }
         .section-title {
-          background: #e0e0e0;
+          background: #d3d3d3;
           border-bottom: 2px solid #000;
-          padding: 4px;
+          padding: 6px 4px;
           font-weight: bold;
-          font-size: 10px;
+          font-size: 11px;
           text-align: center;
           text-transform: uppercase;
           flex-shrink: 0;
+          color: #000;
         }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #000; padding: 2px; font-size: 9px; }
-        th { font-weight: bold; text-align: center; background: #f5f5f5; height: 18px; }
-        td { height: 16px; }
-        .exercise-name { width: 55%; text-align: left; font-weight: 500; word-break: break-word; }
-        .exercise-col { width: 15%; text-align: center; }
-        .load-col { background: #fafafa; }
+        table { 
+          width: 100%; 
+          border-collapse: collapse;
+          flex: 1;
+        }
+        th, td { 
+          border: 1px solid #000; 
+          padding: 4px 3px;
+          font-size: 10px;
+          line-height: 1.3;
+        }
+        th { 
+          font-weight: bold; 
+          text-align: center; 
+          background: #f0f0f0; 
+          height: auto;
+          padding: 5px 3px;
+        }
+        tbody tr { min-height: 20px; }
+        tbody td { height: auto; min-height: 18px; }
+        .exercise-name { 
+          width: 50%; 
+          text-align: left; 
+          font-weight: 500;
+          word-wrap: break-word;
+          word-break: break-word;
+          padding: 3px 4px;
+        }
+        .exercise-col { 
+          width: 16.67%; 
+          text-align: center; 
+          font-weight: 500;
+          padding: 3px 2px;
+        }
+        .load-col { 
+          background: #fafafa;
+          text-align: center;
+        }
         .footer {
           text-align: center;
-          font-size: 9px;
+          font-size: 10px;
           color: #333;
-          border-top: 1px solid #ccc;
-          padding-top: 4px;
-          margin-top: 6px;
+          border-top: 2px solid #000;
+          padding-top: 8px;
+          margin-top: 10px;
+          padding: 8px;
+          background: #f9f9f9;
         }
       </style>
 
