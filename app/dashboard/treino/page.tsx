@@ -304,7 +304,7 @@ export default function TreinoPage() {
 
     const workoutPlan = userData.workoutPlan
 
-    // ---- Monta grupos (seu código está ok) ----
+    // Monta grupos
     let filledGroups: [string, any[]][] = []
 
     const allExercises: any[] = []
@@ -349,66 +349,66 @@ export default function TreinoPage() {
         ])
     }
 
-    // ⚠️ IMPORTANTE: NÃO use <html><head><body> dentro do container.
-    // Deixe CSS + conteúdo dentro de um wrapper.
-    const pdfInner = `
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; }
-        .pdf-root {
-          color: #000;
-          background: white;
-          padding: 8px;
-          line-height: 1.1;
-          font-size: 11px;
-        }
-        .header {
-          text-align: center;
-          margin-bottom: 8px;
-          border: 2px solid #000;
-          padding: 6px;
-        }
-        .header h1 { font-size: 16px; font-weight: bold; letter-spacing: 1px; }
-        .header p { font-size: 10px; margin-top: 2px; }
-        .exercises-container {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 6px;
-          margin-bottom: 6px;
-        }
-        .exercise-section {
-          border: 2px solid #000;
-          display: flex;
-          flex-direction: column;
-          min-height: 300px;
-        }
-        .section-title {
-          background: #e0e0e0;
-          border-bottom: 2px solid #000;
-          padding: 4px;
-          font-weight: bold;
-          font-size: 10px;
-          text-align: center;
-          text-transform: uppercase;
-          flex-shrink: 0;
-        }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #000; padding: 2px; font-size: 9px; }
-        th { font-weight: bold; text-align: center; background: #f5f5f5; height: 18px; }
-        td { height: 16px; }
-        .exercise-name { width: 55%; text-align: left; font-weight: 500; word-break: break-word; }
-        .exercise-col { width: 15%; text-align: center; }
-        .load-col { background: #fafafa; }
-        .footer {
-          text-align: center;
-          font-size: 9px;
-          color: #333;
-          border-top: 1px solid #ccc;
-          padding-top: 4px;
-          margin-top: 6px;
-        }
-      </style>
+    const pdfCss = `
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; }
+      body { font-family: Arial, sans-serif; }
+      .pdf-root {
+        color: #000;
+        background: white;
+        padding: 8px;
+        line-height: 1.1;
+        font-size: 11px;
+        width: 100%;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 8px;
+        border: 2px solid #000;
+        padding: 6px;
+      }
+      .header h1 { font-size: 16px; font-weight: bold; letter-spacing: 1px; }
+      .header p { font-size: 10px; margin-top: 2px; }
+      .exercises-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+      .exercise-section {
+        border: 2px solid #000;
+        display: flex;
+        flex-direction: column;
+        min-height: 300px;
+      }
+      .section-title {
+        background: #e0e0e0;
+        border-bottom: 2px solid #000;
+        padding: 4px;
+        font-weight: bold;
+        font-size: 10px;
+        text-align: center;
+        text-transform: uppercase;
+        flex-shrink: 0;
+      }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { border: 1px solid #000; padding: 2px; font-size: 9px; }
+      th { font-weight: bold; text-align: center; background: #f5f5f5; height: 18px; }
+      td { height: 16px; }
+      .exercise-name { width: 55%; text-align: left; font-weight: 500; word-break: break-word; }
+      .exercise-col { width: 15%; text-align: center; }
+      .load-col { background: #fafafa; }
+      .footer {
+        text-align: center;
+        font-size: 9px;
+        color: #333;
+        border-top: 1px solid #ccc;
+        padding-top: 4px;
+        margin-top: 6px;
+      }
+    `
 
+    const pdfInner = `
       <div class="pdf-root">
         <div class="header">
           <h1>EXERCÍCIOS LOCALIZADOS</h1>
@@ -461,63 +461,93 @@ export default function TreinoPage() {
     let container: HTMLDivElement | null = null
 
     try {
-      // 1) Criar container VISÍVEL no viewport (html2canvas precisa renderizar normalmente)
+      // 1) Criar container invisível
       container = document.createElement("div")
-      container.style.position = "absolute"
+      container.style.visibility = "hidden"
+      container.style.position = "fixed"
       container.style.top = "0"
-      container.style.left = "-10000px" // fora da tela, mas renderiza normal
+      container.style.left = "0"
       container.style.width = "1123px"
       container.style.backgroundColor = "#ffffff"
-
-      // 🔥 MUITO IMPORTANTE: sem scroll interno
       container.style.overflow = "visible"
       container.style.height = "auto"
       container.style.maxHeight = "none"
-
-      container.style.zIndex = "9999"
-      container.innerHTML = pdfInner
+      container.style.zIndex = "-9999"
+      
+      const styleEl = document.createElement("style")
+      styleEl.textContent = pdfCss
+      container.appendChild(styleEl)
+      
+      const contentEl = document.createElement("div")
+      contentEl.innerHTML = pdfInner
+      container.appendChild(contentEl)
+      
       document.body.appendChild(container)
 
-      // 2) Aguarda renderização
+      // 2) Aguardar renderização
       await new Promise<void>((resolve) => {
         requestAnimationFrame(() => {
           requestAnimationFrame(() => resolve())
         })
       })
 
-      // 3) Importar html2pdf
-      const mod: any = await import("html2pdf.js/dist/html2pdf.min")
-      const html2pdfFn =
-        (typeof mod === "function" ? mod : null) ||
-        (typeof mod?.default === "function" ? mod.default : null) ||
-        (typeof mod?.html2pdf === "function" ? mod.html2pdf : null) ||
-        (typeof (window as any)?.html2pdf === "function" ? (window as any)?.html2pdf : null)
+      // 3) Importar html2canvas e jsPDF
+      const [html2canvasModule, jsPDFModule] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ])
 
-      if (!html2pdfFn) {
-        throw new Error("html2pdf não foi carregado como função.")
+      const html2canvas = html2canvasModule.default
+      const { jsPDF } = jsPDFModule
+
+      // 4) Capturar container com html2canvas
+      const canvas = await html2canvas(contentEl, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+        logging: false,
+      })
+
+      // 5) Converter canvas para imagem
+      const imgData = canvas.toDataURL("image/jpeg", 0.98)
+
+      // 6) Criar PDF A4 landscape
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      })
+
+      // 7) Dimensões da página
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+
+      // 8) Tamanho da imagem proporcional
+      const imgWidth = pageWidth
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+
+      // 9) Se couber em 1 página, só adiciona
+      if (imgHeight <= pageHeight) {
+        pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight)
+      } else {
+        // Se ficar maior, fatia em múltiplas páginas
+        let heightLeft = imgHeight
+        let position = 0
+
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
+        heightLeft -= pageHeight
+
+        while (heightLeft > 0) {
+          pdf.addPage()
+          position = -(imgHeight - heightLeft)
+          pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
+          heightLeft -= pageHeight
+        }
       }
 
-      // 4) Gerar PDF com conteúdo do container VISÍVEL
-      const opt = {
-        margin: 3,
-        filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-          windowWidth: 1123,
-          windowHeight: container.scrollHeight,
-          scrollX: 0,
-          scrollY: 0,
-        },
-        jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
-      }
-
-      console.log("[PDF] scrollHeight:", container.scrollHeight, "offsetHeight:", container.offsetHeight)
-
-
-      await html2pdfFn().set(opt).from(container).save()
+      // 10) Salvar PDF
+      const filename = `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`
+      pdf.save(filename)
     } catch (error) {
       console.error("[PDF] Erro ao gerar PDF:", error)
       alert("Erro ao gerar PDF. Tente novamente.")
