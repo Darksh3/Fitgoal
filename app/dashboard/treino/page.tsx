@@ -461,63 +461,67 @@ export default function TreinoPage() {
     let container: HTMLDivElement | null = null
 
     try {
-      // 1) Criar container VISÍVEL no viewport (html2canvas precisa renderizar normalmente)
+      // 1) Importar bibliotecas necessárias
+      const html2canvas = (await import("html2canvas")).default
+      const { jsPDF } = await import("jspdf")
+
+      // 2) Criar container visível com dimensões A4 paisagem
       container = document.createElement("div")
-      container.style.position = "absolute"
+      container.style.position = "fixed"
       container.style.top = "0"
-      container.style.left = "-10000px" // fora da tela, mas renderiza normal
-      container.style.width = "1123px"
+      container.style.left = "-9999px"
+      container.style.width = "1123px" // A4 paisagem em pixels (210mm @ 96dpi ≈ 800px, mas usamos mais para qualidade)
       container.style.backgroundColor = "#ffffff"
-
-      // 🔥 MUITO IMPORTANTE: sem scroll interno
-      container.style.overflow = "visible"
-      container.style.height = "auto"
-      container.style.maxHeight = "none"
-
+      container.style.padding = "20px"
       container.style.zIndex = "9999"
       container.innerHTML = pdfInner
       document.body.appendChild(container)
 
-      // 2) Aguarda renderização
+      // 3) Aguarda renderização do DOM
       await new Promise<void>((resolve) => {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => resolve())
-        })
+        setTimeout(resolve, 100)
       })
 
-      // 3) Importar html2pdf
-      const mod: any = await import("html2pdf.js/dist/html2pdf.min")
-      const html2pdfFn =
-        (typeof mod === "function" ? mod : null) ||
-        (typeof mod?.default === "function" ? mod.default : null) ||
-        (typeof mod?.html2pdf === "function" ? mod.html2pdf : null) ||
-        (typeof (window as any)?.html2pdf === "function" ? (window as any)?.html2pdf : null)
+      // 4) Captura com html2canvas
+      console.log("[PDF] Iniciando captura com html2canvas...")
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        windowWidth: 1123,
+        logging: false,
+      })
 
-      if (!html2pdfFn) {
-        throw new Error("html2pdf não foi carregado como função.")
+      // 5) Converter canvas para PDF com múltiplas páginas se necessário
+      const imgWidth = 297 // A4 paisagem em mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      })
+
+      let heightLeft = imgHeight
+      let position = 0
+
+      // Adiciona imagens em múltiplas páginas se necessário
+      const imgData = canvas.toDataURL("image/jpeg", 0.95)
+      const pageHeight = pdf.internal.pageSize.getHeight()
+
+      while (heightLeft > 0) {
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
+        heightLeft -= pageHeight
+        position -= pageHeight
+
+        if (heightLeft > 0) {
+          pdf.addPage()
+        }
       }
 
-      // 4) Gerar PDF com conteúdo do container VISÍVEL
-      const opt = {
-        margin: 3,
-        filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-          windowWidth: 1123,
-          windowHeight: container.scrollHeight,
-          scrollX: 0,
-          scrollY: 0,
-        },
-        jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
-      }
-
-      console.log("[PDF] scrollHeight:", container.scrollHeight, "offsetHeight:", container.offsetHeight)
-
-
-      await html2pdfFn().set(opt).from(container).save()
+      // 6) Salvar PDF
+      const filename = `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`
+      pdf.save(filename)
+      console.log("[PDF] PDF gerado com sucesso:", filename)
     } catch (error) {
       console.error("[PDF] Erro ao gerar PDF:", error)
       alert("Erro ao gerar PDF. Tente novamente.")
