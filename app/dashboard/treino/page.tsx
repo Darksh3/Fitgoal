@@ -351,6 +351,7 @@ export default function TreinoPage() {
 
     const pdfCss = `
       * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; }
       body { font-family: Arial, sans-serif; }
       .pdf-root {
         color: #000;
@@ -358,6 +359,7 @@ export default function TreinoPage() {
         padding: 8px;
         line-height: 1.1;
         font-size: 11px;
+        width: 100%;
       }
       .header {
         text-align: center;
@@ -456,45 +458,103 @@ export default function TreinoPage() {
       </div>
     `
 
-    const fullHtml = `
-      <!doctype html>
-      <html>
-      <head>
-        <meta charset="utf-8" />
-        <style>${pdfCss}</style>
-      </head>
-      <body>
-        ${pdfInner}
-      </body>
-      </html>
-    `
+    let container: HTMLDivElement | null = null
 
     try {
-      const res = await fetch("/api/workout-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ html: fullHtml }),
+      // 1) Criar container invisível
+      container = document.createElement("div")
+      container.style.visibility = "hidden"
+      container.style.position = "fixed"
+      container.style.top = "0"
+      container.style.left = "0"
+      container.style.width = "1123px"
+      container.style.backgroundColor = "#ffffff"
+      container.style.overflow = "visible"
+      container.style.height = "auto"
+      container.style.maxHeight = "none"
+      container.style.zIndex = "-9999"
+      
+      const styleEl = document.createElement("style")
+      styleEl.textContent = pdfCss
+      container.appendChild(styleEl)
+      
+      const contentEl = document.createElement("div")
+      contentEl.innerHTML = pdfInner
+      container.appendChild(contentEl)
+      
+      document.body.appendChild(container)
+
+      // 2) Aguardar renderização
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => resolve())
+        })
       })
 
-      if (!res.ok) {
-        const error = await res.json()
-        throw new Error(error.error || "Falha ao gerar PDF no servidor")
+      // 3) Importar html2canvas e jsPDF
+      const [html2canvasModule, jsPDFModule] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ])
+
+      const html2canvas = html2canvasModule.default
+      const { jsPDF } = jsPDFModule
+
+      // 4) Capturar container com html2canvas
+      const canvas = await html2canvas(contentEl, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+        logging: false,
+      })
+
+      // 5) Converter canvas para imagem
+      const imgData = canvas.toDataURL("image/jpeg", 0.98)
+
+      // 6) Criar PDF A4 landscape
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      })
+
+      // 7) Dimensões da página
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+
+      // 8) Tamanho da imagem proporcional
+      const imgWidth = pageWidth
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+
+      // 9) Se couber em 1 página, só adiciona
+      if (imgHeight <= pageHeight) {
+        pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight)
+      } else {
+        // Se ficar maior, fatia em múltiplas páginas
+        let heightLeft = imgHeight
+        let position = 0
+
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
+        heightLeft -= pageHeight
+
+        while (heightLeft > 0) {
+          pdf.addPage()
+          position = -(imgHeight - heightLeft)
+          pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
+          heightLeft -= pageHeight
+        }
       }
 
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-
-      // Baixar PDF
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+      // 10) Salvar PDF
+      const filename = `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`
+      pdf.save(filename)
     } catch (error) {
       console.error("[PDF] Erro ao gerar PDF:", error)
       alert("Erro ao gerar PDF. Tente novamente.")
+    } finally {
+      if (container?.parentNode) {
+        document.body.removeChild(container)
+      }
     }
   }
 
