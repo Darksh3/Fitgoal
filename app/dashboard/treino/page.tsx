@@ -57,45 +57,45 @@ function ExerciseSubstituteButton({
   const [isSubstituting, setIsSubstituting] = React.useState(false)
 
   const handleSubstitute = async () => {
-  setIsSubstituting(true)
-  try {
-    if (!userId || dayIndex === undefined || exerciseIndex === undefined) {
-      throw new Error("Missing required parameters: userId, dayIndex, or exerciseIndex")
+    setIsSubstituting(true)
+    try {
+      if (!userId || dayIndex === undefined || exerciseIndex === undefined) {
+        throw new Error("Missing required parameters: userId, dayIndex, or exerciseIndex")
+      }
+
+      const res = await fetch("/api/substitute-exercise", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          dayIndex,
+          exerciseIndex,
+          currentExercise: exercise,
+          userPreferences: userPreferences || {},
+        }),
+      })
+
+      if (!res.ok) {
+        const errorText = await res.text()
+        console.error("[v0] substitute-exercise 400 body:", errorText)
+        throw new Error(`substitute-exercise failed: ${res.status} - ${errorText}`)
+      }
+
+      const data = await res.json()
+      const newExercise: Exercise = data?.substitution || data?.newExercise
+
+      if (!newExercise?.name || !newExercise?.sets || !newExercise?.reps || !newExercise?.rest || !newExercise?.description) {
+        throw new Error("API did not return a valid substitution")
+      }
+
+      await onSubstitute(dayIndex, exerciseIndex, newExercise)
+    } catch (err) {
+      console.error("[TREINO] Substitute error:", err)
+      alert("Não foi possível substituir o exercício. Tente novamente.")
+    } finally {
+      setIsSubstituting(false)
     }
-
-    const res = await fetch("/api/substitute-exercise", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId,
-        dayIndex,
-        exerciseIndex,
-        currentExercise: exercise,
-        userPreferences: userPreferences || {},
-      }),
-    })
-
-    if (!res.ok) {
-      const errorText = await res.text()
-      console.error("[v0] substitute-exercise 400 body:", errorText)
-      throw new Error(`substitute-exercise failed: ${res.status} - ${errorText}`)
-    }
-
-    const data = await res.json()
-    const newExercise: Exercise = data?.substitution || data?.newExercise
-
-    if (!newExercise?.name || !newExercise?.sets || !newExercise?.reps || !newExercise?.rest || !newExercise?.description) {
-      throw new Error("API did not return a valid substitution")
-    }
-
-    await onSubstitute(dayIndex, exerciseIndex, newExercise)
-  } catch (err) {
-    console.error("[TREINO] Substitute error:", err)
-    alert("Não foi possível substituir o exercício. Tente novamente.")
-  } finally {
-    setIsSubstituting(false)
   }
-}
 
   return (
     <button
@@ -308,17 +308,17 @@ export default function TreinoPage() {
     let filledGroups: [string, any[]][] = []
 
     const allExercises: any[] = []
-    ;(workoutPlan.days || []).forEach((day: any, index: number) => {
-      if (day?.exercises && Array.isArray(day.exercises)) {
-        day.exercises.forEach((exercise: any) => {
-          allExercises.push({
-            ...exercise,
-            dayIndex: index,
-            dayTitle: day.title || day.day || `Dia ${index + 1}`,
+      ; (workoutPlan.days || []).forEach((day: any, index: number) => {
+        if (day?.exercises && Array.isArray(day.exercises)) {
+          day.exercises.forEach((exercise: any) => {
+            allExercises.push({
+              ...exercise,
+              dayIndex: index,
+              dayTitle: day.title || day.day || `Dia ${index + 1}`,
+            })
           })
-        })
-      }
-    })
+        }
+      })
 
     const hasMuscleGroups = allExercises.some(
       (ex: any) => typeof ex.muscleGroup === "string" && ex.muscleGroup.trim().length > 0
@@ -417,9 +417,9 @@ export default function TreinoPage() {
 
         <div class="exercises-container">
           ${filledGroups
-            .map(([groupName, exercises]) => {
-              if (!exercises?.length) return ""
-              return `
+        .map(([groupName, exercises]) => {
+          if (!exercises?.length) return ""
+          return `
                 <div class="exercise-section">
                   <div class="section-title">${String(groupName).toUpperCase()}</div>
                   <table>
@@ -433,8 +433,8 @@ export default function TreinoPage() {
                     </thead>
                     <tbody>
                       ${exercises
-                        .map(
-                          (ex: any) => `
+              .map(
+                (ex: any) => `
                             <tr>
                               <td class="exercise-name">${ex.name ?? ""}</td>
                               <td class="exercise-col">${ex.sets ?? ""}</td>
@@ -442,14 +442,14 @@ export default function TreinoPage() {
                               <td class="exercise-col load-col"></td>
                             </tr>
                           `
-                        )
-                        .join("")}
+              )
+              .join("")}
                     </tbody>
                   </table>
                 </div>
               `
-            })
-            .join("")}
+        })
+        .join("")}
         </div>
 
         <div class="footer">
@@ -463,22 +463,26 @@ export default function TreinoPage() {
     try {
       // 1) Criar container VISÍVEL no viewport (html2canvas precisa renderizar normalmente)
       container = document.createElement("div")
-      container.style.position = "fixed"
+      container.style.position = "absolute"
       container.style.top = "0"
-      container.style.left = "0"
+      container.style.left = "-10000px" // fora da tela, mas renderiza normal
       container.style.width = "1123px"
       container.style.backgroundColor = "#ffffff"
-      container.style.maxHeight = "100vh"
-      container.style.overflowY = "auto"
+
+      // 🔥 MUITO IMPORTANTE: sem scroll interno
+      container.style.overflow = "visible"
+      container.style.height = "auto"
+      container.style.maxHeight = "none"
+
       container.style.zIndex = "9999"
       container.innerHTML = pdfInner
       document.body.appendChild(container)
 
       // 2) Aguarda renderização
       await new Promise<void>((resolve) => {
-        setTimeout(() => {
+        requestAnimationFrame(() => {
           requestAnimationFrame(() => resolve())
-        }, 200)
+        })
       })
 
       // 3) Importar html2pdf
@@ -499,14 +503,19 @@ export default function TreinoPage() {
         filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
-          scale: 1.5,
+          scale: 2,
           useCORS: true,
           backgroundColor: "#ffffff",
-          logging: false,
-          windowHeight: 2000,
+          windowWidth: 1123,
+          windowHeight: container.scrollHeight,
+          scrollX: 0,
+          scrollY: 0,
         },
         jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
       }
+
+      console.log("[PDF] scrollHeight:", container.scrollHeight, "offsetHeight:", container.offsetHeight)
+
 
       await html2pdfFn().set(opt).from(container).save()
     } catch (error) {
@@ -548,11 +557,11 @@ export default function TreinoPage() {
 
           data = await syncUserData(data)
           setUserData(data)
-          
+
           // Calculate and set training frequency
           const frequency = `${data.workoutPlan?.days?.length || 0}x por semana`
           setActualTrainingFrequency(frequency)
-          
+
           setIsLoading(false)
         } catch (error) {
           console.error("[TREINO] Erro ao buscar dados:", error)
@@ -788,4 +797,4 @@ export default function TreinoPage() {
       </div>
     </ProtectedRoute>
   )
- }
+}
