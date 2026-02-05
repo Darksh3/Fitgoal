@@ -461,63 +461,78 @@ export default function TreinoPage() {
     let container: HTMLDivElement | null = null
 
     try {
-      // 1) Criar container VISÍVEL no viewport (html2canvas precisa renderizar normalmente)
+      // 1) Criar container invisível (mas com layout calculado)
       container = document.createElement("div")
-      container.style.position = "absolute"
+      container.style.visibility = "hidden"
+      container.style.position = "fixed"
       container.style.top = "0"
-      container.style.left = "-10000px" // fora da tela, mas renderiza normal
+      container.style.left = "0"
       container.style.width = "1123px"
       container.style.backgroundColor = "#ffffff"
-
-      // 🔥 MUITO IMPORTANTE: sem scroll interno
       container.style.overflow = "visible"
       container.style.height = "auto"
       container.style.maxHeight = "none"
-
       container.style.zIndex = "9999"
       container.innerHTML = pdfInner
       document.body.appendChild(container)
 
-      // 2) Aguarda renderização
+      // 2) Aguarda renderização (50ms para garantir layout calculado)
       await new Promise<void>((resolve) => {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => resolve())
-        })
+        setTimeout(() => resolve(), 50)
       })
 
-      // 3) Importar html2pdf
-      const mod: any = await import("html2pdf.js/dist/html2pdf.min")
-      const html2pdfFn =
-        (typeof mod === "function" ? mod : null) ||
-        (typeof mod?.default === "function" ? mod.default : null) ||
-        (typeof mod?.html2pdf === "function" ? mod.html2pdf : null) ||
-        (typeof (window as any)?.html2pdf === "function" ? (window as any)?.html2pdf : null)
+      // 3) Importar html2canvas + jsPDF
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ])
 
-      if (!html2pdfFn) {
-        throw new Error("html2pdf não foi carregado como função.")
+      // 4) Capturar container com html2canvas
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+        scrollX: 0,
+        scrollY: -window.scrollY, // evita offset
+        windowWidth: 1123,
+      })
+
+      // 5) Converter canvas para imagem
+      const imgData = canvas.toDataURL("image/jpeg", 0.98)
+
+      // 6) Criar PDF A4 landscape
+      const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" })
+
+      // 7) Dimensões da página
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+
+      // 8) Tamanho da imagem proporcional
+      const imgWidth = pageWidth
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+
+      // 9) Se couber em 1 página, só adiciona
+      if (imgHeight <= pageHeight) {
+        pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight)
+      } else {
+        // Se ficar maior, fatia em múltiplas páginas SEM mudar layout
+        let heightLeft = imgHeight
+        let position = 0
+
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
+        heightLeft -= pageHeight
+
+        while (heightLeft > 0) {
+          pdf.addPage()
+          position = -(imgHeight - heightLeft)
+          pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
+          heightLeft -= pageHeight
+        }
       }
 
-      // 4) Gerar PDF com conteúdo do container VISÍVEL
-      const opt = {
-        margin: 3,
-        filename: `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-          windowWidth: 1123,
-          windowHeight: container.scrollHeight,
-          scrollX: 0,
-          scrollY: 0,
-        },
-        jsPDF: { orientation: "landscape", unit: "mm", format: "a4" },
-      }
-
-      console.log("[PDF] scrollHeight:", container.scrollHeight, "offsetHeight:", container.offsetHeight)
-
-
-      await html2pdfFn().set(opt).from(container).save()
+      // 10) Salvar PDF
+      const filename = `plano-treino-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`
+      pdf.save(filename)
     } catch (error) {
       console.error("[PDF] Erro ao gerar PDF:", error)
       alert("Erro ao gerar PDF. Tente novamente.")
