@@ -2099,6 +2099,9 @@ export default function QuizPage() {
               <p className="text-sm sm:text-base text-gray-400 italic pt-4">
                 Quanto <strong>mais preciso</strong> você for, mais eficaz será seu plano.
               </p>
+              <p className="text-xs sm:text-sm text-gray-500">
+                ⏱️ Leva menos de 3 minutos
+              </p>
 
               <button
                 onClick={() => {
