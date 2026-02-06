@@ -83,25 +83,30 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
 
     if (!paymentId || !method) return
 
+    console.log("[v0] PAYMENT_LISTENER_SETUP - Configurando listener para:", { paymentId, method })
+
     try {
       const paymentDocRef = doc(db, "payments", paymentId)
       const unsubscribe = onSnapshot(
         paymentDocRef,
         (snapshot) => {
           if (!snapshot.exists()) {
+            console.log("[v0] PAYMENT_LISTENER - Documento de pagamento não existe ainda")
             return
           }
 
           const paymentData = snapshot.data()
+          console.log("[v0] PAYMENT_LISTENER - Status do pagamento:", paymentData?.status, "para:", paymentId)
 
           // Se pagamento foi confirmado pelo webhook da Asaas, mostrar animação de sucesso
           if (paymentData?.status === "RECEIVED" || paymentData?.status === "CONFIRMED") {
+            console.log("[v0] PAYMENT_CONFIRMED - Pagamento confirmado! Acionando feedback visual")
             setPaymentConfirmed(true)
             unsubscribe()
           }
         },
         (error) => {
-          console.error("Erro ao escutar documento de pagamento:", error)
+          console.error("[v0] PAYMENT_LISTENER_ERROR - Erro ao escutar documento de pagamento:", error)
         }
       )
 
@@ -109,7 +114,7 @@ function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, payment
         unsubscribe()
       }
     } catch (error) {
-      console.error("Erro ao configurar listener de pagamento:", error)
+      console.error("[v0] PAYMENT_LISTENER_SETUP_ERROR - Erro ao configurar listener de pagamento:", error)
     }
   }, [pixData?.paymentId, cardPaymentId])
 

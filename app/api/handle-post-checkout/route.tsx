@@ -645,6 +645,7 @@ export async function POST(req: Request) {
       </div>
     `
 
+    let emailSentSuccessfully = false
     try {
       if (!userEmail) {
         console.warn("[v0] RESEND_WARNING - Email não disponível, não é possível enviar")
@@ -666,20 +667,36 @@ export async function POST(req: Request) {
           html: emailHtmlContent,
         })
         
-        console.log(`[v0] RESEND_SUCCESS - E-mail enviado com sucesso para ${userEmail}:`, response)
+        if (response && response.id) {
+          console.log(`[v0] RESEND_SUCCESS - E-mail enviado com sucesso para ${userEmail}. ID:`, response.id)
+          emailSentSuccessfully = true
+        } else {
+          console.warn("[v0] RESEND_NO_ID - Response sem ID:", response)
+        }
       } else {
         console.warn("[v0] RESEND_KEY_MISSING - RESEND_API_KEY não configurada, pulando envio")
       }
     } catch (emailError: any) {
       console.error("[v0] RESEND_ERROR - Falha ao enviar e-mail:", {
         error: emailError?.message,
+        errorCode: emailError?.code,
         errorFull: emailError,
         email: userEmail,
         subject: emailSubject,
         stack: emailError?.stack,
       })
-      // Don't fail the entire process if email fails
+      // Don't fail the entire process if email fails - continue with checkout
+      console.log("[v0] RESEND_FALLBACK - Continuando checkout mesmo com falha no email")
     }
+
+    // Log final de confirmação
+    console.log("[v0] PAYMENT_COMPLETE - Pagamento processado com sucesso", {
+      userEmail,
+      finalUserUid,
+      isNewUser,
+      emailSent: emailSentSuccessfully,
+      planType,
+    })
 
     console.log(`DEBUG: Processo de pós-checkout concluído com sucesso para usuário: ${finalUserUid}`)
     return NextResponse.json({
