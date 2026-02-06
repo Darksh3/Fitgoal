@@ -372,14 +372,12 @@ export default function Home() {
             </div>
 
             <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tight">
-               <span className="text-lime-400 block md:inline">100% Personalizados</span>
-              <span className="block text-3xl md:text-5xl font-bold text-gray-100 mt-2">Para Você</span>
+               <span className="text-lime-400 block md:inline">Pare de seguir treinos genéricos.</span>
+              <span className="block text-3xl md:text-5xl font-bold text-gray-100 mt-2">Crie um plano feito para o SEU corpo, rotina e objetivo.</span>
             </h1>
 
             <h2 className="text-lg md:text-xl text-gray-300 leading-relaxed font-medium">
-              Chega de planos genéricos! Criamos seu programa de treino e alimentação baseado no
-              <strong className="text-white"> SEU corpo</strong>,<strong className="text-white"> SUA rotina</strong> e
-              <strong className="text-white"> SEUS objetivos</strong>.
+              Em menos de 3 minutos, nosso sistema analisa seu biotipo, nível físico e rotina para montar um plano que realmente funciona.
             </h2>
 
             <h3 className="text-lime-400 text-lg font-semibold">⚡ Resultados reais em tempo recorde</h3>

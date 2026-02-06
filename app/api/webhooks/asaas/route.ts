@@ -14,12 +14,11 @@ export async function POST(request: Request) {
     const payment = body.payment
 
     console.log("[v0] WEBHOOK_EVENT - Event:", event, "PaymentID:", payment?.id, "Status:", payment?.status)
-    console.log("[v0] WEBHOOK_PAYLOAD - Payload completo:", { event, paymentId: payment?.id, status: payment?.status, billingType: payment?.billingType, externalReference: payment?.externalReference })
 
-// 1) Atualiza Firestore rapidamente (sincrono e curto)
+    // 1) Atualiza Firestore rapidamente (sincrono e curto)
     if (payment?.id && payment?.status) {
       try {
-        console.log("[v0] WEBHOOK_UPDATING_PAYMENT - Atualizando Firestore para:", payment.id)
+        console.log("[v0] WEBHOOK_UPDATING_PAYMENT - Atualizando Firestore")
 
         await adminDb.collection("payments").doc(payment.id).set(
           {
@@ -33,9 +32,9 @@ export async function POST(request: Request) {
           { merge: true },
         )
 
-        console.log("[v0] WEBHOOK_UPDATED - Firestore atualizado com status:", payment.status, "para paymentId:", payment.id)
+        console.log("[v0] WEBHOOK_UPDATED - Firestore atualizado com status:", payment.status)
       } catch (error) {
-        console.error("[v0] WEBHOOK_FIRESTORE_ERROR - Erro ao atualizar Firestore:", error)
+        console.error("[v0] WEBHOOK_FIRESTORE_ERROR - Erro:", error)
       }
     }
 
@@ -44,22 +43,22 @@ export async function POST(request: Request) {
       const userId = payment?.externalReference
 
       if (userId && payment?.id) {
-        console.log("[v0] WEBHOOK_BG_START - Disparando processamento async para userId:", userId, "paymentId:", payment.id)
+        console.log("[v0] WEBHOOK_BG_START - Disparando processamento async")
 
         try {
           await processPaymentBackground(payment, userId)
         } catch (err) {
-          console.error("[v0] WEBHOOK_BG_ERROR - Erro no background:", err)
+          console.error("[v0] WEBHOOK_BG_ERROR - Erro:", err)
         }
       } else {
-        console.warn("[v0] WEBHOOK_BG_SKIP - Sem userId ou payment.id. Recebido userId:", userId, "paymentId:", payment.id)
+        console.warn("[v0] WEBHOOK_BG_SKIP - Sem userId ou payment.id")
       }
     }
 
     // 3) Retorna OK IMEDIATO (evita 408 / penalização)
     return NextResponse.json({ received: true }, { status: 200 })
   } catch (error) {
-    console.error("[v0] WEBHOOK_ERROR - Erro ao processar webhook:", error)
+    console.error("[v0] WEBHOOK_ERROR - Erro:", error)
     return NextResponse.json({ error: "Erro" }, { status: 500 })
   }
 }
@@ -126,7 +125,7 @@ async function processPaymentBackground(payment: any, userId: string) {
     const responseText = await response.text()
     console.log("[v0] WEBHOOK_BG - handle-post-checkout status:", response.status)
     console.log("[v0] WEBHOOK_BG - handle-post-checkout response:", responseText)
-    
+
     if (!response.ok) {
       console.error("[v0] WEBHOOK_BG - Erro no handle-post-checkout:", {
         status: response.status,
