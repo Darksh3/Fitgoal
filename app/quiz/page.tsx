@@ -2075,35 +2075,36 @@ export default function QuizPage() {
                 <AiOrb size={120} />
               </div>
               <h1 className="text-4xl sm:text-5xl font-black text-white leading-tight">
-                Bem-vindo ao <span className="text-lime-400">FitGoal</span>
+                Vamos criar <span className="text-lime-400">um plano realmente feito para você</span>
               </h1>
-              <p className="text-lg sm:text-xl text-gray-300 leading-relaxed">
-                Vamos criar um plano de treino e dieta 100% personalizado para você em apenas alguns minutos.
-              </p>
-              <p className="text-base sm:text-lg text-gray-400">
-                Responda algumas perguntas simples sobre seu corpo, objetivos e rotina para que nosso sistema possa gerar um plano que realmente funciona.
+              <p className="text-base sm:text-lg text-gray-300 leading-relaxed">
+                As próximas perguntas servem para evitar erros comuns como:
               </p>
               
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 py-8 border-t border-b border-white/10">
-                <div className="flex flex-col items-center gap-3">
-                  <Dumbbell className="w-8 h-8 text-lime-400" />
-                  <p className="text-sm font-medium text-gray-300">Treino Personalizado</p>
+              <div className="space-y-3 text-left max-w-lg mx-auto">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-6 h-6 text-lime-400 flex-shrink-0" />
+                  <p className="text-base text-gray-200 font-medium">Treinos ineficientes</p>
                 </div>
-                <div className="flex flex-col items-center gap-3">
-                  <Droplets className="w-8 h-8 text-lime-400" />
-                  <p className="text-sm font-medium text-gray-300">Dieta Adaptada</p>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-6 h-6 text-lime-400 flex-shrink-0" />
+                  <p className="text-base text-gray-200 font-medium">Dietas que não funcionam</p>
                 </div>
-                <div className="flex flex-col items-center gap-3">
-                  <Clock className="w-8 h-8 text-lime-400" />
-                  <p className="text-sm font-medium text-gray-300">Menos de 3 min</p>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-6 h-6 text-lime-400 flex-shrink-0" />
+                  <p className="text-base text-gray-200 font-medium">Falta de resultados mesmo treinando</p>
                 </div>
               </div>
+
+              <p className="text-sm sm:text-base text-gray-400 italic pt-4">
+                Quanto <strong>mais preciso</strong> você for, mais eficaz será seu plano.
+              </p>
 
               <button
                 onClick={() => {
                   setCurrentStep(1)
                 }}
-                className="w-full max-w-md h-14 bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black text-lg font-bold rounded-full transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                className="w-full max-w-md h-14 bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black text-lg font-bold rounded-full transition-all shadow-lg hover:shadow-xl hover:scale-105 mt-8"
               >
                 Começar
               </button>
