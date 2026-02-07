@@ -1067,6 +1067,10 @@ JSON OBRIGATÓRIO:
           },
           { merge: true },
         )
+      } catch (firestoreError) {
+        console.error("⚠️ Firestore error:", firestoreError)
+      }
+
       try {
         console.log(
           `✅ Plans saved - Scientific: ${savedCalcs.finalCalories} kcal, Saved: ${Number(String(dietPlan?.totalDailyCalories || 0).replace(" kcal", "")) + (savedCalcs.supplementCalories || 0)} kcal`,
