@@ -321,13 +321,12 @@ export default function QuizPage() {
     isOpen: boolean
     title: string
     body: string
-    cta?: string
-    onContinue: () => void
+    nextStep?: () => void
   }>({
     isOpen: false,
     title: "",
     body: "",
-    onContinue: () => {},
+    nextStep: undefined,
   })
   // </CHANGE>
   const [showIMCResult, setShowIMCResult] = useState(false)
@@ -893,11 +892,7 @@ export default function QuizPage() {
         isOpen: true,
         title: "Perfeito. Agora ficou claro seu objetivo.",
         body: "Seu plano será ajustado exatamente para isso — evitando treinos genéricos que não funcionam.",
-        cta: "Continuar",
-        onContinue: () => {
-          setMicroFeedbackState({ ...microFeedbackState, isOpen: false })
-          setCurrentStep(4)
-        },
+        nextStep: () => setCurrentStep(4),
       })
       return
     }
@@ -908,11 +903,7 @@ export default function QuizPage() {
         isOpen: true,
         title: "Ótimo. Vamos ajustar seu nível de treino.",
         body: "Assim evitamos erros comuns como treinos leves demais ou pesados demais.",
-        cta: "Continuar",
-        onContinue: () => {
-          setMicroFeedbackState({ ...microFeedbackState, isOpen: false })
-          setCurrentStep(16)
-        },
+        nextStep: () => setCurrentStep(16),
       })
       return
     }
@@ -923,11 +914,7 @@ export default function QuizPage() {
         isOpen: true,
         title: "Entendi. Isso é mais comum do que parece.",
         body: "Esses problemas acontecem quando não existe um plano claro e personalizado.",
-        cta: "Continuar",
-        onContinue: () => {
-          setMicroFeedbackState({ ...microFeedbackState, isOpen: false })
-          setCurrentStep(20)
-        },
+        nextStep: () => setCurrentStep(20),
       })
       return
     }
@@ -948,11 +935,7 @@ export default function QuizPage() {
         isOpen: true,
         title: "Boa. Seu plano precisa caber na sua rotina.",
         body: "Agora vamos montar uma estrutura realista, fácil de seguir no dia a dia.",
-        cta: "Continuar",
-        onContinue: () => {
-          setMicroFeedbackState({ ...microFeedbackState, isOpen: false })
-          setCurrentStep(23)
-        },
+        nextStep: () => setCurrentStep(23),
       })
       return
     }
@@ -963,11 +946,7 @@ export default function QuizPage() {
         isOpen: true,
         title: "Perfeito. Vamos adaptar sua dieta.",
         body: "Seu plano alimentar será montado com base no que você gosta — não o contrário.",
-        cta: "Continuar",
-        onContinue: () => {
-          setMicroFeedbackState({ ...microFeedbackState, isOpen: false })
-          setCurrentStep(25)
-        },
+        nextStep: () => setCurrentStep(25),
       })
       return
     }
@@ -978,9 +957,7 @@ export default function QuizPage() {
         isOpen: true,
         title: "Seu plano está quase pronto.",
         body: "Já definimos a melhor estratégia para você. Agora é só personalizar e liberar seus resultados.",
-        cta: "Continuar",
-        onContinue: () => {
-          setMicroFeedbackState({ ...microFeedbackState, isOpen: false })
+        nextStep: () => {
           if (quizData.wantsSupplement === "sim") {
             setCurrentStep(28)
           } else {
@@ -4388,8 +4365,10 @@ export default function QuizPage() {
           isOpen={microFeedbackState.isOpen}
           title={microFeedbackState.title}
           body={microFeedbackState.body}
-          cta={microFeedbackState.cta}
-          onContinue={microFeedbackState.onContinue}
+          onDismiss={() => {
+            setMicroFeedbackState({ ...microFeedbackState, isOpen: false })
+            microFeedbackState.nextStep?.()
+          }}
         />
         
         <div className="flex items-center justify-between mb-8">
