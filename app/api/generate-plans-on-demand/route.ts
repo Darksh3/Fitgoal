@@ -1067,11 +1067,12 @@ JSON OBRIGATÓRIO:
           },
           { merge: true },
         )
+      try {
         console.log(
-          `✅ Plans saved - Scientific: ${savedCalcs.finalCalories} kcal, Saved: ${Number(String(dietPlan?.totalDailyCalories).replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
+          `✅ Plans saved - Scientific: ${savedCalcs.finalCalories} kcal, Saved: ${Number(String(dietPlan?.totalDailyCalories || 0).replace(" kcal", "")) + (savedCalcs.supplementCalories || 0)} kcal`,
         )
-      } catch (firestoreError) {
-        console.error("⚠️ Firestore error:", firestoreError)
+      } catch (logError) {
+        console.log("⚠️ Log error (continuing anyway):", logError)
       }
 
       return new Response(
