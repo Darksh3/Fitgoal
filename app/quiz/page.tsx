@@ -26,6 +26,8 @@ import { motion } from "framer-motion"
 
 import { calculateScientificCalories } from "@/lib/calorieCalculator"
 
+import { MicroFeedbackModal } from "@/components/micro-feedback-modal"
+
 // Helper component for AnimatedPercentage
 const AnimatedPercentage = ({ targetPercentage = 100, duration = 8, onPercentageChange }) => {
   const [percentage, setPercentage] = useState(0)
@@ -314,6 +316,19 @@ export default function QuizPage() {
   const [showGoalTimeline, setShowGoalTimeline] = useState(false)
   const [calculatedWeeks, setCalculatedWeeks] = useState(0)
   const [isCalculatingGoal, setIsCalculatingGoal] = useState(false)
+  // Micro feedback state
+  const [microFeedbackState, setMicroFeedbackState] = useState<{
+    isOpen: boolean
+    title: string
+    body: string
+    cta?: string
+    onContinue: () => void
+  }>({
+    isOpen: false,
+    title: "",
+    body: "",
+    onContinue: () => {},
+  })
   // </CHANGE>
   const [showIMCResult, setShowIMCResult] = useState(false)
   const [showLoading, setShowLoading] = useState(false)
@@ -871,6 +886,52 @@ export default function QuizPage() {
       setCurrentStep(1)
       return
     }
+    
+    // MICRO FEEDBACK #1 - Case 3 (Objetivos)
+    if (currentStep === 3) {
+      setMicroFeedbackState({
+        isOpen: true,
+        title: "Perfeito. Agora ficou claro seu objetivo.",
+        body: "Seu plano será ajustado exatamente para isso — evitando treinos genéricos que não funcionam.",
+        cta: "Continuar",
+        onContinue: () => {
+          setMicroFeedbackState({ ...microFeedbackState, isOpen: false })
+          setCurrentStep(4)
+        },
+      })
+      return
+    }
+    
+    // MICRO FEEDBACK #2 - Case 15 (Experiência)
+    if (currentStep === 15) {
+      setMicroFeedbackState({
+        isOpen: true,
+        title: "Ótimo. Vamos ajustar seu nível de treino.",
+        body: "Assim evitamos erros comuns como treinos leves demais ou pesados demais.",
+        cta: "Continuar",
+        onContinue: () => {
+          setMicroFeedbackState({ ...microFeedbackState, isOpen: false })
+          setCurrentStep(16)
+        },
+      })
+      return
+    }
+    
+    // MICRO FEEDBACK #3 - Case 19 (Dificuldades anteriores)
+    if (currentStep === 19) {
+      setMicroFeedbackState({
+        isOpen: true,
+        title: "Entendi. Isso é mais comum do que parece.",
+        body: "Esses problemas acontecem quando não existe um plano claro e personalizado.",
+        cta: "Continuar",
+        onContinue: () => {
+          setMicroFeedbackState({ ...microFeedbackState, isOpen: false })
+          setCurrentStep(20)
+        },
+      })
+      return
+    }
+    
     if (currentStep === 5) {
       // Show quick results after case 5
       setShowQuickResults(true)
@@ -879,17 +940,58 @@ export default function QuizPage() {
       // Show nutrition info after case 7
       setShowNutritionInfo(true)
       return
-    } else if (currentStep === 27) {
-      // Adjusted logic for supplement interest step
-      if (quizData.wantsSupplement === "sim") {
-        // If user wants supplement, proceed to the next step (Name)
-        setCurrentStep(28)
-      } else {
-        // If user doesn't want supplement, skip to the Name step (which is now 28)
-        setCurrentStep(29) // Skip to email
-      }
+    } 
+    
+    // MICRO FEEDBACK #4 - Case 22 (Tempo disponível - MAIS IMPORTANTE)
+    if (currentStep === 22) {
+      setMicroFeedbackState({
+        isOpen: true,
+        title: "Boa. Seu plano precisa caber na sua rotina.",
+        body: "Agora vamos montar uma estrutura realista, fácil de seguir no dia a dia.",
+        cta: "Continuar",
+        onContinue: () => {
+          setMicroFeedbackState({ ...microFeedbackState, isOpen: false })
+          setCurrentStep(23)
+        },
+      })
       return
-    } else if (currentStep === totalSteps) {
+    }
+    
+    // MICRO FEEDBACK #5 - Case 24 (Preferências alimentares)
+    if (currentStep === 24) {
+      setMicroFeedbackState({
+        isOpen: true,
+        title: "Perfeito. Vamos adaptar sua dieta.",
+        body: "Seu plano alimentar será montado com base no que você gosta — não o contrário.",
+        cta: "Continuar",
+        onContinue: () => {
+          setMicroFeedbackState({ ...microFeedbackState, isOpen: false })
+          setCurrentStep(25)
+        },
+      })
+      return
+    }
+    
+    // MICRO FEEDBACK #6 - Pré nome/e-mail (27 → 28)
+    if (currentStep === 27) {
+      setMicroFeedbackState({
+        isOpen: true,
+        title: "Seu plano está quase pronto.",
+        body: "Já definimos a melhor estratégia para você. Agora é só personalizar e liberar seus resultados.",
+        cta: "Continuar",
+        onContinue: () => {
+          setMicroFeedbackState({ ...microFeedbackState, isOpen: false })
+          if (quizData.wantsSupplement === "sim") {
+            setCurrentStep(28)
+          } else {
+            setCurrentStep(29)
+          }
+        },
+      })
+      return
+    }
+    
+    if (currentStep === totalSteps) {
       // When reaching the final step, save the lead and redirect to results
       saveLead()
       return
@@ -4281,6 +4383,15 @@ export default function QuizPage() {
       />
 
       <div className="max-w-4xl mx-auto relative z-10">
+        {/* Micro Feedback Modal */}
+        <MicroFeedbackModal
+          isOpen={microFeedbackState.isOpen}
+          title={microFeedbackState.title}
+          body={microFeedbackState.body}
+          cta={microFeedbackState.cta}
+          onContinue={microFeedbackState.onContinue}
+        />
+        
         <div className="flex items-center justify-between mb-8">
           <Button variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="text-white">
             <ArrowLeft className="h-4 w-4 mr-2" />
