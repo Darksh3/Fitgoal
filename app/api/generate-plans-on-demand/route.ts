@@ -1057,9 +1057,9 @@ JSON OBRIGATÓRIO:
             finalResults: {
               scientificTarget: savedCalcs.finalCalories,
               // The actual generated calories here will be the sum of meal calories and supplement calories
-              actualGenerated: `${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
+              actualGenerated: `${Number(String(dietPlan?.totalDailyCalories).replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
               valuesMatch:
-                `${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal` ===
+                `${Number(String(dietPlan?.totalDailyCalories).replace(" kcal", "")) + savedCalcs.supplementCalories} kcal` ===
                 `${savedCalcs.finalCalories} kcal`,
               generatedAt: admin.firestore.FieldValue.serverTimestamp(),
             },
@@ -1068,7 +1068,7 @@ JSON OBRIGATÓRIO:
           { merge: true },
         )
         console.log(
-          `✅ Plans saved - Scientific: ${savedCalcs.finalCalories} kcal, Saved: ${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
+          `✅ Plans saved - Scientific: ${savedCalcs.finalCalories} kcal, Saved: ${Number(String(dietPlan?.totalDailyCalories).replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
         )
       } catch (firestoreError) {
         console.error("⚠️ Firestore error:", firestoreError)
@@ -1223,7 +1223,7 @@ function calculateScientificCalories(data: any) {
       // Meta > Peso atual = GANHAR PESO/MASSA
       console.log(`ℹ️ [WEIGHT GOAL CONFIRMS] User target weight (${targetWeight}kg) > current weight (${weight}kg) = GAIN mode`)
       if (!effectiveGoals.includes("ganhar-massa") && !effectiveGoals.includes("ganhar-peso")) {
-        console.log(`📊 [AUTO-CORRECTION] Overriding to MUSCLE GAIN mode (surplus)`)
+        console.log(`��� [AUTO-CORRECTION] Overriding to MUSCLE GAIN mode (surplus)`)
         effectiveGoals = ["ganhar-massa"]
       }
     }
