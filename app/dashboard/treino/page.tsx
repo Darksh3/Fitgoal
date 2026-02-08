@@ -835,6 +835,13 @@ export default function TreinoPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Disclaimer Footer */}
+          <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed max-w-3xl">
+              <strong>Aviso:</strong> Este plano é informativo e educativo, não substitui acompanhamento médico, nutricional ou de um profissional de saúde. Antes de iniciar qualquer dieta ou treino, consulte um profissional habilitado.
+            </p>
+          </div>
         </div>
       </div>
     </ProtectedRoute>
