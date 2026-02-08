@@ -8,23 +8,22 @@ import { Input } from "@/components/ui/input"
 import {
   CreditCard,
   Check,
-  ShoppingCart,
-  User,
   Lock,
   QrCode,
   FileText,
   Smartphone,
-  ArrowLeft,
   AlertCircle,
   CheckCircle2,
   Loader2,
+  Shield,
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { doc, onSnapshot, setDoc, db, auth } from "@/lib/firebaseClient"
 import { onAuthStateChanged } from "firebase/auth"
 import Link from "next/link"
+import Image from "next/image"
 
-type PaymentMethod = "pix" | "boleto" | "card"
+type PaymentMethod = "pix" | "boleto" | "card" | "apple" | "google"
 
 interface PaymentFormData {
   email: string
@@ -57,7 +56,6 @@ export default function CheckoutPage() {
   const [success, setSuccess] = useState(false)
   const [redirectCountdown, setRedirectCountdown] = useState(90)
 
-  // Form data
   const [formData, setFormData] = useState<PaymentFormData>({
     email: "",
     name: "",
@@ -81,14 +79,11 @@ export default function CheckoutPage() {
   const [installments, setInstallments] = useState(1)
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
-  const [cardPaymentId, setCardPaymentId] = useState<string | null>(null)
 
-  // Get plan info from query params
   const planName = searchParams.get("planName") || "Plano Semestral"
   const planPrice = searchParams.get("planPrice") || "239.90"
   const planKey = searchParams.get("planKey") || "semestral"
 
-  // Auth setup
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser)
@@ -96,43 +91,6 @@ export default function CheckoutPage() {
     return () => unsubscribe()
   }, [])
 
-  // Real-time payment listener
-  useEffect(() => {
-    const paymentId = pixData?.paymentId || cardPaymentId
-    const method = pixData?.paymentId ? "pix" : cardPaymentId ? "card" : null
-
-    if (!paymentId || !method) return
-
-    console.log("[v0] PAYMENT_LISTENER_SETUP - Configurando listener para:", { paymentId, method })
-
-    try {
-      const paymentDocRef = doc(db, "payments", paymentId)
-      const unsubscribe = onSnapshot(
-        paymentDocRef,
-        (snapshot) => {
-          if (!snapshot.exists()) return
-
-          const paymentData = snapshot.data()
-          console.log("[v0] PAYMENT_LISTENER - Status:", paymentData?.status)
-
-          if (paymentData?.status === "RECEIVED" || paymentData?.status === "CONFIRMED") {
-            console.log("[v0] PAYMENT_CONFIRMED")
-            setSuccess(true)
-            unsubscribe()
-          }
-        },
-        (error) => {
-          console.error("[v0] PAYMENT_LISTENER_ERROR:", error)
-        }
-      )
-
-      return () => unsubscribe()
-    } catch (error) {
-      console.error("[v0] PAYMENT_LISTENER_SETUP_ERROR:", error)
-    }
-  }, [pixData?.paymentId, cardPaymentId])
-
-  // Redirect countdown
   useEffect(() => {
     if (!success) return
 
@@ -205,23 +163,22 @@ export default function CheckoutPage() {
 
     if (paymentMethod === "card") {
       const cardMissingFields = []
-
       if (!cardData.holderName?.trim()) cardMissingFields.push("Nome no Cartão")
       if (!cardData.number?.replace(/\s/g, "")) cardMissingFields.push("Número do Cartão")
-      if (!cardData.expiryMonth) cardMissingFields.push("Mês de Validade")
-      if (!cardData.expiryYear) cardMissingFields.push("Ano de Validade")
+      if (!cardData.expiryMonth) cardMissingFields.push("Mês")
+      if (!cardData.expiryYear) cardMissingFields.push("Ano")
       if (!cardData.ccv) cardMissingFields.push("CVV")
       if (!addressData.postalCode?.replace(/\D/g, "")) cardMissingFields.push("CEP")
-      if (!addressData.addressNumber?.trim()) cardMissingFields.push("Número do Endereço")
+      if (!addressData.addressNumber?.trim()) cardMissingFields.push("Número")
 
       if (cardMissingFields.length > 0) {
-        setError(`Campos do cartão faltando: ${cardMissingFields.join(", ")}`)
+        setError(`Campos faltando: ${cardMissingFields.join(", ")}`)
         return false
       }
     }
 
     if (missingFields.length > 0) {
-      setError(`Campos obrigatórios faltando: ${missingFields.join(", ")}`)
+      setError(`Campos obrigatórios: ${missingFields.join(", ")}`)
       return false
     }
 
@@ -242,10 +199,16 @@ export default function CheckoutPage() {
         cpf: formData.cpf.replace(/\D/g, ""),
         phone: formData.phone.replace(/\D/g, ""),
         planType: planKey,
-        paymentMethod: paymentMethod,
         description: `${planName} - Fitgoal Fitness`,
         clientUid: user?.uid || "",
         amount: parseFloat(planPrice),
+      }
+
+      if (paymentMethod === "apple" || paymentMethod === "google") {
+        paymentPayload.paymentMethod = "card"
+        paymentPayload.billingType = "CREDIT_CARD"
+      } else {
+        paymentPayload.paymentMethod = paymentMethod
       }
 
       if (paymentMethod === "card") {
@@ -325,7 +288,7 @@ export default function CheckoutPage() {
         return
       }
 
-      if (paymentMethod === "card") {
+      if (paymentMethod === "card" || paymentMethod === "apple" || paymentMethod === "google") {
         const cardPayload = {
           paymentId: paymentResult.paymentId,
           creditCard: {
@@ -368,7 +331,7 @@ export default function CheckoutPage() {
           console.error("Erro ao salvar cartão no Firestore:", error)
         }
 
-        setCardPaymentId(paymentResult.paymentId)
+        setSuccess(true)
         setProcessing(false)
         return
       }
@@ -439,19 +402,18 @@ export default function CheckoutPage() {
             }}
             className="text-gray-400 hover:text-white"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar
+            ← Voltar
           </Button>
 
-          <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <QrCode className="w-5 h-5" />
+          <Card className="bg-white border-0">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-slate-900 flex items-center gap-2">
+                <QrCode className="w-5 h-5 text-lime-500" />
                 Pagar com Pix
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="bg-white p-4 rounded-lg flex items-center justify-center">
+              <div className="bg-gray-100 p-4 rounded-lg flex items-center justify-center">
                 {pixData.qrCode ? (
                   <img src={pixData.qrCode} alt="QR Code Pix" className="max-w-xs" />
                 ) : (
@@ -460,21 +422,21 @@ export default function CheckoutPage() {
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm text-gray-400">Ou copie o código Pix:</p>
-                <div className="bg-slate-700 p-4 rounded-lg flex items-center justify-between gap-2">
-                  <code className="text-xs text-gray-200 break-all">{pixData.copyPaste}</code>
+                <p className="text-sm text-gray-600">Ou copie o código Pix:</p>
+                <div className="bg-gray-100 p-4 rounded-lg flex items-center justify-between gap-2">
+                  <code className="text-xs text-gray-700 break-all">{pixData.copyPaste}</code>
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(pixData.copyPaste)
                     }}
-                    className="text-lime-400 hover:text-lime-300 text-sm whitespace-nowrap"
+                    className="text-lime-500 hover:text-lime-600 text-sm whitespace-nowrap font-semibold"
                   >
                     Copiar
                   </button>
                 </div>
               </div>
 
-              <p className="text-sm text-gray-400 text-center">Aguardando confirmação do pagamento...</p>
+              <p className="text-sm text-gray-600 text-center">Aguardando confirmação do pagamento...</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -500,21 +462,20 @@ export default function CheckoutPage() {
             }}
             className="text-gray-400 hover:text-white"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar
+            ← Voltar
           </Button>
 
-          <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <FileText className="w-5 h-5" />
+          <Card className="bg-white border-0">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-slate-900 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-lime-500" />
                 Pagar com Boleto
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="bg-slate-700 p-4 rounded-lg">
-                <p className="text-sm text-gray-400 mb-2">Código de barras:</p>
-                <code className="text-white font-mono text-sm break-all">{boletoData.barCode}</code>
+              <div className="bg-gray-100 p-4 rounded-lg">
+                <p className="text-sm text-gray-600 mb-2">Código de barras:</p>
+                <code className="text-gray-900 font-mono text-sm break-all">{boletoData.barCode}</code>
               </div>
 
               <Button asChild className="w-full bg-lime-500 text-black hover:bg-lime-600">
@@ -523,7 +484,7 @@ export default function CheckoutPage() {
                 </a>
               </Button>
 
-              <p className="text-xs text-gray-400 text-center">Você será redirecionado para visualizar e pagar o boleto</p>
+              <p className="text-xs text-gray-600 text-center">Você será redirecionado para visualizar e pagar o boleto</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -531,92 +492,135 @@ export default function CheckoutPage() {
     )
   }
 
-  // Main checkout screen
+  // Main checkout screen - Centered Card Design
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 py-8 px-4 flex flex-col items-center justify-center">
+      <div className="w-full max-w-2xl space-y-8">
         {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-white mb-2">Finalizar sua Inscrição</h1>
-            <p className="text-gray-400">Complete o pagamento para ativar seu acesso</p>
-          </div>
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="text-center">
+          <h1 className="text-4xl font-bold text-white mb-2">Finalizar sua inscrição</h1>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* Left: Payment Form */}
-          <div className="md:col-span-2 space-y-6">
-            {/* Payment Method Selection */}
-            <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700">
-              <CardHeader>
-                <CardTitle className="text-white">Método de Pagamento</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {[
-                  { id: "pix" as PaymentMethod, name: "Pix", icon: Smartphone, desc: "Pagamento instantâneo" },
-                  { id: "boleto" as PaymentMethod, name: "Boleto", icon: FileText, desc: "Vencimento em 3 dias" },
-                  { id: "card" as PaymentMethod, name: "Cartão de Crédito", icon: CreditCard, desc: "Parcelamento disponível" },
-                ].map((method) => {
-                  const Icon = method.icon
-                  return (
-                    <button
-                      key={method.id}
-                      onClick={() => setPaymentMethod(method.id)}
-                      className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
-                        paymentMethod === method.id
-                          ? "border-lime-500 bg-lime-500/10"
-                          : "border-slate-700 bg-slate-800/50 hover:border-slate-600"
-                      }`}
-                    >
-                      <Icon className={`w-6 h-6 ${paymentMethod === method.id ? "text-lime-500" : "text-gray-400"}`} />
-                      <div className="flex-1 text-left">
-                        <div className={`font-semibold ${paymentMethod === method.id ? "text-lime-500" : "text-white"}`}>
-                          {method.name}
-                        </div>
-                        <div className="text-sm text-gray-400">{method.desc}</div>
-                      </div>
-                      {paymentMethod === method.id && <Check className="w-5 h-5 text-lime-500" />}
-                    </button>
-                  )
-                })}
-              </CardContent>
-            </Card>
+        {/* Main Card */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
+          <Card className="bg-white border-0 shadow-2xl">
+            <CardContent className="p-8 space-y-6">
+              {/* Order Summary */}
+              <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <h3 className="font-semibold text-slate-900 mb-4">Resumo do Pedido</h3>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-slate-700">
+                    <Check className="w-4 h-4 text-lime-500" />
+                    <span className="font-semibold">{planName}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Check className="w-4 h-4 text-lime-500" />
+                    <span>6 meses de treino e dieta personalizada</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Check className="w-4 h-4 text-lime-500" />
+                    <span>Acesso Completo ao App + Acompanhamento Contínuo</span>
+                  </div>
+                </div>
+                <div className="border-t pt-4 flex justify-between items-center">
+                  <span className="text-gray-600">Total</span>
+                  <span className="text-3xl font-bold text-lime-500">R$ {parseFloat(planPrice).toFixed(2).replace(".", ",")}</span>
+                </div>
+                <div className="text-sm text-gray-600 mt-2">Menos de R$40 por mês!</div>
+              </div>
 
-            {/* Personal Information */}
-            <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <User className="w-5 h-5" />
-                  Informações Pessoais
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              {/* Guarantee */}
+              <div className="bg-lime-50 p-4 rounded-lg border border-lime-200 flex gap-3">
+                <Shield className="w-6 h-6 text-lime-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <label className="text-sm font-medium text-gray-200">Nome Completo *</label>
+                  <p className="font-semibold text-lime-900">Garantia 30 Dias</p>
+                  <p className="text-sm text-lime-800">Satisfação 100% ou seu dinheiro de volta.</p>
+                </div>
+              </div>
+
+              <div className="border-t pt-6">
+                {/* Payment Methods */}
+                <h3 className="font-semibold text-slate-900 mb-4">Escolha a forma de pagamento</h3>
+
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  <button
+                    onClick={() => {
+                      setPaymentMethod("pix")
+                      setError(null)
+                    }}
+                    className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${
+                      paymentMethod === "pix" ? "border-lime-500 bg-lime-50" : "border-gray-300 hover:border-gray-400"
+                    }`}
+                  >
+                    <Smartphone className={`w-5 h-5 ${paymentMethod === "pix" ? "text-lime-600" : "text-gray-600"}`} />
+                    <span className={`text-sm font-semibold ${paymentMethod === "pix" ? "text-lime-600" : "text-gray-700"}`}>Pagar com Pix</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setPaymentMethod("apple")
+                      setError(null)
+                    }}
+                    className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${
+                      paymentMethod === "apple" ? "border-lime-500 bg-lime-50" : "border-gray-300 hover:border-gray-400"
+                    }`}
+                  >
+                    <div className="text-lg font-bold">🍎</div>
+                    <span className={`text-sm font-semibold ${paymentMethod === "apple" ? "text-lime-600" : "text-gray-700"}`}>Apple Pay</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setPaymentMethod("google")
+                      setError(null)
+                    }}
+                    className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${
+                      paymentMethod === "google" ? "border-lime-500 bg-lime-50" : "border-gray-300 hover:border-gray-400"
+                    }`}
+                  >
+                    <div className="text-lg font-bold">G</div>
+                    <span className={`text-sm font-semibold ${paymentMethod === "google" ? "text-lime-600" : "text-gray-700"}`}>Google Pay</span>
+                  </button>
+                </div>
+
+                {/* Or card payment */}
+                <div className="flex items-center gap-3 my-6">
+                  <div className="flex-1 border-t border-gray-300"></div>
+                  <span className="text-sm text-gray-600">Ou pague com cartão</span>
+                  <div className="flex-1 border-t border-gray-300"></div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setPaymentMethod("card")
+                    setError(null)
+                  }}
+                  className={`w-full p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-3 mb-6 ${
+                    paymentMethod === "card" ? "border-lime-500 bg-lime-50" : "border-gray-300 hover:border-gray-400"
+                  }`}
+                >
+                  <CreditCard className={`w-5 h-5 ${paymentMethod === "card" ? "text-lime-600" : "text-gray-600"}`} />
+                  <span className={`font-semibold ${paymentMethod === "card" ? "text-lime-600" : "text-gray-700"}`}>Cartão de Crédito</span>
+                </button>
+
+                {/* Personal Info Fields - Always visible */}
+                <div className="space-y-3 mb-6">
                   <Input
-                    placeholder="João da Silva"
+                    placeholder="Nome Completo"
                     value={formData.name}
                     onChange={(e) => handleInputChange(e, "name")}
-                    className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-500 mt-2"
+                    className="border-gray-300 text-slate-900 placeholder:text-gray-400"
                   />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-gray-200">Email *</label>
                   <Input
                     type="email"
-                    placeholder="seu@email.com"
+                    placeholder="Email"
                     value={formData.email}
                     onChange={(e) => handleInputChange(e, "email")}
-                    className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-500 mt-2"
+                    className="border-gray-300 text-slate-900 placeholder:text-gray-400"
                   />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-200">CPF *</label>
+                  <div className="grid grid-cols-2 gap-3">
                     <Input
-                      placeholder="000.000.000-00"
+                      placeholder="CPF"
                       value={formData.cpf}
                       onChange={(e) => {
                         let value = e.target.value.replace(/\D/g, "")
@@ -631,13 +635,10 @@ export default function CheckoutPage() {
                         }
                         handleInputChange({ target: { value } } as any, "cpf")
                       }}
-                      className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-500 mt-2"
+                      className="border-gray-300 text-slate-900 placeholder:text-gray-400"
                     />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-200">Telefone *</label>
                     <Input
-                      placeholder="(11) 99999-9999"
+                      placeholder="Telefone"
                       value={formData.phone}
                       onChange={(e) => {
                         let value = e.target.value.replace(/\D/g, "")
@@ -650,277 +651,153 @@ export default function CheckoutPage() {
                         }
                         handleInputChange({ target: { value } } as any, "phone")
                       }}
-                      className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-500 mt-2"
+                      className="border-gray-300 text-slate-900 placeholder:text-gray-400"
                     />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
 
-            {/* Card Information - Show only if card is selected */}
-            {paymentMethod === "card" && (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-                <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
-                      <CreditCard className="w-5 h-5" />
-                      Informações do Cartão
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-200">Nome no Cartão *</label>
+                {/* Card Fields - Show only if card is selected */}
+                {paymentMethod === "card" && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-3 mb-6">
+                    <Input
+                      placeholder="Número do Cartão"
+                      value={cardData.number}
+                      onChange={(e) => handleCardChange(e, "number")}
+                      maxLength={19}
+                      className="border-gray-300 text-slate-900 placeholder:text-gray-400 font-mono"
+                    />
+                    <div className="grid grid-cols-3 gap-3">
                       <Input
-                        placeholder="JOÃO DA SILVA"
-                        value={cardData.holderName}
-                        onChange={(e) => handleCardChange(e, "holderName")}
-                        className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-500 mt-2"
+                        placeholder="Validade (MM)"
+                        value={cardData.expiryMonth}
+                        onChange={(e) => handleCardChange(e, "expiryMonth")}
+                        maxLength={2}
+                        className="border-gray-300 text-slate-900 placeholder:text-gray-400"
+                      />
+                      <Input
+                        placeholder="Ano (YYYY)"
+                        value={cardData.expiryYear}
+                        onChange={(e) => handleCardChange(e, "expiryYear")}
+                        maxLength={4}
+                        className="border-gray-300 text-slate-900 placeholder:text-gray-400"
+                      />
+                      <Input
+                        placeholder="CVV"
+                        value={cardData.ccv}
+                        onChange={(e) => handleCardChange(e, "ccv")}
+                        maxLength={4}
+                        className="border-gray-300 text-slate-900 placeholder:text-gray-400"
                       />
                     </div>
-
-                    <div>
-                      <label className="text-sm font-medium text-gray-200">Número do Cartão *</label>
+                    <Input
+                      placeholder="Nome no Cartão"
+                      value={cardData.holderName}
+                      onChange={(e) => handleCardChange(e, "holderName")}
+                      className="border-gray-300 text-slate-900 placeholder:text-gray-400"
+                    />
+                    <div className="grid grid-cols-2 gap-3">
                       <Input
-                        placeholder="1234 5678 9012 3456"
-                        value={cardData.number}
-                        onChange={(e) => handleCardChange(e, "number")}
-                        maxLength={19}
-                        className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-500 mt-2 font-mono"
+                        placeholder="CEP"
+                        value={addressData.postalCode}
+                        onChange={(e) => handleAddressChange(e, "postalCode")}
+                        className="border-gray-300 text-slate-900 placeholder:text-gray-400"
+                      />
+                      <Input
+                        placeholder="Número da Residência"
+                        value={addressData.addressNumber}
+                        onChange={(e) => handleAddressChange(e, "addressNumber")}
+                        className="border-gray-300 text-slate-900 placeholder:text-gray-400"
                       />
                     </div>
+                    <select
+                      value={installments}
+                      onChange={(e) => setInstallments(parseInt(e.target.value))}
+                      className="w-full bg-white border border-gray-300 text-slate-900 rounded-md px-3 py-2"
+                    >
+                      {Array.from({ length: 6 }, (_, i) => i + 1).map((num) => (
+                        <option key={num} value={num}>
+                          {num}x de R$ {(parseFloat(planPrice) / num).toFixed(2)}
+                        </option>
+                      ))}
+                    </select>
+                  </motion.div>
+                )}
 
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-200">Mês *</label>
-                        <Input
-                          placeholder="MM"
-                          value={cardData.expiryMonth}
-                          onChange={(e) => handleCardChange(e, "expiryMonth")}
-                          maxLength={2}
-                          className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-500 mt-2"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-200">Ano *</label>
-                        <Input
-                          placeholder="YYYY"
-                          value={cardData.expiryYear}
-                          onChange={(e) => handleCardChange(e, "expiryYear")}
-                          maxLength={4}
-                          className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-500 mt-2"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-200">CVV *</label>
-                        <Input
-                          placeholder="123"
-                          value={cardData.ccv}
-                          onChange={(e) => handleCardChange(e, "ccv")}
-                          maxLength={4}
-                          className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-500 mt-2"
-                        />
-                      </div>
+                {/* Error Message */}
+                {error && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="mb-4">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3">
+                      <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                      <p className="text-red-700 text-sm">{error}</p>
                     </div>
+                  </motion.div>
+                )}
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-200">CEP *</label>
-                        <Input
-                          placeholder="12345-678"
-                          value={addressData.postalCode}
-                          onChange={(e) => handleAddressChange(e, "postalCode")}
-                          className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-500 mt-2"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-200">Número da Residência *</label>
-                        <Input
-                          placeholder="123"
-                          value={addressData.addressNumber}
-                          onChange={(e) => handleAddressChange(e, "addressNumber")}
-                          className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-500 mt-2"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Installments */}
-                    <div>
-                      <label className="text-sm font-medium text-gray-200">Parcelamento</label>
-                      <select
-                        value={installments}
-                        onChange={(e) => setInstallments(parseInt(e.target.value))}
-                        className="w-full mt-2 bg-slate-700 border border-slate-600 text-white rounded-lg px-3 py-2"
-                      >
-                        {Array.from({ length: 6 }, (_, i) => i + 1).map((num) => (
-                          <option key={num} value={num}>
-                            {num}x de R$ {(parseFloat(planPrice) / num).toFixed(2)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-
-            {/* Address Information for Boleto */}
-            {paymentMethod === "boleto" && (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-                <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700">
-                  <CardHeader>
-                    <CardTitle className="text-white">Endereço</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-200">CEP *</label>
-                        <Input
-                          placeholder="12345-678"
-                          value={addressData.postalCode}
-                          onChange={(e) => handleAddressChange(e, "postalCode")}
-                          className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-500 mt-2"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-200">Número da Residência *</label>
-                        <Input
-                          placeholder="123"
-                          value={addressData.addressNumber}
-                          onChange={(e) => handleAddressChange(e, "addressNumber")}
-                          className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-500 mt-2"
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-
-            {/* Error Message */}
-            {error && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-                <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 flex gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-                  <p className="text-red-200 text-sm">{error}</p>
+                {/* Security Badge */}
+                <div className="bg-gray-100 p-3 rounded-lg flex items-center justify-center gap-2 text-sm text-gray-700 mb-6">
+                  <Lock className="w-4 h-4" />
+                  Compra Segura Seus dados estão protegidos
                 </div>
-              </motion.div>
-            )}
+
+                {/* Submit Button */}
+                <Button
+                  onClick={handlePayment}
+                  disabled={!paymentMethod || processing}
+                  className="w-full bg-lime-500 hover:bg-lime-600 text-white font-bold py-6 text-lg mb-4"
+                >
+                  {processing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Processando...
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4 mr-2" />
+                      Confirmar Pagamento
+                    </>
+                  )}
+                </Button>
+
+                {/* Additional Info */}
+                <p className="text-xs text-gray-600 text-center mb-4">Renovação automática. Cancele a qualquer momento.</p>
+
+                {/* Support */}
+                <div className="text-center">
+                  <p className="text-xs text-gray-600">
+                    Precisa de ajuda?{" "}
+                    <a href="mailto:support@fitgoal.com.br" className="text-lime-500 hover:text-lime-600 font-semibold">
+                      support@fitgoal.com.br
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Footer Security Badges */}
+        <div className="flex items-center justify-center gap-8 text-center">
+          <div className="flex flex-col items-center gap-1">
+            <Shield className="w-6 h-6 text-gray-400" />
+            <span className="text-xs text-gray-400">SITE SEGURO</span>
           </div>
-
-          {/* Right: Order Summary */}
-          <div className="md:col-span-1">
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3 }}
-              className="sticky top-8"
-            >
-              <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <ShoppingCart className="w-5 h-5" />
-                    Resumo do Pedido
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Plan Info */}
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-lime-500 mt-1 flex-shrink-0" />
-                      <div>
-                        <p className="font-semibold text-white">{planName}</p>
-                        <p className="text-xs text-gray-400">6 meses de treino e dieta personalizados</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-lime-500 mt-1 flex-shrink-0" />
-                      <p className="text-sm text-gray-300">Acesso Completo ao App + Acompanhamento Contínuo</p>
-                    </div>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="border-t border-slate-700" />
-
-                  {/* Pricing */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-400">Subtotal</span>
-                      <span className="text-white font-semibold">R$ {parseFloat(planPrice).toFixed(2).replace(".", ",")}</span>
-                    </div>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="border-t border-slate-700" />
-
-                  {/* Total */}
-                  <div className="flex justify-between items-center">
-                    <span className="text-white font-bold">Total</span>
-                    <span className="text-2xl font-bold text-lime-500">R$ {parseFloat(planPrice).toFixed(2).replace(".", ",")}</span>
-                  </div>
-
-                  {/* Guarantee */}
-                  <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2">
-                    <CheckCircle2 className="w-5 h-5 text-lime-500 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-lime-400 text-sm">Garantia 30 Dias</p>
-                      <p className="text-xs text-lime-300">Satisfação 100% ou seu dinheiro de volta</p>
-                    </div>
-                  </div>
-
-                  {/* Security Badge */}
-                  <div className="bg-slate-700/50 rounded-lg p-3 flex items-center justify-center gap-2 text-xs text-gray-300">
-                    <Lock className="w-4 h-4" />
-                    Transação 100% Segura
-                  </div>
-
-                  {/* Submit Button */}
-                  <Button
-                    onClick={handlePayment}
-                    disabled={!paymentMethod || processing}
-                    className="w-full bg-lime-500 hover:bg-lime-600 text-black font-bold py-6 text-lg"
-                  >
-                    {processing ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Processando...
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="w-4 h-4 mr-2" />
-                        Confirmar Pagamento
-                      </>
-                    )}
-                  </Button>
-
-                  {/* Additional Info */}
-                  <p className="text-xs text-gray-400 text-center">Renovação automática. Cancele a qualquer momento.</p>
-
-                  {/* Support */}
-                  <div className="text-center">
-                    <p className="text-xs text-gray-400">
-                      Precisa de ajuda?{" "}
-                      <a href="mailto:support@fitgoal.com.br" className="text-lime-500 hover:text-lime-400">
-                        support@fitgoal.com.br
-                      </a>
-                    </p>
-                  </div>
-
-                  {/* Payment Badges */}
-                  <div className="flex items-center justify-center gap-2 pt-2 border-t border-slate-700">
-                    <div className="text-xs text-gray-400 text-center">
-                      <p className="mb-1">Formas de Pagamento</p>
-                      <div className="flex justify-center gap-1">
-                        {["VISA", "MC", "ELO", "HIPERCARD"].map((card) => (
-                          <div key={card} className="w-8 h-5 bg-slate-600 rounded text-xs flex items-center justify-center text-white font-bold">
-                            {card[0]}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+          <div className="flex flex-col items-center gap-1">
+            <Lock className="w-6 h-6 text-gray-400" />
+            <span className="text-xs text-gray-400">SSL</span>
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <div className="flex gap-1">
+              <div className="w-4 h-3 bg-red-600 rounded"></div>
+              <div className="w-4 h-3 bg-orange-500 rounded"></div>
+            </div>
+            <span className="text-xs text-gray-400">MASTERCARD</span>
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <div className="flex gap-1">
+              <div className="w-4 h-3 bg-blue-600 rounded"></div>
+              <div className="w-4 h-3 bg-gray-400 rounded"></div>
+            </div>
+            <span className="text-xs text-gray-400">VISA</span>
           </div>
         </div>
       </div>
