@@ -6,6 +6,7 @@ import { motion } from "framer-motion"
 import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import Image from "next/image"
+import CheckoutModal from "@/components/checkout-modal"
 
 export default function QuizResultsPage() {
   const router = useRouter()
@@ -14,6 +15,7 @@ export default function QuizResultsPage() {
   const [timeLeft, setTimeLeft] = useState({ minutes: 4, seconds: 0 })
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "quarterly" | "semiannual">("quarterly")
   const [barsVisible, setBarsVisible] = useState(false)
+  const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [expandedTestimonial, setExpandedTestimonial] = useState<string | null>(null)
 
   useEffect(() => {
@@ -223,26 +225,6 @@ export default function QuizResultsPage() {
     }
   }
 
-  const getPlanName = () => {
-    switch (selectedPlan) {
-      case "monthly":
-        return "Plano Mensal"
-      case "quarterly":
-        return "Plano Trimestral"
-      case "semiannual":
-        return "Plano Semestral"
-      default:
-        return "Plano Trimestral"
-    }
-  }
-
-  const handleCheckout = () => {
-    const planKey = getPlanKey()
-    const planName = getPlanName()
-    const planPrice = "239.90"
-    router.push(`/checkout?planKey=${planKey}&planName=${encodeURIComponent(planName)}&planPrice=${planPrice}`)
-  }
-
   if (loading || !data) {
     return <div />
   }
@@ -260,7 +242,7 @@ export default function QuizResultsPage() {
           </div>
           {/* Open modal instead of redirect */}
           <button
-            onClick={handleCheckout}
+            onClick={() => setCheckoutOpen(true)}
             className="px-6 py-2 bg-white text-black rounded-full font-semibold text-sm hover:bg-gray-200 transition"
           >
             OBTER MEU PLANO
@@ -686,8 +668,8 @@ export default function QuizResultsPage() {
 
           {/* CTA Button */}
           <div className="flex justify-center">
-                  <button
-                    onClick={handleCheckout}
+            <button
+              onClick={() => setCheckoutOpen(true)}
               className="px-12 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition"
             >
               OBTER MEU PLANO
@@ -1110,8 +1092,8 @@ export default function QuizResultsPage() {
 
               {/* CTA Button */}
               <div className="text-center mb-16">
-              <button
-                onClick={handleCheckout}
+                <button
+                  onClick={() => setCheckoutOpen(true)}
                   className="bg-white text-black font-bold px-12 py-3 rounded-full hover:bg-gray-100 transition"
                 >
                   DESTRAVAR MEUS RESULTADOS
@@ -1165,6 +1147,7 @@ export default function QuizResultsPage() {
           </footer>
         </div>
       </main>
+      <CheckoutModal isOpen={checkoutOpen} onClose={() => setCheckoutOpen(false)} selectedPlan={getPlanKey()} />
     </div>
   )
 }
