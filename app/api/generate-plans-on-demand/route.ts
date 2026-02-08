@@ -643,7 +643,11 @@ MACROS TOTAIS:
         }
 
 🎯 REGRAS OBRIGATÓRIAS:
-1. A soma das REFEIÇÕES deve atingir EXATAMENTE os valores acima
+1. A soma das REFEIÇÕES deve atingir exatamente os valores acima dentro da tolerância:
+   - Calorias: ±2%
+   - Proteína: ±5g
+   - Carboidratos: ±5g
+   - Gorduras: ±5g
 2. NÃO faça sua própria distribuição de macros - use os valores fornecidos
 3. Distribua os macros proporcionalmente entre as ${mealConfig.count} refeições
 4. Cada refeição deve contribuir para atingir os totais especificados
@@ -651,12 +655,32 @@ MACROS TOTAIS:
 6. ⚠️ NUNCA use alimentos caros no Brasil: grão-de-bico, quinoa, cogumelos, salmão, aspargos, cevada. EVITE COMPLETAMENTE!
 7. Tente criar um dieta que não seja muito cara para os padrões brasileiros
 8. Coloque alguma proteina animal na janta e almoço (Carne, Frango, Sardinha, Ovo).
-9. Almoço ou janta pode ter salada a vontade
+9. Almoço ou janta pode ter salada a vontade, não precisa citar as gramas, e pode ignorar os macros da salada.
 10. Substitua proteínas caras por: ovos, frango, carnes vermelhas baratas, feijão, lentilha, sardinha, atum em lata
 ${quizData.diet
           ? `7. ⚠️ RESPEITE RIGOROSAMENTE A PREFERÊNCIA ALIMENTAR: ${quizData.diet.toUpperCase()} - Não inclua alimentos proibidos!`
           : ""
         }
+
+CAMADA DE ADERÊNCIA (OBRIGATÓRIA):
+
+- Objetivo: dieta executável no mundo real (trabalho/rotina).
+
+- Limites por refeição:
+  1) Máx. 4 alimentos por refeição (ideal 2-3).
+  2) Se uma refeição ficar muito grande: transforme parte em shake (líquido).
+  3) Máximos por refeição:
+     - Aveia: 60g
+     - Granola: 50g
+     - Pão: 70g
+
+- Praticidade:
+  4) Pelo menos 2 refeições devem ser "rápidas" (≤5 min).
+  5) Almoço e jantar devem ser "marmita-friendly".
+
+- Flexibilidade:
+  6) Para cada refeição, forneça 2 substituições equivalentes (mesma faixa de calorias e macros aproximados).
+  7) Forneça 1 opção de emergência (quando não der tempo).
 
 FONTES DE DADOS NUTRICIONAIS:
 1. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO
@@ -667,7 +691,7 @@ FONTES DE DADOS NUTRICIONAIS:
 EXEMPLO DE FORMATO OBRIGATÓRIO:
 {
   "name": "Aveia em flocos",
-  "quantity": "80g",
+  "quantity": "70g",
   "calories": 311,
   "protein": 13.5,
   "carbs": 52.8,
@@ -687,6 +711,8 @@ JSON OBRIGATÓRIO:
         "name": "${name}",
         "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}",
         "totalCalories": ${targetCals},
+        "prepTimeMinutes": ${i === 2 || i === 4 ? 15 : 5},
+        "portable": ${i === 2 || i === 4 ? "false" : "true"},
         "foods": [
           {
             "name": "[alimento específico]",
@@ -696,7 +722,15 @@ JSON OBRIGATÓRIO:
             "carbs": "[carboidratos que VOCÊ calculou]",
             "fats": "[gorduras que VOCÊ calculou]"
           }
-        ]
+                ],
+        "alternatives": [
+          { "swap": "[opção equivalente 1]", "notes": "Macros semelhantes" },
+          { "swap": "[opção equivalente 2]", "notes": "Macros semelhantes" }
+        ],
+        "emergencyOption": {
+          "swap": "[opção rápida]",
+          "notes": "Usar quando não houver tempo"
+        }
       }`
           })
           .join(",")}],
@@ -811,7 +845,7 @@ JSON OBRIGATÓRIO:
             },
             { role: "user", content: prompt },
           ],
-          temperature: 0.1,
+          temperature: 0.2,
           response_format: { type: "json_object" },
           max_tokens: 7000, // Increased tokens
         })
