@@ -657,6 +657,8 @@ MACROS TOTAIS:
 8. Coloque alguma proteina animal na janta e almoço (Carne, Frango, Sardinha, Ovo).
 9. Almoço ou janta pode ter salada a vontade, não precisa citar as gramas, e pode ignorar os macros da salada.
 10. Substitua proteínas caras por: ovos, frango, carnes vermelhas baratas, feijão, lentilha, sardinha, atum em lata
+11. Evite refeições com mais de 700 kcal sólidas, com exceção do almoço, se preferir pode incluir shakes para ectomorfos.
+12. A ceia deve ter no máximo 2 alimentos, 200–450 kcal, dependendo do usuário, foco em proteína de fácil digestão e baixo açúcar (ex.: iogurte natural + ovos, whey + água, cottage + azeite, ovos cozidos), sem grandes volumes.
 ${quizData.diet
           ? `7. ⚠️ RESPEITE RIGOROSAMENTE A PREFERÊNCIA ALIMENTAR: ${quizData.diet.toUpperCase()} - Não inclua alimentos proibidos!`
           : ""
