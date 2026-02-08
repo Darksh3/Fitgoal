@@ -22,7 +22,7 @@ import {
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
 import { doc, onSnapshot, setDoc, db } from "@/lib/firebaseClient"
-import { useAuth } from "@/hooks/use-auth"
+import { auth, onAuthStateChanged } from "firebase/auth"
 import Link from "next/link"
 
 type PaymentMethod = "pix" | "boleto" | "card"
@@ -50,8 +50,8 @@ interface AddressData {
 export default function CheckoutPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { user } = useAuth()
 
+  const [user, setUser] = useState<any>(null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -60,7 +60,7 @@ export default function CheckoutPage() {
 
   // Form data
   const [formData, setFormData] = useState<PaymentFormData>({
-    email: user?.email || "",
+    email: "",
     name: "",
     cpf: "",
     phone: "",
@@ -88,6 +88,14 @@ export default function CheckoutPage() {
   const planName = searchParams.get("planName") || "Plano Semestral"
   const planPrice = searchParams.get("planPrice") || "239.90"
   const planKey = searchParams.get("planKey") || "semestral"
+
+  // Auth setup
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser)
+    })
+    return () => unsubscribe()
+  }, [])
 
   // Real-time payment listener
   useEffect(() => {
@@ -920,8 +928,6 @@ export default function CheckoutPage() {
     </div>
   )
 }
-
-function AsaasPaymentForm({ formData, currentPlan, userEmail, clientUid, paymentMethod, onError, onSuccess, paymentId, setPaymentId }: any) {
   const [processing, setProcessing] = useState(false)
   const [installments, setInstallments] = useState(1)
   const [cardData, setCardData] = useState({
