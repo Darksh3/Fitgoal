@@ -372,7 +372,7 @@ export default function Home() {
             </div>
 
             <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tight">
-               <span className="text-lime-400 block md:inline">Pare de seguir treinos genéricos.</span>
+               <span className="text-lime-400 block md:inline">Pare de follow treinos genéricos.</span>
               <span className="block text-3xl md:text-5xl font-bold text-gray-100 mt-2">Crie um plano feito para o SEU corpo, rotina e objetivo.</span>
             </h1>
 
