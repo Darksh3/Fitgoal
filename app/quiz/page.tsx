@@ -314,13 +314,6 @@ export default function QuizPage() {
   const [showGoalTimeline, setShowGoalTimeline] = useState(false)
   const [calculatedWeeks, setCalculatedWeeks] = useState(0)
   const [isCalculatingGoal, setIsCalculatingGoal] = useState(false)
-  // Micro feedback state
-  const [microFeedback, setMicroFeedback] = useState<{
-    title: string
-    body: string
-    cta?: string
-    next: () => void
-  } | null>(null)
   // </CHANGE>
   const [showIMCResult, setShowIMCResult] = useState(false)
   const [showLoading, setShowLoading] = useState(false)
@@ -878,16 +871,6 @@ export default function QuizPage() {
       setCurrentStep(1)
       return
     }
-    if (currentStep === 3) {
-      // Micro feedback #1 - after goals/objectives
-      setMicroFeedback({
-        title: "Perfeito. Agora ficou claro o seu objetivo.",
-        body: "Muita gente falha porque segue treinos genéricos que não respeitam isso. Seu plano vai ser ajustado para os objetivos que você marcou.",
-        cta: "Continuar",
-        next: () => setCurrentStep(4),
-      })
-      return
-    }
     if (currentStep === 5) {
       // Show quick results after case 5
       setShowQuickResults(true)
@@ -896,57 +879,15 @@ export default function QuizPage() {
       // Show nutrition info after case 7
       setShowNutritionInfo(true)
       return
-    } else if (currentStep === 15) {
-      // Micro feedback #2 - after strength training (experience level)
-      setMicroFeedback({
-        title: "Ótimo. Vamos ajustar o nível do seu treino.",
-        body: "Com isso, evitamos dois erros comuns: treino leve demais (sem resultado) ou pesado demais (lesão e abandono).",
-        cta: "Continuar",
-        next: () => setCurrentStep(16),
-      })
-      return
-    } else if (currentStep === 19) {
-      // Micro feedback #4 - after previous problems (emotional connection)
-      setMicroFeedback({
-        title: "Entendi. Isso é mais comum do que parece.",
-        body: "Esses problemas normalmente acontecem por falta de um plano claro e ajustado ao nível da pessoa. Vamos evitar isso no seu.",
-        cta: "Continuar",
-        next: () => setCurrentStep(20),
-      })
-      return
-    } else if (currentStep === 22) {
-      // Micro feedback #3 - after workout time (routine/reality check)
-      setMicroFeedback({
-        title: "Boa. Seu plano precisa caber na sua rotina.",
-        body: "Agora vamos ajustar frequência e estrutura para você conseguir seguir no dia a dia — sem plano impossível.",
-        cta: "Continuar",
-        next: () => setCurrentStep(23),
-      })
-      return
-    } else if (currentStep === 24) {
-      // Micro feedback #5 - after food preferences
-      setMicroFeedback({
-        title: "Perfeito. Vamos adaptar sua dieta ao que você gosta.",
-        body: "Dietas falham quando ignoram suas preferências. Seu plano alimentar vai ser montado com base nisso — e você poderá ajustar depois.",
-        cta: "Continuar",
-        next: () => setCurrentStep(25),
-      })
-      return
     } else if (currentStep === 27) {
-      // Micro feedback #6 - pre-offer (before name/email)
-      setMicroFeedback({
-        title: "Seu plano está quase pronto.",
-        body: "Com base nas suas respostas, já conseguimos definir a estratégia ideal para o seu objetivo. Agora é só personalizar e liberar seus resultados.",
-        cta: "Continuar",
-        next: () => {
-          // Original logic for supplement step
-          if (quizData.wantsSupplement === "sim") {
-            setCurrentStep(28)
-          } else {
-            setCurrentStep(29)
-          }
-        },
-      })
+      // Adjusted logic for supplement interest step
+      if (quizData.wantsSupplement === "sim") {
+        // If user wants supplement, proceed to the next step (Name)
+        setCurrentStep(28)
+      } else {
+        // If user doesn't want supplement, skip to the Name step (which is now 28)
+        setCurrentStep(29) // Skip to email
+      }
       return
     } else if (currentStep === totalSteps) {
       // When reaching the final step, save the lead and redirect to results
@@ -965,31 +906,6 @@ export default function QuizPage() {
     }
     if (currentStep > 1) {
       // Handle specific step back navigation
-      if (currentStep === 4 && microFeedback) {
-        // Going back from objectives micro feedback
-        setMicroFeedback(null)
-        return
-      }
-      if (currentStep === 5 && microFeedback) {
-        // Going back from strength training micro feedback
-        setMicroFeedback(null)
-        return
-      }
-      if (currentStep === 20 && microFeedback) {
-        // Going back from problems micro feedback
-        setMicroFeedback(null)
-        return
-      }
-      if (currentStep === 23 && microFeedback) {
-        // Going back from workout time micro feedback
-        setMicroFeedback(null)
-        return
-      }
-      if (currentStep === 25 && microFeedback) {
-        // Going back from food preferences micro feedback
-        setMicroFeedback(null)
-        return
-      }
       if (currentStep === 26 && quizData.allergies === "nao") {
         // If we are at allergy details (case 26) and allergies was 'no' (case 25)
         // we should go back to the supplement interest question (case 27, which follows this)
@@ -4385,49 +4301,13 @@ export default function QuizPage() {
             />
           </div>
         )}
-        
-        {/* Micro Feedback Modal */}
-        {microFeedback && (
-          <div className="min-h-[70vh] flex flex-col items-center justify-center mb-8">
-            <div className="relative z-10 text-center space-y-6 max-w-2xl">
-              <div className="mb-8">
-                <AiOrb size={120} />
-              </div>
-              <motion.div
-                className="space-y-4"
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15, duration: 0.7 }}
-              >
-                <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight">
-                  {microFeedback.title}
-                </h2>
-                <p className="text-lg text-gray-300 leading-relaxed">
-                  {microFeedback.body}
-                </p>
-              </motion.div>
-
-              <button
-                onClick={() => {
-                  microFeedback.next()
-                  setMicroFeedback(null)
-                }}
-                className="w-full max-w-md h-14 bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black text-lg font-bold rounded-full transition-all shadow-lg hover:shadow-xl hover:scale-105 mt-8"
-              >
-                {microFeedback.cta || "Continuar"}
-              </button>
-            </div>
-          </div>
-        )}
-        
-        <div className="mb-8">{!microFeedback && renderStep()}</div>
+        <div className="mb-8">{renderStep()}</div>
         {/* Adjust the condition to include steps that don't need a manual next button */}
         {!showMotivationMessage &&
           !showCortisolMessage &&
           !showTimeCalculation &&
           !showAnalyzingData &&
-          !showNutritionInfo &&
-          !microFeedback && // Added condition for micro feedback
+          !showNutritionInfo && // Added condition for nutrition info page
           ![
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
             30,

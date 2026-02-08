@@ -855,13 +855,10 @@ JSON OBRIGATÓRIO:
       try {
         console.log("🚀 [PARALLEL] Starting diet and workout generation")
 
-        const results = await Promise.allSettled([
+        const [dietResponse, workoutResponse] = await Promise.allSettled([
           generateWithTimeout(dietPrompt, "diet"),
           generateWithTimeout(workoutPrompt, "workout"),
         ])
-
-        const dietResponse = results[0]
-        const workoutResponse = results[1]
 
         // Process diet response
         if (dietResponse.status === "fulfilled") {
@@ -971,7 +968,7 @@ JSON OBRIGATÓRIO:
             const rawContent = workoutResponse.value.choices[0].message?.content || ""
             const parsed = safeJsonParseFromModel(rawContent)
 
-            if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === parseInt(String(requestedDays))) {
+            if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === requestedDays) {
               workoutPlan = parsed
               console.log("✅ [WORKOUT SUCCESS] Generated successfully")
             } else {
@@ -999,20 +996,18 @@ JSON OBRIGATÓRIO:
       }
 
       if (!dietPlan) {
-        console.log("🔧 [DIET FALLBACK] AI diet generation failed. Using minimal fallback.")
-        dietPlan = {
-          meals: [
-            { name: "Breakfast", foods: [{ name: "Oats", quantity: "50g", calories: 150, protein: 5, carbs: 25, fats: 3 }] },
-            { name: "Snack", foods: [{ name: "Fruit", quantity: "1 unit", calories: 100, protein: 1, carbs: 25, fats: 0 }] },
-            { name: "Lunch", foods: [{ name: "Chicken", quantity: "150g", calories: 250, protein: 40, carbs: 0, fats: 5 }] },
-            { name: "Dinner", foods: [{ name: "Fish", quantity: "150g", calories: 240, protein: 35, carbs: 0, fats: 8 }] },
-          ],
-          totalDailyCalories: 740,
-          totalProtein: 81,
-          totalCarbs: 50,
-          totalFats: 16,
-        }
-        console.log("⚠️ [DIET FALLBACK APPLIED] Using minimal fallback - recommend user to try again for better results")
+        console.log("❌ [NO DIET PLAN] AI must provide all nutritional data. Using placeholder and returning error.")
+        // Return an error if diet plan generation failed and no fallback is appropriate
+        return new Response(
+          JSON.stringify({
+            error: "Failed to generate diet plan. AI must provide all nutritional data.",
+            details: "Please try again - the AI should calculate all food values.",
+          }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          },
+        )
       }
 
       if (!workoutPlan) {
@@ -1057,9 +1052,9 @@ JSON OBRIGATÓRIO:
             finalResults: {
               scientificTarget: savedCalcs.finalCalories,
               // The actual generated calories here will be the sum of meal calories and supplement calories
-              actualGenerated: `${Number(String(dietPlan?.totalDailyCalories).replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
+              actualGenerated: `${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
               valuesMatch:
-                `${Number(String(dietPlan?.totalDailyCalories).replace(" kcal", "")) + savedCalcs.supplementCalories} kcal` ===
+                `${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal` ===
                 `${savedCalcs.finalCalories} kcal`,
               generatedAt: admin.firestore.FieldValue.serverTimestamp(),
             },
@@ -1067,16 +1062,11 @@ JSON OBRIGATÓRIO:
           },
           { merge: true },
         )
+        console.log(
+          `✅ Plans saved - Scientific: ${savedCalcs.finalCalories} kcal, Saved: ${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
+        )
       } catch (firestoreError) {
         console.error("⚠️ Firestore error:", firestoreError)
-      }
-
-      try {
-        console.log(
-          `✅ Plans saved - Scientific: ${savedCalcs.finalCalories} kcal, Saved: ${Number(String(dietPlan?.totalDailyCalories || 0).replace(" kcal", "")) + (savedCalcs.supplementCalories || 0)} kcal`,
-        )
-      } catch (logError) {
-        console.log("⚠️ Log error (continuing anyway):", logError)
       }
 
       return new Response(
@@ -1228,7 +1218,7 @@ function calculateScientificCalories(data: any) {
       // Meta > Peso atual = GANHAR PESO/MASSA
       console.log(`ℹ️ [WEIGHT GOAL CONFIRMS] User target weight (${targetWeight}kg) > current weight (${weight}kg) = GAIN mode`)
       if (!effectiveGoals.includes("ganhar-massa") && !effectiveGoals.includes("ganhar-peso")) {
-        console.log(`��� [AUTO-CORRECTION] Overriding to MUSCLE GAIN mode (surplus)`)
+        console.log(`📊 [AUTO-CORRECTION] Overriding to MUSCLE GAIN mode (surplus)`)
         effectiveGoals = ["ganhar-massa"]
       }
     }
