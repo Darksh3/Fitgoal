@@ -496,6 +496,11 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 py-8 px-4 flex flex-col items-center justify-center">
       <div className="w-full max-w-2xl space-y-8">
+        {/* Logo */}
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="text-center mb-4">
+          <Image src="/fitgoal-logo.webp" alt="FitGoal Logo" width={200} height={80} className="mx-auto" priority />
+        </motion.div>
+
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="text-center">
           <h1 className="text-4xl font-bold text-white mb-2">Finalizar sua inscrição</h1>
