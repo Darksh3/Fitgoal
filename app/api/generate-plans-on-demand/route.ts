@@ -643,7 +643,11 @@ MACROS TOTAIS:
         }
 
 🎯 REGRAS OBRIGATÓRIAS:
-1. A soma das REFEIÇÕES deve atingir EXATAMENTE os valores acima
+1. A soma das REFEIÇÕES deve atingir os valores acima dentro da tolerância:
+   - Calorias: ±2%
+   - Proteína: ±5g
+   - Carboidratos: ±5g
+   - Gorduras: ±5g
 2. NÃO faça sua própria distribuição de macros - use os valores fornecidos
 3. Distribua os macros proporcionalmente entre as ${mealConfig.count} refeições
 4. Cada refeição deve contribuir para atingir os totais especificados
@@ -651,12 +655,28 @@ MACROS TOTAIS:
 6. ⚠️ NUNCA use alimentos caros no Brasil: grão-de-bico, quinoa, cogumelos, salmão, aspargos, cevada. EVITE COMPLETAMENTE!
 7. Tente criar um dieta que não seja muito cara para os padrões brasileiros
 8. Coloque alguma proteina animal na janta e almoço (Carne, Frango, Sardinha, Ovo).
-9. Almoço ou janta pode ter salada a vontade
+9. Almoço ou janta pode ter salada a vontade, não precisa citar as gramas, e pode ignorar os macros da salada.
 10. Substitua proteínas caras por: ovos, frango, carnes vermelhas baratas, feijão, lentilha, sardinha, atum em lata
 ${quizData.diet
           ? `7. ⚠️ RESPEITE RIGOROSAMENTE A PREFERÊNCIA ALIMENTAR: ${quizData.diet.toUpperCase()} - Não inclua alimentos proibidos!`
           : ""
         }
+
+CAMADA DE ADERÊNCIA (OBRIGATÓRIA):
+- Objetivo: dieta executável no mundo real (trabalho/rotina).
+- Limites por refeição:
+  1) Máx. 4 alimentos por refeição (ideal 2-3).
+  2) Se uma refeição ficar muito grande: transforme parte em shake (líquido).
+  3) Máximos por refeição:
+     - Aveia: 80g
+     - Granola: 60g
+     - Pão: 100g
+- Praticidade:
+  4) Pelo menos 2 refeições devem ser "rápidas" (≤5 min).
+  5) Almoço e jantar devem ser "marmita-friendly".
+- Flexibilidade:
+  6) Para cada refeição, forneça 2 substituições equivalentes (mesma faixa de calorias e macros aproximados).
+  7) Forneça 1 opção de emergência (quando não der tempo).
 
 FONTES DE DADOS NUTRICIONAIS:
 1. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO
@@ -687,6 +707,8 @@ JSON OBRIGATÓRIO:
         "name": "${name}",
         "time": "${i === 0 ? "07:00" : i === 1 ? "10:00" : i === 2 ? "12:00" : i === 3 ? "15:00" : i === 4 ? "19:00" : "21:00"}",
         "totalCalories": ${targetCals},
+        "prepTimeMinutes": ${i === 2 || i === 4 ? 15 : 5},
+        "portable": ${i === 2 || i === 4 ? "false" : "true"},
         "foods": [
           {
             "name": "[alimento específico]",
@@ -696,7 +718,15 @@ JSON OBRIGATÓRIO:
             "carbs": "[carboidratos que VOCÊ calculou]",
             "fats": "[gorduras que VOCÊ calculou]"
           }
-        ]
+        ],
+        "alternatives": [
+          { "swap": "[opção equivalente 1]", "notes": "Macros semelhantes" },
+          { "swap": "[opção equivalente 2]", "notes": "Macros semelhantes" }
+        ],
+        "emergencyOption": {
+          "swap": "[opção rápida]",
+          "notes": "Usar quando não houver tempo"
+        }
       }`
           })
           .join(",")}],
@@ -802,7 +832,7 @@ JSON OBRIGATÓRIO:
           setTimeout(() => reject(new Error(`${type} generation timeout`)), 120000) // Increased to 120s
         })
 
-        const generation = await openai.chat.completions.create({
+        const generation = openai.chat.completions.create({
           model: "gpt-4o-mini",
           messages: [
             {
@@ -816,7 +846,7 @@ JSON OBRIGATÓRIO:
           max_tokens: 7000, // Increased tokens
         })
 
-        return Promise.race([Promise.resolve(generation), timeout])
+        return Promise.race([generation, timeout])
       }
 
       let dietPlan = null
@@ -825,13 +855,10 @@ JSON OBRIGATÓRIO:
       try {
         console.log("🚀 [PARALLEL] Starting diet and workout generation")
 
-        const results = await Promise.allSettled([
+        const [dietResponse, workoutResponse] = await Promise.allSettled([
           generateWithTimeout(dietPrompt, "diet"),
           generateWithTimeout(workoutPrompt, "workout"),
         ])
-
-        const dietResponse = results[0]
-        const workoutResponse = results[1]
 
         // Process diet response
         if (dietResponse.status === "fulfilled") {
@@ -840,6 +867,43 @@ JSON OBRIGATÓRIO:
             const parsed = safeJsonParseFromModel(rawContent)
 
             if (parsed.meals && Array.isArray(parsed.meals) && parsed.meals.length === mealConfig.count) {
+
+              // ===============================
+              // POLIDOR DE ADERÊNCIA (V1)
+              // ===============================
+              parsed.meals.forEach((meal: any) => {
+                if (!meal.foods || !Array.isArray(meal.foods)) return
+
+                // 1) manter os 4 alimentos mais calóricos
+                meal.foods = meal.foods
+                  .slice()
+                  .sort((a: any, b: any) => (b.calories || 0) - (a.calories || 0))
+                  .slice(0, 4)
+
+                // 2) limitar alimentos "travadores" COM escala de macros
+                meal.foods.forEach((food: any) => {
+                  const name = (food.name || "").toLowerCase()
+
+                  if (name.includes("granola")) {
+                    const q = parseGrams(food.quantity)
+                    if (q && q > 60) scaleFoodToQuantity(food, 60)
+                  }
+
+                  if (name.includes("aveia")) {
+                    const q = parseGrams(food.quantity)
+                    if (q && q > 80) scaleFoodToQuantity(food, 80)
+                  }
+
+                  if (name.includes("pão")) {
+                    const q = parseGrams(food.quantity)
+                    if (q && q > 100) scaleFoodToQuantity(food, 100)
+                  }
+                })
+
+                // ✅ recalcula total da refeição após polir (DENTRO do loop)
+                meal.totalCalories = meal.foods.reduce((sum: number, f: any) => sum + (f.calories || 0), 0)
+              })
+
               // Calculate real total from AI-generated foods
               const realTotal = parsed.meals.reduce((total, meal) => {
                 return total + meal.foods.reduce((mealTotal, food) => mealTotal + (food.calories || 0), 0)
@@ -853,17 +917,31 @@ JSON OBRIGATÓRIO:
                 console.log(`[DIET] Adjusting foods by ${difference} kcal`)
                 const adjustmentPerMeal = Math.round(difference / parsed.meals.length)
 
-                parsed.meals.forEach((meal, index) => {
-                  if (meal.foods && meal.foods.length > 0) {
-                    const mainFood = meal.foods[0]
-                    if (mainFood) {
-                      mainFood.calories = Math.max(50, (mainFood.calories || 0) + adjustmentPerMeal)
-                      meal.totalCalories = meal.foods.reduce((sum, food) => sum + (food.calories || 0), 0)
-                    }
-                  }
+                parsed.meals.forEach((meal: any) => {
+                  if (!meal.foods?.length) return
+
+                  const mainFood = meal.foods
+                    .slice()
+                    .sort((a: any, b: any) => (b.calories || 0) - (a.calories || 0))[0]
+                  if (!mainFood) return
+
+                  const currentCalories = typeof mainFood.calories === "number" ? mainFood.calories : null
+                  const currentGrams = parseGrams(mainFood.quantity)
+
+                  // Se não tiver calorias/gramas válidos, cai fora (não inventa)
+                  if (!currentCalories || !currentGrams || currentCalories <= 0 || currentGrams <= 0) return
+
+                  // Ajusta quantidade proporcionalmente para somar/subtrair calorias
+                  const targetCalories = Math.max(50, currentCalories + adjustmentPerMeal)
+                  const ratio = targetCalories / currentCalories
+                  const newGrams = Math.max(10, Math.round(currentGrams * ratio))
+
+                  scaleFoodToQuantity(mainFood, newGrams)
+
+                  // Recalcula totalCalories da refeição a partir dos foods
+                  meal.totalCalories = meal.foods.reduce((sum: number, f: any) => sum + (f.calories || 0), 0)
                 })
               }
-
               // Update totals to reflect meal-only values for the diet plan structure
               parsed.totalDailyCalories = `${caloriesForMeals} kcal`
               parsed.totalProtein = `${proteinForMeals}g`
@@ -890,7 +968,7 @@ JSON OBRIGATÓRIO:
             const rawContent = workoutResponse.value.choices[0].message?.content || ""
             const parsed = safeJsonParseFromModel(rawContent)
 
-            if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === parseInt(String(requestedDays))) {
+            if (parsed.days && Array.isArray(parsed.days) && parsed.days.length === requestedDays) {
               workoutPlan = parsed
               console.log("✅ [WORKOUT SUCCESS] Generated successfully")
             } else {
@@ -918,20 +996,18 @@ JSON OBRIGATÓRIO:
       }
 
       if (!dietPlan) {
-        console.log("🔧 [DIET FALLBACK] AI diet generation failed. Using minimal fallback.")
-        dietPlan = {
-          meals: [
-            { name: "Breakfast", foods: [{ name: "Oats", quantity: "50g", calories: 150, protein: 5, carbs: 25, fats: 3 }] },
-            { name: "Snack", foods: [{ name: "Fruit", quantity: "1 unit", calories: 100, protein: 1, carbs: 25, fats: 0 }] },
-            { name: "Lunch", foods: [{ name: "Chicken", quantity: "150g", calories: 250, protein: 40, carbs: 0, fats: 5 }] },
-            { name: "Dinner", foods: [{ name: "Fish", quantity: "150g", calories: 240, protein: 35, carbs: 0, fats: 8 }] },
-          ],
-          totalDailyCalories: `${caloriesForMeals} kcal`,
-          totalProtein: `${proteinForMeals}g`,
-          totalCarbs: `${carbsForMeals}g`,
-          totalFats: `${fatsForMeals}g`,
-        }
-        console.log("⚠️ [DIET FALLBACK APPLIED] Using minimal fallback - recommend user to try again for better results")
+        console.log("❌ [NO DIET PLAN] AI must provide all nutritional data. Using placeholder and returning error.")
+        // Return an error if diet plan generation failed and no fallback is appropriate
+        return new Response(
+          JSON.stringify({
+            error: "Failed to generate diet plan. AI must provide all nutritional data.",
+            details: "Please try again - the AI should calculate all food values.",
+          }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          },
+        )
       }
 
       if (!workoutPlan) {
@@ -976,9 +1052,9 @@ JSON OBRIGATÓRIO:
             finalResults: {
               scientificTarget: savedCalcs.finalCalories,
               // The actual generated calories here will be the sum of meal calories and supplement calories
-              actualGenerated: `${Number(String(dietPlan?.totalDailyCalories || 0).replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
+              actualGenerated: `${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
               valuesMatch:
-                `${Number(String(dietPlan?.totalDailyCalories || 0).replace(" kcal", "")) + savedCalcs.supplementCalories} kcal` ===
+                `${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal` ===
                 `${savedCalcs.finalCalories} kcal`,
               generatedAt: admin.firestore.FieldValue.serverTimestamp(),
             },
@@ -987,7 +1063,7 @@ JSON OBRIGATÓRIO:
           { merge: true },
         )
         console.log(
-          `✅ Plans saved - Scientific: ${savedCalcs.finalCalories} kcal, Saved: ${Number(String(dietPlan?.totalDailyCalories || 0).replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
+          `✅ Plans saved - Scientific: ${savedCalcs.finalCalories} kcal, Saved: ${Number(dietPlan?.totalDailyCalories.replace(" kcal", "")) + savedCalcs.supplementCalories} kcal`,
         )
       } catch (firestoreError) {
         console.error("⚠️ Firestore error:", firestoreError)
