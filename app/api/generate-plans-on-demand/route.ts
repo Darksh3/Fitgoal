@@ -802,7 +802,7 @@ JSON OBRIGATÓRIO:
           setTimeout(() => reject(new Error(`${type} generation timeout`)), 120000) // Increased to 120s
         })
 
-        const generation = openai.chat.completions.create({
+        const generation = await openai.chat.completions.create({
           model: "gpt-4o-mini",
           messages: [
             {
@@ -816,7 +816,7 @@ JSON OBRIGATÓRIO:
           max_tokens: 7000, // Increased tokens
         })
 
-        return Promise.race([generation, timeout])
+        return Promise.race([Promise.resolve(generation), timeout])
       }
 
       let dietPlan = null
