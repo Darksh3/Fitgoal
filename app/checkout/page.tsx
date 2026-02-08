@@ -20,8 +20,8 @@ import {
   Loader2,
 } from "lucide-react"
 import { motion } from "framer-motion"
-import { doc, onSnapshot, setDoc, db } from "@/lib/firebaseClient"
-import { auth, onAuthStateChanged } from "firebase/auth"
+import { doc, onSnapshot, setDoc, db, auth } from "@/lib/firebaseClient"
+import { onAuthStateChanged } from "firebase/auth"
 import Link from "next/link"
 
 type PaymentMethod = "pix" | "boleto" | "card"
