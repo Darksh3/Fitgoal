@@ -120,6 +120,8 @@ export default function CheckoutPage() {
     if (initialPlan) {
       setSelectedPlan(initialPlan)
     }
+    // Set Pix as default payment method (better UX for mobile Brazil)
+    setPaymentMethod("pix")
   }, [])
 
   useEffect(() => {
