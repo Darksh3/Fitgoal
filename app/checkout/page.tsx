@@ -709,34 +709,36 @@ export default function CheckoutPage() {
                 )}
 
                 {/* Secure Payment Container */}
-                <div className="space-y-3 bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6">
-                  {/* Security Badge */}
-                  <div className="bg-slate-700/40 p-3 rounded-lg flex items-center justify-center gap-2 text-sm text-gray-300 border border-slate-600/50">
-                    <Lock className="w-4 h-4" />
-                    Compra Segura Seus dados estão protegidos
+                <div className="bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6 md:p-8">
+                  <div className="flex flex-col items-center gap-4">
+                    {/* Security Badge */}
+                    <div className="bg-slate-700/40 px-4 py-2 rounded-lg flex items-center gap-2 text-sm text-gray-300 border border-slate-600/50">
+                      <Lock className="w-4 h-4" />
+                      Compra segura. Seus dados estão protegidos.
+                    </div>
+
+                    {/* Submit Button - Centered */}
+                    <Button
+                      onClick={handlePayment}
+                      disabled={!paymentMethod || processing}
+                      className="w-full bg-lime-500 hover:bg-lime-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-black font-bold py-6 text-lg rounded-lg shadow-lg transition-all"
+                    >
+                      {processing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Processando...
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-4 h-4 mr-2" />
+                          Confirmar Pagamento
+                        </>
+                      )}
+                    </Button>
+
+                    {/* Additional Info */}
+                    <p className="text-xs text-gray-400 text-center">Renovação automática. Cancele a qualquer momento.</p>
                   </div>
-
-                  {/* Submit Button - Centered */}
-                  <Button
-                    onClick={handlePayment}
-                    disabled={!paymentMethod || processing}
-                    className="w-full bg-lime-500 hover:bg-lime-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-black font-bold py-6 text-lg rounded-lg shadow-lg transition-all"
-                  >
-                    {processing ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Processando...
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="w-4 h-4 mr-2" />
-                        Confirmar Pagamento
-                      </>
-                    )}
-                  </Button>
-
-                  {/* Additional Info */}
-                  <p className="text-xs text-gray-400 text-center">Renovação automática. Cancele a qualquer momento.</p>
                 </div>
 
                 {/* Payment Methods and Security Seals */}
