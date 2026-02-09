@@ -794,13 +794,12 @@ export default function QuizResultsPage() {
                   <div className="bg-gradient-to-b from-gray-800 to-gray-900 rounded-3xl p-4 border border-gray-700">
                     <video 
                       className="bg-black rounded-2xl w-full h-auto"
-                      controls
                       autoPlay
                       loop
                       muted
                       playsInline
                     >
-                      <source src="/videos/highlights-demo.webm" type="video/webm" />
+                      <source src="/videos/iphone-mockup-demo.webm" type="video/webm" />
                       Seu navegador não suporta reprodução de vídeo.
                     </video>
                   </div>
