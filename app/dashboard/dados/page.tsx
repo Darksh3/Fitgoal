@@ -266,7 +266,7 @@ export default function DadosPage() {
             setMeasurements(userDoc.data().measurements)
             localStorage.setItem("measurements", JSON.stringify(userDoc.data().measurements))
           }
-        } catch (error) {}
+        } catch (error) { }
       }
     } catch (error) {
       console.error("[v0] Error during manual sync:", error)
@@ -559,7 +559,7 @@ export default function DadosPage() {
                     type="email"
                     value={personalData.email}
                     onChange={(e) => setPersonalData((prev) => ({ ...prev, email: e.target.value }))}
-                    placeholder="cleber.neves013@gmail.com"
+                    placeholder="Seuemail@gmail.com"
                     disabled={!isEditing}
                     className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                   />
