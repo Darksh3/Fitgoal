@@ -236,7 +236,7 @@ export default function CheckoutPage() {
           paymentMethod,
           formData,
           cardData: paymentMethod === "card" ? cardData : undefined,
-          addressData: paymentMethod === "card" ? addressData : undefined,
+          addressData: paymentMethod === "card" ? addressData : paymentMethod === "boleto" ? addressData : undefined,
           planKey: selectedPlan,
           planName,
           planPrice,
@@ -244,13 +244,27 @@ export default function CheckoutPage() {
         }),
       })
 
+      // Handle error responses properly
+      if (!response.ok) {
+        const contentType = response.headers.get("content-type")
+        let errorMessage = "Erro ao processar pagamento"
+
+        if (contentType?.includes("application/json")) {
+          const errorData = await response.json()
+          errorMessage = errorData.error || errorMessage
+        }
+
+        throw new Error(errorMessage)
+      }
+
       const data = await response.json()
-      if (!response.ok) throw new Error(data.error || "Erro ao processar pagamento")
 
       if (paymentMethod === "pix") {
         setPixData(data)
       } else if (paymentMethod === "boleto") {
         setBoletoData(data)
+      } else if (paymentMethod === "card") {
+        setSuccess(true)
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao processar pagamento")
