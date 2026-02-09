@@ -344,53 +344,76 @@ export default function DashboardPage() {
 
   const getDisplayTotals = () => {
     const calculatedTotals = calculateTotalMacros(dietPlan?.meals || [])
+    
+    // Incluir suplementos no cálculo de calorias
+    let supplementCalories = 0
+    if (dietPlan?.supplements && Array.isArray(dietPlan.supplements)) {
+      dietPlan.supplements.forEach((supplement: any) => {
+        if (supplement.macros?.calories) {
+          const caloriesMatch = supplement.macros.calories.toString().match(/(\d+)/)
+          if (caloriesMatch) {
+            supplementCalories += Number.parseInt(caloriesMatch[1])
+          }
+        }
+      })
+    }
+
+    const cleanValue = (value: string) => {
+      return value.replace(/g{2,}/g, 'g').replace(/kcal{2,}/g, 'kcal')
+    }
 
     return {
       calories: (() => {
-        if (calculatedTotals.calories && calculatedTotals.calories !== "0") {
-          return `${calculatedTotals.calories} kcal`
+        let totalCals = 0
+        
+        // Usar totalDailyCalories como base (é o goal calórico)
+        if (dietPlan?.totalDailyCalories && !isNaN(dietPlan.totalDailyCalories) && dietPlan.totalDailyCalories > 0) {
+          totalCals = dietPlan.totalDailyCalories
+        } else if (calculatedTotals.calories && calculatedTotals.calories !== "0") {
+          totalCals = Number.parseInt(calculatedTotals.calories.toString().replace(/\D/g, ''))
+        } else if (dietPlan?.calories && dietPlan.calories !== "0" && dietPlan.calories !== "0 kcal") {
+          const match = dietPlan.calories.toString().match(/(\d+)/)
+          totalCals = match ? Number.parseInt(match[1]) : 2200
+        } else {
+          totalCals = 2200
         }
-        if (dietPlan?.totalDailyCalories && dietPlan.totalDailyCalories !== 0) {
-          return `${dietPlan.totalDailyCalories} kcal`
-        }
-        if (dietPlan?.calories && dietPlan.calories !== "0" && dietPlan.calories !== "0 kcal") {
-          return dietPlan.calories.includes("kcal") ? dietPlan.calories : `${dietPlan.calories} kcal`
-        }
-        return "2200 kcal"
+        
+        totalCals += supplementCalories
+        return `${totalCals} kcal`
       })(),
       protein: (() => {
+        if (dietPlan?.totalProtein && !isNaN(dietPlan.totalProtein) && dietPlan.totalProtein > 0) {
+          return `${Math.round(dietPlan.totalProtein)}g`
+        }
         if (calculatedTotals.protein && calculatedTotals.protein !== "0") {
           return `${calculatedTotals.protein}g`
         }
-        if (dietPlan?.totalProtein && dietPlan.totalProtein !== 0) {
-          return `${dietPlan.totalProtein}g`
-        }
         if (dietPlan?.protein && dietPlan.protein !== "0" && dietPlan.protein !== "0g") {
-          return dietPlan.protein.includes("g") ? dietPlan.protein : `${dietPlan.protein}g`
+          return cleanValue(dietPlan.protein.toString().includes("g") ? dietPlan.protein.toString() : `${dietPlan.protein}g`)
         }
         return "0g"
       })(),
       carbs: (() => {
+        if (dietPlan?.totalCarbs && !isNaN(dietPlan.totalCarbs) && dietPlan.totalCarbs > 0) {
+          return `${Math.round(dietPlan.totalCarbs)}g`
+        }
         if (calculatedTotals.carbs && calculatedTotals.carbs !== "0") {
           return `${calculatedTotals.carbs}g`
         }
-        if (dietPlan?.totalCarbs && dietPlan.totalCarbs !== 0) {
-          return `${dietPlan.totalCarbs}g`
-        }
         if (dietPlan?.carbs && dietPlan.carbs !== "0" && dietPlan.carbs !== "0g") {
-          return dietPlan.carbs.includes("g") ? dietPlan.carbs : `${dietPlan.carbs}g`
+          return cleanValue(dietPlan.carbs.toString().includes("g") ? dietPlan.carbs.toString() : `${dietPlan.carbs}g`)
         }
         return "0g"
       })(),
       fats: (() => {
+        if (dietPlan?.totalFats && !isNaN(dietPlan.totalFats) && dietPlan.totalFats > 0) {
+          return `${Math.round(dietPlan.totalFats)}g`
+        }
         if (calculatedTotals.fats && calculatedTotals.fats !== "0") {
           return `${calculatedTotals.fats}g`
         }
-        if (dietPlan?.totalFats && dietPlan.totalFats !== 0) {
-          return `${dietPlan.totalFats}g`
-        }
         if (dietPlan?.fats && dietPlan.fats !== "0" && dietPlan.fats !== "0g") {
-          return dietPlan.fats.includes("g") ? dietPlan.fats : `${dietPlan.fats}g`
+          return cleanValue(dietPlan.fats.toString().includes("g") ? dietPlan.fats.toString() : `${dietPlan.fats}g`)
         }
         return "0g"
       })(),
@@ -1079,7 +1102,7 @@ export default function DashboardPage() {
               <CardContent>
                 <div className="space-y-3">
                   <p className="text-gray-700 dark:text-gray-300">
-                    Calorias consumidas hoje: {progressData.caloriesConsumed} / {getDisplayTotals().calories} kcal
+                    Calorias consumidas hoje: {progressData.caloriesConsumed} / {getDisplayTotals().calories}
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Proteínas: {getDisplayTotals().protein} | Carboidratos: {getDisplayTotals().carbs} | Gorduras:{" "}
