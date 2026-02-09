@@ -678,14 +678,31 @@ export default function CheckoutPage() {
                       onChange={(e) => setInstallments(parseInt(e.target.value))}
                       className="w-full bg-slate-700/40 border border-slate-600 text-white rounded-md px-3 py-2 placeholder:text-slate-400 placeholder:opacity-100"
                     >
-                      {[1, 2, 3, 4, 5, 6].map((n) => (
+                      {selectedPlan === "semestral" && [1, 2, 3, 4, 5, 6].map((n) => (
                         <option key={n} value={n} className="bg-slate-800">
                           {n}x de R$ {(parseFloat(planPrice) / n).toFixed(2).replace(".", ",")}</option>
                       ))}
+                      {selectedPlan === "trimestral" && [1, 2, 3].map((n) => (
+                        <option key={n} value={n} className="bg-slate-800">
+                          {n}x de R$ {(parseFloat(planPrice) / n).toFixed(2).replace(".", ",")}</option>
+                      ))}
+                      {selectedPlan === "mensal" && (
+                        <option value={1} className="bg-slate-800">
+                          1x de R$ {parseFloat(planPrice).toFixed(2).replace(".", ",")}</option>
+                      )}
                     </select>
-                    <div className="text-xs text-lime-400 text-center">
-                      ou até 6x de R$ {(parseFloat(planPrice) / 6).toFixed(2).replace(".", ",")}
-                    </div>
+                    
+                    {/* Sugestão de parcelamento condicional */}
+                    {selectedPlan === "semestral" && (
+                      <div className="text-xs text-lime-400 text-center">
+                        ou até 6x de R$ {(parseFloat(planPrice) / 6).toFixed(2).replace(".", ",")}
+                      </div>
+                    )}
+                    {selectedPlan === "trimestral" && (
+                      <div className="text-xs text-lime-400 text-center">
+                        ou até 3x de R$ {(parseFloat(planPrice) / 3).toFixed(2).replace(".", ",")}
+                      </div>
+                    )}
                   </motion.div>
                 )}
 
