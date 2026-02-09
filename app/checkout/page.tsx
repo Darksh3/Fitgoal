@@ -341,8 +341,7 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-2 gap-6">
           {/* Left Column - Order Summary */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
-            <Card className="bg-slate-800/40 backdrop-blur border-slate-700/50 shadow-2xl">
-              <CardContent className="p-6 space-y-6">
+            <div className="space-y-6">
                 <div>
                   <h3 className="font-semibold text-white mb-4">Resumo do Pedido</h3>
 
@@ -431,8 +430,7 @@ export default function CheckoutPage() {
 
           {/* Right Column - Payment Form */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
-            <Card className="bg-slate-800/40 backdrop-blur border-slate-700/50 shadow-2xl">
-              <CardContent className="p-6 space-y-4">
+            <div className="space-y-4">
                 {/* Payment Methods */}
                 <div>
                   <h3 className="font-semibold text-white mb-4">Escolha a forma de pagamento</h3>
@@ -518,14 +516,14 @@ export default function CheckoutPage() {
                     placeholder="Nome Completo"
                     value={formData.name}
                     onChange={(e) => handleInputChange(e, "name")}
-                    className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
+                    className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
                   />
                   <Input
                     type="email"
                     placeholder="Email"
                     value={formData.email}
                     onChange={(e) => handleInputChange(e, "email")}
-                    className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
+                    className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
                   />
                   <div className="grid grid-cols-2 gap-3">
                     <Input
@@ -544,7 +542,7 @@ export default function CheckoutPage() {
                         }
                         handleInputChange({ target: { value } } as any, "cpf")
                       }}
-                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
+                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
                     />
                     <Input
                       placeholder="Telefone"
@@ -560,7 +558,7 @@ export default function CheckoutPage() {
                         }
                         handleInputChange({ target: { value } } as any, "phone")
                       }}
-                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
+                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
                     />
                   </div>
                 </div>
@@ -573,7 +571,7 @@ export default function CheckoutPage() {
                       value={cardData.number}
                       onChange={(e) => handleCardChange(e, "number")}
                       maxLength={19}
-                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500 font-mono"
+                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600 font-mono"
                     />
                     <div className="grid grid-cols-3 gap-3">
                       <Input
@@ -581,47 +579,47 @@ export default function CheckoutPage() {
                         value={cardData.expiryMonth}
                         onChange={(e) => handleCardChange(e, "expiryMonth")}
                         maxLength={2}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
                       />
                       <Input
                         placeholder="Ano (YYYY)"
                         value={cardData.expiryYear}
                         onChange={(e) => handleCardChange(e, "expiryYear")}
                         maxLength={4}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
                       />
                       <Input
                         placeholder="CVV"
                         value={cardData.ccv}
                         onChange={(e) => handleCardChange(e, "ccv")}
                         maxLength={4}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
                       />
                     </div>
                     <Input
                       placeholder="Nome no Cartão"
                       value={cardData.holderName}
                       onChange={(e) => handleCardChange(e, "holderName")}
-                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
+                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
                     />
                     <div className="grid grid-cols-2 gap-3">
                       <Input
                         placeholder="CEP"
                         value={addressData.postalCode}
                         onChange={(e) => handleAddressChange(e, "postalCode")}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
                       />
                       <Input
                         placeholder="Número da Residência"
                         value={addressData.addressNumber}
                         onChange={(e) => handleAddressChange(e, "addressNumber")}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
                       />
                     </div>
                     <select
                       value={installments}
                       onChange={(e) => setInstallments(parseInt(e.target.value))}
-                      className="w-full bg-slate-700/40 border border-slate-600 text-white rounded-md px-3 py-2 placeholder:text-gray-500"
+                      className="w-full bg-slate-700/40 border border-slate-600 text-white rounded-md px-3 py-2 placeholder:text-gray-600"
                     >
                       {[1, 2, 3, 4, 5, 6].map((n) => (
                         <option key={n} value={n} className="bg-slate-800">
@@ -679,8 +677,7 @@ export default function CheckoutPage() {
                     </a>
                   </p>
                 </div>
-              </CardContent>
-            </Card>
+            </div>
           </motion.div>
         </div>
       </div>
