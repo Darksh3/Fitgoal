@@ -711,12 +711,12 @@ export default function CheckoutPage() {
                 {/* Secure Payment Container */}
                 <div className="bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6 md:p-8 space-y-4">
 
-                  {/* SUBCONTAINER — somente o botão */}
-                  <div className="w-full">
+                  {/* SUBCONTAINER — só o botão (centralizado) */}
+                  <div className="w-full max-w-md mx-auto bg-slate-800/30 border border-slate-700/60 rounded-xl p-4">
                     <Button
                       onClick={handlePayment}
                       disabled={!paymentMethod || processing}
-                      className="w-full bg-lime-500 hover:bg-lime-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-black font-bold py-6 text-lg rounded-lg shadow-lg transition-all"
+                      className="w-full bg-lime-500 hover:bg-lime-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-black font-bold py-6 text-lg rounded-lg shadow-lg transition-all flex items-center justify-center"
                     >
                       {processing ? (
                         <>
