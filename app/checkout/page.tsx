@@ -738,32 +738,27 @@ export default function CheckoutPage() {
 
                 {/* Payment Methods and Security Seals */}
                 <div className="space-y-4 border-t border-slate-700 pt-6">
-                  {/* Payment Methods */}
+                  {/* Payment Methods - Real Image */}
                   <div>
                     <p className="text-xs text-gray-400 mb-3 font-semibold">Formas de Pagamento Aceitas</p>
-                    <div className="flex flex-wrap gap-2 justify-center">
-                      <div className="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/40 border border-slate-600">Pix</div>
-                      <div className="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/40 border border-slate-600">Boleto</div>
-                      <div className="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/40 border border-slate-600">Visa</div>
-                      <div className="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/40 border border-slate-600">Mastercard</div>
-                      <div className="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/40 border border-slate-600">Amex</div>
-                      <div className="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/40 border border-slate-600">Elo</div>
-                      <div className="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/40 border border-slate-600">Hipercard</div>
+                    <div className="flex justify-center">
+                      <img 
+                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image%20%281%29-bwFHfNWgggbgi89W3lS8o6fPeKIL5p.jpg" 
+                        alt="Formas de Pagamento" 
+                        className="h-20 w-auto"
+                      />
                     </div>
                   </div>
 
-                  {/* Security Seals */}
+                  {/* Security Seals - Real Image */}
                   <div>
                     <p className="text-xs text-gray-400 mb-3 font-semibold">Segurança Garantida</p>
-                    <div className="flex flex-wrap gap-3 justify-center">
-                      <div className="flex flex-col items-center gap-1">
-                        <img src="/seals/ssl-blindado.jpg" alt="SSL Blindado" className="h-12 w-auto" />
-                        <span className="text-[10px] text-gray-400 text-center">SSL Blindado</span>
-                      </div>
-                      <div className="flex flex-col items-center gap-1">
-                        <img src="/seals/site-blindado.jpg" alt="Site Blindado Auditado" className="h-12 w-auto" />
-                        <span className="text-[10px] text-gray-400 text-center">Site Auditado</span>
-                      </div>
+                    <div className="flex justify-center">
+                      <img 
+                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%209%20de%20fev.%20de%202026%2C%2007_33_32-GcKzDZJIeFDVXm8Cf7ayYLSkevViv6.jpg" 
+                        alt="Selos de Segurança" 
+                        className="h-20 w-auto"
+                      />
                     </div>
                   </div>
                 </div>
