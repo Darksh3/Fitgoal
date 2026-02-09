@@ -350,7 +350,7 @@ export default function DashboardPage() {
     if (dietPlan?.supplements && Array.isArray(dietPlan.supplements)) {
       dietPlan.supplements.forEach((supplement: any) => {
         if (supplement.macros?.calories) {
-          const caloriesMatch = supplement.macros.calories.match(/(\d+)/)
+          const caloriesMatch = supplement.macros.calories.toString().match(/(\d+)/)
           if (caloriesMatch) {
             supplementCalories += Number.parseInt(caloriesMatch[1])
           }
@@ -359,18 +359,20 @@ export default function DashboardPage() {
     }
 
     const cleanValue = (value: string) => {
-      return value.replace(/g+$/, 'g').replace(/kcal+/, 'kcal')
+      return value.replace(/g{2,}/g, 'g').replace(/kcal{2,}/g, 'kcal')
     }
 
     return {
       calories: (() => {
         let totalCals = 0
-        if (calculatedTotals.calories && calculatedTotals.calories !== "0") {
-          totalCals = Number.parseInt(calculatedTotals.calories)
-        } else if (dietPlan?.totalDailyCalories && dietPlan.totalDailyCalories !== 0) {
+        
+        // Usar totalDailyCalories como base (é o goal calórico)
+        if (dietPlan?.totalDailyCalories && !isNaN(dietPlan.totalDailyCalories) && dietPlan.totalDailyCalories > 0) {
           totalCals = dietPlan.totalDailyCalories
+        } else if (calculatedTotals.calories && calculatedTotals.calories !== "0") {
+          totalCals = Number.parseInt(calculatedTotals.calories.toString().replace(/\D/g, ''))
         } else if (dietPlan?.calories && dietPlan.calories !== "0" && dietPlan.calories !== "0 kcal") {
-          const match = dietPlan.calories.match(/(\d+)/)
+          const match = dietPlan.calories.toString().match(/(\d+)/)
           totalCals = match ? Number.parseInt(match[1]) : 2200
         } else {
           totalCals = 2200
@@ -380,34 +382,40 @@ export default function DashboardPage() {
         return `${totalCals} kcal`
       })(),
       protein: (() => {
-        const value = calculatedTotals.protein && calculatedTotals.protein !== "0"
-          ? `${calculatedTotals.protein}g`
-          : dietPlan?.totalProtein && dietPlan.totalProtein !== 0
-          ? `${dietPlan.totalProtein}g`
-          : dietPlan?.protein && dietPlan.protein !== "0" && dietPlan.protein !== "0g"
-          ? cleanValue(dietPlan.protein.includes("g") ? dietPlan.protein : `${dietPlan.protein}g`)
-          : "0g"
-        return cleanValue(value)
+        if (dietPlan?.totalProtein && !isNaN(dietPlan.totalProtein) && dietPlan.totalProtein > 0) {
+          return `${Math.round(dietPlan.totalProtein)}g`
+        }
+        if (calculatedTotals.protein && calculatedTotals.protein !== "0") {
+          return `${calculatedTotals.protein}g`
+        }
+        if (dietPlan?.protein && dietPlan.protein !== "0" && dietPlan.protein !== "0g") {
+          return cleanValue(dietPlan.protein.toString().includes("g") ? dietPlan.protein.toString() : `${dietPlan.protein}g`)
+        }
+        return "0g"
       })(),
       carbs: (() => {
-        const value = calculatedTotals.carbs && calculatedTotals.carbs !== "0"
-          ? `${calculatedTotals.carbs}g`
-          : dietPlan?.totalCarbs && dietPlan.totalCarbs !== 0
-          ? `${dietPlan.totalCarbs}g`
-          : dietPlan?.carbs && dietPlan.carbs !== "0" && dietPlan.carbs !== "0g"
-          ? cleanValue(dietPlan.carbs.includes("g") ? dietPlan.carbs : `${dietPlan.carbs}g`)
-          : "0g"
-        return cleanValue(value)
+        if (dietPlan?.totalCarbs && !isNaN(dietPlan.totalCarbs) && dietPlan.totalCarbs > 0) {
+          return `${Math.round(dietPlan.totalCarbs)}g`
+        }
+        if (calculatedTotals.carbs && calculatedTotals.carbs !== "0") {
+          return `${calculatedTotals.carbs}g`
+        }
+        if (dietPlan?.carbs && dietPlan.carbs !== "0" && dietPlan.carbs !== "0g") {
+          return cleanValue(dietPlan.carbs.toString().includes("g") ? dietPlan.carbs.toString() : `${dietPlan.carbs}g`)
+        }
+        return "0g"
       })(),
       fats: (() => {
-        const value = calculatedTotals.fats && calculatedTotals.fats !== "0"
-          ? `${calculatedTotals.fats}g`
-          : dietPlan?.totalFats && dietPlan.totalFats !== 0
-          ? `${dietPlan.totalFats}g`
-          : dietPlan?.fats && dietPlan.fats !== "0" && dietPlan.fats !== "0g"
-          ? cleanValue(dietPlan.fats.includes("g") ? dietPlan.fats : `${dietPlan.fats}g`)
-          : "0g"
-        return cleanValue(value)
+        if (dietPlan?.totalFats && !isNaN(dietPlan.totalFats) && dietPlan.totalFats > 0) {
+          return `${Math.round(dietPlan.totalFats)}g`
+        }
+        if (calculatedTotals.fats && calculatedTotals.fats !== "0") {
+          return `${calculatedTotals.fats}g`
+        }
+        if (dietPlan?.fats && dietPlan.fats !== "0" && dietPlan.fats !== "0g") {
+          return cleanValue(dietPlan.fats.toString().includes("g") ? dietPlan.fats.toString() : `${dietPlan.fats}g`)
+        }
+        return "0g"
       })(),
     }
   }
