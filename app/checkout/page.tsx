@@ -547,7 +547,7 @@ export default function CheckoutPage() {
                 {/* Payment Methods */}
                 <h3 className="font-semibold text-white mb-4">Escolha a forma de pagamento</h3>
 
-                <div className="grid grid-cols-3 gap-3 mb-6">
+                <div className="grid grid-cols-2 gap-3 mb-6">
                   <button
                     onClick={() => {
                       setPaymentMethod("pix")
@@ -557,8 +557,21 @@ export default function CheckoutPage() {
                       paymentMethod === "pix" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
                     }`}
                   >
-                    <Smartphone className={`w-5 h-5 ${paymentMethod === "pix" ? "text-lime-400" : "text-gray-400"}`} />
+                    <QrCode className={`w-5 h-5 ${paymentMethod === "pix" ? "text-lime-400" : "text-gray-400"}`} />
                     <span className={`text-sm font-semibold ${paymentMethod === "pix" ? "text-lime-400" : "text-gray-300"}`}>Pagar com Pix</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setPaymentMethod("boleto")
+                      setError(null)
+                    }}
+                    className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${
+                      paymentMethod === "boleto" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
+                    }`}
+                  >
+                    <FileText className={`w-5 h-5 ${paymentMethod === "boleto" ? "text-lime-400" : "text-gray-400"}`} />
+                    <span className={`text-sm font-semibold ${paymentMethod === "boleto" ? "text-lime-400" : "text-gray-300"}`}>Boleto</span>
                   </button>
 
                   <button
