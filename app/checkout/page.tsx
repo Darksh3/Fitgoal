@@ -426,8 +426,8 @@ export default function CheckoutPage() {
                   <button
                     onClick={() => setSelectedPlan("mensal")}
                     className={`p-2 rounded-lg border-2 transition-all text-center ${selectedPlan === "mensal"
-                        ? "border-lime-500 bg-lime-500/10"
-                        : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
                       }`}
                   >
                     <div className={`text-xs font-semibold ${selectedPlan === "mensal" ? "text-lime-400" : "text-gray-300"}`}>Mensal</div>
@@ -437,8 +437,8 @@ export default function CheckoutPage() {
                   <button
                     onClick={() => setSelectedPlan("trimestral")}
                     className={`p-2 rounded-lg border-2 transition-all text-center relative ${selectedPlan === "trimestral"
-                        ? "border-lime-500 bg-lime-500/10"
-                        : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
                       }`}
                   >
                     <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
@@ -451,8 +451,8 @@ export default function CheckoutPage() {
                   <button
                     onClick={() => setSelectedPlan("semestral")}
                     className={`p-2 rounded-lg border-2 transition-all text-center relative ${selectedPlan === "semestral"
-                        ? "border-lime-500 bg-lime-500/10"
-                        : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
+                      ? "border-lime-500 bg-lime-500/10"
+                      : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
                       }`}
                   >
                     <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
@@ -566,7 +566,7 @@ export default function CheckoutPage() {
                 >
                   {/* Dynamic instruction text */}
                   <p className="text-sm text-gray-300 mb-2">
-                    {paymentMethod === "pix" && "🚀 Falta pouco para liberar seu plano personalizado!"}
+                    {paymentMethod === "pix" && "🎯 Falta pouco para liberar seu plano personalizado!"}
                     {paymentMethod === "boleto" && "🎯 Falta pouco para liberar seu plano personalizado!"}
                     {paymentMethod === "card" && "🎯 Falta pouco para liberar seu plano personalizado!"}
                   </p>
@@ -792,14 +792,14 @@ export default function CheckoutPage() {
                     <span>Acesso liberado imediatamente após a confirmação</span>
                   </div>
                 )}
-                
+
                 {paymentMethod === "pix" && (
                   <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2 text-xs text-lime-300">
                     <Zap className="w-4 h-4 flex-shrink-0 mt-0.5" />
                     <span>Liberação automática em poucos segundos</span>
                   </div>
                 )}
-                
+
                 {paymentMethod === "boleto" && (
                   <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 flex gap-2 text-xs text-blue-300">
                     <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" />
@@ -846,7 +846,7 @@ export default function CheckoutPage() {
                 <p className="text-xs text-gray-400">
                   Precisa de ajuda?{" "}
                   <a href="mailto:suportet@fitgoal.com.br" className="text-lime-400 hover:text-lime-300 font-semibold">
-                    support@fitgoal.com.br
+                    suporte@fitgoal.com.br
                   </a>
                 </p>
               </div>

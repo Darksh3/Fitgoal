@@ -682,9 +682,9 @@ export default function TreinoPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             <Card>
               <CardContent className="p-4">
-                <div className="flex items-center">
-                  <Calendar className="h-8 w-8 text-blue-600 dark:text-blue-400 mr-3" />
-                  <div>
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-8 w-8 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                  <div className="flex flex-col justify-center">
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Programação Semanal</p>
                     <p className="text-lg font-bold text-gray-900 dark:text-white">{actualTrainingFrequency}</p>
                     {process.env.NODE_ENV === "development" && (
@@ -704,9 +704,9 @@ export default function TreinoPage() {
             </Card>
             <Card>
               <CardContent className="p-4">
-                <div className="flex items-center">
-                  <Target className="h-8 w-8 text-green-600 dark:text-green-400 mr-3" />
-                  <div>
+                <div className="flex items-center gap-3">
+                  <Target className="h-8 w-8 text-green-600 dark:text-green-400 flex-shrink-0" />
+                  <div className="flex flex-col justify-center">
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Duração Média por Treino</p>
                     <p className="text-lg font-bold text-gray-900 dark:text-white">
                       {workoutPlan.days[0]?.duration || "Não especificado"}
@@ -718,7 +718,7 @@ export default function TreinoPage() {
           </div>
 
           {workoutPlan?.days?.length !== (userData as any)?.quizData?.trainingDaysPerWeek && (
-            <div className="mb-6 rounded-lg border border-orange-200 dark:border-orange-800/50 bg-orange-50/50 dark:bg-orange-900/10 p-4">
+            <div className="hidden mb-6 rounded-lg border border-orange-200 dark:border-orange-800/50 bg-orange-50/50 dark:bg-orange-900/10 p-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />

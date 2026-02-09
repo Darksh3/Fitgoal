@@ -2093,7 +2093,7 @@ export default function DietPage() {
           )}
 
           {quizData && dietPlan && (
-            <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div className="hidden mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <p className="text-blue-800 dark:text-blue-300 font-medium">🔄 Sincronizar Valores</p>
               <p className="text-blue-700 dark:text-blue-400 text-sm mt-1">
                 Atualizar os valores salvos no plano de dieta com o cálculo científico atual (
