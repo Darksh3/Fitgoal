@@ -55,6 +55,7 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [redirectCountdown, setRedirectCountdown] = useState(90)
+  const [selectedPlan, setSelectedPlan] = useState<"mensal" | "trimestral" | "semestral">("semestral")
 
   const [formData, setFormData] = useState<PaymentFormData>({
     email: "",
@@ -80,9 +81,43 @@ export default function CheckoutPage() {
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
 
-  const planName = searchParams.get("planName") || "Plano Semestral"
-  const planPrice = searchParams.get("planPrice") || "239.90"
-  const planKey = searchParams.get("planKey") || "semestral"
+  // Plan info from query params or selected plan
+  const planKey = searchParams.get("planKey") || selectedPlan
+  const getPlanName = (plan: string) => {
+    switch (plan) {
+      case "mensal":
+        return "Plano Mensal"
+      case "trimestral":
+        return "Plano Trimestral"
+      case "semestral":
+        return "Plano Semestral"
+      default:
+        return "Plano Semestral"
+    }
+  }
+
+  const getPlanPrice = (plan: string) => {
+    switch (plan) {
+      case "mensal":
+        return "79.90"
+      case "trimestral":
+        return "179.90"
+      case "semestral":
+        return "239.90"
+      default:
+        return "239.90"
+    }
+  }
+
+  const planName = getPlanName(selectedPlan)
+  const planPrice = getPlanPrice(selectedPlan)
+
+  useEffect(() => {
+    const initialPlan = searchParams.get("planKey") as "mensal" | "trimestral" | "semestral" | null
+    if (initialPlan) {
+      setSelectedPlan(initialPlan)
+    }
+  }, [])
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -513,6 +548,64 @@ export default function CheckoutPage() {
               {/* Order Summary */}
               <div className="bg-slate-700/30 p-6 rounded-lg border border-slate-600/50">
                 <h3 className="font-semibold text-white mb-4">Resumo do Pedido</h3>
+
+                {/* Plan Selector */}
+                <div className="grid grid-cols-3 gap-2 mb-6">
+                  <button
+                    onClick={() => setSelectedPlan("mensal")}
+                    className={`p-2 rounded-lg border-2 transition-all text-center ${
+                      selectedPlan === "mensal"
+                        ? "border-lime-500 bg-lime-500/10"
+                        : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
+                    }`}
+                  >
+                    <div className={`text-xs font-semibold ${selectedPlan === "mensal" ? "text-lime-400" : "text-gray-300"}`}>
+                      Mensal
+                    </div>
+                    <div className={`text-sm font-bold ${selectedPlan === "mensal" ? "text-lime-400" : "text-gray-400"}`}>
+                      R$ 79,90
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedPlan("trimestral")}
+                    className={`p-2 rounded-lg border-2 transition-all text-center relative ${
+                      selectedPlan === "trimestral"
+                        ? "border-lime-500 bg-lime-500/10"
+                        : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
+                    }`}
+                  >
+                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
+                      -25%
+                    </div>
+                    <div className={`text-xs font-semibold ${selectedPlan === "trimestral" ? "text-lime-400" : "text-gray-300"}`}>
+                      Trimestral
+                    </div>
+                    <div className={`text-sm font-bold ${selectedPlan === "trimestral" ? "text-lime-400" : "text-gray-400"}`}>
+                      R$ 179,90
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedPlan("semestral")}
+                    className={`p-2 rounded-lg border-2 transition-all text-center relative ${
+                      selectedPlan === "semestral"
+                        ? "border-lime-500 bg-lime-500/10"
+                        : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
+                    }`}
+                  >
+                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
+                      -40%
+                    </div>
+                    <div className={`text-xs font-semibold ${selectedPlan === "semestral" ? "text-lime-400" : "text-gray-300"}`}>
+                      Semestral
+                    </div>
+                    <div className={`text-sm font-bold ${selectedPlan === "semestral" ? "text-lime-400" : "text-gray-400"}`}>
+                      R$ 239,90
+                    </div>
+                  </button>
+                </div>
+
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-gray-200">
                     <Check className="w-4 h-4 text-lime-500" />
@@ -520,7 +613,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-400">
                     <Check className="w-4 h-4 text-lime-500" />
-                    <span>6 meses de treino e dieta personalizada</span>
+                    <span>{selectedPlan === "mensal" ? "1 mês" : selectedPlan === "trimestral" ? "3 meses" : "6 meses"} de treino e dieta personalizada</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-400">
                     <Check className="w-4 h-4 text-lime-500" />
@@ -531,7 +624,11 @@ export default function CheckoutPage() {
                   <span className="text-gray-300">Total</span>
                   <span className="text-3xl font-bold text-lime-500">R$ {parseFloat(planPrice).toFixed(2).replace(".", ",")}</span>
                 </div>
-                <div className="text-sm text-gray-400 mt-2">Menos de R$40 por mês!</div>
+                <div className="text-sm text-gray-400 mt-2">
+                  {selectedPlan === "mensal" && "R$ 79,90 por mês"}
+                  {selectedPlan === "trimestral" && "R$ 59,97 por mês"}
+                  {selectedPlan === "semestral" && "Menos de R$40 por mês!"}
+                </div>
               </div>
 
               {/* Guarantee */}
