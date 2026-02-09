@@ -185,10 +185,12 @@ export default function CheckoutPage() {
       if (!cardData.expiryMonth || !cardData.expiryYear) return "Validade é obrigatória"
       if (!cardData.ccv) return "CVV é obrigatório"
       if (!cardData.holderName) return "Nome no cartão é obrigatório"
+    }
+
+    if (paymentMethod === "boleto") {
       if (!addressData.postalCode) return "CEP é obrigatório"
       if (!addressData.addressNumber) return "Número da residência é obrigatório"
     }
-    // Para Pix e Boleto, CEP e número são opcionais
 
     return null
   }
@@ -578,6 +580,31 @@ export default function CheckoutPage() {
                   </motion.div>
                 )}
 
+                {/* Boleto Fields - CEP and Address Number */}
+                {paymentMethod === "boleto" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-3"
+                  >
+                    <div className="grid grid-cols-2 gap-3">
+                      <Input
+                        placeholder="CEP"
+                        value={addressData.postalCode}
+                        onChange={(e) => handleAddressChange(e, "postalCode")}
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
+                      />
+                      <Input
+                        placeholder="Número da Residência"
+                        value={addressData.addressNumber}
+                        onChange={(e) => handleAddressChange(e, "addressNumber")}
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+
                 {/* Card Fields */}
                 {paymentMethod === "card" && (
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-3">
@@ -617,20 +644,6 @@ export default function CheckoutPage() {
                       onChange={(e) => handleCardChange(e, "holderName")}
                       className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
                     />
-                    <div className="grid grid-cols-2 gap-3">
-                      <Input
-                        placeholder="CEP"
-                        value={addressData.postalCode}
-                        onChange={(e) => handleAddressChange(e, "postalCode")}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
-                      />
-                      <Input
-                        placeholder="Número da Residência"
-                        value={addressData.addressNumber}
-                        onChange={(e) => handleAddressChange(e, "addressNumber")}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
-                      />
-                    </div>
                     <select
                       value={installments}
                       onChange={(e) => setInstallments(parseInt(e.target.value))}
