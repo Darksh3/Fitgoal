@@ -787,16 +787,22 @@ export default function QuizResultsPage() {
                 </div>
               </div>
 
-              {/* Right column - Image mockup */}
+              {/* Right column - Video */}
               <div className="flex items-center justify-center">
                 <div className="relative w-full max-w-sm">
-                  {/* Placeholder for the app mockup image */}
+                  {/* Video player with rounded edges and border */}
                   <div className="bg-gradient-to-b from-gray-800 to-gray-900 rounded-3xl p-4 border border-gray-700">
-                    <div className="bg-black rounded-2xl aspect-video flex items-center justify-center">
-                      <svg className="w-12 h-12 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V5a2 2 0 00-2-2H5zm6 9a1 1 0 100-2 1 1 0 000 2z"></path>
-                      </svg>
-                    </div>
+                    <video 
+                      className="bg-black rounded-2xl w-full h-auto"
+                      controls
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                    >
+                      <source src="/videos/highlights-demo.webm" type="video/webm" />
+                      Seu navegador não suporta reprodução de vídeo.
+                    </video>
                   </div>
                 </div>
               </div>
