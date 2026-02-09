@@ -19,6 +19,8 @@ import {
   CheckCircle2,
   Loader2,
   Shield,
+  Zap,
+  Clock,
 } from "lucide-react"
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
@@ -302,7 +304,7 @@ export default function CheckoutPage() {
           </motion.div>
           <h2 className="text-3xl font-bold text-white mb-2">Pagamento Confirmado!</h2>
           <p className="text-gray-400 mb-6">Bem-vindo ao FitGoal. Seu acesso foi liberado.</p>
-          
+
           <div className="bg-slate-800/40 border border-slate-700 rounded-lg p-4 mb-6 space-y-2">
             <p className="text-sm text-gray-300">
               <span className="text-lime-400 font-semibold">Status:</span> Pagamento Processado
@@ -416,430 +418,438 @@ export default function CheckoutPage() {
           {/* Left Column - Order Summary */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
             <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold text-white mb-4">Resumo do Pedido</h3>
+
+                {/* Plan Selector */}
+                <div className="grid grid-cols-3 gap-2 mb-6">
+                  <button
+                    onClick={() => setSelectedPlan("mensal")}
+                    className={`p-2 rounded-lg border-2 transition-all text-center ${selectedPlan === "mensal"
+                        ? "border-lime-500 bg-lime-500/10"
+                        : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
+                      }`}
+                  >
+                    <div className={`text-xs font-semibold ${selectedPlan === "mensal" ? "text-lime-400" : "text-gray-300"}`}>Mensal</div>
+                    <div className={`text-sm font-bold ${selectedPlan === "mensal" ? "text-lime-400" : "text-gray-400"}`}>R$ 79,90</div>
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedPlan("trimestral")}
+                    className={`p-2 rounded-lg border-2 transition-all text-center relative ${selectedPlan === "trimestral"
+                        ? "border-lime-500 bg-lime-500/10"
+                        : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
+                      }`}
+                  >
+                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
+                      -25%
+                    </div>
+                    <div className={`text-xs font-semibold ${selectedPlan === "trimestral" ? "text-lime-400" : "text-gray-300"}`}>Trimestral</div>
+                    <div className={`text-sm font-bold ${selectedPlan === "trimestral" ? "text-lime-400" : "text-gray-400"}`}>R$ 179,90</div>
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedPlan("semestral")}
+                    className={`p-2 rounded-lg border-2 transition-all text-center relative ${selectedPlan === "semestral"
+                        ? "border-lime-500 bg-lime-500/10"
+                        : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
+                      }`}
+                  >
+                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
+                      -40%
+                    </div>
+                    <div className={`text-xs font-semibold ${selectedPlan === "semestral" ? "text-lime-400" : "text-gray-300"}`}>Semestral</div>
+                    <div className={`text-sm font-bold ${selectedPlan === "semestral" ? "text-lime-400" : "text-gray-400"}`}>R$ 239,90</div>
+                  </button>
+                </div>
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-gray-200">
+                    <Check className="w-4 h-4 text-lime-500" />
+                    <span className="font-semibold">{planName}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <Check className="w-4 h-4 text-lime-500" />
+                    <span>{selectedPlan === "mensal" ? "1 mês" : selectedPlan === "trimestral" ? "3 meses" : "6 meses"} de treino e dieta personalizada</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <Check className="w-4 h-4 text-lime-500" />
+                    <span>Acesso Completo ao App + Acompanhamento Contínuo</span>
+                  </div>
+                </div>
+
+                <div className="border-t border-slate-600 pt-4 flex justify-between items-center">
+                  <span className="text-gray-300">Total</span>
+                  <span className="text-3xl font-bold text-lime-500">R$ {parseFloat(planPrice).toFixed(2).replace(".", ",")}</span>
+                </div>
+                <div className="text-sm text-gray-400 mt-2">
+                  {selectedPlan === "mensal" && "R$ 79,90 por mês"}
+                  {selectedPlan === "trimestral" && "R$ 59,97 por mês"}
+                  {selectedPlan === "semestral" && "Menos de R$40 por mês!"}
+                </div>
+              </div>
+
+              {/* Guarantee */}
+              <div className="bg-lime-500/10 p-4 rounded-lg border border-lime-500/30 flex gap-3">
+                <Shield className="w-6 h-6 text-lime-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-white mb-4">Resumo do Pedido</h3>
-
-                  {/* Plan Selector */}
-                  <div className="grid grid-cols-3 gap-2 mb-6">
-                    <button
-                      onClick={() => setSelectedPlan("mensal")}
-                      className={`p-2 rounded-lg border-2 transition-all text-center ${
-                        selectedPlan === "mensal"
-                          ? "border-lime-500 bg-lime-500/10"
-                          : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
-                      }`}
-                    >
-                      <div className={`text-xs font-semibold ${selectedPlan === "mensal" ? "text-lime-400" : "text-gray-300"}`}>Mensal</div>
-                      <div className={`text-sm font-bold ${selectedPlan === "mensal" ? "text-lime-400" : "text-gray-400"}`}>R$ 79,90</div>
-                    </button>
-
-                    <button
-                      onClick={() => setSelectedPlan("trimestral")}
-                      className={`p-2 rounded-lg border-2 transition-all text-center relative ${
-                        selectedPlan === "trimestral"
-                          ? "border-lime-500 bg-lime-500/10"
-                          : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
-                      }`}
-                    >
-                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
-                        -25%
-                      </div>
-                      <div className={`text-xs font-semibold ${selectedPlan === "trimestral" ? "text-lime-400" : "text-gray-300"}`}>Trimestral</div>
-                      <div className={`text-sm font-bold ${selectedPlan === "trimestral" ? "text-lime-400" : "text-gray-400"}`}>R$ 179,90</div>
-                    </button>
-
-                    <button
-                      onClick={() => setSelectedPlan("semestral")}
-                      className={`p-2 rounded-lg border-2 transition-all text-center relative ${
-                        selectedPlan === "semestral"
-                          ? "border-lime-500 bg-lime-500/10"
-                          : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
-                      }`}
-                    >
-                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
-                        -40%
-                      </div>
-                      <div className={`text-xs font-semibold ${selectedPlan === "semestral" ? "text-lime-400" : "text-gray-300"}`}>Semestral</div>
-                      <div className={`text-sm font-bold ${selectedPlan === "semestral" ? "text-lime-400" : "text-gray-400"}`}>R$ 239,90</div>
-                    </button>
-                  </div>
-
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-gray-200">
-                      <Check className="w-4 h-4 text-lime-500" />
-                      <span className="font-semibold">{planName}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
-                      <Check className="w-4 h-4 text-lime-500" />
-                      <span>{selectedPlan === "mensal" ? "1 mês" : selectedPlan === "trimestral" ? "3 meses" : "6 meses"} de treino e dieta personalizada</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
-                      <Check className="w-4 h-4 text-lime-500" />
-                      <span>Acesso Completo ao App + Acompanhamento Contínuo</span>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-slate-600 pt-4 flex justify-between items-center">
-                    <span className="text-gray-300">Total</span>
-                    <span className="text-3xl font-bold text-lime-500">R$ {parseFloat(planPrice).toFixed(2).replace(".", ",")}</span>
-                  </div>
-                  <div className="text-sm text-gray-400 mt-2">
-                    {selectedPlan === "mensal" && "R$ 79,90 por mês"}
-                    {selectedPlan === "trimestral" && "R$ 59,97 por mês"}
-                    {selectedPlan === "semestral" && "Menos de R$40 por mês!"}
-                  </div>
+                  <p className="font-semibold text-lime-300">Garantia 30 Dias</p>
+                  <p className="text-sm text-lime-200">Satisfação 100% ou seu dinheiro de volta.</p>
                 </div>
-
-                {/* Guarantee */}
-                <div className="bg-lime-500/10 p-4 rounded-lg border border-lime-500/30 flex gap-3">
-                  <Shield className="w-6 h-6 text-lime-400 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-lime-300">Garantia 30 Dias</p>
-                    <p className="text-sm text-lime-200">Satisfação 100% ou seu dinheiro de volta.</p>
-                  </div>
-                </div>
+              </div>
             </div>
           </motion.div>
 
           {/* Right Column - Payment Form */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
             <div className="space-y-4">
-                {/* Payment Methods */}
-                <div>
-                  <h3 className="font-semibold text-white mb-4">Escolha a forma de pagamento</h3>
+              {/* Payment Methods */}
+              <div>
+                <h3 className="font-semibold text-white mb-4">Escolha a forma de pagamento</h3>
 
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <button
-                      onClick={async () => {
-                        setPaymentMethod("pix")
-                        setError(null)
-                        await prefillFromProfile()
-                      }}
-                      className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${
-                        paymentMethod === "pix" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
-                      }`}
-                    >
-                      <QrCode className={`w-5 h-5 ${paymentMethod === "pix" ? "text-lime-400" : "text-gray-400"}`} />
-                      <span className={`text-sm font-semibold ${paymentMethod === "pix" ? "text-lime-400" : "text-gray-300"}`}>Pagar com Pix</span>
-                    </button>
-
-                    <button
-                      onClick={async () => {
-                        setPaymentMethod("boleto")
-                        setError(null)
-                        await prefillFromProfile()
-                      }}
-                      className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${
-                        paymentMethod === "boleto" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
-                      }`}
-                    >
-                      <FileText className={`w-5 h-5 ${paymentMethod === "boleto" ? "text-lime-400" : "text-gray-400"}`} />
-                      <span className={`text-sm font-semibold ${paymentMethod === "boleto" ? "text-lime-400" : "text-gray-300"}`}>Boleto</span>
-                    </button>
-                  </div>
-
-                  {/* Or card payment */}
-                  <div className="flex items-center gap-3 my-3">
-                    <div className="flex-1 border-t border-slate-600"></div>
-                    <span className="text-xs text-gray-400">Ou pague com cartão</span>
-                    <div className="flex-1 border-t border-slate-600"></div>
-                  </div>
-
+                <div className="grid grid-cols-2 gap-3 mb-4">
                   <button
                     onClick={async () => {
-                      setPaymentMethod("card")
+                      setPaymentMethod("pix")
                       setError(null)
                       await prefillFromProfile()
                     }}
-                    className={`w-full p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-3 mb-3 ${
-                      paymentMethod === "card" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
-                    }`}
+                    className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${paymentMethod === "pix" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
+                      }`}
                   >
-                    <CreditCard className={`w-5 h-5 ${paymentMethod === "card" ? "text-lime-400" : "text-gray-400"}`} />
-                    <span className={`font-semibold ${paymentMethod === "card" ? "text-lime-400" : "text-gray-300"}`}>Cartão de Crédito</span>
+                    <QrCode className={`w-5 h-5 ${paymentMethod === "pix" ? "text-lime-400" : "text-gray-400"}`} />
+                    <span className={`text-sm font-semibold ${paymentMethod === "pix" ? "text-lime-400" : "text-gray-300"}`}>Pagar com Pix</span>
+                  </button>
+
+                  <button
+                    onClick={async () => {
+                      setPaymentMethod("boleto")
+                      setError(null)
+                      await prefillFromProfile()
+                    }}
+                    className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${paymentMethod === "boleto" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
+                      }`}
+                  >
+                    <FileText className={`w-5 h-5 ${paymentMethod === "boleto" ? "text-lime-400" : "text-gray-400"}`} />
+                    <span className={`text-sm font-semibold ${paymentMethod === "boleto" ? "text-lime-400" : "text-gray-300"}`}>Boleto</span>
                   </button>
                 </div>
 
-                {/* Personal Info Fields - Show only after payment method selected */}
-                {paymentMethod && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="space-y-3"
-                  >
-                    {/* Dynamic instruction text */}
-                    <p className="text-sm text-gray-300 mb-2">
-                      {paymentMethod === "pix" && "🚀 Falta pouco para liberar seu plano personalizado!"}
-                      {paymentMethod === "boleto" && "🎯 Falta pouco para liberar seu plano personalizado!"}
-                      {paymentMethod === "card" && "🎯 Falta pouco para liberar seu plano personalizado!"}
-                    </p>
+                {/* Or card payment */}
+                <div className="flex items-center gap-3 my-3">
+                  <div className="flex-1 border-t border-slate-600"></div>
+                  <span className="text-xs text-gray-400">Ou pague com cartão</span>
+                  <div className="flex-1 border-t border-slate-600"></div>
+                </div>
 
-                    <Input
-                      placeholder="Nome Completo"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange(e, "name")}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
-                        getFieldError("name") ? "border-red-500/80 border-2" : "border-slate-600"
+                <button
+                  onClick={async () => {
+                    setPaymentMethod("card")
+                    setError(null)
+                    await prefillFromProfile()
+                  }}
+                  className={`w-full p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-3 mb-3 ${paymentMethod === "card" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
+                    }`}
+                >
+                  <CreditCard className={`w-5 h-5 ${paymentMethod === "card" ? "text-lime-400" : "text-gray-400"}`} />
+                  <span className={`font-semibold ${paymentMethod === "card" ? "text-lime-400" : "text-gray-300"}`}>Cartão de Crédito</span>
+                </button>
+              </div>
+
+              {/* Personal Info Fields - Show only after payment method selected */}
+              {paymentMethod && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="space-y-3"
+                >
+                  {/* Dynamic instruction text */}
+                  <p className="text-sm text-gray-300 mb-2">
+                    {paymentMethod === "pix" && "🚀 Falta pouco para liberar seu plano personalizado!"}
+                    {paymentMethod === "boleto" && "🎯 Falta pouco para liberar seu plano personalizado!"}
+                    {paymentMethod === "card" && "🎯 Falta pouco para liberar seu plano personalizado!"}
+                  </p>
+
+                  <Input
+                    placeholder="Nome Completo"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange(e, "name")}
+                    className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("name") ? "border-red-500/80 border-2" : "border-slate-600"
                       }`}
-                    />
-                    <Input
-                      type="email"
-                      placeholder="Email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange(e, "email")}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
-                        getFieldError("email") ? "border-red-500/80 border-2" : "border-slate-600"
+                  />
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange(e, "email")}
+                    className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("email") ? "border-red-500/80 border-2" : "border-slate-600"
                       }`}
-                    />
-                    <div className="grid grid-cols-2 gap-3">
-                      <Input
-                        placeholder="CPF"
-                        value={formData.cpf}
-                        onChange={(e) => {
-                          let value = e.target.value.replace(/\D/g, "")
-                          if (value.length <= 11) {
-                            if (value.length > 8) {
-                              value = value.slice(0, 3) + "." + value.slice(3, 6) + "." + value.slice(6, 9) + "-" + value.slice(9)
-                            } else if (value.length > 5) {
-                              value = value.slice(0, 3) + "." + value.slice(3, 6) + "." + value.slice(6)
-                            } else if (value.length > 2) {
-                              value = value.slice(0, 3) + "." + value.slice(3)
-                            }
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      placeholder="CPF"
+                      value={formData.cpf}
+                      onChange={(e) => {
+                        let value = e.target.value.replace(/\D/g, "")
+                        if (value.length <= 11) {
+                          if (value.length > 8) {
+                            value = value.slice(0, 3) + "." + value.slice(3, 6) + "." + value.slice(6, 9) + "-" + value.slice(9)
+                          } else if (value.length > 5) {
+                            value = value.slice(0, 3) + "." + value.slice(3, 6) + "." + value.slice(6)
+                          } else if (value.length > 2) {
+                            value = value.slice(0, 3) + "." + value.slice(3)
                           }
-                          handleInputChange({ target: { value } } as any, "cpf")
-                        }}
-                        className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
-                          getFieldError("cpf") ? "border-red-500/80 border-2" : "border-slate-600"
+                        }
+                        handleInputChange({ target: { value } } as any, "cpf")
+                      }}
+                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cpf") ? "border-red-500/80 border-2" : "border-slate-600"
                         }`}
-                      />
-                      <Input
-                        placeholder="Telefone"
-                        value={formData.phone}
-                        onChange={(e) => {
-                          let value = e.target.value.replace(/\D/g, "")
-                          if (value.length <= 11) {
-                            if (value.length > 6) {
-                              value = "(" + value.slice(0, 2) + ") " + value.slice(2, 7) + "-" + value.slice(7)
-                            } else if (value.length > 2) {
-                              value = "(" + value.slice(0, 2) + ") " + value.slice(2)
-                            }
+                    />
+                    <Input
+                      placeholder="Telefone"
+                      value={formData.phone}
+                      onChange={(e) => {
+                        let value = e.target.value.replace(/\D/g, "")
+                        if (value.length <= 11) {
+                          if (value.length > 6) {
+                            value = "(" + value.slice(0, 2) + ") " + value.slice(2, 7) + "-" + value.slice(7)
+                          } else if (value.length > 2) {
+                            value = "(" + value.slice(0, 2) + ") " + value.slice(2)
                           }
-                          handleInputChange({ target: { value } } as any, "phone")
-                        }}
-                        className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
-                          getFieldError("phone") ? "border-red-500/80 border-2" : "border-slate-600"
+                        }
+                        handleInputChange({ target: { value } } as any, "phone")
+                      }}
+                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("phone") ? "border-red-500/80 border-2" : "border-slate-600"
                         }`}
-                      />
-                    </div>
-                  </motion.div>
-                )}
+                    />
+                  </div>
+                </motion.div>
+              )}
 
-                {/* Boleto Fields - CEP and Address Number */}
-                {paymentMethod === "boleto" && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="space-y-3"
+              {/* Boleto Fields - CEP and Address Number */}
+              {paymentMethod === "boleto" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="space-y-3"
+                >
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      placeholder="CEP"
+                      value={addressData.postalCode}
+                      onChange={(e) => handleAddressChange(e, "postalCode")}
+                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("postalCode") ? "border-red-500/80 border-2" : "border-slate-600"
+                        }`}
+                    />
+                    <Input
+                      placeholder="Número da Residência"
+                      value={addressData.addressNumber}
+                      onChange={(e) => handleAddressChange(e, "addressNumber")}
+                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("addressNumber") ? "border-red-500/80 border-2" : "border-slate-600"
+                        }`}
+                    />
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Card Fields */}
+              {paymentMethod === "card" && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-3">
+                  <Input
+                    placeholder="Número do Cartão"
+                    value={cardData.number}
+                    onChange={(e) => handleCardChange(e, "number")}
+                    maxLength={19}
+                    className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 font-mono ${getFieldError("cardNumber") ? "border-red-500/80 border-2" : "border-slate-600"
+                      }`}
+                  />
+                  <div className="grid grid-cols-3 gap-3">
+                    <Input
+                      placeholder="Validade (MM)"
+                      value={cardData.expiryMonth}
+                      onChange={(e) => handleCardChange(e, "expiryMonth")}
+                      maxLength={2}
+                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardExpiry") ? "border-red-500/80 border-2" : "border-slate-600"
+                        }`}
+                    />
+                    <Input
+                      placeholder="Ano (YYYY)"
+                      value={cardData.expiryYear}
+                      onChange={(e) => handleCardChange(e, "expiryYear")}
+                      maxLength={4}
+                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardExpiry") ? "border-red-500/80 border-2" : "border-slate-600"
+                        }`}
+                    />
+                    <Input
+                      placeholder="CVV"
+                      value={cardData.ccv}
+                      onChange={(e) => handleCardChange(e, "ccv")}
+                      maxLength={4}
+                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardCcv") ? "border-red-500/80 border-2" : "border-slate-600"
+                        }`}
+                    />
+                  </div>
+                  <Input
+                    placeholder="Nome no Cartão"
+                    value={cardData.holderName}
+                    onChange={(e) => handleCardChange(e, "holderName")}
+                    className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardHolder") ? "border-red-500/80 border-2" : "border-slate-600"
+                      }`}
+                  />
+                  <select
+                    value={installments}
+                    onChange={(e) => setInstallments(parseInt(e.target.value))}
+                    className="w-full bg-slate-700/40 border border-slate-600 text-white rounded-md px-3 py-2 placeholder:text-slate-400 placeholder:opacity-100"
                   >
-                    <div className="grid grid-cols-2 gap-3">
-                      <Input
-                        placeholder="CEP"
-                        value={addressData.postalCode}
-                        onChange={(e) => handleAddressChange(e, "postalCode")}
-                        className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
-                          getFieldError("postalCode") ? "border-red-500/80 border-2" : "border-slate-600"
-                        }`}
-                      />
-                      <Input
-                        placeholder="Número da Residência"
-                        value={addressData.addressNumber}
-                        onChange={(e) => handleAddressChange(e, "addressNumber")}
-                        className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
-                          getFieldError("addressNumber") ? "border-red-500/80 border-2" : "border-slate-600"
-                        }`}
-                      />
-                    </div>
-                  </motion.div>
-                )}
+                    {selectedPlan === "semestral" && [1, 2, 3, 4, 5, 6].map((n) => (
+                      <option key={n} value={n} className="bg-slate-800">
+                        {n}x de R$ {(parseFloat(planPrice) / n).toFixed(2).replace(".", ",")}</option>
+                    ))}
+                    {selectedPlan === "trimestral" && [1, 2, 3].map((n) => (
+                      <option key={n} value={n} className="bg-slate-800">
+                        {n}x de R$ {(parseFloat(planPrice) / n).toFixed(2).replace(".", ",")}</option>
+                    ))}
+                    {selectedPlan === "mensal" && (
+                      <option value={1} className="bg-slate-800">
+                        1x de R$ {parseFloat(planPrice).toFixed(2).replace(".", ",")}</option>
+                    )}
+                  </select>
 
-                {/* Card Fields */}
-                {paymentMethod === "card" && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-3">
-                    <Input
-                      placeholder="Número do Cartão"
-                      value={cardData.number}
-                      onChange={(e) => handleCardChange(e, "number")}
-                      maxLength={19}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 font-mono ${
-                        getFieldError("cardNumber") ? "border-red-500/80 border-2" : "border-slate-600"
-                      }`}
-                    />
-                    <div className="grid grid-cols-3 gap-3">
-                      <Input
-                        placeholder="Validade (MM)"
-                        value={cardData.expiryMonth}
-                        onChange={(e) => handleCardChange(e, "expiryMonth")}
-                        maxLength={2}
-                        className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
-                          getFieldError("cardExpiry") ? "border-red-500/80 border-2" : "border-slate-600"
-                        }`}
-                      />
-                      <Input
-                        placeholder="Ano (YYYY)"
-                        value={cardData.expiryYear}
-                        onChange={(e) => handleCardChange(e, "expiryYear")}
-                        maxLength={4}
-                        className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
-                          getFieldError("cardExpiry") ? "border-red-500/80 border-2" : "border-slate-600"
-                        }`}
-                      />
-                      <Input
-                        placeholder="CVV"
-                        value={cardData.ccv}
-                        onChange={(e) => handleCardChange(e, "ccv")}
-                        maxLength={4}
-                        className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
-                          getFieldError("cardCcv") ? "border-red-500/80 border-2" : "border-slate-600"
-                        }`}
-                      />
+                  {/* Sugestão de parcelamento condicional */}
+                  {selectedPlan === "semestral" && (
+                    <div className="text-xs text-lime-400 text-center">
+                      ou até 6x de R$ {(parseFloat(planPrice) / 6).toFixed(2).replace(".", ",")}
                     </div>
-                    <Input
-                      placeholder="Nome no Cartão"
-                      value={cardData.holderName}
-                      onChange={(e) => handleCardChange(e, "holderName")}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
-                        getFieldError("cardHolder") ? "border-red-500/80 border-2" : "border-slate-600"
-                      }`}
-                    />
-                    <select
-                      value={installments}
-                      onChange={(e) => setInstallments(parseInt(e.target.value))}
-                      className="w-full bg-slate-700/40 border border-slate-600 text-white rounded-md px-3 py-2 placeholder:text-slate-400 placeholder:opacity-100"
+                  )}
+                  {selectedPlan === "trimestral" && (
+                    <div className="text-xs text-lime-400 text-center">
+                      ou até 3x de R$ {(parseFloat(planPrice) / 3).toFixed(2).replace(".", ",")}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Error Message - Mais orientador */}
+              {error && (
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                  <div className="bg-red-900/20 border border-red-600/50 rounded-lg p-4 flex gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-red-300 text-sm font-semibold">⚠️ Precisamos de algumas informações</p>
+                      <p className="text-red-300/80 text-xs mt-1">{getErrorMessage()}</p>
+                    </div>
+                    <button
+                      onClick={() => setError(null)}
+                      className="text-red-400 hover:text-red-300 text-sm"
                     >
-                      {selectedPlan === "semestral" && [1, 2, 3, 4, 5, 6].map((n) => (
-                        <option key={n} value={n} className="bg-slate-800">
-                          {n}x de R$ {(parseFloat(planPrice) / n).toFixed(2).replace(".", ",")}</option>
-                      ))}
-                      {selectedPlan === "trimestral" && [1, 2, 3].map((n) => (
-                        <option key={n} value={n} className="bg-slate-800">
-                          {n}x de R$ {(parseFloat(planPrice) / n).toFixed(2).replace(".", ",")}</option>
-                      ))}
-                      {selectedPlan === "mensal" && (
-                        <option value={1} className="bg-slate-800">
-                          1x de R$ {parseFloat(planPrice).toFixed(2).replace(".", ",")}</option>
+                      ✕
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Espaço extra antes do botão em mobile */}
+              <div className="h-4 md:h-0" />
+
+              {/* Secure Payment Container - Menos densidade */}
+              <div className="bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6 md:p-8 space-y-5">
+
+                {/* SUBCONTAINER — botão mais dominante */}
+                <div className="w-full max-w-md mx-auto bg-slate-900/50 border border-slate-600/80 rounded-xl p-5 flex justify-center shadow-lg">
+                  <Button
+                    onClick={handlePayment}
+                    disabled={!paymentMethod || processing}
+                    className="w-full bg-lime-500 hover:bg-lime-600 hover:shadow-[0_0_20px_rgba(132,204,22,0.5)] disabled:bg-gray-500 disabled:cursor-not-allowed text-black font-bold py-7 text-base rounded-lg shadow-lg transition-all uppercase tracking-wide"
+                  >
+                    <span className="flex items-center justify-center w-full gap-2">
+                      {processing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Processando...
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-4 h-4" />
+                          Confirmar Pagamento
+                        </>
                       )}
-                    </select>
-                    
-                    {/* Sugestão de parcelamento condicional */}
-                    {selectedPlan === "semestral" && (
-                      <div className="text-xs text-lime-400 text-center">
-                        ou até 6x de R$ {(parseFloat(planPrice) / 6).toFixed(2).replace(".", ",")}
-                      </div>
-                    )}
-                    {selectedPlan === "trimestral" && (
-                      <div className="text-xs text-lime-400 text-center">
-                        ou até 3x de R$ {(parseFloat(planPrice) / 3).toFixed(2).replace(".", ",")}
-                      </div>
-                    )}
-                  </motion.div>
+                    </span>
+                  </Button>
+                </div>
+
+                {/* Microcopy de segurança - Mais específica */}
+                <div className="flex items-center justify-center gap-2 text-xs text-gray-300 px-4">
+                  <Lock className="w-3 h-3 flex-shrink-0" />
+                  <span>Pagamento com criptografia SSL. Seus dados não são armazenados.</span>
+                </div>
+
+                {/* O que acontece depois do pagamento */}
+                {paymentMethod === "card" && (
+                  <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2 text-xs text-lime-300">
+                    <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>Acesso liberado imediatamente após a confirmação</span>
+                  </div>
+                )}
+                
+                {paymentMethod === "pix" && (
+                  <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2 text-xs text-lime-300">
+                    <Zap className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>Liberação automática em poucos segundos</span>
+                  </div>
+                )}
+                
+                {paymentMethod === "boleto" && (
+                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 flex gap-2 text-xs text-blue-300">
+                    <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>Liberação assim que o pagamento for confirmado</span>
+                  </div>
                 )}
 
-                {/* Error Message */}
-                {error && (
-                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-                    <div className="bg-red-900/20 border border-red-600/50 rounded-lg p-4 flex gap-3">
-                      <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-red-300 text-sm font-semibold">Erro no pagamento</p>
-                        <p className="text-red-300/80 text-xs mt-1">{getErrorMessage()}</p>
-                      </div>
-                      <button
-                        onClick={() => setError(null)}
-                        className="text-red-400 hover:text-red-300 text-sm"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
+                {/* Texto auxiliar */}
+                <p className="text-xs text-gray-400 text-center">
+                  Renovação automática. Cancele a qualquer momento.
+                </p>
 
-                {/* Secure Payment Container */}
-                <div className="bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6 md:p-8 space-y-4">
+              </div>
 
-                  {/* SUBCONTAINER — só o botão (centralizado) */}
-                  <div className="w-full max-w-md mx-auto bg-slate-900/50 border border-slate-600/80 rounded-xl p-4 flex justify-center shadow-lg">
-                    <Button
-                      onClick={handlePayment}
-                      disabled={!paymentMethod || processing}
-                      className="w-full bg-lime-500 hover:bg-lime-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-black font-bold py-6 text-lg rounded-lg shadow-lg transition-all"
-                    >
-                      <span className="flex items-center justify-center w-full gap-2">
-                        {processing ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            Processando...
-                          </>
-                        ) : (
-                          <>
-                            <Lock className="w-4 h-4" />
-                            Confirmar Pagamento
-                          </>
-                        )}
-                      </span>
-                    </Button>
-                  </div>
-
-                  {/* FORA do subcontainer — compra segura */}
-                  <div className="flex items-center justify-center gap-2 text-sm text-gray-300">
-                    <Lock className="w-4 h-4" />
-                    Compra segura. Seus dados estão protegidos.
-                  </div>
-
-                  {/* Texto auxiliar */}
-                  <p className="text-xs text-gray-400 text-center">
-                    Renovação automática. Cancele a qualquer momento.
-                  </p>
-
-                </div>
-
-                {/* Payment Methods and Security Seals */}
-                <div className="space-y-4 border-t border-slate-700 pt-6">
-                  {/* Payment Methods - Real Image */}
-                  <div>
-                    <p className="text-xs text-gray-400 mb-3 font-semibold">Formas de Pagamento Aceitas</p>
-                    <div className="flex justify-center">
-                      <img 
-                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image%20%281%29-jw1JPyvxkfSr48fVwN5Fqg6Is6wcn8.webp" 
-                        alt="Formas de Pagamento" 
-                        className="h-20 w-auto"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Security Seals - Real Image */}
-                  <div>
-                    <p className="text-xs text-gray-400 mb-3 font-semibold">Segurança Garantida</p>
-                    <div className="flex justify-center">
-                      <img 
-                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%209%20de%20fev.%20de%202026%2C%2007_33_32-1iWUwKOD8rqFexNiRWJyPAV93cR1ox.webp" 
-                        alt="Selos de Segurança" 
-                        className="h-20 w-auto"
-                      />
-                    </div>
+              {/* Payment Methods and Security Seals */}
+              <div className="space-y-4 border-t border-slate-700 pt-6">
+                {/* Payment Methods - Real Image */}
+                <div>
+                  <p className="text-xs text-gray-400 mb-3 font-semibold">Formas de Pagamento Aceitas</p>
+                  <div className="flex justify-center">
+                    <img
+                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image%20%281%29-jw1JPyvxkfSr48fVwN5Fqg6Is6wcn8.webp"
+                      alt="Formas de Pagamento"
+                      className="h-20 w-auto"
+                    />
                   </div>
                 </div>
 
-                {/* Support */}
-                <div className="text-center">
-                  <p className="text-xs text-gray-400">
-                    Precisa de ajuda?{" "}
-                    <a href="mailto:support@fitgoal.com.br" className="text-lime-400 hover:text-lime-300 font-semibold">
-                      support@fitgoal.com.br
-                    </a>
-                  </p>
+                {/* Security Seals - Real Image */}
+                <div>
+                  <p className="text-xs text-gray-400 mb-3 font-semibold">Segurança Garantida</p>
+                  <div className="flex justify-center">
+                    <img
+                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%209%20de%20fev.%20de%202026%2C%2007_33_32-1iWUwKOD8rqFexNiRWJyPAV93cR1ox.webp"
+                      alt="Selos de Segurança"
+                      className="h-20 w-auto"
+                    />
+                  </div>
                 </div>
+              </div>
+
+              {/* Support */}
+              <div className="text-center">
+                <p className="text-xs text-gray-400">
+                  Precisa de ajuda?{" "}
+                  <a href="mailto:suportet@fitgoal.com.br" className="text-lime-400 hover:text-lime-300 font-semibold">
+                    support@fitgoal.com.br
+                  </a>
+                </p>
+              </div>
             </div>
           </motion.div>
         </div>
