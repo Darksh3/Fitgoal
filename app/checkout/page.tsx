@@ -22,7 +22,7 @@ import {
 } from "lucide-react"
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
-import { doc, onSnapshot, setDoc, db, auth } from "@/lib/firebaseClient"
+import { doc, onSnapshot, setDoc, db, auth, getDoc } from "@/lib/firebaseClient"
 import { onAuthStateChanged } from "firebase/auth"
 import Link from "next/link"
 import Image from "next/image"
@@ -60,6 +60,7 @@ export default function CheckoutPage() {
   const [success, setSuccess] = useState(false)
   const [redirectCountdown, setRedirectCountdown] = useState(90)
   const [selectedPlan, setSelectedPlan] = useState<"mensal" | "trimestral" | "semestral">("semestral")
+  const [prefillLoading, setPrefillLoading] = useState(false)
 
   const [formData, setFormData] = useState<PaymentFormData>({
     email: "",
@@ -188,6 +189,29 @@ export default function CheckoutPage() {
     }
 
     return null
+  }
+
+  const prefillFromProfile = async () => {
+    if (!user) return
+    setPrefillLoading(true)
+
+    try {
+      const ref = doc(db, "users", user.uid)
+      const snap = await getDoc(ref)
+
+      if (snap.exists()) {
+        const data = snap.data() as any
+
+        setFormData((prev) => ({
+          ...prev,
+          email: prev.email || data.email || "",
+        }))
+      }
+    } catch (err) {
+      console.log("[v0] Erro ao buscar perfil:", err)
+    } finally {
+      setPrefillLoading(false)
+    }
   }
 
   const handlePayment = async () => {
@@ -435,9 +459,10 @@ export default function CheckoutPage() {
 
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         setPaymentMethod("pix")
                         setError(null)
+                        await prefillFromProfile()
                       }}
                       className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${
                         paymentMethod === "pix" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
@@ -448,9 +473,10 @@ export default function CheckoutPage() {
                     </button>
 
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         setPaymentMethod("boleto")
                         setError(null)
+                        await prefillFromProfile()
                       }}
                       className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${
                         paymentMethod === "boleto" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
@@ -469,9 +495,10 @@ export default function CheckoutPage() {
                   </div>
 
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       setPaymentMethod("card")
                       setError(null)
+                      await prefillFromProfile()
                     }}
                     className={`w-full p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-3 mb-3 ${
                       paymentMethod === "card" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
