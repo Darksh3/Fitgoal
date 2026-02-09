@@ -222,8 +222,6 @@ export default function CheckoutPage() {
         setPixData(data)
       } else if (paymentMethod === "boleto") {
         setBoletoData(data)
-      } else if (["apple", "google"].includes(paymentMethod)) {
-        setSuccess(true)
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao processar pagamento")
@@ -338,7 +336,7 @@ export default function CheckoutPage() {
         </motion.div>
 
         {/* Two Column Layout */}
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left Column - Order Summary */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
             <div className="space-y-6">
@@ -460,32 +458,6 @@ export default function CheckoutPage() {
                       <FileText className={`w-5 h-5 ${paymentMethod === "boleto" ? "text-lime-400" : "text-gray-400"}`} />
                       <span className={`text-sm font-semibold ${paymentMethod === "boleto" ? "text-lime-400" : "text-gray-300"}`}>Boleto</span>
                     </button>
-
-                    <button
-                      onClick={() => {
-                        setPaymentMethod("apple")
-                        setError(null)
-                      }}
-                      className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${
-                        paymentMethod === "apple" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
-                      }`}
-                    >
-                      <div className="text-lg font-bold">🍎</div>
-                      <span className={`text-sm font-semibold ${paymentMethod === "apple" ? "text-lime-400" : "text-gray-300"}`}>Apple Pay</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setPaymentMethod("google")
-                        setError(null)
-                      }}
-                      className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${
-                        paymentMethod === "google" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
-                      }`}
-                    >
-                      <div className="text-lg font-bold">G</div>
-                      <span className={`text-sm font-semibold ${paymentMethod === "google" ? "text-lime-400" : "text-gray-300"}`}>Google Pay</span>
-                    </button>
                   </div>
 
                   {/* Or card payment */}
@@ -515,14 +487,14 @@ export default function CheckoutPage() {
                     placeholder="Nome Completo"
                     value={formData.name}
                     onChange={(e) => handleInputChange(e, "name")}
-                    className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
+                    className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
                   />
                   <Input
                     type="email"
                     placeholder="Email"
                     value={formData.email}
                     onChange={(e) => handleInputChange(e, "email")}
-                    className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
+                    className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
                   />
                   <div className="grid grid-cols-2 gap-3">
                     <Input
@@ -541,7 +513,7 @@ export default function CheckoutPage() {
                         }
                         handleInputChange({ target: { value } } as any, "cpf")
                       }}
-                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
+                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
                     />
                     <Input
                       placeholder="Telefone"
@@ -557,7 +529,7 @@ export default function CheckoutPage() {
                         }
                         handleInputChange({ target: { value } } as any, "phone")
                       }}
-                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
+                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
                     />
                   </div>
                 </div>
@@ -570,7 +542,7 @@ export default function CheckoutPage() {
                       value={cardData.number}
                       onChange={(e) => handleCardChange(e, "number")}
                       maxLength={19}
-                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600 font-mono"
+                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100 font-mono"
                     />
                     <div className="grid grid-cols-3 gap-3">
                       <Input
@@ -578,47 +550,47 @@ export default function CheckoutPage() {
                         value={cardData.expiryMonth}
                         onChange={(e) => handleCardChange(e, "expiryMonth")}
                         maxLength={2}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
                       />
                       <Input
                         placeholder="Ano (YYYY)"
                         value={cardData.expiryYear}
                         onChange={(e) => handleCardChange(e, "expiryYear")}
                         maxLength={4}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
                       />
                       <Input
                         placeholder="CVV"
                         value={cardData.ccv}
                         onChange={(e) => handleCardChange(e, "ccv")}
                         maxLength={4}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
                       />
                     </div>
                     <Input
                       placeholder="Nome no Cartão"
                       value={cardData.holderName}
                       onChange={(e) => handleCardChange(e, "holderName")}
-                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
+                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
                     />
                     <div className="grid grid-cols-2 gap-3">
                       <Input
                         placeholder="CEP"
                         value={addressData.postalCode}
                         onChange={(e) => handleAddressChange(e, "postalCode")}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
                       />
                       <Input
                         placeholder="Número da Residência"
                         value={addressData.addressNumber}
                         onChange={(e) => handleAddressChange(e, "addressNumber")}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-600"
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
                       />
                     </div>
                     <select
                       value={installments}
                       onChange={(e) => setInstallments(parseInt(e.target.value))}
-                      className="w-full bg-slate-700/40 border border-slate-600 text-white rounded-md px-3 py-2 placeholder:text-gray-600"
+                      className="w-full bg-slate-700/40 border border-slate-600 text-white rounded-md px-3 py-2 placeholder:text-slate-400 placeholder:opacity-100"
                     >
                       {[1, 2, 3, 4, 5, 6].map((n) => (
                         <option key={n} value={n} className="bg-slate-800">
