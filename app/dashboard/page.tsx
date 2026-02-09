@@ -343,80 +343,97 @@ export default function DashboardPage() {
   }
 
   const getDisplayTotals = () => {
-    const calculatedTotals = calculateTotalMacros(dietPlan?.meals || [])
-    
-    // Incluir suplementos no cálculo de calorias
-    let supplementCalories = 0
+    let totalCalories = 0
+    let totalProtein = 0
+    let totalCarbs = 0
+    let totalFats = 0
+
+    // Incluir suplementos no cálculo de macros
     if (dietPlan?.supplements && Array.isArray(dietPlan.supplements)) {
       dietPlan.supplements.forEach((supplement: any) => {
-        if (supplement.macros?.calories) {
-          const caloriesMatch = supplement.macros.calories.toString().match(/(\d+)/)
-          if (caloriesMatch) {
-            supplementCalories += Number.parseInt(caloriesMatch[1])
+        totalCalories += Number(supplement.calories) || 0
+        totalProtein += Number(supplement.protein) || 0
+        totalCarbs += Number(supplement.carbs) || 0
+        totalFats += Number(supplement.fat) || 0
+      })
+    }
+
+    // Somar calorias e macros de todas as refeições
+    if (dietPlan?.meals && Array.isArray(dietPlan.meals)) {
+      dietPlan.meals.forEach((meal: any) => {
+        let mealCalories = 0
+        let mealProtein = 0
+        let mealCarbs = 0
+        let mealFats = 0
+
+        // Tentar somar de alimentos individuais
+        if (Array.isArray(meal.foods)) {
+          meal.foods.forEach((food: any) => {
+            if (typeof food === "object" && food.calories) {
+              const caloriesStr = food.calories.toString()
+              const match = caloriesStr.match(/(\d+(?:\.\d+)?)/)
+              if (match) {
+                mealCalories += Number.parseFloat(match[1])
+              }
+
+              if (food.protein) {
+                const proteinMatch = food.protein.toString().match(/(\d+(?:\.\d+)?)/)
+                if (proteinMatch) mealProtein += Number.parseFloat(proteinMatch[1])
+              }
+              if (food.carbs) {
+                const carbsMatch = food.carbs.toString().match(/(\d+(?:\.\d+)?)/)
+                if (carbsMatch) mealCarbs += Number.parseFloat(carbsMatch[1])
+              }
+              if (food.fats) {
+                const fatsMatch = food.fats.toString().match(/(\d+(?:\.\d+)?)/)
+                if (fatsMatch) mealFats += Number.parseFloat(fatsMatch[1])
+              }
+            } else if (typeof food === "string") {
+              const match = food.match(/(\d+(?:\.\d+)?)\s*kcal/i)
+              if (match) {
+                mealCalories += Number.parseFloat(match[1])
+              }
+            }
+          })
+        }
+
+        // Fallback: usar calorias da refeição se não encontrou em alimentos
+        if (mealCalories === 0 && meal.calories) {
+          const caloriesStr = meal.calories.toString()
+          const match = caloriesStr.match(/(\d+(?:\.\d+)?)/)
+          if (match) {
+            mealCalories = Number.parseFloat(match[1])
           }
+        }
+
+        totalCalories += mealCalories
+
+        // Usar macros calculados dos alimentos ou meal.macros
+        if (mealProtein > 0 || mealCarbs > 0 || mealFats > 0) {
+          totalProtein += mealProtein
+          totalCarbs += mealCarbs
+          totalFats += mealFats
+        } else if (meal.macros) {
+          totalProtein += Number.parseFloat(meal.macros.protein?.match(/(\d+\.?\d*)/)?.[1] || "0")
+          totalCarbs += Number.parseFloat(meal.macros.carbs?.match(/(\d+\.?\d*)/)?.[1] || "0")
+          totalFats += Number.parseFloat(meal.macros.fats?.match(/(\d+\.?\d*)/)?.[1] || "0")
+        } else if (mealCalories > 0) {
+          // Estimar macros usando proporções padrão
+          totalProtein += (mealCalories * 0.25) / 4
+          totalCarbs += (mealCalories * 0.45) / 4
+          totalFats += (mealCalories * 0.3) / 9
         }
       })
     }
 
-    const cleanValue = (value: string) => {
-      return value.replace(/g{2,}/g, 'g').replace(/kcal{2,}/g, 'kcal')
-    }
+    // Usar totalDailyCalories como goal se não houver calorias calculadas
+    let goalCalories = quizData?.calorieGoal ? Math.round(quizData.calorieGoal) : 2200
 
     return {
-      calories: (() => {
-        let totalCals = 0
-        
-        // Usar totalDailyCalories como base (é o goal calórico)
-        if (dietPlan?.totalDailyCalories && !isNaN(dietPlan.totalDailyCalories) && dietPlan.totalDailyCalories > 0) {
-          totalCals = dietPlan.totalDailyCalories
-        } else if (calculatedTotals.calories && calculatedTotals.calories !== "0") {
-          totalCals = Number.parseInt(calculatedTotals.calories.toString().replace(/\D/g, ''))
-        } else if (dietPlan?.calories && dietPlan.calories !== "0" && dietPlan.calories !== "0 kcal") {
-          const match = dietPlan.calories.toString().match(/(\d+)/)
-          totalCals = match ? Number.parseInt(match[1]) : 2200
-        } else {
-          totalCals = 2200
-        }
-        
-        totalCals += supplementCalories
-        return `${totalCals} kcal`
-      })(),
-      protein: (() => {
-        if (dietPlan?.totalProtein && !isNaN(dietPlan.totalProtein) && dietPlan.totalProtein > 0) {
-          return `${Math.round(dietPlan.totalProtein)}g`
-        }
-        if (calculatedTotals.protein && calculatedTotals.protein !== "0") {
-          return `${calculatedTotals.protein}g`
-        }
-        if (dietPlan?.protein && dietPlan.protein !== "0" && dietPlan.protein !== "0g") {
-          return cleanValue(dietPlan.protein.toString().includes("g") ? dietPlan.protein.toString() : `${dietPlan.protein}g`)
-        }
-        return "0g"
-      })(),
-      carbs: (() => {
-        if (dietPlan?.totalCarbs && !isNaN(dietPlan.totalCarbs) && dietPlan.totalCarbs > 0) {
-          return `${Math.round(dietPlan.totalCarbs)}g`
-        }
-        if (calculatedTotals.carbs && calculatedTotals.carbs !== "0") {
-          return `${calculatedTotals.carbs}g`
-        }
-        if (dietPlan?.carbs && dietPlan.carbs !== "0" && dietPlan.carbs !== "0g") {
-          return cleanValue(dietPlan.carbs.toString().includes("g") ? dietPlan.carbs.toString() : `${dietPlan.carbs}g`)
-        }
-        return "0g"
-      })(),
-      fats: (() => {
-        if (dietPlan?.totalFats && !isNaN(dietPlan.totalFats) && dietPlan.totalFats > 0) {
-          return `${Math.round(dietPlan.totalFats)}g`
-        }
-        if (calculatedTotals.fats && calculatedTotals.fats !== "0") {
-          return `${calculatedTotals.fats}g`
-        }
-        if (dietPlan?.fats && dietPlan.fats !== "0" && dietPlan.fats !== "0g") {
-          return cleanValue(dietPlan.fats.toString().includes("g") ? dietPlan.fats.toString() : `${dietPlan.fats}g`)
-        }
-        return "0g"
-      })(),
+      calories: `${goalCalories} kcal`,
+      protein: totalProtein > 0 ? `${Math.round(totalProtein)}g` : "0g",
+      carbs: totalCarbs > 0 ? `${Math.round(totalCarbs)}g` : "0g",
+      fats: totalFats > 0 ? `${Math.round(totalFats)}g` : "0g",
     }
   }
 
