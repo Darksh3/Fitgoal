@@ -424,8 +424,7 @@ export default function CheckoutPage() {
                     <p className="text-sm text-lime-200">Satisfação 100% ou seu dinheiro de volta.</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+            </div>
           </motion.div>
 
           {/* Right Column - Payment Form */}
