@@ -709,15 +709,10 @@ export default function CheckoutPage() {
                 )}
 
                 {/* Secure Payment Container */}
-                <div className="bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6 md:p-8">
-                  <div className="flex flex-col items-center gap-4">
-                    {/* Security Badge */}
-                    <div className="bg-slate-700/40 px-4 py-2 rounded-lg flex items-center gap-2 text-sm text-gray-300 border border-slate-600/50">
-                      <Lock className="w-4 h-4" />
-                      Compra segura. Seus dados estão protegidos.
-                    </div>
+                <div className="bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6 md:p-8 space-y-4">
 
-                    {/* Submit Button - Centered */}
+                  {/* SUBCONTAINER — somente o botão */}
+                  <div className="w-full">
                     <Button
                       onClick={handlePayment}
                       disabled={!paymentMethod || processing}
@@ -735,10 +730,19 @@ export default function CheckoutPage() {
                         </>
                       )}
                     </Button>
-
-                    {/* Additional Info */}
-                    <p className="text-xs text-gray-400 text-center">Renovação automática. Cancele a qualquer momento.</p>
                   </div>
+
+                  {/* FORA do subcontainer — compra segura */}
+                  <div className="flex items-center justify-center gap-2 text-sm text-gray-300">
+                    <Lock className="w-4 h-4" />
+                    Compra segura. Seus dados estão protegidos.
+                  </div>
+
+                  {/* Texto auxiliar */}
+                  <p className="text-xs text-gray-400 text-center">
+                    Renovação automática. Cancele a qualquer momento.
+                  </p>
+
                 </div>
 
                 {/* Payment Methods and Security Seals */}
