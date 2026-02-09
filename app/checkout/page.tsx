@@ -175,24 +175,42 @@ export default function CheckoutPage() {
   }
 
   const validateForm = () => {
-    if (!formData.name.trim()) return "Nome é obrigatório"
-    if (!formData.email.trim()) return "Email é obrigatório"
-    if (!formData.cpf.replace(/\D/g, "")) return "CPF é obrigatório"
-    if (!formData.phone.replace(/\D/g, "")) return "Telefone é obrigatório"
+    if (!formData.name.trim()) return "name"
+    if (!formData.email.trim()) return "email"
+    if (!formData.cpf.replace(/\D/g, "")) return "cpf"
+    if (!formData.phone.replace(/\D/g, "")) return "phone"
 
     if (paymentMethod === "card") {
-      if (!cardData.number.replace(/\D/g, "")) return "Número do cartão é obrigatório"
-      if (!cardData.expiryMonth || !cardData.expiryYear) return "Validade é obrigatória"
-      if (!cardData.ccv) return "CVV é obrigatório"
-      if (!cardData.holderName) return "Nome no cartão é obrigatório"
+      if (!cardData.number.replace(/\D/g, "")) return "cardNumber"
+      if (!cardData.expiryMonth || !cardData.expiryYear) return "cardExpiry"
+      if (!cardData.ccv) return "cardCcv"
+      if (!cardData.holderName) return "cardHolder"
     }
 
     if (paymentMethod === "boleto") {
-      if (!addressData.postalCode) return "CEP é obrigatório"
-      if (!addressData.addressNumber) return "Número da residência é obrigatório"
+      if (!addressData.postalCode) return "postalCode"
+      if (!addressData.addressNumber) return "addressNumber"
     }
 
     return null
+  }
+
+  const getFieldError = (field: string) => error === field
+
+  const getErrorMessage = () => {
+    const errorMessages: Record<string, string> = {
+      name: "Nome é obrigatório",
+      email: "Email é obrigatório",
+      cpf: "CPF é obrigatório",
+      phone: "Telefone é obrigatório",
+      cardNumber: "Número do cartão é obrigatório",
+      cardExpiry: "Validade é obrigatória",
+      cardCcv: "CVV é obrigatório",
+      cardHolder: "Nome no cartão é obrigatório",
+      postalCode: "CEP é obrigatório",
+      addressNumber: "Número da residência é obrigatório",
+    }
+    return errorMessages[error as string] || error
   }
 
   const prefillFromProfile = async () => {
@@ -561,14 +579,18 @@ export default function CheckoutPage() {
                       placeholder="Nome Completo"
                       value={formData.name}
                       onChange={(e) => handleInputChange(e, "name")}
-                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
+                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
+                        getFieldError("name") ? "border-red-500/80 border-2" : "border-slate-600"
+                      }`}
                     />
                     <Input
                       type="email"
                       placeholder="Email"
                       value={formData.email}
                       onChange={(e) => handleInputChange(e, "email")}
-                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
+                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
+                        getFieldError("email") ? "border-red-500/80 border-2" : "border-slate-600"
+                      }`}
                     />
                     <div className="grid grid-cols-2 gap-3">
                       <Input
@@ -587,7 +609,9 @@ export default function CheckoutPage() {
                           }
                           handleInputChange({ target: { value } } as any, "cpf")
                         }}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
+                        className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
+                          getFieldError("cpf") ? "border-red-500/80 border-2" : "border-slate-600"
+                        }`}
                       />
                       <Input
                         placeholder="Telefone"
@@ -603,7 +627,9 @@ export default function CheckoutPage() {
                           }
                           handleInputChange({ target: { value } } as any, "phone")
                         }}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
+                        className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
+                          getFieldError("phone") ? "border-red-500/80 border-2" : "border-slate-600"
+                        }`}
                       />
                     </div>
                   </motion.div>
@@ -622,13 +648,17 @@ export default function CheckoutPage() {
                         placeholder="CEP"
                         value={addressData.postalCode}
                         onChange={(e) => handleAddressChange(e, "postalCode")}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
+                        className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
+                          getFieldError("postalCode") ? "border-red-500/80 border-2" : "border-slate-600"
+                        }`}
                       />
                       <Input
                         placeholder="Número da Residência"
                         value={addressData.addressNumber}
                         onChange={(e) => handleAddressChange(e, "addressNumber")}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
+                        className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
+                          getFieldError("addressNumber") ? "border-red-500/80 border-2" : "border-slate-600"
+                        }`}
                       />
                     </div>
                   </motion.div>
@@ -642,7 +672,9 @@ export default function CheckoutPage() {
                       value={cardData.number}
                       onChange={(e) => handleCardChange(e, "number")}
                       maxLength={19}
-                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100 font-mono"
+                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 font-mono ${
+                        getFieldError("cardNumber") ? "border-red-500/80 border-2" : "border-slate-600"
+                      }`}
                     />
                     <div className="grid grid-cols-3 gap-3">
                       <Input
@@ -650,28 +682,36 @@ export default function CheckoutPage() {
                         value={cardData.expiryMonth}
                         onChange={(e) => handleCardChange(e, "expiryMonth")}
                         maxLength={2}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
+                        className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
+                          getFieldError("cardExpiry") ? "border-red-500/80 border-2" : "border-slate-600"
+                        }`}
                       />
                       <Input
                         placeholder="Ano (YYYY)"
                         value={cardData.expiryYear}
                         onChange={(e) => handleCardChange(e, "expiryYear")}
                         maxLength={4}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
+                        className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
+                          getFieldError("cardExpiry") ? "border-red-500/80 border-2" : "border-slate-600"
+                        }`}
                       />
                       <Input
                         placeholder="CVV"
                         value={cardData.ccv}
                         onChange={(e) => handleCardChange(e, "ccv")}
                         maxLength={4}
-                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
+                        className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
+                          getFieldError("cardCcv") ? "border-red-500/80 border-2" : "border-slate-600"
+                        }`}
                       />
                     </div>
                     <Input
                       placeholder="Nome no Cartão"
                       value={cardData.holderName}
                       onChange={(e) => handleCardChange(e, "holderName")}
-                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
+                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${
+                        getFieldError("cardHolder") ? "border-red-500/80 border-2" : "border-slate-600"
+                      }`}
                     />
                     <select
                       value={installments}
@@ -713,7 +753,7 @@ export default function CheckoutPage() {
                       <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                       <div className="flex-1">
                         <p className="text-red-300 text-sm font-semibold">Erro no pagamento</p>
-                        <p className="text-red-300/80 text-xs mt-1">{error}</p>
+                        <p className="text-red-300/80 text-xs mt-1">{getErrorMessage()}</p>
                       </div>
                       <button
                         onClick={() => setError(null)}
@@ -729,7 +769,7 @@ export default function CheckoutPage() {
                 <div className="bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6 md:p-8 space-y-4">
 
                   {/* SUBCONTAINER — só o botão (centralizado) */}
-                  <div className="w-full max-w-md mx-auto bg-slate-800/30 border border-slate-700/60 rounded-xl p-4 flex justify-center">
+                  <div className="w-full max-w-md mx-auto bg-slate-900/50 border border-slate-600/80 rounded-xl p-4 flex justify-center shadow-lg">
                     <Button
                       onClick={handlePayment}
                       disabled={!paymentMethod || processing}
