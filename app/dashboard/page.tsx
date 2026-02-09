@@ -366,9 +366,11 @@ export default function DashboardPage() {
       calories: (() => {
         let totalCals = 0
         
-        // Usar totalDailyCalories como base (é o goal calórico)
+        // Prioridade: totalDailyCalories > calorieGoal do quiz > calculado
         if (dietPlan?.totalDailyCalories && !isNaN(dietPlan.totalDailyCalories) && dietPlan.totalDailyCalories > 0) {
           totalCals = dietPlan.totalDailyCalories
+        } else if (quizData?.calorieGoal && !isNaN(quizData.calorieGoal) && quizData.calorieGoal > 0) {
+          totalCals = Math.round(quizData.calorieGoal)
         } else if (calculatedTotals.calories && calculatedTotals.calories !== "0") {
           totalCals = Number.parseInt(calculatedTotals.calories.toString().replace(/\D/g, ''))
         } else if (dietPlan?.calories && dietPlan.calories !== "0" && dietPlan.calories !== "0 kcal") {
@@ -385,6 +387,11 @@ export default function DashboardPage() {
         if (dietPlan?.totalProtein && !isNaN(dietPlan.totalProtein) && dietPlan.totalProtein > 0) {
           return `${Math.round(dietPlan.totalProtein)}g`
         }
+        if (quizData?.proteinPercentage && quizData.calorieGoal && !isNaN(quizData.proteinPercentage) && quizData.proteinPercentage > 0) {
+          const proteinCals = quizData.calorieGoal * (quizData.proteinPercentage / 100)
+          const proteinGrams = Math.round(proteinCals / 4) // 1g proteína = 4 kcal
+          return `${proteinGrams}g`
+        }
         if (calculatedTotals.protein && calculatedTotals.protein !== "0") {
           return `${calculatedTotals.protein}g`
         }
@@ -397,6 +404,11 @@ export default function DashboardPage() {
         if (dietPlan?.totalCarbs && !isNaN(dietPlan.totalCarbs) && dietPlan.totalCarbs > 0) {
           return `${Math.round(dietPlan.totalCarbs)}g`
         }
+        if (quizData?.carbPercentage && quizData.calorieGoal && !isNaN(quizData.carbPercentage) && quizData.carbPercentage > 0) {
+          const carbCals = quizData.calorieGoal * (quizData.carbPercentage / 100)
+          const carbGrams = Math.round(carbCals / 4) // 1g carbo = 4 kcal
+          return `${carbGrams}g`
+        }
         if (calculatedTotals.carbs && calculatedTotals.carbs !== "0") {
           return `${calculatedTotals.carbs}g`
         }
@@ -408,6 +420,11 @@ export default function DashboardPage() {
       fats: (() => {
         if (dietPlan?.totalFats && !isNaN(dietPlan.totalFats) && dietPlan.totalFats > 0) {
           return `${Math.round(dietPlan.totalFats)}g`
+        }
+        if (quizData?.fatPercentage && quizData.calorieGoal && !isNaN(quizData.fatPercentage) && quizData.fatPercentage > 0) {
+          const fatCals = quizData.calorieGoal * (quizData.fatPercentage / 100)
+          const fatGrams = Math.round(fatCals / 9) // 1g gordura = 9 kcal
+          return `${fatGrams}g`
         }
         if (calculatedTotals.fats && calculatedTotals.fats !== "0") {
           return `${calculatedTotals.fats}g`
