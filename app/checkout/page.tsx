@@ -508,44 +508,44 @@ export default function CheckoutPage() {
 
         {/* Main Card */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
-          <Card className="bg-white border-0 shadow-2xl">
+          <Card className="bg-slate-800/40 backdrop-blur border-slate-700/50 shadow-2xl">
             <CardContent className="p-8 space-y-6">
               {/* Order Summary */}
-              <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-                <h3 className="font-semibold text-slate-900 mb-4">Resumo do Pedido</h3>
+              <div className="bg-slate-700/30 p-6 rounded-lg border border-slate-600/50">
+                <h3 className="font-semibold text-white mb-4">Resumo do Pedido</h3>
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-slate-700">
+                  <div className="flex items-center gap-2 text-gray-200">
                     <Check className="w-4 h-4 text-lime-500" />
                     <span className="font-semibold">{planName}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
                     <Check className="w-4 h-4 text-lime-500" />
                     <span>6 meses de treino e dieta personalizada</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
                     <Check className="w-4 h-4 text-lime-500" />
                     <span>Acesso Completo ao App + Acompanhamento Contínuo</span>
                   </div>
                 </div>
-                <div className="border-t pt-4 flex justify-between items-center">
-                  <span className="text-gray-600">Total</span>
+                <div className="border-t border-slate-600 pt-4 flex justify-between items-center">
+                  <span className="text-gray-300">Total</span>
                   <span className="text-3xl font-bold text-lime-500">R$ {parseFloat(planPrice).toFixed(2).replace(".", ",")}</span>
                 </div>
-                <div className="text-sm text-gray-600 mt-2">Menos de R$40 por mês!</div>
+                <div className="text-sm text-gray-400 mt-2">Menos de R$40 por mês!</div>
               </div>
 
               {/* Guarantee */}
-              <div className="bg-lime-50 p-4 rounded-lg border border-lime-200 flex gap-3">
-                <Shield className="w-6 h-6 text-lime-600 flex-shrink-0 mt-0.5" />
+              <div className="bg-lime-500/10 p-4 rounded-lg border border-lime-500/30 flex gap-3">
+                <Shield className="w-6 h-6 text-lime-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-lime-900">Garantia 30 Dias</p>
-                  <p className="text-sm text-lime-800">Satisfação 100% ou seu dinheiro de volta.</p>
+                  <p className="font-semibold text-lime-300">Garantia 30 Dias</p>
+                  <p className="text-sm text-lime-200">Satisfação 100% ou seu dinheiro de volta.</p>
                 </div>
               </div>
 
-              <div className="border-t pt-6">
+              <div className="border-t border-slate-600 pt-6">
                 {/* Payment Methods */}
-                <h3 className="font-semibold text-slate-900 mb-4">Escolha a forma de pagamento</h3>
+                <h3 className="font-semibold text-white mb-4">Escolha a forma de pagamento</h3>
 
                 <div className="grid grid-cols-3 gap-3 mb-6">
                   <button
@@ -554,11 +554,11 @@ export default function CheckoutPage() {
                       setError(null)
                     }}
                     className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${
-                      paymentMethod === "pix" ? "border-lime-500 bg-lime-50" : "border-gray-300 hover:border-gray-400"
+                      paymentMethod === "pix" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
                     }`}
                   >
-                    <Smartphone className={`w-5 h-5 ${paymentMethod === "pix" ? "text-lime-600" : "text-gray-600"}`} />
-                    <span className={`text-sm font-semibold ${paymentMethod === "pix" ? "text-lime-600" : "text-gray-700"}`}>Pagar com Pix</span>
+                    <Smartphone className={`w-5 h-5 ${paymentMethod === "pix" ? "text-lime-400" : "text-gray-400"}`} />
+                    <span className={`text-sm font-semibold ${paymentMethod === "pix" ? "text-lime-400" : "text-gray-300"}`}>Pagar com Pix</span>
                   </button>
 
                   <button
@@ -567,11 +567,11 @@ export default function CheckoutPage() {
                       setError(null)
                     }}
                     className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${
-                      paymentMethod === "apple" ? "border-lime-500 bg-lime-50" : "border-gray-300 hover:border-gray-400"
+                      paymentMethod === "apple" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
                     }`}
                   >
                     <div className="text-lg font-bold">🍎</div>
-                    <span className={`text-sm font-semibold ${paymentMethod === "apple" ? "text-lime-600" : "text-gray-700"}`}>Apple Pay</span>
+                    <span className={`text-sm font-semibold ${paymentMethod === "apple" ? "text-lime-400" : "text-gray-300"}`}>Apple Pay</span>
                   </button>
 
                   <button
@@ -580,19 +580,19 @@ export default function CheckoutPage() {
                       setError(null)
                     }}
                     className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${
-                      paymentMethod === "google" ? "border-lime-500 bg-lime-50" : "border-gray-300 hover:border-gray-400"
+                      paymentMethod === "google" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
                     }`}
                   >
                     <div className="text-lg font-bold">G</div>
-                    <span className={`text-sm font-semibold ${paymentMethod === "google" ? "text-lime-600" : "text-gray-700"}`}>Google Pay</span>
+                    <span className={`text-sm font-semibold ${paymentMethod === "google" ? "text-lime-400" : "text-gray-300"}`}>Google Pay</span>
                   </button>
                 </div>
 
                 {/* Or card payment */}
                 <div className="flex items-center gap-3 my-6">
-                  <div className="flex-1 border-t border-gray-300"></div>
-                  <span className="text-sm text-gray-600">Ou pague com cartão</span>
-                  <div className="flex-1 border-t border-gray-300"></div>
+                  <div className="flex-1 border-t border-slate-600"></div>
+                  <span className="text-sm text-gray-400">Ou pague com cartão</span>
+                  <div className="flex-1 border-t border-slate-600"></div>
                 </div>
 
                 <button
@@ -601,11 +601,11 @@ export default function CheckoutPage() {
                     setError(null)
                   }}
                   className={`w-full p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-3 mb-6 ${
-                    paymentMethod === "card" ? "border-lime-500 bg-lime-50" : "border-gray-300 hover:border-gray-400"
+                    paymentMethod === "card" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
                   }`}
                 >
-                  <CreditCard className={`w-5 h-5 ${paymentMethod === "card" ? "text-lime-600" : "text-gray-600"}`} />
-                  <span className={`font-semibold ${paymentMethod === "card" ? "text-lime-600" : "text-gray-700"}`}>Cartão de Crédito</span>
+                  <CreditCard className={`w-5 h-5 ${paymentMethod === "card" ? "text-lime-400" : "text-gray-400"}`} />
+                  <span className={`font-semibold ${paymentMethod === "card" ? "text-lime-400" : "text-gray-300"}`}>Cartão de Crédito</span>
                 </button>
 
                 {/* Personal Info Fields - Always visible */}
@@ -614,14 +614,14 @@ export default function CheckoutPage() {
                     placeholder="Nome Completo"
                     value={formData.name}
                     onChange={(e) => handleInputChange(e, "name")}
-                    className="border-gray-300 text-slate-900 placeholder:text-gray-400"
+                    className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
                   />
                   <Input
                     type="email"
                     placeholder="Email"
                     value={formData.email}
                     onChange={(e) => handleInputChange(e, "email")}
-                    className="border-gray-300 text-slate-900 placeholder:text-gray-400"
+                    className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
                   />
                   <div className="grid grid-cols-2 gap-3">
                     <Input
@@ -640,7 +640,7 @@ export default function CheckoutPage() {
                         }
                         handleInputChange({ target: { value } } as any, "cpf")
                       }}
-                      className="border-gray-300 text-slate-900 placeholder:text-gray-400"
+                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
                     />
                     <Input
                       placeholder="Telefone"
@@ -656,7 +656,7 @@ export default function CheckoutPage() {
                         }
                         handleInputChange({ target: { value } } as any, "phone")
                       }}
-                      className="border-gray-300 text-slate-900 placeholder:text-gray-400"
+                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
                     />
                   </div>
                 </div>
@@ -669,7 +669,7 @@ export default function CheckoutPage() {
                       value={cardData.number}
                       onChange={(e) => handleCardChange(e, "number")}
                       maxLength={19}
-                      className="border-gray-300 text-slate-900 placeholder:text-gray-400 font-mono"
+                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500 font-mono"
                     />
                     <div className="grid grid-cols-3 gap-3">
                       <Input
@@ -677,47 +677,47 @@ export default function CheckoutPage() {
                         value={cardData.expiryMonth}
                         onChange={(e) => handleCardChange(e, "expiryMonth")}
                         maxLength={2}
-                        className="border-gray-300 text-slate-900 placeholder:text-gray-400"
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
                       />
                       <Input
                         placeholder="Ano (YYYY)"
                         value={cardData.expiryYear}
                         onChange={(e) => handleCardChange(e, "expiryYear")}
                         maxLength={4}
-                        className="border-gray-300 text-slate-900 placeholder:text-gray-400"
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
                       />
                       <Input
                         placeholder="CVV"
                         value={cardData.ccv}
                         onChange={(e) => handleCardChange(e, "ccv")}
                         maxLength={4}
-                        className="border-gray-300 text-slate-900 placeholder:text-gray-400"
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
                       />
                     </div>
                     <Input
                       placeholder="Nome no Cartão"
                       value={cardData.holderName}
                       onChange={(e) => handleCardChange(e, "holderName")}
-                      className="border-gray-300 text-slate-900 placeholder:text-gray-400"
+                      className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
                     />
                     <div className="grid grid-cols-2 gap-3">
                       <Input
                         placeholder="CEP"
                         value={addressData.postalCode}
                         onChange={(e) => handleAddressChange(e, "postalCode")}
-                        className="border-gray-300 text-slate-900 placeholder:text-gray-400"
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
                       />
                       <Input
                         placeholder="Número da Residência"
                         value={addressData.addressNumber}
                         onChange={(e) => handleAddressChange(e, "addressNumber")}
-                        className="border-gray-300 text-slate-900 placeholder:text-gray-400"
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-gray-500"
                       />
                     </div>
                     <select
                       value={installments}
                       onChange={(e) => setInstallments(parseInt(e.target.value))}
-                      className="w-full bg-white border border-gray-300 text-slate-900 rounded-md px-3 py-2"
+                      className="w-full bg-slate-700/40 border border-slate-600 text-white rounded-md px-3 py-2"
                     >
                       {Array.from({ length: 6 }, (_, i) => i + 1).map((num) => (
                         <option key={num} value={num}>
@@ -731,15 +731,15 @@ export default function CheckoutPage() {
                 {/* Error Message */}
                 {error && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="mb-4">
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3">
-                      <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                      <p className="text-red-700 text-sm">{error}</p>
+                    <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 flex gap-3">
+                      <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                      <p className="text-red-300 text-sm">{error}</p>
                     </div>
                   </motion.div>
                 )}
 
                 {/* Security Badge */}
-                <div className="bg-gray-100 p-3 rounded-lg flex items-center justify-center gap-2 text-sm text-gray-700 mb-6">
+                <div className="bg-slate-700/40 p-3 rounded-lg flex items-center justify-center gap-2 text-sm text-gray-300 mb-6 border border-slate-600/50">
                   <Lock className="w-4 h-4" />
                   Compra Segura Seus dados estão protegidos
                 </div>
@@ -748,7 +748,7 @@ export default function CheckoutPage() {
                 <Button
                   onClick={handlePayment}
                   disabled={!paymentMethod || processing}
-                  className="w-full bg-lime-500 hover:bg-lime-600 text-white font-bold py-6 text-lg mb-4"
+                  className="w-full bg-lime-500 hover:bg-lime-600 text-black font-bold py-6 text-lg mb-4"
                 >
                   {processing ? (
                     <>
@@ -764,13 +764,13 @@ export default function CheckoutPage() {
                 </Button>
 
                 {/* Additional Info */}
-                <p className="text-xs text-gray-600 text-center mb-4">Renovação automática. Cancele a qualquer momento.</p>
+                <p className="text-xs text-gray-400 text-center mb-4">Renovação automática. Cancele a qualquer momento.</p>
 
                 {/* Support */}
                 <div className="text-center">
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-gray-400">
                     Precisa de ajuda?{" "}
-                    <a href="mailto:support@fitgoal.com.br" className="text-lime-500 hover:text-lime-600 font-semibold">
+                    <a href="mailto:support@fitgoal.com.br" className="text-lime-400 hover:text-lime-300 font-semibold">
                       support@fitgoal.com.br
                     </a>
                   </p>
