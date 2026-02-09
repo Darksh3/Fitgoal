@@ -743,7 +743,7 @@ export default function CheckoutPage() {
                     <p className="text-xs text-gray-400 mb-3 font-semibold">Formas de Pagamento Aceitas</p>
                     <div className="flex justify-center">
                       <img 
-                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image%20%281%29-bwFHfNWgggbgi89W3lS8o6fPeKIL5p.jpg" 
+                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image%20%281%29-jw1JPyvxkfSr48fVwN5Fqg6Is6wcn8.webp" 
                         alt="Formas de Pagamento" 
                         className="h-20 w-auto"
                       />
@@ -755,7 +755,7 @@ export default function CheckoutPage() {
                     <p className="text-xs text-gray-400 mb-3 font-semibold">Segurança Garantida</p>
                     <div className="flex justify-center">
                       <img 
-                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%209%20de%20fev.%20de%202026%2C%2007_33_32-GcKzDZJIeFDVXm8Cf7ayYLSkevViv6.jpg" 
+                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%209%20de%20fev.%20de%202026%2C%2007_33_32-1iWUwKOD8rqFexNiRWJyPAV93cR1ox.webp" 
                         alt="Selos de Segurança" 
                         className="h-20 w-auto"
                       />
