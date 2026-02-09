@@ -241,6 +241,7 @@ export default function CheckoutPage() {
           planName,
           planPrice,
           installments: paymentMethod === "card" ? installments : 1,
+          userId: user?.uid,
         }),
       })
 
@@ -277,12 +278,26 @@ export default function CheckoutPage() {
   if (success) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 flex items-center justify-center p-4">
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="text-center max-w-md">
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="text-center max-w-md w-full">
           <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.6, delay: 0.3 }}>
             <CheckCircle2 className="w-20 h-20 text-lime-500 mx-auto mb-6" />
           </motion.div>
           <h2 className="text-3xl font-bold text-white mb-2">Pagamento Confirmado!</h2>
-          <p className="text-gray-400 mb-6">Bem-vindo ao FitGoal. Você será redirecionado em {redirectCountdown}s...</p>
+          <p className="text-gray-400 mb-6">Bem-vindo ao FitGoal. Seu acesso foi liberado.</p>
+          
+          <div className="bg-slate-800/40 border border-slate-700 rounded-lg p-4 mb-6 space-y-2">
+            <p className="text-sm text-gray-300">
+              <span className="text-lime-400 font-semibold">Status:</span> Pagamento Processado
+            </p>
+            <p className="text-sm text-gray-300">
+              <span className="text-lime-400 font-semibold">Plano:</span> {planName}
+            </p>
+            <p className="text-sm text-gray-300">
+              <span className="text-lime-400 font-semibold">Valor:</span> R$ {parseFloat(planPrice).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </p>
+          </div>
+
+          <p className="text-gray-400 mb-6 text-sm">Redirecionando em {redirectCountdown}s...</p>
           <div className="w-full bg-slate-700 rounded-full h-1 overflow-hidden">
             <motion.div
               className="h-full bg-lime-500"
@@ -676,10 +691,19 @@ export default function CheckoutPage() {
 
                 {/* Error Message */}
                 {error && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-                    <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 flex gap-3">
+                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                    <div className="bg-red-900/20 border border-red-600/50 rounded-lg p-4 flex gap-3">
                       <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                      <p className="text-red-300 text-sm">{error}</p>
+                      <div className="flex-1">
+                        <p className="text-red-300 text-sm font-semibold">Erro no pagamento</p>
+                        <p className="text-red-300/80 text-xs mt-1">{error}</p>
+                      </div>
+                      <button
+                        onClick={() => setError(null)}
+                        className="text-red-400 hover:text-red-300 text-sm"
+                      >
+                        ✕
+                      </button>
                     </div>
                   </motion.div>
                 )}
@@ -711,6 +735,38 @@ export default function CheckoutPage() {
 
                 {/* Additional Info */}
                 <p className="text-xs text-gray-400 text-center">Renovação automática. Cancele a qualquer momento.</p>
+
+                {/* Payment Methods and Security Seals */}
+                <div className="space-y-4 border-t border-slate-700 pt-6">
+                  {/* Payment Methods */}
+                  <div>
+                    <p className="text-xs text-gray-400 mb-3 font-semibold">Formas de Pagamento Aceitas</p>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      <div className="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/40 border border-slate-600">Pix</div>
+                      <div className="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/40 border border-slate-600">Boleto</div>
+                      <div className="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/40 border border-slate-600">Visa</div>
+                      <div className="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/40 border border-slate-600">Mastercard</div>
+                      <div className="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/40 border border-slate-600">Amex</div>
+                      <div className="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/40 border border-slate-600">Elo</div>
+                      <div className="text-xs text-gray-300 px-2 py-1 rounded bg-slate-700/40 border border-slate-600">Hipercard</div>
+                    </div>
+                  </div>
+
+                  {/* Security Seals */}
+                  <div>
+                    <p className="text-xs text-gray-400 mb-3 font-semibold">Segurança Garantida</p>
+                    <div className="flex flex-wrap gap-3 justify-center">
+                      <div className="flex flex-col items-center gap-1">
+                        <img src="/seals/ssl-blindado.jpg" alt="SSL Blindado" className="h-12 w-auto" />
+                        <span className="text-[10px] text-gray-400 text-center">SSL Blindado</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-1">
+                        <img src="/seals/site-blindado.jpg" alt="Site Blindado Auditado" className="h-12 w-auto" />
+                        <span className="text-[10px] text-gray-400 text-center">Site Auditado</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Support */}
                 <div className="text-center">
