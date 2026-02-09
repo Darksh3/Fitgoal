@@ -712,23 +712,25 @@ export default function CheckoutPage() {
                 <div className="bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6 md:p-8 space-y-4">
 
                   {/* SUBCONTAINER — só o botão (centralizado) */}
-                  <div className="w-full max-w-md mx-auto bg-slate-800/30 border border-slate-700/60 rounded-xl p-4">
+                  <div className="w-full max-w-md mx-auto bg-slate-800/30 border border-slate-700/60 rounded-xl p-4 flex justify-center">
                     <Button
                       onClick={handlePayment}
                       disabled={!paymentMethod || processing}
-                      className="w-full bg-lime-500 hover:bg-lime-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-black font-bold py-6 text-lg rounded-lg shadow-lg transition-all flex items-center justify-center"
+                      className="w-full bg-lime-500 hover:bg-lime-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-black font-bold py-6 text-lg rounded-lg shadow-lg transition-all"
                     >
-                      {processing ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Processando...
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-4 h-4 mr-2" />
-                          Confirmar Pagamento
-                        </>
-                      )}
+                      <span className="flex items-center justify-center w-full gap-2">
+                        {processing ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Processando...
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="w-4 h-4" />
+                            Confirmar Pagamento
+                          </>
+                        )}
+                      </span>
                     </Button>
                   </div>
 
