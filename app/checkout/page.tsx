@@ -657,7 +657,6 @@ export default function CheckoutPage() {
                     <div className="text-xs text-lime-400 text-center">
                       ou até 6x de R$ {(parseFloat(planPrice) / 6).toFixed(2).replace(".", ",")}
                     </div>
-                    </select>
                   </motion.div>
                 )}
 
