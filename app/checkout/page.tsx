@@ -120,7 +120,9 @@ export default function CheckoutPage() {
     if (initialPlan) {
       setSelectedPlan(initialPlan)
     }
-  }, [])
+    // Set Pix as default payment method for better UX on mobile Brazil
+    setPaymentMethod("pix")
+  }, [searchParams])
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -182,8 +184,7 @@ export default function CheckoutPage() {
       if (!cardData.expiryMonth || !cardData.expiryYear) return "Validade é obrigatória"
       if (!cardData.ccv) return "CVV é obrigatório"
       if (!cardData.holderName) return "Nome no cartão é obrigatório"
-      if (!addressData.postalCode) return "CEP é obrigatório"
-      if (!addressData.addressNumber) return "Número da residência é obrigatório"
+      // CEP e número da residência são opcionais - o Asaas pode processar sem
     }
 
     return null
@@ -481,58 +482,72 @@ export default function CheckoutPage() {
                   </button>
                 </div>
 
-                {/* Personal Info Fields */}
-                <div className="space-y-3">
-                  <Input
-                    placeholder="Nome Completo"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange(e, "name")}
-                    className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
-                  />
-                  <Input
-                    type="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange(e, "email")}
-                    className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
-                  />
-                  <div className="grid grid-cols-2 gap-3">
+                {/* Personal Info Fields - Show only after payment method selected */}
+                {paymentMethod && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-3"
+                  >
+                    {/* Dynamic instruction text */}
+                    <p className="text-sm text-gray-300 mb-2">
+                      {paymentMethod === "pix" && "Informe seus dados para gerar o QR Code Pix."}
+                      {paymentMethod === "boleto" && "Informe seus dados para emitir o boleto."}
+                      {paymentMethod === "card" && "Informe seus dados para processar o pagamento."}
+                    </p>
+
                     <Input
-                      placeholder="CPF"
-                      value={formData.cpf}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "")
-                        if (value.length <= 11) {
-                          if (value.length > 8) {
-                            value = value.slice(0, 3) + "." + value.slice(3, 6) + "." + value.slice(6, 9) + "-" + value.slice(9)
-                          } else if (value.length > 5) {
-                            value = value.slice(0, 3) + "." + value.slice(3, 6) + "." + value.slice(6)
-                          } else if (value.length > 2) {
-                            value = value.slice(0, 3) + "." + value.slice(3)
-                          }
-                        }
-                        handleInputChange({ target: { value } } as any, "cpf")
-                      }}
+                      placeholder="Nome Completo"
+                      value={formData.name}
+                      onChange={(e) => handleInputChange(e, "name")}
                       className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
                     />
                     <Input
-                      placeholder="Telefone"
-                      value={formData.phone}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "")
-                        if (value.length <= 11) {
-                          if (value.length > 6) {
-                            value = "(" + value.slice(0, 2) + ") " + value.slice(2, 7) + "-" + value.slice(7)
-                          } else if (value.length > 2) {
-                            value = "(" + value.slice(0, 2) + ") " + value.slice(2)
-                          }
-                        }
-                        handleInputChange({ target: { value } } as any, "phone")
-                      }}
+                      type="email"
+                      placeholder="Email"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange(e, "email")}
                       className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
                     />
-                  </div>
-                </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Input
+                        placeholder="CPF"
+                        value={formData.cpf}
+                        onChange={(e) => {
+                          let value = e.target.value.replace(/\D/g, "")
+                          if (value.length <= 11) {
+                            if (value.length > 8) {
+                              value = value.slice(0, 3) + "." + value.slice(3, 6) + "." + value.slice(6, 9) + "-" + value.slice(9)
+                            } else if (value.length > 5) {
+                              value = value.slice(0, 3) + "." + value.slice(3, 6) + "." + value.slice(6)
+                            } else if (value.length > 2) {
+                              value = value.slice(0, 3) + "." + value.slice(3)
+                            }
+                          }
+                          handleInputChange({ target: { value } } as any, "cpf")
+                        }}
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
+                      />
+                      <Input
+                        placeholder="Telefone"
+                        value={formData.phone}
+                        onChange={(e) => {
+                          let value = e.target.value.replace(/\D/g, "")
+                          if (value.length <= 11) {
+                            if (value.length > 6) {
+                              value = "(" + value.slice(0, 2) + ") " + value.slice(2, 7) + "-" + value.slice(7)
+                            } else if (value.length > 2) {
+                              value = "(" + value.slice(0, 2) + ") " + value.slice(2)
+                            }
+                          }
+                          handleInputChange({ target: { value } } as any, "phone")
+                        }}
+                        className="bg-slate-700/40 border-slate-600 text-white placeholder:text-slate-400 placeholder:opacity-100"
+                      />
+                    </div>
+                  </motion.div>
+                )}
 
                 {/* Card Fields */}
                 {paymentMethod === "card" && (
