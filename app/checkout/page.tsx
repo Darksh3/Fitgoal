@@ -523,9 +523,9 @@ export default function CheckoutPage() {
                   >
                     {/* Dynamic instruction text */}
                     <p className="text-sm text-gray-300 mb-2">
-                      {paymentMethod === "pix" && "Informe seus dados para gerar o QR Code Pix."}
-                      {paymentMethod === "boleto" && "Informe seus dados para emitir o boleto."}
-                      {paymentMethod === "card" && "Informe seus dados para processar o pagamento."}
+                      {paymentMethod === "pix" && "🚀 Falta pouco para liberar seu plano personalizado!"}
+                      {paymentMethod === "boleto" && "🎯 Falta pouco para liberar seu plano personalizado!"}
+                      {paymentMethod === "card" && "🎯 Falta pouco para liberar seu plano personalizado!"}
                     </p>
 
                     <Input
@@ -651,9 +651,12 @@ export default function CheckoutPage() {
                     >
                       {[1, 2, 3, 4, 5, 6].map((n) => (
                         <option key={n} value={n} className="bg-slate-800">
-                          {n}x de R$ {(parseFloat(planPrice) / n).toFixed(2).replace(".", ",")}
-                        </option>
+                          {n}x de R$ {(parseFloat(planPrice) / n).toFixed(2).replace(".", ",")}</option>
                       ))}
+                    </select>
+                    <div className="text-xs text-lime-400 text-center">
+                      ou até 6x de R$ {(parseFloat(planPrice) / 6).toFixed(2).replace(".", ",")}
+                    </div>
                     </select>
                   </motion.div>
                 )}
@@ -678,7 +681,7 @@ export default function CheckoutPage() {
                 <Button
                   onClick={handlePayment}
                   disabled={!paymentMethod || processing}
-                  className="w-full bg-lime-500 hover:bg-lime-600 text-black font-bold py-6 text-lg"
+                  className="w-full bg-lime-500 hover:bg-lime-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-black font-bold py-6 text-lg rounded-lg shadow-lg transition-all"
                 >
                   {processing ? (
                     <>
