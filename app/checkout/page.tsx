@@ -185,8 +185,10 @@ export default function CheckoutPage() {
       if (!cardData.expiryMonth || !cardData.expiryYear) return "Validade é obrigatória"
       if (!cardData.ccv) return "CVV é obrigatório"
       if (!cardData.holderName) return "Nome no cartão é obrigatório"
-      // CEP e número da residência são opcionais - o Asaas pode processar sem
+      if (!addressData.postalCode) return "CEP é obrigatório"
+      if (!addressData.addressNumber) return "Número da residência é obrigatório"
     }
+    // Para Pix e Boleto, CEP e número são opcionais
 
     return null
   }
