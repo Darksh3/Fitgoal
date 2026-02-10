@@ -24,8 +24,15 @@ export async function POST(req: NextRequest) {
   try {
     const { paymentMethod, formData, cardData, addressData, planKey, planName, planPrice, installments, userId } = await req.json()
 
+    console.log("[v0] Checkout iniciado")
+    console.log("[v0] Método de pagamento:", paymentMethod)
+    console.log("[v0] Dados do formulário:", { name: formData?.name, email: formData?.email })
+    console.log("[v0] Preço do plano:", planPrice)
+    console.log("[v0] User ID:", userId)
+
     // Validate required fields
     if (!paymentMethod || !formData || !planPrice) {
+      console.log("[v0] Validação falhou - campos obrigatórios faltando:", { paymentMethod, formData: !!formData, planPrice })
       return NextResponse.json({ error: "Dados incompletos" }, { status: 400 })
     }
 
@@ -38,6 +45,8 @@ export async function POST(req: NextRequest) {
       mobilePhone: formData.phone?.replace(/\D/g, ""),
     }
 
+    console.log("[v0] Criando cliente com dados:", customerData)
+
     // Create customer first
     const customerRes = await fetch(`${ASAAS_API_URL}/customers`, {
       method: "POST",
@@ -48,29 +57,42 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(customerData),
     })
 
+    console.log("[v0] Resposta de criação de cliente - Status:", customerRes.status)
+
     let customerId = ""
 
     if (customerRes.ok) {
       const customer = await customerRes.json()
       customerId = customer.id
+      console.log("[v0] Cliente criado com ID:", customerId)
     } else {
+      const errorText = await customerRes.text()
+      console.log("[v0] Erro ao criar cliente:", errorText)
+      
       // Se falhar, tenta buscar pelo email
+      console.log("[v0] Tentando buscar cliente existente pelo email:", formData.email)
       const listRes = await fetch(`${ASAAS_API_URL}/customers?email=${encodeURIComponent(formData.email)}`, {
         headers: { "access-token": ASAAS_API_KEY! },
       })
       if (listRes.ok) {
         const list = await listRes.json()
+        console.log("[v0] Resultado da busca de clientes:", list.data?.length || 0)
         if (list.data && list.data.length > 0) {
           customerId = list.data[0].id
+          console.log("[v0] Cliente encontrado com ID:", customerId)
         }
+      } else {
+        console.log("[v0] Erro ao buscar cliente existente:", await listRes.text())
       }
     }
 
     if (!customerId) {
+      console.log("[v0] FALHA: Não conseguiu obter customer ID")
       return NextResponse.json({ error: "Erro ao criar cliente" }, { status: 400 })
     }
 
     // Create payment based on method
+    console.log("[v0] Criando pagamento para método:", paymentMethod)
     if (paymentMethod === "pix") {
       return await createPixPayment(customerId, planPrice, planName, userId)
     } else if (paymentMethod === "boleto") {
@@ -79,14 +101,21 @@ export async function POST(req: NextRequest) {
       return await createCardPayment(customerId, planPrice, planName, formData, cardData, addressData, installments, userId)
     }
 
+    console.log("[v0] Método de pagamento inválido:", paymentMethod)
     return NextResponse.json({ error: "Método de pagamento inválido" }, { status: 400 })
   } catch (error) {
-    console.error("[v0] Erro em checkout:", error)
+    console.error("[v0] ERRO TOTAL em checkout:", error)
+    if (error instanceof Error) {
+      console.error("[v0] Detalhes do erro:", error.message)
+      console.error("[v0] Stack trace:", error.stack)
+    }
     return NextResponse.json({ error: "Erro ao processar pagamento" }, { status: 500 })
   }
 }
 
 async function createPixPayment(customerId: string, amount: string, description: string, userId?: string) {
+  console.log("[v0] Criando PIX - customerId:", customerId, "amount:", amount)
+  
   const response = await fetch(`${ASAAS_API_URL}/payments`, {
     method: "POST",
     headers: {
@@ -102,12 +131,16 @@ async function createPixPayment(customerId: string, amount: string, description:
     }),
   })
 
+  console.log("[v0] Resposta de criação de PIX - Status:", response.status)
+
   if (!response.ok) {
     const error = await response.text()
+    console.log("[v0] Erro ao criar PIX:", error)
     return NextResponse.json({ error: "Erro ao criar Pix" }, { status: 400 })
   }
 
   const payment = await response.json()
+  console.log("[v0] PIX criado com ID:", payment.id)
 
   // Save to Firestore
   if (userId) {
@@ -119,6 +152,7 @@ async function createPixPayment(customerId: string, amount: string, description:
         billingType: "PIX",
         createdAt: new Date(),
       })
+      console.log("[v0] PIX salvo no Firestore")
     } catch (err) {
       console.error("[v0] Erro ao salvar PIX no Firestore:", err)
     }
@@ -129,8 +163,11 @@ async function createPixPayment(customerId: string, amount: string, description:
     headers: { "access-token": ASAAS_API_KEY! },
   })
 
+  console.log("[v0] Resposta do QR Code - Status:", qrRes.status)
+
   if (qrRes.ok) {
     const qr = await qrRes.json()
+    console.log("[v0] QR Code obtido com sucesso")
     return NextResponse.json({
       paymentId: payment.id,
       qrCode: qr.encodedImage,
@@ -138,6 +175,7 @@ async function createPixPayment(customerId: string, amount: string, description:
     })
   }
 
+  console.log("[v0] QR Code não obtido, retornando sem QR")
   return NextResponse.json({ paymentId: payment.id, qrCode: "", copyPaste: "" })
 }
 

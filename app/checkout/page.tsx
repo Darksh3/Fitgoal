@@ -241,29 +241,40 @@ export default function CheckoutPage() {
   const handlePayment = async () => {
     const validationError = validateForm()
     if (validationError) {
+      console.log("[v0] Erro de validação:", validationError)
       setError(validationError)
       return
     }
+
+    console.log("[v0] Iniciando pagamento com método:", paymentMethod)
+    console.log("[v0] Dados do formulário:", { name: formData.name, email: formData.email, cpf: formData.cpf?.substring(0, 3) + "***" })
+    console.log("[v0] Plano:", { selectedPlan, planName, planPrice })
+    console.log("[v0] User ID:", user?.uid)
 
     setProcessing(true)
     setError(null)
 
     try {
+      const payload = {
+        paymentMethod,
+        formData,
+        cardData: paymentMethod === "card" ? cardData : undefined,
+        addressData: paymentMethod === "card" ? addressData : paymentMethod === "boleto" ? addressData : undefined,
+        planKey: selectedPlan,
+        planName,
+        planPrice,
+        installments: paymentMethod === "card" ? installments : 1,
+        userId: user?.uid,
+      }
+      console.log("[v0] Payload enviado para API:", JSON.stringify(payload, null, 2))
+
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          paymentMethod,
-          formData,
-          cardData: paymentMethod === "card" ? cardData : undefined,
-          addressData: paymentMethod === "card" ? addressData : paymentMethod === "boleto" ? addressData : undefined,
-          planKey: selectedPlan,
-          planName,
-          planPrice,
-          installments: paymentMethod === "card" ? installments : 1,
-          userId: user?.uid,
-        }),
+        body: JSON.stringify(payload),
       })
+
+      console.log("[v0] Status da resposta:", response.status)
 
       // Handle error responses properly
       if (!response.ok) {
@@ -272,23 +283,33 @@ export default function CheckoutPage() {
 
         if (contentType?.includes("application/json")) {
           const errorData = await response.json()
+          console.log("[v0] Erro da API:", errorData)
           errorMessage = errorData.error || errorMessage
+        } else {
+          const errorText = await response.text()
+          console.log("[v0] Erro da API (texto):", errorText)
         }
 
         throw new Error(errorMessage)
       }
 
       const data = await response.json()
+      console.log("[v0] Resposta bem-sucedida:", data)
 
       if (paymentMethod === "pix") {
+        console.log("[v0] PIX preparado, mostrando QR Code")
         setPixData(data)
       } else if (paymentMethod === "boleto") {
+        console.log("[v0] Boleto preparado")
         setBoletoData(data)
       } else if (paymentMethod === "card") {
+        console.log("[v0] Cartão processado com sucesso")
         setSuccess(true)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao processar pagamento")
+      const errorMsg = err instanceof Error ? err.message : "Erro ao processar pagamento"
+      console.log("[v0] Erro capturado:", errorMsg)
+      setError(errorMsg)
     } finally {
       setProcessing(false)
     }
