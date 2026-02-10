@@ -247,64 +247,186 @@ export default function CheckoutPage() {
     }
 
     console.log("[v0] Iniciando pagamento com método:", paymentMethod)
-    console.log("[v0] Dados do formulário:", { name: formData.name, email: formData.email, cpf: formData.cpf?.substring(0, 3) + "***" })
+    console.log("[v0] Dados do formulário:", { name: formData.name, email: formData.email })
     console.log("[v0] Plano:", { selectedPlan, planName, planPrice })
-    console.log("[v0] User ID:", user?.uid)
 
     setProcessing(true)
     setError(null)
 
     try {
-      const payload = {
-        paymentMethod,
-        formData,
-        cardData: paymentMethod === "card" ? cardData : undefined,
-        addressData: paymentMethod === "card" ? addressData : paymentMethod === "boleto" ? addressData : undefined,
-        planKey: selectedPlan,
-        planName,
-        planPrice,
-        installments: paymentMethod === "card" ? installments : 1,
-        userId: user?.uid,
-      }
-      console.log("[v0] Payload enviado para API:", JSON.stringify(payload, null, 2))
+      // Validação de campos específicos por método
+      const missingFields = []
+      if (!formData.email?.trim()) missingFields.push("Email")
+      if (!formData.name?.trim()) missingFields.push("Nome Completo")
+      if (!formData.cpf?.trim()) missingFields.push("CPF")
+      if (!formData.phone?.trim()) missingFields.push("Telefone")
 
-      const response = await fetch("/api/checkout", {
+      if (missingFields.length > 0) {
+        throw new Error(`Campos obrigatórios faltando: ${missingFields.join(", ")}`)
+      }
+
+      if (paymentMethod === "card") {
+        const cardMissingFields = []
+        if (!cardData.holderName?.trim()) cardMissingFields.push("Nome no Cartão")
+        if (!cardData.number?.replace(/\s/g, "")) cardMissingFields.push("Número do Cartão")
+        if (!cardData.expiryMonth) cardMissingFields.push("Mês de Validade")
+        if (!cardData.expiryYear) cardMissingFields.push("Ano de Validade")
+        if (!cardData.ccv) cardMissingFields.push("CVV")
+        if (!addressData.postalCode?.replace(/\D/g, "")) cardMissingFields.push("CEP")
+        if (!addressData.addressNumber?.trim()) cardMissingFields.push("Número do Endereço")
+
+        if (cardMissingFields.length > 0) {
+          throw new Error(`Campos do cartão faltando: ${cardMissingFields.join(", ")}`)
+        }
+      }
+
+      // Step 1: Criar pagamento com /api/create-asaas-payment (igual ao modal)
+      const paymentPayload: Record<string, any> = {
+        email: formData.email,
+        name: formData.name,
+        cpf: formData.cpf.replace(/\D/g, ""),
+        phone: formData.phone.replace(/\D/g, ""),
+        planType: selectedPlan,
+        paymentMethod: paymentMethod === "card" ? "card" : paymentMethod,
+        description: `${planName} - Fitgoal Fitness`,
+        clientUid: user?.uid,
+      }
+
+      if (paymentMethod === "card") {
+        paymentPayload.installments = installments || 1
+      }
+
+      if (paymentMethod === "boleto" || paymentMethod === "card") {
+        if (addressData.postalCode) {
+          paymentPayload.postalCode = addressData.postalCode.replace(/\D/g, "")
+        }
+        if (addressData.addressNumber) {
+          paymentPayload.addressNumber = addressData.addressNumber
+        }
+      }
+
+      if (paymentMethod === "card") {
+        paymentPayload.cardData = {
+          holderName: cardData.holderName,
+          number: cardData.number?.replace(/\s/g, ""),
+          expiryMonth: cardData.expiryMonth,
+          expiryYear: cardData.expiryYear,
+          ccv: cardData.ccv,
+        }
+      }
+
+      console.log("[v0] Enviando para /api/create-asaas-payment:", paymentPayload)
+      const paymentResponse = await fetch("/api/create-asaas-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(paymentPayload),
       })
 
-      console.log("[v0] Status da resposta:", response.status)
-
-      // Handle error responses properly
-      if (!response.ok) {
-        const contentType = response.headers.get("content-type")
-        let errorMessage = "Erro ao processar pagamento"
-
-        if (contentType?.includes("application/json")) {
-          const errorData = await response.json()
-          console.log("[v0] Erro da API:", errorData)
-          errorMessage = errorData.error || errorMessage
-        } else {
-          const errorText = await response.text()
-          console.log("[v0] Erro da API (texto):", errorText)
-        }
-
-        throw new Error(errorMessage)
+      if (!paymentResponse.ok) {
+        const errorData = await paymentResponse.json()
+        console.log("[v0] Erro da API:", errorData)
+        throw new Error(errorData.error || "Erro ao criar cobrança")
       }
 
-      const data = await response.json()
-      console.log("[v0] Resposta bem-sucedida:", data)
+      const paymentResult = await paymentResponse.json()
+      console.log("[v0] Pagamento criado:", paymentResult)
 
       if (paymentMethod === "pix") {
-        console.log("[v0] PIX preparado, mostrando QR Code")
-        setPixData(data)
-      } else if (paymentMethod === "boleto") {
-        console.log("[v0] Boleto preparado")
-        setBoletoData(data)
-      } else if (paymentMethod === "card") {
-        console.log("[v0] Cartão processado com sucesso")
+        localStorage.setItem("lastPaymentId", paymentResult.paymentId)
+
+        try {
+          await setDoc(doc(db, "payments", paymentResult.paymentId), {
+            paymentId: paymentResult.paymentId,
+            userId: user?.uid,
+            status: "PENDING",
+            billingType: "PIX",
+            createdAt: new Date(),
+          })
+          console.log("[v0] PIX salvo no Firestore")
+        } catch (err) {
+          console.error("[v0] Erro ao salvar PIX:", err)
+        }
+
+        // Buscar QR Code
+        const qrCodeResponse = await fetch(`/api/get-pix-qrcode?paymentId=${paymentResult.paymentId}`)
+
+        if (qrCodeResponse.ok) {
+          const qrCodeResult = await qrCodeResponse.json()
+          setPixData({
+            qrCode: qrCodeResult.encodedImage || qrCodeResult.qrCode,
+            copyPaste: qrCodeResult.payload,
+            paymentId: paymentResult.paymentId,
+          })
+        } else {
+          setPixData({
+            qrCode: paymentResult.pixQrCode,
+            copyPaste: paymentResult.pixCopyPaste,
+            paymentId: paymentResult.paymentId,
+          })
+        }
+
+        setProcessing(false)
+        return
+      }
+
+      if (paymentMethod === "boleto") {
+        setBoletoData({
+          url: paymentResult.boletoUrl,
+          barCode: paymentResult.boletoBarCode,
+        })
+        setProcessing(false)
+        return
+      }
+
+      if (paymentMethod === "card") {
+        const cardPayload = {
+          paymentId: paymentResult.paymentId,
+          creditCard: {
+            holderName: cardData.holderName,
+            number: cardData.number.replace(/\s/g, ""),
+            expiryMonth: cardData.expiryMonth,
+            expiryYear: cardData.expiryYear,
+            ccv: cardData.ccv,
+          },
+          creditCardHolderInfo: {
+            name: formData.name,
+            email: formData.email,
+            cpfCnpj: formData.cpf.replace(/\D/g, ""),
+            postalCode: addressData.postalCode.replace(/\D/g, ""),
+            addressNumber: addressData.addressNumber,
+            phone: formData.phone.replace(/\D/g, ""),
+          },
+        }
+
+        console.log("[v0] Processando cartão com /api/process-asaas-card")
+        const cardResponse = await fetch("/api/process-asaas-card", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(cardPayload),
+        })
+
+        if (!cardResponse.ok) {
+          const errorData = await cardResponse.json()
+          console.log("[v0] Erro ao processar cartão:", errorData)
+          throw new Error(errorData.error || "Erro ao processar cartão")
+        }
+
+        try {
+          await setDoc(doc(db, "payments", paymentResult.paymentId), {
+            paymentId: paymentResult.paymentId,
+            userId: user?.uid,
+            status: "PENDING",
+            billingType: "CARD",
+            createdAt: new Date(),
+          })
+          console.log("[v0] Cartão salvo no Firestore")
+        } catch (err) {
+          console.error("[v0] Erro ao salvar cartão:", err)
+        }
+
         setSuccess(true)
+        setProcessing(false)
+        return
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Erro ao processar pagamento"
