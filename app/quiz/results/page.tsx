@@ -582,6 +582,14 @@ export default function QuizResultsPage() {
                 </p>
               </div>
 
+              {/* Meta de Peso */}
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Meta de Peso</p>
+                <p className="text-white text-xl font-semibold">
+                  {getDataValue("targetWeight") ? Number(getDataValue("targetWeight")).toFixed(1) : "—"} kg
+                </p>
+              </div>
+
               {/* IMC */}
               <div>
                 <p className="text-gray-400 text-sm mb-2">IMC</p>
