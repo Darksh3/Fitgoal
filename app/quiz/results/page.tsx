@@ -546,7 +546,7 @@ export default function QuizResultsPage() {
           </div>
 
           <div className="mt-8 bg-gray-900 bg-opacity-50 rounded-2xl p-8 border border-gray-700">
-            <h3 className="text-3xl font-bold text-white mb-6">Sumário:</h3>
+            <h3 className="text-3xl font-bold text-white mb-6">Análise do seu perfil e estratégia do plano:</h3>
             <div className="border-t border-gray-700 mb-8"></div>
 
             <div className="grid grid-cols-2 gap-x-8 gap-y-8">
