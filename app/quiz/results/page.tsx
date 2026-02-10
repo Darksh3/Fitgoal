@@ -489,6 +489,82 @@ export default function QuizResultsPage() {
           </div>
         </div>
 
+        {/* Bloco 4 - Decisões Principais */}
+        <div className="max-w-5xl mx-auto mt-12 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-8">
+          <h3 className="text-2xl font-bold text-white mb-6">Principais decisões para o seu plano</h3>
+          <div className="space-y-4 text-gray-300 leading-relaxed">
+            <p>
+              • Estratégia focada em <span className="text-lime-400 font-semibold">{getDataValue("objective") === "emagrecer" ? "déficit calórico controlado" : getDataValue("objective") === "ganhar" ? "ganho de massa com superávit controlado" : "equilíbrio energético"}</span>
+              {getDataValue("bodyFatPercentage") && (
+                <>
+                  , pois seu percentual de gordura (~{getDataValue("bodyFatPercentage")}%) {
+                    getDataValue("bodyFatPercentage") > 18 ? "requer atenção ao déficit" :
+                    getDataValue("bodyFatPercentage") < 12 ? "permite ambiente favorável para ganho" :
+                    "permite equilíbrio entre ganho e definição"
+                  }
+                </>
+              )}
+            </p>
+            <p>
+              • Estrutura de treino pensada para nível <span className="text-lime-400 font-semibold">{getDataValue("trainingLevel") || "intermediário"}</span>
+              {getDataValue("trainingLevel") === "iniciante" ? ", priorizando adaptação e consistência" :
+               getDataValue("trainingLevel") === "avançado" ? ", priorizando estímulos precisos e recuperação" :
+               ", priorizando progressão estruturada"}
+            </p>
+            <p>
+              • Frequência e volume compatíveis com sua rotina informada e capacidade de recuperação
+            </p>
+          </div>
+        </div>
+
+        {/* Bloco 5 - Metas Calculadas */}
+        <div className="max-w-5xl mx-auto mt-8 grid grid-cols-2 gap-6">
+          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-6">
+            <p className="text-gray-400 text-sm mb-2">Meta calórica inicial</p>
+            <p className="text-white text-2xl font-bold">~{getDataValue("calorieGoal") || "2500"} kcal</p>
+            <p className="text-gray-400 text-xs mt-3">
+              Calculada para {getDataValue("objective") === "emagrecer" ? "criar déficit controlado" : getDataValue("objective") === "ganhar" ? "sustentar ganho de massa" : "manter equilíbrio"} considerando seu gasto diário e frequência de treino.
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-6">
+            <p className="text-gray-400 text-sm mb-2">IMC e Composição Corporal</p>
+            <p className="text-white text-2xl font-bold">{getDataValue("bmi") || "24.0"}</p>
+            <p className="text-gray-400 text-xs mt-3">
+              Interpretado em conjunto com percentual de gordura (~{getDataValue("bodyFatPercentage") || "15"}%) — não usado isoladamente para definir seu plano.
+            </p>
+          </div>
+        </div>
+
+        {/* Bloco 6 - Prazo Estimado */}
+        <div className="max-w-5xl mx-auto mt-8 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-8">
+          <h3 className="text-2xl font-bold text-white mb-4">Projeção de prazo realista</h3>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-gray-400 text-sm mb-2">Estimativa para atingir seu objetivo</p>
+              <p className="text-white text-3xl font-bold text-lime-400">{getDataValue("timeToGoal") || new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}</p>
+            </div>
+          </div>
+          <p className="text-gray-400 text-sm border-t border-slate-700/50 pt-4">
+            ⚠️ Estimativa baseada em progresso consistente, adesão ao plano e 
+            {getDataValue("trainingFrequency") && ` frequência de ${getDataValue("trainingFrequency")}x por semana`}.
+            {getDataValue("timeFrame") === "curto" ? " Exige alta adesão." : 
+             getDataValue("timeFrame") === "longo" ? " Prioriza consistência." : 
+             " Ritmo sustentável."}
+          </p>
+        </div>
+
+        {/* Bloco 7 - Ponte para Pagamento */}
+        <div className="max-w-5xl mx-auto mt-8 bg-gradient-to-br from-lime-900/30 to-lime-900/10 border border-lime-700/50 rounded-xl p-8">
+          <h3 className="text-2xl font-bold text-lime-400 mb-4">O que acontece agora</h3>
+          <p className="text-gray-200 leading-relaxed">
+            Seu treino detalhado <span className="text-lime-400 font-semibold">(exercícios, séries, progressão e técnicas)</span> e sua dieta completa <span className="text-lime-400 font-semibold">(refeições, quantidades exatas e substituições)</span> serão gerados sob demanda imediatamente após a confirmação do pagamento.
+          </p>
+          <p className="text-gray-400 text-sm mt-4 pt-4 border-t border-lime-700/30">
+            Tudo personalizado para seu perfil e objetivo específico.
+          </p>
+        </div>
+
         <div className="max-w-5xl mx-auto mt-16">
           <h2 className="text-4xl font-bold text-center mb-8">Escolha Seu Plano</h2>
 
