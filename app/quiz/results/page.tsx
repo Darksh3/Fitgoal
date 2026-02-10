@@ -281,8 +281,8 @@ export default function QuizResultsPage() {
     return Math.round(c)
   }
 
-  const getTimeToGoal = (): string | null => {
-    const v = getDataValue("timeToGoal") ?? data?.timeToGoal
+  const getTimeAvailable = (): string | null => {
+    const v = getDataValue("timeAvailable") ?? data?.timeAvailable
     if (!v) return null
     const s = String(v).trim()
     return s.length ? s : null
@@ -295,6 +295,7 @@ export default function QuizResultsPage() {
     const days = getTrainingDays()
     const calories = getCaloriesGoal()
     const timeToGoal = getTimeToGoal()
+    const timeAvailable = getTimeAvailable()
 
     // 1) Headline (1 linha)
     const headline =
@@ -368,6 +369,7 @@ export default function QuizResultsPage() {
       bullets: [bulletBF, bulletLevel, bulletCalories],
       trustNote,
       etaNote,
+      frequencyAndTime: `Treino estruturado em ${days}x por semana${timeAvailable ? ` com ${timeAvailable} minutos disponíveis por sessão` : ""}.`,
     }
   }
 
@@ -546,7 +548,7 @@ export default function QuizResultsPage() {
           </div>
 
           <div className="mt-8 bg-gray-900 bg-opacity-50 rounded-2xl p-8 border border-gray-700">
-            <h3 className="text-3xl font-bold text-white mb-6">Sumário:</h3>
+            <h3 className="text-3xl font-bold text-white mb-6">Análise do seu perfil e estratégia do plano:</h3>
             <div className="border-t border-gray-700 mb-8"></div>
 
             <div className="grid grid-cols-2 gap-x-8 gap-y-8">
@@ -632,6 +634,9 @@ export default function QuizResultsPage() {
                   </li>
                 ))}
               </ul>
+              <p className="text-gray-400 text-sm mt-6 pt-4 border-t border-slate-700/50">
+                {s.frequencyAndTime}
+              </p>
             </div>
           )
         })()}
