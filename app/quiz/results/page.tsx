@@ -615,104 +615,8 @@ export default function QuizResultsPage() {
                 <p className="text-gray-400 text-sm mt-4 text-center">Usamos esses dados para definir volume de treino e ingestão calórica.</p>
               </div>
             </div>
-              </div>
-
-              {/* Benefit 5 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold">Treino personalizado baseado no seu objetivo</p>
-                </div>
-              </div>
-
-              {/* Benefit 6 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold">Exercícios com séries, repetições e descanso definidos</p>
-                </div>
-              </div>
-
-              {/* Benefit 7 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold">Plano organizado dentro do app</p>
-                </div>
-              </div>
-
-              {/* Benefit 8 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold">Ajustes automáticos conforme sua evolução</p>
-                </div>
-              </div>
-
-              {/* Benefit 9 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold">Acesso contínuo durante todo o plano</p>
-                </div>
-              </div>
-
-              {/* Benefit 10 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold">Acesso Completo ao App + Acompanhamento Contínuo</p>
-                </div>
-              </div>
-            </div>
+          </div>
+        </div>
 
         {/* Bloco 4 - Decisões Principais */}
         {(() => {
@@ -734,7 +638,7 @@ export default function QuizResultsPage() {
 
         {/* Bloco 6 - Prazo Estimado */}
         <div className="max-w-5xl mx-auto mt-8 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-8">
-          <h3 className="text-2xl font-bold text-white mb-4">Projeção de prazo realista</h3>
+          <h3 className="text-2xl font-bold text-white mb-4">Projeção de prazo realista:</h3>
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-gray-400 text-sm mb-2">Estimativa para atingir seu objetivo</p>
@@ -748,7 +652,7 @@ export default function QuizResultsPage() {
 
         {/* Bloco 7 - Ponte para Pagamento */}
         <div className="max-w-5xl mx-auto mt-8 bg-gradient-to-br from-lime-900/30 to-lime-900/10 border border-lime-700/50 rounded-xl p-8">
-          <h3 className="text-2xl font-bold text-lime-400 mb-4">O que acontece agora</h3>
+          <h3 className="text-2xl font-bold text-lime-400 mb-4">O que acontece agora:</h3>
           <p className="text-gray-200 leading-relaxed">
             Seu treino detalhado <span className="text-lime-400 font-semibold">(exercícios, séries, progressão e técnicas)</span> e sua dieta completa <span className="text-lime-400 font-semibold">(refeições, quantidades exatas e substituições)</span> serão gerados sob demanda imediatamente após a confirmação do pagamento.
           </p>
@@ -758,7 +662,7 @@ export default function QuizResultsPage() {
         </div>
 
         <div className="max-w-5xl mx-auto mt-16">
-          <h2 className="text-4xl font-bold text-center mb-8">Escolha Seu Plano</h2>
+          <h2 className="text-4xl font-bold text-center mb-8">Programa FitGoal Personal Engine™:</h2>
 
           <div className="mt-8 bg-gray-900 border border-gray-800 rounded-xl p-8 max-w-3xl mx-auto">
             <h3 className="text-2xl font-bold text-white mb-8">O que você recebe:</h3>
@@ -881,11 +785,10 @@ export default function QuizResultsPage() {
             {/* Monthly Plan */}
             <div
               onClick={() => setSelectedPlan("monthly")}
-              className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
-                selectedPlan === "monthly"
+              className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${selectedPlan === "monthly"
                   ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
                   : "border-gray-700"
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-white">Plano Mensal</h3>
@@ -901,11 +804,10 @@ export default function QuizResultsPage() {
             {/* Quarterly Plan - Featured */}
             <div
               onClick={() => setSelectedPlan("quarterly")}
-              className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition duration-300 ${
-                selectedPlan === "quarterly"
+              className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition duration-300 ${selectedPlan === "quarterly"
                   ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
                   : "border-gray-700"
-              }`}
+                }`}
             >
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                 MAIS POPULAR
@@ -924,11 +826,10 @@ export default function QuizResultsPage() {
             {/* Semi-annual Plan */}
             <div
               onClick={() => setSelectedPlan("semiannual")}
-              className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
-                selectedPlan === "semiannual"
+              className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${selectedPlan === "semiannual"
                   ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
                   : "border-gray-700"
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-white">Plano Semestral</h3>
@@ -951,8 +852,8 @@ export default function QuizResultsPage() {
 
           {/* CTA Button */}
           <div className="flex justify-center">
-                  <button
-                    onClick={handleCheckout}
+            <button
+              onClick={handleCheckout}
               className="px-12 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition"
             >
               OBTER MEU PLANO
@@ -1057,7 +958,7 @@ export default function QuizResultsPage() {
                 <div className="relative w-full max-w-sm">
                   {/* Video player with rounded edges and border */}
                   <div className="bg-gradient-to-b from-gray-800 to-gray-900 rounded-3xl p-4 border border-gray-700">
-                    <video 
+                    <video
                       className="bg-black rounded-2xl w-full h-auto"
                       autoPlay
                       loop
@@ -1095,7 +996,7 @@ export default function QuizResultsPage() {
                       Olá, estou usando seus treinos e comecei há cerca de 4-5 meses atrás e só queria dizer obrigado,
                       você fez um ótimo trabalho, realmente vi um transformação incrível!
                     </p>
-                    <button 
+                    <button
                       onClick={() => setExpandedTestimonial(expandedTestimonial === "brandon" ? null : "brandon")}
                       className="text-orange-400 text-sm font-semibold hover:text-orange-300 transition self-start"
                     >
@@ -1120,7 +1021,7 @@ export default function QuizResultsPage() {
                       Os vídeos são muito úteis e fáceis de entender. Os conselhos do seu consultor funcionam bem
                       comigo. Consigo dormir cedo agora e tenho mais energia durante o dia!
                     </p>
-                    <button 
+                    <button
                       onClick={() => setExpandedTestimonial(expandedTestimonial === "peter" ? null : "peter")}
                       className="text-orange-400 text-sm font-semibold hover:text-orange-300 transition self-start"
                     >
@@ -1144,7 +1045,7 @@ export default function QuizResultsPage() {
                     <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "kevin" ? "" : "line-clamp-3"}`}>
                       Comecei com cerca de 200 lbs e agora estou com um peso saudável e magro 172. Adorei a experiência com os planos personalizados!
                     </p>
-                    <button 
+                    <button
                       onClick={() => setExpandedTestimonial(expandedTestimonial === "kevin" ? null : "kevin")}
                       className="text-orange-400 text-sm font-semibold hover:text-orange-300 transition self-start"
                     >
@@ -1306,11 +1207,10 @@ export default function QuizResultsPage() {
                 {/* Monthly Plan */}
                 <div
                   onClick={() => setSelectedPlan("monthly")}
-                  className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
-                    selectedPlan === "monthly"
+                  className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${selectedPlan === "monthly"
                       ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
                       : "border-gray-700"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold text-white">Plano Mensal</h3>
@@ -1326,11 +1226,10 @@ export default function QuizResultsPage() {
                 {/* Quarterly Plan - Featured */}
                 <div
                   onClick={() => setSelectedPlan("quarterly")}
-                  className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition duration-300 ${
-                    selectedPlan === "quarterly"
+                  className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition duration-300 ${selectedPlan === "quarterly"
                       ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
                       : "border-gray-700"
-                  }`}
+                    }`}
                 >
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                     MAIS POPULAR
@@ -1349,11 +1248,10 @@ export default function QuizResultsPage() {
                 {/* Semi-annual Plan */}
                 <div
                   onClick={() => setSelectedPlan("semiannual")}
-                  className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${
-                    selectedPlan === "semiannual"
+                  className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${selectedPlan === "semiannual"
                       ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
                       : "border-gray-700"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold text-white">Plano Semestral</h3>
@@ -1376,8 +1274,8 @@ export default function QuizResultsPage() {
 
               {/* CTA Button */}
               <div className="text-center mb-16">
-              <button
-                onClick={handleCheckout}
+                <button
+                  onClick={handleCheckout}
                   className="bg-white text-black font-bold px-12 py-3 rounded-full hover:bg-gray-100 transition"
                 >
                   DESTRAVAR MEUS RESULTADOS
