@@ -337,12 +337,12 @@ export default function CheckoutPage() {
         try {
           await setDoc(doc(db, "payments", paymentResult.paymentId), {
             paymentId: paymentResult.paymentId,
-            userId: user?.uid,
+            userId: user?.uid || "anonymous",
             status: "PENDING",
             billingType: "PIX",
             createdAt: new Date(),
           })
-          console.log("[v0] PIX salvo no Firestore")
+          console.log("[v0] PIX salvo no Firestore com userID:", user?.uid || "anonymous")
         } catch (err) {
           console.error("[v0] Erro ao salvar PIX:", err)
         }
@@ -477,36 +477,79 @@ export default function CheckoutPage() {
   // PIX screen
   if (pixData) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 flex items-center justify-center p-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="max-w-md w-full">
-          <Card className="bg-slate-800/40 backdrop-blur border-slate-700/50">
-            <CardContent className="p-8 space-y-6">
-              <div className="text-center">
-                <QrCode className="w-12 h-12 text-lime-500 mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-white mb-2">Pagar com Pix</h2>
-                <p className="text-gray-400 text-sm">Escaneie o código ou copie o código Pix abaixo</p>
-              </div>
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 p-4">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
+            <Link href="/quiz" className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 mb-6">
+              <ArrowLeft className="w-4 h-4" />
+              Voltar
+            </Link>
+          </div>
 
-              <div className="bg-white p-4 rounded-lg flex items-center justify-center">
-                <img src={pixData.qrCode} alt="QR Code Pix" className="w-48 h-48" />
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Order Summary */}
+            <div className="lg:col-span-2">
+              <Card className="bg-slate-800/40 backdrop-blur border-slate-700/50">
+                <CardContent className="p-8">
+                  <h2 className="text-2xl font-bold text-white mb-6">Resumo do Pedido</h2>
+                  <div className="space-y-4">
+                    <div className="flex justify-between pb-4 border-b border-slate-700">
+                      <span className="text-gray-400">{planName}</span>
+                      <span className="text-white font-semibold">{formatCurrency(parseFloat(planPrice))}</span>
+                    </div>
+                    <div className="flex justify-between pt-4">
+                      <span className="text-white font-semibold">Total</span>
+                      <span className="text-lime-400 font-bold text-lg">{formatCurrency(parseFloat(planPrice))}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-              <div className="bg-slate-700/30 p-4 rounded-lg">
-                <p className="text-xs text-gray-400 mb-2">Código Pix (copia e cola):</p>
-                <code className="text-white font-mono text-xs break-all">{pixData.copyPaste}</code>
-              </div>
+            {/* Right Column - PIX QR Code */}
+            <div>
+              <Card className="bg-slate-800/40 backdrop-blur border-slate-700/50 sticky top-4">
+                <CardContent className="p-8 space-y-6">
+                  <div className="text-center">
+                    <QrCode className="w-12 h-12 text-lime-500 mx-auto mb-4" />
+                    <h2 className="text-2xl font-bold text-white mb-2">Pagar com Pix</h2>
+                    <p className="text-gray-400 text-sm">Escaneie o código QR com seu smartphone</p>
+                  </div>
 
-              <Button
-                onClick={() => navigator.clipboard.writeText(pixData.copyPaste)}
-                className="w-full bg-lime-500 hover:bg-lime-600 text-black font-bold"
-              >
-                Copiar Código Pix
-              </Button>
+                  {pixData.qrCode && (
+                    <div className="bg-white p-4 rounded-lg flex items-center justify-center">
+                      <img 
+                        src={`data:image/png;base64,${pixData.qrCode}`}
+                        alt="QR Code Pix" 
+                        className="w-40 h-40 object-contain"
+                      />
+                    </div>
+                  )}
 
-              <p className="text-xs text-gray-400 text-center">O pagamento será confirmado automaticamente quando realizado</p>
-            </CardContent>
-          </Card>
-        </motion.div>
+                  <div className="bg-slate-700/30 p-3 rounded-lg">
+                    <p className="text-xs text-gray-400 mb-2">Código Pix (copia e cola):</p>
+                    <code className="text-white font-mono text-xs break-all block max-h-20 overflow-y-auto">{pixData.copyPaste}</code>
+                  </div>
+
+                  <Button
+                    onClick={() => navigator.clipboard.writeText(pixData.copyPaste)}
+                    className="w-full bg-lime-500 hover:bg-lime-600 text-black font-bold"
+                  >
+                    Copiar Código Pix
+                  </Button>
+
+                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+                    <p className="text-xs text-blue-300 flex items-start gap-2">
+                      <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                      <span>O pagamento será confirmado automaticamente quando realizado</span>
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
