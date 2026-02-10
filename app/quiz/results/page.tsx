@@ -582,6 +582,48 @@ export default function QuizResultsPage() {
                 </p>
               </div>
 
+              {/* Meta de Calorias */}
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Meta de Calorias</p>
+                <p className="text-white text-xl font-semibold">
+                  ~{getCaloriesGoal() || "2500"} kcal
+                </p>
+              </div>
+
+              {/* Meta de Peso */}
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Meta de Peso</p>
+                <p className="text-white text-xl font-semibold">
+                  {getDataValue("targetWeight") ? Number(getDataValue("targetWeight")).toFixed(1) : "—"} kg
+                </p>
+              </div>
+
+              {/* IMC */}
+              <div>
+                <p className="text-gray-400 text-sm mb-2">IMC</p>
+                <p
+                  className={`text-xl font-semibold ${(() => {
+                    if (!getDataValue("currentWeight") || !getDataValue("height")) return "text-white"
+                    const imc = Number(getDataValue("currentWeight")) / (Number(getDataValue("height")) / 100) ** 2
+                    if (imc < 18.5) return "text-blue-400"
+                    if (imc < 25) return "text-green-400"
+                    return "text-red-400"
+                  })()}`}
+                >
+                  {getDataValue("currentWeight") && getDataValue("height")
+                    ? (Number(getDataValue("currentWeight")) / (Number(getDataValue("height")) / 100) ** 2).toFixed(1)
+                    : "—"}
+                </p>
+              </div>
+
+              {/* Peso Atual */}
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Peso Atual</p>
+                <p className="text-white text-xl font-semibold">
+                  {getDataValue("currentWeight") ? Number(getDataValue("currentWeight")).toFixed(1) : "—"} kg
+                </p>
+              </div>
+
               {/* Meta de Peso */}
               <div>
                 <p className="text-gray-400 text-sm mb-2">Meta de Peso</p>
