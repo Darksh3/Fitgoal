@@ -799,7 +799,7 @@ export default function QuizResultsPage() {
                       muted
                       playsInline
                     >
-                      <source src="/videos/iphone-mockup-demo.webm" type="video/webm" />
+                      <source src="/videos/iphone-mockup-demo.mp4" type="video/mp4" />
                       Seu navegador não suporta reprodução de vídeo.
                     </video>
                   </div>
