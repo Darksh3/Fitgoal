@@ -483,6 +483,7 @@ export default function QuizResultsPage() {
                 <p className="text-white text-xl font-semibold">
                   {getDataValue("timeToGoal") || new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}
                 </p>
+                <p className="text-gray-400 text-sm mt-4 text-center">Usamos esses dados para definir volume de treino e ingestão calórica.</p>
               </div>
             </div>
           </div>

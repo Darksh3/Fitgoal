@@ -598,6 +598,26 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-400">
                     <Check className="w-4 h-4 text-lime-500" />
+                    <span>Treino personalizado baseado no seu objetivo</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <Check className="w-4 h-4 text-lime-500" />
+                    <span>Exercícios com séries, repetições e descanso definidos</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <Check className="w-4 h-4 text-lime-500" />
+                    <span>Plano organizado dentro do app</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <Check className="w-4 h-4 text-lime-500" />
+                    <span>Ajustes automáticos conforme sua evolução</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <Check className="w-4 h-4 text-lime-500" />
+                    <span>Acesso contínuo durante todo o plano</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <Check className="w-4 h-4 text-lime-500" />
                     <span>Acesso Completo ao App + Acompanhamento Contínuo</span>
                   </div>
                 </div>
@@ -835,7 +855,7 @@ export default function CheckoutPage() {
                     className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardHolder") ? "border-red-500/80 border-2" : "border-slate-600"
                       }`}
                   />
-                  
+
                   {/* Address Fields for Card */}
                   <div className="grid grid-cols-2 gap-3">
                     <Input
@@ -927,9 +947,9 @@ export default function CheckoutPage() {
 
                     {pixData.qrCode && (
                       <div className="bg-white p-4 rounded-lg flex items-center justify-center mx-auto w-fit">
-                        <img 
+                        <img
                           src={`data:image/png;base64,${pixData.qrCode}`}
-                          alt="QR Code Pix" 
+                          alt="QR Code Pix"
                           className="w-48 h-48 object-contain"
                         />
                       </div>
@@ -952,8 +972,8 @@ export default function CheckoutPage() {
                 {/* SUBCONTAINER — botão mais dominante */}
                 <div className="w-full max-w-md mx-auto bg-slate-900/50 border border-slate-600/80 rounded-xl p-5 flex flex-col justify-center shadow-lg">
 
-                {/* Confirmação de Pagamento - Button */}
-                <Button
+                  {/* Confirmação de Pagamento - Button */}
+                  <Button
                     onClick={handlePayment}
                     disabled={!paymentMethod || processing}
                     className="w-full bg-lime-500 hover:bg-lime-600 hover:shadow-[0_0_20px_rgba(132,204,22,0.5)] disabled:bg-gray-500 disabled:cursor-not-allowed text-black font-bold py-7 text-base rounded-lg shadow-lg transition-all uppercase tracking-wide"
