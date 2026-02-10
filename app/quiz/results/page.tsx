@@ -1300,4 +1300,4 @@ export default function QuizResultsPage() {
         </main>
       </div>
     )
-  }
+}
