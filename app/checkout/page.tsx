@@ -716,13 +716,16 @@ export default function CheckoutPage() {
                       value={formData.cpf}
                       onChange={(e) => {
                         let value = e.target.value.replace(/\D/g, "")
-                        if (value.length <= 11) {
-                          if (value.length > 8) {
-                            value = value.slice(0, 3) + "." + value.slice(3, 6) + "." + value.slice(6, 9) + "-" + value.slice(9)
-                          } else if (value.length > 5) {
-                            value = value.slice(0, 3) + "." + value.slice(3, 6) + "." + value.slice(6)
-                          } else if (value.length > 2) {
+                        // Format apenas se houver dígitos, permitindo backspace livre
+                        if (value.length > 0) {
+                          if (value.length <= 3) {
+                            // Sem formatação para 1-3 dígitos
+                          } else if (value.length <= 6) {
                             value = value.slice(0, 3) + "." + value.slice(3)
+                          } else if (value.length <= 9) {
+                            value = value.slice(0, 3) + "." + value.slice(3, 6) + "." + value.slice(6)
+                          } else {
+                            value = value.slice(0, 3) + "." + value.slice(3, 6) + "." + value.slice(6, 9) + "-" + value.slice(9, 11)
                           }
                         }
                         handleInputChange({ target: { value } } as any, "cpf")
@@ -735,11 +738,14 @@ export default function CheckoutPage() {
                       value={formData.phone}
                       onChange={(e) => {
                         let value = e.target.value.replace(/\D/g, "")
-                        if (value.length <= 11) {
-                          if (value.length > 6) {
-                            value = "(" + value.slice(0, 2) + ") " + value.slice(2, 7) + "-" + value.slice(7)
-                          } else if (value.length > 2) {
+                        // Format apenas se houver dígitos, permitindo backspace livre
+                        if (value.length > 0) {
+                          if (value.length <= 2) {
+                            // Sem formatação para 1-2 dígitos
+                          } else if (value.length <= 7) {
                             value = "(" + value.slice(0, 2) + ") " + value.slice(2)
+                          } else {
+                            value = "(" + value.slice(0, 2) + ") " + value.slice(2, 7) + "-" + value.slice(7, 11)
                           }
                         }
                         handleInputChange({ target: { value } } as any, "phone")
@@ -763,7 +769,14 @@ export default function CheckoutPage() {
                     <Input
                       placeholder="CEP"
                       value={addressData.postalCode}
-                      onChange={(e) => handleAddressChange(e, "postalCode")}
+                      onChange={(e) => {
+                        let value = e.target.value.replace(/\D/g, "")
+                        if (value.length > 5) {
+                          value = value.slice(0, 5) + "-" + value.slice(5, 8)
+                        }
+                        handleAddressChange({ target: { value } } as any, "postalCode")
+                      }}
+                      maxLength={9}
                       className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("postalCode") ? "border-red-500/80 border-2" : "border-slate-600"
                         }`}
                     />
@@ -938,6 +951,7 @@ export default function CheckoutPage() {
                   </motion.div>
                 )}
 
+                {/* Confirmação de Pagamento - Button */}
                 <Button
                     onClick={handlePayment}
                     disabled={!paymentMethod || processing}
