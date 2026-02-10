@@ -243,9 +243,138 @@ export default function QuizResultsPage() {
     router.push(`/checkout?planKey=${planKey}&planName=${encodeURIComponent(planName)}&planPrice=${planPrice}`)
   }
 
+  // === NORMALIZADORES E BUILDERS ===
+  type GoalCategory = "cut" | "bulk" | "maintain"
+
+  const normalizeStr = (v: any) =>
+    String(v ?? "")
+      .trim()
+      .toLowerCase()
+
+  const getGoalCategory = (): GoalCategory => {
+    const raw = normalizeStr(getDataValue("goal") ?? data?.goal)
+    if (raw.includes("perder-peso")) return "cut"
+    if (raw.includes("ganhar-massa")) return "bulk"
+    return "maintain"
+  }
+
+  const getBodyFatNumber = (): number => {
+    const bf = Number(data?.bodyFat ?? getDataValue("bodyFat"))
+    return Number.isFinite(bf) ? bf : 25
+  }
+
+  const getExperienceLevel = (): "beginner" | "intermediate" | "advanced" => {
+    const exp = normalizeStr(getDataValue("experience") ?? data?.experience)
+    if (exp.includes("avanç") || exp.includes("advanced")) return "advanced"
+    if (exp.includes("inter") || exp.includes("intermediate")) return "intermediate"
+    return "beginner"
+  }
+
+  const getTrainingDays = (): number => {
+    const td = Number(getDataValue("trainingDays") ?? data?.trainingDays)
+    return Number.isFinite(td) ? td : 3
+  }
+
+  const getCaloriesGoal = (): number | null => {
+    const c = Number(getDataValue("calorieGoal") ?? data?.calorieGoal)
+    if (!Number.isFinite(c)) return null
+    return Math.round(c)
+  }
+
+  const getTimeToGoal = (): string | null => {
+    const v = getDataValue("timeToGoal") ?? data?.timeToGoal
+    if (!v) return null
+    const s = String(v).trim()
+    return s.length ? s : null
+  }
+
+  const buildDynamicSummary = () => {
+    const goalCat = getGoalCategory()
+    const bf = getBodyFatNumber()
+    const level = getExperienceLevel()
+    const days = getTrainingDays()
+    const calories = getCaloriesGoal()
+    const timeToGoal = getTimeToGoal()
+
+    // 1) Headline (1 linha)
+    const headline =
+      goalCat === "bulk"
+        ? "Estratégia: ganho de massa com superávit controlado"
+        : goalCat === "cut"
+          ? "Estratégia: perda de gordura com déficit sustentável"
+          : "Estratégia: recomposição/manutenção com consistência"
+
+    // 2) Bullet 1 (BF -> direção)
+    let bulletBF: string
+    if (bf > 18) {
+      bulletBF =
+        goalCat === "bulk"
+          ? "Prioridade: controlar gordura — superávit mínimo para evitar ganho desnecessário."
+          : "Prioridade: controlar gordura — déficit moderado para preservar massa magra."
+    } else if (bf >= 12) {
+      bulletBF =
+        goalCat === "bulk"
+          ? "Equilíbrio entre performance e estética — subimos calorias sem perder definição."
+          : "Equilíbrio e constância — ajuste calórico para resultados sem radicalismo."
+    } else {
+      bulletBF =
+        goalCat === "bulk"
+          ? "Ambiente favorável para ganhar massa — podemos subir calorias com mais segurança mantendo a definição."
+          : "Boa base de definição — foco em desempenho e ajustes finos de composição corporal."
+    }
+
+    // 3) Bullet 2 (nível -> método)
+    let bulletLevel: string
+    if (level === "beginner") {
+      bulletLevel = "Treino focado em técnica + consistência — progressão simples para evoluir semana a semana."
+    } else if (level === "intermediate") {
+      bulletLevel = "Treino com progressão estruturada — volume e intensidade calibrados para continuar evoluindo sem estagnar."
+    } else {
+      bulletLevel = "Treino com estímulos precisos — distribuição de volume e recuperação otimizadas para máximo desempenho."
+    }
+
+    // 4) Bullet 3 (dias + calorias -> racional curto)
+    const daysText =
+      days >= 5 ? "com alta frequência semanal" : days >= 3 ? "com frequência semanal consistente" : "com frequência semanal reduzida"
+
+    let bulletCalories: string
+    if (calories) {
+      bulletCalories =
+        goalCat === "bulk"
+          ? `Meta calórica inicial: ~${calories} kcal/dia — para sustentar ganho de massa e recuperação (${daysText}).`
+          : goalCat === "cut"
+            ? `Meta calórica inicial: ~${calories} kcal/dia — para perder gordura mantendo desempenho (${daysText}).`
+            : `Meta calórica inicial: ~${calories} kcal/dia — para manter o peso com performance (${daysText}).`
+    } else {
+      bulletCalories =
+        goalCat === "bulk"
+          ? `Meta calórica inicial definida para sustentar ganho de massa e recuperação (${daysText}).`
+          : goalCat === "cut"
+            ? `Meta calórica inicial definida para perder gordura mantendo desempenho (${daysText}).`
+            : `Meta calórica inicial definida para manter o peso com performance (${daysText}).`
+    }
+
+    // 5) Nota "anti-golpe" (sempre)
+    const trustNote =
+      "Seu treino detalhado (exercícios, séries e progressão) e sua dieta completa (refeições, quantidades e substituições) são gerados sob demanda após a confirmação do pagamento — não usamos planos prontos."
+
+    // 6) Nota para prazo (opcional)
+    const etaNote = timeToGoal
+      ? `Projeção de prazo: ${timeToGoal}. Estimativa baseada em consistência e adesão ao plano.`
+      : null
+
+    return {
+      headline,
+      bullets: [bulletBF, bulletLevel, bulletCalories],
+      trustNote,
+      etaNote,
+    }
+  }
+
   if (loading || !data) {
     return <div />
   }
+
 
   return (
     <div className="w-full min-h-screen bg-black text-white">
@@ -490,40 +619,47 @@ export default function QuizResultsPage() {
         </div>
 
         {/* Bloco 4 - Decisões Principais */}
-        <div className="max-w-5xl mx-auto mt-12 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-8">
-          <h3 className="text-2xl font-bold text-white mb-6">Principais decisões para o seu plano</h3>
-          <div className="space-y-4 text-gray-300 leading-relaxed">
-            <p>
-              • Estratégia focada em <span className="text-lime-400 font-semibold">{getDataValue("objective") === "emagrecer" ? "déficit calórico controlado" : getDataValue("objective") === "ganhar" ? "ganho de massa com superávit controlado" : "equilíbrio energético"}</span>
-              {getDataValue("bodyFatPercentage") && (
-                <>
-                  , pois seu percentual de gordura (~{getDataValue("bodyFatPercentage")}%) {
-                    getDataValue("bodyFatPercentage") > 18 ? "requer atenção ao déficit" :
-                    getDataValue("bodyFatPercentage") < 12 ? "permite ambiente favorável para ganho" :
-                    "permite equilíbrio entre ganho e definição"
-                  }
-                </>
+        {(() => {
+          const s = buildDynamicSummary()
+          return (
+            <div className="max-w-5xl mx-auto mt-12 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-8">
+              <h3 className="text-2xl font-bold text-white mb-6">{s.headline}</h3>
+              <ul className="space-y-4 text-gray-300">
+                {s.bullets.map((bullet, idx) => (
+                  <li key={idx} className="flex gap-3">
+                    <span className="text-orange-400 font-bold flex-shrink-0">•</span>
+                    <span>{bullet}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {s.etaNote && (
+                <p className="text-gray-400 text-sm mt-6 pt-4 border-t border-slate-700/50">{s.etaNote}</p>
               )}
-            </p>
-            <p>
-              • Estrutura de treino pensada para nível <span className="text-lime-400 font-semibold">{getDataValue("trainingLevel") || "intermediário"}</span>
-              {getDataValue("trainingLevel") === "iniciante" ? ", priorizando adaptação e consistência" :
-               getDataValue("trainingLevel") === "avançado" ? ", priorizando estímulos precisos e recuperação" :
-               ", priorizando progressão estruturada"}
-            </p>
-            <p>
-              • Frequência e volume compatíveis com sua rotina informada e capacidade de recuperação
-            </p>
-          </div>
-        </div>
+
+              <p className="text-gray-400 text-sm mt-4">
+                {s.trustNote}
+              </p>
+            </div>
+          )
+        })()}
 
         {/* Bloco 5 - Metas Calculadas */}
         <div className="max-w-5xl mx-auto mt-8 grid grid-cols-2 gap-6">
           <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-6">
             <p className="text-gray-400 text-sm mb-2">Meta calórica inicial</p>
-            <p className="text-white text-2xl font-bold">~{getDataValue("calorieGoal") || "2500"} kcal</p>
+            <p className="text-white text-2xl font-bold">~{getCaloriesGoal() || "2500"} kcal</p>
             <p className="text-gray-400 text-xs mt-3">
-              Calculada para {getDataValue("objective") === "emagrecer" ? "criar déficit controlado" : getDataValue("objective") === "ganhar" ? "sustentar ganho de massa" : "manter equilíbrio"} considerando seu gasto diário e frequência de treino.
+              {(() => {
+                const goalCat = getGoalCategory()
+                const days = getTrainingDays()
+                const daysText = days >= 5 ? "alta frequência semanal" : days >= 3 ? "frequência consistente" : "frequência reduzida"
+                return goalCat === "bulk"
+                  ? `Calculada para sustentar ganho de massa e recuperação com ${daysText}.`
+                  : goalCat === "cut"
+                    ? `Calculada para perder gordura mantendo desempenho com ${daysText}.`
+                    : `Calculada para manter o peso com performance em ${daysText}.`
+              })()}
             </p>
           </div>
 
@@ -531,7 +667,7 @@ export default function QuizResultsPage() {
             <p className="text-gray-400 text-sm mb-2">IMC e Composição Corporal</p>
             <p className="text-white text-2xl font-bold">{getDataValue("bmi") || "24.0"}</p>
             <p className="text-gray-400 text-xs mt-3">
-              Interpretado em conjunto com percentual de gordura (~{getDataValue("bodyFatPercentage") || "15"}%) — não usado isoladamente para definir seu plano.
+              Interpretado em conjunto com gordura corporal (~{getBodyFatNumber()}%) — não usado isoladamente para definir seu plano.
             </p>
           </div>
         </div>
@@ -542,15 +678,11 @@ export default function QuizResultsPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-gray-400 text-sm mb-2">Estimativa para atingir seu objetivo</p>
-              <p className="text-white text-3xl font-bold text-lime-400">{getDataValue("timeToGoal") || new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}</p>
+              <p className="text-white text-3xl font-bold text-lime-400">{getTimeToGoal() || new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}</p>
             </div>
           </div>
           <p className="text-gray-400 text-sm border-t border-slate-700/50 pt-4">
-            ⚠️ Estimativa baseada em progresso consistente, adesão ao plano e 
-            {getDataValue("trainingFrequency") && ` frequência de ${getDataValue("trainingFrequency")}x por semana`}.
-            {getDataValue("timeFrame") === "curto" ? " Exige alta adesão." : 
-             getDataValue("timeFrame") === "longo" ? " Prioriza consistência." : 
-             " Ritmo sustentável."}
+            ⚠️ Estimativa baseada em consistência e adesão ao plano{getTrainingDays() >= 3 ? ` com frequência de ${getTrainingDays()}x por semana` : ""}.
           </p>
         </div>
 
