@@ -565,7 +565,7 @@ export default function CheckoutPage() {
                   className="space-y-3"
                 >
                   {/* Dynamic instruction text */}
-                  <p className="text-sm text-gray-300 mb-2">
+                  <p className="text-sm text-gray-300 mb-2 text-center">
                     {paymentMethod === "pix" && "🎯 Falta pouco para liberar seu plano personalizado!"}
                     {paymentMethod === "boleto" && "🎯 Falta pouco para liberar seu plano personalizado!"}
                     {paymentMethod === "card" && "🎯 Falta pouco para liberar seu plano personalizado!"}
@@ -794,8 +794,8 @@ export default function CheckoutPage() {
                 )}
 
                 {paymentMethod === "pix" && (
-                  <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2 text-xs text-lime-300">
-                    <Zap className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2 text-xs text-lime-300 items-center justify-center">
+                    <Zap className="w-4 h-4 flex-shrink-0" />
                     <span>Liberação automática em poucos segundos</span>
                   </div>
                 )}
