@@ -294,6 +294,7 @@ export default function QuizResultsPage() {
     const level = getExperienceLevel()
     const days = getTrainingDays()
     const calories = getCaloriesGoal()
+    const timeToGoal = getTimeToGoal()
     const timeAvailable = getTimeAvailable()
 
     // 1) Headline (1 linha)
@@ -358,12 +359,16 @@ export default function QuizResultsPage() {
     const trustNote =
       "Seu treino detalhado (exercícios, séries e progressão) e sua dieta completa (refeições, quantidades e substituições) são gerados sob demanda após a confirmação do pagamento — não usamos planos prontos."
 
-    // 6) Nota para prazo (não aplicável neste contexto)
+    // 6) Nota para prazo (opcional)
+    const etaNote = timeToGoal
+      ? `Projeção de prazo: ${timeToGoal}. Estimativa baseada em consistência e adesão ao plano.`
+      : null
 
     return {
       headline,
       bullets: [bulletBF, bulletLevel, bulletCalories],
       trustNote,
+      etaNote,
       frequencyAndTime: `Treino estruturado em ${days}x por semana${timeAvailable ? ` com ${timeAvailable} minutos disponíveis por sessão` : ""}.`,
     }
   }
@@ -603,7 +608,19 @@ export default function QuizResultsPage() {
                 <p className="text-white text-xl font-semibold">{getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))) : "—"} kcal</p>
               </div>
 
-              {/* Bloco 4 - Decisões Principais */}
+              {/* Data para atingir objetivo - Full width */}
+              <div className="col-span-2">
+                <p className="text-gray-400 text-sm mb-2">Data para atingir objetivo</p>
+                <p className="text-white text-xl font-semibold">
+                  {getDataValue("timeToGoal") || new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}
+                </p>
+                <p className="text-gray-400 text-sm mt-4 text-center">Usamos esses dados para definir volume de treino e ingestão calórica.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bloco 4 - Decisões Principais */}
         {(() => {
           const s = buildDynamicSummary()
           return (
@@ -625,6 +642,18 @@ export default function QuizResultsPage() {
         })()}
 
         {/* Bloco 6 - Prazo Estimado */}
+        <div className="max-w-5xl mx-auto mt-8 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-8">
+          <h3 className="text-2xl font-bold text-white mb-4">Projeção de prazo realista</h3>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-gray-400 text-sm mb-2">Estimativa para atingir seu objetivo</p>
+              <p className="text-white text-3xl font-bold text-lime-400">{getTimeToGoal() || new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}</p>
+            </div>
+          </div>
+          <p className="text-gray-400 text-sm border-t border-slate-700/50 pt-4">
+            ⚠️ Estimativa baseada em consistência e adesão ao plano{getTrainingDays() >= 3 ? ` com frequência de ${getTrainingDays()}x por semana` : ""}.
+          </p>
+        </div>
 
         {/* Bloco 7 - Ponte para Pagamento */}
         <div className="max-w-5xl mx-auto mt-8 bg-gradient-to-br from-lime-900/30 to-lime-900/10 border border-lime-700/50 rounded-xl p-8">
