@@ -20,8 +20,27 @@ const ASAAS_API_URL = process.env.ASAAS_ENVIRONMENT === "production"
   : "https://sandbox.asaas.com/v3"
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY
 
+// Handle CORS
+export async function OPTIONS() {
+  return NextResponse.json(
+    { message: "OK" },
+    {
+      status: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    }
+  )
+}
+
 export async function POST(req: NextRequest) {
   try {
+    console.log("[v0] ========== CHECKOUT INICIADO ==========")
+    console.log("[v0] Método HTTP:", req.method)
+    console.log("[v0] URL:", req.url)
+    
     const { paymentMethod, formData, cardData, addressData, planKey, planName, planPrice, installments, userId } = await req.json()
 
     console.log("[v0] Checkout iniciado")
