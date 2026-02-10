@@ -335,7 +335,7 @@ export default function QuizResultsPage() {
 
     // 4) Bullet 3 (dias + calorias -> racional curto)
     const daysText =
-      days >= 5 ? "com alta frequência semanal" : days >= 3 ? "com frequência semanal consistente" : "com frequência semanal reduzida"
+      days >= 5 ? `com alta frequência semanal x${days}` : days >= 3 ? `com frequência semanal consistente x${days}` : `com frequência semanal reduzida x${days}`
 
     let bulletCalories: string
     if (calories) {
