@@ -358,16 +358,10 @@ export default function QuizResultsPage() {
     const trustNote =
       "Seu treino detalhado (exercícios, séries e progressão) e sua dieta completa (refeições, quantidades e substituições) são gerados sob demanda após a confirmação do pagamento — não usamos planos prontos."
 
-    // 6) Nota para prazo (opcional)
-    const etaNote = timeToGoal
-      ? `Projeção de prazo: ${timeToGoal}. Estimativa baseada em consistência e adesão ao plano.`
-      : null
-
     return {
       headline,
       bullets: [bulletBF, bulletLevel, bulletCalories],
       trustNote,
-      etaNote,
       frequencyAndTime: `Treino estruturado em ${days}x por semana${timeAvailable ? ` com ${timeAvailable} minutos disponíveis por sessão` : ""}.`,
     }
   }
@@ -611,7 +605,7 @@ export default function QuizResultsPage() {
               <div className="col-span-2">
                 <p className="text-gray-400 text-sm mb-2">Data para atingir objetivo</p>
                 <p className="text-white text-xl font-semibold">
-                  {getDataValue("timeToGoal") || new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}
+                  {new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}
                 </p>
                 <p className="text-gray-400 text-sm mt-4 text-center">Usamos esses dados para definir volume de treino e ingestão calórica.</p>
               </div>
