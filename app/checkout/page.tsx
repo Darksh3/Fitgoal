@@ -520,13 +520,9 @@ export default function CheckoutPage() {
                   {pixData.qrCode && (
                     <div className="bg-white p-4 rounded-lg flex items-center justify-center">
                       <img 
-                        src={pixData.qrCode} 
+                        src={`data:image/png;base64,${pixData.qrCode}`}
                         alt="QR Code Pix" 
                         className="w-40 h-40 object-contain"
-                        onError={(e) => {
-                          console.log("[v0] Erro ao carregar QR Code")
-                          e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Crect fill='%23f0f0f0' width='160' height='160'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23999' text-anchor='middle' dy='.3em'%3EQR Code não disponível%3C/text%3E%3C/svg%3E"
-                        }}
                       />
                     </div>
                   )}
