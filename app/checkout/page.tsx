@@ -911,9 +911,7 @@ export default function CheckoutPage() {
               {/* Secure Payment Container - Menos densidade */}
               <div className="bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6 md:p-8 space-y-5">
 
-                {/* SUBCONTAINER — botão mais dominante */}
-                <div className="w-full max-w-md mx-auto bg-slate-900/50 border border-slate-600/80 rounded-xl p-5 flex justify-center shadow-lg">
-                  {/* PIX Payment Display - Inline above button */}
+                {/* PIX Payment Display - Inline */}
                 {paymentMethod === "pix" && pixData && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
@@ -950,6 +948,9 @@ export default function CheckoutPage() {
                     </Button>
                   </motion.div>
                 )}
+
+                {/* SUBCONTAINER — botão mais dominante */}
+                <div className="w-full max-w-md mx-auto bg-slate-900/50 border border-slate-600/80 rounded-xl p-5 flex flex-col justify-center shadow-lg">
 
                 {/* Confirmação de Pagamento - Button */}
                 <Button
