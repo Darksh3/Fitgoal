@@ -632,45 +632,9 @@ export default function QuizResultsPage() {
                   </li>
                 ))}
               </ul>
-
-              {s.etaNote && (
-                <p className="text-gray-400 text-sm mt-6 pt-4 border-t border-slate-700/50">{s.etaNote}</p>
-              )}
-
-              <p className="text-gray-400 text-sm mt-4">
-                {s.trustNote}
-              </p>
             </div>
           )
         })()}
-
-        {/* Bloco 5 - Metas Calculadas */}
-        <div className="max-w-5xl mx-auto mt-8 grid grid-cols-2 gap-6">
-          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-6">
-            <p className="text-gray-400 text-sm mb-2">Meta calórica inicial</p>
-            <p className="text-white text-2xl font-bold">~{getCaloriesGoal() || "2500"} kcal</p>
-            <p className="text-gray-400 text-xs mt-3">
-              {(() => {
-                const goalCat = getGoalCategory()
-                const days = getTrainingDays()
-                const daysText = days >= 5 ? "alta frequência semanal" : days >= 3 ? "frequência consistente" : "frequência reduzida"
-                return goalCat === "bulk"
-                  ? `Calculada para sustentar ganho de massa e recuperação com ${daysText}.`
-                  : goalCat === "cut"
-                    ? `Calculada para perder gordura mantendo desempenho com ${daysText}.`
-                    : `Calculada para manter o peso com performance em ${daysText}.`
-              })()}
-            </p>
-          </div>
-
-          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-6">
-            <p className="text-gray-400 text-sm mb-2">IMC e Composição Corporal</p>
-            <p className="text-white text-2xl font-bold">{getDataValue("bmi") || "24.0"}</p>
-            <p className="text-gray-400 text-xs mt-3">
-              Interpretado em conjunto com gordura corporal (~{getBodyFatNumber()}%) — não usado isoladamente para definir seu plano.
-            </p>
-          </div>
-        </div>
 
         {/* Bloco 6 - Prazo Estimado */}
         <div className="max-w-5xl mx-auto mt-8 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-8">
