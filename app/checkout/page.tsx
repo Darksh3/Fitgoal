@@ -187,6 +187,8 @@ export default function CheckoutPage() {
       if (!cardData.expiryMonth || !cardData.expiryYear) return "cardExpiry"
       if (!cardData.ccv) return "cardCcv"
       if (!cardData.holderName) return "cardHolder"
+      if (!addressData.postalCode) return "postalCode"
+      if (!addressData.addressNumber) return "addressNumber"
     }
 
     if (paymentMethod === "boleto") {
@@ -884,6 +886,24 @@ export default function CheckoutPage() {
                     className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardHolder") ? "border-red-500/80 border-2" : "border-slate-600"
                       }`}
                   />
+                  
+                  {/* Address Fields for Card */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      placeholder="CEP"
+                      value={addressData.postalCode}
+                      onChange={(e) => setAddressData({ ...addressData, postalCode: e.target.value.replace(/\D/g, "").slice(0, 8) })}
+                      maxLength={8}
+                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("postalCode") ? "border-red-500/80 border-2" : "border-slate-600"}`}
+                    />
+                    <Input
+                      placeholder="Número da Residência"
+                      value={addressData.addressNumber}
+                      onChange={(e) => setAddressData({ ...addressData, addressNumber: e.target.value })}
+                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("addressNumber") ? "border-red-500/80 border-2" : "border-slate-600"}`}
+                    />
+                  </div>
+
                   <select
                     value={installments}
                     onChange={(e) => setInstallments(parseInt(e.target.value))}
