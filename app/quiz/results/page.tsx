@@ -282,7 +282,7 @@ export default function QuizResultsPage() {
   }
 
   const getTimeAvailable = (): string | null => {
-    const v = getDataValue("timeAvailable") ?? data?.timeAvailable
+    const v = getDataValue("workoutTime") ?? data?.workoutTime
     if (!v) return null
     const s = String(v).trim()
     return s.length ? s : null
