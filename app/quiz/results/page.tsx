@@ -294,7 +294,6 @@ export default function QuizResultsPage() {
     const level = getExperienceLevel()
     const days = getTrainingDays()
     const calories = getCaloriesGoal()
-    const timeToGoal = getTimeToGoal()
     const timeAvailable = getTimeAvailable()
 
     // 1) Headline (1 linha)
@@ -642,19 +641,6 @@ export default function QuizResultsPage() {
         })()}
 
         {/* Bloco 6 - Prazo Estimado */}
-        <div className="max-w-5xl mx-auto mt-8 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-8">
-          <h3 className="text-2xl font-bold text-white mb-4">Projeção de prazo realista</h3>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-gray-400 text-sm mb-2">Estimativa para atingir seu objetivo</p>
-              <p className="text-white text-3xl font-bold text-lime-400">{getTimeToGoal() || new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}</p>
-            </div>
-          </div>
-          <p className="text-gray-400 text-sm border-t border-slate-700/50 pt-4">
-            ⚠️ Estimativa baseada em consistência e adesão ao plano{getTrainingDays() >= 3 ? ` com frequência de ${getTrainingDays()}x por semana` : ""}.
-          </p>
-        </div>
-
         {/* Bloco 7 - Ponte para Pagamento */}
         <div className="max-w-5xl mx-auto mt-8 bg-gradient-to-br from-lime-900/30 to-lime-900/10 border border-lime-700/50 rounded-xl p-8">
           <h3 className="text-2xl font-bold text-lime-400 mb-4">O que acontece agora</h3>
