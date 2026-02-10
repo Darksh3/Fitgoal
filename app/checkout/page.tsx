@@ -87,6 +87,7 @@ export default function CheckoutPage() {
   const [installments, setInstallments] = useState(1)
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
+  const [cardPaymentId, setCardPaymentId] = useState<string | null>(null)
 
   // Plan info
   const getPlanName = (plan: string) => {
@@ -136,19 +137,34 @@ export default function CheckoutPage() {
 
   // Real-time payment listener
   useEffect(() => {
-    if (!success && user) {
-      const paymentRef = doc(db, "payments", user.uid)
-      const unsubscribe = onSnapshot(paymentRef, (doc) => {
-        if (doc.exists()) {
-          const data = doc.data()
-          if (data.status === "approved") {
-            setSuccess(true)
-          }
-        }
-      })
-      return () => unsubscribe()
-    }
-  }, [user, success])
+    // For PIX and Card - listen to specific payment ID
+    const currentPaymentId = pixData?.paymentId || cardPaymentId
+    const method = pixData?.paymentId ? "pix" : cardPaymentId ? "card" : null
+
+    if (!currentPaymentId || !method) return
+
+    console.log("[v0] PAYMENT_LISTENER_SETUP - Configurando listener para:", { currentPaymentId, method })
+
+    const paymentRef = doc(db, "payments", currentPaymentId)
+    const unsubscribe = onSnapshot(paymentRef, (snapshot) => {
+      if (!snapshot.exists()) {
+        console.log("[v0] PAYMENT_LISTENER - Documento de pagamento não existe ainda")
+        return
+      }
+
+      const paymentData = snapshot.data()
+      console.log("[v0] PAYMENT_LISTENER - Status do pagamento:", paymentData?.status, "para:", currentPaymentId)
+
+      // Se pagamento foi confirmado pelo webhook da Asaas
+      if (paymentData?.status === "RECEIVED" || paymentData?.status === "CONFIRMED") {
+        console.log("[v0] PAYMENT_CONFIRMED - Pagamento confirmado! Acionando feedback visual")
+        setSuccess(true)
+        unsubscribe()
+      }
+    })
+
+    return () => unsubscribe()
+  }, [pixData?.paymentId, cardPaymentId])
 
   // Countdown redirect
   useEffect(() => {
@@ -187,6 +203,8 @@ export default function CheckoutPage() {
       if (!cardData.expiryMonth || !cardData.expiryYear) return "cardExpiry"
       if (!cardData.ccv) return "cardCcv"
       if (!cardData.holderName) return "cardHolder"
+      if (!addressData.postalCode) return "postalCode"
+      if (!addressData.addressNumber) return "addressNumber"
     }
 
     if (paymentMethod === "boleto") {
@@ -414,17 +432,17 @@ export default function CheckoutPage() {
         try {
           await setDoc(doc(db, "payments", paymentResult.paymentId), {
             paymentId: paymentResult.paymentId,
-            userId: user?.uid,
+            userId: user?.uid || "anonymous",
             status: "PENDING",
             billingType: "CARD",
             createdAt: new Date(),
           })
-          console.log("[v0] Cartão salvo no Firestore")
+          console.log("[v0] Cartão salvo no Firestore com paymentId:", paymentResult.paymentId)
+          setCardPaymentId(paymentResult.paymentId)
         } catch (err) {
           console.error("[v0] Erro ao salvar cartão:", err)
         }
 
-        setSuccess(true)
         setProcessing(false)
         return
       }
@@ -470,86 +488,6 @@ export default function CheckoutPage() {
             />
           </div>
         </motion.div>
-      </div>
-    )
-  }
-
-  // PIX screen
-  if (pixData) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 p-4">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <Link href="/quiz" className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 mb-6">
-              <ArrowLeft className="w-4 h-4" />
-              Voltar
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Order Summary */}
-            <div className="lg:col-span-2">
-              <Card className="bg-slate-800/40 backdrop-blur border-slate-700/50">
-                <CardContent className="p-8">
-                  <h2 className="text-2xl font-bold text-white mb-6">Resumo do Pedido</h2>
-                  <div className="space-y-4">
-                    <div className="flex justify-between pb-4 border-b border-slate-700">
-                      <span className="text-gray-400">{planName}</span>
-                      <span className="text-white font-semibold">{formatCurrency(parseFloat(planPrice))}</span>
-                    </div>
-                    <div className="flex justify-between pt-4">
-                      <span className="text-white font-semibold">Total</span>
-                      <span className="text-lime-400 font-bold text-lg">{formatCurrency(parseFloat(planPrice))}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Right Column - PIX QR Code */}
-            <div>
-              <Card className="bg-slate-800/40 backdrop-blur border-slate-700/50 sticky top-4">
-                <CardContent className="p-8 space-y-6">
-                  <div className="text-center">
-                    <QrCode className="w-12 h-12 text-lime-500 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold text-white mb-2">Pagar com Pix</h2>
-                    <p className="text-gray-400 text-sm">Escaneie o código QR com seu smartphone</p>
-                  </div>
-
-                  {pixData.qrCode && (
-                    <div className="bg-white p-4 rounded-lg flex items-center justify-center">
-                      <img 
-                        src={`data:image/png;base64,${pixData.qrCode}`}
-                        alt="QR Code Pix" 
-                        className="w-40 h-40 object-contain"
-                      />
-                    </div>
-                  )}
-
-                  <div className="bg-slate-700/30 p-3 rounded-lg">
-                    <p className="text-xs text-gray-400 mb-2">Código Pix (copia e cola):</p>
-                    <code className="text-white font-mono text-xs break-all block max-h-20 overflow-y-auto">{pixData.copyPaste}</code>
-                  </div>
-
-                  <Button
-                    onClick={() => navigator.clipboard.writeText(pixData.copyPaste)}
-                    className="w-full bg-lime-500 hover:bg-lime-600 text-black font-bold"
-                  >
-                    Copiar Código Pix
-                  </Button>
-
-                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
-                    <p className="text-xs text-blue-300 flex items-start gap-2">
-                      <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                      <span>O pagamento será confirmado automaticamente quando realizado</span>
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
       </div>
     )
   }
@@ -884,6 +822,24 @@ export default function CheckoutPage() {
                     className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardHolder") ? "border-red-500/80 border-2" : "border-slate-600"
                       }`}
                   />
+                  
+                  {/* Address Fields for Card */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      placeholder="CEP"
+                      value={addressData.postalCode}
+                      onChange={(e) => setAddressData({ ...addressData, postalCode: e.target.value.replace(/\D/g, "").slice(0, 8) })}
+                      maxLength={8}
+                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("postalCode") ? "border-red-500/80 border-2" : "border-slate-600"}`}
+                    />
+                    <Input
+                      placeholder="Número da Residência"
+                      value={addressData.addressNumber}
+                      onChange={(e) => setAddressData({ ...addressData, addressNumber: e.target.value })}
+                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("addressNumber") ? "border-red-500/80 border-2" : "border-slate-600"}`}
+                    />
+                  </div>
+
                   <select
                     value={installments}
                     onChange={(e) => setInstallments(parseInt(e.target.value))}
@@ -944,7 +900,45 @@ export default function CheckoutPage() {
 
                 {/* SUBCONTAINER — botão mais dominante */}
                 <div className="w-full max-w-md mx-auto bg-slate-900/50 border border-slate-600/80 rounded-xl p-5 flex justify-center shadow-lg">
-                  <Button
+                  {/* PIX Payment Display - Inline above button */}
+                {paymentMethod === "pix" && pixData && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6 space-y-4"
+                  >
+                    <div className="text-center mb-4">
+                      <QrCode className="w-10 h-10 text-lime-500 mx-auto mb-3" />
+                      <h3 className="text-lg font-bold text-white">Código QR Pix Gerado</h3>
+                      <p className="text-sm text-gray-400 mt-1">Escaneie com seu smartphone ou copie o código</p>
+                    </div>
+
+                    {pixData.qrCode && (
+                      <div className="bg-white p-4 rounded-lg flex items-center justify-center mx-auto w-fit">
+                        <img 
+                          src={`data:image/png;base64,${pixData.qrCode}`}
+                          alt="QR Code Pix" 
+                          className="w-48 h-48 object-contain"
+                        />
+                      </div>
+                    )}
+
+                    <div className="bg-slate-700/30 p-4 rounded-lg">
+                      <p className="text-xs text-gray-400 mb-2">Código Pix (copia e cola):</p>
+                      <code className="text-white font-mono text-xs break-all block max-h-24 overflow-y-auto bg-slate-800/50 p-2 rounded">{pixData.copyPaste}</code>
+                    </div>
+
+                    <Button
+                      onClick={() => navigator.clipboard.writeText(pixData.copyPaste)}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm"
+                    >
+                      Copiar Código Pix
+                    </Button>
+                  </motion.div>
+                )}
+
+                <Button
                     onClick={handlePayment}
                     disabled={!paymentMethod || processing}
                     className="w-full bg-lime-500 hover:bg-lime-600 hover:shadow-[0_0_20px_rgba(132,204,22,0.5)] disabled:bg-gray-500 disabled:cursor-not-allowed text-black font-bold py-7 text-base rounded-lg shadow-lg transition-all uppercase tracking-wide"
