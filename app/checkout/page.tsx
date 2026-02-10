@@ -87,6 +87,7 @@ export default function CheckoutPage() {
   const [installments, setInstallments] = useState(1)
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
+  const [cardPaymentId, setCardPaymentId] = useState<string | null>(null)
 
   // Plan info
   const getPlanName = (plan: string) => {
@@ -136,19 +137,34 @@ export default function CheckoutPage() {
 
   // Real-time payment listener
   useEffect(() => {
-    if (!success && user) {
-      const paymentRef = doc(db, "payments", user.uid)
-      const unsubscribe = onSnapshot(paymentRef, (doc) => {
-        if (doc.exists()) {
-          const data = doc.data()
-          if (data.status === "approved") {
-            setSuccess(true)
-          }
-        }
-      })
-      return () => unsubscribe()
-    }
-  }, [user, success])
+    // For PIX and Card - listen to specific payment ID
+    const currentPaymentId = pixData?.paymentId || cardPaymentId
+    const method = pixData?.paymentId ? "pix" : cardPaymentId ? "card" : null
+
+    if (!currentPaymentId || !method) return
+
+    console.log("[v0] PAYMENT_LISTENER_SETUP - Configurando listener para:", { currentPaymentId, method })
+
+    const paymentRef = doc(db, "payments", currentPaymentId)
+    const unsubscribe = onSnapshot(paymentRef, (snapshot) => {
+      if (!snapshot.exists()) {
+        console.log("[v0] PAYMENT_LISTENER - Documento de pagamento não existe ainda")
+        return
+      }
+
+      const paymentData = snapshot.data()
+      console.log("[v0] PAYMENT_LISTENER - Status do pagamento:", paymentData?.status, "para:", currentPaymentId)
+
+      // Se pagamento foi confirmado pelo webhook da Asaas
+      if (paymentData?.status === "RECEIVED" || paymentData?.status === "CONFIRMED") {
+        console.log("[v0] PAYMENT_CONFIRMED - Pagamento confirmado! Acionando feedback visual")
+        setSuccess(true)
+        unsubscribe()
+      }
+    })
+
+    return () => unsubscribe()
+  }, [pixData?.paymentId, cardPaymentId])
 
   // Countdown redirect
   useEffect(() => {
@@ -416,17 +432,17 @@ export default function CheckoutPage() {
         try {
           await setDoc(doc(db, "payments", paymentResult.paymentId), {
             paymentId: paymentResult.paymentId,
-            userId: user?.uid,
+            userId: user?.uid || "anonymous",
             status: "PENDING",
             billingType: "CARD",
             createdAt: new Date(),
           })
-          console.log("[v0] Cartão salvo no Firestore")
+          console.log("[v0] Cartão salvo no Firestore com paymentId:", paymentResult.paymentId)
+          setCardPaymentId(paymentResult.paymentId)
         } catch (err) {
           console.error("[v0] Erro ao salvar cartão:", err)
         }
 
-        setSuccess(true)
         setProcessing(false)
         return
       }
