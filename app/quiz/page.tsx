@@ -1650,8 +1650,7 @@ export default function QuizPage() {
 
     return (
       <div
-        className="min-h-screen flex flex-col items-center justify-between p-6 relative"
-        style={{ backgroundColor: '#0d0d0d' }}
+        className="min-h-screen bg-gray-900 flex flex-col items-center justify-between p-6 relative"
       >
         {/* Main Content */}
         <div className="flex-1 flex flex-col items-center justify-center w-full max-w-lg">
