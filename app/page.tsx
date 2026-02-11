@@ -784,7 +784,7 @@ export default function Home() {
           {/* Depoimentos fixos - sempre visíveis */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             {fixedTestimonials.map((testimonial) => (
-              <Card key={testimonial.id} className="bg-slate-800/50 border-slate-700 p-6">
+                <Card key={testimonial.id} className="bg-white/5 border border-white/10 p-6">
                 <CardContent className="p-0">
                   <div className="flex items-center mb-4">
                     {[...Array(5)].map((_, i) => (
@@ -830,7 +830,7 @@ export default function Home() {
           {showAllTestimonials && (
             <div className="grid md:grid-cols-3 gap-6 mt-8">
               {additionalTestimonials.map((testimonial) => (
-                <Card key={testimonial.id} className="bg-slate-800/50 border-slate-700 p-6">
+              <Card key={testimonial.id} className="bg-white/5 border border-white/10 p-6">
                   <CardContent className="p-0">
                     <div className="flex items-center mb-4">
                       {[...Array(5)].map((_, i) => (
