@@ -2145,17 +2145,16 @@ export default function QuizPage() {
             if (quizData.bodyFat <= 30) return "26-30%"
             if (quizData.bodyFat <= 35) return "31-35%"
             if (quizData.bodyFat <= 39) return "36-39%"
-            return "{" > "}40%"
-            { "}" }
+            return ">40%"
 
-            const canProceed = () = { ">"} {
+            const canProceed = () => {
               switch (currentStep) {
       case 1:
                 return quizData.gender !== ""
       case 2:
                 return quizData.bodyType !== ""
       case 3:
-                return quizData.goal.length { ">" } 0
+                return quizData.goal.length > 0
       case 4:
                 return quizData.weightChangeType !== ""
       // </CHANGE>
