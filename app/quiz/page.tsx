@@ -1624,173 +1624,228 @@ export default function QuizPage() {
   }
 
   if (showTimeCalculation) {
-    const current = Number.parseFloat(quizData.weight)
-    const target = Number.parseFloat(quizData.targetWeight)
-    const isGaining = target > current
-
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 relative overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 bg-lime-400/40 rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                bottom: "-10px",
-                animation: `floatUp ${8 + Math.random() * 8}s linear infinite`,
-                animationDelay: `${Math.random() * 5}s`,
-                opacity: Math.random() * 0.5 + 0.3,
-              }}
-            />
-          ))}
-        </div>
+    <><div
+        className="min-h-screen flex flex-col items-center justify-between p-6 relative"
+        style={{ backgroundColor: '#0d0d0d' }}
+        data-testid="weight-chart-container"
+      >
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col items-center justify-center w-full max-w-lg">
+          {/* Title */}
+          <h1
+            className="text-3xl md:text-4xl font-bold text-center leading-tight mb-4"
+            style={{
+              color: '#e8dcc8',
+              fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
+              letterSpacing: '-0.02em',
+              fontStyle: 'italic'
+            }}
+            data-testid="main-title"
+          >
+            The last plan you'll ever<br />
+            need to get in shape
+          </h1>
 
-        <div className="text-center space-y-4 max-w-2xl relative z-10">
-          <h2 className="text-xl md:text-3xl font-bold leading-tight">
-            O último plano de que você precisará para <span className="text-lime-400">finalmente entrar em forma</span>
-          </h2>
-
-          <p className="text-gray-300 text-sm md:text-base">
-            Com base em nossos cálculos, você atingirá seu peso ideal de {target} kg até
+          {/* Prediction Text */}
+          <p
+            className="text-lg md:text-xl text-center mb-8"
+            style={{ color: '#a8a090' }}
+            data-testid="prediction-text"
+          >
+            We predict you'll be<br />
+            <span className="font-bold" style={{ color: '#e8dcc8' }}>{target} kg</span> by <span className="font-bold" style={{ color: '#e8dcc8' }}>{quizData.timeToGoal}</span>*
           </p>
 
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-lime-400/20 blur-3xl rounded-full" />
-            <div className="relative text-2xl md:text-4xl font-bold text-lime-400">{quizData.timeToGoal}</div>
-          </div>
-
-          <div className="relative w-full max-w-md mx-auto">
-            <div
-              className={`relative rounded-xl p-4 border border-lime-500/30 bg-[#0B0F10] shadow-[0_0_20px_rgba(132,204,22,0.15)]`}
-            >
-              {/* Weight labels */}
+          {/* Chart Container with Y-axis labels */}
+          <div
+            className="w-full relative rounded-2xl"
+            style={{
+              backgroundColor: '#131619',
+              border: '1px solid rgba(40, 45, 50, 0.6)',
+              padding: '24px 16px 16px 16px'
+            }}
+            data-testid="chart-container"
+          >
+            <div className="flex">
+              {/* Y-axis labels column */}
               <div
-                className={`absolute ${isGaining ? "bottom-4 left-4" : "top-4 left-4"} bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm font-medium z-20`}
+                className="flex flex-col justify-between pr-2"
+                style={{
+                  height: '210px',
+                  fontSize: '12px',
+                  color: '#6b7280',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
+                }}
               >
-                {current} kg
-              </div>
-              <div
-                className={`absolute ${isGaining ? "top-4 right-4" : "bottom-4 right-4"} bg-lime-500 px-3 py-1.5 rounded-lg text-sm font-bold z-20`}
-              >
-                {target} kg
-              </div>
-
-              <svg viewBox="0 0 300 200" className="w-full h-auto relative z-10">
-                <defs>
-                  <filter id="limeGlow">
-                    <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#84cc16" />
-                  </filter>
-                  <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#f97316" />
-                    <stop offset="100%" stopColor="#84CC16" />
-                  </linearGradient>
-                </defs>
-
-                {/* Animated line - slowed down to 2.5s */}
-                <polyline
-                  stroke="url(#progressGradient)"
-                  strokeWidth="4"
-                  fill="none"
-                  filter="url(#limeGlow)"
-                  strokeDasharray="450"
-                  strokeDashoffset="450"
-                  style={{
-                    animation: "madDraw 2.5s ease forwards",
-                  }}
-                  points={
-                    isGaining
-                      ? "10,150 70,140 130,120 180,100 230,75 280,55"
-                      : "10,55 70,75 130,100 180,120 230,140 280,150"
-                  }
-                />
-
-                {/* Fixed points - no animation */}
-                {(isGaining
-                  ? [
-                    [70, 140],
-                    [130, 120],
-                    [180, 100],
-                    [230, 75],
-                    [280, 55],
-                  ]
-                  : [
-                    [70, 75],
-                    [130, 100],
-                    [180, 120],
-                    [230, 140],
-                    [280, 150],
-                  ]
-                ).map(([cx, cy], i) => (
-                  <circle key={i} cx={cx} cy={cy} r="6" fill="#84cc16" filter="url(#limeGlow)" />
+                {yLabels.map((label, i) => (
+                  <span key={i} className="text-right" style={{ minWidth: '32px' }}>
+                    {label}
+                  </span>
                 ))}
-              </svg>
-
-              {/* Side bars */}
-              <div className="absolute left-0 top-5 bottom-5 w-[4px] bg-lime-500/15 rounded-full overflow-hidden">
-                <div
-                  className="bg-lime-500 w-full rounded-full"
-                  style={{
-                    animation: "madBar 1.3s cubic-bezier(.3,.8,.4,1) forwards",
-                  }}
-                />
               </div>
-              <div className="absolute right-0 top-5 bottom-5 w-[4px] bg-lime-500/15 rounded-full overflow-hidden">
+
+              {/* SVG Chart area */}
+              <div className="flex-1 relative">
+                <svg
+                  viewBox="0 -15 430 250"
+                  className="w-full"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={{ height: '210px', overflow: 'visible' }}
+                >
+                  <defs>
+                    {/* Gradiente da linha - laranja -> amarelo -> verde -> ciano */}
+                    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#f97316" />
+                      <stop offset="20%" stopColor="#fb923c" />
+                      <stop offset="35%" stopColor="#fbbf24" />
+                      <stop offset="50%" stopColor="#a3e635" />
+                      <stop offset="70%" stopColor="#4ade80" />
+                      <stop offset="85%" stopColor="#2dd4bf" />
+                      <stop offset="100%" stopColor="#22d3ee" />
+                    </linearGradient>
+
+                    {/* Glow effect suave */}
+                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+                      <feMerge>
+                        <feMergeNode in="coloredBlur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  </defs>
+
+                  {/* Grid horizontal lines - linhas sutis */}
+                  {[0, 33, 66, 99, 132, 165, 198].map((y, i) => (
+                    <line
+                      key={i}
+                      x1="0"
+                      y1={y}
+                      x2="415"
+                      y2={y}
+                      stroke="rgba(50, 55, 60, 0.4)"
+                      strokeWidth="1" />
+                  ))}
+
+                  {/* Chart Line with gradient */}
+                  <path
+                    d={generateSmoothPath()}
+                    fill="none"
+                    stroke="url(#lineGradient)"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    filter="url(#glow)"
+                    style={{
+                      strokeDasharray: 700,
+                      strokeDashoffset: animationProgress === 1 ? 0 : 700,
+                      transition: 'stroke-dashoffset 2.5s ease-out'
+                    }} />
+
+                  {/* End point - white circle with cyan glow */}
+                  <circle
+                    cx="410"
+                    cy={isGaining ? -2 : 200}
+                    r="9"
+                    fill="#ffffff"
+                    style={{
+                      opacity: animationProgress === 1 ? 1 : 0,
+                      transition: 'opacity 0.5s ease-out 2s',
+                      filter: 'drop-shadow(0 0 8px rgba(34, 211, 238, 0.7))'
+                    }} />
+
+                  {/* Goal Tooltip */}
+                  <g
+                    style={{
+                      opacity: animationProgress === 1 ? 1 : 0,
+                      transition: 'opacity 0.5s ease-out 2s'
+                    }}
+                  >
+                    {/* Tooltip background com bordas arredondadas */}
+                    <rect
+                      x="325"
+                      y={isGaining ? 20 : 120}
+                      width="75"
+                      height="60"
+                      rx="10"
+                      ry="10"
+                      fill="#323538" />
+                    {/* Tooltip arrow pointing up/down */}
+                    <polygon
+                      points={isGaining ? "355,20 365,7 375,20" : "355,180 365,193 375,180"}
+                      fill="#323538" />
+                    {/* Tooltip text - Goal */}
+                    <text
+                      x="362"
+                      y={isGaining ? 45 : 148}
+                      fill="#b0b0b0"
+                      fontSize="14"
+                      fontWeight="500"
+                      textAnchor="middle"
+                      fontFamily="-apple-system, BlinkMacSystemFont, sans-serif"
+                    >Goal</text>
+                    {/* Tooltip text - Weight value */}
+                    <text
+                      x="362"
+                      y={isGaining ? 67 : 168}
+                      fill="#ffffff"
+                      fontSize="16"
+                      fontWeight="bold"
+                      textAnchor="middle"
+                      fontFamily="-apple-system, BlinkMacSystemFont, sans-serif"
+                      dangerouslySetInnerHTML={{ __html: goalText }} />
+                  </g>
+                </svg>
+
+                {/* X-axis labels */}
                 <div
-                  className="bg-lime-500 w-full rounded-full"
+                  className="flex justify-between mt-2 px-1"
                   style={{
-                    animation: "madBar 1.3s cubic-bezier(.3,.8,.4,1) forwards",
-                    animationDelay: ".2s",
+                    fontSize: '12px',
+                    color: '#6b7280',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
                   }}
-                />
+                >
+                  <span>Mar</span>
+                  <span>Jun</span>
+                  <span>Sep</span>
+                  <span>Dec</span>
+                  <span className="text-center leading-tight">
+                    Mar<br />2027
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-between text-xs md:text-sm text-gray-400">
-            <span>{getCurrentDate()}</span>
-            <span>{quizData.timeToGoal}</span>
-          </div>
-
-          <button
-            onClick={() => {
-              setShowTimeCalculation(false)
-              setCurrentStep(currentStep + 1)
-            }}
-            className="w-full h-16 bg-white text-black text-xl font-bold rounded-full shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          {/* Disclaimer */}
+          <p
+            className="text-xs text-center mt-6 px-4 leading-relaxed"
+            style={{ color: '#6b7280' }}
+            data-testid="disclaimer-text"
           >
-            Entendi
-          </button>
+            *Based on the data of users who log their progress in the app.<br />
+            Consult your physician first. The chart is a non-<br />
+            customized illustration and results may vary
+          </p>
+        </div>
 
-          <style>{`
-            @keyframes madDraw {
-              to { stroke-dashoffset: 0; }
-            }
-            @keyframes madBar {
-              from { height: 0%; }
-              to { height: 100%; }
-            }
-            @keyframes floatUp {
-              0% {
-                transform: translateY(0) translateX(0);
-                opacity: 0;
-              }
-              10% {
-                opacity: 1;
-              }
-              90% {
-                opacity: 1;
-              }
-              100% {
-                transform: translateY(-100vh) translateX(${Math.random() * 40 - 20}px);
-                opacity: 0;
-              }
-            }
-          `}</style>
+        {/* Continue Button */}
+        <div className="w-full max-w-lg mt-8">
+          <button
+            className="w-full py-5 text-xl font-bold rounded-full transition-all duration-200 hover:opacity-90"
+            style={{
+              backgroundColor: '#f5f0e8',
+              color: '#0d0d0d'
+            }}
+            data-testid="continue-button"
+          >
+            CONTINUE
+          </button>
         </div>
       </div>
-    )
-  }
+    );
+  {"}"}
 
   if (showSuccess) {
     return (
@@ -1818,7 +1873,7 @@ export default function QuizPage() {
         </div>
       </div>
     )
-  }
+  {"}"}
 
   if (showNutritionInfo) {
     return (
@@ -1932,7 +1987,7 @@ export default function QuizPage() {
         </div>
       </div>
     )
-  }
+  {"}"}
 
   if (showWaterCongrats) {
     return (
@@ -2023,9 +2078,9 @@ export default function QuizPage() {
         </div>
       </div>
     )
-  }
+  {"}"}
 
-  const getBodyFatImage = () => {
+  const getBodyFatImage = () ={">"} {
     const isMale = quizData.gender === "homem"
 
     if (isMale) {
@@ -2038,7 +2093,7 @@ export default function QuizPage() {
       if (quizData.bodyFat <= 35) return "/images/msix.webp"
       if (quizData.bodyFat <= 39) return "/images/mseven.webp"
       return "/images/meight.webp"
-    } else {
+    {"}"} else {
       // Female images: bodyfat-one.webp to bodyfat-eight.webp
       const imagePath =
         quizData.bodyFat <= 10
@@ -2058,10 +2113,10 @@ export default function QuizPage() {
                       : "/images/bodyfat-eight.webp"
 
       return imagePath
-    }
-  }
+    {"}"}
+  {"}"}
 
-  const getBodyFatRange = () => {
+  const getBodyFatRange = () ={">"} {
     if (quizData.bodyFat <= 10) return "5-10%"
     if (quizData.bodyFat <= 15) return "11-15%"
     if (quizData.bodyFat <= 20) return "16-20%"
@@ -2069,17 +2124,17 @@ export default function QuizPage() {
     if (quizData.bodyFat <= 30) return "26-30%"
     if (quizData.bodyFat <= 35) return "31-35%"
     if (quizData.bodyFat <= 39) return "36-39%"
-    return ">40%"
-  }
+    return "{">"}40%"
+  {"}"}
 
-  const canProceed = () => {
+  const canProceed = () ={">"} {
     switch (currentStep) {
       case 1:
         return quizData.gender !== ""
       case 2:
         return quizData.bodyType !== ""
       case 3:
-        return quizData.goal.length > 0
+        return quizData.goal.length {">"} 0
       case 4:
         return quizData.weightChangeType !== ""
       // </CHANGE>
@@ -2164,7 +2219,7 @@ export default function QuizPage() {
               <p className="text-base sm:text-lg text-gray-300 leading-relaxed">
                 As próximas perguntas servem para evitar erros comuns como:
               </p>
-              
+
               <div className="space-y-3 text-left max-w-lg mx-auto">
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-6 h-6 text-lime-400 flex-shrink-0" />
@@ -4385,7 +4440,7 @@ export default function QuizPage() {
             />
           </div>
         )}
-        
+
         {/* Micro Feedback Modal */}
         {microFeedback && (
           <div className="min-h-[70vh] flex flex-col items-center justify-center mb-8">
@@ -4419,7 +4474,7 @@ export default function QuizPage() {
             </div>
           </div>
         )}
-        
+
         <div className="mb-8">{!microFeedback && renderStep()}</div>
         {/* Adjust the condition to include steps that don't need a manual next button */}
         {!showMotivationMessage &&
