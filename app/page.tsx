@@ -516,7 +516,7 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="bg-gray-800 border-gray-700 p-8 text-center">
+            <Card className="bg-white/5 border border-white/10 p-8 text-center">
               <CardContent className="p-0">
                 <div className="bg-lime-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                   <User className="h-8 w-8" />
@@ -529,7 +529,7 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-800 border-gray-700 p-8 text-center">
+            <Card className="bg-white/5 border border-white/10 p-8 text-center">
               <CardContent className="p-0">
                 <div className="bg-lime-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Zap className="h-8 w-8" />
@@ -542,7 +542,7 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-800 border-gray-700 p-8 text-center">
+            <Card className="bg-white/5 border border-white/10 p-8 text-center">
               <CardContent className="p-0">
                 <div className="bg-lime-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Target className="h-8 w-8" />
