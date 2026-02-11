@@ -1665,8 +1665,8 @@ export default function QuizPage() {
               fontStyle: 'italic'
             }}
           >
-            The last plan you'll ever<br />
-            need to get in shape
+            O último plano que você precisará para<br />
+            finalmente entrar em forma
           </h1>
 
           {/* Prediction Text */}
@@ -1674,8 +1674,8 @@ export default function QuizPage() {
             className="text-lg md:text-xl text-center mb-8"
             style={{ color: '#a8a090' }}
           >
-            We predict you'll be<br />
-            <span className="font-bold" style={{ color: '#e8dcc8' }}>{target} kg</span> by <span className="font-bold" style={{ color: '#e8dcc8' }}>{quizData.timeToGoal}</span>*
+            Com base em nossos cálculos, você atingirá o seu peso ideal de<br />
+            <span className="font-bold" style={{ color: '#e8dcc8' }}>{target} kg</span> até <span className="font-bold" style={{ color: '#e8dcc8' }}>{quizData.timeToGoal}</span>*
           </p>
 
           {/* Chart Container with Y-axis labels */}
@@ -1840,9 +1840,9 @@ export default function QuizPage() {
             className="text-xs text-center mt-6 px-4 leading-relaxed"
             style={{ color: '#6b7280' }}
           >
-            *Based on the data of users who log their progress in the app.<br />
-            Consult your physician first. The chart is a non-<br />
-            customized illustration and results may vary
+            *Baseado nos nossos cálculos e nos resultados de nossos usuários.<br />
+            Consulte um médico primeiro. O gráfico não é-<br />
+            uma ilustração customizável, resultdos podem varias.
           </p>
         </div>
 
@@ -1859,7 +1859,7 @@ export default function QuizPage() {
               color: '#0d0d0d'
             }}
           >
-            CONTINUE
+            Continuar
           </button>
         </div>
 
