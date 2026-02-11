@@ -2149,79 +2149,79 @@ export default function QuizPage() {
 
             const canProceed = () => {
               switch (currentStep) {
-      case 1:
-                return quizData.gender !== ""
-      case 2:
-                return quizData.bodyType !== ""
-      case 3:
-                return quizData.goal.length > 0
-      case 4:
-                return quizData.weightChangeType !== ""
-      // </CHANGE>
-      case 5: // Updated from 4
-                return quizData.bodyFat !== 0
-      case 6: // Updated from 5
-                return quizData.problemAreas.length > 0
-      case 7: // Updated from 6. Sweets Frequency
-                return quizData.diet !== ""
-      case 8: // Updated from 7. Alcohol Frequency
-                return quizData.sugarFrequency.length > 0
-      case 9: // Updated from 8. Water Intake
-                return quizData.alcoholFrequency !== undefined && quizData.alcoholFrequency !== ""
-      case 10: // Updated from 9. Age
-                return quizData.waterIntake !== ""
-      case 11: // Updated from 10. Height
-                return quizData.age > 0
-      case 12: // Updated from 11. Current Weight
-                return quizData.height !== "" && normalizeHeight(quizData.height) !== ""
-      case 13: // Updated from 12. Target Weight
-                return quizData.weight !== ""
-      case 14: // Updated from 13. Strength Training Experience
-                return quizData.targetWeight !== ""
-      case 15: // Updated from 14. Cardio Feeling
-                return quizData.strengthTraining !== ""
-      case 16: // Updated from 15. Strength Feeling
-                return quizData.cardioFeeling !== ""
-      case 17: // Updated from 16. Stretching Feeling
-                return quizData.strengthFeeling !== ""
-      case 18: // Updated from 17. Previous Problems
-                return quizData.stretchingFeeling !== ""
-      case 19: // Updated from 18. Additional Goals
-                // Allow proceeding even if no previous problems are selected, as user can select "Não tenho"
-                return true
-      case 20: // Updated from 19. Equipment
-                return quizData.additionalGoals.length > 0
-      case 21: // Updated from 20. Workout Time
-                return quizData.equipment.length > 0
-      case 22: // Updated from 21. Food Preferences
-                return quizData.workoutTime !== ""
-      case 23:
-                return quizData.trainingDays !== ""
-      case 24: // Updated from 22. Allergies
-                // Allow proceeding if "Let Mad Muscles Choose" is true or if at least one food preference is selected
-                return quizData.letMadMusclesChoose || Object.values(quizData.foodPreferences).some((arr) => arr.length > 0)
-      case 25: // Updated from 23. Allergy Details (only if allergies is 'sim')
-                return quizData.allergies !== ""
-      case 26: // Updated from 24. Supplement Interest
-                return (quizData.allergies === "sim" && quizData.allergyDetails !== "") || quizData.allergies === "nao"
-      case 27: // Updated from 25. Supplement Recommendation
-                return quizData.wantsSupplement !== ""
-      case 28: // Updated from 27. Email
-                return quizData.name.trim() !== ""
-      case 29: // Updated from 28. Training days per week
-                // Basic email validation
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-                return quizData.email !== "" && emailRegex.test(quizData.email)
-      case 30: // Final submit
-                // Training days per week is now handled by step 23.
-                // This step is now the final submit.
-                return true
+                case 1:
+                  return quizData.gender !== ""
+                case 2:
+                  return quizData.bodyType !== ""
+                case 3:
+                  return quizData.goal.length > 0
+                case 4:
+                  return quizData.weightChangeType !== ""
+                // </CHANGE>
+                case 5: // Updated from 4
+                  return quizData.bodyFat !== 0
+                case 6: // Updated from 5
+                  return quizData.problemAreas.length > 0
+                case 7: // Updated from 6. Sweets Frequency
+                  return quizData.diet !== ""
+                case 8: // Updated from 7. Alcohol Frequency
+                  return quizData.sugarFrequency.length > 0
+                case 9: // Updated from 8. Water Intake
+                  return quizData.alcoholFrequency !== undefined && quizData.alcoholFrequency !== ""
+                case 10: // Updated from 9. Age
+                  return quizData.waterIntake !== ""
+                case 11: // Updated from 10. Height
+                  return quizData.age > 0
+                case 12: // Updated from 11. Current Weight
+                  return quizData.height !== "" && normalizeHeight(quizData.height) !== ""
+                case 13: // Updated from 12. Target Weight
+                  return quizData.weight !== ""
+                case 14: // Updated from 13. Strength Training Experience
+                  return quizData.targetWeight !== ""
+                case 15: // Updated from 14. Cardio Feeling
+                  return quizData.strengthTraining !== ""
+                case 16: // Updated from 15. Strength Feeling
+                  return quizData.cardioFeeling !== ""
+                case 17: // Updated from 16. Stretching Feeling
+                  return quizData.strengthFeeling !== ""
+                case 18: // Updated from 17. Previous Problems
+                  return quizData.stretchingFeeling !== ""
+                case 19: // Updated from 18. Additional Goals
+                  // Allow proceeding even if no previous problems are selected, as user can select "Não tenho"
+                  return true
+                case 20: // Updated from 19. Equipment
+                  return quizData.additionalGoals.length > 0
+                case 21: // Updated from 20. Workout Time
+                  return quizData.equipment.length > 0
+                case 22: // Updated from 21. Food Preferences
+                  return quizData.workoutTime !== ""
+                case 23:
+                  return quizData.trainingDays !== ""
+                case 24: // Updated from 22. Allergies
+                  // Allow proceeding if "Let Mad Muscles Choose" is true or if at least one food preference is selected
+                  return quizData.letMadMusclesChoose || Object.values(quizData.foodPreferences).some((arr) => arr.length > 0)
+                case 25: // Updated from 23. Allergy Details (only if allergies is 'sim')
+                  return quizData.allergies !== ""
+                case 26: // Updated from 24. Supplement Interest
+                  return (quizData.allergies === "sim" && quizData.allergyDetails !== "") || quizData.allergies === "nao"
+                case 27: // Updated from 25. Supplement Recommendation
+                  return quizData.wantsSupplement !== ""
+                case 28: // Updated from 27. Email
+                  return quizData.name.trim() !== ""
+                case 29: // Updated from 28. Training days per week
+                  // Basic email validation
+                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                  return quizData.email !== "" && emailRegex.test(quizData.email)
+                case 30: // Final submit
+                  // Training days per week is now handled by step 23.
+                  // This step is now the final submit.
+                  return true
 
-      // </CHANGE>
-      default:
-                return true
+                // </CHANGE>
+                default:
+                  return true
               }
-          }
+            }
 
           const renderStep = () => {
             switch (currentStep) {
