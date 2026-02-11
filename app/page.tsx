@@ -372,7 +372,7 @@ export default function Home() {
             </div>
 
             <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tight">
-               <span className="text-lime-400 block md:inline">Pare de follow treinos genéricos.</span>
+              <span className="text-lime-400 block md:inline">Pare de seguir treinos genéricos.</span>
               <span className="block text-3xl md:text-5xl font-bold text-gray-100 mt-2">Crie um plano feito para o SEU corpo, rotina e objetivo.</span>
             </h1>
 
@@ -571,11 +571,10 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto items-center">
             {/* Plano Mensal */}
             <Card
-              className={`bg-slate-800/50 border-2 p-8 text-center relative cursor-pointer transition-all duration-500 ease-in-out ${
-                activePlan === "mensal"
+              className={`bg-slate-800/50 border-2 p-8 text-center relative cursor-pointer transition-all duration-500 ease-in-out ${activePlan === "mensal"
                   ? "border-lime-400 md:scale-105 shadow-2xl shadow-lime-500/30"
                   : "border-slate-700 md:scale-95 hover:border-lime-500/50"
-              }`}
+                }`}
               onMouseEnter={() => setActivePlan("mensal")}
               onClick={() => setActivePlan("mensal")}
             >
@@ -609,11 +608,10 @@ export default function Home() {
 
             {/* Plano Trimestral - RECOMENDADO */}
             <Card
-              className={`bg-gradient-to-b from-orange-500 to-orange-600 border-2 p-8 text-center relative cursor-pointer transition-all duration-500 ease-in-out ${
-                activePlan === "trimestral"
+              className={`bg-gradient-to-b from-orange-500 to-orange-600 border-2 p-8 text-center relative cursor-pointer transition-all duration-500 ease-in-out ${activePlan === "trimestral"
                   ? "border-orange-400 md:scale-105 shadow-2xl shadow-orange-500/30"
                   : "border-orange-400 md:scale-95"
-              }`}
+                }`}
               onMouseEnter={() => setActivePlan("trimestral")}
               onClick={() => setActivePlan("trimestral")}
             >
@@ -650,11 +648,10 @@ export default function Home() {
 
             {/* Plano Semestral */}
             <Card
-              className={`bg-slate-800/50 border-2 p-8 text-center relative cursor-pointer transition-all duration-500 ease-in-out ${
-                activePlan === "semestral"
+              className={`bg-slate-800/50 border-2 p-8 text-center relative cursor-pointer transition-all duration-500 ease-in-out ${activePlan === "semestral"
                   ? "border-purple-400 md:scale-105 shadow-2xl shadow-purple-500/30"
                   : "border-purple-700 md:scale-95 hover:border-purple-500/50"
-              }`}
+                }`}
               onMouseEnter={() => setActivePlan("semestral")}
               onClick={() => setActivePlan("semestral")}
             >
@@ -784,7 +781,7 @@ export default function Home() {
           {/* Depoimentos fixos - sempre visíveis */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             {fixedTestimonials.map((testimonial) => (
-                <Card key={testimonial.id} className="bg-white/5 border border-white/10 p-6">
+              <Card key={testimonial.id} className="bg-white/5 border border-white/10 p-6">
                 <CardContent className="p-0">
                   <div className="flex items-center mb-4">
                     {[...Array(5)].map((_, i) => (
@@ -830,7 +827,7 @@ export default function Home() {
           {showAllTestimonials && (
             <div className="grid md:grid-cols-3 gap-6 mt-8">
               {additionalTestimonials.map((testimonial) => (
-              <Card key={testimonial.id} className="bg-white/5 border border-white/10 p-6">
+                <Card key={testimonial.id} className="bg-white/5 border border-white/10 p-6">
                   <CardContent className="p-0">
                     <div className="flex items-center mb-4">
                       {[...Array(5)].map((_, i) => (
