@@ -590,6 +590,12 @@ export default function QuizResultsPage() {
                 </p>
               </div>
 
+              {/* Meta de Calorias */}
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Meta de Calorias</p>
+                <p className="text-white text-xl font-semibold">{getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))) : "—"} kcal</p>
+              </div>
+
               {/* IMC */}
               <div>
                 <p className="text-gray-400 text-sm mb-2">IMC</p>
@@ -606,12 +612,6 @@ export default function QuizResultsPage() {
                     ? (Number(getDataValue("currentWeight")) / (Number(getDataValue("height")) / 100) ** 2).toFixed(1)
                     : "—"}
                 </p>
-              </div>
-
-              {/* Meta de Calorias */}
-              <div>
-                <p className="text-gray-400 text-sm mb-2">Meta de Calorias</p>
-                <p className="text-white text-xl font-semibold">{getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))) : "—"} kcal</p>
               </div>
 
               {/* Data para atingir objetivo - Full width */}
@@ -794,8 +794,8 @@ export default function QuizResultsPage() {
             <div
               onClick={() => setSelectedPlan("monthly")}
               className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${selectedPlan === "monthly"
-                  ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
-                  : "border-gray-700"
+                ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
+                : "border-gray-700"
                 }`}
             >
               <div className="flex items-center justify-between mb-4">
@@ -813,8 +813,8 @@ export default function QuizResultsPage() {
             <div
               onClick={() => setSelectedPlan("quarterly")}
               className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition duration-300 ${selectedPlan === "quarterly"
-                  ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
-                  : "border-gray-700"
+                ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
+                : "border-gray-700"
                 }`}
             >
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
@@ -835,8 +835,8 @@ export default function QuizResultsPage() {
             <div
               onClick={() => setSelectedPlan("semiannual")}
               className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${selectedPlan === "semiannual"
-                  ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
-                  : "border-gray-700"
+                ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
+                : "border-gray-700"
                 }`}
             >
               <div className="flex items-center justify-between mb-4">
@@ -1216,8 +1216,8 @@ export default function QuizResultsPage() {
                 <div
                   onClick={() => setSelectedPlan("monthly")}
                   className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${selectedPlan === "monthly"
-                      ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
-                      : "border-gray-700"
+                    ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
+                    : "border-gray-700"
                     }`}
                 >
                   <div className="flex items-center justify-between mb-4">
@@ -1235,8 +1235,8 @@ export default function QuizResultsPage() {
                 <div
                   onClick={() => setSelectedPlan("quarterly")}
                   className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition duration-300 ${selectedPlan === "quarterly"
-                      ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
-                      : "border-gray-700"
+                    ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
+                    : "border-gray-700"
                     }`}
                 >
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
@@ -1257,8 +1257,8 @@ export default function QuizResultsPage() {
                 <div
                   onClick={() => setSelectedPlan("semiannual")}
                   className={`bg-black border rounded-lg p-6 cursor-pointer transition duration-300 ${selectedPlan === "semiannual"
-                      ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
-                      : "border-gray-700"
+                    ? "border-orange-500 scale-105 shadow-lg shadow-orange-500/20"
+                    : "border-gray-700"
                     }`}
                 >
                   <div className="flex items-center justify-between mb-4">
