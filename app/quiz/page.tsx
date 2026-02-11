@@ -1665,8 +1665,8 @@ export default function QuizPage() {
               fontStyle: 'italic'
             }}
           >
-            O último plano que você precisará para<br />
-            finalmente entrar em forma
+            O último plano que você precisará<br />
+            para entrar em forma
           </h1>
 
           {/* Prediction Text */}
@@ -1841,8 +1841,8 @@ export default function QuizPage() {
             style={{ color: '#6b7280' }}
           >
             *Baseado nos nossos cálculos e nos resultados de nossos usuários.<br />
-            Consulte um médico primeiro. O gráfico não é-<br />
-            uma ilustração customizável, resultdos podem varias.
+            Consulte seu médico antes. O gráfico é uma ilustração<br />
+            não personalizada e os resultdos podem variar.
           </p>
         </div>
 
