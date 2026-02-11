@@ -264,7 +264,7 @@ export default function QuizResultsPage() {
   }
 
   const getExperienceLevel = (): "beginner" | "intermediate" | "advanced" => {
-    const exp = normalizeStr(getDataValue("experience") ?? data?.experience)
+    const exp = normalizeStr(getDataValue("strengthTraining") ?? data?.strengthTraining)
     if (exp.includes("avanç") || exp.includes("advanced")) return "advanced"
     if (exp.includes("inter") || exp.includes("intermediate")) return "intermediate"
     return "beginner"
@@ -582,20 +582,6 @@ export default function QuizResultsPage() {
                 </p>
               </div>
 
-              {/* Meta de Peso */}
-              <div>
-                <p className="text-gray-400 text-sm mb-2">Meta de Peso</p>
-                <p className="text-white text-xl font-semibold">
-                  {getDataValue("targetWeight") ? Number(getDataValue("targetWeight")).toFixed(1) : "—"} kg
-                </p>
-              </div>
-
-              {/* Meta de Calorias */}
-              <div>
-                <p className="text-gray-400 text-sm mb-2">Meta de Calorias</p>
-                <p className="text-white text-xl font-semibold">{getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))) : "—"} kcal</p>
-              </div>
-
               {/* IMC */}
               <div>
                 <p className="text-gray-400 text-sm mb-2">IMC</p>
@@ -611,6 +597,21 @@ export default function QuizResultsPage() {
                   {getDataValue("currentWeight") && getDataValue("height")
                     ? (Number(getDataValue("currentWeight")) / (Number(getDataValue("height")) / 100) ** 2).toFixed(1)
                     : "—"}
+                </p>
+              </div>
+
+              {/* Meta de Calorias */}
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Meta de Calorias</p>
+                <p className="text-white text-xl font-semibold">{getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))) : "—"} kcal</p>
+              </div>
+
+
+              {/* Meta de Peso */}
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Meta de Peso</p>
+                <p className="text-white text-xl font-semibold">
+                  {getDataValue("targetWeight") ? Number(getDataValue("targetWeight")).toFixed(1) : "—"} kg
                 </p>
               </div>
 
