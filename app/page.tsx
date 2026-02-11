@@ -310,7 +310,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#1a1a2e] via-[#16213e] to-[#0f1419] text-white font-['Inter',sans-serif]">
+    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white font-['Inter',sans-serif]">
       {/* Header */}
       <header className="p-2 flex justify-between items-center">
         <div className="flex items-center">
