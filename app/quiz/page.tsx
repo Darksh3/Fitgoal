@@ -1623,19 +1623,22 @@ export default function QuizPage() {
     )
   }
 
-  if (showTimeCalculation) {
-    const [animationProgress, setAnimationProgress] = useState(0)
-    const current = Number.parseFloat(quizData.weight)
-    const target = Number.parseFloat(quizData.targetWeight)
-    const isGaining = target > current
-    const goalText = `${target} kg`
+  const [animationProgress, setAnimationProgress] = useState(0)
 
-    useEffect(() => {
+  useEffect(() => {
+    if (showTimeCalculation) {
       const timer = setTimeout(() => {
         setAnimationProgress(1)
       }, 100)
       return () => clearTimeout(timer)
-    }, [])
+    }
+  }, [showTimeCalculation])
+
+  if (showTimeCalculation) {
+    const current = Number.parseFloat(quizData.weight)
+    const target = Number.parseFloat(quizData.targetWeight)
+    const isGaining = target > current
+    const goalText = `${target} kg`
 
     // Y-axis labels
     const minWeight = Math.min(current, target)
