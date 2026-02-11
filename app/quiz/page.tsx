@@ -1299,7 +1299,7 @@ export default function QuizPage() {
       <motion.div
         className="
         min-h-screen text-white flex items-center justify-center px-4 py-10
-        bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50
+        bg-gradient-to-b from-black to-gray-900
       "
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
