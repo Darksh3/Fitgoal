@@ -1650,7 +1650,7 @@ export default function QuizPage() {
 
     return (
       <div
-        className="min-h-screen bg-gray-900 flex flex-col items-center justify-between p-6 relative"
+        className="min-h-screen bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50 flex flex-col items-center justify-between p-6 relative"
       >
         {/* Main Content */}
         <div className="flex-1 flex flex-col items-center justify-center w-full max-w-lg">
