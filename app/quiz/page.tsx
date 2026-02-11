@@ -2101,7 +2101,7 @@ export default function QuizPage() {
         )
         { "}" }
 
-        const getBodyFatImage = () = { ">"} {
+        const getBodyFatImage = () => {
           const isMale = quizData.gender === "homem"
 
     if (isMale) {
@@ -2114,7 +2114,7 @@ export default function QuizPage() {
           if (quizData.bodyFat <= 35) return "/images/msix.webp"
           if (quizData.bodyFat <= 39) return "/images/mseven.webp"
           return "/images/meight.webp"
-          { "}" } else {
+        } else {
             // Female images: bodyfat-one.webp to bodyfat-eight.webp
             const imagePath =
               quizData.bodyFat <= 10
@@ -2134,10 +2134,10 @@ export default function QuizPage() {
                             : "/images/bodyfat-eight.webp"
 
             return imagePath
-            { "}" }
-            { "}" }
+        }
+      }
 
-            const getBodyFatRange = () = { ">"} {
+      const getBodyFatRange = () => {
               if (quizData.bodyFat <= 10) return "5-10%"
             if (quizData.bodyFat <= 15) return "11-15%"
             if (quizData.bodyFat <= 20) return "16-20%"
