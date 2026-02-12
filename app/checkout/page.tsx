@@ -972,52 +972,57 @@ export default function CheckoutPage() {
                 {/* SUBCONTAINER — botão mais dominante */}
                 <div className="w-full max-w-md mx-auto bg-slate-900/50 border border-slate-600/80 rounded-xl p-5 flex flex-col justify-center shadow-lg">
 
-                  {/* Confirmação de Pagamento - Button */}
-                  <Button
-                    onClick={handlePayment}
-                    disabled={!paymentMethod || processing}
-                    className={[
-                      "w-full relative overflow-hidden rounded-full py-7 text-base font-semibold tracking-wide",
-                      "text-white",
-                      // fundo/gradiente
-                      "bg-gradient-to-b from-lime-400/90 via-lime-500/85 to-emerald-600/85",
-                      // borda + brilho suave
-                      "border border-lime-300/50",
-                      "shadow-[0_0_26px_rgba(34,197,94,0.35)]",
-                      // brilho interno (dá o "vidro")
-                      "ring-1 ring-inset ring-white/10",
-                      // hover (um pouco mais vivo, sem ficar neon)
-                      "hover:brightness-110 hover:shadow-[0_0_34px_rgba(34,197,94,0.45)]",
-                      // micro animação de pressão
-                      "active:translate-y-[1px] active:scale-[0.985] active:brightness-95",
-                      // focus acessível
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950",
-                      // disabled
-                      "disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none",
-                      // transições suaves
-                      "transition-all duration-200",
-                    ].join(" ")}
-                  >
-                    {/* highlight de cima (faixa de luz) */}
-                    <span className="pointer-events-none absolute inset-0">
-                      <span className="absolute -top-1 left-1/2 h-10 w-[85%] -translate-x-1/2 rounded-full bg-white/18 blur-xl" />
-                      <span className="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.20),inset_0_-10px_20px_rgba(0,0,0,0.25)]" />
-                    </span>
+                  {/* Container premium com halo verde */}
+                  <div className="relative w-full max-w-md mx-auto rounded-2xl border border-slate-600/60 bg-slate-950/35 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.55)]">
+                    {/* halo verde atrás (spray suave) */}
+                    <div className="pointer-events-none absolute -inset-6 rounded-[28px] bg-[radial-gradient(circle_at_50%_70%,rgba(34,197,94,0.25),transparent_60%)]" />
 
-                    <span className="relative flex items-center justify-center gap-2">
-                      {processing ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Processando...
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-5 h-5 opacity-95" />
-                          Liberar Meu Plano Agora
-                        </>
-                      )}
-                    </span>
-                  </Button>
+                    {/* borda interna sutil */}
+                    <div className="pointer-events-none absolute inset-0 rounded-2xl shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]" />
+
+                    {/* Botão com gradient e vidro */}
+                    <Button
+                      onClick={handlePayment}
+                      disabled={!paymentMethod || processing}
+                      className={[
+                        "w-full relative overflow-hidden rounded-full py-7",
+                        "text-white font-semibold text-lg",
+                        // gradient do design (topo -> base)
+                        "bg-[linear-gradient(180deg,rgba(163,230,53,0.95)_0%,rgba(132,204,22,0.80)_45%,rgba(16,185,129,0.55)_100%)]",
+                        // borda dupla
+                        "border border-lime-200/35",
+                        "shadow-[0_0_28px_rgba(34,197,94,0.35)]",
+                        "ring-1 ring-inset ring-white/12",
+                        // animação de pressão
+                        "active:translate-y-[1px] active:scale-[0.99]",
+                        "transition-all duration-200",
+                        "disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none",
+                      ].join(" ")}
+                    >
+                      <span className="pointer-events-none absolute inset-0">
+                        {/* brilho superior */}
+                        <span className="absolute top-0 left-0 h-[55%] w-full bg-white/10" />
+                        {/* sombra interna inferior */}
+                        <span className="absolute bottom-0 left-0 h-[55%] w-full bg-black/15" />
+                        {/* linha de "vidro" no topo */}
+                        <span className="absolute top-0 left-0 h-px w-full bg-white/25" />
+                      </span>
+
+                      <span className="relative flex items-center justify-center gap-3">
+                        {processing ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            Processando...
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="w-5 h-5 opacity-90" />
+                            Liberar Meu Plano Agora
+                          </>
+                        )}
+                      </span>
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Microcopy de segurança - Mais específica */}
