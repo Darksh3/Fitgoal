@@ -975,31 +975,28 @@ export default function CheckoutPage() {
                   {/* Botão com glow neon verde */}
                   <div className="relative w-full max-w-md mx-auto">
                     {/* Glow externo */}
-                    <div className="absolute inset-0 bg-green-500/30 blur-2xl rounded-3xl" />
+                    <div className="absolute inset-0 bg-green-500/40 blur-3xl rounded-3xl" />
                     
-                    <Button
+                    <button
                       onClick={handlePayment}
                       disabled={!paymentMethod || processing}
                       className={[
-                        "w-full relative overflow-hidden rounded-2xl py-5 px-8",
+                        "w-full relative overflow-hidden rounded-2xl py-6 px-8",
                         "text-white font-semibold text-lg tracking-wide",
-                        // Verde sólido vibrante
                         "bg-green-500",
-                        // Sombra glow verde
-                        "shadow-[0_0_40px_rgba(34,197,94,0.6),0_0_80px_rgba(34,197,94,0.3)]",
-                        // Borda sutil
-                        "border border-green-400/50",
-                        // Animação
+                        "shadow-[0_0_60px_rgba(34,197,94,0.5),0_8px_32px_rgba(0,0,0,0.3)]",
+                        "border border-green-400/40",
                         "active:translate-y-[2px] active:scale-[0.98]",
                         "transition-all duration-200",
                         "disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none",
+                        "hover:brightness-110",
                       ].join(" ")}
                     >
                       {/* Linha de brilho no topo */}
-                      <span className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                      <span className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-green-300/70 to-transparent" />
                       
                       {/* Brilho interno superior */}
-                      <span className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent rounded-t-2xl" />
+                      <span className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/15 to-transparent rounded-t-2xl" />
 
                       <span className="relative flex items-center justify-center gap-3">
                         {processing ? (
@@ -1014,7 +1011,7 @@ export default function CheckoutPage() {
                           </>
                         )}
                       </span>
-                    </Button>
+                    </button>
                   </div>
                 </div>
 
