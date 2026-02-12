@@ -402,112 +402,8 @@ export default function QuizResultsPage() {
         </div>
       </header>
 
-      <main className="w-full">
-        {/* Immersive Hero Section */}
-        <div className="relative w-full h-screen bg-gradient-to-b from-gray-900 via-black to-black flex flex-col items-center justify-center px-6 pt-20 pb-12">
-          {/* Animated background elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-20 left-1/2 -translate-x-1/2 w-96 h-96 bg-orange-500 opacity-10 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-32 right-0 w-80 h-80 bg-blue-500 opacity-5 rounded-full blur-3xl"></div>
-          </div>
-
-          {/* Content */}
-          <div className="relative z-10 flex flex-col items-center justify-center gap-8">
-            {/* Progress indicator */}
-            <div className="w-48 h-2 bg-gray-800 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                whileInView={{ width: "100%" }}
-                transition={{ duration: 1.5, ease: "easeOut" }}
-                className="h-full bg-gradient-to-r from-lime-400 to-lime-500"
-              />
-            </div>
-
-            {/* 100% Achievement */}
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              whileInView={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="text-center"
-            >
-              <h1 className="text-7xl md:text-8xl font-black text-white mb-6">
-                100<span className="text-5xl md:text-6xl">%</span>
-              </h1>
-            </motion.div>
-
-            {/* Main headline */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-              className="text-center"
-            >
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 text-balance">
-                Plano de mudança completo!
-              </h2>
-              <p className="text-sm md:text-base text-gray-400">
-                Seus treinos e dieta estão prontos
-              </p>
-            </motion.div>
-
-            {/* Highlight Status */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
-              className="bg-gray-900 bg-opacity-50 border border-gray-800 rounded-lg p-6 max-w-md w-full"
-            >
-              <h3 className="text-white font-bold text-lg mb-4">Status</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-300">Atributos Físicos</span>
-                  <svg className="w-5 h-5 text-lime-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-300">Nível de Fitness</span>
-                  <svg className="w-5 h-5 text-lime-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-300">Análise de Potencial</span>
-                  <svg className="w-5 h-5 text-lime-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-300">Geração de Dieta</span>
-                  <svg className="w-5 h-5 text-lime-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-300">Geração de Treino</span>
-                  <svg className="w-5 h-5 text-lime-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* CTA Button */}
-            <motion.button
-              initial={{ y: 20, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.9 }}
-              onClick={handleCheckout}
-              className="mt-6 px-12 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition text-sm"
-            >
-              OBTER MEU PLANO
-            </motion.button>
-          </div>
-        </div>
-
-        {/* Rest of page content */}
-        <div className="w-full px-6 py-12">
-        <h1 className="text-3xl md:text-4xl font-bold text-center mb-12">
+      <main className="w-full px-6 py-12">
+        <h1 className="text-4xl md:text-5xl font-bold text-center mb-12">
           Seu Plano de Dieta e Treino <br /> estão Prontos!
         </h1>
 
@@ -1440,7 +1336,6 @@ export default function QuizResultsPage() {
               </a>
             </div>
           </footer>
-        </div>
         </div>
       </main>
     </div>
