@@ -341,7 +341,7 @@ export default function Home() {
           {/* Botão Login */}
           <Button
             onClick={() => goToAuth("login")}
-            className="btn-neon bg-[#0A1C3A] border-2 border-[#3CA3FF] text-white px-8 py-4 rounded-full flex items-center gap-3 text-xl font-semibold"
+            className="btn-neon bg-[#0A1C3A] border-2 border-[#3CA3FF] text-white px-8 py-2 rounded-full flex items-center gap-3 text-base font-semibold"
           >
             <div className="btn-neon-content flex items-center gap-3">
               <ArrowRight className="h-6 w-6 text-blue-300" />
@@ -352,7 +352,7 @@ export default function Home() {
           {/* Botão Registrar */}
           <Button
             onClick={() => goToAuth("register")}
-            className="btn-neon bg-[#0F5CFF] border-2 border-[#5FA8FF] text-white px-10 py-5 rounded-full flex items-center gap-3 text-xl font-bold"
+            className="btn-neon bg-[#0F5CFF] border-2 border-[#5FA8FF] text-white px-10 py-2 rounded-full flex items-center gap-3 text-base font-bold"
           >
             <div className="btn-neon-content flex items-center gap-3">
               <User className="h-7 w-7 text-white" />
