@@ -4341,51 +4341,51 @@ export default function QuizPage() {
 
       case 30: // Final Submit - Loading page with animated percentage
         return (
-          <div className="min-h-screen flex flex-col items-center justify-center px-4 pb-12">
+          <div className="min-h-screen flex flex-col items-center justify-center px-4 pb-20">
             {/* Main percentage display */}
-            <div className="text-center mb-6">
-              <div className="text-7xl md:text-8xl font-bold text-white mb-4 tracking-tight">
+            <div className="text-center mb-12">
+              <div className="text-8xl md:text-9xl font-bold text-white mb-8 tracking-tight">
                 <AnimatedPercentage targetPercentage={100} duration={8} onPercentageChange={setAnimatedPercentage} />
               </div>
 
-              <h2 className="text-xl md:text-2xl font-bold text-white mb-4 leading-tight whitespace-pre-wrap">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 leading-tight whitespace-pre-wrap">
                 {getMainTitle()}
               </h2>
               {/* </CHANGE> */}
 
               {/* Progress bar */}
-              <div className="w-full max-w-md bg-gray-800/50 rounded-full h-2 overflow-hidden mx-auto mb-3">
+              <div className="w-full max-w-md bg-gray-800/50 rounded-full h-2.5 overflow-hidden mx-auto mb-4">
                 <div
-                  className="bg-blue-500 h-2 rounded-full transition-all duration-100"
+                  className="bg-blue-500 h-2.5 rounded-full transition-all duration-100"
                   style={{ width: `${animatedPercentage}%` }}
                 />
               </div>
 
               {/* Status message */}
-              <p className="text-gray-500 text-xs mt-2">{getStatusMessage()}</p>
+              <p className="text-gray-500 text-sm mt-4">{getStatusMessage()}</p>
             </div>
 
             {/* Status box */}
-            <div className="w-full max-w-md bg-gray-900/60 border border-gray-800/50 rounded-2xl p-5 mb-6">
-              <h3 className="text-white text-sm font-bold mb-4">Status</h3>
-              <div className="space-y-2">
+            <div className="w-full max-w-md bg-gray-900/60 border border-gray-800/50 rounded-3xl p-8 mb-12">
+              <h3 className="text-white text-lg font-bold mb-8">Status</h3>
+              <div className="space-y-5">
                 {statuses.map((status, index) => (
                   <div key={index} className="flex items-center justify-between">
                     <span
-                      className={`text-sm transition-colors duration-300 ${animatedPercentage >= status.threshold ? "text-white font-medium" : "text-gray-500"
+                      className={`transition-colors duration-300 ${animatedPercentage >= status.threshold ? "text-white font-medium" : "text-gray-500"
                         }`}
                     >
                       {status.label}
                     </span>
-                    {animatedPercentage >= status.threshold && <span className="text-green-500 text-lg">✓</span>}
+                    {animatedPercentage >= status.threshold && <span className="text-green-500 text-2xl">✓</span>}
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Footer message */}
-            <div className="text-center text-gray-600 text-xs mb-4">
-              <p className="mb-0.5">Over 100,000+</p>
+            <div className="text-center text-gray-600 text-sm mb-12">
+              <p className="mb-1">Over 100,000+</p>
               <p>Programs Gerados</p>
             </div>
 
@@ -4397,7 +4397,7 @@ export default function QuizPage() {
                     router.push("/quiz/results")
                   }, 500)
                 }}
-                className="w-full max-w-md h-12 bg-white text-black text-base font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg"
+                className="w-full max-w-md h-14 bg-white text-black text-lg font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg"
               >
                 Continuar
               </button>
