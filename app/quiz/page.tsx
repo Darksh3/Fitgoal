@@ -26,36 +26,6 @@ import { motion } from "framer-motion"
 
 import { calculateScientificCalories } from "@/lib/calorieCalculator"
 
-// Helper function to generate dynamic month labels based on goal date
-const generateChartMonthLabels = (goalDate) => {
-  if (!goalDate) return ["Mar", "Jun", "Sep", "Dec", "Mar\n2027"]
-
-  const today = new Date()
-  const goal = new Date(goalDate)
-  
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-  
-  // Generate 5 labels: start, +3mo, +6mo, +9mo, end
-  const labels = []
-  
-  for (let i = 0; i < 5; i++) {
-    const date = new Date(today)
-    date.setMonth(date.getMonth() + (i * 3))
-    
-    const month = monthNames[date.getMonth()]
-    const year = date.getFullYear()
-    
-    if (i === 4) {
-      // Last label includes year
-      labels.push(`${month}\n${year}`)
-    } else {
-      labels.push(month)
-    }
-  }
-  
-  return labels
-}
-
 // Helper component for AnimatedPercentage
 const AnimatedPercentage = ({ targetPercentage = 100, duration = 8, onPercentageChange }) => {
   const [percentage, setPercentage] = useState(0)
@@ -1852,11 +1822,13 @@ export default function QuizPage() {
                     fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
                   }}
                 >
-                  {generateChartMonthLabels(quizData.timeToGoal).map((label, i) => (
-                    <span key={i} className={i === 4 ? "text-center leading-tight" : ""}>
-                      {label}
-                    </span>
-                  ))}
+                  <span>Mar</span>
+                  <span>Jun</span>
+                  <span>Sep</span>
+                  <span>Dec</span>
+                  <span className="text-center leading-tight">
+                    Mar<br />2027
+                  </span>
                 </div>
               </div>
             </div>
