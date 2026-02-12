@@ -969,29 +969,43 @@ export default function CheckoutPage() {
                   </motion.div>
                 )}
 
-                {/* SUBCONTAINER — botão mais dominante */}
-                <div className="w-full max-w-md mx-auto bg-slate-900/50 border border-slate-600/80 rounded-xl p-5 flex flex-col justify-center shadow-lg">
-
-                  {/* Confirmação de Pagamento - Button */}
-                  <Button
+                {/* Botão com glow neon verde */}
+                <div className="w-full max-w-md mx-auto">
+                  <button
                     onClick={handlePayment}
                     disabled={!paymentMethod || processing}
-                    className="w-full !bg-lime-500 hover:!bg-lime-400 hover:!shadow-[0_0_40px_rgba(132,204,22,0.8)] disabled:!bg-gray-500 disabled:!cursor-not-allowed !text-white font-bold py-7 text-base rounded-full shadow-[0_0_30px_rgba(132,204,22,0.5)] transition-all uppercase tracking-wide"
+                    className={[
+                      "w-full relative overflow-hidden rounded-2xl py-5 px-8",
+                      "text-white font-bold text-lg tracking-wide",
+                      "bg-green-500",
+                      "shadow-[0_0_24px_rgba(34,197,94,0.35),0_6px_20px_rgba(0,0,0,0.15)]",
+                      "border border-green-400/40",
+                      "active:translate-y-[2px] active:scale-[0.98]",
+                      "transition-all duration-200",
+                      "disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none",
+                      "hover:brightness-110",
+                    ].join(" ")}
                   >
-                    <span className="flex items-center justify-center w-full gap-2">
+                    {/* Linha de brilho no topo */}
+                    <span className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-green-300/70 to-transparent" />
+                    
+                    {/* Brilho interno superior */}
+                    <span className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/15 to-transparent rounded-t-2xl" />
+
+                    <span className="relative flex items-center justify-center gap-3">
                       {processing ? (
                         <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <Loader2 className="w-5 h-5 animate-spin" />
                           Processando...
                         </>
                       ) : (
                         <>
-                          <Lock className="w-4 h-4" />
-                          Confirmar Pagamento
+                          <Lock className="w-5 h-5" />
+                          Liberar Meu Plano Agora
                         </>
                       )}
                     </span>
-                  </Button>
+                  </button>
                 </div>
 
                 {/* Microcopy de segurança - Mais específica */}
