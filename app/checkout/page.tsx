@@ -969,10 +969,8 @@ export default function CheckoutPage() {
                   </motion.div>
                 )}
 
-                {/* SUBCONTAINER — botão mais dominante */}
-                <div className="w-full max-w-md mx-auto bg-slate-900/50 border border-slate-600/80 rounded-xl p-5 flex flex-col justify-center shadow-lg">
-
-                  {/* Botão com glow neon verde */}
+                {/* Botão com glow neon verde */}
+                <div className="w-full max-w-md mx-auto">
                   <button
                     onClick={handlePayment}
                     disabled={!paymentMethod || processing}
