@@ -975,10 +975,10 @@ export default function CheckoutPage() {
                     onClick={handlePayment}
                     disabled={!paymentMethod || processing}
                     className={[
-                      "w-full relative overflow-hidden rounded-2xl py-6 px-8",
-                      "text-white font-semibold text-lg tracking-wide",
+                      "w-full relative overflow-hidden rounded-2xl py-5 px-8",
+                      "text-white font-bold text-lg tracking-wide",
                       "bg-green-500",
-                      "shadow-[0_0_30px_rgba(34,197,94,0.4),0_8px_24px_rgba(0,0,0,0.2)]",
+                      "shadow-[0_0_24px_rgba(34,197,94,0.35),0_6px_20px_rgba(0,0,0,0.15)]",
                       "border border-green-400/40",
                       "active:translate-y-[2px] active:scale-[0.98]",
                       "transition-all duration-200",
