@@ -149,6 +149,7 @@ body {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --font-bebas-neue: var(--font-bebas-neue);
 }
 
 @layer base {
@@ -493,4 +494,51 @@ input[type="range"].slider-thumb:focus::-moz-range-thumb {
 .body-fat-slider > span:first-child > span {
   background: #84cc16;
   border-radius: 9999px;
+}
+
+/* ============================================
+   ESTILOS DA ROLETA DE DESCONTOS
+   ============================================ */
+
+/* Luzes ao redor da roleta */
+.wheel-light {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffcc00 0%, #ff9900 100%);
+  box-shadow: 0 0 10px #ffcc00, 0 0 20px rgba(255, 204, 0, 0.5);
+}
+
+/* Animação das luzes piscando */
+@keyframes pulse-light {
+  0%, 100% { 
+    opacity: 1; 
+    transform: translate(-50%, -50%) scale(1); 
+  }
+  50% { 
+    opacity: 0.6; 
+    transform: translate(-50%, -50%) scale(0.8); 
+  }
+}
+
+.wheel-light.animate {
+  animation: pulse-light 0.5s ease-in-out infinite;
+}
+
+/* Animação do confete */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti {
+  position: fixed;
+  animation: confetti-fall 3s linear forwards;
 }
