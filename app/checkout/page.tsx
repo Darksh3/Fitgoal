@@ -976,7 +976,7 @@ export default function CheckoutPage() {
                   <Button
                     onClick={handlePayment}
                     disabled={!paymentMethod || processing}
-                    className="w-full !bg-white hover:!bg-gray-100 hover:!shadow-[0_0_20px_rgba(255,255,255,0.3)] disabled:!bg-gray-500 disabled:!cursor-not-allowed !text-black font-bold py-7 text-base rounded-lg shadow-lg transition-all uppercase tracking-wide"
+                    className="w-full !bg-lime-500 hover:!bg-lime-400 hover:!shadow-[0_0_30px_rgba(132,204,22,0.6)] disabled:!bg-gray-500 disabled:!cursor-not-allowed !text-white font-bold py-7 text-base rounded-full shadow-[0_0_20px_rgba(132,204,22,0.4)] transition-all uppercase tracking-wide"
                   >
                     <span className="flex items-center justify-center w-full gap-2">
                       {processing ? (
