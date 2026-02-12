@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { CheckCircle, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
 
 export default function SuccessPage() {
   const searchParams = useSearchParams()
@@ -73,13 +72,53 @@ export default function SuccessPage() {
         {status === "success" && (
           <>
             <CheckCircle className="text-green-500 w-16 h-16 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Assinatura Confirmada!</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Sua assinatura foi processada com sucesso. Bem-vindo(a) à comunidade FitGoal!
-            </p>
-            <Link href="/dashboard" passHref>
-              <Button className="w-full">Ir para o Dashboard</Button>
-            </Link>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Pagamento Confirmado!</h2>
+            
+            <div className="space-y-4 text-left mb-6">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                <p className="text-gray-700 dark:text-gray-300">
+                  <span className="font-semibold">Em instantes</span>, você receberá um e-mail com acesso à sua conta.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-lime-500 flex items-center justify-center text-white text-sm font-bold mt-0.5">
+                    1
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">Verifique seu e-mail</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Procure pela mensagem de boas-vindas do FitGoal</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-lime-500 flex items-center justify-center text-white text-sm font-bold mt-0.5">
+                    2
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">Defina sua senha</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Crie uma senha segura para acessar sua conta</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-lime-500 flex items-center justify-center text-white text-sm font-bold mt-0.5">
+                    3
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">Bem-vindo(a) ao FitGoal!</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Comece sua jornada de transformação corporal</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-lime-50 dark:bg-lime-900/20 p-4 rounded-lg border border-lime-200 dark:border-lime-800 mb-6">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                Não recebeu o e-mail? Verifique sua pasta de spam ou entre em contato com nosso suporte.
+              </p>
+            </div>
           </>
         )}
         {status === "error" && (
