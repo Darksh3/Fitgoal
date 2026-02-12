@@ -27,33 +27,77 @@ import { motion } from "framer-motion"
 import { calculateScientificCalories } from "@/lib/calorieCalculator"
 
 // Helper function to generate dynamic month labels based on goal date
-const generateChartMonthLabels = (goalDate) => {
-  if (!goalDate) return ["Mar", "Jun", "Sep", "Dec", "Mar\n2027"]
-
-  const today = new Date()
-  const goal = new Date(goalDate)
+const getGoalForecast = (currentWeight: string | number | undefined, targetWeight: string | number | undefined) => {
+  const current = Number.parseFloat(String(currentWeight ?? 0))
+  const target = Number.parseFloat(String(targetWeight ?? 0))
   
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-  
-  // Generate 5 labels: start, +3mo, +6mo, +9mo, end
-  const labels = []
-  
-  for (let i = 0; i < 5; i++) {
-    const date = new Date(today)
-    date.setMonth(date.getMonth() + (i * 3))
-    
-    const month = monthNames[date.getMonth()]
-    const year = date.getFullYear()
-    
-    if (i === 4) {
-      // Last label includes year
-      labels.push(`${month}\n${year}`)
-    } else {
-      labels.push(month)
-    }
+  if (isNaN(current) || isNaN(target) || current <= 0 || target <= 0) {
+    return null
   }
+
+  const weightDifference = Math.abs(current - target)
+  const weeksNeeded = Math.ceil(weightDifference / 0.75) // 0.75 kg por semana
+
+  const targetDate = new Date()
+  targetDate.setDate(targetDate.getDate() + weeksNeeded * 7)
+
+  return { targetDate, weeksNeeded }
+}
+
+const monthsPt = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
+
+const buildMonthlyTicks = (start: Date, end: Date): Date[] => {
+  const ticks: Date[] = []
+  const current = new Date(start.getFullYear(), start.getMonth(), 1)
+  const last = new Date(end.getFullYear(), end.getMonth(), 1)
+
+  while (current <= last) {
+    ticks.push(new Date(current))
+    current.setMonth(current.getMonth() + 1)
+  }
+
+  return ticks
+}
+
+const generateChartMonthLabels = (currentWeight: string | number | undefined, targetWeight: string | number | undefined) => {
+  const forecast = getGoalForecast(currentWeight, targetWeight)
+  if (!forecast) {
+    return ["jan", "fev", "mar", "abr", "mai"]
+  }
+
+  const startDate = new Date()
+  startDate.setDate(1) // First day of current month
   
-  return labels
+  const endDate = forecast.targetDate
+  
+  const ticks = buildMonthlyTicks(startDate, endDate)
+  
+  // Se temos muitos ticks, mostrar apenas alguns estratégicos
+  let displayTicks: Date[] = []
+  
+  if (ticks.length <= 5) {
+    displayTicks = ticks
+  } else {
+    // Mostrar: primeiro, último, e aproximadamente 3 intermediários
+    displayTicks = [ticks[0]]
+    const step = Math.floor((ticks.length - 1) / 4)
+    for (let i = 1; i < ticks.length - 1; i += step) {
+      if (i < ticks.length - 1) displayTicks.push(ticks[i])
+    }
+    displayTicks.push(ticks[ticks.length - 1])
+  }
+
+  return displayTicks.map((d, idx) => {
+    const isLast = idx === displayTicks.length - 1
+    const isFirstOfNewYear = idx > 0 && d.getFullYear() !== displayTicks[idx - 1].getFullYear()
+    const month = monthsPt[d.getMonth()]
+    const year = d.getFullYear()
+    
+    if (isLast || isFirstOfNewYear) {
+      return `${month}\n${year}`
+    }
+    return month
+  })
 }
 
 // Helper component for AnimatedPercentage
@@ -1852,7 +1896,7 @@ export default function QuizPage() {
                     fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
                   }}
                 >
-                  {generateChartMonthLabels(quizData.timeToGoal).map((label, i) => (
+                  {generateChartMonthLabels(quizData.currentWeight, quizData.targetWeight).map((label, i) => (
                     <span key={i} className={i === 4 ? "text-center leading-tight" : ""}>
                       {label}
                     </span>
