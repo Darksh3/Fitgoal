@@ -1650,13 +1650,13 @@ export default function QuizPage() {
 
     return (
       <div
-        className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex flex-col items-center justify-between p-6 relative"
+        className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex flex-col items-center justify-start pt-8 pb-6 px-6 relative"
       >
         {/* Main Content */}
-        <div className="flex-1 flex flex-col items-center justify-center w-full max-w-lg">
+        <div className="flex flex-col items-center w-full max-w-lg">
           {/* Title */}
           <h1
-            className="text-3xl md:text-4xl font-bold text-center leading-tight mb-4"
+            className="text-3xl md:text-4xl font-bold text-center leading-tight mb-3"
             style={{
               color: '#e8dcc8',
               fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
@@ -1670,7 +1670,7 @@ export default function QuizPage() {
 
           {/* Prediction Text */}
           <p
-            className="text-lg md:text-xl text-center mb-8"
+            className="text-lg md:text-xl text-center mb-6"
             style={{ color: '#a8a090' }}
           >
             Com base em nossos cálculos, você atingirá o seu peso ideal de<br />
@@ -1836,7 +1836,7 @@ export default function QuizPage() {
 
           {/* Disclaimer */}
           <p
-            className="text-xs text-center mt-6 px-4 leading-relaxed"
+            className="text-xs text-center mt-4 px-4 leading-relaxed"
             style={{ color: '#6b7280' }}
           >
             *Baseado nos nossos cálculos e nos resultados de nossos usuários.<br />
@@ -1846,7 +1846,7 @@ export default function QuizPage() {
         </div>
 
         {/* Continue Button */}
-        <div className="w-full max-w-lg mt-8">
+        <div className="w-full max-w-lg mt-4">
           <button
             onClick={() => {
               setShowTimeCalculation(false)
