@@ -55,6 +55,9 @@ const generateChartMonthLabels = (goalDate) => {
   
   return labels
 }
+
+// Helper component for AnimatedPercentage
+const AnimatedPercentage = ({ targetPercentage = 100, duration = 8, onPercentageChange }) => {
   const [percentage, setPercentage] = useState(0)
 
   useEffect(() => {
