@@ -976,9 +976,35 @@ export default function CheckoutPage() {
                   <Button
                     onClick={handlePayment}
                     disabled={!paymentMethod || processing}
-                    className="w-full !bg-lime-500 hover:!bg-lime-400 hover:!shadow-[0_0_40px_rgba(132,204,22,0.8)] disabled:!bg-gray-500 disabled:!cursor-not-allowed !text-white font-bold py-7 text-base rounded-full shadow-[0_0_30px_rgba(132,204,22,0.5)] transition-all uppercase tracking-wide"
+                    className={[
+                      "w-full relative overflow-hidden rounded-full py-7 text-base font-semibold tracking-wide",
+                      "text-white",
+                      // fundo/gradiente
+                      "bg-gradient-to-b from-lime-400/90 via-lime-500/85 to-emerald-600/85",
+                      // borda + brilho suave
+                      "border border-lime-300/50",
+                      "shadow-[0_0_26px_rgba(34,197,94,0.35)]",
+                      // brilho interno (dá o "vidro")
+                      "ring-1 ring-inset ring-white/10",
+                      // hover (um pouco mais vivo, sem ficar neon)
+                      "hover:brightness-110 hover:shadow-[0_0_34px_rgba(34,197,94,0.45)]",
+                      // micro animação de pressão
+                      "active:translate-y-[1px] active:scale-[0.985] active:brightness-95",
+                      // focus acessível
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950",
+                      // disabled
+                      "disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none",
+                      // transições suaves
+                      "transition-all duration-200",
+                    ].join(" ")}
                   >
-                    <span className="flex items-center justify-center w-full gap-2">
+                    {/* highlight de cima (faixa de luz) */}
+                    <span className="pointer-events-none absolute inset-0">
+                      <span className="absolute -top-1 left-1/2 h-10 w-[85%] -translate-x-1/2 rounded-full bg-white/18 blur-xl" />
+                      <span className="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.20),inset_0_-10px_20px_rgba(0,0,0,0.25)]" />
+                    </span>
+
+                    <span className="relative flex items-center justify-center gap-2">
                       {processing ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -986,8 +1012,8 @@ export default function CheckoutPage() {
                         </>
                       ) : (
                         <>
-                          <Lock className="w-4 h-4" />
-                          Confirmar Pagamento
+                          <Lock className="w-5 h-5 opacity-95" />
+                          Liberar Meu Plano Agora
                         </>
                       )}
                     </span>
