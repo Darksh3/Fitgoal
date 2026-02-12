@@ -1299,7 +1299,7 @@ export default function QuizPage() {
       <motion.div
         className="
         min-h-screen text-white flex items-center justify-center px-4 py-10
-        bg-gradient-to-br from-blue-950/50 via-purple-950/30 to-blue-950/50
+        bg-gradient-to-b from-black to-gray-900
       "
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -1623,24 +1623,13 @@ export default function QuizPage() {
     )
   }
 
-  const [animationProgress, setAnimationProgress] = useState(0)
-
-  useEffect(() => {
-    if (showTimeCalculation) {
-      const timer = setTimeout(() => {
-        setAnimationProgress(1)
-      }, 100)
-      return () => clearTimeout(timer)
-    }
-  }, [showTimeCalculation])
-
   if (showTimeCalculation) {
     const current = Number.parseFloat(quizData.weight)
     const target = Number.parseFloat(quizData.targetWeight)
     const isGaining = target > current
     const goalText = `${target} kg`
 
-    // Y-axis labels
+    // Y-axis labels (de cima para baixo: maior no topo, menor embaixo)
     const minWeight = Math.min(current, target)
     const maxWeight = Math.max(current, target)
     const weightRange = maxWeight - minWeight
@@ -1650,7 +1639,7 @@ export default function QuizPage() {
       ? [target, target - step, target - step * 2, target - step * 3, target - step * 4, target - step * 5, current].map(v => Math.round(v * 10) / 10)
       : [current, current - step, current - step * 2, current - step * 3, current - step * 4, current - step * 5, target].map(v => Math.round(v * 10) / 10)
 
-    // Generate smooth path
+    // Gerar path suave - curva S baseada nos metadados
     const generateSmoothPath = () => {
       if (isGaining) {
         return "M 10 198 C 50 193, 80 175, 115 155 C 160 130, 195 105, 240 80 C 285 55, 315 35, 355 18 C 380 5, 395 0, 410 -2"
@@ -1660,39 +1649,38 @@ export default function QuizPage() {
     }
 
     return (
-      <div 
-        className="min-h-screen flex flex-col items-center justify-between p-6 relative"
-        style={{ backgroundColor: '#0d0d0d' }}
+      <div
+        className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex flex-col items-center justify-start pt-8 pb-6 px-6 relative"
       >
         {/* Main Content */}
-        <div className="flex-1 flex flex-col items-center justify-center w-full max-w-lg">
+        <div className="flex flex-col items-center w-full max-w-lg">
           {/* Title */}
-          <h1 
-            className="text-3xl md:text-4xl font-bold text-center leading-tight mb-4"
-            style={{ 
+          <h1
+            className="text-3xl md:text-4xl font-bold text-center leading-tight mb-3"
+            style={{
               color: '#e8dcc8',
               fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
               letterSpacing: '-0.02em',
               fontStyle: 'italic'
             }}
           >
-            The last plan you'll ever<br />
-            need to get in shape
+            O último plano que você precisará<br />
+            para entrar em forma
           </h1>
 
           {/* Prediction Text */}
-          <p 
-            className="text-lg md:text-xl text-center mb-8"
+          <p
+            className="text-lg md:text-xl text-center mb-6"
             style={{ color: '#a8a090' }}
           >
-            We predict you'll be<br />
-            <span className="font-bold" style={{ color: '#e8dcc8' }}>{target} kg</span> by <span className="font-bold" style={{ color: '#e8dcc8' }}>{quizData.timeToGoal}</span>*
+            Com base em nossos cálculos, você atingirá o seu peso ideal de<br />
+            <span className="font-bold" style={{ color: '#e8dcc8' }}>{target} kg</span> até <span className="font-bold" style={{ color: '#e8dcc8' }}>{quizData.timeToGoal}</span>*
           </p>
 
           {/* Chart Container with Y-axis labels */}
-          <div 
+          <div
             className="w-full relative rounded-2xl"
-            style={{ 
+            style={{
               backgroundColor: '#131619',
               border: '1px solid rgba(40, 45, 50, 0.6)',
               padding: '24px 16px 16px 16px'
@@ -1700,9 +1688,9 @@ export default function QuizPage() {
           >
             <div className="flex">
               {/* Y-axis labels column */}
-              <div 
+              <div
                 className="flex flex-col justify-between pr-2"
-                style={{ 
+                style={{
                   height: '210px',
                   fontSize: '12px',
                   color: '#6b7280',
@@ -1718,14 +1706,14 @@ export default function QuizPage() {
 
               {/* SVG Chart area */}
               <div className="flex-1 relative">
-                <svg 
-                  viewBox="0 -15 430 250" 
+                <svg
+                  viewBox="0 -15 430 250"
                   className="w-full"
                   preserveAspectRatio="xMidYMid meet"
                   style={{ height: '210px', overflow: 'visible' }}
                 >
                   <defs>
-                    {/* Gradient - orange -> yellow -> green -> cyan */}
+                    {/* Gradiente da linha - laranja -> amarelo -> verde -> ciano */}
                     <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                       <stop offset="0%" stopColor="#f97316" />
                       <stop offset="20%" stopColor="#fb923c" />
@@ -1735,24 +1723,24 @@ export default function QuizPage() {
                       <stop offset="85%" stopColor="#2dd4bf" />
                       <stop offset="100%" stopColor="#22d3ee" />
                     </linearGradient>
-                    
-                    {/* Glow effect */}
+
+                    {/* Glow effect suave */}
                     <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                      <feGaussianBlur stdDeviation="2" result="coloredBlur" />
                       <feMerge>
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
+                        <feMergeNode in="coloredBlur" />
+                        <feMergeNode in="SourceGraphic" />
                       </feMerge>
                     </filter>
                   </defs>
 
-                  {/* Grid horizontal lines */}
+                  {/* Grid horizontal lines - linhas sutis */}
                   {[0, 33, 66, 99, 132, 165, 198].map((y, i) => (
-                    <line 
+                    <line
                       key={i}
-                      x1="0" 
-                      y1={y} 
-                      x2="415" 
+                      x1="0"
+                      y1={y}
+                      x2="415"
                       y2={y}
                       stroke="rgba(50, 55, 60, 0.4)"
                       strokeWidth="1"
@@ -1769,9 +1757,7 @@ export default function QuizPage() {
                     strokeLinejoin="round"
                     filter="url(#glow)"
                     style={{
-                      strokeDasharray: 700,
-                      strokeDashoffset: animationProgress === 1 ? 0 : 700,
-                      transition: 'stroke-dashoffset 2.5s ease-out'
+                      animation: "madDraw 2.5s ease forwards",
                     }}
                   />
 
@@ -1782,20 +1768,13 @@ export default function QuizPage() {
                     r="9"
                     fill="#ffffff"
                     style={{
-                      opacity: animationProgress === 1 ? 1 : 0,
-                      transition: 'opacity 0.5s ease-out 2s',
                       filter: 'drop-shadow(0 0 8px rgba(34, 211, 238, 0.7))'
                     }}
                   />
 
                   {/* Goal Tooltip */}
-                  <g 
-                    style={{
-                      opacity: animationProgress === 1 ? 1 : 0,
-                      transition: 'opacity 0.5s ease-out 2s'
-                    }}
-                  >
-                    {/* Tooltip background */}
+                  <g>
+                    {/* Tooltip background com bordas arredondadas */}
                     <rect
                       x="325"
                       y={isGaining ? 20 : 120}
@@ -1805,7 +1784,7 @@ export default function QuizPage() {
                       ry="10"
                       fill="#323538"
                     />
-                    {/* Tooltip arrow */}
+                    {/* Tooltip arrow pointing up/down */}
                     <polygon
                       points={isGaining ? "355,20 365,7 375,20" : "355,180 365,193 375,180"}
                       fill="#323538"
@@ -1829,14 +1808,15 @@ export default function QuizPage() {
                       fontWeight="bold"
                       textAnchor="middle"
                       fontFamily="-apple-system, BlinkMacSystemFont, sans-serif"
-                    >{goalText}</text>
+                      dangerouslySetInnerHTML={{ __html: goalText }}
+                    />
                   </g>
                 </svg>
 
                 {/* X-axis labels */}
-                <div 
+                <div
                   className="flex justify-between mt-2 px-1"
-                  style={{ 
+                  style={{
                     fontSize: '12px',
                     color: '#6b7280',
                     fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
@@ -1855,32 +1835,39 @@ export default function QuizPage() {
           </div>
 
           {/* Disclaimer */}
-          <p 
-            className="text-xs text-center mt-6 px-4 leading-relaxed"
+          <p
+            className="text-xs text-center mt-4 px-4 leading-relaxed"
             style={{ color: '#6b7280' }}
           >
-            *Based on the data of users who log their progress in the app.<br />
-            Consult your physician first. The chart is a non-<br />
-            customized illustration and results may vary
+            *Baseado nos nossos cálculos e nos resultados de nossos usuários.<br />
+            Consulte seu médico antes. O gráfico é uma ilustração<br />
+            não personalizada e os resultdos podem variar.
           </p>
         </div>
 
         {/* Continue Button */}
-        <div className="w-full max-w-lg mt-8">
+        <div className="w-full max-w-lg mt-4">
           <button
             onClick={() => {
               setShowTimeCalculation(false)
               setCurrentStep(currentStep + 1)
             }}
             className="w-full py-5 text-xl font-bold rounded-full transition-all duration-200 hover:opacity-90"
-            style={{ 
+            style={{
               backgroundColor: '#f5f0e8',
               color: '#0d0d0d'
             }}
           >
-            CONTINUE
+            Continuar
           </button>
         </div>
+
+        <style>{`
+        @keyframes madDraw {
+          from { stroke-dasharray: 700; stroke-dashoffset: 700; }
+          to { stroke-dasharray: 700; stroke-dashoffset: 0; }
+        }
+      `}</style>
       </div>
     )
   }
@@ -2257,7 +2244,7 @@ export default function QuizPage() {
               <p className="text-base sm:text-lg text-gray-300 leading-relaxed">
                 As próximas perguntas servem para evitar erros comuns como:
               </p>
-              
+
               <div className="space-y-3 text-left max-w-lg mx-auto">
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-6 h-6 text-lime-400 flex-shrink-0" />
@@ -4478,7 +4465,7 @@ export default function QuizPage() {
             />
           </div>
         )}
-        
+
         {/* Micro Feedback Modal */}
         {microFeedback && (
           <div className="min-h-[70vh] flex flex-col items-center justify-center mb-8">
@@ -4512,7 +4499,7 @@ export default function QuizPage() {
             </div>
           </div>
         )}
-        
+
         <div className="mb-8">{!microFeedback && renderStep()}</div>
         {/* Adjust the condition to include steps that don't need a manual next button */}
         {!showMotivationMessage &&
