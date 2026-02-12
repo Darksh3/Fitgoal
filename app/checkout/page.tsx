@@ -972,41 +972,34 @@ export default function CheckoutPage() {
                 {/* SUBCONTAINER — botão mais dominante */}
                 <div className="w-full max-w-md mx-auto bg-slate-900/50 border border-slate-600/80 rounded-xl p-5 flex flex-col justify-center shadow-lg">
 
-                  {/* Container premium com halo verde */}
-                  <div className="relative w-full max-w-md mx-auto rounded-2xl border border-slate-600/60 bg-slate-950/35 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.55)]">
-                    {/* halo verde atrás (spray suave) */}
-                    <div className="pointer-events-none absolute -inset-6 rounded-[28px] bg-[radial-gradient(circle_at_50%_70%,rgba(34,197,94,0.25),transparent_60%)]" />
-
-                    {/* borda interna sutil */}
-                    <div className="pointer-events-none absolute inset-0 rounded-2xl shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]" />
-
-                    {/* Botão com gradient e vidro */}
+                  {/* Botão com glow neon verde */}
+                  <div className="relative w-full max-w-md mx-auto">
+                    {/* Glow externo */}
+                    <div className="absolute inset-0 bg-green-500/30 blur-2xl rounded-3xl" />
+                    
                     <Button
                       onClick={handlePayment}
                       disabled={!paymentMethod || processing}
                       className={[
-                        "w-full relative overflow-hidden rounded-full py-7",
-                        "text-white font-semibold text-lg",
-                        // gradient do design (topo -> base)
-                        "bg-[linear-gradient(180deg,rgba(163,230,53,0.95)_0%,rgba(132,204,22,0.80)_45%,rgba(16,185,129,0.55)_100%)]",
-                        // borda dupla
-                        "border border-lime-200/35",
-                        "shadow-[0_0_28px_rgba(34,197,94,0.35)]",
-                        "ring-1 ring-inset ring-white/12",
-                        // animação de pressão
-                        "active:translate-y-[1px] active:scale-[0.99]",
+                        "w-full relative overflow-hidden rounded-2xl py-5 px-8",
+                        "text-white font-semibold text-lg tracking-wide",
+                        // Verde sólido vibrante
+                        "bg-green-500",
+                        // Sombra glow verde
+                        "shadow-[0_0_40px_rgba(34,197,94,0.6),0_0_80px_rgba(34,197,94,0.3)]",
+                        // Borda sutil
+                        "border border-green-400/50",
+                        // Animação
+                        "active:translate-y-[2px] active:scale-[0.98]",
                         "transition-all duration-200",
                         "disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none",
                       ].join(" ")}
                     >
-                      <span className="pointer-events-none absolute inset-0">
-                        {/* brilho superior */}
-                        <span className="absolute top-0 left-0 h-[55%] w-full bg-white/10" />
-                        {/* sombra interna inferior */}
-                        <span className="absolute bottom-0 left-0 h-[55%] w-full bg-black/15" />
-                        {/* linha de "vidro" no topo */}
-                        <span className="absolute top-0 left-0 h-px w-full bg-white/25" />
-                      </span>
+                      {/* Linha de brilho no topo */}
+                      <span className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                      
+                      {/* Brilho interno superior */}
+                      <span className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent rounded-t-2xl" />
 
                       <span className="relative flex items-center justify-center gap-3">
                         {processing ? (
@@ -1016,7 +1009,7 @@ export default function CheckoutPage() {
                           </>
                         ) : (
                           <>
-                            <Lock className="w-5 h-5 opacity-90" />
+                            <Lock className="w-5 h-5" />
                             Liberar Meu Plano Agora
                           </>
                         )}
