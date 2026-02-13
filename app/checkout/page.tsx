@@ -246,7 +246,17 @@ export default function CheckoutPage() {
 
         setFormData((prev) => ({
           ...prev,
-          email: prev.email || data.email || "",
+          email: prev.email || data.email || user.email || "",
+          name: prev.name || data.name || user.displayName || "",
+          cpf: prev.cpf || data.cpf || "",
+          phone: prev.phone || data.phone || "",
+        }))
+      } else {
+        // Se não houver documento, preencher com dados do Firebase Auth
+        setFormData((prev) => ({
+          ...prev,
+          email: prev.email || user.email || "",
+          name: prev.name || user.displayName || "",
         }))
       }
     } catch (err) {
@@ -355,12 +365,12 @@ export default function CheckoutPage() {
         try {
           await setDoc(doc(db, "payments", paymentResult.paymentId), {
             paymentId: paymentResult.paymentId,
-            userId: user?.uid || "anonymous",
+            userId: user?.uid,
             status: "PENDING",
             billingType: "PIX",
             createdAt: new Date(),
           })
-          console.log("[v0] PIX salvo no Firestore com userID:", user?.uid || "anonymous")
+          console.log("[v0] PIX salvo no Firestore com userID:", user?.uid)
         } catch (err) {
           console.error("[v0] Erro ao salvar PIX:", err)
         }
@@ -432,7 +442,7 @@ export default function CheckoutPage() {
         try {
           await setDoc(doc(db, "payments", paymentResult.paymentId), {
             paymentId: paymentResult.paymentId,
-            userId: user?.uid || "anonymous",
+            userId: user?.uid,
             status: "PENDING",
             billingType: "CARD",
             createdAt: new Date(),
@@ -571,7 +581,7 @@ export default function CheckoutPage() {
                       }`}
                   >
                     <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
-                      -25%
+                      {spinDiscount ? `-${spinDiscount}%` : `-25%`}
                     </div>
                     <div className={`text-xs font-semibold ${selectedPlan === "trimestral" ? "text-lime-400" : "text-gray-300"}`}>Trimestral</div>
                     <div className={`text-sm font-bold ${selectedPlan === "trimestral" ? "text-lime-400" : "text-gray-400"}`}>R$ 179,90</div>
@@ -585,7 +595,7 @@ export default function CheckoutPage() {
                       }`}
                   >
                     <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
-                      -40%
+                      {spinDiscount ? `-${spinDiscount}%` : `-40%`}
                     </div>
                     <div className={`text-xs font-semibold ${selectedPlan === "semestral" ? "text-lime-400" : "text-gray-300"}`}>Semestral</div>
                     <div className={`text-sm font-bold ${selectedPlan === "semestral" ? "text-lime-400" : "text-gray-400"}`}>R$ 239,90</div>
@@ -993,7 +1003,7 @@ export default function CheckoutPage() {
                   >
                     {/* Linha de brilho no topo */}
                     <span className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-green-300/70 to-transparent" />
-
+                    
                     {/* Brilho interno superior */}
                     <span className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/15 to-transparent rounded-t-2xl" />
 
