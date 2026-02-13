@@ -379,14 +379,18 @@ export default function CheckoutPage() {
         localStorage.setItem("lastPaymentId", paymentResult.paymentId)
 
         try {
-          await setDoc(doc(db, "payments", paymentResult.paymentId), {
-            paymentId: paymentResult.paymentId,
-            userId: user?.uid || "anonymous",
-            status: "PENDING",
-            billingType: "PIX",
-            createdAt: new Date(),
-          })
-          console.log("[v0] PIX salvo no Firestore com userID:", user?.uid || "anonymous")
+          if (user?.uid) {
+            await setDoc(doc(db, "payments", paymentResult.paymentId), {
+              paymentId: paymentResult.paymentId,
+              userId: user.uid,
+              status: "PENDING",
+              billingType: "PIX",
+              createdAt: new Date(),
+            })
+            console.log("[v0] PIX salvo no Firestore com userID:", user.uid)
+          } else {
+            console.log("[v0] Usuário não autenticado - PIX não será salvo no Firestore")
+          }
         } catch (err) {
           console.error("[v0] Erro ao salvar PIX:", err)
         }
@@ -456,14 +460,18 @@ export default function CheckoutPage() {
         }
 
         try {
-          await setDoc(doc(db, "payments", paymentResult.paymentId), {
-            paymentId: paymentResult.paymentId,
-            userId: user?.uid || "anonymous",
-            status: "PENDING",
-            billingType: "CARD",
-            createdAt: new Date(),
-          })
-          console.log("[v0] Cartão salvo no Firestore com paymentId:", paymentResult.paymentId)
+          if (user?.uid) {
+            await setDoc(doc(db, "payments", paymentResult.paymentId), {
+              paymentId: paymentResult.paymentId,
+              userId: user.uid,
+              status: "PENDING",
+              billingType: "CARD",
+              createdAt: new Date(),
+            })
+            console.log("[v0] Cartão salvo no Firestore com paymentId:", paymentResult.paymentId)
+          } else {
+            console.log("[v0] Usuário não autenticado - Cartão não será salvo no Firestore")
+          }
           setCardPaymentId(paymentResult.paymentId)
         } catch (err) {
           console.error("[v0] Erro ao salvar cartão:", err)
