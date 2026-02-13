@@ -62,6 +62,7 @@ export default function CheckoutPage() {
   const [success, setSuccess] = useState(false)
   const [redirectCountdown, setRedirectCountdown] = useState(90)
   const [selectedPlan, setSelectedPlan] = useState<"mensal" | "trimestral" | "semestral">("semestral")
+  const [spinDiscount, setSpinDiscount] = useState<number | null>(null)
   const [prefillLoading, setPrefillLoading] = useState(false)
 
   const [formData, setFormData] = useState<PaymentFormData>({
@@ -133,6 +134,21 @@ export default function CheckoutPage() {
       setUser(currentUser)
     })
     return () => unsubscribe()
+  }, [])
+
+  // Check for spin discount from wheel
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const spinData = localStorage.getItem('spinDiscount')
+      if (spinData) {
+        try {
+          const { discount } = JSON.parse(spinData)
+          setSpinDiscount(discount)
+        } catch (e) {
+          console.log('[v0] Erro ao ler spinDiscount:', e)
+        }
+      }
+    }
   }, [])
 
   // Real-time payment listener
@@ -575,9 +591,16 @@ export default function CheckoutPage() {
                       : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
                       }`}
                   >
-                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
-                      -25%
-                    </div>
+                    {spinDiscount && (
+                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
+                        -{spinDiscount}%
+                      </div>
+                    )}
+                    {!spinDiscount && (
+                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
+                        -25%
+                      </div>
+                    )}
                     <div className={`text-xs font-semibold ${selectedPlan === "trimestral" ? "text-lime-400" : "text-gray-300"}`}>Trimestral</div>
                     <div className={`text-sm font-bold ${selectedPlan === "trimestral" ? "text-lime-400" : "text-gray-400"}`}>R$ 179,90</div>
                   </button>
@@ -589,9 +612,16 @@ export default function CheckoutPage() {
                       : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
                       }`}
                   >
-                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
-                      -40%
-                    </div>
+                    {spinDiscount && (
+                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
+                        -{spinDiscount}%
+                      </div>
+                    )}
+                    {!spinDiscount && (
+                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
+                        -40%
+                      </div>
+                    )}
                     <div className={`text-xs font-semibold ${selectedPlan === "semestral" ? "text-lime-400" : "text-gray-300"}`}>Semestral</div>
                     <div className={`text-sm font-bold ${selectedPlan === "semestral" ? "text-lime-400" : "text-gray-400"}`}>R$ 239,90</div>
                   </button>
