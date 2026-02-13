@@ -18,7 +18,7 @@ const SEGMENTS = [
   { discount: 40, color: '#40a37a' },
   { discount: 50, color: '#1c4d5d' },
   { discount: 60, color: '#2c7b61' },
-  { discount: 70, color: '#ff6b35' }, // Destaque laranja para 70%
+  { discount: 70, color: '#1c4d5d' },
   { discount: 20, color: '#40a37a' },
 ]
 
@@ -52,7 +52,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
   const [hasSpun, setHasSpun] = useState(false)
   const [showWinModal, setShowWinModal] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
-  
+
   const wheelSize = 340
   const center = wheelSize / 2
   const outerRadius = 145
@@ -61,27 +61,27 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    
+
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-    
+
     const scale = window.devicePixelRatio || 1
     canvas.width = wheelSize * scale
     canvas.height = wheelSize * scale
     ctx.scale(scale, scale)
     ctx.clearRect(0, 0, wheelSize, wheelSize)
-    
+
     ctx.save()
     ctx.translate(center, center)
     ctx.rotate((rotation * Math.PI) / 180)
     ctx.translate(-center, -center)
-    
+
     const segmentAngle = (2 * Math.PI) / SEGMENTS.length
-    
+
     SEGMENTS.forEach((segment, index) => {
       const startAngle = index * segmentAngle - Math.PI / 2
       const endAngle = startAngle + segmentAngle
-      
+
       ctx.beginPath()
       ctx.moveTo(center, center)
       ctx.arc(center, center, outerRadius, startAngle, endAngle)
@@ -91,16 +91,16 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
       ctx.strokeStyle = '#0d1f1e'
       ctx.lineWidth = 2
       ctx.stroke()
-      
+
       ctx.save()
       const midAngle = startAngle + segmentAngle / 2
       const textRadius = outerRadius * 0.65
       const textX = center + textRadius * Math.cos(midAngle)
       const textY = center + textRadius * Math.sin(midAngle)
-      
+
       ctx.translate(textX, textY)
       ctx.rotate(midAngle + Math.PI / 2)
-      
+
       ctx.fillStyle = '#ffffff'
       ctx.font = 'bold 24px Inter, Arial, sans-serif'
       ctx.textAlign = 'center'
@@ -108,16 +108,16 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
       ctx.shadowColor = 'rgba(0,0,0,0.5)'
       ctx.shadowBlur = 4
       ctx.shadowOffsetY = 2
-      
+
       ctx.fillText(`${segment.discount}%`, 0, 0)
       ctx.restore()
     })
-    
+
     // Centro da roleta
     const gradient = ctx.createLinearGradient(center - 40, center - 40, center + 40, center + 40)
     gradient.addColorStop(0, '#40a37a')
     gradient.addColorStop(1, '#1c4d5d')
-    
+
     ctx.beginPath()
     ctx.arc(center, center, 40, 0, Math.PI * 2)
     ctx.fillStyle = gradient
@@ -125,22 +125,22 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
     ctx.strokeStyle = '#0d1f1e'
     ctx.lineWidth = 4
     ctx.stroke()
-    
+
     ctx.beginPath()
     ctx.arc(center, center, 30, 0, Math.PI * 2)
     ctx.fillStyle = '#2c7b61'
     ctx.fill()
-    
+
     ctx.beginPath()
     ctx.arc(center, center, 18, 0, Math.PI * 2)
     ctx.fillStyle = '#40a37a'
     ctx.fill()
-    
+
     ctx.beginPath()
     ctx.arc(center, center, 8, 0, Math.PI * 2)
     ctx.fillStyle = '#77ff00'
     ctx.fill()
-    
+
     ctx.restore()
   }, [rotation])
 
@@ -169,7 +169,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
       const easedProgress = easeOutCubic(progress)
       const currentRotation = startRotation + (targetRotation - startRotation) * easedProgress
       setRotation(currentRotation)
-      
+
       if (progress < 1) {
         requestAnimationFrame(animate)
       } else {
@@ -181,7 +181,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
         setTimeout(() => setShowConfetti(false), 5000)
       }
     }
-    
+
     requestAnimationFrame(animate)
   }
 
@@ -200,16 +200,16 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
               <motion.div
                 key={i}
                 className="absolute"
-                initial={{ 
-                  top: -20, 
+                initial={{
+                  top: -20,
                   left: `${Math.random() * 100}%`,
-                  rotate: 0 
+                  rotate: 0
                 }}
-                animate={{ 
+                animate={{
                   top: '100vh',
-                  rotate: 720 
+                  rotate: 720
                 }}
-                transition={{ 
+                transition={{
                   duration: 2 + Math.random() * 2,
                   delay: Math.random() * 2,
                   ease: "linear"
@@ -250,7 +250,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
                 >
                   <span className="text-4xl">🎉</span>
                 </motion.div>
-                
+
                 <h2 className="text-4xl font-bold text-orange-400 mb-2">PARABÉNS!</h2>
                 <p className="text-gray-300 text-lg">Você ganhou o MAIOR desconto da roleta!</p>
               </div>
@@ -302,7 +302,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-orange-400 mb-2">
+            <h2 className="text-4xl md:text-5xl font-bold text-lime-400 mb-2">
               GIRE A ROLETA
             </h2>
             <p className="text-white text-xl md:text-2xl mb-8">
@@ -314,16 +314,16 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
           <div className="flex flex-col items-center gap-8">
             <div className="relative" style={{ width: wheelSize, height: wheelSize }}>
               {/* Brilho externo */}
-              <div 
+              <div
                 className="absolute rounded-full pointer-events-none"
                 style={{
                   inset: '-40px',
                   background: 'radial-gradient(circle, rgba(255, 184, 0, 0.35) 0%, transparent 60%)',
                 }}
               />
-              
+
               {/* Anel dourado */}
-              <div 
+              <div
                 className="absolute rounded-full"
                 style={{
                   inset: '-8px',
@@ -331,9 +331,9 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
                   zIndex: 1,
                 }}
               />
-              
+
               {/* Container do canvas */}
-              <div 
+              <div
                 className="absolute rounded-full overflow-hidden"
                 style={{
                   inset: '0px',
@@ -346,7 +346,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
                   style={{ width: wheelSize, height: wheelSize }}
                 />
               </div>
-              
+
               {/* Luzes */}
               <div className="absolute inset-0 z-10 pointer-events-none">
                 {WHEEL_LIGHTS.map((angle, index) => {
@@ -371,12 +371,12 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
               </div>
 
               {/* Ponteiro */}
-              <div 
+              <div
                 className="absolute z-20"
                 style={{ top: '-12px', left: '50%', transform: 'translateX(-50%)' }}
               >
-                <div 
-                  style={{ 
+                <div
+                  style={{
                     width: 0,
                     height: 0,
                     borderLeft: '22px solid transparent',
@@ -394,11 +394,11 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
               disabled={isSpinning || hasSpun}
               className="px-12 py-4 text-xl font-bold uppercase tracking-wider rounded-full text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105"
               style={{
-                background: hasSpun 
-                  ? '#666' 
+                background: hasSpun
+                  ? '#666'
                   : 'linear-gradient(180deg, #ff6b35 0%, #e55a2b 50%, #cc4a1f 100%)',
-                boxShadow: hasSpun 
-                  ? 'none' 
+                boxShadow: hasSpun
+                  ? 'none'
                   : '0 4px 20px rgba(255, 107, 53, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
                 border: '2px solid rgba(255, 255, 255, 0.2)',
               }}
