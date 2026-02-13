@@ -62,7 +62,6 @@ export default function CheckoutPage() {
   const [success, setSuccess] = useState(false)
   const [redirectCountdown, setRedirectCountdown] = useState(90)
   const [selectedPlan, setSelectedPlan] = useState<"mensal" | "trimestral" | "semestral">("semestral")
-  const [spinDiscount, setSpinDiscount] = useState<number | null>(null)
   const [prefillLoading, setPrefillLoading] = useState(false)
 
   const [formData, setFormData] = useState<PaymentFormData>({
@@ -134,21 +133,6 @@ export default function CheckoutPage() {
       setUser(currentUser)
     })
     return () => unsubscribe()
-  }, [])
-
-  // Check for spin discount from wheel
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const spinData = localStorage.getItem('spinDiscount')
-      if (spinData) {
-        try {
-          const { discount } = JSON.parse(spinData)
-          setSpinDiscount(discount)
-        } catch (e) {
-          console.log('[v0] Erro ao ler spinDiscount:', e)
-        }
-      }
-    }
   }, [])
 
   // Real-time payment listener
@@ -262,17 +246,7 @@ export default function CheckoutPage() {
 
         setFormData((prev) => ({
           ...prev,
-          email: prev.email || data.email || user.email || "",
-          name: prev.name || data.name || user.displayName || "",
-          cpf: prev.cpf || data.cpf || "",
-          phone: prev.phone || data.phone || "",
-        }))
-      } else {
-        // Se não houver documento, preencher com dados do Firebase Auth
-        setFormData((prev) => ({
-          ...prev,
-          email: prev.email || user.email || "",
-          name: prev.name || user.displayName || "",
+          email: prev.email || data.email || "",
         }))
       }
     } catch (err) {
@@ -379,18 +353,14 @@ export default function CheckoutPage() {
         localStorage.setItem("lastPaymentId", paymentResult.paymentId)
 
         try {
-          if (user?.uid) {
-            await setDoc(doc(db, "payments", paymentResult.paymentId), {
-              paymentId: paymentResult.paymentId,
-              userId: user.uid,
-              status: "PENDING",
-              billingType: "PIX",
-              createdAt: new Date(),
-            })
-            console.log("[v0] PIX salvo no Firestore com userID:", user.uid)
-          } else {
-            console.log("[v0] Usuário não autenticado - PIX não será salvo no Firestore")
-          }
+          await setDoc(doc(db, "payments", paymentResult.paymentId), {
+            paymentId: paymentResult.paymentId,
+            userId: user?.uid || "anonymous",
+            status: "PENDING",
+            billingType: "PIX",
+            createdAt: new Date(),
+          })
+          console.log("[v0] PIX salvo no Firestore com userID:", user?.uid || "anonymous")
         } catch (err) {
           console.error("[v0] Erro ao salvar PIX:", err)
         }
@@ -460,18 +430,14 @@ export default function CheckoutPage() {
         }
 
         try {
-          if (user?.uid) {
-            await setDoc(doc(db, "payments", paymentResult.paymentId), {
-              paymentId: paymentResult.paymentId,
-              userId: user.uid,
-              status: "PENDING",
-              billingType: "CARD",
-              createdAt: new Date(),
-            })
-            console.log("[v0] Cartão salvo no Firestore com paymentId:", paymentResult.paymentId)
-          } else {
-            console.log("[v0] Usuário não autenticado - Cartão não será salvo no Firestore")
-          }
+          await setDoc(doc(db, "payments", paymentResult.paymentId), {
+            paymentId: paymentResult.paymentId,
+            userId: user?.uid || "anonymous",
+            status: "PENDING",
+            billingType: "CARD",
+            createdAt: new Date(),
+          })
+          console.log("[v0] Cartão salvo no Firestore com paymentId:", paymentResult.paymentId)
           setCardPaymentId(paymentResult.paymentId)
         } catch (err) {
           console.error("[v0] Erro ao salvar cartão:", err)
@@ -599,16 +565,9 @@ export default function CheckoutPage() {
                       : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
                       }`}
                   >
-                    {spinDiscount && (
-                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
-                        -{spinDiscount}%
-                      </div>
-                    )}
-                    {!spinDiscount && (
-                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
-                        -25%
-                      </div>
-                    )}
+                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
+                      -25%
+                    </div>
                     <div className={`text-xs font-semibold ${selectedPlan === "trimestral" ? "text-lime-400" : "text-gray-300"}`}>Trimestral</div>
                     <div className={`text-sm font-bold ${selectedPlan === "trimestral" ? "text-lime-400" : "text-gray-400"}`}>R$ 179,90</div>
                   </button>
@@ -620,16 +579,9 @@ export default function CheckoutPage() {
                       : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
                       }`}
                   >
-                    {spinDiscount && (
-                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
-                        -{spinDiscount}%
-                      </div>
-                    )}
-                    {!spinDiscount && (
-                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
-                        -40%
-                      </div>
-                    )}
+                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
+                      -40%
+                    </div>
                     <div className={`text-xs font-semibold ${selectedPlan === "semestral" ? "text-lime-400" : "text-gray-300"}`}>Semestral</div>
                     <div className={`text-sm font-bold ${selectedPlan === "semestral" ? "text-lime-400" : "text-gray-400"}`}>R$ 239,90</div>
                   </button>
@@ -1036,7 +988,7 @@ export default function CheckoutPage() {
                   >
                     {/* Linha de brilho no topo */}
                     <span className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-green-300/70 to-transparent" />
-                    
+
                     {/* Brilho interno superior */}
                     <span className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/15 to-transparent rounded-t-2xl" />
 
