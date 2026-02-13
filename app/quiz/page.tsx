@@ -2052,7 +2052,7 @@ export default function QuizPage() {
               </div>
               <div className="flex-1">
                 <p className="text-white text-left text-base sm:text-lg">
-                  A ingestão de proteína hoje limita sua recuperação muscular
+                  A baixa ingestão de proteína hoje limita sua recuperação muscular
                 </p>
               </div>
             </motion.div>
