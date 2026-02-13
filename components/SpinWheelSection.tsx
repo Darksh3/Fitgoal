@@ -45,7 +45,6 @@ interface SpinWheelSectionProps {
 }
 
 export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProps) {
-  console.log("[v0] SpinWheelSection rendering")
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isSpinning, setIsSpinning] = useState(false)
   const [rotation, setRotation] = useState(0)

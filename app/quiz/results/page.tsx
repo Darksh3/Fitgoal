@@ -25,7 +25,6 @@ export default function QuizResultsPage() {
 
   // ========== FUNÇÃO QUANDO GANHA DESCONTO ==========
   const handleDiscountWon = (discount: number) => {
-    console.log("[v0] Discount won:", discount)
     setDiscountPercentage(discount)
     setDiscountApplied(true)
     setShowSpinWheel(false)
@@ -36,12 +35,6 @@ export default function QuizResultsPage() {
     }))
   }
   // ==================================================
-
-  console.log("[v0] Results page - showSpinWheel:", showSpinWheel, "discountApplied:", discountApplied)
-
-  useEffect(() => {
-    console.log("[v0] Results page mounted - showSpinWheel:", showSpinWheel, "discountApplied:", discountApplied)
-  }, [])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -431,7 +424,6 @@ export default function QuizResultsPage() {
 
       <main className="w-full px-6 py-12">
         {/* ========== SEÇÃO DA ROLETA ========== */}
-        {console.log("[v0] About to render wheel - showSpinWheel:", showSpinWheel, "discountApplied:", discountApplied)}
         {showSpinWheel && !discountApplied && (
           <div>
             <SpinWheelSection onDiscountWon={handleDiscountWon} />
