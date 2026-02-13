@@ -30,7 +30,7 @@ import { calculateScientificCalories } from "@/lib/calorieCalculator"
 const getGoalForecast = (currentWeight: string | number | undefined, targetWeight: string | number | undefined) => {
   const current = Number.parseFloat(String(currentWeight ?? 0))
   const target = Number.parseFloat(String(targetWeight ?? 0))
-  
+
   if (isNaN(current) || isNaN(target) || current <= 0 || target <= 0) {
     return null
   }
@@ -67,14 +67,14 @@ const generateChartMonthLabels = (currentWeight: string | number | undefined, ta
 
   const startDate = new Date()
   startDate.setDate(1) // First day of current month
-  
+
   const endDate = forecast.targetDate
-  
+
   const ticks = buildMonthlyTicks(startDate, endDate)
-  
+
   // Se temos muitos ticks, mostrar apenas alguns estratégicos
   let displayTicks: Date[] = []
-  
+
   if (ticks.length <= 5) {
     displayTicks = ticks
   } else {
@@ -92,7 +92,7 @@ const generateChartMonthLabels = (currentWeight: string | number | undefined, ta
     const isFirstOfNewYear = idx > 0 && d.getFullYear() !== displayTicks[idx - 1].getFullYear()
     const month = monthsPt[d.getMonth()]
     const year = d.getFullYear()
-    
+
     if (isLast || isFirstOfNewYear) {
       return `${month}\n${year}`
     }
@@ -2028,7 +2028,10 @@ export default function QuizPage() {
               </div>
               <div className="flex-1">
                 <p className="text-white text-left text-base sm:text-lg">
-                  Seu corpo não recebe calorias suficientes para crescer
+                  {quizData.bodyType === "endomorfo" 
+                    ? "O excesso calórico está travando seus resultados"
+                    : "Seu corpo não recebe calorias suficientes para crescer"
+                  }
                 </p>
               </div>
             </motion.div>
@@ -2052,7 +2055,7 @@ export default function QuizPage() {
               </div>
               <div className="flex-1">
                 <p className="text-white text-left text-base sm:text-lg">
-                  A ingestão de proteína hoje limita sua recuperação muscular
+                  A baixa ingestão de proteína hoje limita sua recuperação muscular
                 </p>
               </div>
             </motion.div>
@@ -3742,9 +3745,9 @@ export default function QuizPage() {
             <div className="space-y-4">
               {[
                 { value: "better-sleep", label: "Melhorar o sono", icon: "😴" },
-                { value: "feel-healthier", label: "Se sentir mais saudável", icon: "➕" },
+                { value: "feel-healthier", label: "Ter mais saúde", icon: "➕" },
                 { value: "reduce-stress", label: "Reduzir o estresse", icon: "🧘" },
-                { value: "increase-energy", label: "Me sentir com mais energia", icon: "⚡" },
+                { value: "increase-energy", label: "Ter mais energia", icon: "⚡" },
               ].map((option) => (
                 <button
                   key={option.value}

@@ -57,10 +57,12 @@ service cloud.firestore {
     }
 
     match /payments/{paymentId} {
+      // Cliente pode LER seu próprio pagamento
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid && request.resource.data.status == "PENDING";
+      // Cliente NÃO pode ESCREVER (apenas servidor via Admin SDK)
+      allow write: if false;
       
-      // Admin pode ler todos os pagamentos
+      // Admin pode ler e escrever qualquer pagamento
       allow read, write: if isAdmin();
     }
 

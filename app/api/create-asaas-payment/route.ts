@@ -1,4 +1,16 @@
 import { NextResponse } from "next/server"
+import * as admin from "firebase-admin"
+
+// Initialize Firebase Admin
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+    }),
+  })
+}
 
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY
 const ASAAS_ENVIRONMENT = process.env.ASAAS_ENVIRONMENT || "production"
@@ -183,6 +195,28 @@ export async function POST(req: Request) {
     }
 
     console.log("[v0] Step 7 DONE - Payment created with ID:", paymentResult.id)
+
+    // 3. SEGURO: Criar documento de pagamento no Firestore via Admin SDK
+    console.log("[v0] Step 7.5: Creating payment document in Firestore...")
+    try {
+      const db = admin.firestore()
+      const paymentDocData = {
+        paymentId: paymentResult.id,
+        userId: clientUid || null,
+        planType,
+        billingType,
+        amount,
+        status: "PENDING",
+        source: "checkout",
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      }
+      
+      await db.collection("payments").doc(paymentResult.id).set(paymentDocData)
+      console.log("[v0] Step 7.5 DONE - Payment document created in Firestore")
+    } catch (firestoreErr) {
+      console.error("[v0] Step 7.5 WARNING - Could not create Firestore doc:", firestoreErr)
+      // Não falha o request, pois o webhook pode reparar depois
+    }
 
     // 3. Retornar dados específicos do método de pagamento
     console.log("[v0] Step 8: Preparing response...")
