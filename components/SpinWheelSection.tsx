@@ -105,6 +105,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
       ctx.font = 'bold 24px Inter, Arial, sans-serif'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
+      ctx.fillStyle = '#186a3b'
       ctx.shadowColor = 'rgba(0,0,0,0.5)'
       ctx.shadowBlur = 4
       ctx.shadowOffsetY = 2
@@ -302,7 +303,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-orange-400 mb-2">
+            <h2 className="text-4xl md:text-5xl font-bold text-lime-400 mb-2">
               GIRE A ROLETA
             </h2>
             <p className="text-white text-xl md:text-2xl mb-8">
