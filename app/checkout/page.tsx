@@ -378,26 +378,8 @@ export default function CheckoutPage() {
       if (paymentMethod === "pix") {
         localStorage.setItem("lastPaymentId", paymentResult.paymentId)
 
-        try {
-          // Get uid from quizData or from user state
-          const stored = localStorage.getItem("quizData")
-          const clientUid = stored ? JSON.parse(stored).uid : user?.uid
-
-          if (clientUid) {
-            await setDoc(doc(db, "payments", paymentResult.paymentId), {
-              paymentId: paymentResult.paymentId,
-              userId: clientUid,
-              status: "PENDING",
-              billingType: "PIX",
-              createdAt: new Date(),
-            })
-            console.log("[v0] PIX salvo no Firestore com userID:", clientUid)
-          } else {
-            console.log("[v0] clientUid não encontrado - PIX não será salvo")
-          }
-        } catch (err) {
-          console.error("[v0] Erro ao salvar PIX:", err)
-        }
+        // Nota: O documento de pagamento é criado pelo servidor via Admin SDK
+        // O cliente apenas lê/escuta o status via onSnapshot
 
         // Buscar QR Code
         const qrCodeResponse = await fetch(`/api/get-pix-qrcode?paymentId=${paymentResult.paymentId}`)
@@ -465,25 +447,10 @@ export default function CheckoutPage() {
 
         try {
           // Get uid from quizData or from user state
-          const stored = localStorage.getItem("quizData")
-          const clientUid = stored ? JSON.parse(stored).uid : user?.uid
 
-          if (clientUid) {
-            await setDoc(doc(db, "payments", paymentResult.paymentId), {
-              paymentId: paymentResult.paymentId,
-              userId: clientUid,
-              status: "PENDING",
-              billingType: "CARD",
-              createdAt: new Date(),
-            })
-            console.log("[v0] Cartão salvo no Firestore com paymentId:", paymentResult.paymentId)
-            setCardPaymentId(paymentResult.paymentId)
-          } else {
-            console.log("[v0] clientUid não encontrado - Cartão não será salvo")
-          }
-        } catch (err) {
-          console.error("[v0] Erro ao salvar cartão:", err)
-        }
+        // Nota: O documento de pagamento é criado pelo servidor via Admin SDK
+        // O cliente apenas lê/escuta o status via onSnapshot
+        setCardPaymentId(paymentResult.paymentId)
 
         setProcessing(false)
         return
