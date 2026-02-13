@@ -12,14 +12,14 @@ const WINNING_DISCOUNT = 70
 
 // Segmentos visuais da roleta (apenas visual, resultado é sempre WINNING_DISCOUNT)
 const SEGMENTS = [
-  { discount: 10, color: '#1c4d5d' },
-  { discount: 20, color: '#2c7b61' },
-  { discount: 30, color: '#1c4d5d' },
-  { discount: 40, color: '#40a37a' },
-  { discount: 50, color: '#1c4d5d' },
-  { discount: 60, color: '#2c7b61' },
-  { discount: 70, color: '#27ae60' }, // Destaque verde para 70%
-  { discount: 20, color: '#40a37a' },
+  { discount: 10, color: '#2c5a7a' },
+  { discount: 20, color: '#3d9970' },
+  { discount: 30, color: '#2c5a7a' },
+  { discount: 40, color: '#3d9970' },
+  { discount: 50, color: '#2c5a7a' },
+  { discount: 60, color: '#3d9970' },
+  { discount: 70, color: '#3d9970' }, // Verde para 70%
+  { discount: 80, color: '#2c5a7a' },
 ]
 
 // Encontra o índice do segmento vencedor (70%)
@@ -129,12 +129,12 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
     
     ctx.beginPath()
     ctx.arc(center, center, 30, 0, Math.PI * 2)
-    ctx.fillStyle = '#2c7b61'
+    ctx.fillStyle = '#2c5a7a'
     ctx.fill()
     
     ctx.beginPath()
     ctx.arc(center, center, 18, 0, Math.PI * 2)
-    ctx.fillStyle = '#40a37a'
+    ctx.fillStyle = '#3d9970'
     ctx.fill()
     
     ctx.beginPath()
