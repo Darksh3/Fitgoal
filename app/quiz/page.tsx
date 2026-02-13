@@ -14,10 +14,6 @@ import { ArrowLeft, CheckCircle, Droplets, X, Dumbbell, Clock } from "lucide-rea
 
 import { AiOrb } from "@/components/ai-orb"
 
-import { SpinWheel } from "@/components/spin-wheel"
-import { WinModal } from "@/components/win-modal"
-import { Confetti } from "@/components/confetti"
-
 import { useRouter } from "next/navigation"
 
 import { db, auth } from "@/lib/firebaseClient"
@@ -402,14 +398,8 @@ export default function QuizPage() {
   // </CHANGE>
   const [showIMCResult, setShowIMCResult] = useState(false)
   const [showLoading, setShowLoading] = useState(false)
-  const [totalSteps, setTotalSteps] = useState(31)
+  const [totalSteps, setTotalSteps] = useState(30)
   // </CHANGE>
-
-  // Spin wheel states
-  const [desconto, setDesconto] = useState(null)
-  const [showModal, setShowModal] = useState(false)
-  const [showConfetti, setShowConfetti] = useState(false)
-  const [jaGirou, setJaGirou] = useState(false)
 
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
@@ -421,17 +411,6 @@ export default function QuizPage() {
   // </CHANGE>
 
   const [debugMode, setDebugMode] = useState(false) // Disabled debug mode
-
-  // Reset wheel states when entering step 31
-  useEffect(() => {
-    if (currentStep === 31) {
-      console.log(`[v0] Entering step 31 - resetting wheel states`)
-      setShowModal(false)
-      setShowConfetti(false)
-      setJaGirou(false)
-      setDesconto(null)
-    }
-  }, [currentStep])
   const [debugValues, setDebugValues] = useState({
     chest_left: { top: 23, left: 33, width: 14, height: 6, rotate: -90 },
     chest_right: { top: 23, right: 38, width: 14, height: 6, rotate: -90 },
@@ -1118,37 +1097,6 @@ export default function QuizPage() {
         setCurrentStep(currentStep - 1)
       }
     }
-  }
-
-
-  // Spin wheel handlers
-  const handleSpinComplete = (descontoGanho: number) => {
-    console.log(`[v0] Spin complete! Usuário ganhou ${descontoGanho}% de desconto!`)
-    
-    setDesconto(descontoGanho)
-    setJaGirou(true)
-    setShowConfetti(true)
-    
-    // Mostra o modal após meio segundo
-    setTimeout(() => {
-      console.log(`[v0] Showing modal after delay`)
-      setShowModal(true)
-    }, 500)
-    
-    // Para o confete após 5 segundos
-    setTimeout(() => setShowConfetti(false), 5000)
-    
-    // Salva no localStorage para usar no checkout
-    localStorage.setItem('descontoRoleta', JSON.stringify({
-      desconto: descontoGanho,
-      timestamp: Date.now(),
-    }))
-  }
-
-  const handleContinueWheel = () => {
-    console.log(`[v0] Continuing to results from wheel`)
-    // Redirect to results page after winning the discount
-    router.push("/quiz/results")
   }
 
   const handleSubmit = async () => {
@@ -4518,7 +4466,7 @@ export default function QuizPage() {
                 onClick={async () => {
                   await handleSubmit()
                   setTimeout(() => {
-                    nextStep()
+                    router.push("/quiz/results")
                   }, 500)
                 }}
                 className="w-full max-w-xs h-12 bg-white text-black text-base font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg flex-shrink-0"
@@ -4526,68 +4474,6 @@ export default function QuizPage() {
                 Continuar
               </button>
             )}
-          </div>
-        )
-
-      case 31: // Spin Wheel - Desconto
-        console.log(`[v0] Rendering spin wheel. showModal=${showModal}, desconto=${desconto}, jaGirou=${jaGirou}`)
-        return (
-          <div style={{
-            minHeight: '100vh',
-            backgroundColor: '#0a1612',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-            fontFamily: 'Inter, Arial, sans-serif',
-          }}>
-            {/* Confete (aparece quando ganha) */}
-            <Confetti active={showConfetti} />
-
-            {/* Título */}
-            <h1 style={{
-              fontFamily: '"Bebas Neue", "Bebas Neue Fallback", sans-serif',
-              fontSize: '48px',
-              color: '#77ff00',
-              textAlign: 'center',
-              marginBottom: '8px',
-              letterSpacing: '0.05em',
-            }}>
-              GIRE A ROLETA
-            </h1>
-            
-            <p style={{
-              color: '#ffffff',
-              fontSize: '20px',
-              marginBottom: '32px',
-            }}>
-              E GANHE UM DESCONTO!
-            </p>
-
-            {/* Roleta */}
-            <SpinWheel 
-              onSpinComplete={handleSpinComplete}
-              disabled={jaGirou}
-            />
-
-            {/* Texto auxiliar */}
-            {!jaGirou && (
-              <p style={{
-                color: '#888',
-                marginTop: '24px',
-                textAlign: 'center',
-              }}>
-                Clique no botão para girar a roleta e descobrir seu desconto exclusivo!
-              </p>
-            )}
-
-            {/* Modal de vitória */}
-            <WinModal 
-              isOpen={showModal}
-              discount={desconto}
-              onContinue={handleContinueWheel}
-            />
           </div>
         )
 
