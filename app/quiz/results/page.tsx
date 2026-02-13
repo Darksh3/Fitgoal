@@ -12,7 +12,7 @@ export default function QuizResultsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
-  const [timeLeft, setTimeLeft] = useState({ minutes: 4, seconds: 0 })
+  const [timeLeft, setTimeLeft] = useState({ minutes: 10, seconds: 0 })
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "quarterly" | "semiannual">("quarterly")
   const [barsVisible, setBarsVisible] = useState(false)
   const [expandedTestimonial, setExpandedTestimonial] = useState<string | null>(null)
@@ -91,6 +91,9 @@ export default function QuizResultsPage() {
   }, [router])
 
   useEffect(() => {
+    // Só inicia o timer após o desconto ser aplicado
+    if (!discountApplied) return
+
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev.seconds > 0) {
@@ -103,7 +106,7 @@ export default function QuizResultsPage() {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [discountApplied])
 
   const getDataValue = (key: string) => {
     if (data?.[key] !== undefined) return data[key]
@@ -401,12 +404,16 @@ export default function QuizResultsPage() {
       <header className="sticky top-0 z-50 w-full px-6 py-4 flex items-center justify-between border-b border-gray-800 bg-black">
         <div />
         <div className="flex items-center gap-4">
-          <span className="text-sm">Desconto reservado por:</span>
-          <div className="flex gap-2 text-orange-400 font-bold text-lg">
-            <span>{String(timeLeft.minutes).padStart(2, "0")}</span>
-            <span>:</span>
-            <span>{String(timeLeft.seconds).padStart(2, "0")}</span>
-          </div>
+          {discountApplied && (
+            <>
+              <span className="text-sm">Desconto reservado por:</span>
+              <div className="flex gap-2 text-orange-400 font-bold text-lg">
+                <span>{String(timeLeft.minutes).padStart(2, "0")}</span>
+                <span>:</span>
+                <span>{String(timeLeft.seconds).padStart(2, "0")}</span>
+              </div>
+            </>
+          )}
           {/* Open checkout page instead of modal */}
           <button
             onClick={handleCheckout}

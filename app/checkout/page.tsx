@@ -246,7 +246,17 @@ export default function CheckoutPage() {
 
         setFormData((prev) => ({
           ...prev,
-          email: prev.email || data.email || "",
+          email: prev.email || data.email || user.email || "",
+          name: prev.name || data.name || user.displayName || "",
+          cpf: prev.cpf || data.cpf || "",
+          phone: prev.phone || data.phone || "",
+        }))
+      } else {
+        // Se não houver documento, preencher com dados do Firebase Auth
+        setFormData((prev) => ({
+          ...prev,
+          email: prev.email || user.email || "",
+          name: prev.name || user.displayName || "",
         }))
       }
     } catch (err) {
