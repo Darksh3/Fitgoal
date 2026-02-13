@@ -549,11 +549,16 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-3 gap-2 mb-6">
                   <button
                     onClick={() => setSelectedPlan("mensal")}
-                    className={`p-2 rounded-lg border-2 transition-all text-center ${selectedPlan === "mensal"
+                    className={`p-2 rounded-lg border-2 transition-all text-center relative ${selectedPlan === "mensal"
                       ? "border-lime-500 bg-lime-500/10"
                       : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
                       }`}
                   >
+                    {spinDiscount && (
+                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
+                        -{spinDiscount}%
+                      </div>
+                    )}
                     <div className={`text-xs font-semibold ${selectedPlan === "mensal" ? "text-lime-400" : "text-gray-300"}`}>Mensal</div>
                     <div className={`text-sm font-bold ${selectedPlan === "mensal" ? "text-lime-400" : "text-gray-400"}`}>R$ 79,90</div>
                   </button>
