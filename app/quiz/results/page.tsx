@@ -12,7 +12,7 @@ export default function QuizResultsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
-  const [timeLeft, setTimeLeft] = useState({ minutes: 4, seconds: 0 })
+  const [timeLeft, setTimeLeft] = useState({ minutes: 10, seconds: 0 })
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "quarterly" | "semiannual">("quarterly")
   const [barsVisible, setBarsVisible] = useState(false)
   const [expandedTestimonial, setExpandedTestimonial] = useState<string | null>(null)
@@ -91,6 +91,9 @@ export default function QuizResultsPage() {
   }, [router])
 
   useEffect(() => {
+    // Só inicia o timer após o desconto ser aplicado
+    if (!discountApplied) return
+
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev.seconds > 0) {
@@ -103,7 +106,7 @@ export default function QuizResultsPage() {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [discountApplied])
 
   const getDataValue = (key: string) => {
     if (data?.[key] !== undefined) return data[key]
@@ -401,12 +404,16 @@ export default function QuizResultsPage() {
       <header className="sticky top-0 z-50 w-full px-6 py-4 flex items-center justify-between border-b border-gray-800 bg-black">
         <div />
         <div className="flex items-center gap-4">
-          <span className="text-sm">Desconto reservado por:</span>
-          <div className="flex gap-2 text-orange-400 font-bold text-lg">
-            <span>{String(timeLeft.minutes).padStart(2, "0")}</span>
-            <span>:</span>
-            <span>{String(timeLeft.seconds).padStart(2, "0")}</span>
-          </div>
+          {discountApplied && (
+            <>
+              <span className="text-sm">Desconto reservado por:</span>
+              <div className="flex gap-2 text-orange-400 font-bold text-lg">
+                <span>{String(timeLeft.minutes).padStart(2, "0")}</span>
+                <span>:</span>
+                <span>{String(timeLeft.seconds).padStart(2, "0")}</span>
+              </div>
+            </>
+          )}
           {/* Open checkout page instead of modal */}
           <button
             onClick={handleCheckout}
@@ -806,12 +813,16 @@ export default function QuizResultsPage() {
                 <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
                 </svg>
-                <span className="text-white font-semibold">Seu código promo foi aplicado!</span>
+                <span className="text-white font-semibold">
+                  {discountApplied ? 'Seu código promo foi aplicado!' : 'Possui código de desconto?'}
+                </span>
               </div>
 
               <div className="flex gap-4 items-center">
                 <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
-                  <p className="text-white font-mono text-lg">SHAPE50OFF</p>
+                  <p className="text-white font-mono text-lg">
+                    {discountApplied ? 'SHAPE70' : ''}
+                  </p>
                 </div>
               </div>
             </div>
@@ -1249,12 +1260,16 @@ export default function QuizResultsPage() {
                     <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
                     </svg>
-                    <span className="text-white font-semibold">Seu código promo foi aplicado!</span>
+                    <span className="text-white font-semibold">
+                      {discountApplied ? 'Seu código promo foi aplicado!' : 'Possui código de desconto?'}
+                    </span>
                   </div>
 
                   <div className="flex gap-4 items-center">
                     <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
-                      <p className="text-white font-mono text-lg">SHAPE50OFF</p>
+                      <p className="text-white font-mono text-lg">
+                        {discountApplied ? 'SHAPE70' : ''}
+                      </p>
                     </div>
                   </div>
                 </div>
