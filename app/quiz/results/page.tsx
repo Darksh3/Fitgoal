@@ -6,6 +6,7 @@ import { motion } from "framer-motion"
 import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc } from "firebase/firestore"
 import Image from "next/image"
+import SpinWheelSection from '@/components/SpinWheelSection'
 
 export default function QuizResultsPage() {
   const router = useRouter()
@@ -15,6 +16,25 @@ export default function QuizResultsPage() {
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "quarterly" | "semiannual">("quarterly")
   const [barsVisible, setBarsVisible] = useState(false)
   const [expandedTestimonial, setExpandedTestimonial] = useState<string | null>(null)
+  
+  // ========== ESTADOS DA ROLETA ==========
+  const [showSpinWheel, setShowSpinWheel] = useState(true)
+  const [discountApplied, setDiscountApplied] = useState(false)
+  const [discountPercentage, setDiscountPercentage] = useState(0)
+  // ========================================
+
+  // ========== FUNÇÃO QUANDO GANHA DESCONTO ==========
+  const handleDiscountWon = (discount: number) => {
+    setDiscountPercentage(discount)
+    setDiscountApplied(true)
+    setShowSpinWheel(false)
+    // Salva no localStorage para usar no checkout
+    localStorage.setItem('spinDiscount', JSON.stringify({
+      discount: discount,
+      timestamp: Date.now()
+    }))
+  }
+  // ==================================================
 
   useEffect(() => {
     const fetchData = async () => {
@@ -403,6 +423,12 @@ export default function QuizResultsPage() {
       </header>
 
       <main className="w-full px-6 py-12">
+        {/* ========== SEÇÃO DA ROLETA ========== */}
+        {showSpinWheel && !discountApplied && (
+          <SpinWheelSection onDiscountWon={handleDiscountWon} />
+        )}
+        {/* ===================================== */}
+        
         <h1 className="text-4xl md:text-5xl font-bold text-center mb-12">
           Seu Plano de Dieta e Treino <br /> estão Prontos!
         </h1>
@@ -806,7 +832,14 @@ export default function QuizResultsPage() {
                 </div>
               </div>
               <div className="text-gray-400 text-sm mb-3">Acesso completo por 30 dias</div>
-              <div className="text-3xl font-bold text-white mb-1">R$ 79,90</div>
+              <div className="text-3xl font-bold text-white mb-1">
+                {discountApplied ? (
+                  <>
+                    <span className="line-through text-gray-500 text-lg mr-2">R$ 266,33</span>
+                    <span className="text-orange-400">R$ 79,90</span>
+                  </>
+                ) : 'R$ 266,33'}
+              </div>
               <div className="text-gray-500 text-xs">por mês</div>
             </div>
 
@@ -828,7 +861,14 @@ export default function QuizResultsPage() {
                 </svg>
               </div>
               <div className="text-gray-400 text-sm mb-3">Acesso completo por 90 dias</div>
-              <div className="text-3xl font-bold text-white mb-1">R$ 159,90</div>
+              <div className="text-3xl font-bold text-white mb-1">
+                {discountApplied ? (
+                  <>
+                    <span className="line-through text-gray-500 text-lg mr-2">R$ 533,00</span>
+                    <span className="text-orange-400">R$ 159,90</span>
+                  </>
+                ) : 'R$ 533,00'}
+              </div>
               <div className="text-gray-500 text-xs">por trimestre</div>
             </div>
 
@@ -847,7 +887,14 @@ export default function QuizResultsPage() {
                 </div>
               </div>
               <div className="text-gray-400 text-sm mb-3">Acesso completo por 180 dias</div>
-              <div className="text-3xl font-bold text-white mb-1">R$ 239,90</div>
+              <div className="text-3xl font-bold text-white mb-1">
+                {discountApplied ? (
+                  <>
+                    <span className="line-through text-gray-500 text-lg mr-2">R$ 799,67</span>
+                    <span className="text-orange-400">R$ 239,90</span>
+                  </>
+                ) : 'R$ 799,67'}
+              </div>
               <div className="text-gray-500 text-xs">por semestre</div>
             </div>
           </div>
@@ -1228,7 +1275,14 @@ export default function QuizResultsPage() {
                     </div>
                   </div>
                   <div className="text-gray-400 text-sm mb-3">Acesso completo por 30 dias</div>
-                  <div className="text-3xl font-bold text-white mb-1">R$ 79,90</div>
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {discountApplied ? (
+                      <>
+                        <span className="line-through text-gray-500 text-lg mr-2">R$ 266,33</span>
+                        <span className="text-orange-400">R$ 79,90</span>
+                      </>
+                    ) : 'R$ 266,33'}
+                  </div>
                   <div className="text-gray-500 text-xs">por mês</div>
                 </div>
 
@@ -1250,7 +1304,14 @@ export default function QuizResultsPage() {
                     </svg>
                   </div>
                   <div className="text-gray-400 text-sm mb-3">Acesso completo por 90 dias</div>
-                  <div className="text-3xl font-bold text-white mb-1">R$ 159,90</div>
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {discountApplied ? (
+                      <>
+                        <span className="line-through text-gray-500 text-lg mr-2">R$ 533,00</span>
+                        <span className="text-orange-400">R$ 159,90</span>
+                      </>
+                    ) : 'R$ 533,00'}
+                  </div>
                   <div className="text-gray-500 text-xs">por trimestre</div>
                 </div>
 
@@ -1269,7 +1330,14 @@ export default function QuizResultsPage() {
                     </div>
                   </div>
                   <div className="text-gray-400 text-sm mb-3">Acesso completo por 180 dias</div>
-                  <div className="text-3xl font-bold text-white mb-1">R$ 239,90</div>
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {discountApplied ? (
+                      <>
+                        <span className="line-through text-gray-500 text-lg mr-2">R$ 799,67</span>
+                        <span className="text-orange-400">R$ 239,90</span>
+                      </>
+                    ) : 'R$ 799,67'}
+                  </div>
                   <div className="text-gray-500 text-xs">por semestre</div>
                 </div>
               </div>
