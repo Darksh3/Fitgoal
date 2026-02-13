@@ -63,6 +63,7 @@ export default function CheckoutPage() {
   const [redirectCountdown, setRedirectCountdown] = useState(90)
   const [selectedPlan, setSelectedPlan] = useState<"mensal" | "trimestral" | "semestral">("semestral")
   const [prefillLoading, setPrefillLoading] = useState(false)
+  const [spinDiscount, setSpinDiscount] = useState<number | null>(null)
 
   const [formData, setFormData] = useState<PaymentFormData>({
     email: "",
@@ -133,6 +134,21 @@ export default function CheckoutPage() {
       setUser(currentUser)
     })
     return () => unsubscribe()
+  }, [])
+
+  // Check for spin discount from wheel
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const spinData = localStorage.getItem('spinDiscount')
+      if (spinData) {
+        try {
+          const { discount } = JSON.parse(spinData)
+          setSpinDiscount(discount)
+        } catch (e) {
+          console.log('[v0] Erro ao ler spinDiscount:', e)
+        }
+      }
+    }
   }, [])
 
   // Real-time payment listener
