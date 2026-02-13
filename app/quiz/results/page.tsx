@@ -423,14 +423,6 @@ export default function QuizResultsPage() {
       </header>
 
       <main className="w-full px-6 py-12">
-        {/* ========== SEÇÃO DA ROLETA ========== */}
-        {showSpinWheel && !discountApplied && (
-          <div>
-            <SpinWheelSection onDiscountWon={handleDiscountWon} />
-          </div>
-        )}
-        {/* ===================================== */}
-        
         <h1 className="text-4xl md:text-5xl font-bold text-center mb-12">
           Seu Plano de Dieta e Treino <br /> estão Prontos!
         </h1>
@@ -798,6 +790,14 @@ export default function QuizResultsPage() {
               </div>
             </div>
           </div>
+
+          {/* ========== SEÇÃO DA ROLETA ========== */}
+          {showSpinWheel && !discountApplied && (
+            <div>
+              <SpinWheelSection onDiscountWon={handleDiscountWon} />
+            </div>
+          )}
+          {/* ===================================== */}
 
           {/* Promo code banner */}
           <div className="bg-orange-400 rounded-xl p-1 mt-8">
