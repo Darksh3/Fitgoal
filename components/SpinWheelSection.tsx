@@ -18,7 +18,7 @@ const SEGMENTS = [
   { discount: 40, color: '#40a37a' },
   { discount: 50, color: '#1c4d5d' },
   { discount: 60, color: '#2c7b61' },
-  { discount: 70, color: '#ff6b35' }, // Destaque laranja para 70%
+  { discount: 70, color: '#27ae60' }, // Destaque verde para 70%
   { discount: 20, color: '#40a37a' },
 ]
 
@@ -217,7 +217,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
                 style={{
                   width: 6 + Math.random() * 8,
                   height: 6 + Math.random() * 8,
-                  backgroundColor: ['#77ff00', '#ffb800', '#40a37a', '#ff6b35', '#ffd700'][Math.floor(Math.random() * 5)],
+                  backgroundColor: ['#77ff00', '#2ecc71', '#27ae60', '#1abc9c', '#16a085'][Math.floor(Math.random() * 5)],
                   borderRadius: Math.random() > 0.5 ? '50%' : '0',
                 }}
               />
@@ -239,14 +239,14 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
-              className="bg-gradient-to-b from-gray-900 to-black border border-orange-500/30 rounded-2xl max-w-md w-full overflow-hidden"
+              className="bg-gradient-to-b from-gray-900 to-black border border-green-500/30 rounded-2xl max-w-md w-full overflow-hidden"
             >
               <div className="p-8 text-center" style={{ background: 'linear-gradient(180deg, rgba(255, 107, 53, 0.2) 0%, transparent 100%)' }}>
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: "spring" }}
-                  className="w-20 h-20 rounded-full bg-orange-500/20 flex items-center justify-center mx-auto mb-4"
+                  className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4"
                 >
                   <span className="text-4xl">🎉</span>
                 </motion.div>
@@ -279,7 +279,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
                   onClick={handleContinue}
                   className="w-full py-4 px-8 text-lg font-bold uppercase tracking-wider rounded-xl text-white flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02]"
                   style={{
-                    background: 'linear-gradient(180deg, #ff6b35 0%, #e55a2b 50%, #cc4a1f 100%)',
+                    background: 'linear-gradient(180deg, #27ae60 0%, #229954 50%, #1e8449 100%)',
                     boxShadow: '0 4px 20px rgba(255, 107, 53, 0.4)',
                   }}
                 >
@@ -396,10 +396,10 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
               style={{
                 background: hasSpun 
                   ? '#666' 
-                  : 'linear-gradient(180deg, #ff6b35 0%, #e55a2b 50%, #cc4a1f 100%)',
+                  : 'linear-gradient(180deg, #27ae60 0%, #229954 50%, #1e8449 100%)',
                 boxShadow: hasSpun 
                   ? 'none' 
-                  : '0 4px 20px rgba(255, 107, 53, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+                  : '0 4px 20px rgba(39, 174, 96, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
                 border: '2px solid rgba(255, 255, 255, 0.2)',
               }}
             >
