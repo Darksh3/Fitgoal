@@ -365,12 +365,12 @@ export default function CheckoutPage() {
         try {
           await setDoc(doc(db, "payments", paymentResult.paymentId), {
             paymentId: paymentResult.paymentId,
-            userId: user?.uid || "anonymous",
+            userId: user?.uid,
             status: "PENDING",
             billingType: "PIX",
             createdAt: new Date(),
           })
-          console.log("[v0] PIX salvo no Firestore com userID:", user?.uid || "anonymous")
+          console.log("[v0] PIX salvo no Firestore com userID:", user?.uid)
         } catch (err) {
           console.error("[v0] Erro ao salvar PIX:", err)
         }
@@ -442,7 +442,7 @@ export default function CheckoutPage() {
         try {
           await setDoc(doc(db, "payments", paymentResult.paymentId), {
             paymentId: paymentResult.paymentId,
-            userId: user?.uid || "anonymous",
+            userId: user?.uid,
             status: "PENDING",
             billingType: "CARD",
             createdAt: new Date(),
