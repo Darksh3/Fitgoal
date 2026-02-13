@@ -445,9 +445,6 @@ export default function CheckoutPage() {
           throw new Error(errorData.error || "Erro ao processar cartão")
         }
 
-        try {
-          // Get uid from quizData or from user state
-
         // Nota: O documento de pagamento é criado pelo servidor via Admin SDK
         // O cliente apenas lê/escuta o status via onSnapshot
         setCardPaymentId(paymentResult.paymentId)
@@ -459,7 +456,6 @@ export default function CheckoutPage() {
       const errorMsg = err instanceof Error ? err.message : "Erro ao processar pagamento"
       console.log("[v0] Erro capturado:", errorMsg)
       setError(errorMsg)
-    } finally {
       setProcessing(false)
     }
   }
