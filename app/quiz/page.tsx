@@ -2028,7 +2028,10 @@ export default function QuizPage() {
               </div>
               <div className="flex-1">
                 <p className="text-white text-left text-base sm:text-lg">
-                  Seu corpo não recebe calorias suficientes para crescer
+                  {quizData.bodyType === "endomorfo" 
+                    ? "O excesso calórico está travando seus resultados"
+                    : "Seu corpo não recebe calorias suficientes para crescer"
+                  }
                 </p>
               </div>
             </motion.div>
