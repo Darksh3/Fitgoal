@@ -7,25 +7,25 @@ import { motion, AnimatePresence } from 'framer-motion'
 // CONFIGURAÇÃO - FÁCIL DE MODIFICAR
 // =====================================================
 
-// Desconto que SEMPRE será o resultado (aparece como 70%)
+// Desconto que SEMPRE será o resultado (70%)
 const WINNING_DISCOUNT = 70
 
-// Segmentos visuais da roleta (apenas visual, resultado é sempre WINNING_DISCOUNT)
+// Segmentos visuais da roleta (cores verdes como na imagem original)
 const SEGMENTS = [
-  { discount: 10, color: '#2c5a7a' },
-  { discount: 20, color: '#3d9970' },
-  { discount: 30, color: '#2c5a7a' },
-  { discount: 40, color: '#3d9970' },
-  { discount: 50, color: '#2c5a7a' },
-  { discount: 60, color: '#3d9970' },
-  { discount: 70, color: '#3d9970' }, // Verde para 70%
-  { discount: 80, color: '#2c5a7a' },
+  { discount: 10, color: '#1c4d5d' },  // Azul escuro/teal
+  { discount: 20, color: '#2c7b61' },  // Verde médio
+  { discount: 30, color: '#1c4d5d' },  // Azul escuro/teal
+  { discount: 40, color: '#40a37a' },  // Verde claro
+  { discount: 50, color: '#1c4d5d' },  // Azul escuro/teal
+  { discount: 60, color: '#2c7b61' },  // Verde médio
+  { discount: 70, color: '#1c4d5d' },  // Azul escuro/teal (era 80%, agora é 70%)
+  { discount: 20, color: '#40a37a' },  // Verde claro
 ]
 
 // Encontra o índice do segmento vencedor (70%)
 const WINNING_SEGMENT_INDEX = SEGMENTS.findIndex(s => s.discount === WINNING_DISCOUNT)
 
-// Gera posições das luzes
+// Gera posições das luzes douradas
 const generateLightPositions = (count = 24) => {
   const lights = []
   for (let i = 0; i < count; i++) {
@@ -52,7 +52,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
   const [hasSpun, setHasSpun] = useState(false)
   const [showWinModal, setShowWinModal] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
-  
+
   const wheelSize = 340
   const center = wheelSize / 2
   const outerRadius = 145
@@ -61,27 +61,27 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    
+
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-    
+
     const scale = window.devicePixelRatio || 1
     canvas.width = wheelSize * scale
     canvas.height = wheelSize * scale
     ctx.scale(scale, scale)
     ctx.clearRect(0, 0, wheelSize, wheelSize)
-    
+
     ctx.save()
     ctx.translate(center, center)
     ctx.rotate((rotation * Math.PI) / 180)
     ctx.translate(-center, -center)
-    
+
     const segmentAngle = (2 * Math.PI) / SEGMENTS.length
-    
+
     SEGMENTS.forEach((segment, index) => {
       const startAngle = index * segmentAngle - Math.PI / 2
       const endAngle = startAngle + segmentAngle
-      
+
       ctx.beginPath()
       ctx.moveTo(center, center)
       ctx.arc(center, center, outerRadius, startAngle, endAngle)
@@ -91,34 +91,33 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
       ctx.strokeStyle = '#0d1f1e'
       ctx.lineWidth = 2
       ctx.stroke()
-      
+
       ctx.save()
       const midAngle = startAngle + segmentAngle / 2
       const textRadius = outerRadius * 0.65
       const textX = center + textRadius * Math.cos(midAngle)
       const textY = center + textRadius * Math.sin(midAngle)
-      
+
       ctx.translate(textX, textY)
       ctx.rotate(midAngle + Math.PI / 2)
-      
+
       ctx.fillStyle = '#ffffff'
       ctx.font = 'bold 24px Inter, Arial, sans-serif'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      ctx.fillStyle = '#186a3b'
       ctx.shadowColor = 'rgba(0,0,0,0.5)'
       ctx.shadowBlur = 4
       ctx.shadowOffsetY = 2
-      
+
       ctx.fillText(`${segment.discount}%`, 0, 0)
       ctx.restore()
     })
-    
-    // Centro da roleta
+
+    // Centro da roleta - gradiente verde
     const gradient = ctx.createLinearGradient(center - 40, center - 40, center + 40, center + 40)
     gradient.addColorStop(0, '#40a37a')
     gradient.addColorStop(1, '#1c4d5d')
-    
+
     ctx.beginPath()
     ctx.arc(center, center, 40, 0, Math.PI * 2)
     ctx.fillStyle = gradient
@@ -126,22 +125,22 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
     ctx.strokeStyle = '#0d1f1e'
     ctx.lineWidth = 4
     ctx.stroke()
-    
+
     ctx.beginPath()
     ctx.arc(center, center, 30, 0, Math.PI * 2)
-    ctx.fillStyle = '#2c5a7a'
+    ctx.fillStyle = '#2c7b61'
     ctx.fill()
-    
+
     ctx.beginPath()
     ctx.arc(center, center, 18, 0, Math.PI * 2)
-    ctx.fillStyle = '#3d9970'
+    ctx.fillStyle = '#40a37a'
     ctx.fill()
-    
+
     ctx.beginPath()
     ctx.arc(center, center, 8, 0, Math.PI * 2)
     ctx.fillStyle = '#77ff00'
     ctx.fill()
-    
+
     ctx.restore()
   }, [rotation])
 
@@ -170,7 +169,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
       const easedProgress = easeOutCubic(progress)
       const currentRotation = startRotation + (targetRotation - startRotation) * easedProgress
       setRotation(currentRotation)
-      
+
       if (progress < 1) {
         requestAnimationFrame(animate)
       } else {
@@ -182,7 +181,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
         setTimeout(() => setShowConfetti(false), 5000)
       }
     }
-    
+
     requestAnimationFrame(animate)
   }
 
@@ -190,6 +189,9 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
     setShowWinModal(false)
     onDiscountWon(WINNING_DISCOUNT)
   }
+
+  // Cores do confete (verde e dourado)
+  const confettiColors = ['#77ff00', '#ffb800', '#40a37a', '#2c7b61', '#ffd700']
 
   return (
     <>
@@ -201,16 +203,16 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
               <motion.div
                 key={i}
                 className="absolute"
-                initial={{ 
-                  top: -20, 
+                initial={{
+                  top: -20,
                   left: `${Math.random() * 100}%`,
-                  rotate: 0 
+                  rotate: 0
                 }}
-                animate={{ 
+                animate={{
                   top: '100vh',
-                  rotate: 720 
+                  rotate: 720
                 }}
-                transition={{ 
+                transition={{
                   duration: 2 + Math.random() * 2,
                   delay: Math.random() * 2,
                   ease: "linear"
@@ -218,7 +220,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
                 style={{
                   width: 6 + Math.random() * 8,
                   height: 6 + Math.random() * 8,
-                  backgroundColor: ['#77ff00', '#2ecc71', '#27ae60', '#1abc9c', '#16a085'][Math.floor(Math.random() * 5)],
+                  backgroundColor: confettiColors[Math.floor(Math.random() * confettiColors.length)],
                   borderRadius: Math.random() > 0.5 ? '50%' : '0',
                 }}
               />
@@ -227,7 +229,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
         )}
       </AnimatePresence>
 
-      {/* Modal de Vitória */}
+      {/* Modal de Vitória - Tema Verde */}
       <AnimatePresence>
         {showWinModal && (
           <motion.div
@@ -240,32 +242,35 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
-              className="bg-gradient-to-b from-gray-900 to-black border border-green-500/30 rounded-2xl max-w-md w-full overflow-hidden"
+              className="bg-gradient-to-b from-gray-900 to-black border border-lime-500/30 rounded-2xl max-w-md w-full overflow-hidden"
             >
-              <div className="p-8 text-center" style={{ background: 'linear-gradient(180deg, rgba(255, 107, 53, 0.2) 0%, transparent 100%)' }}>
+              {/* Header com gradiente verde */}
+              <div className="p-8 text-center" style={{ background: 'linear-gradient(180deg, rgba(64, 163, 122, 0.3) 0%, transparent 100%)' }}>
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: "spring" }}
-                  className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4"
+                  className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
+                  style={{ backgroundColor: 'rgba(119, 255, 0, 0.2)' }}
                 >
                   <span className="text-4xl">🎉</span>
                 </motion.div>
-                
-                <h2 className="text-4xl font-bold text-orange-400 mb-2">PARABÉNS!</h2>
+
+                <h2 className="text-4xl font-bold mb-2" style={{ color: '#77ff00' }}>PARABÉNS!</h2>
                 <p className="text-gray-300 text-lg">Você ganhou o MAIOR desconto da roleta!</p>
               </div>
 
+              {/* Conteúdo */}
               <div className="p-8 text-center">
                 <div className="inline-block px-8 py-4 rounded-2xl mb-6" style={{
-                  background: 'linear-gradient(135deg, rgba(255, 184, 0, 0.2) 0%, rgba(255, 107, 53, 0.2) 100%)',
+                  background: 'linear-gradient(135deg, rgba(255, 184, 0, 0.2) 0%, rgba(64, 163, 122, 0.2) 100%)',
                   border: '2px solid rgba(255, 184, 0, 0.4)',
                 }}>
-                  <span className="text-6xl font-bold text-orange-400">{WINNING_DISCOUNT}%</span>
+                  <span className="text-6xl font-bold" style={{ color: '#ffb800' }}>{WINNING_DISCOUNT}%</span>
                   <span className="block text-gray-300 text-lg mt-1">de desconto</span>
                 </div>
 
-                <div className="flex items-center justify-center gap-2 text-green-400 mb-6">
+                <div className="flex items-center justify-center gap-2 mb-6" style={{ color: '#40a37a' }}>
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
@@ -276,12 +281,14 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
                   Seu plano vai sair por um preço especial!
                 </p>
 
+                {/* Botão verde */}
                 <button
                   onClick={handleContinue}
                   className="w-full py-4 px-8 text-lg font-bold uppercase tracking-wider rounded-xl text-white flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02]"
                   style={{
-                    background: 'linear-gradient(180deg, #27ae60 0%, #229954 50%, #1e8449 100%)',
-                    boxShadow: '0 4px 20px rgba(255, 107, 53, 0.4)',
+                    background: 'linear-gradient(180deg, #40a37a 0%, #2c7b61 50%, #1c4d5d 100%)',
+                    boxShadow: '0 4px 20px rgba(64, 163, 122, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+                    border: '2px solid #40a37a',
                   }}
                 >
                   <span>Ver Meu Preço Especial</span>
@@ -295,36 +302,37 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
         )}
       </AnimatePresence>
 
-      {/* Seção da Roleta */}
-      <div className="w-full py-16 px-4" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(255, 107, 53, 0.05) 50%, rgba(0,0,0,0) 100%)' }}>
+      {/* Seção da Roleta - Fundo escuro sem tint */}
+      <div className="w-full py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-lime-400 mb-2">
+            {/* Título verde limão */}
+            <h2 className="text-4xl md:text-5xl font-bold mb-2" style={{ color: '#77ff00' }}>
               GIRE A ROLETA
             </h2>
             <p className="text-white text-xl md:text-2xl mb-8">
-              E GANHE UM DESCONTO EXCLUSIVO!
+              E GANHE UM DESCONTO!
             </p>
           </motion.div>
 
           {/* Container da Roleta */}
           <div className="flex flex-col items-center gap-8">
             <div className="relative" style={{ width: wheelSize, height: wheelSize }}>
-              {/* Brilho externo */}
-              <div 
+              {/* Brilho externo dourado */}
+              <div
                 className="absolute rounded-full pointer-events-none"
                 style={{
                   inset: '-40px',
                   background: 'radial-gradient(circle, rgba(255, 184, 0, 0.35) 0%, transparent 60%)',
                 }}
               />
-              
-              {/* Anel dourado */}
-              <div 
+
+              {/* Anel dourado externo */}
+              <div
                 className="absolute rounded-full"
                 style={{
                   inset: '-8px',
@@ -332,9 +340,9 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
                   zIndex: 1,
                 }}
               />
-              
+
               {/* Container do canvas */}
-              <div 
+              <div
                 className="absolute rounded-full overflow-hidden"
                 style={{
                   inset: '0px',
@@ -347,8 +355,8 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
                   style={{ width: wheelSize, height: wheelSize }}
                 />
               </div>
-              
-              {/* Luzes */}
+
+              {/* Luzes douradas */}
               <div className="absolute inset-0 z-10 pointer-events-none">
                 {WHEEL_LIGHTS.map((angle, index) => {
                   const radius = center + 12
@@ -371,13 +379,13 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
                 })}
               </div>
 
-              {/* Ponteiro */}
-              <div 
+              {/* Ponteiro dourado */}
+              <div
                 className="absolute z-20"
                 style={{ top: '-12px', left: '50%', transform: 'translateX(-50%)' }}
               >
-                <div 
-                  style={{ 
+                <div
+                  style={{
                     width: 0,
                     height: 0,
                     borderLeft: '22px solid transparent',
@@ -389,19 +397,19 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
               </div>
             </div>
 
-            {/* Botão de Girar */}
+            {/* Botão de Girar - Estilo verde como na imagem */}
             <button
               onClick={spin}
               disabled={isSpinning || hasSpun}
               className="px-12 py-4 text-xl font-bold uppercase tracking-wider rounded-full text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105"
               style={{
-                background: hasSpun 
-                  ? '#666' 
-                  : 'linear-gradient(180deg, #27ae60 0%, #229954 50%, #1e8449 100%)',
-                boxShadow: hasSpun 
-                  ? 'none' 
-                  : '0 4px 20px rgba(39, 174, 96, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
-                border: '2px solid rgba(255, 255, 255, 0.2)',
+                background: hasSpun
+                  ? '#666'
+                  : 'linear-gradient(180deg, #40a37a 0%, #2c7b61 50%, #1c4d5d 100%)',
+                boxShadow: hasSpun
+                  ? 'none'
+                  : '0 4px 20px rgba(64, 163, 122, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+                border: '2px solid rgba(64, 163, 122, 0.6)',
               }}
             >
               {isSpinning ? 'Girando...' : hasSpun ? 'Desconto Ganho!' : 'Girar Roleta'}
