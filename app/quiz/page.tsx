@@ -421,6 +421,17 @@ export default function QuizPage() {
   // </CHANGE>
 
   const [debugMode, setDebugMode] = useState(false) // Disabled debug mode
+
+  // Reset wheel states when entering step 31
+  useEffect(() => {
+    if (currentStep === 31) {
+      console.log(`[v0] Entering step 31 - resetting wheel states`)
+      setShowModal(false)
+      setShowConfetti(false)
+      setJaGirou(false)
+      setDesconto(null)
+    }
+  }, [currentStep])
   const [debugValues, setDebugValues] = useState({
     chest_left: { top: 23, left: 33, width: 14, height: 6, rotate: -90 },
     chest_right: { top: 23, right: 38, width: 14, height: 6, rotate: -90 },
@@ -1112,14 +1123,17 @@ export default function QuizPage() {
 
   // Spin wheel handlers
   const handleSpinComplete = (descontoGanho: number) => {
-    console.log(`Usuário ganhou ${descontoGanho}% de desconto!`)
+    console.log(`[v0] Spin complete! Usuário ganhou ${descontoGanho}% de desconto!`)
     
     setDesconto(descontoGanho)
     setJaGirou(true)
     setShowConfetti(true)
     
     // Mostra o modal após meio segundo
-    setTimeout(() => setShowModal(true), 500)
+    setTimeout(() => {
+      console.log(`[v0] Showing modal after delay`)
+      setShowModal(true)
+    }, 500)
     
     // Para o confete após 5 segundos
     setTimeout(() => setShowConfetti(false), 5000)
@@ -1132,6 +1146,7 @@ export default function QuizPage() {
   }
 
   const handleContinueWheel = () => {
+    console.log(`[v0] Continuing to results from wheel`)
     // Redirect to results page after winning the discount
     router.push("/quiz/results")
   }
@@ -4515,6 +4530,7 @@ export default function QuizPage() {
         )
 
       case 31: // Spin Wheel - Desconto
+        console.log(`[v0] Rendering spin wheel. showModal=${showModal}, desconto=${desconto}, jaGirou=${jaGirou}`)
         return (
           <div style={{
             minHeight: '100vh',
