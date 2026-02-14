@@ -3,13 +3,14 @@ import * as admin from "firebase-admin"
 
 // Initialize Firebase Admin
 if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-    }),
-  })
+  try {
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY || "{}")
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    })
+  } catch (err) {
+    console.error("[v0] Erro ao inicializar Firebase Admin:", err)
+  }
 }
 
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY
