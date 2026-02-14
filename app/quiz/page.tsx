@@ -461,243 +461,35 @@ export default function QuizPage() {
       setWaterFill(0)
     }
   }, [showWaterCongrats])
+  // </CHANGE>
+  const [animatedPercentage, setAnimatedPercentage] = useState(0)
 
-  // Main Quiz Component
-    const [animatedPercentage, setAnimatedPercentage] = useState(0)
+  const statuses = [
+    { label: "Atributos Físicos", threshold: 20 },
+    { label: "Nível de Fitness", threshold: 65 },
+    { label: "Análise de Potencial", threshold: 78 },
+    { label: "Geração de Dieta", threshold: 86 },
+    { label: "Geração de Treino", threshold: 100 },
+  ]
 
-    const statuses = [
-      { label: "Atributos Físicos", threshold: 20 },
-      { label: "Nível de Fitness", threshold: 65 },
-      { label: "Análise de Potencial", threshold: 78 },
-      { label: "Geração de Dieta", threshold: 86 },
-      { label: "Geração de Treino", threshold: 100 },
-    ]
-
-    const getMainTitle = () => {
-      if (animatedPercentage < 30) return "Estamos\nanalisando\nseus dados"
-      if (animatedPercentage < 60) return "Estamos\ncriando sua\ndieta"
-      if (animatedPercentage < 80) return "Estamos\ncriando seu\ntreino"
-      if (animatedPercentage < 95) return "Estamos\ncriando um plano\npersonalizado"
-      return "Plano de\nmudança\ncompleto!"
-    }
-
-    const getStatusMessage = () => {
-      if (animatedPercentage < 20) return "[Estamos analisando seus dados...]"
-      if (animatedPercentage < 50) return "[Estamos criando sua dieta...]"
-      if (animatedPercentage < 80) return "[Estamos criando seu treino...]"
-      if (animatedPercentage < 98) return "[Estamos criando um plano personalizado...]"
-      return "[Plano de mudança completo!]"
-    }
-
-    const isComplete = animatedPercentage === 100
-
-    // -----------------------------------------------------------
-    // ✅ EXTRAS OPCIONAIS (não mexem na sua lógica; só UX/copy)
-    // -----------------------------------------------------------
-
-    const activeStepIndex = useMemo(() => {
-      const idx = statuses.findIndex((s) => animatedPercentage < s.threshold)
-      return idx === -1 ? statuses.length - 1 : idx
-    }, [animatedPercentage, statuses])
-
-    const etaText = useMemo(() => {
-      if (isComplete) return "Concluído ✅"
-      if (animatedPercentage < 30) return "Tempo estimado: ~25–40s"
-      if (animatedPercentage < 60) return "Tempo estimado: ~15–25s"
-      if (animatedPercentage < 80) return "Tempo estimado: ~10–18s"
-      if (animatedPercentage < 95) return "Quase lá: ~5–10s"
-      return "Finalizando… ~2–6s"
-    }, [animatedPercentage, isComplete])
-
-    const DETAIL_BANK = useMemo(
-      () => ({
-        analyzing: [
-          "Interpretando suas respostas…",
-          "Calculando seu nível atual…",
-          "Identificando padrões e prioridades…",
-          "Ajustando seu ponto de partida…",
-        ],
-        diet: [
-          "Definindo calorias e macros…",
-          "Balanceando proteínas, carbo e gorduras…",
-          "Montando refeições práticas…",
-          "Ajustando para sua rotina diária…",
-        ],
-        training: [
-          "Escolhendo exercícios ideais…",
-          "Ajustando volume e intensidade…",
-          "Configurando progressão semanal…",
-          "Otimizando recuperação…",
-        ],
-        personalized: [
-          "Combinando treino + dieta…",
-          "Refinando detalhes finais…",
-          "Checando consistência do plano…",
-          "Preparando sua versão final…",
-        ],
-        complete: ["Tudo pronto. Vamos nessa? ✅"],
-      }),
-      []
-    )
-
-    const detailGroup = useMemo(() => {
-      if (isComplete) return "complete"
-      if (animatedPercentage < 30) return "analyzing"
-      if (animatedPercentage < 60) return "diet"
-      if (animatedPercentage < 80) return "training"
-      return "personalized"
-    }, [animatedPercentage, isComplete])
-
-    const detailLine = useMemo(() => {
-      const list = DETAIL_BANK[detailGroup] || []
-      if (!list.length) return ""
-      const i = Math.min(list.length - 1, Math.floor((animatedPercentage % 20) / 5))
-      return list[i]
-    }, [DETAIL_BANK, detailGroup, animatedPercentage])
-
-    // ✅ PLUG & PLAY UI (premium)
-    return (
-      <div className="min-h-screen px-4 pt-5 pb-7 flex flex-col bg-gradient-to-b from-[#050B1A] via-[#07112A] to-[#050B1A]">
-        {/* CSS inline: shimmer + pulse */}
-        <style>{`
-        .shimmerBar{
-          position: relative;
-          background: linear-gradient(90deg, rgba(59,130,246,.95), rgba(99,102,241,.95));
-          overflow: hidden;
-        }
-        .shimmerBar::after{
-          content:"";
-          position:absolute;
-          top:0; left:-40%;
-          width:40%; height:100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
-          animation: shimmerMove 1.35s infinite;
-        }
-        @keyframes shimmerMove{
-          0%{ transform: translateX(0); }
-          100%{ transform: translateX(280%); }
-        }
-
-        .pulseDot{
-          animation: pulseDot 1.15s infinite;
-        }
-        @keyframes pulseDot{
-          0%{ transform: scale(1); opacity: .75; }
-          50%{ transform: scale(1.35); opacity: 1; }
-          100%{ transform: scale(1); opacity: .75; }
-        }
-      `}</style>
-
-        {/* TOP */}
-        <div className="flex items-center justify-between text-white/80">
-          <button className="flex items-center gap-2 text-sm active:scale-[0.99]">
-            ← <span>Voltar</span>
-          </button>
-          <div className="text-sm text-white/60">30 de 30</div>
-        </div>
-
-        {/* Progress (top) */}
-        <div className="mt-4 h-2 rounded-full bg-white/10 overflow-hidden">
-          <div
-            className="h-full rounded-full shimmerBar"
-            style={{ width: `${Math.min(animatedPercentage, 100)}%` }}
-          />
-        </div>
-
-        {/* MAIN (mais pra cima e bem distribuído) */}
-        <div className="flex-1 flex flex-col justify-start pt-10 -mt-6">
-          <div className="text-center">
-            <div className="text-6xl md:text-7xl font-extrabold tracking-tight text-white">
-              {Math.round(animatedPercentage)}%
-            </div>
-
-            <div className="mt-3 text-2xl md:text-3xl font-semibold leading-tight whitespace-pre-line text-white">
-              {getMainTitle()}
-            </div>
-
-            {/* Linha premium */}
-            <div className="mt-4 text-sm md:text-base text-white/70">{detailLine}</div>
-            <div className="mt-1 text-xs md:text-sm text-white/50">{etaText}</div>
-
-            {/* Barra secundária + status message */}
-            <div className="mt-6 h-1.5 rounded-full bg-white/10 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-blue-500/90"
-                style={{ width: `${Math.min(animatedPercentage, 100)}%` }}
-              />
-            </div>
-            <div className="mt-2 text-xs text-white/45">{getStatusMessage()}</div>
-          </div>
-
-          {/* Status card premium */}
-          <div className="mt-7 rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
-            <div className="text-white/90 font-semibold mb-3">Status</div>
-
-            <div className="space-y-2">
-              {statuses.map((s, idx) => {
-                const done = animatedPercentage >= s.threshold
-                const active = idx === activeStepIndex && !isComplete
-
-                return (
-                  <div
-                    key={s.label}
-                    className={[
-                      "flex items-center justify-between rounded-xl px-3 py-2 transition-all",
-                      done ? "text-white/90" : "text-white/55",
-                      active ? "bg-white/10 ring-1 ring-white/15" : "bg-transparent",
-                    ].join(" ")}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={[
-                          "inline-block h-2.5 w-2.5 rounded-full",
-                          done ? "bg-green-400" : active ? "bg-blue-400 pulseDot" : "bg-white/20",
-                        ].join(" ")}
-                      />
-                      <span className={active ? "font-semibold text-white" : ""}>{s.label}</span>
-                    </div>
-
-                    <div className="text-sm">
-                      {done ? (
-                        <span className="text-green-400">✓</span>
-                      ) : active ? (
-                        <span className="text-blue-300/90">…</span>
-                      ) : (
-                        <span className="text-white/30">•</span>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-            <div className="mt-4 text-center text-xs text-white/40">
-              Over 100,000+ Programs Gerados
-            </div>
-          </div>
-        </div>
-
-        {/* BOTTOM */}
-        <div className="pt-5">
-          <button
-            className={[
-              "w-full rounded-2xl py-4 font-semibold transition-all active:scale-[0.99]",
-              isComplete
-                ? "bg-white text-black shadow-[0_10px_25px_rgba(255,255,255,0.12)]"
-                : "bg-white/20 text-white/55",
-            ].join(" ")}
-            disabled={!isComplete}
-          >
-            Continuar
-          </button>
-
-          <div className="mt-3 text-center text-[11px] text-white/35">
-            Seu plano é ajustado às suas respostas — sem “receita pronta”.
-          </div>
-        </div>
-      </div>
-    )
+  const getMainTitle = () => {
+    if (animatedPercentage < 30) return "Estamos\nanalisando\nseus dados"
+    if (animatedPercentage < 60) return "Estamos\ncriando sua\ndieta"
+    if (animatedPercentage < 80) return "Estamos\ncriando seu\ntreino"
+    if (animatedPercentage < 95) return "Estamos\ncriando um plano\npersonalizado"
+    return "Plano de\nmudança\ncompleto!"
   }
+  // </CHANGE>
+
+  const getStatusMessage = () => {
+    if (animatedPercentage < 20) return "[Estamos analisando seus dados...]"
+    if (animatedPercentage < 50) return "[Estamos criando sua dieta...]"
+    if (animatedPercentage < 80) return "[Estamos criando seu treino...]"
+    if (animatedPercentage < 98) return "[Estamos criando um plano personalizado...]"
+    return "[Plano de mudança completo!]"
+  }
+
+  const isComplete = animatedPercentage === 100
 
   // </CHANGE>
 
@@ -1576,6 +1368,216 @@ export default function QuizPage() {
   const showAnalyzingDataMessage = showAnalyzingData && analyzingStep < messages.length
   // </CHANGE>
 
+  if (showQuickResults) {
+    return (
+      <motion.div
+        className="
+        min-h-screen text-white flex items-center justify-center px-4 py-10
+        bg-gradient-to-b from-black to-gray-900
+      "
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="max-w-2xl w-full space-y-8">
+          {/* Header */}
+          <motion.div
+            className="text-center space-y-3"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.7 }}
+          >
+            <h1 className="text-4xl sm:text-5xl font-bold">Apenas 2 semanas para sentir os primeiros sinais</h1>
+            <p className="text-gray-300 text-lg">
+              Com base no seu perfil, estes são os resultados iniciais mais comuns
+            </p>
+          </motion.div>
+
+          {/* Status Box */}
+          <motion.div
+            className="
+            bg-gradient-to-br from-blue-950/40 via-purple-950/30 to-blue-950/40
+            border border-blue-800/40
+            rounded-3xl px-6 py-6 space-y-5 backdrop-blur-sm
+          "
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.7 }}
+          >
+            {/* Item 1 */}
+            <motion.div
+              className="flex items-center justify-between"
+              initial={{ opacity: 0, x: -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.45, duration: 0.6 }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-green-500/15 flex items-center justify-center">
+                  <span className="text-green-400 text-lg">✓</span>
+                </div>
+                <span className="text-lg">Energia diária</span>
+              </div>
+              <span className="text-green-400 font-medium">↑ Estável</span>
+            </motion.div>
+
+            <div className="h-px bg-blue-800/30" />
+
+            {/* Item 2 */}
+            <motion.div
+              className="flex items-center justify-between"
+              initial={{ opacity: 0, x: -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.65, duration: 0.6 }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-red-500/15 flex items-center justify-center">
+                  <span className="text-red-400 text-lg">✓</span>
+                </div>
+                <span className="text-lg">Gordura corporal</span>
+              </div>
+              <span className="text-red-400 font-medium">↓ Em queda</span>
+            </motion.div>
+
+            <div className="h-px bg-blue-800/30" />
+
+            {/* Item 3 */}
+            <motion.div
+              className="flex items-center justify-between"
+              initial={{ opacity: 0, x: -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.85, duration: 0.6 }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-cyan-500/15 flex items-center justify-center">
+                  <span className="text-cyan-400 text-lg">✓</span>
+                </div>
+                <span className="text-lg">Corpo mais firme</span>
+              </div>
+              <span className="text-cyan-400 font-medium">↑ Ativando</span>
+            </motion.div>
+          </motion.div>
+
+          {/* Timeline */}
+          <motion.div
+            className="text-center space-y-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.05, duration: 0.6 }}
+          >
+            <div className="flex justify-between text-sm text-gray-300 px-2">
+              <span>Agora</span>
+              <span>7 dias</span>
+              <span className="text-white font-medium">14 dias</span>
+            </div>
+
+            <div className="relative h-1 bg-blue-900/40 rounded-full overflow-hidden">
+              <motion.div
+                className="absolute left-0 top-0 h-1
+                         bg-gradient-to-r from-blue-600 to-cyan-400
+                         rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: "66%" }}
+                transition={{ delay: 1.15, duration: 0.9, ease: "easeOut" }}
+              />
+            </div>
+
+            <p className="text-sm text-gray-300">▲ primeiros sinais perceptíveis</p>
+          </motion.div>
+
+          {/* Proof */}
+          <motion.p
+            className="text-center text-sm text-gray-400"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.35, duration: 0.5 }}
+          >
+            *Estimativa baseada em mais de 1,3 milhão de treinos analisados
+          </motion.p>
+
+          {/* CTA */}
+          <motion.button
+            onClick={() => {
+              setShowQuickResults(false)
+              setCurrentStep(6)
+            }}
+            className="
+            w-full h-16 text-xl font-bold text-black
+            bg-white
+            rounded-full shadow-lg
+          "
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.5, duration: 0.6 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Continuar
+          </motion.button>
+        </div>
+      </motion.div>
+    )
+  }
+
+  if (showCortisolMessage && currentStep === 22) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center p-6">
+        <div className="max-w-2xl w-full space-y-8">
+          <h2 className="text-3xl font-bold text-white text-center">Não é necessário se esforçar ao limite!</h2>
+
+          <div className="relative bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+            {/* Graph visualization */}
+            <div className="relative h-64 mb-6">
+              <svg className="w-full h-full" viewBox="0 0 400 200" preserveAspectRatio="none">
+                {/* Cortisol line (white) going down */}
+                <path
+                  d="M 0,60 Q 100,50 200,80 Q 300,110 400,150"
+                  stroke="white"
+                  strokeWidth="3"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+                {/* Testosterone line (orange) going up */}
+                <path
+                  d="M 0,120 Q 100,130 200,100 Q 300,70 400,40"
+                  stroke="#f97316"
+                  strokeWidth="3"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+                {/* End point indicators */}
+                <circle cx="400" cy="150" r="6" fill="white" />
+                <circle cx="400" cy="40" r="6" fill="#f97316" />
+              </svg>
+              {/* Labels */}
+              <div className="absolute top-12 left-4 text-white text-sm font-semibold">Cortisol</div>
+              <div className="absolute top-24 left-4 text-orange-500 text-sm font-semibold">Testosterona</div>
+              <div className="absolute bottom-2 left-4 text-gray-400 text-xs">Agora</div>
+              <div className="absolute bottom-2 right-4 text-gray-400 text-xs">6 meses</div>
+            </div>
+
+            <div className="space-y-4 text-center">
+              <p className="text-gray-300 text-lg leading-relaxed">
+                Exercícios muito intensos podem aumentar seus níveis de cortisol e dificultar o ganho de massa muscular.
+                Nosso programa personaliza seu plano para ajudá-lo a atingir seus objetivos sem exagerar.
+              </p>
+              <p className="text-gray-400 text-sm italic">*Baseado em dados de 1.3m treinos.</p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              setShowCortisolMessage(false)
+              // The renderQuestion will handle showing the next step correctly (case 22)
+            }}
+            className="w-full bg-lime-500 hover:bg-lime-600 text-white rounded-lg py-4 font-semibold transition-all shadow-lg"
+          >
+            Entendi
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (showMotivationMessage && currentStep === 19) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-start justify-center p-6 pt-16">
@@ -2026,7 +2028,7 @@ export default function QuizPage() {
               </div>
               <div className="flex-1">
                 <p className="text-white text-left text-base sm:text-lg">
-                  {quizData.bodyType === "endomorfo"
+                  {quizData.bodyType === "endomorfo" 
                     ? "O excesso calórico está travando seus resultados"
                     : "Seu corpo não recebe calorias suficientes para crescer"
                   }
@@ -4474,10 +4476,10 @@ export default function QuizPage() {
                   Continuar
                 </button>
               )}
-            </div>
           </div>
         )
 
+      // </CHANGE>
       default:
         return true
     }
