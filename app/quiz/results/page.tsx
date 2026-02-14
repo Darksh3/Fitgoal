@@ -401,42 +401,36 @@ export default function QuizResultsPage() {
 
   return (
     <div className="w-full min-h-screen bg-black text-white">
-      <header className="sticky top-0 z-50 w-full px-6 py-4 flex items-center justify-between border-b border-gray-800 bg-black">
-        <div />
-        <div className="flex items-center gap-4">
+      {/* Compact Header */}
+      <header className="sticky top-0 z-50 w-full px-4 py-3 flex items-center justify-between border-b border-gray-800 bg-black">
+        <div className="text-xs text-gray-500">100% de progresso</div>
+        <div className="flex items-center gap-3">
           {discountApplied && (
-            <>
-              <span className="text-sm">Desconto reservado por:</span>
-              <div className="flex gap-2 text-orange-400 font-bold text-lg">
-                <span>{String(timeLeft.minutes).padStart(2, "0")}</span>
-                <span>:</span>
-                <span>{String(timeLeft.seconds).padStart(2, "0")}</span>
-              </div>
-            </>
+            <div className="flex gap-1 text-sm text-orange-400 font-bold">
+              <span>{String(timeLeft.minutes).padStart(2, "0")}</span>
+              <span>:</span>
+              <span>{String(timeLeft.seconds).padStart(2, "0")}</span>
+            </div>
           )}
-          {/* Open checkout page instead of modal */}
           <button
             onClick={handleCheckout}
-            className="px-6 py-2 bg-white text-black rounded-full font-semibold text-sm hover:bg-gray-200 transition"
+            className="px-4 py-1.5 bg-white text-black rounded-full font-bold text-xs hover:bg-gray-200 transition"
           >
-            OBTER MEU PLANO
-          </button>
-          <button className="w-8 h-8 flex items-center justify-center">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            COMEÇAR
           </button>
         </div>
       </header>
 
-      <main className="w-full px-6 py-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-center mb-12">
-          Seu Plano de Dieta e Treino <br /> estão Prontos!
-        </h1>
+      <main className="w-full px-4 py-6">
+        {/* Hero Title - Compact */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">100%</h1>
+          <p className="text-lg font-semibold text-gray-300 mb-1">Plano de mudança completo!</p>
+          <p className="text-xs text-gray-500">[Plano de mudança completo!]</p>
+        </div>
 
-        {/* Comparison container */}
-        <div className="max-w-4xl mx-auto bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-xl p-8 mb-16">
-          {/* Tabs */}
+        {/* Spin Wheel - Compact */}
+        <div className="max-w-3xl mx-auto mb-6">
           <div className="flex gap-4 mb-8 bg-black rounded-lg p-1">
             <button className="flex-1 py-3 px-4 bg-gray-800 text-white rounded-lg font-semibold">Agora</button>
             <button className="flex-1 py-3 px-4 bg-transparent text-gray-400 rounded-lg font-semibold hover:bg-gray-800 transition">
