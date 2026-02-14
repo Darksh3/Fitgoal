@@ -151,6 +151,11 @@ export default function CheckoutPage() {
     }
   }, [])
 
+  // Prefill form data from quiz or profile on page load
+  useEffect(() => {
+    prefillFromProfile()
+  }, [])
+
   // Real-time payment listener
   useEffect(() => {
     // For PIX and Card - listen to specific payment ID
@@ -250,6 +255,27 @@ export default function CheckoutPage() {
   }
 
   const prefillFromProfile = async () => {
+    // First priority: Try to get from quiz data in localStorage
+    if (typeof window !== 'undefined') {
+      const quizDataStr = localStorage.getItem("quizData")
+      if (quizDataStr) {
+        try {
+          const quizData = JSON.parse(quizDataStr)
+          setFormData((prev) => ({
+            ...prev,
+            email: prev.email || quizData.email || "",
+            name: prev.name || quizData.name || "",
+            cpf: prev.cpf || quizData.cpf || "",
+            phone: prev.phone || quizData.phone || "",
+          }))
+          return // If quiz data exists, return early - no need to query Firestore
+        } catch (e) {
+          console.log("[v0] Erro ao ler quizData:", e)
+        }
+      }
+    }
+
+    // Second priority: Try to get from Firestore user profile
     if (!user) return
     setPrefillLoading(true)
 
@@ -268,7 +294,7 @@ export default function CheckoutPage() {
           phone: prev.phone || data.phone || "",
         }))
       } else {
-        // Se não houver documento, preencher com dados do Firebase Auth
+        // If no Firestore document, use Firebase Auth
         setFormData((prev) => ({
           ...prev,
           email: prev.email || user.email || "",
