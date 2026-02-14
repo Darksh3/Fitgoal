@@ -4416,67 +4416,66 @@ export default function QuizPage() {
 
       case 30: // Final Submit - Loading page with animated percentage
         return (
-          <div className="min-h-screen flex flex-col items-center justify-center px-4 pb-4">
-            {/* Main percentage display */}
-            <div className="text-center flex-1 flex flex-col justify-center gap-2">
-              <div className="text-6xl md:text-7xl font-bold text-white mb-2 tracking-tight">
+          <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6">
+            {/* Compact Hero Section */}
+            <div className="w-full max-w-sm flex flex-col items-center justify-center gap-3">
+              {/* Percentage */}
+              <div className="text-5xl md:text-6xl font-bold text-white tracking-tight">
                 <AnimatedPercentage targetPercentage={100} duration={8} onPercentageChange={setAnimatedPercentage} />
               </div>
 
-              <h2 className="text-lg md:text-xl font-bold text-white mb-3 leading-tight whitespace-pre-wrap">
+              {/* Title */}
+              <h2 className="text-base md:text-lg font-bold text-white text-center leading-tight whitespace-pre-wrap">
                 {getMainTitle()}
               </h2>
-              {/* </CHANGE> */}
 
               {/* Progress bar */}
-              <div className="w-full max-w-xs bg-gray-800/50 rounded-full h-2 overflow-hidden mx-auto mb-2">
+              <div className="w-full bg-gray-800/50 rounded-full h-1.5 overflow-hidden mx-auto">
                 <div
-                  className="bg-blue-500 h-2 rounded-full transition-all duration-100"
+                  className="bg-blue-500 h-1.5 rounded-full transition-all duration-100"
                   style={{ width: `${animatedPercentage}%` }}
                 />
               </div>
 
               {/* Status message */}
-              <p className="text-gray-500 text-xs mt-1">{getStatusMessage()}</p>
-            </div>
+              <p className="text-gray-500 text-xs">{getStatusMessage()}</p>
 
-            {/* Status box */}
-            <div className="w-full max-w-xs bg-gray-900/60 border border-gray-800/50 rounded-xl p-4 mb-4 flex-shrink-0">
-              <h3 className="text-white text-xs font-bold mb-3">Status</h3>
-              <div className="space-y-1.5">
-                {statuses.map((status, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <span
-                      className={`text-xs transition-colors duration-300 ${animatedPercentage >= status.threshold ? "text-white font-medium" : "text-gray-500"
-                        }`}
-                    >
-                      {status.label}
-                    </span>
-                    {animatedPercentage >= status.threshold && <span className="text-green-500">✓</span>}
-                  </div>
-                ))}
+              {/* Status box - Compact */}
+              <div className="w-full bg-gray-900/60 border border-gray-800/50 rounded-lg p-3 mt-1">
+                <h3 className="text-white text-xs font-bold mb-2">Status</h3>
+                <div className="space-y-1">
+                  {statuses.map((status, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <span
+                        className={`text-xs transition-colors duration-300 ${animatedPercentage >= status.threshold ? "text-white font-medium" : "text-gray-500"
+                          }`}
+                      >
+                        {status.label}
+                      </span>
+                      {animatedPercentage >= status.threshold && <span className="text-green-500 text-xs">✓</span>}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Footer message */}
-            <div className="text-center text-gray-600 text-xs mb-3 flex-shrink-0">
-              <p className="mb-0.5">Over 100,000+</p>
-              <p>Programs Gerados</p>
-            </div>
+              {/* Footer message */}
+              <div className="text-center text-gray-600 text-xs mt-2">
+                <p>Over 100,000+ Programs Gerados</p>
+              </div>
 
-            {isComplete && (
-              <button
-                onClick={async () => {
-                  await handleSubmit()
-                  setTimeout(() => {
-                    router.push("/quiz/results")
-                  }, 500)
-                }}
-                className="w-full max-w-xs h-12 bg-white text-black text-base font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg flex-shrink-0"
-              >
-                Continuar
-              </button>
-            )}
+              {isComplete && (
+                <button
+                  onClick={async () => {
+                    await handleSubmit()
+                    setTimeout(() => {
+                      router.push("/quiz/results")
+                    }, 500)
+                  }}
+                  className="w-full h-11 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg mt-2"
+                >
+                  Continuar
+                </button>
+              )}
           </div>
         )
 
