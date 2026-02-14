@@ -151,6 +151,11 @@ export default function CheckoutPage() {
     }
   }, [])
 
+  // Prefill form data from quiz or profile on page load
+  useEffect(() => {
+    prefillFromProfile()
+  }, [])
+
   // Real-time payment listener
   useEffect(() => {
     // For PIX and Card - listen to specific payment ID
@@ -250,6 +255,27 @@ export default function CheckoutPage() {
   }
 
   const prefillFromProfile = async () => {
+    // First priority: Try to get from quiz data in localStorage
+    if (typeof window !== 'undefined') {
+      const quizDataStr = localStorage.getItem("quizData")
+      if (quizDataStr) {
+        try {
+          const quizData = JSON.parse(quizDataStr)
+          setFormData((prev) => ({
+            ...prev,
+            email: prev.email || quizData.email || "",
+            name: prev.name || quizData.name || "",
+            cpf: prev.cpf || quizData.cpf || "",
+            phone: prev.phone || quizData.phone || "",
+          }))
+          return // If quiz data exists, return early - no need to query Firestore
+        } catch (e) {
+          console.log("[v0] Erro ao ler quizData:", e)
+        }
+      }
+    }
+
+    // Second priority: Try to get from Firestore user profile
     if (!user) return
     setPrefillLoading(true)
 
@@ -268,7 +294,7 @@ export default function CheckoutPage() {
           phone: prev.phone || data.phone || "",
         }))
       } else {
-        // Se não houver documento, preencher com dados do Firebase Auth
+        // If no Firestore document, use Firebase Auth
         setFormData((prev) => ({
           ...prev,
           email: prev.email || user.email || "",
@@ -465,42 +491,12 @@ export default function CheckoutPage() {
     }
   }
 
-  // Success screen
-  if (success) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 flex items-center justify-center p-4">
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="text-center max-w-md w-full">
-          <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.6, delay: 0.3 }}>
-            <CheckCircle2 className="w-20 h-20 text-lime-500 mx-auto mb-6" />
-          </motion.div>
-          <h2 className="text-3xl font-bold text-white mb-2">Pagamento Confirmado!</h2>
-          <p className="text-gray-400 mb-6">Bem-vindo ao FitGoal. Seu acesso foi liberado.</p>
-
-          <div className="bg-slate-800/40 border border-slate-700 rounded-lg p-4 mb-6 space-y-2">
-            <p className="text-sm text-gray-300">
-              <span className="text-lime-400 font-semibold">Status:</span> Pagamento Processado
-            </p>
-            <p className="text-sm text-gray-300">
-              <span className="text-lime-400 font-semibold">Plano:</span> {planName}
-            </p>
-            <p className="text-sm text-gray-300">
-              <span className="text-lime-400 font-semibold">Valor:</span> R$ {parseFloat(planPrice).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-            </p>
-          </div>
-
-          <p className="text-gray-400 mb-6 text-sm">Redirecionando em {redirectCountdown}s...</p>
-          <div className="w-full bg-slate-700 rounded-full h-1 overflow-hidden">
-            <motion.div
-              className="h-full bg-lime-500"
-              initial={{ width: "100%" }}
-              animate={{ width: "0%" }}
-              transition={{ duration: 90, ease: "linear" }}
-            />
-          </div>
-        </motion.div>
-      </div>
-    )
-  }
+  // Success screen - Redirect to success page instead of showing modal
+  useEffect(() => {
+    if (success) {
+      router.push("/success")
+    }
+  }, [success, router])
 
   // Boleto screen
   if (boletoData) {
