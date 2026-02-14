@@ -461,11 +461,8 @@ export default function QuizPage() {
       setWaterFill(0)
     }
   }, [showWaterCongrats])
-  // </CHANGE>
-  import { useMemo, useState } from "react"
 
-  export default function LoadingPremium() {
-    // ✅ DROP-IN BLOCK (não altera sua lógica existente)
+  // Main Quiz Component
     const [animatedPercentage, setAnimatedPercentage] = useState(0)
 
     const statuses = [
