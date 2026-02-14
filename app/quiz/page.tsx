@@ -462,6 +462,7 @@ export default function QuizPage() {
     }
   }, [showWaterCongrats])
   // </CHANGE>
+  // ✅ DROP-IN BLOCK (não altera sua lógica existente)
   const [animatedPercentage, setAnimatedPercentage] = useState(0)
 
   const statuses = [
@@ -472,6 +473,7 @@ export default function QuizPage() {
     { label: "Geração de Treino", threshold: 100 },
   ]
 
+  // ✅ (mantido IGUAL)
   const getMainTitle = () => {
     if (animatedPercentage < 30) return "Estamos\nanalisando\nseus dados"
     if (animatedPercentage < 60) return "Estamos\ncriando sua\ndieta"
@@ -479,8 +481,8 @@ export default function QuizPage() {
     if (animatedPercentage < 95) return "Estamos\ncriando um plano\npersonalizado"
     return "Plano de\nmudança\ncompleto!"
   }
-  // </CHANGE>
 
+  // ✅ (mantido IGUAL)
   const getStatusMessage = () => {
     if (animatedPercentage < 20) return "[Estamos analisando seus dados...]"
     if (animatedPercentage < 50) return "[Estamos criando sua dieta...]"
@@ -489,7 +491,76 @@ export default function QuizPage() {
     return "[Plano de mudança completo!]"
   }
 
+  // ✅ (mantido IGUAL)
   const isComplete = animatedPercentage === 100
+
+  // -----------------------------------------------------------
+  // ✅ EXTRAS OPCIONAIS (não mexem na sua lógica; só UX/copy)
+  // Use se quiser mostrar uma linha menor “inteligente”/rotativa.
+  // -----------------------------------------------------------
+
+  // Etapa ativa (pra você destacar no UI, se quiser)
+  const activeStepIndex = (() => {
+    const idx = statuses.findIndex(s => animatedPercentage < s.threshold)
+    return idx === -1 ? statuses.length - 1 : idx
+  })()
+
+  // “Tempo estimado” fake, mas consistente (apenas front-end)
+  const etaText = (() => {
+    if (isComplete) return "Concluído ✅"
+    if (animatedPercentage < 30) return "Tempo estimado: ~25–40s"
+    if (animatedPercentage < 60) return "Tempo estimado: ~15–25s"
+    if (animatedPercentage < 80) return "Tempo estimado: ~10–18s"
+    if (animatedPercentage < 95) return "Quase lá: ~5–10s"
+    return "Finalizando… ~2–6s"
+  })()
+
+  // Linha “técnica” curta (parece IA trabalhando) — NÃO altera nada do seu fluxo
+  const DETAIL_BANK = {
+    analyzing: [
+      "Interpretando suas respostas…",
+      "Calculando seu nível atual…",
+      "Identificando padrões e prioridades…",
+      "Ajustando seu ponto de partida…",
+    ],
+    diet: [
+      "Definindo calorias e macros…",
+      "Balanceando proteínas, carbo e gorduras…",
+      "Montando refeições práticas…",
+      "Ajustando para sua rotina diária…",
+    ],
+    training: [
+      "Escolhendo exercícios ideais…",
+      "Ajustando volume e intensidade…",
+      "Configurando progressão semanal…",
+      "Otimizando recuperação…",
+    ],
+    personalized: [
+      "Combinando treino + dieta…",
+      "Refinando detalhes finais…",
+      "Checando consistência do plano…",
+      "Preparando sua versão final…",
+    ],
+    complete: ["Tudo pronto. Vamos nessa? ✅"],
+  }
+
+  // Seleção de grupo (apenas baseado no mesmo percentage)
+  const detailGroup = (() => {
+    if (isComplete) return "complete"
+    if (animatedPercentage < 30) return "analyzing"
+    if (animatedPercentage < 60) return "diet"
+    if (animatedPercentage < 80) return "training"
+    return "personalized"
+  })()
+
+  // Rotação determinística (não precisa timer extra)
+  const detailLine = (() => {
+    const list = DETAIL_BANK[detailGroup] || []
+    if (!list.length) return ""
+    // muda a frase suavemente conforme o progresso avança
+    const i = Math.min(list.length - 1, Math.floor((animatedPercentage % 20) / 5))
+    return list[i]
+  })()
 
   // </CHANGE>
 
@@ -2028,7 +2099,7 @@ export default function QuizPage() {
               </div>
               <div className="flex-1">
                 <p className="text-white text-left text-base sm:text-lg">
-                  {quizData.bodyType === "endomorfo" 
+                  {quizData.bodyType === "endomorfo"
                     ? "O excesso calórico está travando seus resultados"
                     : "Seu corpo não recebe calorias suficientes para crescer"
                   }
@@ -4476,8 +4547,8 @@ export default function QuizPage() {
                   Continuar
                 </button>
               )}
-          </div>
-        )
+            </div>
+            )
 
       // </CHANGE>
       default:
