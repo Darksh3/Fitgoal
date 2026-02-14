@@ -465,42 +465,12 @@ export default function CheckoutPage() {
     }
   }
 
-  // Success screen
-  if (success) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 flex items-center justify-center p-4">
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="text-center max-w-md w-full">
-          <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.6, delay: 0.3 }}>
-            <CheckCircle2 className="w-20 h-20 text-lime-500 mx-auto mb-6" />
-          </motion.div>
-          <h2 className="text-3xl font-bold text-white mb-2">Pagamento Confirmado!</h2>
-          <p className="text-gray-400 mb-6">Bem-vindo ao FitGoal. Seu acesso foi liberado.</p>
-
-          <div className="bg-slate-800/40 border border-slate-700 rounded-lg p-4 mb-6 space-y-2">
-            <p className="text-sm text-gray-300">
-              <span className="text-lime-400 font-semibold">Status:</span> Pagamento Processado
-            </p>
-            <p className="text-sm text-gray-300">
-              <span className="text-lime-400 font-semibold">Plano:</span> {planName}
-            </p>
-            <p className="text-sm text-gray-300">
-              <span className="text-lime-400 font-semibold">Valor:</span> R$ {parseFloat(planPrice).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-            </p>
-          </div>
-
-          <p className="text-gray-400 mb-6 text-sm">Redirecionando em {redirectCountdown}s...</p>
-          <div className="w-full bg-slate-700 rounded-full h-1 overflow-hidden">
-            <motion.div
-              className="h-full bg-lime-500"
-              initial={{ width: "100%" }}
-              animate={{ width: "0%" }}
-              transition={{ duration: 90, ease: "linear" }}
-            />
-          </div>
-        </motion.div>
-      </div>
-    )
-  }
+  // Success screen - Redirect to success page instead of showing modal
+  useEffect(() => {
+    if (success) {
+      router.push("/success")
+    }
+  }, [success, router])
 
   // Boleto screen
   if (boletoData) {
