@@ -325,6 +325,11 @@ export default function CheckoutPage() {
       }
 
       // Step 1: Criar pagamento com /api/create-asaas-payment (igual ao modal)
+      // Get uid from localStorage quizData first, then fallback to Firebase Auth
+      const stored = localStorage.getItem("quizData")
+      const storedUid = stored ? JSON.parse(stored).uid : null
+      const finalClientUid = storedUid || user?.uid
+
       const paymentPayload: Record<string, any> = {
         email: formData.email,
         name: formData.name,
@@ -333,7 +338,7 @@ export default function CheckoutPage() {
         planType: selectedPlan,
         paymentMethod: paymentMethod === "card" ? "card" : paymentMethod,
         description: `${planName} - Fitgoal Fitness`,
-        clientUid: user?.uid,
+        clientUid: finalClientUid,
       }
 
       if (paymentMethod === "card") {
