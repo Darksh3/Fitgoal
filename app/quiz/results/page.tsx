@@ -561,9 +561,7 @@ export default function QuizResultsPage() {
                   <p className="text-white font-bold mb-2">
                     {getDataValue("experience") === "iniciante" 
                       ? "Intermediário" 
-                      : getDataValue("experience") === "intermediario"
-                      ? "Avançado"
-                      : "Elite"}
+                      : "Avançado"}
                   </p>
                   <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
