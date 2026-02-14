@@ -109,6 +109,11 @@ export default function QuizResultsPage() {
   }, [discountApplied])
 
   const getDataValue = (key: string) => {
+    console.log(`[v0] getDataValue('${key}'):`, {
+      "data[key]": data?.[key],
+      "data.quizData[key]": data?.quizData?.[key],
+      "fullData": data
+    })
     if (data?.[key] !== undefined) return data[key]
     if (data?.quizData?.[key] !== undefined) return data.quizData[key]
     return undefined
