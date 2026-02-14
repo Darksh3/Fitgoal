@@ -4548,9 +4548,9 @@ export default function QuizPage() {
                 </button>
               )}
             </div>
-            )
+          </div>
+        )
 
-      // </CHANGE>
       default:
         return true
     }
