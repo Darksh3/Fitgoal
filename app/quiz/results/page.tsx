@@ -109,6 +109,11 @@ export default function QuizResultsPage() {
   }, [discountApplied])
 
   const getDataValue = (key: string) => {
+    console.log(`[v0] getDataValue('${key}'):`, {
+      "data[key]": data?.[key],
+      "data.quizData[key]": data?.quizData?.[key],
+      "fullData": data
+    })
     if (data?.[key] !== undefined) return data[key]
     if (data?.quizData?.[key] !== undefined) return data.quizData[key]
     return undefined
@@ -558,7 +563,11 @@ export default function QuizResultsPage() {
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
-                  <p className="text-white font-bold mb-2">Avançado</p>
+                  <p className="text-white font-bold mb-2">
+                    {getDataValue("experience") === "iniciante" 
+                      ? "Intermediário" 
+                      : "Avançado"}
+                  </p>
                   <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
