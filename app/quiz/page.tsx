@@ -2028,7 +2028,7 @@ export default function QuizPage() {
               </div>
               <div className="flex-1">
                 <p className="text-white text-left text-base sm:text-lg">
-                  {quizData.bodyType === "endomorfo" 
+                  {quizData.bodyType === "endomorfo"
                     ? "O excesso calórico está travando seus resultados"
                     : "Seu corpo não recebe calorias suficientes para crescer"
                   }
@@ -4416,75 +4416,175 @@ export default function QuizPage() {
 
       case 30: // Final Submit - Loading page with animated percentage
         return (
-          <div className="min-h-screen flex flex-col items-center px-4 pt-8 pb-6 gap-8">
-            {/* Compact Hero Section - Spread throughout the screen */}
-            <div className="w-full max-w-sm flex flex-col items-center gap-6 flex-1 justify-between">
-              {/* Top Section */}
-              <div className="flex flex-col items-center gap-6 w-full">
+          <div className="min-h-screen flex flex-col px-4 pt-5 pb-7 bg-gradient-to-b from-[#050B1A] via-[#07112A] to-[#050B1A]">
+            {/* CSS inline (premium) */}
+            <style>{`
+        .shimmerBar{
+          position: relative;
+          background: linear-gradient(90deg, rgba(59,130,246,.95), rgba(99,102,241,.95));
+          overflow: hidden;
+        }
+        .shimmerBar::after{
+          content:"";
+          position:absolute;
+          top:0; left:-40%;
+          width:40%; height:100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+          animation: shimmerMove 1.35s infinite;
+        }
+        @keyframes shimmerMove{
+          0%{ transform: translateX(0); }
+          100%{ transform: translateX(280%); }
+        }
+        .pulseDot{
+          animation: pulseDot 1.15s infinite;
+        }
+        @keyframes pulseDot{
+          0%{ transform: scale(1); opacity: .75; }
+          50%{ transform: scale(1.35); opacity: 1; }
+          100%{ transform: scale(1); opacity: .75; }
+        }
+      `}</style>
+
+            {/* Top row (opcional, mas premium) */}
+            <div className="flex items-center justify-between text-white/70">
+              <div className="text-sm">Gerando seu plano</div>
+              <div className="text-sm text-white/45">30 de 30</div>
+            </div>
+
+            {/* Top progress (shimmer) */}
+            <div className="mt-4 h-2 rounded-full bg-white/10 overflow-hidden">
+              <div
+                className="h-full rounded-full shimmerBar"
+                style={{ width: `${Math.min(animatedPercentage, 100)}%` }}
+              />
+            </div>
+
+            {/* Main content (mais pra cima e distribuído) */}
+            <div className="w-full max-w-sm mx-auto flex-1 flex flex-col justify-start pt-10 -mt-6">
+              {/* Hero */}
+              <div className="flex flex-col items-center text-center">
                 {/* Percentage */}
-                <div className="text-7xl md:text-8xl font-bold text-white tracking-tight">
-                  <AnimatedPercentage targetPercentage={100} duration={8} onPercentageChange={setAnimatedPercentage} />
+                <div className="text-7xl md:text-8xl font-extrabold text-white tracking-tight">
+                  <AnimatedPercentage
+                    targetPercentage={100}
+                    duration={8}
+                    onPercentageChange={setAnimatedPercentage}
+                  />
                 </div>
 
                 {/* Title */}
-                <h2 className="text-xl md:text-2xl font-bold text-white text-center leading-tight whitespace-pre-wrap">
+                <h2 className="mt-3 text-2xl md:text-3xl font-semibold text-white leading-tight whitespace-pre-wrap">
                   {getMainTitle()}
                 </h2>
 
-                {/* Progress bar */}
-                <div className="w-full bg-gray-800/50 rounded-full h-2 overflow-hidden mx-auto">
+                {/* Premium detail line + ETA (se você tiver as variáveis; senão apaga essas 2 linhas) */}
+                {typeof detailLine !== "undefined" && (
+                  <p className="mt-4 text-sm md:text-base text-white/70">{detailLine}</p>
+                )}
+                {typeof etaText !== "undefined" && (
+                  <p className="mt-1 text-xs md:text-sm text-white/50">{etaText}</p>
+                )}
+
+                {/* Progress bar (sua barra principal) */}
+                <div className="mt-6 w-full bg-white/10 rounded-full h-2 overflow-hidden mx-auto">
                   <div
-                    className="bg-blue-500 h-2 rounded-full transition-all duration-100"
+                    className="bg-blue-500/90 h-2 rounded-full transition-all duration-100"
                     style={{ width: `${animatedPercentage}%` }}
                   />
                 </div>
 
                 {/* Status message */}
-                <p className="text-gray-500 text-sm">{getStatusMessage()}</p>
+                <p className="mt-2 text-white/45 text-xs">{getStatusMessage()}</p>
               </div>
 
-              {/* Status box - Expanded */}
-              <div className="w-full bg-gray-900/60 border border-gray-800/50 rounded-lg p-4 mt-2">
-                <h3 className="text-white text-sm font-bold mb-3">Status</h3>
+              {/* Status card (premium + etapa ativa) */}
+              <div className="mt-7 w-full rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
+                <h3 className="text-white/90 text-sm font-semibold mb-3">Status</h3>
+
                 <div className="space-y-2">
-                  {statuses.map((status, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <span
-                        className={`text-sm transition-colors duration-300 ${animatedPercentage >= status.threshold ? "text-white font-medium" : "text-gray-500"
-                          }`}
+                  {statuses.map((status, index) => {
+                    const done = animatedPercentage >= status.threshold
+                    const active =
+                      typeof activeStepIndex !== "undefined" &&
+                      index === activeStepIndex &&
+                      !isComplete
+
+                    return (
+                      <div
+                        key={index}
+                        className={[
+                          "flex items-center justify-between rounded-xl px-3 py-2 transition-all",
+                          active ? "bg-white/10 ring-1 ring-white/15" : "bg-transparent",
+                        ].join(" ")}
                       >
-                        {status.label}
-                      </span>
-                      {animatedPercentage >= status.threshold && <span className="text-green-500 text-sm">✓</span>}
-                    </div>
-                  ))}
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={[
+                              "inline-block h-2.5 w-2.5 rounded-full",
+                              done ? "bg-green-400" : active ? "bg-blue-400 pulseDot" : "bg-white/20",
+                            ].join(" ")}
+                          />
+                          <span
+                            className={[
+                              "text-sm transition-colors duration-300",
+                              done ? "text-white font-medium" : active ? "text-white/85 font-semibold" : "text-white/55",
+                            ].join(" ")}
+                          >
+                            {status.label}
+                          </span>
+                        </div>
+
+                        <div className="text-sm">
+                          {done ? (
+                            <span className="text-green-400">✓</span>
+                          ) : active ? (
+                            <span className="text-blue-300/90">…</span>
+                          ) : (
+                            <span className="text-white/30">•</span>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <div className="mt-4 text-center text-xs text-white/40">
+                  Over 100,000+ Programs Gerados
                 </div>
               </div>
+            </div>
 
-              {/* Bottom Section */}
-              <div className="flex flex-col items-center gap-4 w-full">
-                {/* Footer message */}
-                <div className="text-center text-gray-600 text-sm">
-                  <p>Over 100,000+ Programs Gerados</p>
-                </div>
+            {/* Bottom area (CTA) */}
+            <div className="w-full max-w-sm mx-auto pt-5">
+              {isComplete ? (
+                <button
+                  onClick={async () => {
+                    await handleSubmit()
+                    setTimeout(() => {
+                      router.push("/quiz/results")
+                    }, 500)
+                  }}
+                  className="w-full h-12 bg-white text-black text-base font-bold rounded-2xl hover:bg-gray-100 transition-colors shadow-[0_10px_25px_rgba(255,255,255,0.12)] active:scale-[0.99]"
+                >
+                  Continuar
+                </button>
+              ) : (
+                <button
+                  disabled
+                  className="w-full h-12 bg-white/15 text-white/55 text-base font-bold rounded-2xl cursor-not-allowed"
+                >
+                  Continuar
+                </button>
+              )}
 
-                {isComplete && (
-                  <button
-                    onClick={async () => {
-                      await handleSubmit()
-                      setTimeout(() => {
-                        router.push("/quiz/results")
-                      }, 500)
-                    }}
-                    className="w-full h-12 bg-white text-black text-base font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg"
-                  >
-                    Continuar
-                  </button>
-                )}
+              <div className="mt-3 text-center text-[11px] text-white/35">
+                Seu plano é ajustado às suas respostas — sem “receita pronta”.
               </div>
             </div>
           </div>
         )
+
 
       // </CHANGE>
       default:
