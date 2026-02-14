@@ -462,105 +462,245 @@ export default function QuizPage() {
     }
   }, [showWaterCongrats])
   // </CHANGE>
-  // ✅ DROP-IN BLOCK (não altera sua lógica existente)
-  const [animatedPercentage, setAnimatedPercentage] = useState(0)
+  import { useMemo, useState } from "react"
 
-  const statuses = [
-    { label: "Atributos Físicos", threshold: 20 },
-    { label: "Nível de Fitness", threshold: 65 },
-    { label: "Análise de Potencial", threshold: 78 },
-    { label: "Geração de Dieta", threshold: 86 },
-    { label: "Geração de Treino", threshold: 100 },
-  ]
+  export default function LoadingPremium() {
+    // ✅ DROP-IN BLOCK (não altera sua lógica existente)
+    const [animatedPercentage, setAnimatedPercentage] = useState(0)
 
-  // ✅ (mantido IGUAL)
-  const getMainTitle = () => {
-    if (animatedPercentage < 30) return "Estamos\nanalisando\nseus dados"
-    if (animatedPercentage < 60) return "Estamos\ncriando sua\ndieta"
-    if (animatedPercentage < 80) return "Estamos\ncriando seu\ntreino"
-    if (animatedPercentage < 95) return "Estamos\ncriando um plano\npersonalizado"
-    return "Plano de\nmudança\ncompleto!"
+    const statuses = [
+      { label: "Atributos Físicos", threshold: 20 },
+      { label: "Nível de Fitness", threshold: 65 },
+      { label: "Análise de Potencial", threshold: 78 },
+      { label: "Geração de Dieta", threshold: 86 },
+      { label: "Geração de Treino", threshold: 100 },
+    ]
+
+    const getMainTitle = () => {
+      if (animatedPercentage < 30) return "Estamos\nanalisando\nseus dados"
+      if (animatedPercentage < 60) return "Estamos\ncriando sua\ndieta"
+      if (animatedPercentage < 80) return "Estamos\ncriando seu\ntreino"
+      if (animatedPercentage < 95) return "Estamos\ncriando um plano\npersonalizado"
+      return "Plano de\nmudança\ncompleto!"
+    }
+
+    const getStatusMessage = () => {
+      if (animatedPercentage < 20) return "[Estamos analisando seus dados...]"
+      if (animatedPercentage < 50) return "[Estamos criando sua dieta...]"
+      if (animatedPercentage < 80) return "[Estamos criando seu treino...]"
+      if (animatedPercentage < 98) return "[Estamos criando um plano personalizado...]"
+      return "[Plano de mudança completo!]"
+    }
+
+    const isComplete = animatedPercentage === 100
+
+    // -----------------------------------------------------------
+    // ✅ EXTRAS OPCIONAIS (não mexem na sua lógica; só UX/copy)
+    // -----------------------------------------------------------
+
+    const activeStepIndex = useMemo(() => {
+      const idx = statuses.findIndex((s) => animatedPercentage < s.threshold)
+      return idx === -1 ? statuses.length - 1 : idx
+    }, [animatedPercentage, statuses])
+
+    const etaText = useMemo(() => {
+      if (isComplete) return "Concluído ✅"
+      if (animatedPercentage < 30) return "Tempo estimado: ~25–40s"
+      if (animatedPercentage < 60) return "Tempo estimado: ~15–25s"
+      if (animatedPercentage < 80) return "Tempo estimado: ~10–18s"
+      if (animatedPercentage < 95) return "Quase lá: ~5–10s"
+      return "Finalizando… ~2–6s"
+    }, [animatedPercentage, isComplete])
+
+    const DETAIL_BANK = useMemo(
+      () => ({
+        analyzing: [
+          "Interpretando suas respostas…",
+          "Calculando seu nível atual…",
+          "Identificando padrões e prioridades…",
+          "Ajustando seu ponto de partida…",
+        ],
+        diet: [
+          "Definindo calorias e macros…",
+          "Balanceando proteínas, carbo e gorduras…",
+          "Montando refeições práticas…",
+          "Ajustando para sua rotina diária…",
+        ],
+        training: [
+          "Escolhendo exercícios ideais…",
+          "Ajustando volume e intensidade…",
+          "Configurando progressão semanal…",
+          "Otimizando recuperação…",
+        ],
+        personalized: [
+          "Combinando treino + dieta…",
+          "Refinando detalhes finais…",
+          "Checando consistência do plano…",
+          "Preparando sua versão final…",
+        ],
+        complete: ["Tudo pronto. Vamos nessa? ✅"],
+      }),
+      []
+    )
+
+    const detailGroup = useMemo(() => {
+      if (isComplete) return "complete"
+      if (animatedPercentage < 30) return "analyzing"
+      if (animatedPercentage < 60) return "diet"
+      if (animatedPercentage < 80) return "training"
+      return "personalized"
+    }, [animatedPercentage, isComplete])
+
+    const detailLine = useMemo(() => {
+      const list = DETAIL_BANK[detailGroup] || []
+      if (!list.length) return ""
+      const i = Math.min(list.length - 1, Math.floor((animatedPercentage % 20) / 5))
+      return list[i]
+    }, [DETAIL_BANK, detailGroup, animatedPercentage])
+
+    // ✅ PLUG & PLAY UI (premium)
+    return (
+      <div className="min-h-screen px-4 pt-5 pb-7 flex flex-col bg-gradient-to-b from-[#050B1A] via-[#07112A] to-[#050B1A]">
+        {/* CSS inline: shimmer + pulse */}
+        <style>{`
+        .shimmerBar{
+          position: relative;
+          background: linear-gradient(90deg, rgba(59,130,246,.95), rgba(99,102,241,.95));
+          overflow: hidden;
+        }
+        .shimmerBar::after{
+          content:"";
+          position:absolute;
+          top:0; left:-40%;
+          width:40%; height:100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+          animation: shimmerMove 1.35s infinite;
+        }
+        @keyframes shimmerMove{
+          0%{ transform: translateX(0); }
+          100%{ transform: translateX(280%); }
+        }
+
+        .pulseDot{
+          animation: pulseDot 1.15s infinite;
+        }
+        @keyframes pulseDot{
+          0%{ transform: scale(1); opacity: .75; }
+          50%{ transform: scale(1.35); opacity: 1; }
+          100%{ transform: scale(1); opacity: .75; }
+        }
+      `}</style>
+
+        {/* TOP */}
+        <div className="flex items-center justify-between text-white/80">
+          <button className="flex items-center gap-2 text-sm active:scale-[0.99]">
+            ← <span>Voltar</span>
+          </button>
+          <div className="text-sm text-white/60">30 de 30</div>
+        </div>
+
+        {/* Progress (top) */}
+        <div className="mt-4 h-2 rounded-full bg-white/10 overflow-hidden">
+          <div
+            className="h-full rounded-full shimmerBar"
+            style={{ width: `${Math.min(animatedPercentage, 100)}%` }}
+          />
+        </div>
+
+        {/* MAIN (mais pra cima e bem distribuído) */}
+        <div className="flex-1 flex flex-col justify-start pt-10 -mt-6">
+          <div className="text-center">
+            <div className="text-6xl md:text-7xl font-extrabold tracking-tight text-white">
+              {Math.round(animatedPercentage)}%
+            </div>
+
+            <div className="mt-3 text-2xl md:text-3xl font-semibold leading-tight whitespace-pre-line text-white">
+              {getMainTitle()}
+            </div>
+
+            {/* Linha premium */}
+            <div className="mt-4 text-sm md:text-base text-white/70">{detailLine}</div>
+            <div className="mt-1 text-xs md:text-sm text-white/50">{etaText}</div>
+
+            {/* Barra secundária + status message */}
+            <div className="mt-6 h-1.5 rounded-full bg-white/10 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-blue-500/90"
+                style={{ width: `${Math.min(animatedPercentage, 100)}%` }}
+              />
+            </div>
+            <div className="mt-2 text-xs text-white/45">{getStatusMessage()}</div>
+          </div>
+
+          {/* Status card premium */}
+          <div className="mt-7 rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
+            <div className="text-white/90 font-semibold mb-3">Status</div>
+
+            <div className="space-y-2">
+              {statuses.map((s, idx) => {
+                const done = animatedPercentage >= s.threshold
+                const active = idx === activeStepIndex && !isComplete
+
+                return (
+                  <div
+                    key={s.label}
+                    className={[
+                      "flex items-center justify-between rounded-xl px-3 py-2 transition-all",
+                      done ? "text-white/90" : "text-white/55",
+                      active ? "bg-white/10 ring-1 ring-white/15" : "bg-transparent",
+                    ].join(" ")}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={[
+                          "inline-block h-2.5 w-2.5 rounded-full",
+                          done ? "bg-green-400" : active ? "bg-blue-400 pulseDot" : "bg-white/20",
+                        ].join(" ")}
+                      />
+                      <span className={active ? "font-semibold text-white" : ""}>{s.label}</span>
+                    </div>
+
+                    <div className="text-sm">
+                      {done ? (
+                        <span className="text-green-400">✓</span>
+                      ) : active ? (
+                        <span className="text-blue-300/90">…</span>
+                      ) : (
+                        <span className="text-white/30">•</span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div className="mt-4 text-center text-xs text-white/40">
+              Over 100,000+ Programs Gerados
+            </div>
+          </div>
+        </div>
+
+        {/* BOTTOM */}
+        <div className="pt-5">
+          <button
+            className={[
+              "w-full rounded-2xl py-4 font-semibold transition-all active:scale-[0.99]",
+              isComplete
+                ? "bg-white text-black shadow-[0_10px_25px_rgba(255,255,255,0.12)]"
+                : "bg-white/20 text-white/55",
+            ].join(" ")}
+            disabled={!isComplete}
+          >
+            Continuar
+          </button>
+
+          <div className="mt-3 text-center text-[11px] text-white/35">
+            Seu plano é ajustado às suas respostas — sem “receita pronta”.
+          </div>
+        </div>
+      </div>
+    )
   }
-
-  // ✅ (mantido IGUAL)
-  const getStatusMessage = () => {
-    if (animatedPercentage < 20) return "[Estamos analisando seus dados...]"
-    if (animatedPercentage < 50) return "[Estamos criando sua dieta...]"
-    if (animatedPercentage < 80) return "[Estamos criando seu treino...]"
-    if (animatedPercentage < 98) return "[Estamos criando um plano personalizado...]"
-    return "[Plano de mudança completo!]"
-  }
-
-  // ✅ (mantido IGUAL)
-  const isComplete = animatedPercentage === 100
-
-  // -----------------------------------------------------------
-  // ✅ EXTRAS OPCIONAIS (não mexem na sua lógica; só UX/copy)
-  // Use se quiser mostrar uma linha menor “inteligente”/rotativa.
-  // -----------------------------------------------------------
-
-  // Etapa ativa (pra você destacar no UI, se quiser)
-  const activeStepIndex = (() => {
-    const idx = statuses.findIndex(s => animatedPercentage < s.threshold)
-    return idx === -1 ? statuses.length - 1 : idx
-  })()
-
-  // “Tempo estimado” fake, mas consistente (apenas front-end)
-  const etaText = (() => {
-    if (isComplete) return "Concluído ✅"
-    if (animatedPercentage < 30) return "Tempo estimado: ~25–40s"
-    if (animatedPercentage < 60) return "Tempo estimado: ~15–25s"
-    if (animatedPercentage < 80) return "Tempo estimado: ~10–18s"
-    if (animatedPercentage < 95) return "Quase lá: ~5–10s"
-    return "Finalizando… ~2–6s"
-  })()
-
-  // Linha “técnica” curta (parece IA trabalhando) — NÃO altera nada do seu fluxo
-  const DETAIL_BANK = {
-    analyzing: [
-      "Interpretando suas respostas…",
-      "Calculando seu nível atual…",
-      "Identificando padrões e prioridades…",
-      "Ajustando seu ponto de partida…",
-    ],
-    diet: [
-      "Definindo calorias e macros…",
-      "Balanceando proteínas, carbo e gorduras…",
-      "Montando refeições práticas…",
-      "Ajustando para sua rotina diária…",
-    ],
-    training: [
-      "Escolhendo exercícios ideais…",
-      "Ajustando volume e intensidade…",
-      "Configurando progressão semanal…",
-      "Otimizando recuperação…",
-    ],
-    personalized: [
-      "Combinando treino + dieta…",
-      "Refinando detalhes finais…",
-      "Checando consistência do plano…",
-      "Preparando sua versão final…",
-    ],
-    complete: ["Tudo pronto. Vamos nessa? ✅"],
-  }
-
-  // Seleção de grupo (apenas baseado no mesmo percentage)
-  const detailGroup = (() => {
-    if (isComplete) return "complete"
-    if (animatedPercentage < 30) return "analyzing"
-    if (animatedPercentage < 60) return "diet"
-    if (animatedPercentage < 80) return "training"
-    return "personalized"
-  })()
-
-  // Rotação determinística (não precisa timer extra)
-  const detailLine = (() => {
-    const list = DETAIL_BANK[detailGroup] || []
-    if (!list.length) return ""
-    // muda a frase suavemente conforme o progresso avança
-    const i = Math.min(list.length - 1, Math.floor((animatedPercentage % 20) / 5))
-    return list[i]
-  })()
 
   // </CHANGE>
 
