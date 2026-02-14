@@ -494,7 +494,7 @@ export default function CheckoutPage() {
   // Success screen - Redirect to success page instead of showing modal
   useEffect(() => {
     if (success) {
-      router.push("/success")
+      router.push("/success?embedded=true")
     }
   }, [success, router])
 
