@@ -547,6 +547,20 @@ export default function CheckoutPage() {
           <h1 className="text-4xl font-bold text-white mb-2">Finalizar sua inscrição</h1>
         </motion.div>
 
+        {/* Discount Banner - Shows only if user spun the wheel */}
+        {spinDiscount && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ duration: 0.4 }}
+            className="bg-gradient-to-r from-lime-600/20 to-lime-500/20 border-2 border-lime-500/60 rounded-lg p-4 text-center"
+          >
+            <p className="text-white text-lg font-semibold">
+              🎉 Desconto de <span className="text-lime-400">{spinDiscount}%</span> aplicado ao seu pedido!
+            </p>
+          </motion.div>
+        )}
+
         {/* Two Column Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left Column - Order Summary */}
