@@ -16,7 +16,7 @@ export default function QuizResultsPage() {
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "quarterly" | "semiannual">("quarterly")
   const [barsVisible, setBarsVisible] = useState(false)
   const [expandedTestimonial, setExpandedTestimonial] = useState<string | null>(null)
-
+  
   // ========== ESTADOS DA ROLETA ==========
   const [showSpinWheel, setShowSpinWheel] = useState(true)
   const [discountApplied, setDiscountApplied] = useState(false)
@@ -564,8 +564,8 @@ export default function QuizResultsPage() {
                 <div>
                   <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
                   <p className="text-white font-bold mb-2">
-                    {getDataValue("experience") === "iniciante"
-                      ? "Intermediário"
+                    {getDataValue("experience") === "iniciante" 
+                      ? "Intermediário" 
                       : "Avançado"}
                   </p>
                   <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
