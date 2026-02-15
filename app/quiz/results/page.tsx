@@ -531,6 +531,7 @@ export default function QuizResultsPage() {
                     />
                   </div>
                 </div>
+
                 <div>
                   <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
 
