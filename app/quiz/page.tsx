@@ -4436,7 +4436,7 @@ export default function QuizPage() {
 
         return (
           <div className="min-h-screen bg-gradient-to-b from-[#050B1A] via-[#07112A] to-[#050B1A] px-4 pt-4 pb-5">
-            <div className="mx-auto w-full max-w-sm min-h-screen grid grid-rows-[auto_1fr_auto] gap-4">
+            <div className="mx-auto w-full max-w-sm flex flex-col gap-3">
               {/* TOP */}
               <div className="text-center">
                 <div className="text-7xl md:text-8xl font-extrabold text-white tracking-tight leading-none">
@@ -4462,7 +4462,7 @@ export default function QuizPage() {
               </div>
 
               {/* MIDDLE */}
-              <div className="flex flex-col justify-center">
+              <div>
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
                   <h3 className="text-white/90 text-sm font-semibold mb-3">Status</h3>
 
