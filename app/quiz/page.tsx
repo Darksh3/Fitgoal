@@ -4461,20 +4461,13 @@ export default function QuizPage() {
           0%{ transform: scale(.96); opacity: 0; }
           100%{ transform: scale(1); opacity: 1; }
         }
-        .ctaIn{
-          animation: ctaIn .35s ease-out;
-        }
-        @keyframes ctaIn{
-          0%{ transform: translateY(10px); opacity: 0; }
-          100%{ transform: translateY(0); opacity: 1; }
-        }
         .softGlow{
           box-shadow: 0 10px 25px rgba(255,255,255,0.12);
         }
       `}</style>
 
-            {/* MAIN */}
-            <div className="w-full max-w-sm mx-auto flex-1 flex flex-col">
+            {/* Content container */}
+            <div className="w-full max-w-sm mx-auto flex flex-col">
               {/* Hero */}
               <div className="text-center pt-6">
                 {/* Percentage */}
@@ -4513,7 +4506,7 @@ export default function QuizPage() {
                 </p>
               </div>
 
-              {/* Status card (✅ sem vazio gigante) */}
+              {/* Status card (sem vazio gigante) */}
               <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)] max-h-[340px]">
                 <h3 className="text-white/90 text-sm font-semibold mb-3">Status</h3>
 
@@ -4557,11 +4550,9 @@ export default function QuizPage() {
                   Over 100,000+ Programs Gerados
                 </div>
               </div>
-            </div>
 
-            {/* CTA (sempre visível porque o card não estica mais) */}
-            <div className="w-full max-w-sm mx-auto pt-4">
-              <div className={isComplete ? "ctaIn" : ""}>
+              {/* ✅ CTA logo abaixo do card */}
+              <div className="mt-6">
                 <button
                   onClick={async () => {
                     await handleSubmit()
