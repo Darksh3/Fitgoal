@@ -60,105 +60,72 @@ export default function SuccessPage() {
   }, [sessionId, embedded])
 
   return (
-    <div
-      className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] text-white p-4 relative overflow-hidden bg-[#0a0f1a]"
-      style={{
-        background: "radial-gradient(at center, #0f1419 0%, #0a0f1a 70%)",
-      }}
-    >
-      {/* Glow blobs (igual ao quiz) */}
-      <div
-        className="absolute pointer-events-none"
-        style={{
-          width: "380px",
-          height: "380px",
-          background: "#1c3dff55",
-          filter: "blur(150px)",
-          borderRadius: "50%",
-          top: "20%",
-          right: "-10%",
-        }}
-      />
-      <div
-        className="absolute pointer-events-none"
-        style={{
-          width: "300px",
-          height: "300px",
-          background: "#7f3dff33",
-          filter: "blur(140px)",
-          borderRadius: "50%",
-          bottom: "10%",
-          left: "15%",
-        }}
-      />
-
-      <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] text-center max-w-md w-full relative z-10">
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] bg-gray-100 dark:bg-gray-900 p-4">
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg text-center max-w-md w-full">
         {status === "loading" && (
           <>
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white/80 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-white mb-2">Processando Pagamento...</h2>
-            <p className="text-white/60">Por favor, aguarde enquanto finalizamos sua assinatura.</p>
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-gray-900 dark:border-gray-100 mx-auto mb-6" />
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Processando Pagamento...</h2>
+            <p className="text-gray-600 dark:text-gray-400">Por favor, aguarde enquanto finalizamos sua assinatura.</p>
           </>
         )}
-
         {status === "success" && (
           <>
-            <CheckCircle className="text-green-400 w-16 h-16 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-white mb-4">Pagamento Confirmado!</h2>
+            <CheckCircle className="text-green-500 w-16 h-16 mx-auto mb-6" />
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Pagamento Confirmado!</h2>
 
             <div className="space-y-4 text-left mb-6">
-              <div className="bg-blue-500/10 p-4 rounded-lg border border-blue-400/20">
-                <p className="text-white/80">
-                  <span className="font-semibold text-white">Em instantes</span>, você receberá um e-mail com acesso à sua conta.
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                <p className="text-gray-700 dark:text-gray-300">
+                  <span className="font-semibold">Em instantes</span>, você receberá um e-mail com acesso à sua conta.
                 </p>
               </div>
 
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-lime-500 flex items-center justify-center text-black text-sm font-bold mt-0.5">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-lime-500 flex items-center justify-center text-white text-sm font-bold mt-0.5">
                     1
                   </div>
                   <div>
-                    <p className="font-semibold text-white">Verifique seu e-mail</p>
-                    <p className="text-sm text-white/60">Procure pela mensagem de boas-vindas do FitGoal</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">Verifique seu e-mail</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Procure pela mensagem de boas-vindas do FitGoal</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-lime-500 flex items-center justify-center text-black text-sm font-bold mt-0.5">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-lime-500 flex items-center justify-center text-white text-sm font-bold mt-0.5">
                     2
                   </div>
                   <div>
-                    <p className="font-semibold text-white">Defina sua senha</p>
-                    <p className="text-sm text-white/60">Crie uma senha segura para acessar sua conta</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">Defina sua senha</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Crie uma senha segura para acessar sua conta</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-lime-500 flex items-center justify-center text-black text-sm font-bold mt-0.5">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-lime-500 flex items-center justify-center text-white text-sm font-bold mt-0.5">
                     3
                   </div>
                   <div>
-                    <p className="font-semibold text-white">Bem-vindo(a) ao FitGoal!</p>
-                    <p className="text-sm text-white/60">Comece sua jornada de transformação corporal</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">Bem-vindo(a) ao FitGoal!</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Comece sua jornada de transformação corporal</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-lime-500/10 p-4 rounded-lg border border-lime-400/20 mb-6">
-              <p className="text-sm text-white/75">
+            <div className="bg-lime-50 dark:bg-lime-900/20 p-4 rounded-lg border border-lime-200 dark:border-lime-800 mb-6">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
                 Não recebeu o e-mail? Verifique sua pasta de spam ou entre em contato com nosso suporte.
               </p>
             </div>
           </>
         )}
-
         {status === "error" && (
           <>
-            <XCircle className="text-red-400 w-16 h-16 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-white mb-2">Erro no Processamento!</h2>
-            <p className="text-white/70 mb-6">
+            <XCircle className="text-red-500 w-16 h-16 mx-auto mb-6" />
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Erro no Processamento!</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               Ocorreu um erro ao finalizar sua assinatura: {errorMessage}
             </p>
             <Button onClick={() => window.location.reload()} className="w-full">
