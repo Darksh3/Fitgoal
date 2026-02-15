@@ -4527,10 +4527,7 @@ export default function QuizPage() {
 
   return (
     <div
-      className={[
-        "min-h-screen text-white relative overflow-hidden bg-[#0a0f1a]",
-        currentStep === 30 ? "p-0" : "p-6",
-      ].join(" ")}
+      className="min-h-screen text-white p-6 relative overflow-hidden bg-[#0a0f1a]"
       style={{
         background: "radial-gradient(at center, #0f1419 0%, #0a0f1a 70%)",
       }}
@@ -4561,30 +4558,20 @@ export default function QuizPage() {
         }}
       />
 
-      <div
-        className={[
-          "mx-auto relative z-10",
-          currentStep === 30 ? "max-w-sm" : "max-w-4xl",
-        ].join(" ")}
-      >
-        {/* ✅ Header some no step 30 */}
-        {currentStep !== 30 && (
-          <div className="flex items-center justify-between mb-8">
-            <Button variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="text-white">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar
-            </Button>
-
-            <div className="text-center">
-              <p className="text-gray-400">{currentStep === 0 ? "Início" : `${currentStep} de ${totalSteps}`}</p>
-            </div>
-
-            <div className="w-16" />
+      <div className="max-w-4xl mx-auto relative z-10">
+        <div className="flex items-center justify-between mb-8">
+          <Button variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="text-white">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar
+          </Button>
+          <div className="text-center">
+            <p className="text-gray-400">
+              {currentStep === 0 ? "Início" : `${currentStep} de ${totalSteps}`}
+            </p>
           </div>
-        )}
-
-        {/* ✅ Barra verde some no step 30 */}
-        {currentStep > 0 && currentStep !== 30 && (
+          <div className="w-16" />
+        </div>
+        {currentStep > 0 && (
           <div className="w-full bg-white/10 backdrop-blur-sm rounded-full h-2 mb-8">
             <div
               className="bg-lime-500 h-2 rounded-full transition-all duration-300"
@@ -4593,22 +4580,25 @@ export default function QuizPage() {
           </div>
         )}
 
-        {/* Micro Feedback Modal (mantém igual) */}
+        {/* Micro Feedback Modal */}
         {microFeedback && (
           <div className="min-h-[70vh] flex flex-col items-center justify-center mb-8">
             <div className="relative z-10 text-center space-y-6 max-w-2xl">
               <div className="mb-8">
                 <AiOrb size={120} />
               </div>
-
               <motion.div
                 className="space-y-4"
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15, duration: 0.7 }}
               >
-                <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight">{microFeedback.title}</h2>
-                <p className="text-lg text-gray-300 leading-relaxed">{microFeedback.body}</p>
+                <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight">
+                  {microFeedback.title}
+                </h2>
+                <p className="text-lg text-gray-300 leading-relaxed">
+                  {microFeedback.body}
+                </p>
               </motion.div>
 
               <button
@@ -4624,20 +4614,17 @@ export default function QuizPage() {
           </div>
         )}
 
-        {/* ✅ No step 30, não coloca margem-bottom que empurra tudo */}
-        <div className={currentStep === 30 ? "mb-0" : "mb-8"}>
-          {!microFeedback && renderStep()}
-        </div>
-
-        {/* Next button global (mantém igual) */}
+        <div className="mb-8">{!microFeedback && renderStep()}</div>
+        {/* Adjust the condition to include steps that don't need a manual next button */}
         {!showMotivationMessage &&
           !showCortisolMessage &&
           !showTimeCalculation &&
           !showAnalyzingData &&
           !showNutritionInfo &&
-          !microFeedback &&
+          !microFeedback && // Added condition for micro feedback
           ![
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+            30,
           ].includes(currentStep) && (
             <div className="mt-8 flex justify-center">
               <Button
@@ -4652,35 +4639,5 @@ export default function QuizPage() {
           )}
       </div>
     </div>
-  )
-
-    < div className = "mb-8" > {!microFeedback && renderStep()
-}</div >
-  {/* Adjust the condition to include steps that don't need a manual next button */ }
-{
-  !showMotivationMessage &&
-    !showCortisolMessage &&
-    !showTimeCalculation &&
-    !showAnalyzingData &&
-    !showNutritionInfo &&
-    !microFeedback && // Added condition for micro feedback
-    ![
-      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-      30,
-    ].includes(currentStep) && (
-      <div className="mt-8 flex justify-center">
-        <Button
-          onClick={nextStep}
-          disabled={!canProceed()}
-          size="lg"
-          className="w-full max-w-md bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-600 hover:to-green-600 text-black font-bold px-8 md:px-12 py-4 md:py-6 text-lg md:text-xl rounded-full disabled:from-gray-400 disabled:to-gray-500 disabled:text-gray-200"
-        >
-          Continuar
-        </Button>
-      </div>
-    )
-}
-      </div >
-    </div >
   )
 }
