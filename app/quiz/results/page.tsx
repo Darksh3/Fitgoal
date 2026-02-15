@@ -1470,8 +1470,7 @@ export default function QuizResultsPage() {
                       </a>
                     </div>
                   </footer>
-                </div>
-              </main>
+                </main>
             </div>
             )
 }
