@@ -4415,9 +4415,28 @@ export default function QuizPage() {
         )
 
       case 30: // Final Submit - Loading page with animated percentage
+        // ✅ Sincroniza frases com os mesmos thresholds dos bullets
+        const syncedTitle = () => {
+          if (animatedPercentage < 20) return "Estamos\nanalisando\nseus dados"
+          if (animatedPercentage < 65) return "Estamos\navaliando seu\nnível de fitness"
+          if (animatedPercentage < 78) return "Estamos\nanalisando seu\npotencial"
+          if (animatedPercentage < 86) return "Estamos\ncriando sua\ndieta"
+          if (animatedPercentage < 100) return "Estamos\ncriando seu\ntreino"
+          return "Plano de\nmudança\ncompleto!"
+        }
+
+        const syncedStatusMessage = () => {
+          if (animatedPercentage < 20) return "[Estamos analisando seus dados...]"
+          if (animatedPercentage < 65) return "[Ajustando seu nível de fitness...]"
+          if (animatedPercentage < 78) return "[Analisando seu potencial...]"
+          if (animatedPercentage < 86) return "[Gerando sua dieta...]"
+          if (animatedPercentage < 100) return "[Finalizando seu treino...]"
+          return "[Plano de mudança completo!]"
+        }
+
         return (
-          <div className="min-h-screen flex flex-col px-4 pt-5 pb-5 bg-gradient-to-b from-[#050B1A] via-[#07112A] to-[#050B1A]">
-            {/* Premium micro-animations (inline, sem mexer em CSS global) */}
+          <div className="min-h-screen flex flex-col px-4 pt-5 pb-6 bg-gradient-to-b from-[#050B1A] via-[#07112A] to-[#050B1A]">
+            {/* Premium micro-animations (inline) */}
             <style>{`
         .shimmerTrack{
           position: relative;
@@ -4435,7 +4454,6 @@ export default function QuizPage() {
           0%{ transform: translateX(0); }
           100%{ transform: translateX(320%); }
         }
-
         .readyBadge{
           animation: popIn .28s ease-out;
         }
@@ -4443,7 +4461,6 @@ export default function QuizPage() {
           0%{ transform: scale(.96); opacity: 0; }
           100%{ transform: scale(1); opacity: 1; }
         }
-
         .ctaIn{
           animation: ctaIn .35s ease-out;
         }
@@ -4451,14 +4468,13 @@ export default function QuizPage() {
           0%{ transform: translateY(10px); opacity: 0; }
           100%{ transform: translateY(0); opacity: 1; }
         }
-
         .softGlow{
           box-shadow: 0 10px 25px rgba(255,255,255,0.12);
         }
       `}</style>
 
             {/* MAIN */}
-            <div className="w-full max-w-sm mx-auto flex-1 flex flex-col min-h-0">
+            <div className="w-full max-w-sm mx-auto flex-1 flex flex-col">
               {/* Hero */}
               <div className="text-center pt-6">
                 {/* Percentage */}
@@ -4470,12 +4486,12 @@ export default function QuizPage() {
                   />
                 </div>
 
-                {/* Title */}
+                {/* Title (sincronizado) */}
                 <h2 className="mt-3 text-2xl md:text-3xl font-semibold text-white leading-tight whitespace-pre-wrap">
-                  {getMainTitle()}
+                  {syncedTitle()}
                 </h2>
 
-                {/* “Plano pronto” badge (só aparece no final) */}
+                {/* “Plano pronto” badge */}
                 {isComplete && (
                   <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/15 px-3 py-1 text-xs text-white/85 readyBadge">
                     <span className="inline-block h-2 w-2 rounded-full bg-green-400" />
@@ -4483,7 +4499,7 @@ export default function QuizPage() {
                   </div>
                 )}
 
-                {/* Progress bar (premium: track shimmer sutil) */}
+                {/* Progress bar (shimmer sutil) */}
                 <div className="mt-6 w-full bg-white/10 rounded-full h-2 overflow-hidden mx-auto shimmerTrack">
                   <div
                     className="bg-blue-500/90 h-2 rounded-full transition-all duration-100"
@@ -4491,24 +4507,24 @@ export default function QuizPage() {
                   />
                 </div>
 
-                {/* Status message */}
-                <p className="mt-2 text-white/45 text-xs">{getStatusMessage()}</p>
+                {/* Status message (sincronizado) */}
+                <p className="mt-2 text-white/45 text-xs">
+                  {syncedStatusMessage()}
+                </p>
               </div>
 
-              {/* Status card (scroll interno se precisar) */}
-              <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)] flex-1 min-h-0">
+              {/* Status card (✅ sem vazio gigante) */}
+              <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)] max-h-[340px]">
                 <h3 className="text-white/90 text-sm font-semibold mb-3">Status</h3>
 
-                <div className="space-y-2 overflow-auto pr-1">
+                {/* Lista com scroll interno se precisar */}
+                <div className="space-y-2 overflow-auto pr-1 max-h-[240px]">
                   {statuses.map((status, index) => {
                     const done = animatedPercentage >= status.threshold
                     return (
                       <div
                         key={index}
-                        className={[
-                          "flex items-center justify-between rounded-xl px-3 py-2 transition-all",
-                          done ? "bg-white/0" : "bg-transparent",
-                        ].join(" ")}
+                        className="flex items-center justify-between rounded-xl px-3 py-2"
                       >
                         <div className="flex items-center gap-2">
                           <span
@@ -4517,7 +4533,12 @@ export default function QuizPage() {
                               done ? "bg-green-400" : "bg-white/20",
                             ].join(" ")}
                           />
-                          <span className={["text-sm", done ? "text-white font-medium" : "text-white/55"].join(" ")}>
+                          <span
+                            className={[
+                              "text-sm transition-colors duration-300",
+                              done ? "text-white font-medium" : "text-white/55",
+                            ].join(" ")}
+                          >
                             {status.label}
                           </span>
                         </div>
@@ -4538,9 +4559,8 @@ export default function QuizPage() {
               </div>
             </div>
 
-            {/* BOTTOM (CTA sempre visível + reveal premium) */}
+            {/* CTA (sempre visível porque o card não estica mais) */}
             <div className="w-full max-w-sm mx-auto pt-4">
-              {/* Placeholder mantém espaço e evita “pulo” */}
               <div className={isComplete ? "ctaIn" : ""}>
                 <button
                   onClick={async () => {
@@ -4560,9 +4580,8 @@ export default function QuizPage() {
                   Continuar
                 </button>
 
-                {/* Microcopy premium (sem poluir) */}
                 <div className="mt-3 text-center text-[11px] text-white/35">
-                  Seu plano foi criado com base nas suas respostas — sem receita genérica.
+                  Seu plano foi criado com base nas suas respostas.
                 </div>
               </div>
             </div>
