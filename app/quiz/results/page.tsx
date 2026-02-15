@@ -1444,5 +1444,5 @@ export default function QuizResultsPage() {
                 </footer>
               </div>
             </main>
-            );
+            )
 }
