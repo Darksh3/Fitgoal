@@ -2028,7 +2028,7 @@ export default function QuizPage() {
               </div>
               <div className="flex-1">
                 <p className="text-white text-left text-base sm:text-lg">
-                  {quizData.bodyType === "endomorfo" 
+                  {quizData.bodyType === "endomorfo"
                     ? "O excesso calórico está travando seus resultados"
                     : "Seu corpo não recebe calorias suficientes para crescer"
                   }
@@ -4414,77 +4414,110 @@ export default function QuizPage() {
           </div>
         )
 
-      case 30: // Final Submit - Loading page with animated percentage
+      case 30: {
+        // ✅ Sincroniza frases com os thresholds dos bullets
+        const syncedTitle = () => {
+          if (animatedPercentage < 20) return "Estamos\nanalisando\nseus dados"
+          if (animatedPercentage < 65) return "Estamos\navaliando seu\nnível de fitness"
+          if (animatedPercentage < 78) return "Estamos\nanalisando seu\npotencial"
+          if (animatedPercentage < 86) return "Estamos\ncriando sua\ndieta"
+          if (animatedPercentage < 100) return "Estamos\ncriando seu\ntreino"
+          return "Plano de\nmudança\ncompleto!"
+        }
+
+        const syncedStatusMessage = () => {
+          if (animatedPercentage < 20) return "[Estamos analisando seus dados...]"
+          if (animatedPercentage < 65) return "[Ajustando seu nível de fitness...]"
+          if (animatedPercentage < 78) return "[Analisando seu potencial...]"
+          if (animatedPercentage < 86) return "[Gerando sua dieta...]"
+          if (animatedPercentage < 100) return "[Finalizando seu treino...]"
+          return "[Plano de mudança completo!]"
+        }
+
         return (
-          <div className="min-h-screen flex flex-col items-center px-4 pt-8 pb-6 gap-8">
-            {/* Compact Hero Section - Spread throughout the screen */}
-            <div className="w-full max-w-sm flex flex-col items-center gap-6 flex-1 justify-between">
-              {/* Top Section */}
-              <div className="flex flex-col items-center gap-6 w-full">
-                {/* Percentage */}
-                <div className="text-7xl md:text-8xl font-bold text-white tracking-tight">
-                  <AnimatedPercentage targetPercentage={100} duration={8} onPercentageChange={setAnimatedPercentage} />
-                </div>
-
-                {/* Title */}
-                <h2 className="text-xl md:text-2xl font-bold text-white text-center leading-tight whitespace-pre-wrap">
-                  {getMainTitle()}
-                </h2>
-
-                {/* Progress bar */}
-                <div className="w-full bg-gray-800/50 rounded-full h-2 overflow-hidden mx-auto">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full transition-all duration-100"
-                    style={{ width: `${animatedPercentage}%` }}
+          <div className="min-h-screen bg-gradient-to-b from-[#050B1A] via-[#07112A] to-[#050B1A] px-4 pt-4 pb-5">
+            <div className="mx-auto w-full max-w-sm min-h-screen grid grid-rows-[auto_1fr_auto] gap-4">
+              {/* TOP */}
+              <div className="text-center">
+                <div className="text-7xl md:text-8xl font-extrabold text-white tracking-tight leading-none">
+                  <AnimatedPercentage
+                    targetPercentage={100}
+                    duration={8}
+                    onPercentageChange={setAnimatedPercentage}
                   />
                 </div>
 
-                {/* Status message */}
-                <p className="text-gray-500 text-sm">{getStatusMessage()}</p>
+                <h2 className="mt-3 text-2xl md:text-3xl font-semibold text-white leading-tight whitespace-pre-wrap">
+                  {syncedTitle()}
+                </h2>
+
+                <div className="mt-5 w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-blue-500/90 h-2 rounded-full transition-all duration-100"
+                    style={{ width: `${Math.min(animatedPercentage, 100)}%` }}
+                  />
+                </div>
+
+                <p className="mt-2 text-white/45 text-xs">{syncedStatusMessage()}</p>
               </div>
 
-              {/* Status box - Expanded */}
-              <div className="w-full bg-gray-900/60 border border-gray-800/50 rounded-lg p-4 mt-2">
-                <h3 className="text-white text-sm font-bold mb-3">Status</h3>
-                <div className="space-y-2">
-                  {statuses.map((status, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <span
-                        className={`text-sm transition-colors duration-300 ${animatedPercentage >= status.threshold ? "text-white font-medium" : "text-gray-500"
-                          }`}
-                      >
-                        {status.label}
-                      </span>
-                      {animatedPercentage >= status.threshold && <span className="text-green-500 text-sm">✓</span>}
-                    </div>
-                  ))}
+              {/* MIDDLE */}
+              <div className="flex flex-col justify-center">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
+                  <h3 className="text-white/90 text-sm font-semibold mb-3">Status</h3>
+
+                  <div className="space-y-2">
+                    {statuses.map((status, index) => {
+                      const done = animatedPercentage >= status.threshold
+                      return (
+                        <div key={index} className="flex items-center justify-between">
+                          <span className={done ? "text-white text-sm font-medium" : "text-white/55 text-sm"}>
+                            {status.label}
+                          </span>
+                          {done ? (
+                            <span className="text-green-400 text-sm">✓</span>
+                          ) : (
+                            <span className="text-white/30 text-sm">•</span>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  <div className="mt-4 text-center text-xs text-white/40">
+                    Over 100,000+ Programs Gerados
+                  </div>
                 </div>
               </div>
 
-              {/* Bottom Section */}
-              <div className="flex flex-col items-center gap-4 w-full">
-                {/* Footer message */}
-                <div className="text-center text-gray-600 text-sm">
-                  <p>Over 100,000+ Programs Gerados</p>
-                </div>
+              {/* BOTTOM */}
+              <div>
+                <button
+                  onClick={async () => {
+                    await handleSubmit()
+                    setTimeout(() => {
+                      router.push("/quiz/results")
+                    }, 500)
+                  }}
+                  disabled={!isComplete}
+                  className={[
+                    "w-full h-12 text-base font-bold rounded-2xl transition-all active:scale-[0.99]",
+                    isComplete
+                      ? "bg-white text-black hover:bg-gray-100 shadow-[0_10px_25px_rgba(255,255,255,0.12)]"
+                      : "bg-white/15 text-white/55 cursor-not-allowed",
+                  ].join(" ")}
+                >
+                  Continuar
+                </button>
 
-                {isComplete && (
-                  <button
-                    onClick={async () => {
-                      await handleSubmit()
-                      setTimeout(() => {
-                        router.push("/quiz/results")
-                      }, 500)
-                    }}
-                    className="w-full h-12 bg-white text-black text-base font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg"
-                  >
-                    Continuar
-                  </button>
-                )}
+                <div className="mt-3 text-center text-[11px] text-white/35">
+                  Seu plano foi criado com base nas suas respostas — sem receita genérica.
+                </div>
               </div>
             </div>
           </div>
         )
+      }
 
       // </CHANGE>
       default:
