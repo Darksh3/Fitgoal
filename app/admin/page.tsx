@@ -222,32 +222,10 @@ export default function AdminDashboard() {
           </div>
         </Card>
       </div>
-
-
+    </div>
+  )
 }
 
-          <Card key={idx} className="bg-slate-900 border-slate-800 p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="p-2 bg-lime-500/10 rounded-lg text-lime-400">
-                {metric.icon}
-              </div>
-              {metric.change !== undefined && (
-                <span className={`text-xs font-semibold ${metric.change >= 0 ? "text-green-400" : "text-red-400"}`}>
-                  {metric.change > 0 ? "+" : ""}{metric.change}%
-                </span>
-              )}
-            </div>
-            <p className="text-slate-400 text-sm mb-1">{metric.label}</p>
-            <p className="text-2xl font-bold text-white">{metric.value}</p>
-          </Card>
-        ))}
-      </div>
-
-      {/* Charts Placeholder */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-slate-900 border-slate-800 p-6">
-          <h2 className="text-lg font-bold text-white mb-4">Conversão por Etapa</h2>
-          <div className="h-64 flex items-center justify-center text-slate-500">
             Gráfico do funil (em breve)
           </div>
         </Card>
