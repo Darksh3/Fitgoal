@@ -1,4 +1,4 @@
-import { db } from "@/lib/firebase/client"
+import { adminDb } from "@/lib/firebaseAdmin"
 import {
   collection,
   doc,
@@ -10,7 +10,7 @@ import {
   getDocs,
   Timestamp,
   writeBatch,
-} from "firebase/firestore"
+} from "firebase-admin/firestore"
 import { QuizVersionSchema, QuizNodeSchema, QuizEdgeSchema } from "@/lib/schemas/quiz"
 import { z } from "zod"
 
@@ -29,7 +29,7 @@ export type QuizEdge = z.infer<typeof QuizEdgeSchema>
  */
 export async function createQuizVersion(data: Omit<QuizVersion, "id" | "createdAt" | "updatedAt">) {
   try {
-    const versionRef = doc(collection(db, "quiz-versions"))
+    const versionRef = doc(collection(adminDb, "quiz-versions"))
     const now = Timestamp.now()
 
     const versionData: QuizVersion = {
@@ -52,7 +52,7 @@ export async function createQuizVersion(data: Omit<QuizVersion, "id" | "createdA
  */
 export async function getQuizVersion(versionId: string) {
   try {
-    const docRef = doc(db, "quiz-versions", versionId)
+    const docRef = doc(adminDb, "quiz-versions", versionId)
     const docSnap = await getDoc(docRef)
 
     if (!docSnap.exists()) {
@@ -71,7 +71,7 @@ export async function getQuizVersion(versionId: string) {
  */
 export async function getQuizNodes(versionId: string): Promise<QuizNode[]> {
   try {
-    const nodesRef = collection(db, `quiz-versions/${versionId}/nodes`)
+    const nodesRef = collection(adminDb, `quiz-versions/${versionId}/nodes`)
     const querySnapshot = await getDocs(nodesRef)
 
     return querySnapshot.docs.map((doc) => doc.data() as QuizNode).sort((a, b) => a.orderIndex - b.orderIndex)
@@ -86,7 +86,7 @@ export async function getQuizNodes(versionId: string): Promise<QuizNode[]> {
  */
 export async function getQuizEdges(versionId: string): Promise<QuizEdge[]> {
   try {
-    const edgesRef = collection(db, `quiz-versions/${versionId}/edges`)
+    const edgesRef = collection(adminDb, `quiz-versions/${versionId}/edges`)
     const querySnapshot = await getDocs(edgesRef)
 
     return querySnapshot.docs.map((doc) => doc.data() as QuizEdge).sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0))
@@ -101,7 +101,7 @@ export async function getQuizEdges(versionId: string): Promise<QuizEdge[]> {
  */
 export async function addQuizNode(versionId: string, nodeData: Omit<QuizNode, "id">) {
   try {
-    const nodeRef = doc(collection(db, `quiz-versions/${versionId}/nodes`))
+    const nodeRef = doc(collection(adminDb, `quiz-versions/${versionId}/nodes`))
     const node: QuizNode = {
       id: nodeRef.id,
       ...nodeData,
@@ -120,7 +120,7 @@ export async function addQuizNode(versionId: string, nodeData: Omit<QuizNode, "i
  */
 export async function updateQuizNode(versionId: string, nodeId: string, updates: Partial<QuizNode>) {
   try {
-    const nodeRef = doc(db, `quiz-versions/${versionId}/nodes`, nodeId)
+    const nodeRef = doc(adminDb, `quiz-versions/${versionId}/nodes`, nodeId)
     await updateDoc(nodeRef, updates)
   } catch (error) {
     console.error("[v0] Error updating quiz node:", error)
@@ -133,7 +133,7 @@ export async function updateQuizNode(versionId: string, nodeId: string, updates:
  */
 export async function addQuizEdge(versionId: string, edgeData: Omit<QuizEdge, "id">) {
   try {
-    const edgeRef = doc(collection(db, `quiz-versions/${versionId}/edges`))
+    const edgeRef = doc(collection(adminDb, `quiz-versions/${versionId}/edges`))
     const edge: QuizEdge = {
       id: edgeRef.id,
       ...edgeData,
@@ -152,7 +152,7 @@ export async function addQuizEdge(versionId: string, edgeData: Omit<QuizEdge, "i
  */
 export async function updateQuizEdge(versionId: string, edgeId: string, updates: Partial<QuizEdge>) {
   try {
-    const edgeRef = doc(db, `quiz-versions/${versionId}/edges`, edgeId)
+    const edgeRef = doc(adminDb, `quiz-versions/${versionId}/edges`, edgeId)
     await updateDoc(edgeRef, updates)
   } catch (error) {
     console.error("[v0] Error updating quiz edge:", error)
@@ -165,7 +165,7 @@ export async function updateQuizEdge(versionId: string, edgeId: string, updates:
  */
 export async function publishQuizVersion(versionId: string) {
   try {
-    const versionRef = doc(db, "quiz-versions", versionId)
+    const versionRef = doc(adminDb, "quiz-versions", versionId)
     await updateDoc(versionRef, {
       status: "published",
       updatedAt: Timestamp.now(),
@@ -181,7 +181,7 @@ export async function publishQuizVersion(versionId: string) {
  */
 export async function getPublishedQuizVersion(quizName: string): Promise<QuizVersion | null> {
   try {
-    const versionsRef = collection(db, "quiz-versions")
+    const versionsRef = collection(adminDb, "quiz-versions")
     const q = query(versionsRef, where("name", "==", quizName), where("status", "==", "published"))
     const querySnapshot = await getDocs(q)
 
@@ -209,7 +209,7 @@ export async function createQuizRun(data: {
   startedAt: Timestamp
 }) {
   try {
-    const runRef = doc(collection(db, "quiz-runs"))
+    const runRef = doc(collection(adminDb, "quiz-runs"))
     const runData = {
       id: runRef.id,
       ...data,
@@ -230,7 +230,7 @@ export async function createQuizRun(data: {
  */
 export async function saveQuizResponse(runId: string, nodeId: string, response: any) {
   try {
-    const runRef = doc(db, "quiz-runs", runId)
+    const runRef = doc(adminDb, "quiz-runs", runId)
     await updateDoc(runRef, {
       [`responses.${nodeId}`]: response,
       updatedAt: Timestamp.now(),
@@ -246,7 +246,7 @@ export async function saveQuizResponse(runId: string, nodeId: string, response: 
  */
 export async function completeQuizRun(runId: string) {
   try {
-    const runRef = doc(db, "quiz-runs", runId)
+    const runRef = doc(adminDb, "quiz-runs", runId)
     await updateDoc(runRef, {
       completedAt: Timestamp.now(),
     })
