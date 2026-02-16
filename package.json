@@ -76,6 +76,7 @@
     "react-firebase-hooks": "5.1.1",
     "react-hook-form": "^7.54.1",
     "react-resizable-panels": "^2.1.7",
+    "reactflow": "^11.11.4",
     "recharts": "2.15.0",
     "resend": "6.7.0",
     "server-only": "0.0.1",
