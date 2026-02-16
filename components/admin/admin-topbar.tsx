@@ -1,16 +1,11 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { LogOut, Bell, User, Menu } from "lucide-react"
+import { LogOut, Bell, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { clearAdminToken } from "@/lib/adminAuth"
 
-interface AdminTopbarProps {
-  onToggleSidebar: () => void
-  sidebarOpen: boolean
-}
-
-export function AdminTopbar({ onToggleSidebar, sidebarOpen }: AdminTopbarProps) {
+export function AdminTopbar() {
   const router = useRouter()
 
   const handleLogout = () => {
@@ -20,15 +15,9 @@ export function AdminTopbar({ onToggleSidebar, sidebarOpen }: AdminTopbarProps) 
 
   return (
     <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-40">
-      <div className="px-6 py-4 flex items-center justify-between">
-        {/* Left Side - Toggle Button */}
-        <div className="flex items-center gap-4">
-          <button
-            onClick={onToggleSidebar}
-            className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
+      <div className="ml-64 px-6 py-4 flex items-center justify-between">
+        {/* Breadcrumb/Title would go here */}
+        <div>
           <p className="text-sm text-slate-500">Dashboard</p>
         </div>
 

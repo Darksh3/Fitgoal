@@ -9,63 +9,55 @@ export default function SuccessPage() {
   const searchParams = useSearchParams()
   const sessionId = searchParams.get("session_id")
   const subscriptionId = searchParams.get("subscription_id")
-  const embedded = searchParams.get("embedded")
+  const embedded = searchParams.get("embedded") // New parameter to indicate embedded checkout
 
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
     const handlePostCheckout = async () => {
-      console.log("[v0] Success page loaded with params:", { sessionId, subscriptionId, embedded })
-      
       if (embedded === "true") {
-        console.log("[v0] Embedded checkout success - payment already processed by Asaas webhook")
+        // For embedded checkout, subscription is already created and processed
+        console.log("Embedded checkout success - subscription already processed")
         setStatus("success")
         return
       }
 
-      if (!sessionId && !subscriptionId) {
-        console.log("[v0] No sessionId or subscriptionId found - assuming Asaas webhook processed it")
-        setStatus("success")
+      if (!sessionId) {
+        setStatus("error")
+        setErrorMessage("ID da sessão não encontrado na URL.")
         return
       }
 
       try {
-        const payload = { 
-          ...(sessionId && { sessionId }),
-          ...(subscriptionId && { subscription_id: subscriptionId })
-        }
-        console.log("[v0] Calling /api/handle-post-checkout with:", payload)
-        
+        console.log("Chamando API /api/handle-post-checkout com sessionId:", sessionId)
         const response = await fetch("/api/handle-post-checkout", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({ sessionId }),
         })
 
-        console.log("[v0] handle-post-checkout response status:", response.status)
-        
         if (response.ok) {
           const data = await response.json()
-          console.log("[v0] handle-post-checkout succeeded:", data)
+          console.log("API handle-post-checkout respondeu com sucesso:", data)
           setStatus("success")
         } else {
           const errorData = await response.json()
-          console.error("[v0] handle-post-checkout error:", response.status, errorData)
+          console.error("API handle-post-checkout respondeu com erro:", response.status, errorData)
           setStatus("error")
           setErrorMessage(errorData.error || "Erro desconhecido ao processar o checkout.")
         }
       } catch (error: any) {
-        console.error("[v0] Error calling handle-post-checkout:", error)
+        console.error("Erro ao chamar API /api/handle-post-checkout:", error)
         setStatus("error")
         setErrorMessage("Erro de rede ou servidor ao finalizar sua assinatura.")
       }
     }
 
     handlePostCheckout()
-  }, [sessionId, subscriptionId, embedded])
+  }, [sessionId, embedded])
 
   return (
     <div 
