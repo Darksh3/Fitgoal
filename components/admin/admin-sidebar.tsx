@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BarChart3, Users, Zap, TrendingUp, Settings, Wallet, ListTodo, X } from "lucide-react"
+import { BarChart3, Users, Zap, TrendingUp, Settings, Wallet, ListTodo, X, Layers, Lightbulb } from "lucide-react"
 
 const navItems = [
   {
@@ -39,6 +39,16 @@ const navItems = [
     label: "Segmentos",
     href: "/admin/segments",
     icon: ListTodo,
+  },
+  {
+    label: "Quiz Builder",
+    href: "/admin/quiz-builder",
+    icon: Layers,
+  },
+  {
+    label: "Prompt Studio",
+    href: "/admin/prompt-studio",
+    icon: Lightbulb,
   },
   {
     label: "Configurações",
