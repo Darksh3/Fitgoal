@@ -1,140 +1,229 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { adminDb } from "@/lib/firebaseAdmin"
+import { EventType, createEvent } from "@/lib/events"
+import crypto from "crypto"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-const ASAAS_API_KEY = process.env.ASAAS_API_KEY
+interface AsaasPayment {
+  id: string
+  status: string
+  value: number
+  netValue?: number
+  billingType?: string
+  externalReference?: string
+  description?: string
+  customer?: {
+    id: string
+    email: string
+    name: string
+    phone?: string
+    cpf?: string
+  }
+  confirmedDate?: string
+}
 
-export async function POST(request: Request) {
+interface AsaasWebhookPayload {
+  event: string
+  payment: AsaasPayment
+}
+
+/**
+ * Asaas Payment Webhook Handler
+ * 
+ * Receives payment status updates and:
+ * 1. Updates payment records in Firestore (quick response)
+ * 2. Updates lead/user status based on payment outcome
+ * 3. Emits events for remarketing and automations
+ * 4. Handles idempotency to prevent duplicate processing
+ */
+
+export async function POST(request: NextRequest) {
   try {
-    console.log("[v0] WEBHOOK_RECEIVED - Webhook Asaas recebido")
-    const body = await request.json()
-    const event = body.event
-    const payment = body.payment
+    console.log("[v0] Payment webhook received from Asaas")
+    
+    const body: AsaasWebhookPayload = await request.json()
+    const { event, payment } = body
 
-    console.log("[v0] WEBHOOK_EVENT - Event:", event, "PaymentID:", payment?.id, "Status:", payment?.status)
-
-    // 1) Atualiza Firestore rapidamente (sincrono e curto)
-    if (payment?.id && payment?.status) {
-      try {
-        console.log("[v0] WEBHOOK_UPDATING_PAYMENT - Atualizando Firestore")
-
-        await adminDb.collection("payments").doc(payment.id).set(
-          {
-            paymentId: payment.id,
-            userId: payment?.externalReference || null, // externalReference = seu userId
-            status: payment.status,
-            billingType: payment.billingType,
-            value: payment.value,
-            updatedAt: new Date(),
-          },
-          { merge: true },
-        )
-
-        console.log("[v0] WEBHOOK_UPDATED - Firestore atualizado com status:", payment.status)
-      } catch (error) {
-        console.error("[v0] WEBHOOK_FIRESTORE_ERROR - Erro:", error)
-      }
+    if (!payment?.id || !payment?.status) {
+      console.warn("[v0] Invalid webhook payload: missing payment id or status")
+      return NextResponse.json({ error: "Invalid payload" }, { status: 400 })
     }
 
-    // 2) Dispara processamento "em background" (sem await)
-    if (payment?.status === "RECEIVED" || payment?.status === "CONFIRMED") {
-      const userId = payment?.externalReference
-
-      if (userId && payment?.id) {
-        console.log("[v0] WEBHOOK_BG_START - Disparando processamento async")
-
-        try {
-          await processPaymentBackground(payment, userId)
-        } catch (err) {
-          console.error("[v0] WEBHOOK_BG_ERROR - Erro:", err)
-        }
-      } else {
-        console.warn("[v0] WEBHOOK_BG_SKIP - Sem userId ou payment.id")
-      }
+    // Quick Firestore update (synchronous)
+    try {
+      await adminDb.collection("payments").doc(payment.id).set(
+        {
+          asaasPaymentId: payment.id,
+          leadId: payment.externalReference,
+          status: payment.status,
+          value: payment.value,
+          netValue: payment.netValue,
+          billingType: payment.billingType,
+          customerEmail: payment.customer?.email,
+          customerName: payment.customer?.name,
+          customerPhone: payment.customer?.phone,
+          confirmedDate: payment.confirmedDate,
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      )
+      console.log(`[v0] Payment ${payment.id} status updated: ${payment.status}`)
+    } catch (error) {
+      console.error("[v0] Error updating payment in Firestore:", error)
     }
 
-    // 3) Retorna OK IMEDIATO (evita 408 / penalização)
-    return NextResponse.json({ received: true }, { status: 200 })
+    // Process payment asynchronously (don't block webhook response)
+    if (["CONFIRMED", "RECEIVED", "PENDING", "OVERDUE", "REFUNDED", "CHARGEBACK"].includes(payment.status)) {
+      processPaymentBackground(payment).catch((err) => {
+        console.error("[v0] Background payment processing error:", err)
+      })
+    }
+
+    // Return 200 OK immediately
+    return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {
-    console.error("[v0] WEBHOOK_ERROR - Erro:", error)
-    return NextResponse.json({ error: "Erro" }, { status: 500 })
+    console.error("[v0] Webhook error:", error)
+    // Return 200 to avoid Asaas retrying excessively
+    return NextResponse.json({ error: "Processed with errors" }, { status: 200 })
   }
 }
 
-// FUNÇÃO FORA DO HANDLER (importante!)
-async function processPaymentBackground(payment: any, userId: string) {
+/**
+ * Background payment processing
+ * Handles idempotency, updates lead status, and emits events
+ */
+async function processPaymentBackground(payment: AsaasPayment) {
   try {
-    console.log("[v0] WEBHOOK_BG - Processando para userId:", userId)
+    const leadId = payment.externalReference
 
-    // Idempotência simples: evita processar o mesmo pagamento múltiplas vezes
-    // (Asaas pode reenviar webhooks)
-    const jobId = `asaas_${payment.id}_${payment.status}`
-    const jobRef = adminDb.collection("webhookJobs").doc(jobId)
-    const jobSnap = await jobRef.get()
-    if (jobSnap.exists) {
-      console.log("[v0] WEBHOOK_BG - Job já processado, pulando:", jobId)
+    if (!leadId) {
+      console.warn("[v0] No leadId (externalReference) provided in payment")
       return
     }
-    await jobRef.set({ createdAt: new Date(), paymentId: payment.id, status: payment.status, userId }, { merge: true })
 
-    let customerName = payment?.customer?.name
-    let customerEmail = payment?.customer?.email
-    let customerPhone = payment?.customer?.phone
-    let customerCpf = payment?.customer?.cpf
+    // Idempotency check: prevent processing same payment twice
+    const jobId = `asaas_${payment.id}_${payment.status}`
+    const jobRef = adminDb.collection("webhookJobs").doc(jobId)
+    const jobSnapshot = await jobRef.get()
 
-    // Se não veio email no payload, busca em leads
-    if (!customerEmail) {
-      try {
-        const leadDocSnap = await adminDb.collection("leads").doc(userId).get()
-        if (leadDocSnap.exists) {
-          const leadData = leadDocSnap.data()
-          customerName = customerName || leadData?.name
-          customerEmail = leadData?.email
-          customerPhone = customerPhone || leadData?.phone
-          customerCpf = customerCpf || leadData?.cpf
-          console.log("[v0] WEBHOOK_BG - Lead encontrado")
-        }
-      } catch (error) {
-        console.error("[v0] WEBHOOK_BG_LEAD_ERROR - Erro ao buscar lead:", error)
-      }
+    if (jobSnapshot.exists) {
+      console.log(`[v0] Payment ${payment.id} already processed, skipping`)
+      return
     }
 
-    console.log("[v0] WEBHOOK_BG - Chamando handle-post-checkout")
-    const baseUrl = process.env.APP_URL
-    if (!baseUrl) throw new Error("APP_URL is missing in env")
-
-    const response = await fetch(`${baseUrl}/api/handle-post-checkout`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId,
-        paymentId: payment.id,
-        billingType: payment.billingType,
-        customerName,
-        customerEmail,
-        customerPhone,
-        customerCpf,
-        // Dados adicionais do pagamento Asaas
-        value: payment.value,
-        description: payment.description,
-      }),
+    // Mark as processed
+    await jobRef.set({
+      paymentId: payment.id,
+      leadId,
+      status: payment.status,
+      createdAt: new Date().toISOString(),
     })
 
-    const responseText = await response.text()
-    console.log("[v0] WEBHOOK_BG - handle-post-checkout status:", response.status)
-    console.log("[v0] WEBHOOK_BG - handle-post-checkout response:", responseText)
+    // Get lead data for context
+    const leadRef = adminDb.collection("leads").doc(leadId)
+    const leadSnapshot = await leadRef.get()
 
-    if (!response.ok) {
-      console.error("[v0] WEBHOOK_BG - Erro no handle-post-checkout:", {
-        status: response.status,
-        body: responseText,
-        billingType: payment.billingType,
-        email: customerEmail,
+    if (!leadSnapshot.exists) {
+      console.warn(`[v0] Lead ${leadId} not found`)
+      return
+    }
+
+    const leadData = leadSnapshot.data()
+    let newStage = leadData?.stage || "novo"
+    let eventType: EventType | null = null
+
+    // Determine new stage and event type based on payment status
+    switch (payment.status) {
+      case "CONFIRMED":
+      case "RECEIVED":
+        newStage = "cliente"
+        eventType = EventType.Purchase
+        break
+      case "PENDING":
+        newStage = "proposta"
+        break
+      case "OVERDUE":
+        newStage = "perdido"
+        eventType = EventType.PaymentFailed
+        break
+      case "REFUNDED":
+        eventType = EventType.Refunded
+        break
+      case "CHARGEBACK":
+        eventType = EventType.Chargeback
+        break
+    }
+
+    // Update lead status
+    await leadRef.update({
+      stage: newStage,
+      asaasPaymentId: payment.id,
+      lastPaymentStatus: payment.status,
+      lastPaymentDate: new Date().toISOString(),
+    })
+
+    console.log(`[v0] Lead ${leadId} updated to stage: ${newStage}`)
+
+    // Emit event for remarketing and automations
+    if (eventType) {
+      const sessionId = crypto.randomBytes(16).toString("hex")
+      const event = createEvent(eventType, leadId, sessionId, {
+        value: payment.value,
+        currency: "BRL",
+        utm_source: leadData.utm_source,
+        utm_campaign: leadData.utm_campaign,
+        utm_medium: leadData.utm_medium,
+        goal: leadData.goal,
+        experience: leadData.experience,
       })
+
+      // Save event to events collection
+      const eventRef = await adminDb.collection("events").add(event)
+      console.log(`[v0] Event ${eventType} emitted for lead ${leadId}`)
+
+      // TODO: Send to Meta CAPI
+      // await sendToMetaCAPI(event)
+
+      // TODO: Send to TikTok
+      // await sendToTikTok(event)
+
+      // TODO: Trigger email automations
+      // await triggerEmailAutomation(eventType, leadId, leadData)
+    }
+
+    // Call post-checkout handler if configured
+    const appUrl = process.env.APP_URL
+    if (appUrl && payment.status === "CONFIRMED") {
+      try {
+        const response = await fetch(`${appUrl}/api/handle-post-checkout`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: leadId,
+            paymentId: payment.id,
+            customerName: payment.customer?.name || leadData.name,
+            customerEmail: payment.customer?.email || leadData.email,
+            customerPhone: payment.customer?.phone || leadData.phone,
+            value: payment.value,
+          }),
+        })
+
+        if (!response.ok) {
+          console.error(`[v0] Post-checkout handler returned ${response.status}`)
+        }
+      } catch (error) {
+        console.error("[v0] Error calling post-checkout handler:", error)
+      }
     }
   } catch (error) {
-    console.error("[v0] WEBHOOK_BG_FATAL_ERROR - Erro fatal:", error)
+    console.error("[v0] Background payment processing failed:", error)
+    throw error
   }
+}
+
+// Health check endpoint
+export async function GET() {
+  return NextResponse.json({ status: "webhook active" }, { status: 200 })
 }

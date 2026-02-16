@@ -1,253 +1,308 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Search, Download, Plus, MoreVertical } from "lucide-react"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
 
 interface Lead {
   id: string
   email: string
-  name: string
-  status: string
-  hasPaid: boolean
-  createdAt: string
-  quizData: any
-  imc: number
-  imcClassification: string
-  primaryGoals: string[]
-  bodyType: string
-  experience: string
-  gender: string
+  name?: string
+  phone?: string
+  stage?: string
+  goal?: string
+  experience?: string
+  trainingDays?: string
+  utm_source?: string
+  utm_campaign?: string
+  createdAt?: string
+  tags?: string[]
+  notes?: string
+  hasPaid?: boolean
+  imc?: number
+  imcClassification?: string
+  primaryGoals?: string[]
+  bodyType?: string
+  gender?: string
 }
 
 export default function LeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState({
-    status: "quiz_completed",
-    daysAgo: "30",
-    limit: "100",
-  })
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedStage, setSelectedStage] = useState("all")
+  const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    fetchLeads()
+  }, [])
 
   const fetchLeads = async () => {
-    setLoading(true)
     try {
-      const params = new URLSearchParams(filter)
-      const response = await fetch(`/api/get-leads?${params}`)
+      setLoading(true)
+      const response = await fetch("/api/admin/leads")
       const data = await response.json()
-
-      if (data.success) {
-        setLeads(data.leads)
-      } else {
-        console.error("Erro ao buscar leads:", data.error)
-      }
+      setLeads(data.leads || [])
     } catch (error) {
-      console.error("Erro ao buscar leads:", error)
+      console.error("[v0] Error fetching leads:", error)
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    fetchLeads()
-  }, [filter])
+  const filteredLeads = leads.filter((lead) => {
+    const matchesSearch =
+      !searchQuery ||
+      lead.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lead.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lead.phone?.includes(searchQuery)
 
-  const getStatusColor = (status: string, hasPaid: boolean) => {
-    if (hasPaid) return "bg-green-500"
-    if (status === "quiz_completed") return "bg-yellow-500"
-    return "bg-gray-500"
+    const matchesStage = selectedStage === "all" || lead.stage === selectedStage
+
+    return matchesSearch && matchesStage
+  })
+
+  const stageLabels: Record<string, string> = {
+    novo: "Novo",
+    qualified: "Qualificado",
+    contacted: "Contatado",
+    proposta: "Proposta",
+    cliente: "Cliente",
+    perdido: "Perdido",
+    quiz_completed: "Quiz Completo",
+    payment_completed: "Pagou",
   }
 
-  const getStatusText = (status: string, hasPaid: boolean) => {
-    if (hasPaid) return "Pagou"
-    if (status === "quiz_completed") return "Quiz Completo"
-    return status
+  const stageBadgeColor = (stage?: string) => {
+    const colors: Record<string, string> = {
+      novo: "bg-blue-500/10 text-blue-400",
+      qualified: "bg-purple-500/10 text-purple-400",
+      contacted: "bg-yellow-500/10 text-yellow-400",
+      proposta: "bg-orange-500/10 text-orange-400",
+      cliente: "bg-green-500/10 text-green-400",
+      perdido: "bg-red-500/10 text-red-400",
+      quiz_completed: "bg-yellow-500/10 text-yellow-400",
+      payment_completed: "bg-green-500/10 text-green-400",
+    }
+    return colors[stage || "novo"] || colors.novo
   }
 
-  const exportToCSV = () => {
-    const csvContent = [
-      // Header
-      "Nome,Email,Status,Pagou,Data,IMC,Classificação IMC,Objetivos,Tipo Corpo,Experiência,Gênero",
-      // Data
-      ...leads.map((lead) =>
-        [
-          lead.name,
-          lead.email,
-          lead.status,
-          lead.hasPaid ? "Sim" : "Não",
-          new Date(lead.createdAt).toLocaleDateString("pt-BR"),
-          lead.imc,
-          lead.imcClassification,
-          lead.primaryGoals?.join("; ") || "",
-          lead.bodyType,
-          lead.experience,
-          lead.gender,
-        ].join(","),
-      ),
-    ].join("\n")
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-    const link = document.createElement("a")
-    const url = URL.createObjectURL(blob)
-    link.setAttribute("href", url)
-    link.setAttribute("download", `leads_${new Date().toISOString().split("T")[0]}.csv`)
-    link.style.visibility = "hidden"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+  const handleSelectAll = () => {
+    if (selectedLeads.size === filteredLeads.length) {
+      setSelectedLeads(new Set())
+    } else {
+      setSelectedLeads(new Set(filteredLeads.map((l) => l.id)))
+    }
   }
+
+  const handleSelectLead = (id: string) => {
+    const newSelected = new Set(selectedLeads)
+    if (newSelected.has(id)) {
+      newSelected.delete(id)
+    } else {
+      newSelected.add(id)
+    }
+    setSelectedLeads(newSelected)
+  }
+
+  const handleExport = async () => {
+    try {
+      const response = await fetch("/api/admin/export-leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          leadIds: selectedLeads.size > 0 ? Array.from(selectedLeads) : filteredLeads.map((l) => l.id),
+          hashed: false,
+        }),
+      })
+
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = `leads_${new Date().toISOString().split("T")[0]}.csv`
+        a.click()
+        window.URL.revokeObjectURL(url)
+      }
+    } catch (error) {
+      console.error("[v0] Error exporting leads:", error)
+    }
+  }
+
+  const stats = [
+    {
+      label: "Total de Leads",
+      value: leads.length,
+      color: "from-blue-600 to-blue-400",
+    },
+    {
+      label: "Convertidos",
+      value: leads.filter((l) => l.hasPaid).length,
+      color: "from-green-600 to-green-400",
+    },
+    {
+      label: "Em Progresso",
+      value: leads.filter((l) => !l.hasPaid && l.stage === "qualified").length,
+      color: "from-yellow-600 to-yellow-400",
+    },
+    {
+      label: "Taxa de Conversão",
+      value: `${leads.length > 0 ? Math.round((leads.filter((l) => l.hasPaid).length / leads.length) * 100) : 0}%`,
+      color: "from-purple-600 to-purple-400",
+    },
+  ]
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Leads para Remarketing</h1>
-          <Button onClick={exportToCSV} disabled={leads.length === 0}>
-            Exportar CSV
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2">Leads</h1>
+          <p className="text-slate-400">Gerenciar e analisar leads da campanha</p>
+        </div>
+        <Button className="bg-lime-500 hover:bg-lime-600 text-slate-900 font-semibold">
+          <Plus className="w-4 h-4 mr-2" />
+          Novo Lead
+        </Button>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((stat, idx) => (
+          <Card key={idx} className="bg-slate-900 border-slate-800 p-6">
+            <p className="text-slate-400 text-sm mb-2">{stat.label}</p>
+            <p className="text-3xl font-bold text-white">{stat.value}</p>
+          </Card>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <Card className="bg-slate-900 border-slate-800 p-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          {/* Search */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
+            <Input
+              placeholder="Buscar por email, nome ou telefone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-slate-800 border-slate-700 text-white"
+            />
+          </div>
+
+          {/* Stage Filter */}
+          <select
+            value={selectedStage}
+            onChange={(e) => setSelectedStage(e.target.value)}
+            className="px-4 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg text-sm"
+          >
+            <option value="all">Todos os Estágios</option>
+            {Object.entries(stageLabels).map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
+          </select>
+
+          {/* Export Button */}
+          <Button
+            onClick={handleExport}
+            variant="outline"
+            className="border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Exportar
           </Button>
         </div>
+      </Card>
 
-        {/* Filtros */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Filtros</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Status</label>
-                <Select value={filter.status} onValueChange={(value) => setFilter({ ...filter, status: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="quiz_completed">Quiz Completo</SelectItem>
-                    <SelectItem value="payment_completed">Pagamento Completo</SelectItem>
-                    <SelectItem value="all">Todos</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+      {/* Table */}
+      <Card className="bg-slate-900 border-slate-800 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            {/* Header */}
+            <thead className="border-b border-slate-800 bg-slate-800/50">
+              <tr>
+                <th className="px-6 py-3 text-left">
+                  <input
+                    type="checkbox"
+                    checked={selectedLeads.size === filteredLeads.length && filteredLeads.length > 0}
+                    onChange={handleSelectAll}
+                    className="rounded border-slate-600"
+                  />
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Email</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Nome</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Estágio</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Objetivo</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Campanha</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Data</th>
+                <th className="px-6 py-3 text-center text-sm font-semibold text-slate-300">Ações</th>
+              </tr>
+            </thead>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Últimos dias</label>
-                <Select value={filter.daysAgo} onValueChange={(value) => setFilter({ ...filter, daysAgo: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="7">7 dias</SelectItem>
-                    <SelectItem value="30">30 dias</SelectItem>
-                    <SelectItem value="90">90 dias</SelectItem>
-                    <SelectItem value="365">1 ano</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Limite</label>
-                <Select value={filter.limit} onValueChange={(value) => setFilter({ ...filter, limit: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                    <SelectItem value="500">500</SelectItem>
-                    <SelectItem value="1000">1000</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Estatísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-2xl font-bold text-blue-600">{leads.length}</div>
-              <p className="text-gray-600">Total de Leads</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-2xl font-bold text-green-600">{leads.filter((lead) => lead.hasPaid).length}</div>
-              <p className="text-gray-600">Converteram</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-2xl font-bold text-yellow-600">{leads.filter((lead) => !lead.hasPaid).length}</div>
-              <p className="text-gray-600">Não Converteram</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-2xl font-bold text-purple-600">
-                {leads.length > 0 ? Math.round((leads.filter((lead) => lead.hasPaid).length / leads.length) * 100) : 0}%
-              </div>
-              <p className="text-gray-600">Taxa de Conversão</p>
-            </CardContent>
-          </Card>
+            {/* Body */}
+            <tbody className="divide-y divide-slate-800">
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="px-6 py-8 text-center text-slate-400">
+                    Carregando leads...
+                  </td>
+                </tr>
+              ) : filteredLeads.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-6 py-8 text-center text-slate-400">
+                    Nenhum lead encontrado
+                  </td>
+                </tr>
+              ) : (
+                filteredLeads.map((lead) => (
+                  <tr key={lead.id} className="hover:bg-slate-800/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedLeads.has(lead.id)}
+                        onChange={() => handleSelectLead(lead.id)}
+                        className="rounded border-slate-600"
+                      />
+                    </td>
+                    <td className="px-6 py-4 text-sm text-white font-medium">{lead.email}</td>
+                    <td className="px-6 py-4 text-sm text-slate-300">{lead.name || "-"}</td>
+                    <td className="px-6 py-4">
+                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${stageBadgeColor(lead.stage)}`}>
+                        {stageLabels[lead.stage as keyof typeof stageLabels] || "Novo"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-300">{lead.goal || lead.primaryGoals?.[0] || "-"}</td>
+                    <td className="px-6 py-4 text-sm text-slate-300">{lead.utm_campaign || "-"}</td>
+                    <td className="px-6 py-4 text-sm text-slate-400">
+                      {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString("pt-BR") : "-"}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <button className="p-2 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors">
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
 
-        {/* Lista de Leads */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Leads ({leads.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="text-center py-8">Carregando...</div>
-            ) : leads.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">Nenhum lead encontrado</div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-2">Nome</th>
-                      <th className="text-left p-2">Email</th>
-                      <th className="text-left p-2">Status</th>
-                      <th className="text-left p-2">Data</th>
-                      <th className="text-left p-2">IMC</th>
-                      <th className="text-left p-2">Objetivos</th>
-                      <th className="text-left p-2">Tipo Corpo</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {leads.map((lead) => (
-                      <tr key={lead.id} className="border-b hover:bg-gray-50">
-                        <td className="p-2 font-medium">{lead.name}</td>
-                        <td className="p-2">{lead.email}</td>
-                        <td className="p-2">
-                          <Badge className={getStatusColor(lead.status, lead.hasPaid)}>
-                            {getStatusText(lead.status, lead.hasPaid)}
-                          </Badge>
-                        </td>
-                        <td className="p-2">{new Date(lead.createdAt).toLocaleDateString("pt-BR")}</td>
-                        <td className="p-2">
-                          {lead.imc} ({lead.imcClassification})
-                        </td>
-                        <td className="p-2">
-                          {lead.primaryGoals?.slice(0, 2).join(", ")}
-                          {lead.primaryGoals?.length > 2 && "..."}
-                        </td>
-                        <td className="p-2 capitalize">{lead.bodyType}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-slate-800 bg-slate-800/50 flex items-center justify-between">
+          <p className="text-sm text-slate-400">
+            {selectedLeads.size > 0 ? `${selectedLeads.size} selecionados` : `${filteredLeads.length} leads`}
+          </p>
+          <p className="text-sm text-slate-500">
+            Total: {leads.length} leads
+          </p>
+        </div>
+      </Card>
     </div>
   )
 }

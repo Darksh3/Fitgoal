@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { adminDb } from "@/lib/firebaseAdmin"
 import { isAdminRequest } from "@/lib/adminServerVerify"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   // Verify admin authentication
   const isAdmin = await isAdminRequest()
   if (!isAdmin) {
@@ -10,12 +10,42 @@ export async function GET() {
   }
 
   try {
-    const snap = await adminDb.collection("leads").get()
-    const leads = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+    const { searchParams } = new URL(request.url)
+    const stage = searchParams.get("stage") || "all"
+    const limit = parseInt(searchParams.get("limit") || "100")
+    const daysAgo = parseInt(searchParams.get("daysAgo") || "30")
 
-    return NextResponse.json({ leads })
+    // Build query
+    let query = adminDb.collection("leads")
+
+    // Filter by stage
+    if (stage !== "all") {
+      query = query.where("stage", "==", stage)
+    }
+
+    // Filter by date range (last X days)
+    if (daysAgo > 0) {
+      const dateFilter = new Date()
+      dateFilter.setDate(dateFilter.getDate() - daysAgo)
+      query = query.where("createdAt", ">=", dateFilter.toISOString())
+    }
+
+    // Order and limit
+    const snapshot = await query.orderBy("createdAt", "desc").limit(limit).get()
+
+    const leads = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }))
+
+    return NextResponse.json({
+      leads,
+      total: snapshot.size,
+      timestamp: new Date().toISOString(),
+    })
   } catch (error) {
     console.error("[v0] Error fetching leads from Firestore:", error)
     return NextResponse.json({ error: "Erro ao carregar leads" }, { status: 500 })
   }
 }
+
