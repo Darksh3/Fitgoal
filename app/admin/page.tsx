@@ -226,18 +226,6 @@ export default function AdminDashboard() {
   )
 }
 
-            Gráfico do funil (em breve)
-          </div>
-        </Card>
-
-        <Card className="bg-slate-900 border-slate-800 p-6">
-          <h2 className="text-lg font-bold text-white mb-4">Receita por Campanha</h2>
-          <div className="h-64 flex items-center justify-center text-slate-500">
-            Gráfico de receita (em breve)
-          </div>
-        </Card>
-      </div>
-
       {/* Alerts */}
       <Card className="bg-slate-900 border-slate-800 p-6">
         <h2 className="text-lg font-bold text-white mb-4">Alertas</h2>
