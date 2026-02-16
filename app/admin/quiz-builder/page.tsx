@@ -4,7 +4,7 @@ import { Suspense } from "react"
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { QuizVersion, QuizNode, QuizEdge } from "@/lib/schemas/quiz"
-import { getQuizForEditing, addNodeToQuiz, updateNodeInQuiz, publishQuiz } from "@/app/actions/quiz"
+import { getQuizForEditing, addNodeToQuiz, updateNodeInQuiz, publishQuiz, createQuiz } from "@/app/actions/quiz"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { NodesList } from "@/components/quiz-builder/nodes-list"
@@ -23,11 +23,13 @@ function QuizBuilderContent() {
   const [selectedNode, setSelectedNode] = useState<QuizNode | null>(null)
   const [publishing, setPublishing] = useState(false)
   const [error, setError] = useState("")
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [newQuizName, setNewQuizName] = useState("")
 
   // Load quiz version
   useEffect(() => {
     if (!versionId) {
-      setError("Versão do quiz não encontrada")
+      // Se não tem versionId, mostra opção de criar novo
       setLoading(false)
       return
     }
@@ -156,6 +158,45 @@ function QuizBuilderContent() {
           {publishing ? "Publicando..." : "Publicar"}
         </Button>
       </div>
+
+      {/* Errors */}
+      {error && (
+        <Card className="bg-red-500/10 border-red-500 text-red-400 p-4 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4" />
+          <p>{error}</p>
+        </Card>
+      )}
+
+      {/* Create New Quiz Form */}
+      {!versionId && !version && (
+        <Card className="bg-slate-900 border-slate-800 p-6">
+          <h2 className="text-white font-semibold mb-4">Criar Novo Quiz</h2>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Nome do quiz (ex: Quiz Principal)"
+              value={newQuizName}
+              onChange={(e) => setNewQuizName(e.target.value)}
+              className="flex-1 bg-slate-800 border border-slate-700 rounded px-3 py-2 text-white placeholder-slate-500"
+            />
+            <Button
+              onClick={async () => {
+                if (!newQuizName.trim()) return
+                const result = await createQuiz(newQuizName)
+                if (result.success) {
+                  router.push(`/admin/quiz-builder?version=${result.data.id}`)
+                  setNewQuizName("")
+                } else {
+                  setError(result.error || "Erro ao criar quiz")
+                }
+              }}
+              className="bg-lime-600 hover:bg-lime-700"
+            >
+              Criar
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {/* Errors */}
       {error && (
