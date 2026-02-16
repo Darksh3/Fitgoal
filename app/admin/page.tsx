@@ -225,20 +225,3 @@ export default function AdminDashboard() {
     </div>
   )
 }
-
-      {/* Alerts */}
-      <Card className="bg-slate-900 border-slate-800 p-6">
-        <h2 className="text-lg font-bold text-white mb-4">Alertas</h2>
-        <div className="space-y-3">
-          <div className="flex items-start gap-3 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-            <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-white">Nenhum alerta crítico</p>
-              <p className="text-xs text-slate-400">Seu admin está funcionando normalmente</p>
-            </div>
-          </div>
-        </div>
-      </Card>
-    </div>
-  )
-}
