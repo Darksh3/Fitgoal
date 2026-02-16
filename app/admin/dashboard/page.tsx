@@ -1,7 +1,5 @@
-"use client"
-
+import { DashboardContent } from "../dashboard-content"
 import { ProtectedAdminRoute } from "@/components/admin/protected-admin-route"
-import { DashboardContent } from "./dashboard-content"
 
 export default function AdminDashboard() {
   return (
@@ -10,5 +8,3 @@ export default function AdminDashboard() {
     </ProtectedAdminRoute>
   )
 }
-
-
