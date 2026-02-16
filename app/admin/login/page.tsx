@@ -40,7 +40,7 @@ export default function AdminLogin() {
       }
 
       console.log("[v0] Login bem-sucedido, redirecionando...")
-      router.push("/admin/dashboard")
+      router.push("/admin")
     } catch (err: any) {
       setError(err.message || "Falha ao autenticar")
     } finally {
