@@ -1,3 +1,5 @@
+"use server"
+
 import { z } from "zod"
 import { PromptTemplateSchema, PromptFixtureSchema } from "@/lib/schemas/prompt"
 import * as promptDb from "@/lib/firebase/prompt"
