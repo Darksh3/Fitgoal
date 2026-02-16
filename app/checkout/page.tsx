@@ -24,8 +24,9 @@ import {
 } from "lucide-react"
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
-import { doc, onSnapshot, setDoc, db, auth, getDoc } from "@/lib/firebaseClient"
+import { doc, onSnapshot } from "firebase/firestore"
 import { onAuthStateChanged } from "firebase/auth"
+import { db, auth } from "@/lib/firebaseClient"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -491,10 +492,59 @@ export default function CheckoutPage() {
     }
   }
 
-  // Success screen - Redirect to success page instead of showing modal
+  // Listen for card payment status and redirect on success
+  useEffect(() => {
+    if (!cardPaymentId) return
+
+    console.log("[v0] Setting up listener for card payment:", cardPaymentId)
+    
+    const unsubscribe = onSnapshot(doc(db, "payments", cardPaymentId), (snapshot) => {
+      if (!snapshot.exists()) return
+      
+      const paymentData = snapshot.data()
+      console.log("[v0] Payment status received:", paymentData?.status)
+      
+      if (paymentData?.status === "CONFIRMED" || paymentData?.status === "RECEIVED") {
+        console.log("[v0] Payment confirmed! Redirecting to success...")
+        setSuccess(true)
+      } else if (paymentData?.status === "FAILED" || paymentData?.status === "OVERDUE") {
+        console.log("[v0] Payment failed:", paymentData?.status)
+        setError("Pagamento recusado. Por favor, tente novamente.")
+        setCardPaymentId(null)
+        setProcessing(false)
+      }
+    })
+
+    return () => unsubscribe()
+  }, [cardPaymentId])
+
+  // Listen for PIX payment status and redirect on success
+  useEffect(() => {
+    if (!pixData?.paymentId) return
+
+    console.log("[v0] Setting up listener for PIX payment:", pixData.paymentId)
+    
+    const unsubscribe = onSnapshot(doc(db, "payments", pixData.paymentId), (snapshot) => {
+      if (!snapshot.exists()) return
+      
+      const paymentData = snapshot.data()
+      console.log("[v0] PIX payment status received:", paymentData?.status)
+      
+      if (paymentData?.status === "CONFIRMED" || paymentData?.status === "RECEIVED") {
+        console.log("[v0] PIX payment confirmed! Redirecting to success...")
+        setSuccess(true)
+      }
+    })
+
+    return () => unsubscribe()
+  }, [pixData?.paymentId])
+
+  // Success screen - Redirect to success page
   useEffect(() => {
     if (success) {
-      router.push("/success?embedded=true")
+      setTimeout(() => {
+        router.push("/success?embedded=true")
+      }, 1000) // Small delay to ensure data is saved
     }
   }, [success, router])
 
