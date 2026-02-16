@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { BarChart3, TrendingUp, Users, Wallet, AlertCircle, ArrowUp, ArrowDown } from "lucide-react"
+import { BarChart3, TrendingUp, Users, Wallet, AlertCircle, ArrowUp, ArrowDown, Layers, Lightbulb } from "lucide-react"
 import { Card } from "@/components/ui/card"
 
 interface KPIMetric {
@@ -179,7 +179,7 @@ export function DashboardContent() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card className="bg-slate-900 border-slate-800 p-6">
           <h3 className="text-white font-semibold mb-3">Ações Rápidas</h3>
           <div className="space-y-2">
@@ -219,6 +219,26 @@ export function DashboardContent() {
               <span className="text-slate-400">Asaas Webhook</span>
               <span className="text-green-400">● Ativo</span>
             </div>
+          </div>
+        </Card>
+
+        <Card className="bg-slate-900 border-slate-800 p-6">
+          <h3 className="text-white font-semibold mb-3">Studio Tools</h3>
+          <div className="space-y-2">
+            <a
+              href="/admin/quiz-builder"
+              className="flex items-center gap-2 p-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-sm"
+            >
+              <Layers className="w-4 h-4" />
+              Quiz Builder
+            </a>
+            <a
+              href="/admin/prompt-studio"
+              className="flex items-center gap-2 p-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-sm"
+            >
+              <Lightbulb className="w-4 h-4" />
+              Prompt Studio
+            </a>
           </div>
         </Card>
       </div>
