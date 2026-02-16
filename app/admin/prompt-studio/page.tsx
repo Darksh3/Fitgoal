@@ -2,19 +2,21 @@
 
 import { Suspense, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { getPromptsList } from "@/app/actions/prompt"
+import { getPromptsList, initializeDefaultPrompts } from "@/app/actions/prompt"
 import { PromptTemplate } from "@/lib/schemas/prompt"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Search, Filter, Code2 } from "lucide-react"
+import { Plus, Search, Filter, Code2, AlertCircle } from "lucide-react"
 
 function PromptStudioContent() {
   const router = useRouter()
   const [prompts, setPrompts] = useState<PromptTemplate[]>([])
   const [loading, setLoading] = useState(true)
+  const [initializing, setInitializing] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null)
+  const [error, setError] = useState("")
 
   useEffect(() => {
     fetchPrompts()
@@ -31,6 +33,23 @@ function PromptStudioContent() {
       console.error("[v0] Error fetching prompts:", error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleInitialize = async () => {
+    try {
+      setInitializing(true)
+      setError("")
+      const result = await initializeDefaultPrompts()
+      if (result.success) {
+        await fetchPrompts()
+      } else {
+        setError(result.error || "Erro ao inicializar prompts")
+      }
+    } catch (err) {
+      setError(String(err))
+    } finally {
+      setInitializing(false)
     }
   }
 
@@ -71,11 +90,30 @@ function PromptStudioContent() {
           <h1 className="text-3xl font-bold text-white mb-2">Prompt Studio</h1>
           <p className="text-slate-400">Central de gerenciamento de prompts de IA</p>
         </div>
-        <Button onClick={() => router.push("/admin/prompt-studio/editor")} className="gap-2">
-          <Plus className="w-4 h-4" />
-          Novo Prompt
-        </Button>
+        <div className="flex gap-2">
+          {prompts.length === 0 && (
+            <Button
+              onClick={handleInitialize}
+              disabled={initializing}
+              className="bg-lime-600 hover:bg-lime-700"
+            >
+              {initializing ? "Inicializando..." : "+ Criar Prompts Padrões"}
+            </Button>
+          )}
+          <Button onClick={() => router.push("/admin/prompt-studio/editor")} className="gap-2 bg-blue-600 hover:bg-blue-700">
+            <Plus className="w-4 h-4" />
+            Novo Prompt
+          </Button>
+        </div>
       </div>
+
+      {/* Error */}
+      {error && (
+        <Card className="bg-red-500/10 border-red-500 text-red-400 p-4 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4" />
+          <p>{error}</p>
+        </Card>
+      )}
 
       {/* Search and Filters */}
       <Card className="bg-slate-900 border-slate-800 p-4">

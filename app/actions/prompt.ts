@@ -174,3 +174,154 @@ export async function getPromptUsageMetrics(promptKey: string, days: number = 7)
     return { success: false, error: "Failed to fetch metrics" }
   }
 }
+
+// Default prompts for Fitgoal
+const DEFAULT_PROMPTS = [
+  {
+    key: "plan.workout.generate",
+    category: "workout",
+    name: "Gerar Plano de Treino",
+    description: "Gera um plano de treino personalizado baseado nas respostas do quiz",
+    template: `Crie um plano de treino personalizado com base nos seguintes dados do usuário:
+- Objetivo: {{goal}}
+- Nível de experiência: {{experienceLevel}}
+- Frequência semanal: {{frequency}}
+- Dias disponíveis: {{availableDays}}
+- Limitações: {{limitations}}
+
+O plano deve incluir:
+1. Aquecimento (5-10 minutos)
+2. Série de exercícios principais (com séries, repetições e descanso)
+3. Exercícios auxiliares
+4. Resfriamento (5 minutos)
+
+Forneça em formato JSON estruturado.`,
+  },
+  {
+    key: "plan.diet.generate",
+    category: "diet",
+    name: "Gerar Plano Alimentar",
+    description: "Gera um plano alimentar personalizado",
+    template: `Crie um plano alimentar personalizado com base nos dados:
+- Objetivo: {{goal}}
+- Restrições alimentares: {{restrictions}}
+- Calorias diárias: {{calories}}
+- Preferências: {{preferences}}
+
+Inclua:
+1. Café da manhã (com macros)
+2. Lanches (2)
+3. Almoço
+4. Lanche pré-treino
+5. Jantar
+6. Lanche noturno (opcional)
+
+Forneça com informações nutricionais.`,
+  },
+  {
+    key: "plan.workout.adjust",
+    category: "workout",
+    name: "Ajustar Plano de Treino",
+    description: "Ajusta plano existente baseado em feedback",
+    template: `Ajuste o plano de treino atual com base no feedback do usuário:
+- Feedback: {{feedback}}
+- Problema: {{problem}}
+- Preferência: {{preference}}
+
+Plano atual: {{currentPlan}}
+
+Mantenha a estrutura mas adapte os exercícios e volume.`,
+  },
+  {
+    key: "plan.diet.adjust",
+    category: "diet",
+    name: "Ajustar Plano Alimentar",
+    description: "Ajusta plano alimentar existente",
+    template: `Ajuste o plano alimentar com base no feedback:
+- Feedback: {{feedback}}
+- Problema: {{problem}}
+
+Plano atual: {{currentPlan}}
+
+Mantenha as calorias mas adapte as refeições.`,
+  },
+  {
+    key: "funnel.upsell",
+    category: "funnel",
+    name: "Mensagem de Upsell",
+    description: "Gera mensagem de upsell personalizada",
+    template: `Crie uma mensagem de upsell para {{planType}} baseada no perfil:
+- Objetivo: {{goal}}
+- Plano atual: {{currentPlan}}
+- Benefícios adicionais: {{additionalBenefits}}
+
+A mensagem deve ser breve, persuasiva e focada no valor.`,
+  },
+  {
+    key: "funnel.segmentation",
+    category: "segmentation",
+    name: "Segmentação de Usuário",
+    description: "Segmenta usuário com base em respostas",
+    template: `Segmente o usuário com base nas respostas do quiz:
+{{quizAnswers}}
+
+Retorne um JSON com:
+- segment: tipo de segmento
+- persona: descrição da persona
+- recommendedPlan: plano recomendado
+- churnRisk: risco de churn (1-10)`,
+  },
+  {
+    key: "support.response",
+    category: "support",
+    name: "Resposta de Suporte",
+    description: "Gera resposta de suporte",
+    template: `Gere uma resposta de suporte amigável para:
+- Pergunta do usuário: {{question}}
+- Contexto: {{context}}
+
+A resposta deve ser útil, empática e breve.`,
+  },
+]
+
+/**
+ * Initialize default prompts (run once on admin init)
+ */
+export async function initializeDefaultPrompts() {
+  try {
+    const results = []
+    for (const prompt of DEFAULT_PROMPTS) {
+      try {
+        const existing = await promptDb.getPromptByKey(prompt.key)
+        if (!existing) {
+          const created = await promptDb.createPromptTemplate({
+            key: prompt.key,
+            category: prompt.category as any,
+            name: prompt.name,
+            description: prompt.description,
+            template_text: prompt.template,
+            status: "published",
+            version: 1,
+            created_at: Timestamp.now(),
+            created_by: "system",
+            published_at: Timestamp.now(),
+            published_by: "system",
+          })
+          results.push({ key: prompt.key, status: "created", id: created.id })
+          console.log("[v0] Created default prompt:", prompt.key)
+        } else {
+          results.push({ key: prompt.key, status: "exists" })
+        }
+      } catch (error) {
+        results.push({ key: prompt.key, status: "error", error: String(error) })
+        console.error("[v0] Error creating default prompt:", prompt.key, error)
+      }
+    }
+
+    return { success: true, data: results }
+  } catch (error) {
+    console.error("[v0] Error initializing default prompts:", error)
+    return { success: false, error: "Failed to initialize prompts" }
+  }
+}
+
