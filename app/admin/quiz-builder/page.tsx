@@ -1,5 +1,6 @@
 "use client"
 
+import { Suspense } from "react"
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { QuizVersion, QuizNode, QuizEdge } from "@/lib/schemas/quiz"
@@ -10,7 +11,7 @@ import { NodesList } from "@/components/quiz-builder/nodes-list"
 import { NodeEditor } from "@/components/quiz-builder/node-editor"
 import { AlertCircle, Plus, Zap } from "lucide-react"
 
-export default function QuizBuilderPage() {
+function QuizBuilderContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const versionId = searchParams.get("version")
@@ -215,5 +216,13 @@ export default function QuizBuilderPage() {
         </div>
       </Card>
     </div>
+  )
+}
+
+export default function QuizBuilderPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-slate-400">Carregando Quiz Builder...</div>}>
+      <QuizBuilderContent />
+    </Suspense>
   )
 }
