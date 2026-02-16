@@ -162,6 +162,10 @@ async function processPaymentBackground(payment: AsaasPayment) {
       asaasPaymentId: payment.id,
       lastPaymentStatus: payment.status,
       lastPaymentDate: new Date().toISOString(),
+      planType: payment.description?.toLowerCase().includes("mensal") ? "mensal" : 
+                payment.description?.toLowerCase().includes("trimestral") ? "trimestral" :
+                payment.description?.toLowerCase().includes("semestral") ? "semestral" : null,
+      subscriptionStatus: newStage === "cliente" ? "active" : "pending",
     })
 
     console.log(`[v0] Lead ${leadId} updated to stage: ${newStage}`)
