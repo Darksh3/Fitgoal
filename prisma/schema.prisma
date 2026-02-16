@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== Quiz System ====================
+
+model QuizVersion {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  status      String   @default("draft") // draft | published | archived
+  version     Int      @default(1)
+
+  nodes   QuizNode[]
+  edges   QuizEdge[]
+  runs    QuizRun[]
+  auditLogs AuditLog[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
+  publishedAt DateTime?
+  publishedBy String?
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model QuizNode {
+  id        String   @id @default(uuid())
+  versionId String
+  version   QuizVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+  key         String // unique within version: "goal", "gender", "experience"
+  title       String
+  description String?
+  type        String // question | page | action | result
+  
+  // Flexible config JSON
+  config      Json
+
+  orderIndex Int      @default(0)
+  isActive   Boolean  @default(true)
+
+  fromEdges QuizEdge[] @relation("fromNode")
+  toEdges   QuizEdge[] @relation("toNode")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([versionId, key])
+  @@index([versionId])
+  @@index([type])
+}
+
+model QuizEdge {
+  id        String   @id @default(uuid())
+  versionId String
+  version   QuizVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+  fromNodeId String
+  fromNode   QuizNode @relation("fromNode", fields: [fromNodeId], references: [id], onDelete: Cascade)
+
+  toNodeId String
+  toNode   QuizNode @relation("toNode", fields: [toNodeId], references: [id], onDelete: Cascade)
+
+  // Conditions for conditional routing
+  conditions Json? // array of { field, operator, value }
+  operator   String @default("AND") // AND | OR
+  priority   Int    @default(0)
+  isDefault  Boolean @default(false) // fallback edge
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([versionId])
+  @@index([fromNodeId])
+  @@index([toNodeId])
+}
+
+model QuizResponse {
+  id        String   @id @default(uuid())
+  leadId    String
+  versionId String
+  nodeId    String
+
+  nodeKey String
+  answer  Json // flexible: can be string, number, array, object
+
+  createdAt DateTime @default(now())
+
+  @@index([leadId])
+  @@index([versionId])
+  @@index([nodeId])
+}
+
+model QuizRun {
+  id        String   @id @default(uuid())
+  leadId    String
+  versionId String
+  version   QuizVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+  responses   QuizResponse[]
+  currentNodeId String?
+  status      String // in_progress | completed | abandoned
+  score       Int?
+
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+
+  @@index([leadId])
+  @@index([versionId])
+  @@index([status])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  versionId String?
+  version   QuizVersion? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+
+  actorId    String
+  action     String // create | update | delete | publish | rollback
+  entityType String // quiz_node | quiz_edge | quiz_version
+  entityId   String
+
+  // JSON diff of changes
+  changes    Json?
+
+  createdAt  DateTime @default(now())
+
+  @@index([versionId])
+  @@index([actorId])
+  @@index([action])
+  @@index([createdAt])
+}
