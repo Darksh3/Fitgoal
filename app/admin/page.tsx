@@ -222,22 +222,10 @@ export default function AdminDashboard() {
           </div>
         </Card>
       </div>
-    </div>
-  )
+
+
 }
 
-
-  return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-        <p className="text-slate-400">Visão geral dos KPIs e métricas</p>
-      </div>
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {metrics.map((metric, idx) => (
           <Card key={idx} className="bg-slate-900 border-slate-800 p-6">
             <div className="flex items-start justify-between mb-4">
               <div className="p-2 bg-lime-500/10 rounded-lg text-lime-400">
