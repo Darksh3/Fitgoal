@@ -546,7 +546,6 @@ export default function CheckoutPage() {
       }, 1000) // Small delay to ensure data is saved
     }
   }, [success, router])
-  }, [success, router])
 
   // Boleto screen
   if (boletoData) {
