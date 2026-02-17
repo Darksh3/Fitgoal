@@ -518,27 +518,6 @@ export default function CheckoutPage() {
     return () => unsubscribe()
   }, [cardPaymentId])
 
-  // Listen for PIX payment status and redirect on success
-  useEffect(() => {
-    if (!pixData?.paymentId) return
-
-    console.log("[v0] Setting up listener for PIX payment:", pixData.paymentId)
-    
-    const unsubscribe = onSnapshot(doc(db, "payments", pixData.paymentId), (snapshot) => {
-      if (!snapshot.exists()) return
-      
-      const paymentData = snapshot.data()
-      console.log("[v0] PIX payment status received:", paymentData?.status)
-      
-      if (paymentData?.status === "CONFIRMED" || paymentData?.status === "RECEIVED") {
-        console.log("[v0] PIX payment confirmed! Redirecting to success...")
-        setSuccess(true)
-      }
-    })
-
-    return () => unsubscribe()
-  }, [pixData?.paymentId])
-
   // Success screen - Redirect to success page
   useEffect(() => {
     if (success) {
