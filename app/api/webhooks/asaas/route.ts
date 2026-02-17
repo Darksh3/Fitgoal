@@ -71,19 +71,21 @@ export async function POST(request: NextRequest) {
     try {
       console.log(`[v0] Starting payment update for: ${payment.id} with status: ${payment.status}`)
       
-      const paymentUpdateData = {
+      const paymentUpdateData: any = {
         asaasPaymentId: payment.id,
         leadId: payment.externalReference,
         status: payment.status,
         value: payment.value,
         netValue: payment.netValue,
         billingType: payment.billingType,
-        customerEmail: payment.customer?.email,
-        customerName: payment.customer?.name,
-        customerPhone: payment.customer?.phone,
-        confirmedDate: payment.confirmedDate,
         updatedAt: new Date().toISOString(),
       }
+      
+      // Only add optional fields if they exist
+      if (payment.customer?.email) paymentUpdateData.customerEmail = payment.customer.email
+      if (payment.customer?.name) paymentUpdateData.customerName = payment.customer.name
+      if (payment.customer?.phone) paymentUpdateData.customerPhone = payment.customer.phone
+      if (payment.confirmedDate) paymentUpdateData.confirmedDate = payment.confirmedDate
       
       console.log(`[v0] Payment update data:`, paymentUpdateData)
       
