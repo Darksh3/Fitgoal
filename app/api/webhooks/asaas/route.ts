@@ -51,6 +51,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid payload" }, { status: 400 })
     }
 
+    // Log webhook job for tracking
+    const webhookJobId = `asaas_pay_${payment.id}_${payment.status}`
+    try {
+      await adminDb.collection("webhookJobs").doc(webhookJobId).set({
+        paymentId: payment.id,
+        leadId: payment.externalReference,
+        status: payment.status,
+        event,
+        createdAt: new Date().toISOString(),
+        processed: false,
+      }, { merge: true })
+      console.log(`[v0] Webhook job logged: ${webhookJobId}`)
+    } catch (error) {
+      console.error("[v0] Error logging webhook job:", error)
+    }
+
     // Quick Firestore update (synchronous)
     try {
       await adminDb.collection("payments").doc(payment.id).set(
@@ -72,6 +88,16 @@ export async function POST(request: NextRequest) {
       console.log(`[v0] Payment ${payment.id} status updated: ${payment.status}`)
     } catch (error) {
       console.error("[v0] Error updating payment in Firestore:", error)
+    }
+
+    // Mark webhook job as processed
+    try {
+      await adminDb.collection("webhookJobs").doc(webhookJobId).update({
+        processed: true,
+        processedAt: new Date().toISOString(),
+      })
+    } catch (error) {
+      console.error("[v0] Error updating webhook job status:", error)
     }
 
     // Process payment asynchronously (don't block webhook response)
