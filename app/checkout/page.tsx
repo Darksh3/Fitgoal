@@ -163,12 +163,19 @@ export default function CheckoutPage() {
     const currentPaymentId = pixData?.paymentId || cardPaymentId
     const method = pixData?.paymentId ? "pix" : cardPaymentId ? "card" : null
 
-    if (!currentPaymentId || !method) return
+    if (!currentPaymentId || !method) {
+      console.log("[v0] PAYMENT_LISTENER_SETUP - Nenhum paymentId configurado ainda")
+      return
+    }
 
     console.log("[v0] PAYMENT_LISTENER_SETUP - Configurando listener para:", { currentPaymentId, method })
 
     const paymentRef = doc(db, "payments", currentPaymentId)
+    let unsubscribeRef: any = null
+    
     const unsubscribe = onSnapshot(paymentRef, (snapshot) => {
+      console.log("[v0] PAYMENT_LISTENER - Snapshot recebido para:", currentPaymentId)
+      
       if (!snapshot.exists()) {
         console.log("[v0] PAYMENT_LISTENER - Documento de pagamento não existe ainda")
         return
@@ -181,11 +188,23 @@ export default function CheckoutPage() {
       if (paymentData?.status === "RECEIVED" || paymentData?.status === "CONFIRMED") {
         console.log("[v0] PAYMENT_CONFIRMED - Pagamento confirmado! Acionando feedback visual")
         setSuccess(true)
-        unsubscribe()
+        console.log("[v0] PAYMENT_CONFIRMED - Desinstalando listener")
+        if (unsubscribeRef) {
+          unsubscribeRef()
+        }
+      } else {
+        console.log("[v0] PAYMENT_LISTENER - Status não confirmado, aguardando webhook...")
       }
+    }, (error) => {
+      console.error("[v0] PAYMENT_LISTENER - Erro ao escutar:", error)
     })
+    
+    unsubscribeRef = unsubscribe
 
-    return () => unsubscribe()
+    return () => {
+      console.log("[v0] PAYMENT_LISTENER - Limpando listener para:", currentPaymentId)
+      unsubscribe()
+    }
   }, [pixData?.paymentId, cardPaymentId])
 
   // Countdown redirect
