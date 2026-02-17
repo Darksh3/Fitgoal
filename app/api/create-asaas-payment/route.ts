@@ -202,18 +202,21 @@ export async function POST(req: Request) {
     try {
       const db = admin.firestore()
       const paymentDocData = {
+        asaasPaymentId: paymentResult.id,
         paymentId: paymentResult.id,
         userId: clientUid || null,
+        leadId: clientUid || null,
         planType,
         billingType,
         amount,
+        value: amount,
         status: "PENDING",
         source: "checkout",
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       }
       
       await db.collection("payments").doc(paymentResult.id).set(paymentDocData)
-      console.log("[v0] Step 7.5 DONE - Payment document created in Firestore")
+      console.log("[v0] Step 7.5 DONE - Payment document created in Firestore with ID:", paymentResult.id)
     } catch (firestoreErr) {
       console.error("[v0] Step 7.5 WARNING - Could not create Firestore doc:", firestoreErr)
       // Não falha o request, pois o webhook pode reparar depois
