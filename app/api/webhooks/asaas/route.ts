@@ -69,25 +69,32 @@ export async function POST(request: NextRequest) {
 
     // Quick Firestore update (synchronous)
     try {
-      await adminDb.collection("payments").doc(payment.id).set(
-        {
-          asaasPaymentId: payment.id,
-          leadId: payment.externalReference,
-          status: payment.status,
-          value: payment.value,
-          netValue: payment.netValue,
-          billingType: payment.billingType,
-          customerEmail: payment.customer?.email,
-          customerName: payment.customer?.name,
-          customerPhone: payment.customer?.phone,
-          confirmedDate: payment.confirmedDate,
-          updatedAt: new Date().toISOString(),
-        },
-        { merge: true }
-      )
-      console.log(`[v0] Payment ${payment.id} status updated: ${payment.status}`)
+      console.log(`[v0] Starting payment update for: ${payment.id} with status: ${payment.status}`)
+      
+      const paymentUpdateData: any = {
+        asaasPaymentId: payment.id,
+        leadId: payment.externalReference,
+        status: payment.status,
+        value: payment.value,
+        netValue: payment.netValue,
+        billingType: payment.billingType,
+        updatedAt: new Date().toISOString(),
+      }
+      
+      // Only add optional fields if they exist
+      if (payment.customer?.email) paymentUpdateData.customerEmail = payment.customer.email
+      if (payment.customer?.name) paymentUpdateData.customerName = payment.customer.name
+      if (payment.customer?.phone) paymentUpdateData.customerPhone = payment.customer.phone
+      if (payment.confirmedDate) paymentUpdateData.confirmedDate = payment.confirmedDate
+      
+      console.log(`[v0] Payment update data:`, paymentUpdateData)
+      
+      const paymentDocRef = adminDb.collection("payments").doc(payment.id)
+      await paymentDocRef.set(paymentUpdateData, { merge: true })
+      
+      console.log(`[v0] ✅ Payment ${payment.id} updated successfully with status: ${payment.status}`)
     } catch (error) {
-      console.error("[v0] Error updating payment in Firestore:", error)
+      console.error(`[v0] ❌ Error updating payment ${payment.id}:`, error)
     }
 
     // Mark webhook job as processed
