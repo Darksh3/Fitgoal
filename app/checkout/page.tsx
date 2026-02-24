@@ -1145,7 +1145,7 @@ export default function CheckoutPage() {
               </div>
 
               {/* ORDER BUMP SECTION - Show only if payment method is selected */}
-              {paymentMethod && showOrderBump && (
+              {paymentMethod && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
