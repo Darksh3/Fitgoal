@@ -1256,66 +1256,6 @@ export default function CheckoutPage() {
                 </motion.div>
               )}
 
-              {/* BUTTON SECTION - Moved after order bumps */}
-              <div className="flex flex-col gap-4">
-                {/* Main Payment Button */}
-                <div>
-                  <button
-                    onClick={handlePayment}
-                    disabled={processing || !paymentMethod}
-                    className="relative w-full bg-gradient-to-b from-lime-400 to-lime-500 hover:from-lime-350 hover:to-lime-450 disabled:from-slate-600 disabled:to-slate-700 text-black font-bold py-4 px-6 rounded-2xl transition-all h-12 overflow-hidden shadow-lg hover:shadow-xl disabled:shadow-none"
-                  >
-                    {/* Linha de brilho no topo */}
-                    <span className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-green-300/70 to-transparent" />
-                    
-                    {/* Brilho interno superior */}
-                    <span className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/15 to-transparent rounded-t-2xl" />
-
-                    <span className="relative flex items-center justify-center gap-3">
-                      {processing ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          Processando...
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-5 h-5" />
-                          Liberar Meu Plano Agora
-                        </>
-                      )}
-                    </span>
-                  </button>
-                </div>
-
-                {/* Microcopy de segurança - Mais específica */}
-                <div className="flex items-center justify-center gap-2 text-xs text-gray-300 px-4">
-                  <Lock className="w-3 h-3 flex-shrink-0" />
-                  <span>Pagamento com criptografia SSL. Seus dados não são armazenados.</span>
-                </div>
-
-                {/* O que acontece depois do pagamento */}
-                {paymentMethod === "card" && (
-                  <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2 text-xs text-lime-300">
-                    <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                    <span>Acesso liberado imediatamente após a confirmação</span>
-                  </div>
-                )}
-
-                {paymentMethod === "pix" && (
-                  <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2 text-xs text-lime-300 items-center justify-center">
-                    <Zap className="w-4 h-4 flex-shrink-0" />
-                    <span>Liberação automática em poucos segundos</span>
-                  </div>
-                )}
-
-                {paymentMethod === "boleto" && (
-                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 flex gap-2 text-xs text-blue-300">
-                    <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                    <span>Liberação assim que o pagamento for confirmado</span>
-                  </div>
-                )}
-              </div>
-
               {/* Payment Methods and Security Seals */}
               <div className="space-y-4 border-t border-slate-700 pt-6">
                 {/* Payment Methods - Real Image */}
