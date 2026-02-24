@@ -511,7 +511,7 @@ export default function Home() {
               Como Criamos Seu Plano <span className="text-lime-400">100% Personalizado</span>
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Nosso algoritmo inteligente analisa mais de 23 fatores únicos sobre você para criar o plano perfeito
+              Nosso algoritmo inteligente analisa mais de 29 fatores únicos sobre você para criar o plano perfeito
             </p>
           </div>
 
@@ -572,8 +572,8 @@ export default function Home() {
             {/* Plano Mensal */}
             <Card
               className={`bg-slate-800/50 border-2 p-8 text-center relative cursor-pointer transition-all duration-500 ease-in-out ${activePlan === "mensal"
-                  ? "border-lime-400 md:scale-105 shadow-2xl shadow-lime-500/30"
-                  : "border-slate-700 md:scale-95 hover:border-lime-500/50"
+                ? "border-lime-400 md:scale-105 shadow-2xl shadow-lime-500/30"
+                : "border-slate-700 md:scale-95 hover:border-lime-500/50"
                 }`}
               onMouseEnter={() => setActivePlan("mensal")}
               onClick={() => setActivePlan("mensal")}
@@ -609,8 +609,8 @@ export default function Home() {
             {/* Plano Trimestral - RECOMENDADO */}
             <Card
               className={`bg-gradient-to-b from-orange-500 to-orange-600 border-2 p-8 text-center relative cursor-pointer transition-all duration-500 ease-in-out ${activePlan === "trimestral"
-                  ? "border-orange-400 md:scale-105 shadow-2xl shadow-orange-500/30"
-                  : "border-orange-400 md:scale-95"
+                ? "border-orange-400 md:scale-105 shadow-2xl shadow-orange-500/30"
+                : "border-orange-400 md:scale-95"
                 }`}
               onMouseEnter={() => setActivePlan("trimestral")}
               onClick={() => setActivePlan("trimestral")}
@@ -649,8 +649,8 @@ export default function Home() {
             {/* Plano Semestral */}
             <Card
               className={`bg-slate-800/50 border-2 p-8 text-center relative cursor-pointer transition-all duration-500 ease-in-out ${activePlan === "semestral"
-                  ? "border-purple-400 md:scale-105 shadow-2xl shadow-purple-500/30"
-                  : "border-purple-700 md:scale-95 hover:border-purple-500/50"
+                ? "border-purple-400 md:scale-105 shadow-2xl shadow-purple-500/30"
+                : "border-purple-700 md:scale-95 hover:border-purple-500/50"
                 }`}
               onMouseEnter={() => setActivePlan("semestral")}
               onClick={() => setActivePlan("semestral")}
@@ -904,7 +904,7 @@ export default function Home() {
             <div>
               <h3 className="text-xl font-bold text-lime-400 mb-3">É realmente personalizado?</h3>
               <p className="text-gray-300">
-                Sim! Analisamos 23+ fatores únicos sobre você para criar um plano 100% personalizado.
+                Sim! Analisamos 29+ fatores únicos sobre você para criar um plano 100% personalizado.
               </p>
             </div>
             <div>

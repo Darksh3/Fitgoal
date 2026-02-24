@@ -90,6 +90,16 @@ export default function CheckoutPage() {
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
   const [cardPaymentId, setCardPaymentId] = useState<string | null>(null)
+  
+  // Order Bump state
+  const [showOrderBump, setShowOrderBump] = useState(false)
+  const [selectedOrderBumps, setSelectedOrderBumps] = useState<{
+    ebook: boolean
+    protocolo: boolean
+  }>({
+    ebook: false,
+    protocolo: false,
+  })
 
   // Plan info
   const getPlanName = (plan: string) => {
@@ -370,6 +380,13 @@ export default function CheckoutPage() {
         }
       }
 
+      // Show order bump screen if not yet shown
+      if (!showOrderBump) {
+        setProcessing(false)
+        setShowOrderBump(true)
+        return
+      }
+
       // Step 1: Criar pagamento com /api/create-asaas-payment (igual ao modal)
       // Get uid from localStorage quizData first, then fallback to Firebase Auth
       const stored = localStorage.getItem("quizData")
@@ -385,6 +402,14 @@ export default function CheckoutPage() {
         paymentMethod: paymentMethod === "card" ? "card" : paymentMethod,
         description: `${planName} - Fitgoal Fitness`,
         clientUid: finalClientUid,
+      }
+
+      // Add order bumps to payload if selected
+      if (selectedOrderBumps.ebook || selectedOrderBumps.protocolo) {
+        paymentPayload.orderBumps = {
+          ebook: selectedOrderBumps.ebook,
+          protocolo: selectedOrderBumps.protocolo,
+        }
       }
 
       if (paymentMethod === "card") {
@@ -573,6 +598,127 @@ export default function CheckoutPage() {
             </CardContent>
           </Card>
         </motion.div>
+      </div>
+    )
+  }
+
+  // Order Bump screen
+  if (showOrderBump && paymentMethod) {
+    const orderBumpTotal = (selectedOrderBumps.ebook ? 14.90 : 0) + (selectedOrderBumps.protocolo ? 14.90 : 0)
+    const mainPrice = parseFloat(planPrice.replace(",", "."))
+    const totalWithBumps = mainPrice + orderBumpTotal
+
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 py-8 px-4 flex flex-col items-center justify-center">
+        <div className="max-w-3xl w-full">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-6">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-white mb-2">Aproveite Ofertas Especiais! 🎁</h2>
+              <p className="text-gray-400">Adicione produtos complementares com desconto especial agora</p>
+            </div>
+
+            {/* Order Bump Products */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Ebook Anti-Plateau */}
+              <Card 
+                className={`cursor-pointer transition-all ${
+                  selectedOrderBumps.ebook 
+                    ? "bg-lime-500/10 border-lime-500/50" 
+                    : "bg-slate-800/40 border-slate-700/50 hover:border-slate-600"
+                } backdrop-blur`}
+                onClick={() => setSelectedOrderBumps(prev => ({ ...prev, ebook: !prev.ebook }))}
+              >
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-white mb-1">Ebook Anti-Plateau</h3>
+                      <p className="text-sm text-gray-400 mb-3">Reverter plateau metabólico em 7 dias com protocolos científicos</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl font-bold text-lime-500">R$ 14,90</span>
+                        <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
+                      </div>
+                    </div>
+                    <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                      selectedOrderBumps.ebook ? "bg-lime-500 border-lime-500" : "border-gray-400"
+                    }`}>
+                      {selectedOrderBumps.ebook && <Check className="w-4 h-4 text-black" />}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Protocolo SOS */}
+              <Card 
+                className={`cursor-pointer transition-all ${
+                  selectedOrderBumps.protocolo 
+                    ? "bg-lime-500/10 border-lime-500/50" 
+                    : "bg-slate-800/40 border-slate-700/50 hover:border-slate-600"
+                } backdrop-blur`}
+                onClick={() => setSelectedOrderBumps(prev => ({ ...prev, protocolo: !prev.protocolo }))}
+              >
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-white mb-1">Protocolo SOS FitGoal</h3>
+                      <p className="text-sm text-gray-400 mb-3">Protocolo de emergência para recuperação de composição corporal</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl font-bold text-lime-500">R$ 14,90</span>
+                        <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
+                      </div>
+                    </div>
+                    <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                      selectedOrderBumps.protocolo ? "bg-lime-500 border-lime-500" : "border-gray-400"
+                    }`}>
+                      {selectedOrderBumps.protocolo && <Check className="w-4 h-4 text-black" />}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Summary */}
+            <Card className="bg-slate-800/40 backdrop-blur border-slate-700/50">
+              <CardContent className="p-6">
+                <div className="space-y-3">
+                  <div className="flex justify-between text-gray-300">
+                    <span>Plano {planName}</span>
+                    <span>R$ {mainPrice.toFixed(2).replace(".", ",")}</span>
+                  </div>
+                  {orderBumpTotal > 0 && (
+                    <>
+                      <div className="flex justify-between text-gray-300">
+                        <span>Order Bumps</span>
+                        <span>R$ {orderBumpTotal.toFixed(2).replace(".", ",")}</span>
+                      </div>
+                      <div className="border-t border-slate-700 pt-3 flex justify-between text-lg font-bold text-lime-500">
+                        <span>Total</span>
+                        <span>R$ {totalWithBumps.toFixed(2).replace(".", ",")}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1 border-slate-600 text-white hover:bg-slate-800"
+                onClick={() => setShowOrderBump(false)}
+              >
+                Prosseguir sem Oferta
+              </Button>
+              <Button
+                className="flex-1 bg-lime-500 hover:bg-lime-600 text-black font-bold"
+                onClick={() => setShowOrderBump(false)}
+              >
+                Continuar Compra
+              </Button>
+            </div>
+          </motion.div>
+        </div>
       </div>
     )
   }
