@@ -234,6 +234,11 @@ async function processPaymentBackground(payment: AsaasPayment) {
     const appUrl = process.env.APP_URL
     if (appUrl && payment.status === "CONFIRMED") {
       try {
+        // Get payment document to extract order bumps info
+        const paymentRef = adminDb.collection("payments").doc(payment.id)
+        const paymentSnapshot = await paymentRef.get()
+        const paymentData = paymentSnapshot.data() || {}
+
         const response = await fetch(`${appUrl}/api/handle-post-checkout`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -244,6 +249,7 @@ async function processPaymentBackground(payment: AsaasPayment) {
             customerEmail: payment.customer?.email || leadData.email,
             customerPhone: payment.customer?.phone || leadData.phone,
             value: payment.value,
+            orderBumps: paymentData?.orderBumps || null, // Pass order bumps if purchased
           }),
         })
 
