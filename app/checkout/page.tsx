@@ -387,6 +387,9 @@ export default function CheckoutPage() {
         return
       }
 
+      // Resetar o flag para o próximo pagamento
+      setShowOrderBump(false)
+
       // Step 1: Criar pagamento com /api/create-asaas-payment (igual ao modal)
       // Get uid from localStorage quizData first, then fallback to Firebase Auth
       const stored = localStorage.getItem("quizData")
@@ -598,127 +601,6 @@ export default function CheckoutPage() {
             </CardContent>
           </Card>
         </motion.div>
-      </div>
-    )
-  }
-
-  // Order Bump screen
-  if (showOrderBump && paymentMethod) {
-    const orderBumpTotal = (selectedOrderBumps.ebook ? 14.90 : 0) + (selectedOrderBumps.protocolo ? 14.90 : 0)
-    const mainPrice = parseFloat(planPrice.replace(",", "."))
-    const totalWithBumps = mainPrice + orderBumpTotal
-
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 py-8 px-4 flex flex-col items-center justify-center">
-        <div className="max-w-3xl w-full">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-6">
-            {/* Header */}
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-white mb-2">Aproveite Ofertas Especiais! 🎁</h2>
-              <p className="text-gray-400">Adicione produtos complementares com desconto especial agora</p>
-            </div>
-
-            {/* Order Bump Products */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Ebook Anti-Plateau */}
-              <Card 
-                className={`cursor-pointer transition-all ${
-                  selectedOrderBumps.ebook 
-                    ? "bg-lime-500/10 border-lime-500/50" 
-                    : "bg-slate-800/40 border-slate-700/50 hover:border-slate-600"
-                } backdrop-blur`}
-                onClick={() => setSelectedOrderBumps(prev => ({ ...prev, ebook: !prev.ebook }))}
-              >
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-white mb-1">Ebook Anti-Plateau</h3>
-                      <p className="text-sm text-gray-400 mb-3">Reverter plateau metabólico em 7 dias com protocolos científicos</p>
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl font-bold text-lime-500">R$ 14,90</span>
-                        <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
-                      </div>
-                    </div>
-                    <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                      selectedOrderBumps.ebook ? "bg-lime-500 border-lime-500" : "border-gray-400"
-                    }`}>
-                      {selectedOrderBumps.ebook && <Check className="w-4 h-4 text-black" />}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Protocolo SOS */}
-              <Card 
-                className={`cursor-pointer transition-all ${
-                  selectedOrderBumps.protocolo 
-                    ? "bg-lime-500/10 border-lime-500/50" 
-                    : "bg-slate-800/40 border-slate-700/50 hover:border-slate-600"
-                } backdrop-blur`}
-                onClick={() => setSelectedOrderBumps(prev => ({ ...prev, protocolo: !prev.protocolo }))}
-              >
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-white mb-1">Protocolo SOS FitGoal</h3>
-                      <p className="text-sm text-gray-400 mb-3">Protocolo de emergência para recuperação de composição corporal</p>
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl font-bold text-lime-500">R$ 14,90</span>
-                        <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
-                      </div>
-                    </div>
-                    <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                      selectedOrderBumps.protocolo ? "bg-lime-500 border-lime-500" : "border-gray-400"
-                    }`}>
-                      {selectedOrderBumps.protocolo && <Check className="w-4 h-4 text-black" />}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Summary */}
-            <Card className="bg-slate-800/40 backdrop-blur border-slate-700/50">
-              <CardContent className="p-6">
-                <div className="space-y-3">
-                  <div className="flex justify-between text-gray-300">
-                    <span>Plano {planName}</span>
-                    <span>R$ {mainPrice.toFixed(2).replace(".", ",")}</span>
-                  </div>
-                  {orderBumpTotal > 0 && (
-                    <>
-                      <div className="flex justify-between text-gray-300">
-                        <span>Order Bumps</span>
-                        <span>R$ {orderBumpTotal.toFixed(2).replace(".", ",")}</span>
-                      </div>
-                      <div className="border-t border-slate-700 pt-3 flex justify-between text-lg font-bold text-lime-500">
-                        <span>Total</span>
-                        <span>R$ {totalWithBumps.toFixed(2).replace(".", ",")}</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Actions */}
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1 border-slate-600 text-white hover:bg-slate-800"
-                onClick={() => setShowOrderBump(false)}
-              >
-                Prosseguir sem Oferta
-              </Button>
-              <Button
-                className="flex-1 bg-lime-500 hover:bg-lime-600 text-black font-bold"
-                onClick={() => setShowOrderBump(false)}
-              >
-                Continuar Compra
-              </Button>
-            </div>
-          </motion.div>
-        </div>
       </div>
     )
   }
@@ -1261,6 +1143,118 @@ export default function CheckoutPage() {
                 </p>
 
               </div>
+
+              {/* ORDER BUMP SECTION - Show only if payment method is selected */}
+              {paymentMethod && showOrderBump && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-gradient-to-b from-red-500/10 to-red-600/5 border-2 border-red-500/30 rounded-xl p-6 space-y-4"
+                >
+                  <div className="text-center mb-4">
+                    <h3 className="text-lg font-bold text-white flex items-center justify-center gap-2">
+                      🎁 Você tem 1 oferta especial!
+                    </h3>
+                    <p className="text-xs text-gray-300 mt-1">Uma oportunidade única de adquirir produtos incríveis com super desconto</p>
+                  </div>
+
+                  {/* Order Bump Products - Vertical Stack */}
+                  <div className="space-y-3">
+                    {/* Ebook Anti-Plateau */}
+                    <motion.div
+                      whileHover={{ scale: 1.01 }}
+                      onClick={() => setSelectedOrderBumps(prev => ({ ...prev, ebook: !prev.ebook }))}
+                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${
+                        selectedOrderBumps.ebook
+                          ? "bg-lime-500/15 border-lime-500/50"
+                          : "bg-slate-700/20 border-slate-600/40 hover:border-slate-500/60"
+                      }`}
+                    >
+                      {/* Checkbox - Top Right */}
+                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                        selectedOrderBumps.ebook ? "bg-lime-500 border-lime-500" : "border-gray-400"
+                      }`}>
+                        {selectedOrderBumps.ebook && <Check className="w-3 h-3 text-black" />}
+                      </div>
+
+                      {/* Product Image - Small */}
+                      <img
+                        src="/order-bump-protocol-metabolico.jpg"
+                        alt="Ebook Anti-Plateau"
+                        className="w-20 h-28 object-cover rounded flex-shrink-0"
+                      />
+
+                      {/* Text Content */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-white text-sm">Ebook Anti-Plateau</p>
+                        <p className="text-xs text-gray-400 line-clamp-2">Reverter plateau em 7 dias com protocolos científicos</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="font-bold text-lime-400 text-sm">R$ 14,90</span>
+                          <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
+                        </div>
+                      </div>
+                    </motion.div>
+
+                    {/* Protocolo SOS */}
+                    <motion.div
+                      whileHover={{ scale: 1.01 }}
+                      onClick={() => setSelectedOrderBumps(prev => ({ ...prev, protocolo: !prev.protocolo }))}
+                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${
+                        selectedOrderBumps.protocolo
+                          ? "bg-lime-500/15 border-lime-500/50"
+                          : "bg-slate-700/20 border-slate-600/40 hover:border-slate-500/60"
+                      }`}
+                    >
+                      {/* Checkbox - Top Right */}
+                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                        selectedOrderBumps.protocolo ? "bg-lime-500 border-lime-500" : "border-gray-400"
+                      }`}>
+                        {selectedOrderBumps.protocolo && <Check className="w-3 h-3 text-black" />}
+                      </div>
+
+                      {/* Product Image - Small */}
+                      <img
+                        src="/order-bump-protocolo-sos.jpg"
+                        alt="Protocolo SOS FitGoal"
+                        className="w-20 h-28 object-cover rounded flex-shrink-0"
+                      />
+
+                      {/* Text Content */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-white text-sm">Protocolo SOS FitGoal</p>
+                        <p className="text-xs text-gray-400 line-clamp-2">Protocolo de emergência para composição corporal</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="font-bold text-lime-400 text-sm">R$ 14,90</span>
+                          <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </div>
+
+                  {/* Order Bump Summary */}
+                  {(selectedOrderBumps.ebook || selectedOrderBumps.protocolo) && (
+                    <div className="bg-slate-700/30 rounded-lg p-3 space-y-2 border border-slate-600">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-300">Valor do Plano</span>
+                        <span className="text-white font-semibold">R$ {planPrice}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-300">Order Bumps Selecionados</span>
+                        <span className="text-lime-400 font-semibold">
+                          + R$ {((selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)).toFixed(2).replace(".", ",")}
+                        </span>
+                      </div>
+                      <div className="border-t border-slate-600 pt-2 flex justify-between">
+                        <span className="text-white font-bold">Valor Total</span>
+                        <span className="text-lime-400 font-bold text-lg">
+                          R$ {(parseFloat(planPrice.replace(",", ".")) + (selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)).toFixed(2).replace(".", ",")}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
 
               {/* Payment Methods and Security Seals */}
               <div className="space-y-4 border-t border-slate-700 pt-6">
