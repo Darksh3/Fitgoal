@@ -1165,24 +1165,34 @@ export default function CheckoutPage() {
                     <motion.div
                       whileHover={{ scale: 1.01 }}
                       onClick={() => setSelectedOrderBumps(prev => ({ ...prev, ebook: !prev.ebook }))}
-                      className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${
                         selectedOrderBumps.ebook
                           ? "bg-lime-500/15 border-lime-500/50"
                           : "bg-slate-700/20 border-slate-600/40 hover:border-slate-500/60"
                       }`}
                     >
-                      <div className={`w-6 h-6 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                      {/* Checkbox - Top Right */}
+                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
                         selectedOrderBumps.ebook ? "bg-lime-500 border-lime-500" : "border-gray-400"
                       }`}>
-                        {selectedOrderBumps.ebook && <Check className="w-4 h-4 text-black" />}
+                        {selectedOrderBumps.ebook && <Check className="w-3 h-3 text-black" />}
                       </div>
+
+                      {/* Product Image - Small */}
+                      <img
+                        src="/order-bump-protocol-metabolico.jpg"
+                        alt="Ebook Anti-Plateau"
+                        className="w-20 h-28 object-cover rounded flex-shrink-0"
+                      />
+
+                      {/* Text Content */}
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-white text-sm">Ebook Anti-Plateau</p>
-                        <p className="text-xs text-gray-400">Reverter plateau em 7 dias com protocolos científicos</p>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <p className="font-bold text-lime-400">R$ 14,90</p>
-                        <p className="text-xs text-gray-400 line-through">de R$ 39,90</p>
+                        <p className="text-xs text-gray-400 line-clamp-2">Reverter plateau em 7 dias com protocolos científicos</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="font-bold text-lime-400 text-sm">R$ 14,90</span>
+                          <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
+                        </div>
                       </div>
                     </motion.div>
 
@@ -1190,24 +1200,34 @@ export default function CheckoutPage() {
                     <motion.div
                       whileHover={{ scale: 1.01 }}
                       onClick={() => setSelectedOrderBumps(prev => ({ ...prev, protocolo: !prev.protocolo }))}
-                      className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${
                         selectedOrderBumps.protocolo
                           ? "bg-lime-500/15 border-lime-500/50"
                           : "bg-slate-700/20 border-slate-600/40 hover:border-slate-500/60"
                       }`}
                     >
-                      <div className={`w-6 h-6 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                      {/* Checkbox - Top Right */}
+                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
                         selectedOrderBumps.protocolo ? "bg-lime-500 border-lime-500" : "border-gray-400"
                       }`}>
-                        {selectedOrderBumps.protocolo && <Check className="w-4 h-4 text-black" />}
+                        {selectedOrderBumps.protocolo && <Check className="w-3 h-3 text-black" />}
                       </div>
+
+                      {/* Product Image - Small */}
+                      <img
+                        src="/order-bump-protocolo-sos.jpg"
+                        alt="Protocolo SOS FitGoal"
+                        className="w-20 h-28 object-cover rounded flex-shrink-0"
+                      />
+
+                      {/* Text Content */}
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-white text-sm">Protocolo SOS FitGoal</p>
-                        <p className="text-xs text-gray-400">Protocolo de emergência para composição corporal</p>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <p className="font-bold text-lime-400">R$ 14,90</p>
-                        <p className="text-xs text-gray-400 line-through">de R$ 39,90</p>
+                        <p className="text-xs text-gray-400 line-clamp-2">Protocolo de emergência para composição corporal</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="font-bold text-lime-400 text-sm">R$ 14,90</span>
+                          <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
+                        </div>
                       </div>
                     </motion.div>
                   </div>
