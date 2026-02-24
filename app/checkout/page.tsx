@@ -1315,8 +1315,6 @@ export default function CheckoutPage() {
                   </div>
                 )}
               </div>
-                </motion.div>
-              )}
 
               {/* Payment Methods and Security Seals */}
               <div className="space-y-4 border-t border-slate-700 pt-6">
