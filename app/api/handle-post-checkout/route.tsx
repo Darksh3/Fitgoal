@@ -40,9 +40,12 @@ export async function POST(req: Request) {
     const body = await req.json()
     const { sessionId, subscription_id, customer_id, client_uid, payment_intent_id, plan_duration, price_id, userId, paymentId, billingType, customerName, customerEmail, customerPhone, customerCpf, orderBumps } = body
 
-    console.log("[v0] HANDLE_POST_CHECKOUT_INIT - Recebido:", { sessionId, subscription_id, payment_intent_id, userId, orderBumps })
+    console.log("[v0] ════════════════════════════════════════════════════════════")
+    console.log("[v0] HANDLE_POST_CHECKOUT_INIT - Dados completos recebidos:")
+    console.log(JSON.stringify({ sessionId, subscription_id, payment_intent_id, userId, customerEmail, paymentId, orderBumps }, null, 2))
 
     if (!sessionId && !subscription_id && !payment_intent_id && !userId) {
+      console.error("[v0] ❌ HANDLE_POST_CHECKOUT - Faltam dados: sem sessionId, subscription_id, payment_intent_id ou userId")
       return NextResponse.json({ error: "sessionId, subscription_id, payment_intent_id ou userId ausente." }, { status: 400 })
     }
 
@@ -56,10 +59,12 @@ export async function POST(req: Request) {
 
     // Se vem do webhook Asaas, usar os dados diretamente
     if (userId && customerEmail && customerEmail !== 'undefined') {
+      console.log("[v0] ✅ HANDLE_POST_CHECKOUT - Usando dados do Asaas webhook")
       userEmail = customerEmail
       userName = customerName || null
       clientUidFromSource = userId
-      console.log("[v0] HANDLE_POST_CHECKOUT - Dados do Asaas webhook:", { userEmail, userName, clientUidFromSource })
+      console.log("[v0] 📧 Email extraído:", userEmail)
+      console.log("[v0] 👤 Nome extraído:", userName)
 
       // Buscar quizAnswers do Firebase usando o userId (já é o lead ou user anterior)
       try {
@@ -595,7 +600,12 @@ export async function POST(req: Request) {
 
     // ==================== EMAIL COM RESEND ====================
     // Resend funciona independentemente de SendGrid
-    console.log("[v0] EMAIL_BLOCK_START - Iniciando bloco de email")
+    console.log("[v0] ════════════════════════════════════════════════════════════")
+    console.log("[v0] EMAIL_BLOCK_START - Iniciando bloco de email com Resend")
+    console.log("[v0] 📧 Email: ", userEmail)
+    console.log("[v0] 👤 Nome: ", userName)
+    console.log("[v0] 🔑 RESEND_API_KEY disponível: ", !!resendApiKey)
+    
     const emailSubject = isNewUser
       ? "Bem-vindo(a) ao FitGoal! Crie sua senha."
       : "Sua Assinatura FitGoal foi Confirmada!"
@@ -730,6 +740,10 @@ export async function POST(req: Request) {
     }
 
     console.log(`DEBUG: Processo de pós-checkout concluído com sucesso para usuário: ${finalUserUid}`)
+    console.log("[v0] ════════════════════════════════════════════════════════════")
+    console.log("[v0] ✅ HANDLE_POST_CHECKOUT_SUCCESS - Email enviado com sucesso")
+    console.log("[v0] ════════════════════════════════════════════════════════════")
+    
     return NextResponse.json({
       received: true,
       message: "Pós-checkout processado com sucesso.",
