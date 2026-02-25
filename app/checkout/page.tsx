@@ -1067,7 +1067,7 @@ export default function CheckoutPage() {
                       onClick={() => setSelectedOrderBumps(prev => ({ ...prev, ebook: !prev.ebook }))}
                       className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${selectedOrderBumps.ebook
                         ? "bg-lime-500/15 border-lime-500/50"
-                        : "bg-gray-300 border-gray-400 hover:border-gray-500"
+                        : "bg-white/40 border-gray-300 hover:border-gray-400"
                         }`}
                     >
                       {/* Checkbox - Top Right */}
@@ -1100,7 +1100,7 @@ export default function CheckoutPage() {
                       onClick={() => setSelectedOrderBumps(prev => ({ ...prev, protocolo: !prev.protocolo }))}
                       className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${selectedOrderBumps.protocolo
                         ? "bg-lime-500/15 border-lime-500/50"
-                        : "bg-gray-300 border-gray-400 hover:border-gray-500"
+                        : "bg-white/40 border-gray-300 hover:border-gray-400"
                         }`}
                     >
                       {/* Checkbox - Top Right */}
