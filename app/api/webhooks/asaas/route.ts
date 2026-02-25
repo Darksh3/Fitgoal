@@ -231,28 +231,59 @@ async function processPaymentBackground(payment: AsaasPayment) {
     }
 
     // Call post-checkout handler if configured
-    const appUrl = process.env.APP_URL
+    let appUrl = process.env.APP_URL
+    
+    // Fallback: se APP_URL não estiver definida, usar vercel deploy URL
+    if (!appUrl) {
+      // Try to get from request headers or use localhost for development
+      const host = request.headers.get('host') || 'localhost:3000'
+      const protocol = request.headers.get('x-forwarded-proto') || 'https'
+      appUrl = `${protocol}://${host}`
+      console.log(`[v0] APP_URL not configured, using request URL: ${appUrl}`)
+    }
+    
+    console.log(`[v0] POST-CHECKOUT HANDLER CHECK - appUrl: ${appUrl}, status: ${payment.status}`)
+    
     if (appUrl && payment.status === "CONFIRMED") {
       try {
+        console.log(`[v0] 🚀 POST-CHECKOUT HANDLER - Iniciando chamada para: ${appUrl}/api/handle-post-checkout`)
+        
+        // Get payment document to extract order bumps info
+        const paymentRef = adminDb.collection("payments").doc(payment.id)
+        const paymentSnapshot = await paymentRef.get()
+        const paymentData = paymentSnapshot.data() || {}
+
+        const payload = {
+          userId: leadId,
+          paymentId: payment.id,
+          customerName: payment.customer?.name || leadData.name,
+          customerEmail: payment.customer?.email || leadData.email,
+          customerPhone: payment.customer?.phone || leadData.phone,
+          value: payment.value,
+          orderBumps: paymentData?.orderBumps || null,
+        }
+        
+        console.log(`[v0] POST-CHECKOUT PAYLOAD:`, payload)
+
         const response = await fetch(`${appUrl}/api/handle-post-checkout`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: leadId,
-            paymentId: payment.id,
-            customerName: payment.customer?.name || leadData.name,
-            customerEmail: payment.customer?.email || leadData.email,
-            customerPhone: payment.customer?.phone || leadData.phone,
-            value: payment.value,
-          }),
+          body: JSON.stringify(payload),
         })
 
+        console.log(`[v0] POST-CHECKOUT RESPONSE - Status: ${response.status}`)
+        
         if (!response.ok) {
-          console.error(`[v0] Post-checkout handler returned ${response.status}`)
+          const errorText = await response.text()
+          console.error(`[v0] ❌ Post-checkout handler returned ${response.status}: ${errorText}`)
+        } else {
+          console.log(`[v0] ✅ Post-checkout handler called successfully`)
         }
       } catch (error) {
-        console.error("[v0] Error calling post-checkout handler:", error)
+        console.error("[v0] ❌ Error calling post-checkout handler:", error)
       }
+    } else {
+      console.log(`[v0] ⏭️  POST-CHECKOUT HANDLER - Skipped (appUrl exists: ${!!appUrl}, status: ${payment.status})`)
     }
   } catch (error) {
     console.error("[v0] Background payment processing failed:", error)
