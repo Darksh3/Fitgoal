@@ -37,22 +37,29 @@ if (sendgridApiKey) {
 
 export async function POST(req: Request) {
   try {
-    console.log("[v0] ═══════════════════════════════════════════════════════════")
-    console.log("[v0] 🎯 HANDLE_POST_CHECKOUT - INICIANDO")
-    console.log("[v0] ═══════════════════════════════════════════════════════════")
-    
     const body = await req.json()
     const { sessionId, subscription_id, customer_id, client_uid, payment_intent_id, plan_duration, price_id, userId, paymentId, billingType, customerName, customerEmail, customerPhone, customerCpf, orderBumps } = body
 
-    console.log("[v0] 📨 HANDLE_POST_CHECKOUT_INIT - Dados recebidos:", { 
-      sessionId, 
-      subscription_id, 
-      payment_intent_id, 
-      userId, 
-      customerEmail,
-      orderBumps,
-      resendKeyConfigured: !!process.env.RESEND_API_KEY 
-    })
+    console.log("[v0] HANDLE_POST_CHECKOUT_INIT - Recebido:", { sessionId, subscription_id, payment_intent_id, userId, orderBumps })
+
+    if (!sessionId && !subscription_id && !payment_intent_id && !userId) {
+      return NextResponse.json({ error: "sessionId, subscription_id, payment_intent_id ou userId ausente." }, { status: 400 })
+    }
+
+    let userEmail: string | null = null
+    let userName: string | null = null
+    let quizAnswersFromMetadata: any = {}
+    let planType: string | null = price_id || null
+    let stripeCustomerId: string | null = customer_id || null
+    let subscriptionDuration: number = plan_duration || 30 // padrão 30 dias
+    let clientUidFromSource: string | null = client_uid || null // Declare clientUidFromSource here
+
+    // Se vem do webhook Asaas, usar os dados diretamente
+    if (userId && customerEmail && customerEmail !== 'undefined') {
+      userEmail = customerEmail
+      userName = customerName || null
+      clientUidFromSource = userId
+      console.log("[v0] HANDLE_POST_CHECKOUT - Dados do Asaas webhook:", { userEmail, userName, clientUidFromSource })
 
       // Buscar quizAnswers do Firebase usando o userId (já é o lead ou user anterior)
       try {
@@ -680,20 +687,17 @@ export async function POST(req: Request) {
 
     try {
       if (!userEmail) {
-        console.warn("[v0] ❌ RESEND_WARNING - Email não disponível, não é possível enviar")
+        console.warn("[v0] RESEND_WARNING - Email não disponível, não é possível enviar")
         throw new Error("Email não disponível para envio")
       }
 
-      console.log("[v0] ═══════════════════════════════════════════════════════════")
-      console.log("[v0] 📧 EMAIL_ENVIO_INICIADO")
-      console.log("[v0] ═══════════════════════════════════════════════════════════")
-      console.log("[v0] 📨 Para:", userEmail)
-      console.log("[v0] 📋 Assunto:", emailSubject)
-      console.log("[v0] 🔑 RESEND_API_KEY configurada:", !!resendApiKey)
-      console.log("[v0] 📦 Order Bumps:", orderBumps)
+      console.log("[v0] RESEND_SENDING - Iniciando envio de email")
+      console.log("[v0] RESEND_EMAIL - Para:", userEmail)
+      console.log("[v0] RESEND_SUBJECT - Assunto:", emailSubject)
+      console.log("[v0] RESEND_KEY_EXISTS - API Key configurada:", !!resendApiKey)
 
       if (resendApiKey) {
-        console.log("[v0] 🚀 Chamando resend.emails.send()...")
+        console.log("[v0] RESEND_CALLING - Chamando resend.emails.send()")
         const response = await resend.emails.send({
           from: "FitGoal <noreply@fitgoal.com.br>",
           replyTo: "suporte@fitgoal.com.br",
@@ -702,23 +706,22 @@ export async function POST(req: Request) {
           html: emailHtmlContent,
         })
 
-        console.log(`[v0] ✅ EMAIL_ENVIADO - Sucesso para ${userEmail}`)
-        console.log("[v0] 📬 Resend Response:", response)
+        console.log(`[v0] RESEND_SUCCESS - E-mail enviado com sucesso para ${userEmail}:`, response)
       } else {
-        console.error("[v0] ❌ RESEND_KEY_MISSING - RESEND_API_KEY não está configurada!")
-        console.error("[v0] 📝 Nota: Configure RESEND_API_KEY nas variáveis de ambiente para enviar emails")
+        console.warn("[v0] RESEND_KEY_MISSING - RESEND_API_KEY não configurada, pulando envio")
       }
     } catch (emailError: any) {
-      console.error("[v0] ❌ EMAIL_ERRO - Falha ao enviar e-mail")
-      console.error("[v0] 📧 Para:", userEmail)
-      console.error("[v0] 💬 Erro:", emailError?.message)
-      console.error("[v0] 🔍 Stack:", emailError?.stack)
+      console.error("[v0] RESEND_ERROR - Falha ao enviar e-mail:", {
+        error: emailError?.message,
+        errorFull: emailError,
+        email: userEmail,
+        subject: emailSubject,
+        stack: emailError?.stack,
+      })
       // Don't fail the entire process if email fails
     }
 
-    console.log("[v0] ═══════════════════════════════════════════════════════════")
-    console.log(`[v0] ✅ HANDLE_POST_CHECKOUT - CONCLUÍDO para usuário: ${finalUserUid}`)
-    console.log("[v0] ═══════════════════════════════════════════════════════════")
+    console.log(`DEBUG: Processo de pós-checkout concluído com sucesso para usuário: ${finalUserUid}`)
     return NextResponse.json({
       received: true,
       message: "Pós-checkout processado com sucesso.",
