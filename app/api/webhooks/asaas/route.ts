@@ -231,34 +231,55 @@ async function processPaymentBackground(payment: AsaasPayment) {
     }
 
     // Call post-checkout handler if configured
-    const appUrl = process.env.APP_URL
+    let appUrl = process.env.APP_URL
+    
+    // Fallback: se APP_URL não estiver definida, usar NEXT_PUBLIC_URL
+    if (!appUrl && process.env.NEXT_PUBLIC_URL) {
+      appUrl = process.env.NEXT_PUBLIC_URL
+      console.log(`[v0] ℹ️  APP_URL não definida, usando NEXT_PUBLIC_URL: ${appUrl}`)
+    }
+    
     if (appUrl && payment.status === "CONFIRMED") {
       try {
+        console.log(`[v0] 🚀 POST-CHECKOUT HANDLER - Iniciando chamada para: ${appUrl}/api/handle-post-checkout`)
+        
         // Get payment document to extract order bumps info
         const paymentRef = adminDb.collection("payments").doc(payment.id)
         const paymentSnapshot = await paymentRef.get()
         const paymentData = paymentSnapshot.data() || {}
 
+        const postCheckoutPayload = {
+          userId: leadId,
+          paymentId: payment.id,
+          customerName: payment.customer?.name || leadData.name,
+          customerEmail: payment.customer?.email || leadData.email,
+          customerPhone: payment.customer?.phone || leadData.phone,
+          value: payment.value,
+          orderBumps: paymentData?.orderBumps || null,
+        }
+
+        console.log(`[v0] 📤 POST-CHECKOUT PAYLOAD:`, JSON.stringify(postCheckoutPayload, null, 2))
+
         const response = await fetch(`${appUrl}/api/handle-post-checkout`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: leadId,
-            paymentId: payment.id,
-            customerName: payment.customer?.name || leadData.name,
-            customerEmail: payment.customer?.email || leadData.email,
-            customerPhone: payment.customer?.phone || leadData.phone,
-            value: payment.value,
-            orderBumps: paymentData?.orderBumps || null, // Pass order bumps if purchased
-          }),
+          body: JSON.stringify(postCheckoutPayload),
         })
 
+        console.log(`[v0] 📥 POST-CHECKOUT RESPONSE - Status: ${response.status}`)
+        
         if (!response.ok) {
-          console.error(`[v0] Post-checkout handler returned ${response.status}`)
+          const errorText = await response.text()
+          console.error(`[v0] ❌ Post-checkout handler returned ${response.status}:`, errorText)
+        } else {
+          const successData = await response.json()
+          console.log(`[v0] ✅ Post-checkout handler success:`, successData)
         }
       } catch (error) {
-        console.error("[v0] Error calling post-checkout handler:", error)
+        console.error("[v0] ❌ Error calling post-checkout handler:", error)
       }
+    } else {
+      console.log(`[v0] ⏭️  POST-CHECKOUT HANDLER - Skipped (appUrl: ${!!appUrl}, status: ${payment.status})`)
     }
   } catch (error) {
     console.error("[v0] Background payment processing failed:", error)
