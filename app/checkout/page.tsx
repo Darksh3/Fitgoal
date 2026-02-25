@@ -145,6 +145,11 @@ export default function CheckoutPage() {
     if (initialPlan) {
       setSelectedPlan(initialPlan)
     }
+    // Trata ambos "plan" e "planKey" para compatibilidade
+    const planParam = searchParams.get("plan") as "mensal" | "trimestral" | "semestral" | null
+    if (planParam && !initialPlan) {
+      setSelectedPlan(planParam)
+    }
     // Set Pix as default payment method for better UX on mobile Brazil
     setPaymentMethod("pix")
   }, [searchParams])
@@ -175,6 +180,17 @@ export default function CheckoutPage() {
   useEffect(() => {
     prefillFromProfile()
   }, [])
+
+  // Create lead from checkout (without quiz)
+  useEffect(() => {
+    const skipQuiz = searchParams.get("skipQuiz") === "true"
+    if (skipQuiz && !user) {
+      // Generate a temporary session ID for this checkout
+      const sessionId = `checkout_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      localStorage.setItem("checkoutSessionId", sessionId)
+      console.log("[v0] CHECKOUT_SKIP_QUIZ - Session ID:", sessionId)
+    }
+  }, [searchParams, user])
 
   // Real-time payment listener
   useEffect(() => {
@@ -400,10 +416,12 @@ export default function CheckoutPage() {
       setShowOrderBump(false)
 
       // Step 1: Criar pagamento com /api/create-asaas-payment (igual ao modal)
-      // Get uid from localStorage quizData first, then fallback to Firebase Auth
+      // Get uid from localStorage quizData first, then fallback to Firebase Auth or checkout session
       const stored = localStorage.getItem("quizData")
       const storedUid = stored ? JSON.parse(stored).uid : null
-      const finalClientUid = storedUid || user?.uid
+      const skipQuiz = searchParams.get("skipQuiz") === "true"
+      const checkoutSessionId = skipQuiz ? localStorage.getItem("checkoutSessionId") : null
+      const finalClientUid = storedUid || user?.uid || checkoutSessionId
 
       const paymentPayload: Record<string, any> = {
         email: formData.email,
@@ -416,6 +434,7 @@ export default function CheckoutPage() {
         clientUid: finalClientUid,
         planPrice: planPrice,
         totalPrice: totalPrice, // Total including order bumps
+        isCheckoutSkipQuiz: skipQuiz, // Flag to indicate checkout skip quiz flow
       }
 
       // Add order bumps to payload if selected

@@ -253,6 +253,20 @@ export default function Home() {
     router.push(`/checkout?plan=${plan}`)
   }
 
+  const startQuiz = () => {
+    setLoading(true)
+    setTimeout(() => {
+      router.push("/quiz")
+    }, 500)
+  }
+
+  const skipQuizAndCheckout = () => {
+    setLoading(true)
+    setTimeout(() => {
+      router.push("/checkout?skipQuiz=true&plan=semestral")
+    }, 500)
+  }
+
   // Primeiros 6 depoimentos fixos
   const fixedTestimonials = testimonials.slice(0, 6)
   // Depoimentos adicionais que serão mostrados ao clicar em "Ver mais"
@@ -443,6 +457,15 @@ export default function Home() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-lime-500"></span>
                   </span>
+                </div>
+              </button>
+
+              {/* Botão Secundário - Pular Quiz */}
+              <button onClick={skipQuizAndCheckout} disabled={loading} className="group relative">
+                {/* Botão secundário */}
+                <div className="relative px-6 py-3 bg-transparent border-2 border-lime-400 rounded-full font-bold text-lime-400 text-lg flex items-center gap-3 shadow-xl hover:bg-lime-400/10 transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10">Ir Direto para Checkout</span>
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform relative z-10" />
                 </div>
               </button>
 
