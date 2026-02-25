@@ -231,59 +231,58 @@ async function processPaymentBackground(payment: AsaasPayment) {
     }
 
     // Call post-checkout handler if configured
-    const appUrl = process.env.APP_URL
-    if (appUrl && payment.status === "CONFIRMED") {
+    let appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_URL
+    
+    console.log(`[v0] POST-CHECKOUT HANDLER CHECK - appUrl: ${appUrl}, status: ${payment.status}`)
+    
+    // Trigger email for CONFIRMED and RECEIVED statuses (PIX uses RECEIVED)
+    const emailTriggerStatuses = ["CONFIRMED", "RECEIVED"]
+    
+    if (appUrl && emailTriggerStatuses.includes(payment.status)) {
       try {
-        console.log(`[v0] ⏳ POST-CHECKOUT HANDLER - Iniciando chamada para: ${appUrl}/api/handle-post-checkout`)
-        console.log(`[v0] 📊 POST-CHECKOUT PAYLOAD:`, {
+        console.log(`[v0] 🚀 POST-CHECKOUT HANDLER - Disparando em background para: ${appUrl}/api/handle-post-checkout`)
+        
+        // Get payment document to extract order bumps info
+        const paymentRef = adminDb.collection("payments").doc(payment.id)
+        const paymentSnapshot = await paymentRef.get()
+        const paymentData = paymentSnapshot.data() || {}
+
+        const payload = {
           userId: leadId,
           paymentId: payment.id,
           customerName: payment.customer?.name || leadData.name,
           customerEmail: payment.customer?.email || leadData.email,
           customerPhone: payment.customer?.phone || leadData.phone,
           value: payment.value,
-          hasOrderBumps: !!paymentData?.orderBumps,
-        })
+          orderBumps: paymentData?.orderBumps || null,
+        }
+        
+        console.log(`[v0] POST-CHECKOUT PAYLOAD:`, JSON.stringify(payload, null, 2))
 
-        const response = await fetch(`${appUrl}/api/handle-post-checkout`, {
+        // Fire-and-forget: não bloquear o webhook aguardando o email
+        fetch(`${appUrl}/api/handle-post-checkout`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: leadId,
-            paymentId: payment.id,
-            customerName: payment.customer?.name || leadData.name,
-            customerEmail: payment.customer?.email || leadData.email,
-            customerPhone: payment.customer?.phone || leadData.phone,
-            value: payment.value,
-            orderBumps: paymentData?.orderBumps || null,
-          }),
+          body: JSON.stringify(payload),
+        }).then(response => {
+          console.log(`[v0] POST-CHECKOUT BACKGROUND - Status: ${response.status}`)
+          if (!response.ok) {
+            return response.text().then(text => {
+              console.error(`[v0] ❌ Post-checkout handler returned ${response.status}: ${text}`)
+            })
+          } else {
+            console.log(`[v0] ✅ Post-checkout handler completed in background`)
+          }
+        }).catch(error => {
+          console.error("[v0] ❌ Error in background post-checkout:", error instanceof Error ? error.message : String(error))
         })
 
-        console.log(`[v0] 📬 POST-CHECKOUT RESPONSE - Status: ${response.status}`)
-        
-        if (!response.ok) {
-          const errorText = await response.text()
-          console.error(`[v0] ❌ Post-checkout handler returned ${response.status}:`, errorText)
-        } else {
-          try {
-            const successData = await response.json()
-            console.log(`[v0] ✅ Post-checkout handler success:`, { success: !!successData.success })
-          } catch (e) {
-            console.log(`[v0] ✅ Post-checkout handler completed successfully`)
-          }
-        }
+        console.log(`[v0] ✅ Post-checkout handler DISPARADO em background (não bloqueia webhook)`)
       } catch (error) {
-        console.error("[v0] ❌ Error calling post-checkout handler:", {
-          message: error instanceof Error ? error.message : String(error),
-          appUrl,
-        })
+        console.error("[v0] ❌ Error scheduling post-checkout handler:", error)
       }
     } else {
-      if (payment.status !== "CONFIRMED") {
-        console.log(`[v0] ⏭️  POST-CHECKOUT HANDLER - Skipped (status: ${payment.status}, needs CONFIRMED)`)
-      } else {
-        console.error(`[v0] ⏭️  POST-CHECKOUT HANDLER - Skipped (APP_URL not configured)`)
-      }
+      console.log(`[v0] ⏭️  POST-CHECKOUT HANDLER - Skipped (appUrl: ${!!appUrl}, status: ${payment.status})`)
     }
   } catch (error) {
     console.error("[v0] Background payment processing failed:", error)

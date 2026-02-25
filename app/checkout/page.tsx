@@ -1166,7 +1166,17 @@ export default function CheckoutPage() {
                   >
                     <div className="text-center mb-4">
                       <p className="text-white font-semibold mb-2">QR Code Pix</p>
-                      <img src={pixData.qrCode} alt="QR Code Pix" className="w-40 h-40 mx-auto" />
+                      {pixData.qrCode ? (
+                        <img 
+                          src={pixData.qrCode.startsWith('data:') ? pixData.qrCode : `data:image/png;base64,${pixData.qrCode}`} 
+                          alt="QR Code Pix" 
+                          className="w-40 h-40 mx-auto"
+                        />
+                      ) : (
+                        <div className="w-40 h-40 mx-auto bg-gray-700 rounded flex items-center justify-center text-sm text-gray-400">
+                          Carregando QR Code...
+                        </div>
+                      )}
                     </div>
                     <Button
                       onClick={() => navigator.clipboard.writeText(pixData.copyPaste)}

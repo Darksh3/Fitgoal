@@ -691,16 +691,13 @@ export async function POST(req: Request) {
         throw new Error("Email não disponível para envio")
       }
 
-      console.log("[v0] ╔════════════════════════════════════════════════════════════╗")
-      console.log("[v0] ║ EMAIL_SENDING_START                                       ║")
-      console.log("[v0] ╚════════════════════════════════════════════════════════════╝")
-      console.log("[v0] 📧 Para:", userEmail)
-      console.log("[v0] 📋 Assunto:", emailSubject)
-      console.log("[v0] 🔑 RESEND_API_KEY configurada:", !!resendApiKey)
-      console.log("[v0] 📦 Order Bumps:", orderBumps)
+      console.log("[v0] RESEND_SENDING - Iniciando envio de email")
+      console.log("[v0] RESEND_EMAIL - Para:", userEmail)
+      console.log("[v0] RESEND_SUBJECT - Assunto:", emailSubject)
+      console.log("[v0] RESEND_KEY_EXISTS - API Key configurada:", !!resendApiKey)
 
       if (resendApiKey) {
-        console.log("[v0] 🚀 Chamando resend.emails.send()...")
+        console.log("[v0] RESEND_CALLING - Chamando resend.emails.send()")
         const response = await resend.emails.send({
           from: "FitGoal <noreply@fitgoal.com.br>",
           replyTo: "suporte@fitgoal.com.br",
@@ -709,27 +706,30 @@ export async function POST(req: Request) {
           html: emailHtmlContent,
         })
 
+        // Resend retorna { data, error } - verificar qual um contém o resultado
         if (response.error) {
-          console.error(`[v0] ❌ RESEND_FAILED - Erro ao enviar para ${userEmail}:`, response.error)
+          console.error(`[v0] RESEND_ERROR - Falha ao enviar para ${userEmail}:`, response.error)
+        } else if (response.data) {
+          console.log(`[v0] RESEND_SUCCESS - E-mail enviado com sucesso para ${userEmail}`)
+          console.log("[v0] RESEND_ID -", response.data.id)
         } else {
-          console.log(`[v0] ✅ RESEND_SUCCESS - E-mail enviado para ${userEmail}`)
-          console.log("[v0] 📬 Resend ID:", response.data?.id)
+          console.log(`[v0] RESEND_RESPONSE - Resposta do Resend:`, response)
         }
       } else {
-        console.error("[v0] ❌ RESEND_KEY_MISSING - RESEND_API_KEY não configurada!")
+        console.warn("[v0] RESEND_KEY_MISSING - RESEND_API_KEY não configurada, pulando envio")
       }
     } catch (emailError: any) {
-      console.error("[v0] ❌ EMAIL_ERROR - Falha ao enviar:", {
+      console.error("[v0] RESEND_ERROR - Falha ao enviar e-mail:", {
         error: emailError?.message,
+        errorFull: emailError,
         email: userEmail,
         subject: emailSubject,
+        stack: emailError?.stack,
       })
       // Don't fail the entire process if email fails
     }
 
-    console.log("[v0] ╔════════════════════════════════════════════════════════════╗")
-    console.log(`[v0] ║ HANDLE_POST_CHECKOUT_COMPLETE - User: ${finalUserUid}`)
-    console.log("[v0] ╚════════════════════════════════════════════════════════════╝")
+    console.log(`DEBUG: Processo de pós-checkout concluído com sucesso para usuário: ${finalUserUid}`)
     return NextResponse.json({
       received: true,
       message: "Pós-checkout processado com sucesso.",
