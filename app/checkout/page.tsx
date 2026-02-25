@@ -1070,78 +1070,6 @@ export default function CheckoutPage() {
                   </motion.div>
                 )}
 
-                {/* Botão com glow neon verde */}
-                <div className="w-full max-w-md mx-auto">
-                  <button
-                    onClick={handlePayment}
-                    disabled={!paymentMethod || processing}
-                    className={[
-                      "w-full relative overflow-hidden rounded-2xl py-5 px-8",
-                      "text-white font-bold text-lg tracking-wide",
-                      "bg-green-500",
-                      "shadow-[0_0_24px_rgba(34,197,94,0.35),0_6px_20px_rgba(0,0,0,0.15)]",
-                      "border border-green-400/40",
-                      "active:translate-y-[2px] active:scale-[0.98]",
-                      "transition-all duration-200",
-                      "disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none",
-                      "hover:brightness-110",
-                    ].join(" ")}
-                  >
-                    {/* Linha de brilho no topo */}
-                    <span className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-green-300/70 to-transparent" />
-                    
-                    {/* Brilho interno superior */}
-                    <span className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/15 to-transparent rounded-t-2xl" />
-
-                    <span className="relative flex items-center justify-center gap-3">
-                      {processing ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          Processando...
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-5 h-5" />
-                          Liberar Meu Plano Agora
-                        </>
-                      )}
-                    </span>
-                  </button>
-                </div>
-
-                {/* Microcopy de segurança - Mais específica */}
-                <div className="flex items-center justify-center gap-2 text-xs text-gray-300 px-4">
-                  <Lock className="w-3 h-3 flex-shrink-0" />
-                  <span>Pagamento com criptografia SSL. Seus dados não são armazenados.</span>
-                </div>
-
-                {/* O que acontece depois do pagamento */}
-                {paymentMethod === "card" && (
-                  <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2 text-xs text-lime-300">
-                    <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                    <span>Acesso liberado imediatamente após a confirmação</span>
-                  </div>
-                )}
-
-                {paymentMethod === "pix" && (
-                  <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2 text-xs text-lime-300 items-center justify-center">
-                    <Zap className="w-4 h-4 flex-shrink-0" />
-                    <span>Liberação automática em poucos segundos</span>
-                  </div>
-                )}
-
-                {paymentMethod === "boleto" && (
-                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 flex gap-2 text-xs text-blue-300">
-                    <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                    <span>Liberação assim que o pagamento for confirmado</span>
-                  </div>
-                )}
-
-                {/* Texto auxiliar */}
-                <p className="text-xs text-gray-400 text-center">
-                  Renovação automática. Cancele a qualquer momento.
-                </p>
-
               </div>
 
               {/* ORDER BUMP SECTION - Show only if payment method is selected */}
@@ -1255,6 +1183,78 @@ export default function CheckoutPage() {
                   )}
                 </motion.div>
               )}
+
+              {/* Botão com glow neon verde - APÓS ORDER BUMPS */}
+              <div className="w-full max-w-md mx-auto">
+                <button
+                  onClick={handlePayment}
+                  disabled={!paymentMethod || processing}
+                  className={[
+                    "w-full relative overflow-hidden rounded-2xl py-5 px-8",
+                    "text-white font-bold text-lg tracking-wide",
+                    "bg-green-500",
+                    "shadow-[0_0_24px_rgba(34,197,94,0.35),0_6px_20px_rgba(0,0,0,0.15)]",
+                    "border border-green-400/40",
+                    "active:translate-y-[2px] active:scale-[0.98]",
+                    "transition-all duration-200",
+                    "disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none",
+                    "hover:brightness-110",
+                  ].join(" ")}
+                >
+                  {/* Linha de brilho no topo */}
+                  <span className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-green-300/70 to-transparent" />
+                  
+                  {/* Brilho interno superior */}
+                  <span className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/15 to-transparent rounded-t-2xl" />
+
+                  <span className="relative flex items-center justify-center gap-3">
+                    {processing ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Processando...
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="w-5 h-5" />
+                        Liberar Meu Plano Agora
+                      </>
+                    )}
+                  </span>
+                </button>
+              </div>
+
+              {/* Microcopy de segurança - Mais específica */}
+              <div className="flex items-center justify-center gap-2 text-xs text-gray-300 px-4">
+                <Lock className="w-3 h-3 flex-shrink-0" />
+                <span>Pagamento com criptografia SSL. Seus dados não são armazenados.</span>
+              </div>
+
+              {/* O que acontece depois do pagamento */}
+              {paymentMethod === "card" && (
+                <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2 text-xs text-lime-300">
+                  <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <span>Acesso liberado imediatamente após a confirmação</span>
+                </div>
+              )}
+
+              {paymentMethod === "pix" && (
+                <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2 text-xs text-lime-300 items-center justify-center">
+                  <Zap className="w-4 h-4 flex-shrink-0" />
+                  <span>Liberação automática em poucos segundos</span>
+                </div>
+              )}
+
+              {paymentMethod === "boleto" && (
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 flex gap-2 text-xs text-blue-300">
+                  <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <span>Liberação assim que o pagamento for confirmado</span>
+                </div>
+              )}
+
+              {/* Texto auxiliar */}
+              <p className="text-xs text-gray-400 text-center">
+                Renovação automática. Cancele a qualquer momento.
+              </p>
 
               {/* Payment Methods and Security Seals */}
               <div className="space-y-4 border-t border-slate-700 pt-6">
