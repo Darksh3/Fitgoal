@@ -90,7 +90,7 @@ export default function CheckoutPage() {
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
   const [cardPaymentId, setCardPaymentId] = useState<string | null>(null)
-  
+
   // Order Bump state
   const [showOrderBump, setShowOrderBump] = useState(false)
   const [selectedOrderBumps, setSelectedOrderBumps] = useState<{
@@ -130,6 +130,15 @@ export default function CheckoutPage() {
 
   const planName = getPlanName(selectedPlan)
   const planPrice = getPlanPrice(selectedPlan)
+
+  // Calculate total with order bumps
+  const getTotalPrice = () => {
+    const basePlanPrice = parseFloat(planPrice)
+    const orderBumpValue = (selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)
+    return (basePlanPrice + orderBumpValue).toFixed(2)
+  }
+
+  const totalPrice = getTotalPrice()
 
   useEffect(() => {
     const initialPlan = searchParams.get("planKey") as "mensal" | "trimestral" | "semestral" | null
@@ -182,10 +191,10 @@ export default function CheckoutPage() {
 
     const paymentRef = doc(db, "payments", currentPaymentId)
     let unsubscribeRef: any = null
-    
+
     const unsubscribe = onSnapshot(paymentRef, (snapshot) => {
       console.log("[v0] PAYMENT_LISTENER - Snapshot recebido para:", currentPaymentId)
-      
+
       if (!snapshot.exists()) {
         console.log("[v0] PAYMENT_LISTENER - Documento de pagamento não existe ainda")
         return
@@ -208,7 +217,7 @@ export default function CheckoutPage() {
     }, (error) => {
       console.error("[v0] PAYMENT_LISTENER - Erro ao escutar:", error)
     })
-    
+
     unsubscribeRef = unsubscribe
 
     return () => {
@@ -405,6 +414,8 @@ export default function CheckoutPage() {
         paymentMethod: paymentMethod === "card" ? "card" : paymentMethod,
         description: `${planName} - Fitgoal Fitness`,
         clientUid: finalClientUid,
+        planPrice: planPrice,
+        totalPrice: totalPrice, // Total including order bumps
       }
 
       // Add order bumps to payload if selected
@@ -544,13 +555,13 @@ export default function CheckoutPage() {
     if (!cardPaymentId) return
 
     console.log("[v0] Setting up listener for card payment:", cardPaymentId)
-    
+
     const unsubscribe = onSnapshot(doc(db, "payments", cardPaymentId), (snapshot) => {
       if (!snapshot.exists()) return
-      
+
       const paymentData = snapshot.data()
       console.log("[v0] Payment status received:", paymentData?.status)
-      
+
       if (paymentData?.status === "CONFIRMED" || paymentData?.status === "RECEIVED") {
         console.log("[v0] Payment confirmed! Redirecting to success...")
         setSuccess(true)
@@ -621,9 +632,9 @@ export default function CheckoutPage() {
 
         {/* Discount Banner - Shows only if user spun the wheel */}
         {spinDiscount && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }} 
-            animate={{ opacity: 1, y: 0 }} 
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
             className="bg-gradient-to-r from-lime-600/20 to-lime-500/20 border-2 border-lime-500/60 rounded-lg p-4 text-center"
           >
@@ -981,27 +992,27 @@ export default function CheckoutPage() {
                   >
                     {selectedPlan === "semestral" && [1, 2, 3, 4, 5, 6].map((n) => (
                       <option key={n} value={n} className="bg-slate-800">
-                        {n}x de R$ {(parseFloat(planPrice) / n).toFixed(2).replace(".", ",")}</option>
+                        {n}x de R$ {(parseFloat(totalPrice) / n).toFixed(2).replace(".", ",")}</option>
                     ))}
                     {selectedPlan === "trimestral" && [1, 2, 3].map((n) => (
                       <option key={n} value={n} className="bg-slate-800">
-                        {n}x de R$ {(parseFloat(planPrice) / n).toFixed(2).replace(".", ",")}</option>
+                        {n}x de R$ {(parseFloat(totalPrice) / n).toFixed(2).replace(".", ",")}</option>
                     ))}
                     {selectedPlan === "mensal" && (
                       <option value={1} className="bg-slate-800">
-                        1x de R$ {parseFloat(planPrice).toFixed(2).replace(".", ",")}</option>
+                        1x de R$ {parseFloat(totalPrice).toFixed(2).replace(".", ",")}</option>
                     )}
                   </select>
 
                   {/* Sugestão de parcelamento condicional */}
                   {selectedPlan === "semestral" && (
                     <div className="text-xs text-lime-400 text-center">
-                      ou até 6x de R$ {(parseFloat(planPrice) / 6).toFixed(2).replace(".", ",")}
+                      ou até 6x de R$ {(parseFloat(totalPrice) / 6).toFixed(2).replace(".", ",")}
                     </div>
                   )}
                   {selectedPlan === "trimestral" && (
                     <div className="text-xs text-lime-400 text-center">
-                      ou até 3x de R$ {(parseFloat(planPrice) / 3).toFixed(2).replace(".", ",")}
+                      ou até 3x de R$ {(parseFloat(totalPrice) / 3).toFixed(2).replace(".", ",")}
                     </div>
                   )}
                 </motion.div>
@@ -1039,7 +1050,7 @@ export default function CheckoutPage() {
                 >
                   <div className="text-center mb-4">
                     <h3 className="text-lg font-bold text-white flex items-center justify-center gap-2">
-                      🎁 Você tem 1 oferta especial!
+                      🎁 Você tem 2 ofertas especiais!
                     </h3>
                     <p className="text-xs text-gray-300 mt-1">Uma oportunidade única de adquirir produtos incríveis com super desconto</p>
                   </div>
@@ -1050,16 +1061,14 @@ export default function CheckoutPage() {
                     <motion.div
                       whileHover={{ scale: 1.01 }}
                       onClick={() => setSelectedOrderBumps(prev => ({ ...prev, ebook: !prev.ebook }))}
-                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${
-                        selectedOrderBumps.ebook
-                          ? "bg-lime-500/15 border-lime-500/50"
-                          : "bg-slate-700/20 border-slate-600/40 hover:border-slate-500/60"
-                      }`}
+                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${selectedOrderBumps.ebook
+                        ? "bg-lime-500/15 border-lime-500/50"
+                        : "bg-slate-700/20 border-slate-600/40 hover:border-slate-500/60"
+                        }`}
                     >
                       {/* Checkbox - Top Right */}
-                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                        selectedOrderBumps.ebook ? "bg-lime-500 border-lime-500" : "border-gray-400"
-                      }`}>
+                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedOrderBumps.ebook ? "bg-lime-500 border-lime-500" : "border-gray-400"
+                        }`}>
                         {selectedOrderBumps.ebook && <Check className="w-3 h-3 text-black" />}
                       </div>
 
@@ -1072,8 +1081,8 @@ export default function CheckoutPage() {
 
                       {/* Text Content */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-white text-sm">Ebook Anti-Plateau</p>
-                        <p className="text-xs text-gray-400 line-clamp-2">Reverter plateau em 7 dias com protocolos científicos</p>
+                        <p className="font-semibold text-white text-sm">Protocolo Anti-Plateau</p>
+                        <p className="text-xs text-gray-400 line-clamp-2">Reverta a estagnação de peso em 7 dias com protocolos comprovados</p>
                         <div className="flex items-center gap-2 mt-2">
                           <span className="font-bold text-lime-400 text-sm">R$ 14,90</span>
                           <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
@@ -1085,16 +1094,14 @@ export default function CheckoutPage() {
                     <motion.div
                       whileHover={{ scale: 1.01 }}
                       onClick={() => setSelectedOrderBumps(prev => ({ ...prev, protocolo: !prev.protocolo }))}
-                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${
-                        selectedOrderBumps.protocolo
-                          ? "bg-lime-500/15 border-lime-500/50"
-                          : "bg-slate-700/20 border-slate-600/40 hover:border-slate-500/60"
-                      }`}
+                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${selectedOrderBumps.protocolo
+                        ? "bg-lime-500/15 border-lime-500/50"
+                        : "bg-slate-700/20 border-slate-600/40 hover:border-slate-500/60"
+                        }`}
                     >
                       {/* Checkbox - Top Right */}
-                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                        selectedOrderBumps.protocolo ? "bg-lime-500 border-lime-500" : "border-gray-400"
-                      }`}>
+                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedOrderBumps.protocolo ? "bg-lime-500 border-lime-500" : "border-gray-400"
+                        }`}>
                         {selectedOrderBumps.protocolo && <Check className="w-3 h-3 text-black" />}
                       </div>
 
@@ -1107,8 +1114,8 @@ export default function CheckoutPage() {
 
                       {/* Text Content */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-white text-sm">Protocolo SOS FitGoal</p>
-                        <p className="text-xs text-gray-400 line-clamp-2">Protocolo de emergência para composição corporal</p>
+                        <p className="font-semibold text-white text-sm">Protocolo S.O.S FitGoal</p>
+                        <p className="text-xs text-gray-400 line-clamp-2">Protocolo de emergência para caso deslize na dieta</p>
                         <div className="flex items-center gap-2 mt-2">
                           <span className="font-bold text-lime-400 text-sm">R$ 14,90</span>
                           <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
@@ -1125,7 +1132,7 @@ export default function CheckoutPage() {
                         <span className="text-white font-semibold">R$ {planPrice}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-300">Order Bumps Selecionados</span>
+                        <span className="text-gray-300">Promoções Exclusivas Selecionadas</span>
                         <span className="text-lime-400 font-semibold">
                           + R$ {((selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)).toFixed(2).replace(".", ",")}
                         </span>
@@ -1184,7 +1191,7 @@ export default function CheckoutPage() {
                   >
                     {/* Linha de brilho no topo */}
                     <span className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-green-300/70 to-transparent" />
-                    
+
                     {/* Brilho interno superior */}
                     <span className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/15 to-transparent rounded-t-2xl" />
 
