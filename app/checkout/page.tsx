@@ -1046,14 +1046,18 @@ export default function CheckoutPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-gradient-to-b from-rose-400 to-pink-500 border-2 border-rose-300 rounded-xl p-6 space-y-4"
+                  className="bg-amber-50 border-2 border-dashed border-rose-400 rounded-xl overflow-hidden space-y-0"
                 >
-                  <div className="text-center mb-4">
+                  {/* Header Banner - Rose/Pink */}
+                  <div className="bg-gradient-to-r from-rose-500 to-pink-500 px-6 py-4">
                     <h3 className="text-lg font-bold text-white flex items-center justify-center gap-2">
                       🎁 Você tem 2 ofertas especiais!
                     </h3>
-                    <p className="text-xs text-white/90 mt-1">Uma oportunidade única de adquirir produtos incríveis com super desconto</p>
                   </div>
+
+                  {/* Content Area */}
+                  <div className="p-6 space-y-4">
+                    <p className="text-xs text-slate-700 text-center">Uma oportunidade única de adquirir produtos incríveis com super desconto</p>
 
                   {/* Order Bump Products - Vertical Stack */}
                   <div className="space-y-3">
@@ -1126,25 +1130,26 @@ export default function CheckoutPage() {
 
                   {/* Order Bump Summary */}
                   {(selectedOrderBumps.ebook || selectedOrderBumps.protocolo) && (
-                    <div className="bg-slate-700/30 rounded-lg p-3 space-y-2 border border-slate-600">
+                    <div className="bg-white/50 rounded-lg p-3 space-y-2 border border-amber-200">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-300">Valor do Plano</span>
-                        <span className="text-white font-semibold">R$ {planPrice}</span>
+                        <span className="text-slate-700">Valor do Plano</span>
+                        <span className="text-slate-800 font-semibold">R$ {planPrice}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-300">Promoções Exclusivas Selecionadas</span>
-                        <span className="text-lime-400 font-semibold">
+                        <span className="text-slate-700">Promoções Exclusivas Selecionadas</span>
+                        <span className="text-rose-600 font-semibold">
                           + R$ {((selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)).toFixed(2).replace(".", ",")}
                         </span>
                       </div>
-                      <div className="border-t border-slate-600 pt-2 flex justify-between">
-                        <span className="text-white font-bold">Valor Total</span>
-                        <span className="text-lime-400 font-bold text-lg">
+                      <div className="border-t border-amber-200 pt-2 flex justify-between">
+                        <span className="text-slate-800 font-bold">Valor Total</span>
+                        <span className="text-rose-600 font-bold text-lg">
                           R$ {(parseFloat(planPrice.replace(",", ".")) + (selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)).toFixed(2).replace(".", ",")}
                         </span>
                       </div>
                     </div>
                   )}
+                  </div>
                 </motion.div>
               )}
 
