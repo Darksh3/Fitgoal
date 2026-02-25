@@ -1046,13 +1046,13 @@ export default function CheckoutPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-gradient-to-b from-red-500/10 to-red-600/5 border-2 border-red-500/30 rounded-xl p-6 space-y-4"
+                  className="bg-gradient-to-b from-rose-400 to-pink-500 border-2 border-rose-300 rounded-xl p-6 space-y-4"
                 >
                   <div className="text-center mb-4">
                     <h3 className="text-lg font-bold text-white flex items-center justify-center gap-2">
                       🎁 Você tem 2 ofertas especiais!
                     </h3>
-                    <p className="text-xs text-gray-300 mt-1">Uma oportunidade única de adquirir produtos incríveis com super desconto</p>
+                    <p className="text-xs text-white/90 mt-1">Uma oportunidade única de adquirir produtos incríveis com super desconto</p>
                   </div>
 
                   {/* Order Bump Products - Vertical Stack */}
