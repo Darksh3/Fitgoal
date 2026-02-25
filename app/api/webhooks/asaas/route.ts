@@ -234,10 +234,16 @@ async function processPaymentBackground(payment: AsaasPayment) {
     const appUrl = process.env.APP_URL
     if (appUrl && payment.status === "CONFIRMED") {
       try {
-        // Get payment document to extract order bumps info
-        const paymentRef = adminDb.collection("payments").doc(payment.id)
-        const paymentSnapshot = await paymentRef.get()
-        const paymentData = paymentSnapshot.data() || {}
+        console.log(`[v0] ⏳ POST-CHECKOUT HANDLER - Iniciando chamada para: ${appUrl}/api/handle-post-checkout`)
+        console.log(`[v0] 📊 POST-CHECKOUT PAYLOAD:`, {
+          userId: leadId,
+          paymentId: payment.id,
+          customerName: payment.customer?.name || leadData.name,
+          customerEmail: payment.customer?.email || leadData.email,
+          customerPhone: payment.customer?.phone || leadData.phone,
+          value: payment.value,
+          hasOrderBumps: !!paymentData?.orderBumps,
+        })
 
         const response = await fetch(`${appUrl}/api/handle-post-checkout`, {
           method: "POST",
@@ -249,15 +255,34 @@ async function processPaymentBackground(payment: AsaasPayment) {
             customerEmail: payment.customer?.email || leadData.email,
             customerPhone: payment.customer?.phone || leadData.phone,
             value: payment.value,
-            orderBumps: paymentData?.orderBumps || null, // Pass order bumps if purchased
+            orderBumps: paymentData?.orderBumps || null,
           }),
         })
 
+        console.log(`[v0] 📬 POST-CHECKOUT RESPONSE - Status: ${response.status}`)
+        
         if (!response.ok) {
-          console.error(`[v0] Post-checkout handler returned ${response.status}`)
+          const errorText = await response.text()
+          console.error(`[v0] ❌ Post-checkout handler returned ${response.status}:`, errorText)
+        } else {
+          try {
+            const successData = await response.json()
+            console.log(`[v0] ✅ Post-checkout handler success:`, { success: !!successData.success })
+          } catch (e) {
+            console.log(`[v0] ✅ Post-checkout handler completed successfully`)
+          }
         }
       } catch (error) {
-        console.error("[v0] Error calling post-checkout handler:", error)
+        console.error("[v0] ❌ Error calling post-checkout handler:", {
+          message: error instanceof Error ? error.message : String(error),
+          appUrl,
+        })
+      }
+    } else {
+      if (payment.status !== "CONFIRMED") {
+        console.log(`[v0] ⏭️  POST-CHECKOUT HANDLER - Skipped (status: ${payment.status}, needs CONFIRMED)`)
+      } else {
+        console.error(`[v0] ⏭️  POST-CHECKOUT HANDLER - Skipped (APP_URL not configured)`)
       }
     }
   } catch (error) {
