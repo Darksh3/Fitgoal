@@ -65,6 +65,7 @@ export default function CheckoutPage() {
   const [selectedPlan, setSelectedPlan] = useState<"mensal" | "trimestral" | "semestral">("semestral")
   const [prefillLoading, setPrefillLoading] = useState(false)
   const [spinDiscount, setSpinDiscount] = useState<number | null>(null)
+  const [finalClientUid, setFinalClientUid] = useState<string | null>(null)
 
   const [formData, setFormData] = useState<PaymentFormData>({
     email: "",
@@ -403,7 +404,9 @@ export default function CheckoutPage() {
       // Get uid from localStorage quizData first, then fallback to Firebase Auth
       const stored = localStorage.getItem("quizData")
       const storedUid = stored ? JSON.parse(stored).uid : null
-      const finalClientUid = storedUid || user?.uid
+      const uid = storedUid || user?.uid
+
+      setFinalClientUid(uid || null)
 
       const paymentPayload: Record<string, any> = {
         email: formData.email,
@@ -578,12 +581,18 @@ export default function CheckoutPage() {
 
   // Success screen - Redirect to success page
   useEffect(() => {
-    if (success) {
-      setTimeout(() => {
-        router.push(`/success?embedded=true&userId=${encodeURIComponent(finalClientUid)}`)
-      }, 1000) // Small delay to ensure data is saved
+    if (!success) return
+
+    const paymentId = pixData?.paymentId || cardPaymentId
+    const uid = finalClientUid || (typeof window !== "undefined" ? localStorage.getItem("lastClientUid") : null)
+
+    if (!paymentId || !uid) {
+      console.error("[v0] Missing paymentId or userId for success redirect", { paymentId, uid })
+      return
     }
-  }, [success, router])
+
+    router.push(`/success?embedded=true&paymentId=${encodeURIComponent(paymentId)}&userId=${encodeURIComponent(uid)}`)
+  }, [success, pixData?.paymentId, cardPaymentId, finalClientUid, router])
 
   // Boleto screen
   if (boletoData) {
