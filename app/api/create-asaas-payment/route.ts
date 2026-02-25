@@ -25,11 +25,10 @@ export async function POST(req: Request) {
     const body = await req.json()
     console.log("[v0] Step 1 DONE - Body parsed:", JSON.stringify(body, null, 2))
 
-    const { email, name, cpf, phone, planType, paymentMethod, installments, clientUid, description, orderBumps } = body
+    const { email, name, cpf, phone, planType, paymentMethod, installments, clientUid, description } = body
 
     console.log("[v0] Step 2: Validating required fields...")
     console.log("[v0] clientUid received:", clientUid)
-    console.log("[v0] orderBumps received:", orderBumps)
     if (!email || !name || !cpf || !planType || !paymentMethod) {
       console.log("[v0] Step 2 FAILED - Missing fields:", {
         email: !email ? "MISSING" : "OK",
@@ -56,19 +55,11 @@ export async function POST(req: Request) {
       semestral: 359.7,
     }
 
-    let amount = planPrices[planType]
+    const amount = planPrices[planType]
     if (!amount) {
       console.log("[v0] Step 4 FAILED - Invalid plan type:", planType)
       return NextResponse.json({ error: "Plano inválido" }, { status: 400 })
     }
-
-    // Add order bump amounts
-    if (orderBumps) {
-      const orderBumpAmount = (orderBumps.ebook ? 14.9 : 0) + (orderBumps.protocolo ? 14.9 : 0)
-      amount += orderBumpAmount
-      console.log("[v0] Step 4 - Order bumps total:", orderBumpAmount, "- Final amount:", amount)
-    }
-
     console.log("[v0] Step 4 DONE - Plan price:", amount)
 
     console.log("[v0] Step 5: Cleaning CPF and phone...")
@@ -222,14 +213,6 @@ export async function POST(req: Request) {
         status: "PENDING",
         source: "checkout",
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      }
-
-      // Add order bumps to document if selected
-      if (orderBumps) {
-        (paymentDocData as any).orderBumps = {
-          ebook: orderBumps.ebook || false,
-          protocolo: orderBumps.protocolo || false,
-        }
       }
       
       await db.collection("payments").doc(paymentResult.id).set(paymentDocData)
