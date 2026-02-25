@@ -158,38 +158,12 @@ async function processPaymentBackground(payment: AsaasPayment) {
     const leadRef = adminDb.collection("leads").doc(leadId)
     const leadSnapshot = await leadRef.get()
 
-    let leadData: any = {}
-
     if (!leadSnapshot.exists) {
-      console.warn(`[v0] Lead ${leadId} not found - will create basic lead from payment data`)
-      
-      // Create a basic lead from payment data (for skip-quiz checkout flow)
-      leadData = {
-        uid: leadId,
-        name: payment.customer?.name || "Lead",
-        email: payment.customer?.email || "unknown@example.com",
-        phone: payment.customer?.phone || "",
-        cpf: payment.customer?.cpfCnpj || "",
-        stage: "proposta",
-        asaasPaymentId: payment.id,
-        lastPaymentStatus: payment.status,
-        lastPaymentDate: new Date().toISOString(),
-        planType: payment.description?.toLowerCase().includes("mensal") ? "mensal" : 
-                  payment.description?.toLowerCase().includes("trimestral") ? "trimestral" :
-                  payment.description?.toLowerCase().includes("semestral") ? "semestral" : null,
-        subscriptionStatus: "pending",
-        source: "checkout", // Diferencia leads de checkout vs quiz
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      }
-      
-      // Save the basic lead
-      await leadRef.set(leadData)
-      console.log(`[v0] Basic lead created from payment for: ${leadId}`)
-    } else {
-      leadData = leadSnapshot.data()
+      console.warn(`[v0] Lead ${leadId} not found`)
+      return
     }
 
+    const leadData = leadSnapshot.data()
     let newStage = leadData?.stage || "novo"
     let eventType: EventType | null = null
 
@@ -225,7 +199,6 @@ async function processPaymentBackground(payment: AsaasPayment) {
                 payment.description?.toLowerCase().includes("trimestral") ? "trimestral" :
                 payment.description?.toLowerCase().includes("semestral") ? "semestral" : null,
       subscriptionStatus: newStage === "cliente" ? "active" : "pending",
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     })
 
     console.log(`[v0] Lead ${leadId} updated to stage: ${newStage}`)
