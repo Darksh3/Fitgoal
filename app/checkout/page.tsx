@@ -1070,8 +1070,6 @@ export default function CheckoutPage() {
                   </motion.div>
                 )}
 
-              </div>
-
               {/* ORDER BUMP SECTION - Show only if payment method is selected */}
               {paymentMethod && (
                 <motion.div
