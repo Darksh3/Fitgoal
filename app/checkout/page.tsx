@@ -90,7 +90,7 @@ export default function CheckoutPage() {
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
   const [cardPaymentId, setCardPaymentId] = useState<string | null>(null)
-  
+
   // Order Bump state
   const [showOrderBump, setShowOrderBump] = useState(false)
   const [selectedOrderBumps, setSelectedOrderBumps] = useState<{
@@ -130,6 +130,15 @@ export default function CheckoutPage() {
 
   const planName = getPlanName(selectedPlan)
   const planPrice = getPlanPrice(selectedPlan)
+
+  // Calculate total with order bumps
+  const getTotalPrice = () => {
+    const basePlanPrice = parseFloat(planPrice)
+    const orderBumpValue = (selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)
+    return (basePlanPrice + orderBumpValue).toFixed(2)
+  }
+
+  const totalPrice = getTotalPrice()
 
   useEffect(() => {
     const initialPlan = searchParams.get("planKey") as "mensal" | "trimestral" | "semestral" | null
@@ -182,10 +191,10 @@ export default function CheckoutPage() {
 
     const paymentRef = doc(db, "payments", currentPaymentId)
     let unsubscribeRef: any = null
-    
+
     const unsubscribe = onSnapshot(paymentRef, (snapshot) => {
       console.log("[v0] PAYMENT_LISTENER - Snapshot recebido para:", currentPaymentId)
-      
+
       if (!snapshot.exists()) {
         console.log("[v0] PAYMENT_LISTENER - Documento de pagamento não existe ainda")
         return
@@ -208,7 +217,7 @@ export default function CheckoutPage() {
     }, (error) => {
       console.error("[v0] PAYMENT_LISTENER - Erro ao escutar:", error)
     })
-    
+
     unsubscribeRef = unsubscribe
 
     return () => {
@@ -405,6 +414,8 @@ export default function CheckoutPage() {
         paymentMethod: paymentMethod === "card" ? "card" : paymentMethod,
         description: `${planName} - Fitgoal Fitness`,
         clientUid: finalClientUid,
+        planPrice: planPrice,
+        totalPrice: totalPrice, // Total including order bumps
       }
 
       // Add order bumps to payload if selected
@@ -544,13 +555,13 @@ export default function CheckoutPage() {
     if (!cardPaymentId) return
 
     console.log("[v0] Setting up listener for card payment:", cardPaymentId)
-    
+
     const unsubscribe = onSnapshot(doc(db, "payments", cardPaymentId), (snapshot) => {
       if (!snapshot.exists()) return
-      
+
       const paymentData = snapshot.data()
       console.log("[v0] Payment status received:", paymentData?.status)
-      
+
       if (paymentData?.status === "CONFIRMED" || paymentData?.status === "RECEIVED") {
         console.log("[v0] Payment confirmed! Redirecting to success...")
         setSuccess(true)
@@ -621,9 +632,9 @@ export default function CheckoutPage() {
 
         {/* Discount Banner - Shows only if user spun the wheel */}
         {spinDiscount && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }} 
-            animate={{ opacity: 1, y: 0 }} 
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
             className="bg-gradient-to-r from-lime-600/20 to-lime-500/20 border-2 border-lime-500/60 rounded-lg p-4 text-center"
           >
@@ -725,7 +736,7 @@ export default function CheckoutPage() {
 
                 <div className="border-t border-slate-600 pt-4 flex justify-between items-center">
                   <span className="text-gray-300">Total</span>
-                  <span className="text-3xl font-bold text-lime-500">R$ {parseFloat(planPrice).toFixed(2).replace(".", ",")}</span>
+                  <span className="text-3xl font-bold text-lime-500">R$ {parseFloat(totalPrice).toFixed(2).replace(".", ",")}</span>
                 </div>
                 <div className="text-sm text-gray-400 mt-2">
                   {selectedPlan === "mensal" && "R$ 79,90 por mês"}
@@ -981,27 +992,27 @@ export default function CheckoutPage() {
                   >
                     {selectedPlan === "semestral" && [1, 2, 3, 4, 5, 6].map((n) => (
                       <option key={n} value={n} className="bg-slate-800">
-                        {n}x de R$ {(parseFloat(planPrice) / n).toFixed(2).replace(".", ",")}</option>
+                        {n}x de R$ {(parseFloat(totalPrice) / n).toFixed(2).replace(".", ",")}</option>
                     ))}
                     {selectedPlan === "trimestral" && [1, 2, 3].map((n) => (
                       <option key={n} value={n} className="bg-slate-800">
-                        {n}x de R$ {(parseFloat(planPrice) / n).toFixed(2).replace(".", ",")}</option>
+                        {n}x de R$ {(parseFloat(totalPrice) / n).toFixed(2).replace(".", ",")}</option>
                     ))}
                     {selectedPlan === "mensal" && (
                       <option value={1} className="bg-slate-800">
-                        1x de R$ {parseFloat(planPrice).toFixed(2).replace(".", ",")}</option>
+                        1x de R$ {parseFloat(totalPrice).toFixed(2).replace(".", ",")}</option>
                     )}
                   </select>
 
                   {/* Sugestão de parcelamento condicional */}
                   {selectedPlan === "semestral" && (
                     <div className="text-xs text-lime-400 text-center">
-                      ou até 6x de R$ {(parseFloat(planPrice) / 6).toFixed(2).replace(".", ",")}
+                      ou até 6x de R$ {(parseFloat(totalPrice) / 6).toFixed(2).replace(".", ",")}
                     </div>
                   )}
                   {selectedPlan === "trimestral" && (
                     <div className="text-xs text-lime-400 text-center">
-                      ou até 3x de R$ {(parseFloat(planPrice) / 3).toFixed(2).replace(".", ",")}
+                      ou até 3x de R$ {(parseFloat(totalPrice) / 3).toFixed(2).replace(".", ",")}
                     </div>
                   )}
                 </motion.div>
@@ -1029,7 +1040,120 @@ export default function CheckoutPage() {
               {/* Espaço extra antes do botão em mobile */}
               <div className="h-4 md:h-0" />
 
-              {/* Secure Payment Container - Menos densidade */}
+              {/* ORDER BUMP SECTION - Show only if payment method is selected */}
+              {paymentMethod && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-amber-50 border-2 border-dashed border-rose-400 rounded-xl overflow-hidden space-y-0"
+                >
+                  {/* Header Banner - Rose/Pink */}
+                  <div className="bg-gradient-to-r from-rose-500 to-pink-500 px-6 py-4">
+                    <h3 className="text-lg font-bold text-white flex items-center justify-center gap-2">
+                      🎁 Você tem 2 ofertas especiais!
+                    </h3>
+                  </div>
+
+                  {/* Content Area */}
+                  <div className="p-6 space-y-4">
+                    <p className="text-xs text-slate-700 text-center">Uma oportunidade única de adquirir produtos incríveis com super desconto</p>
+
+                  {/* Order Bump Products - Vertical Stack */}
+                  <div className="space-y-3">
+                    {/* Ebook Anti-Plateau */}
+                    <motion.div
+                      whileHover={{ scale: 1.01 }}
+                      onClick={() => setSelectedOrderBumps(prev => ({ ...prev, ebook: !prev.ebook }))}
+                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${selectedOrderBumps.ebook
+                        ? "bg-lime-500/15 border-lime-500/50"
+                        : "bg-white/40 border-gray-300 hover:border-gray-400"
+                        }`}
+                    >
+                      {/* Checkbox - Top Right */}
+                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedOrderBumps.ebook ? "bg-lime-500 border-lime-500" : "border-gray-500"
+                        }`}>
+                        {selectedOrderBumps.ebook && <Check className="w-3 h-3 text-black" />}
+                      </div>
+
+                      {/* Product Image - Small */}
+                      <img
+                        src="/order-bump-protocol-metabolico.jpg"
+                        alt="Ebook Anti-Plateau"
+                        className="w-20 h-28 object-cover rounded flex-shrink-0"
+                      />
+
+                      {/* Text Content */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-black text-sm">Protocolo Anti-Plateau</p>
+                        <p className="text-xs text-gray-600 line-clamp-2">Reverta a estagnação de peso em 7 dias com protocolos comprovados</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="font-bold text-lime-500 text-sm">R$ 14,90</span>
+                          <span className="text-xs text-gray-500 line-through">R$ 39,90</span>
+                        </div>
+                      </div>
+                    </motion.div>
+
+                    {/* Protocolo SOS */}
+                    <motion.div
+                      whileHover={{ scale: 1.01 }}
+                      onClick={() => setSelectedOrderBumps(prev => ({ ...prev, protocolo: !prev.protocolo }))}
+                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${selectedOrderBumps.protocolo
+                        ? "bg-lime-500/15 border-lime-500/50"
+                        : "bg-white/40 border-gray-300 hover:border-gray-400"
+                        }`}
+                    >
+                      {/* Checkbox - Top Right */}
+                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedOrderBumps.protocolo ? "bg-lime-500 border-lime-500" : "border-gray-500"
+                        }`}>
+                        {selectedOrderBumps.protocolo && <Check className="w-3 h-3 text-black" />}
+                      </div>
+
+                      {/* Product Image - Small */}
+                      <img
+                        src="/order-bump-protocolo-sos.jpg"
+                        alt="Protocolo SOS FitGoal"
+                        className="w-20 h-28 object-cover rounded flex-shrink-0"
+                      />
+
+                      {/* Text Content */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-black text-sm">Protocolo S.O.S FitGoal</p>
+                        <p className="text-xs text-gray-600 line-clamp-2">Protocolo de emergência para caso deslize na dieta</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="font-bold text-lime-500 text-sm">R$ 14,90</span>
+                          <span className="text-xs text-gray-500 line-through">R$ 39,90</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </div>
+
+                  {/* Order Bump Summary */}
+                  {(selectedOrderBumps.ebook || selectedOrderBumps.protocolo) && (
+                    <div className="bg-white/50 rounded-lg p-3 space-y-2 border border-amber-200">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-700">Valor do Plano</span>
+                        <span className="text-slate-800 font-semibold">R$ {planPrice}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-700">Promoções Exclusivas Selecionadas</span>
+                        <span className="text-rose-600 font-semibold">
+                          + R$ {((selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)).toFixed(2).replace(".", ",")}
+                        </span>
+                      </div>
+                      <div className="border-t border-amber-200 pt-2 flex justify-between">
+                        <span className="text-slate-800 font-bold">Valor Total</span>
+                        <span className="text-rose-600 font-bold text-lg">
+                          R$ {(parseFloat(planPrice.replace(",", ".")) + (selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)).toFixed(2).replace(".", ",")}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Secure Payment Container - Menos densidade - WRAPPER MOVED HERE */}
               <div className="bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6 md:p-8 space-y-5">
 
                 {/* PIX Payment Display - Inline */}
@@ -1041,26 +1165,9 @@ export default function CheckoutPage() {
                     className="bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6 space-y-4"
                   >
                     <div className="text-center mb-4">
-                      <QrCode className="w-10 h-10 text-lime-500 mx-auto mb-3" />
-                      <h3 className="text-lg font-bold text-white">Código QR Pix Gerado</h3>
-                      <p className="text-sm text-gray-400 mt-1">Escaneie com seu smartphone ou copie o código</p>
+                      <p className="text-white font-semibold mb-2">QR Code Pix</p>
+                      <img src={pixData.qrCode} alt="QR Code Pix" className="w-40 h-40 mx-auto" />
                     </div>
-
-                    {pixData.qrCode && (
-                      <div className="bg-white p-4 rounded-lg flex items-center justify-center mx-auto w-fit">
-                        <img
-                          src={`data:image/png;base64,${pixData.qrCode}`}
-                          alt="QR Code Pix"
-                          className="w-48 h-48 object-contain"
-                        />
-                      </div>
-                    )}
-
-                    <div className="bg-slate-700/30 p-4 rounded-lg">
-                      <p className="text-xs text-gray-400 mb-2">Código Pix (copia e cola):</p>
-                      <code className="text-white font-mono text-xs break-all block max-h-24 overflow-y-auto bg-slate-800/50 p-2 rounded">{pixData.copyPaste}</code>
-                    </div>
-
                     <Button
                       onClick={() => navigator.clipboard.writeText(pixData.copyPaste)}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm"
@@ -1070,7 +1177,7 @@ export default function CheckoutPage() {
                   </motion.div>
                 )}
 
-                {/* Botão com glow neon verde */}
+                {/* Botão com glow neon verde - APÓS ORDER BUMPS */}
                 <div className="w-full max-w-md mx-auto">
                   <button
                     onClick={handlePayment}
@@ -1089,7 +1196,7 @@ export default function CheckoutPage() {
                   >
                     {/* Linha de brilho no topo */}
                     <span className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-green-300/70 to-transparent" />
-                    
+
                     {/* Brilho interno superior */}
                     <span className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/15 to-transparent rounded-t-2xl" />
 
@@ -1142,178 +1249,6 @@ export default function CheckoutPage() {
                   Renovação automática. Cancele a qualquer momento.
                 </p>
 
-              </div>
-
-              {/* ORDER BUMP SECTION - Show only if payment method is selected */}
-              {paymentMethod && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-gradient-to-b from-red-500/10 to-red-600/5 border-2 border-red-500/30 rounded-xl p-6 space-y-4"
-                >
-                  <div className="text-center mb-4">
-                    <h3 className="text-lg font-bold text-white flex items-center justify-center gap-2">
-                      🎁 Você tem 1 oferta especial!
-                    </h3>
-                    <p className="text-xs text-gray-300 mt-1">Uma oportunidade única de adquirir produtos incríveis com super desconto</p>
-                  </div>
-
-                  {/* Order Bump Products - Vertical Stack */}
-                  <div className="space-y-3">
-                    {/* Ebook Anti-Plateau */}
-                    <motion.div
-                      whileHover={{ scale: 1.01 }}
-                      onClick={() => setSelectedOrderBumps(prev => ({ ...prev, ebook: !prev.ebook }))}
-                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${
-                        selectedOrderBumps.ebook
-                          ? "bg-lime-500/15 border-lime-500/50"
-                          : "bg-slate-700/20 border-slate-600/40 hover:border-slate-500/60"
-                      }`}
-                    >
-                      {/* Checkbox - Top Right */}
-                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                        selectedOrderBumps.ebook ? "bg-lime-500 border-lime-500" : "border-gray-400"
-                      }`}>
-                        {selectedOrderBumps.ebook && <Check className="w-3 h-3 text-black" />}
-                      </div>
-
-                      {/* Product Image - Small */}
-                      <img
-                        src="/order-bump-protocol-metabolico.jpg"
-                        alt="Ebook Anti-Plateau"
-                        className="w-20 h-28 object-cover rounded flex-shrink-0"
-                      />
-
-                      {/* Text Content */}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-white text-sm">Ebook Anti-Plateau</p>
-                        <p className="text-xs text-gray-400 line-clamp-2">Reverter plateau em 7 dias com protocolos científicos</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="font-bold text-lime-400 text-sm">R$ 14,90</span>
-                          <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
-                        </div>
-                      </div>
-                    </motion.div>
-
-                    {/* Protocolo SOS */}
-                    <motion.div
-                      whileHover={{ scale: 1.01 }}
-                      onClick={() => setSelectedOrderBumps(prev => ({ ...prev, protocolo: !prev.protocolo }))}
-                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${
-                        selectedOrderBumps.protocolo
-                          ? "bg-lime-500/15 border-lime-500/50"
-                          : "bg-slate-700/20 border-slate-600/40 hover:border-slate-500/60"
-                      }`}
-                    >
-                      {/* Checkbox - Top Right */}
-                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                        selectedOrderBumps.protocolo ? "bg-lime-500 border-lime-500" : "border-gray-400"
-                      }`}>
-                        {selectedOrderBumps.protocolo && <Check className="w-3 h-3 text-black" />}
-                      </div>
-
-                      {/* Product Image - Small */}
-                      <img
-                        src="/order-bump-protocolo-sos.jpg"
-                        alt="Protocolo SOS FitGoal"
-                        className="w-20 h-28 object-cover rounded flex-shrink-0"
-                      />
-
-                      {/* Text Content */}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-white text-sm">Protocolo SOS FitGoal</p>
-                        <p className="text-xs text-gray-400 line-clamp-2">Protocolo de emergência para composição corporal</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="font-bold text-lime-400 text-sm">R$ 14,90</span>
-                          <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </div>
-
-                  {/* Order Bump Summary */}
-                  {(selectedOrderBumps.ebook || selectedOrderBumps.protocolo) && (
-                    <div className="bg-slate-700/30 rounded-lg p-3 space-y-2 border border-slate-600">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-300">Valor do Plano</span>
-                        <span className="text-white font-semibold">R$ {planPrice}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-300">Order Bumps Selecionados</span>
-                        <span className="text-lime-400 font-semibold">
-                          + R$ {((selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)).toFixed(2).replace(".", ",")}
-                        </span>
-                      </div>
-                      <div className="border-t border-slate-600 pt-2 flex justify-between">
-                        <span className="text-white font-bold">Valor Total</span>
-                        <span className="text-lime-400 font-bold text-lg">
-                          R$ {(parseFloat(planPrice.replace(",", ".")) + (selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)).toFixed(2).replace(".", ",")}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {/* BUTTON SECTION - Moved after order bumps */}
-              <div className="flex flex-col gap-4">
-                {/* Main Payment Button */}
-                <div>
-                  <button
-                    onClick={handlePayment}
-                    disabled={processing || !paymentMethod}
-                    className="relative w-full bg-gradient-to-b from-lime-400 to-lime-500 hover:from-lime-350 hover:to-lime-450 disabled:from-slate-600 disabled:to-slate-700 text-black font-bold py-4 px-6 rounded-2xl transition-all h-12 overflow-hidden shadow-lg hover:shadow-xl disabled:shadow-none"
-                  >
-                    {/* Linha de brilho no topo */}
-                    <span className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-green-300/70 to-transparent" />
-                    
-                    {/* Brilho interno superior */}
-                    <span className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/15 to-transparent rounded-t-2xl" />
-
-                    <span className="relative flex items-center justify-center gap-3">
-                      {processing ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          Processando...
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-5 h-5" />
-                          Liberar Meu Plano Agora
-                        </>
-                      )}
-                    </span>
-                  </button>
-                </div>
-
-                {/* Microcopy de segurança - Mais específica */}
-                <div className="flex items-center justify-center gap-2 text-xs text-gray-300 px-4">
-                  <Lock className="w-3 h-3 flex-shrink-0" />
-                  <span>Pagamento com criptografia SSL. Seus dados não são armazenados.</span>
-                </div>
-
-                {/* O que acontece depois do pagamento */}
-                {paymentMethod === "card" && (
-                  <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2 text-xs text-lime-300">
-                    <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                    <span>Acesso liberado imediatamente após a confirmação</span>
-                  </div>
-                )}
-
-                {paymentMethod === "pix" && (
-                  <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2 text-xs text-lime-300 items-center justify-center">
-                    <Zap className="w-4 h-4 flex-shrink-0" />
-                    <span>Liberação automática em poucos segundos</span>
-                  </div>
-                )}
-
-                {paymentMethod === "boleto" && (
-                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 flex gap-2 text-xs text-blue-300">
-                    <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                    <span>Liberação assim que o pagamento for confirmado</span>
-                  </div>
-                )}
               </div>
 
               {/* Payment Methods and Security Seals */}
