@@ -244,7 +244,11 @@ async function processPaymentBackground(payment: AsaasPayment) {
     
     console.log(`[v0] POST-CHECKOUT HANDLER CHECK - appUrl: ${appUrl}, status: ${payment.status}`)
     
-    if (appUrl && payment.status === "CONFIRMED") {
+    // ASAAS status: PENDING, CONFIRMED, RECEIVED, OVERDUE, EXPIRED, DECLINED
+    // Send email for: CONFIRMED, RECEIVED
+    const emailTriggerStatuses = ["CONFIRMED", "RECEIVED"]
+    
+    if (appUrl && emailTriggerStatuses.includes(payment.status)) {
       try {
         console.log(`[v0] 🚀 POST-CHECKOUT HANDLER - Iniciando chamada para: ${appUrl}/api/handle-post-checkout`)
         
@@ -283,7 +287,7 @@ async function processPaymentBackground(payment: AsaasPayment) {
         console.error("[v0] ❌ Error calling post-checkout handler:", error)
       }
     } else {
-      console.log(`[v0] ⏭️  POST-CHECKOUT HANDLER - Skipped (appUrl exists: ${!!appUrl}, status: ${payment.status})`)
+      console.log(`[v0] ⏭️  POST-CHECKOUT HANDLER - Skipped (appUrl: ${!!appUrl}, status: ${payment.status} - needs ${emailTriggerStatuses.join(" or ")})`)
     }
   } catch (error) {
     console.error("[v0] Background payment processing failed:", error)
