@@ -1046,10 +1046,10 @@ export default function CheckoutPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-white border border-gray-200 rounded-xl overflow-hidden space-y-0"
+                  className="bg-amber-50 border-2 border-dashed border-rose-400 rounded-xl overflow-hidden space-y-0"
                 >
-                  {/* Header Banner - Azul escuro elegante */}
-                  <div className="bg-slate-900 px-6 py-4">
+                  {/* Header Banner - Rose/Pink */}
+                  <div className="bg-gradient-to-r from-rose-500 to-pink-500 px-6 py-4">
                     <h3 className="text-lg font-bold text-white flex items-center justify-center gap-2">
                       🎁 Você tem 2 ofertas especiais!
                     </h3>
@@ -1057,7 +1057,7 @@ export default function CheckoutPage() {
 
                   {/* Content Area */}
                   <div className="p-6 space-y-4">
-                    <p className="text-xs text-slate-600 text-center">Adicione produtos exclusivos com super desconto</p>
+                    <p className="text-xs text-slate-700 text-center">Uma oportunidade única de adquirir produtos incríveis com super desconto</p>
 
                   {/* Order Bump Products - Vertical Stack */}
                   <div className="space-y-3">
@@ -1065,15 +1065,15 @@ export default function CheckoutPage() {
                     <motion.div
                       whileHover={{ scale: 1.01 }}
                       onClick={() => setSelectedOrderBumps(prev => ({ ...prev, ebook: !prev.ebook }))}
-                      className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all relative ${selectedOrderBumps.ebook
-                        ? "bg-emerald-50 border-emerald-400"
-                        : "bg-white border-gray-200 hover:border-gray-300"
+                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${selectedOrderBumps.ebook
+                        ? "bg-lime-500/15 border-lime-500/50"
+                        : "bg-slate-700/20 border-slate-600/40 hover:border-slate-500/60"
                         }`}
                     >
                       {/* Checkbox - Top Right */}
-                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedOrderBumps.ebook ? "bg-emerald-500 border-emerald-500" : "border-gray-300"
+                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedOrderBumps.ebook ? "bg-lime-500 border-lime-500" : "border-gray-400"
                         }`}>
-                        {selectedOrderBumps.ebook && <Check className="w-3 h-3 text-white" />}
+                        {selectedOrderBumps.ebook && <Check className="w-3 h-3 text-black" />}
                       </div>
 
                       {/* Product Image - Small */}
@@ -1085,11 +1085,11 @@ export default function CheckoutPage() {
 
                       {/* Text Content */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-slate-900 text-sm">Protocolo Anti-Plateau</p>
-                        <p className="text-xs text-slate-600 line-clamp-2">Reverta a estagnação de peso em 7 dias com protocolos comprovados</p>
+                        <p className="font-semibold text-white text-sm">Protocolo Anti-Plateau</p>
+                        <p className="text-xs text-gray-400 line-clamp-2">Reverta a estagnação de peso em 7 dias com protocolos comprovados</p>
                         <div className="flex items-center gap-2 mt-2">
-                          <span className="font-bold text-emerald-600 text-sm">R$ 14,90</span>
-                          <span className="text-xs text-slate-400 line-through">R$ 39,90</span>
+                          <span className="font-bold text-lime-400 text-sm">R$ 14,90</span>
+                          <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
                         </div>
                       </div>
                     </motion.div>
@@ -1098,15 +1098,15 @@ export default function CheckoutPage() {
                     <motion.div
                       whileHover={{ scale: 1.01 }}
                       onClick={() => setSelectedOrderBumps(prev => ({ ...prev, protocolo: !prev.protocolo }))}
-                      className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all relative ${selectedOrderBumps.protocolo
-                        ? "bg-emerald-50 border-emerald-400"
-                        : "bg-white border-gray-200 hover:border-gray-300"
+                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${selectedOrderBumps.protocolo
+                        ? "bg-lime-500/15 border-lime-500/50"
+                        : "bg-slate-700/20 border-slate-600/40 hover:border-slate-500/60"
                         }`}
                     >
                       {/* Checkbox - Top Right */}
-                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedOrderBumps.protocolo ? "bg-emerald-500 border-emerald-500" : "border-gray-300"
+                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedOrderBumps.protocolo ? "bg-lime-500 border-lime-500" : "border-gray-400"
                         }`}>
-                        {selectedOrderBumps.protocolo && <Check className="w-3 h-3 text-white" />}
+                        {selectedOrderBumps.protocolo && <Check className="w-3 h-3 text-black" />}
                       </div>
 
                       {/* Product Image - Small */}
@@ -1118,10 +1118,10 @@ export default function CheckoutPage() {
 
                       {/* Text Content */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-slate-900 text-sm">Protocolo S.O.S FitGoal</p>
-                        <p className="text-xs text-slate-600 line-clamp-2">Protocolo de emergência para caso deslize na dieta</p>
+                        <p className="font-semibold text-white text-sm">Protocolo S.O.S FitGoal</p>
+                        <p className="text-xs text-gray-400 line-clamp-2">Protocolo de emergência para caso deslize na dieta</p>
                         <div className="flex items-center gap-2 mt-2">
-                          <span className="font-bold text-emerald-600 text-sm">R$ 14,90</span>
+                          <span className="font-bold text-lime-400 text-sm">R$ 14,90</span>
                           <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
                         </div>
                       </div>
@@ -1130,20 +1130,20 @@ export default function CheckoutPage() {
 
                   {/* Order Bump Summary */}
                   {(selectedOrderBumps.ebook || selectedOrderBumps.protocolo) && (
-                    <div className="bg-gray-50 rounded-lg p-3 space-y-2 border border-gray-200">
+                    <div className="bg-white/50 rounded-lg p-3 space-y-2 border border-amber-200">
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">Valor do Plano</span>
-                        <span className="text-slate-900 font-semibold">R$ {planPrice}</span>
+                        <span className="text-slate-700">Valor do Plano</span>
+                        <span className="text-slate-800 font-semibold">R$ {planPrice}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">Produtos Selecionados</span>
-                        <span className="text-emerald-600 font-semibold">
+                        <span className="text-slate-700">Promoções Exclusivas Selecionadas</span>
+                        <span className="text-rose-600 font-semibold">
                           + R$ {((selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)).toFixed(2).replace(".", ",")}
                         </span>
                       </div>
-                      <div className="border-t border-gray-200 pt-2 flex justify-between">
-                        <span className="text-slate-900 font-bold">Valor Total</span>
-                        <span className="text-emerald-600 font-bold text-lg">
+                      <div className="border-t border-amber-200 pt-2 flex justify-between">
+                        <span className="text-slate-800 font-bold">Valor Total</span>
+                        <span className="text-rose-600 font-bold text-lg">
                           R$ {(parseFloat(planPrice.replace(",", ".")) + (selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)).toFixed(2).replace(".", ",")}
                         </span>
                       </div>
