@@ -736,7 +736,7 @@ export default function CheckoutPage() {
 
                 <div className="border-t border-slate-600 pt-4 flex justify-between items-center">
                   <span className="text-gray-300">Total</span>
-                  <span className="text-3xl font-bold text-lime-500">R$ {parseFloat(planPrice).toFixed(2).replace(".", ",")}</span>
+                  <span className="text-3xl font-bold text-lime-500">R$ {parseFloat(totalPrice).toFixed(2).replace(".", ",")}</span>
                 </div>
                 <div className="text-sm text-gray-400 mt-2">
                   {selectedPlan === "mensal" && "R$ 79,90 por mês"}
