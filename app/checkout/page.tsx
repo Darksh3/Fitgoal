@@ -1219,7 +1219,7 @@ export default function CheckoutPage() {
                 </p>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>
