@@ -231,60 +231,28 @@ async function processPaymentBackground(payment: AsaasPayment) {
     }
 
     // Call post-checkout handler if configured
-    const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_URL
-
-    console.log(`[v0] POST-CHECKOUT HANDLER CHECK - appUrl: ${appUrl}, status: ${payment.status}`)
-    
-    // ASAAS status: PENDING, CONFIRMED, RECEIVED, OVERDUE, EXPIRED, DECLINED
-    // Send email for: CONFIRMED, RECEIVED
-    const emailTriggerStatuses = ["CONFIRMED", "RECEIVED"]
-    
-    if (appUrl && emailTriggerStatuses.includes(payment.status)) {
+    const appUrl = process.env.APP_URL
+    if (appUrl && payment.status === "CONFIRMED") {
       try {
-        console.log(`[v0] 🚀 POST-CHECKOUT HANDLER - Disparando em BACKGROUND para: ${appUrl}/api/handle-post-checkout`)
-        
-        // Get payment document to extract order bumps info
-        const paymentRef = adminDb.collection("payments").doc(payment.id)
-        const paymentSnapshot = await paymentRef.get()
-        const paymentData = paymentSnapshot.data() || {}
-
-        const payload = {
-          userId: leadId,
-          paymentId: payment.id,
-          customerName: payment.customer?.name || leadData.name,
-          customerEmail: payment.customer?.email || leadData.email,
-          customerPhone: payment.customer?.phone || leadData.phone,
-          value: payment.value,
-          orderBumps: paymentData?.orderBumps || null,
-        }
-        
-        console.log(`[v0] POST-CHECKOUT PAYLOAD:`, JSON.stringify(payload, null, 2))
-
-        // Fire-and-forget: NÃO aguardar a resposta
-        // Deixar em background para não bloquear o webhook
-        fetch(`${appUrl}/api/handle-post-checkout`, {
+        const response = await fetch(`${appUrl}/api/handle-post-checkout`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }).then(response => {
-          console.log(`[v0] POST-CHECKOUT BACKGROUND - Status: ${response.status}`)
-          if (!response.ok) {
-            return response.text().then(text => {
-              console.error(`[v0] ❌ Post-checkout handler returned ${response.status}: ${text}`)
-            })
-          } else {
-            console.log(`[v0] ✅ Post-checkout handler completed in background`)
-          }
-        }).catch(error => {
-          console.error("[v0] ❌ Error in background post-checkout handler:", error instanceof Error ? error.message : String(error))
+          body: JSON.stringify({
+            userId: leadId,
+            paymentId: payment.id,
+            customerName: payment.customer?.name || leadData.name,
+            customerEmail: payment.customer?.email || leadData.email,
+            customerPhone: payment.customer?.phone || leadData.phone,
+            value: payment.value,
+          }),
         })
 
-        console.log(`[v0] ✅ Post-checkout handler DISPARADO em background (não bloqueando webhook)`)
+        if (!response.ok) {
+          console.error(`[v0] Post-checkout handler returned ${response.status}`)
+        }
       } catch (error) {
-        console.error("[v0] ❌ Error scheduling post-checkout handler:", error)
+        console.error("[v0] Error calling post-checkout handler:", error)
       }
-    } else {
-      console.log(`[v0] ⏭️  POST-CHECKOUT HANDLER - Skipped (appUrl: ${!!appUrl}, status: ${payment.status})`)
     }
   } catch (error) {
     console.error("[v0] Background payment processing failed:", error)

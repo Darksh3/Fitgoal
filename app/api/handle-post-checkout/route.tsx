@@ -38,14 +38,11 @@ if (sendgridApiKey) {
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { sessionId, subscription_id, customer_id, client_uid, payment_intent_id, plan_duration, price_id, userId, paymentId, billingType, customerName, customerEmail, customerPhone, customerCpf, orderBumps } = body
+    const { sessionId, subscription_id, customer_id, client_uid, payment_intent_id, plan_duration, price_id, userId, paymentId, billingType, customerName, customerEmail, customerPhone, customerCpf } = body
 
-    console.log("[v0] ════════════════════════════════════════════════════════════")
-    console.log("[v0] HANDLE_POST_CHECKOUT_INIT - Dados completos recebidos:")
-    console.log(JSON.stringify({ sessionId, subscription_id, payment_intent_id, userId, customerEmail, paymentId, orderBumps }, null, 2))
+    console.log("[v0] HANDLE_POST_CHECKOUT_INIT - Recebido:", { sessionId, subscription_id, payment_intent_id, userId })
 
     if (!sessionId && !subscription_id && !payment_intent_id && !userId) {
-      console.error("[v0] ❌ HANDLE_POST_CHECKOUT - Faltam dados: sem sessionId, subscription_id, payment_intent_id ou userId")
       return NextResponse.json({ error: "sessionId, subscription_id, payment_intent_id ou userId ausente." }, { status: 400 })
     }
 
@@ -59,12 +56,10 @@ export async function POST(req: Request) {
 
     // Se vem do webhook Asaas, usar os dados diretamente
     if (userId && customerEmail && customerEmail !== 'undefined') {
-      console.log("[v0] ✅ HANDLE_POST_CHECKOUT - Usando dados do Asaas webhook")
       userEmail = customerEmail
       userName = customerName || null
       clientUidFromSource = userId
-      console.log("[v0] 📧 Email extraído:", userEmail)
-      console.log("[v0] 👤 Nome extraído:", userName)
+      console.log("[v0] HANDLE_POST_CHECKOUT - Dados do Asaas webhook:", { userEmail, userName, clientUidFromSource })
 
       // Buscar quizAnswers do Firebase usando o userId (já é o lead ou user anterior)
       try {
@@ -600,12 +595,7 @@ export async function POST(req: Request) {
 
     // ==================== EMAIL COM RESEND ====================
     // Resend funciona independentemente de SendGrid
-    console.log("[v0] ════════════════════════════════════════════════════════════")
-    console.log("[v0] EMAIL_BLOCK_START - Iniciando bloco de email com Resend")
-    console.log("[v0] 📧 Email: ", userEmail)
-    console.log("[v0] 👤 Nome: ", userName)
-    console.log("[v0] 🔑 RESEND_API_KEY disponível: ", !!resendApiKey)
-    
+    console.log("[v0] EMAIL_BLOCK_START - Iniciando bloco de email")
     const emailSubject = isNewUser
       ? "Bem-vindo(a) ao FitGoal! Crie sua senha."
       : "Sua Assinatura FitGoal foi Confirmada!"
@@ -651,46 +641,6 @@ export async function POST(req: Request) {
 
     emailHtmlContent += `
         <p>Se você tiver alguma dúvida, entre em contato conosco.</p>
-    `
-
-    // Add order bumps section if purchased
-    if (orderBumps && (orderBumps.ebook || orderBumps.protocolo)) {
-      emailHtmlContent += `
-        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #84cc16;">
-          <h2 style="color: #84cc16; margin-top: 0;">📚 Seus Produtos Complementares</h2>
-          <p>Você adquiriu os seguintes produtos. Baixe-os aqui:</p>
-      `
-
-      if (orderBumps.ebook) {
-        emailHtmlContent += `
-          <div style="background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #e5e7eb;">
-            <p><strong>✓ Ebook Anti-Plateau</strong></p>
-            <p>Reverter plateau metabólico em 7 dias com protocolos científicos.</p>
-            <div style="text-align: center; margin: 15px 0;">
-              <a href="${process.env.NEXT_PUBLIC_URL}/downloads/ebook-anti-plateau.pdf" style="background-color: #84cc16; color: black; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Baixar Ebook</a>
-            </div>
-          </div>
-        `
-      }
-
-      if (orderBumps.protocolo) {
-        emailHtmlContent += `
-          <div style="background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #e5e7eb;">
-            <p><strong>✓ Protocolo SOS FitGoal</strong></p>
-            <p>Protocolo de emergência para recuperação de composição corporal em menos de 24 horas.</p>
-            <div style="text-align: center; margin: 15px 0;">
-              <a href="${process.env.NEXT_PUBLIC_URL}/downloads/protocolo-sos-fitgoal.pdf" style="background-color: #84cc16; color: black; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Baixar Protocolo</a>
-            </div>
-          </div>
-        `
-      }
-
-      emailHtmlContent += `
-        </div>
-      `
-    }
-
-    emailHtmlContent += `
         <p>Equipe FitGoal</p>
       </div>
     `
@@ -716,15 +666,7 @@ export async function POST(req: Request) {
           html: emailHtmlContent,
         })
 
-        // Resend retorna { data, error } - verificar qual um contém o resultado
-        if (response.error) {
-          console.error(`[v0] RESEND_ERROR - Falha ao enviar para ${userEmail}:`, response.error)
-        } else if (response.data) {
-          console.log(`[v0] RESEND_SUCCESS - E-mail enviado com sucesso para ${userEmail}`)
-          console.log("[v0] RESEND_ID -", response.data.id)
-        } else {
-          console.log(`[v0] RESEND_RESPONSE - Resposta do Resend:`, response)
-        }
+        console.log(`[v0] RESEND_SUCCESS - E-mail enviado com sucesso para ${userEmail}:`, response)
       } else {
         console.warn("[v0] RESEND_KEY_MISSING - RESEND_API_KEY não configurada, pulando envio")
       }
@@ -740,10 +682,6 @@ export async function POST(req: Request) {
     }
 
     console.log(`DEBUG: Processo de pós-checkout concluído com sucesso para usuário: ${finalUserUid}`)
-    console.log("[v0] ════════════════════════════════════════════════════════════")
-    console.log("[v0] ✅ HANDLE_POST_CHECKOUT_SUCCESS - Email enviado com sucesso")
-    console.log("[v0] ════════════════════════════════════════════════════════════")
-    
     return NextResponse.json({
       received: true,
       message: "Pós-checkout processado com sucesso.",
