@@ -1067,11 +1067,11 @@ export default function CheckoutPage() {
                       onClick={() => setSelectedOrderBumps(prev => ({ ...prev, ebook: !prev.ebook }))}
                       className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${selectedOrderBumps.ebook
                         ? "bg-lime-500/15 border-lime-500/50"
-                        : "bg-slate-700/20 border-slate-600/40 hover:border-slate-500/60"
+                        : "bg-gray-300 border-gray-400 hover:border-gray-500"
                         }`}
                     >
                       {/* Checkbox - Top Right */}
-                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedOrderBumps.ebook ? "bg-lime-500 border-lime-500" : "border-gray-400"
+                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedOrderBumps.ebook ? "bg-lime-500 border-lime-500" : "border-gray-500"
                         }`}>
                         {selectedOrderBumps.ebook && <Check className="w-3 h-3 text-black" />}
                       </div>
@@ -1085,11 +1085,11 @@ export default function CheckoutPage() {
 
                       {/* Text Content */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-white text-sm">Protocolo Anti-Plateau</p>
-                        <p className="text-xs text-gray-400 line-clamp-2">Reverta a estagnação de peso em 7 dias com protocolos comprovados</p>
+                        <p className="font-semibold text-black text-sm">Protocolo Anti-Plateau</p>
+                        <p className="text-xs text-gray-600 line-clamp-2">Reverta a estagnação de peso em 7 dias com protocolos comprovados</p>
                         <div className="flex items-center gap-2 mt-2">
-                          <span className="font-bold text-lime-400 text-sm">R$ 14,90</span>
-                          <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
+                          <span className="font-bold text-lime-500 text-sm">R$ 14,90</span>
+                          <span className="text-xs text-gray-500 line-through">R$ 39,90</span>
                         </div>
                       </div>
                     </motion.div>
@@ -1100,11 +1100,11 @@ export default function CheckoutPage() {
                       onClick={() => setSelectedOrderBumps(prev => ({ ...prev, protocolo: !prev.protocolo }))}
                       className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${selectedOrderBumps.protocolo
                         ? "bg-lime-500/15 border-lime-500/50"
-                        : "bg-slate-700/20 border-slate-600/40 hover:border-slate-500/60"
+                        : "bg-gray-300 border-gray-400 hover:border-gray-500"
                         }`}
                     >
                       {/* Checkbox - Top Right */}
-                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedOrderBumps.protocolo ? "bg-lime-500 border-lime-500" : "border-gray-400"
+                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedOrderBumps.protocolo ? "bg-lime-500 border-lime-500" : "border-gray-500"
                         }`}>
                         {selectedOrderBumps.protocolo && <Check className="w-3 h-3 text-black" />}
                       </div>
@@ -1118,11 +1118,11 @@ export default function CheckoutPage() {
 
                       {/* Text Content */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-white text-sm">Protocolo S.O.S FitGoal</p>
-                        <p className="text-xs text-gray-400 line-clamp-2">Protocolo de emergência para caso deslize na dieta</p>
+                        <p className="font-semibold text-black text-sm">Protocolo S.O.S FitGoal</p>
+                        <p className="text-xs text-gray-600 line-clamp-2">Protocolo de emergência para caso deslize na dieta</p>
                         <div className="flex items-center gap-2 mt-2">
-                          <span className="font-bold text-lime-400 text-sm">R$ 14,90</span>
-                          <span className="text-xs text-gray-400 line-through">R$ 39,90</span>
+                          <span className="font-bold text-lime-500 text-sm">R$ 14,90</span>
+                          <span className="text-xs text-gray-500 line-through">R$ 39,90</span>
                         </div>
                       </div>
                     </motion.div>
