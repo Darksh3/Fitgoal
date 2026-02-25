@@ -42,7 +42,7 @@ interface AsaasWebhookPayload {
 export async function POST(request: NextRequest) {
   try {
     console.log("[v0] Payment webhook received from Asaas")
-    
+
     const body: AsaasWebhookPayload = await request.json()
     const { event, payment } = body
 
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     // Quick Firestore update (synchronous)
     try {
       console.log(`[v0] Starting payment update for: ${payment.id} with status: ${payment.status}`)
-      
+
       const paymentUpdateData: any = {
         asaasPaymentId: payment.id,
         leadId: payment.externalReference,
@@ -80,18 +80,18 @@ export async function POST(request: NextRequest) {
         billingType: payment.billingType,
         updatedAt: new Date().toISOString(),
       }
-      
+
       // Only add optional fields if they exist
       if (payment.customer?.email) paymentUpdateData.customerEmail = payment.customer.email
       if (payment.customer?.name) paymentUpdateData.customerName = payment.customer.name
       if (payment.customer?.phone) paymentUpdateData.customerPhone = payment.customer.phone
       if (payment.confirmedDate) paymentUpdateData.confirmedDate = payment.confirmedDate
-      
+
       console.log(`[v0] Payment update data:`, paymentUpdateData)
-      
+
       const paymentDocRef = adminDb.collection("payments").doc(payment.id)
       await paymentDocRef.set(paymentUpdateData, { merge: true })
-      
+
       console.log(`[v0] ✅ Payment ${payment.id} updated successfully with status: ${payment.status}`)
     } catch (error) {
       console.error(`[v0] ❌ Error updating payment ${payment.id}:`, error)
@@ -136,23 +136,23 @@ async function processPaymentBackground(payment: AsaasPayment) {
       return
     }
 
-    // Idempotency check: prevent processing same payment twice
-    const jobId = `asaas_${payment.id}_${payment.status}`
+    const jobId = `asaas_pay_${payment.id}_${payment.status}` // <-- MESMO prefixo do topo
     const jobRef = adminDb.collection("webhookJobs").doc(jobId)
     const jobSnapshot = await jobRef.get()
+    const jobData = jobSnapshot.data() || {}
 
-    if (jobSnapshot.exists) {
-      console.log(`[v0] Payment ${payment.id} already processed, skipping`)
-      return
-    }
-
-    // Mark as processed
-    await jobRef.set({
-      paymentId: payment.id,
-      leadId,
-      status: payment.status,
-      createdAt: new Date().toISOString(),
-    })
+    // NÃO retorna só porque existe.
+    // Só garante que o doc existe e registra timestamps.
+    await jobRef.set(
+      {
+        paymentId: payment.id,
+        leadId,
+        status: payment.status,
+        createdAt: jobData.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      { merge: true },
+    )
 
     // Get lead data for context
     const leadRef = adminDb.collection("leads").doc(leadId)
@@ -195,9 +195,9 @@ async function processPaymentBackground(payment: AsaasPayment) {
       asaasPaymentId: payment.id,
       lastPaymentStatus: payment.status,
       lastPaymentDate: new Date().toISOString(),
-      planType: payment.description?.toLowerCase().includes("mensal") ? "mensal" : 
-                payment.description?.toLowerCase().includes("trimestral") ? "trimestral" :
-                payment.description?.toLowerCase().includes("semestral") ? "semestral" : null,
+      planType: payment.description?.toLowerCase().includes("mensal") ? "mensal" :
+        payment.description?.toLowerCase().includes("trimestral") ? "trimestral" :
+          payment.description?.toLowerCase().includes("semestral") ? "semestral" : null,
       subscriptionStatus: newStage === "cliente" ? "active" : "pending",
     })
 
@@ -232,16 +232,32 @@ async function processPaymentBackground(payment: AsaasPayment) {
 
     // Call post-checkout handler if configured
     let appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_URL
-    
+
     console.log(`[v0] POST-CHECKOUT HANDLER CHECK - appUrl: ${appUrl}, status: ${payment.status}`)
-    
+
     // Trigger email for CONFIRMED and RECEIVED statuses (PIX uses RECEIVED)
     const emailTriggerStatuses = ["CONFIRMED", "RECEIVED"]
-    
+
     if (appUrl && emailTriggerStatuses.includes(payment.status)) {
       try {
-        console.log(`[v0] 🚀 POST-CHECKOUT HANDLER - Disparando em background para: ${appUrl}/api/handle-post-checkout`)
-        
+
+        // checa se já disparou o post-checkout
+        const jobSnap = await jobRef.get()
+        const jobData = jobSnap.data() || {}
+
+        if (jobData.postCheckoutTriggered) {
+          console.log("[v0] Post-checkout já disparado, pulando")
+          return
+        }
+
+        // marca que vai disparar (antes do fetch)
+        await jobRef.set({
+          postCheckoutTriggered: true,
+          postCheckoutTriggeredAt: new Date().toISOString(),
+        }, { merge: true })
+
+        console.log(`[v0] Disparando post-checkout para ${appUrl}/api/handle-post-checkout`)
+
         // Get payment document to extract order bumps info
         const paymentRef = adminDb.collection("payments").doc(payment.id)
         const paymentSnapshot = await paymentRef.get()
@@ -249,6 +265,7 @@ async function processPaymentBackground(payment: AsaasPayment) {
 
         const payload = {
           userId: leadId,
+          client_uid: leadId,
           paymentId: payment.id,
           customerName: payment.customer?.name || leadData.name,
           customerEmail: payment.customer?.email || leadData.email,
@@ -256,7 +273,7 @@ async function processPaymentBackground(payment: AsaasPayment) {
           value: payment.value,
           orderBumps: paymentData?.orderBumps || null,
         }
-        
+
         console.log(`[v0] POST-CHECKOUT PAYLOAD:`, JSON.stringify(payload, null, 2))
 
         // Fire-and-forget: não bloquear o webhook aguardando o email
