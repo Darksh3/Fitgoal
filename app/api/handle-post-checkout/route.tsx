@@ -706,7 +706,15 @@ export async function POST(req: Request) {
           html: emailHtmlContent,
         })
 
-        console.log(`[v0] RESEND_SUCCESS - E-mail enviado com sucesso para ${userEmail}:`, response)
+        // Resend retorna { data, error } - verificar qual um contém o resultado
+        if (response.error) {
+          console.error(`[v0] RESEND_ERROR - Falha ao enviar para ${userEmail}:`, response.error)
+        } else if (response.data) {
+          console.log(`[v0] RESEND_SUCCESS - E-mail enviado com sucesso para ${userEmail}`)
+          console.log("[v0] RESEND_ID -", response.data.id)
+        } else {
+          console.log(`[v0] RESEND_RESPONSE - Resposta do Resend:`, response)
+        }
       } else {
         console.warn("[v0] RESEND_KEY_MISSING - RESEND_API_KEY não configurada, pulando envio")
       }
