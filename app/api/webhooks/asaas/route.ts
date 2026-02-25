@@ -244,9 +244,12 @@ async function processPaymentBackground(payment: AsaasPayment) {
     
     console.log(`[v0] POST-CHECKOUT HANDLER CHECK - appUrl: ${appUrl}, status: ${payment.status}`)
     
-    if (appUrl && payment.status === "CONFIRMED") {
+    // Trigger email for CONFIRMED and RECEIVED statuses
+    const emailTriggerStatuses = ["CONFIRMED", "RECEIVED"]
+    
+    if (appUrl && emailTriggerStatuses.includes(payment.status)) {
       try {
-        console.log(`[v0] 🚀 POST-CHECKOUT HANDLER - Iniciando chamada para: ${appUrl}/api/handle-post-checkout`)
+        console.log(`[v0] 🚀 POST-CHECKOUT HANDLER - Disparando em background para: ${appUrl}/api/handle-post-checkout`)
         
         // Get payment document to extract order bumps info
         const paymentRef = adminDb.collection("payments").doc(payment.id)
@@ -265,25 +268,30 @@ async function processPaymentBackground(payment: AsaasPayment) {
         
         console.log(`[v0] POST-CHECKOUT PAYLOAD:`, payload)
 
-        const response = await fetch(`${appUrl}/api/handle-post-checkout`, {
+        // Fire-and-forget: não bloquear o webhook aguardando o email
+        fetch(`${appUrl}/api/handle-post-checkout`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
+        }).then(response => {
+          console.log(`[v0] POST-CHECKOUT BACKGROUND - Status: ${response.status}`)
+          if (!response.ok) {
+            return response.text().then(text => {
+              console.error(`[v0] ❌ Post-checkout handler returned ${response.status}: ${text}`)
+            })
+          } else {
+            console.log(`[v0] ✅ Post-checkout handler completed in background`)
+          }
+        }).catch(error => {
+          console.error("[v0] ❌ Error in background post-checkout:", error instanceof Error ? error.message : String(error))
         })
 
-        console.log(`[v0] POST-CHECKOUT RESPONSE - Status: ${response.status}`)
-        
-        if (!response.ok) {
-          const errorText = await response.text()
-          console.error(`[v0] ❌ Post-checkout handler returned ${response.status}: ${errorText}`)
-        } else {
-          console.log(`[v0] ✅ Post-checkout handler called successfully`)
-        }
+        console.log(`[v0] ✅ Post-checkout handler DISPARADO em background`)
       } catch (error) {
-        console.error("[v0] ❌ Error calling post-checkout handler:", error)
+        console.error("[v0] ❌ Error scheduling post-checkout handler:", error)
       }
     } else {
-      console.log(`[v0] ⏭️  POST-CHECKOUT HANDLER - Skipped (appUrl exists: ${!!appUrl}, status: ${payment.status})`)
+      console.log(`[v0] ⏭️  POST-CHECKOUT HANDLER - Skipped (appUrl: ${!!appUrl}, status: ${payment.status}, needs ${emailTriggerStatuses.join(" or ")})`)
     }
   } catch (error) {
     console.error("[v0] Background payment processing failed:", error)
