@@ -231,20 +231,11 @@ async function processPaymentBackground(payment: AsaasPayment) {
     }
 
     // Call post-checkout handler if configured
-    let appUrl = process.env.APP_URL
-    
-    // Fallback: se APP_URL não estiver definida, usar vercel deploy URL
-    if (!appUrl) {
-      // Try to get from request headers or use localhost for development
-      const host = request.headers.get('host') || 'localhost:3000'
-      const protocol = request.headers.get('x-forwarded-proto') || 'https'
-      appUrl = `${protocol}://${host}`
-      console.log(`[v0] APP_URL not configured, using request URL: ${appUrl}`)
-    }
+    let appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_URL
     
     console.log(`[v0] POST-CHECKOUT HANDLER CHECK - appUrl: ${appUrl}, status: ${payment.status}`)
     
-    // Trigger email for CONFIRMED and RECEIVED statuses
+    // Trigger email for CONFIRMED and RECEIVED statuses (PIX uses RECEIVED)
     const emailTriggerStatuses = ["CONFIRMED", "RECEIVED"]
     
     if (appUrl && emailTriggerStatuses.includes(payment.status)) {
@@ -266,7 +257,7 @@ async function processPaymentBackground(payment: AsaasPayment) {
           orderBumps: paymentData?.orderBumps || null,
         }
         
-        console.log(`[v0] POST-CHECKOUT PAYLOAD:`, payload)
+        console.log(`[v0] POST-CHECKOUT PAYLOAD:`, JSON.stringify(payload, null, 2))
 
         // Fire-and-forget: não bloquear o webhook aguardando o email
         fetch(`${appUrl}/api/handle-post-checkout`, {
@@ -286,12 +277,12 @@ async function processPaymentBackground(payment: AsaasPayment) {
           console.error("[v0] ❌ Error in background post-checkout:", error instanceof Error ? error.message : String(error))
         })
 
-        console.log(`[v0] ✅ Post-checkout handler DISPARADO em background`)
+        console.log(`[v0] ✅ Post-checkout handler DISPARADO em background (não bloqueia webhook)`)
       } catch (error) {
         console.error("[v0] ❌ Error scheduling post-checkout handler:", error)
       }
     } else {
-      console.log(`[v0] ⏭️  POST-CHECKOUT HANDLER - Skipped (appUrl: ${!!appUrl}, status: ${payment.status}, needs ${emailTriggerStatuses.join(" or ")})`)
+      console.log(`[v0] ⏭️  POST-CHECKOUT HANDLER - Skipped (appUrl: ${!!appUrl}, status: ${payment.status})`)
     }
   } catch (error) {
     console.error("[v0] Background payment processing failed:", error)
