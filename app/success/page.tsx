@@ -17,33 +17,9 @@ export default function SuccessPage() {
   useEffect(() => {
     const handlePostCheckout = async () => {
       if (embedded === "true") {
-        console.log("Embedded checkout success - calling handle-post-checkout anyway")
-
-        // você precisa mandar algo pro backend identificar o usuário
-        // no seu caso, o webhook usa userId (leadId)
-        const userId = searchParams.get("userId") || searchParams.get("uid")
-
-        if (!userId) {
-          setStatus("error")
-          setErrorMessage("userId não encontrado na URL (necessário para enviar o e-mail).")
-          return
-        }
-
-        const response = await fetch("/api/handle-post-checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId }),
-        })
-
-        if (response.ok) {
-          setStatus("success")
-        } else {
-          const errorText = await response.text()
-          console.error("handle-post-checkout erro:", response.status, errorText)
-          setStatus("error")
-          setErrorMessage("Erro ao disparar e-mail de confirmação.")
-        }
-
+        // For embedded checkout, subscription is already created and processed
+        console.log("Embedded checkout success - subscription already processed")
+        setStatus("success")
         return
       }
 
