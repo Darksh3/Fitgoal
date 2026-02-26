@@ -4436,7 +4436,7 @@ export default function QuizPage() {
 
         return (
           <div className="min-h-screen bg-gradient-to-b from-[#050B1A] via-[#07112A] to-[#050B1A] px-4 pt-4 pb-5">
-            <div className="mx-auto w-full max-w-sm flex flex-col gap-3">
+            <div className="mx-auto w-full max-w-none flex flex-col gap-3">
               {/* TOP */}
               <div className="text-center">
                 <div className="text-7xl md:text-8xl font-extrabold text-white tracking-tight leading-none">

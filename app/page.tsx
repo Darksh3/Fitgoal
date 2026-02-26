@@ -377,7 +377,7 @@ export default function Home() {
             </h1>
 
             <h2 className="text-lg md:text-xl text-gray-300 leading-relaxed font-medium">
-              Em menos de 3 minutos, nosso sistema analisa seu biotipo, nível físico e rotina para montar um plano que realmente funciona.
+              Em menos de 5 minutos, nosso sistema analisa seu biotipo, nível físico e rotina para montar um plano que realmente funciona.
             </h2>
 
             <h3 className="text-lime-400 text-lg font-semibold">⚡ Resultados reais em tempo recorde</h3>
