@@ -92,7 +92,6 @@ export default function CheckoutPage() {
   const [cardPaymentId, setCardPaymentId] = useState<string | null>(null)
 
   // Order Bump state
-  const [showOrderBump, setShowOrderBump] = useState(false)
   const [selectedOrderBumps, setSelectedOrderBumps] = useState<{
     ebook: boolean
     protocolo: boolean
@@ -388,18 +387,6 @@ export default function CheckoutPage() {
           throw new Error(`Campos do cartão faltando: ${cardMissingFields.join(", ")}`)
         }
       }
-
-      // Show order bump screen if not yet shown
-      if (!showOrderBump) {
-        console.log("[v0] Mostrando tela de order bumps - primeira vez")
-        setProcessing(false)
-        setShowOrderBump(true)
-        return
-      }
-
-      // Resetar o flag para o próximo pagamento
-      console.log("[v0] Order bumps já mostrada - prosseguindo com pagamento")
-      setShowOrderBump(false)
 
       // Step 1: Criar pagamento com /api/create-asaas-payment (igual ao modal)
       // Get uid from localStorage quizData first, then fallback to Firebase Auth
