@@ -581,21 +581,26 @@ export default function CheckoutPage() {
   // Success screen - Redirect to success page
   useEffect(() => {
     if (success) {
-      // Get the payment ID based on payment method
+      // Get the payment ID and user ID based on payment method
       const currentPaymentId = pixData?.paymentId || cardPaymentId
+      const stored = localStorage.getItem("quizData")
+      const storedUid = stored ? JSON.parse(stored).uid : null
+      const userId = storedUid || user?.uid || ""
       
-      console.log("[v0] SUCCESS REDIRECT - paymentId:", currentPaymentId)
+      console.log("[v0] SUCCESS REDIRECT - paymentId:", currentPaymentId, "userId:", userId)
       
       setTimeout(() => {
-        // Pass paymentId to success page so it can call handle-post-checkout
-        if (currentPaymentId) {
-          router.push(`/success?embedded=true&paymentId=${currentPaymentId}`)
+        // Pass paymentId and userId to success page so it can call handle-post-checkout
+        if (currentPaymentId && userId) {
+          router.push(`/success?embedded=true&paymentId=${encodeURIComponent(currentPaymentId)}&userId=${encodeURIComponent(userId)}`)
+        } else if (currentPaymentId) {
+          router.push(`/success?embedded=true&paymentId=${encodeURIComponent(currentPaymentId)}`)
         } else {
           router.push("/success?embedded=true")
         }
       }, 1000) // Small delay to ensure data is saved
     }
-  }, [success, router, pixData?.paymentId, cardPaymentId])
+  }, [success, router, pixData?.paymentId, cardPaymentId, user?.uid])
 
   // Boleto screen
   if (boletoData) {
