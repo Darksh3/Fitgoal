@@ -159,20 +159,26 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
 
     const startRotation = rotation
     const targetRotation = startRotation + finalRotation
-    const duration = 5000
+    const duration = 5 // em segundos para Framer Motion
     const startTime = Date.now()
+    let animationFrameId: number | null = null
 
     const animate = () => {
       const elapsed = Date.now() - startTime
-      const progress = Math.min(elapsed / duration, 1)
+      const progress = Math.min(elapsed / (duration * 1000), 1)
+      
+      // Easing out cubic para desaceleração suave
       const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
       const easedProgress = easeOutCubic(progress)
       const currentRotation = startRotation + (targetRotation - startRotation) * easedProgress
+      
       setRotation(currentRotation)
 
       if (progress < 1) {
-        requestAnimationFrame(animate)
+        animationFrameId = requestAnimationFrame(animate)
       } else {
+        // Garante que chegou ao valor final
+        setRotation(targetRotation)
         setIsSpinning(false)
         setLightsAnimating(false)
         setHasSpun(true)
@@ -182,7 +188,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
       }
     }
 
-    requestAnimationFrame(animate)
+    animationFrameId = requestAnimationFrame(animate)
   }
 
   const handleContinue = () => {
