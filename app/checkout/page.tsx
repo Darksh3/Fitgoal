@@ -391,12 +391,14 @@ export default function CheckoutPage() {
 
       // Show order bump screen if not yet shown
       if (!showOrderBump) {
+        console.log("[v0] Mostrando tela de order bumps - primeira vez")
         setProcessing(false)
         setShowOrderBump(true)
         return
       }
 
       // Resetar o flag para o próximo pagamento
+      console.log("[v0] Order bumps já mostrada - prosseguindo com pagamento")
       setShowOrderBump(false)
 
       // Step 1: Criar pagamento com /api/create-asaas-payment (igual ao modal)
