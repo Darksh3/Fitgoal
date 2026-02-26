@@ -16,34 +16,50 @@ export default function SuccessPage() {
 
   useEffect(() => {
     const handlePostCheckout = async () => {
+      // For embedded checkout, we still need to send the email and process post-checkout
+      // The subscription is created by Stripe webhook, but we still need to call handle-post-checkout
+      // to send the welcome email and process the ebook/access
+      
       if (embedded === "true") {
-        console.log("Embedded checkout success - calling handle-post-checkout anyway")
-
-        // você precisa mandar algo pro backend identificar o usuário
-        // no seu caso, o webhook usa userId (leadId)
-        const userId = searchParams.get("userId") || searchParams.get("uid")
-
-        if (!userId) {
-          setStatus("error")
-          setErrorMessage("userId não encontrado na URL (necessário para enviar o e-mail).")
+        console.log("[v0] Embedded checkout success - calling handle-post-checkout to send email")
+        // Still call handle-post-checkout even for embedded, to send emails and process access
+        // Use subscription_id if available from embedded checkout
+        const paymentIntentId = searchParams.get("payment_intent_id")
+        
+        if (!paymentIntentId && !subscriptionId) {
+          console.warn("[v0] No paymentIntentId or subscriptionId found for embedded checkout")
+          setStatus("success")
           return
         }
 
-        const response = await fetch("/api/handle-post-checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId }),
-        })
+        try {
+          console.log("[v0] Calling API /api/handle-post-checkout for embedded checkout")
+          const response = await fetch("/api/handle-post-checkout", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ 
+              payment_intent_id: paymentIntentId,
+              subscription_id: subscriptionId 
+            }),
+          })
 
-        if (response.ok) {
+          if (response.ok) {
+            const data = await response.json()
+            console.log("[v0] Embedded checkout - handle-post-checkout success:", data)
+            setStatus("success")
+          } else {
+            const errorData = await response.json()
+            console.error("[v0] Embedded checkout - handle-post-checkout error:", response.status, errorData)
+            // Still show success to user even if email fails - payment went through
+            setStatus("success")
+          }
+        } catch (error: any) {
+          console.error("[v0] Embedded checkout - Error calling handle-post-checkout:", error)
+          // Still show success to user even if email fails - payment went through
           setStatus("success")
-        } else {
-          const errorText = await response.text()
-          console.error("handle-post-checkout erro:", response.status, errorText)
-          setStatus("error")
-          setErrorMessage("Erro ao disparar e-mail de confirmação.")
         }
-
         return
       }
 
@@ -54,7 +70,7 @@ export default function SuccessPage() {
       }
 
       try {
-        console.log("Chamando API /api/handle-post-checkout com sessionId:", sessionId)
+        console.log("[v0] Calling API /api/handle-post-checkout with sessionId:", sessionId)
         const response = await fetch("/api/handle-post-checkout", {
           method: "POST",
           headers: {
@@ -65,23 +81,23 @@ export default function SuccessPage() {
 
         if (response.ok) {
           const data = await response.json()
-          console.log("API handle-post-checkout respondeu com sucesso:", data)
+          console.log("[v0] API handle-post-checkout success:", data)
           setStatus("success")
         } else {
           const errorData = await response.json()
-          console.error("API handle-post-checkout respondeu com erro:", response.status, errorData)
+          console.error("[v0] API handle-post-checkout error:", response.status, errorData)
           setStatus("error")
           setErrorMessage(errorData.error || "Erro desconhecido ao processar o checkout.")
         }
       } catch (error: any) {
-        console.error("Erro ao chamar API /api/handle-post-checkout:", error)
+        console.error("[v0] Error calling API handle-post-checkout:", error)
         setStatus("error")
         setErrorMessage("Erro de rede ou servidor ao finalizar sua assinatura.")
       }
     }
 
     handlePostCheckout()
-  }, [sessionId, embedded])
+  }, [sessionId, embedded, subscriptionId, searchParams])
 
   return (
     <div
