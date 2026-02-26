@@ -21,22 +21,26 @@ export default function SuccessPage() {
         console.log("[v0] Embedded checkout success - calling handle-post-checkout to send email")
         
         const paymentId = searchParams.get("paymentId")
+        const userId = searchParams.get("userId")
         
-        if (!paymentId) {
-          console.warn("[v0] No paymentId found for embedded checkout")
+        console.log("[v0] URL params - paymentId:", paymentId, "userId:", userId)
+        
+        if (!paymentId || !userId) {
+          console.warn("[v0] Missing paymentId or userId for embedded checkout", { paymentId, userId })
           setStatus("success")
           return
         }
 
         try {
-          console.log("[v0] Calling API /api/handle-post-checkout with paymentId:", paymentId)
+          console.log("[v0] Calling API /api/handle-post-checkout with paymentId:", paymentId, "userId:", userId)
           const response = await fetch("/api/handle-post-checkout", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ 
-              paymentId: paymentId
+              paymentId: paymentId,
+              userId: userId
             }),
           })
 
