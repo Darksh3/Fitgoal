@@ -391,12 +391,14 @@ export default function CheckoutPage() {
 
       // Show order bump screen if not yet shown
       if (!showOrderBump) {
+        console.log("[v0] Mostrando tela de order bumps - primeira vez")
         setProcessing(false)
         setShowOrderBump(true)
         return
       }
 
       // Resetar o flag para o próximo pagamento
+      console.log("[v0] Order bumps já mostrada - prosseguindo com pagamento")
       setShowOrderBump(false)
 
       // Step 1: Criar pagamento com /api/create-asaas-payment (igual ao modal)
@@ -579,11 +581,21 @@ export default function CheckoutPage() {
   // Success screen - Redirect to success page
   useEffect(() => {
     if (success) {
+      // Get the payment ID based on payment method
+      const currentPaymentId = pixData?.paymentId || cardPaymentId
+      
+      console.log("[v0] SUCCESS REDIRECT - paymentId:", currentPaymentId)
+      
       setTimeout(() => {
-        router.push("/success?embedded=true")
+        // Pass paymentId to success page so it can call handle-post-checkout
+        if (currentPaymentId) {
+          router.push(`/success?embedded=true&paymentId=${currentPaymentId}`)
+        } else {
+          router.push("/success?embedded=true")
+        }
       }, 1000) // Small delay to ensure data is saved
     }
-  }, [success, router])
+  }, [success, router, pixData?.paymentId, cardPaymentId])
 
   // Boleto screen
   if (boletoData) {

@@ -16,32 +16,27 @@ export default function SuccessPage() {
 
   useEffect(() => {
     const handlePostCheckout = async () => {
-      // For embedded checkout, we still need to send the email and process post-checkout
-      // The subscription is created by Stripe webhook, but we still need to call handle-post-checkout
-      // to send the welcome email and process the ebook/access
-      
+      // For embedded checkout (ASAAS payments), we need to send the email and process post-checkout
       if (embedded === "true") {
         console.log("[v0] Embedded checkout success - calling handle-post-checkout to send email")
-        // Still call handle-post-checkout even for embedded, to send emails and process access
-        // Use subscription_id if available from embedded checkout
-        const paymentIntentId = searchParams.get("payment_intent_id")
         
-        if (!paymentIntentId && !subscriptionId) {
-          console.warn("[v0] No paymentIntentId or subscriptionId found for embedded checkout")
+        const paymentId = searchParams.get("paymentId")
+        
+        if (!paymentId) {
+          console.warn("[v0] No paymentId found for embedded checkout")
           setStatus("success")
           return
         }
 
         try {
-          console.log("[v0] Calling API /api/handle-post-checkout for embedded checkout")
+          console.log("[v0] Calling API /api/handle-post-checkout with paymentId:", paymentId)
           const response = await fetch("/api/handle-post-checkout", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ 
-              payment_intent_id: paymentIntentId,
-              subscription_id: subscriptionId 
+              paymentId: paymentId
             }),
           })
 
@@ -97,7 +92,7 @@ export default function SuccessPage() {
     }
 
     handlePostCheckout()
-  }, [sessionId, embedded, subscriptionId, searchParams])
+  }, [sessionId, embedded, searchParams])
 
   return (
     <div
