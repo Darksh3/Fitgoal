@@ -774,7 +774,6 @@ export default function CheckoutPage() {
                   {selectedPlan === "trimestral" && "R$ 59,97 por mês"}
                   {selectedPlan === "semestral" && "Menos de R$40 por mês!"}
                 </div>
-                </div>
                 )}
 
               {/* Guarantee */}
