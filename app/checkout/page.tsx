@@ -776,7 +776,6 @@ export default function CheckoutPage() {
                   {selectedPlan === "semestral" && "Menos de R$40 por mês!"}
                 </div>
               </div>
-              </div>
 
               {/* Guarantee */}
               <div className="bg-lime-500/10 p-4 rounded-lg border border-lime-500/30 flex gap-3">
