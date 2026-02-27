@@ -32,6 +32,8 @@ export default function ComplementosPage() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser)
+        setLoading(false)
+        // Chamar checkOrderBumps aqui após autenticação
         checkOrderBumps(currentUser.uid)
       } else {
         setLoading(false)
