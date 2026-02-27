@@ -76,7 +76,7 @@ export default function ComplementosPage() {
       description: "Reverta a estagnação de peso em 7 dias com protocolos comprovados baseados em ciência.",
       cover: "/order-bump-protocol-metabolico.jpg",
       purchaseStatus: orderBumpsStatus?.ebook ? "purchased" : "locked",
-      downloadUrl: "/downloads/ebook-anti-plateau.pdf",
+      downloadUrl: "/ebook-anti-plateau.pdf",
     },
     {
       id: "protocolo",
@@ -84,7 +84,7 @@ export default function ComplementosPage() {
       description: "Protocolo de emergência para quando você desliza na dieta. Recupere o controle em 48 horas.",
       cover: "/order-bump-protocolo-sos.jpg",
       purchaseStatus: orderBumpsStatus?.protocolo ? "purchased" : "locked",
-      downloadUrl: "/public/protocolo-sos-fitgoal.pdf",
+      downloadUrl: "/protocolo-sos-fitgoal.pdf",
     },
   ]
 
