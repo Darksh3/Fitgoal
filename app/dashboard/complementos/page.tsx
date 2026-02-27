@@ -66,17 +66,17 @@ export default function ComplementosPage() {
   const orderBumps: OrderBump[] = [
     {
       id: "ebook",
-      name: "eBook Exclusivo",
-      description: "Guia completo com dicas, estratégias e técnicas para sua transformação corporal.",
-      cover: "/images/ebook-cover.jpg",
+      name: "Protocolo Anti-Plateau",
+      description: "Reverta a estagnação de peso em 7 dias com protocolos comprovados baseados em ciência.",
+      cover: "/order-bump-protocol-metabolico.jpg",
       purchaseStatus: orderBumpsStatus?.ebook ? "purchased" : "locked",
       downloadUrl: "/downloads/ebook.pdf",
     },
     {
       id: "protocolo",
-      name: "Protocolo Avançado",
-      description: "Protocolo exclusivo com exercícios avançados e técnicas especializadas para resultados potencializados.",
-      cover: "/images/protocolo-cover.jpg",
+      name: "Protocolo S.O.S FitGoal",
+      description: "Protocolo de emergência para quando você desliza na dieta. Recupere o controle em 48 horas.",
+      cover: "/order-bump-protocolo-sos.jpg",
       purchaseStatus: orderBumpsStatus?.protocolo ? "purchased" : "locked",
       downloadUrl: "/downloads/protocolo.pdf",
     },
