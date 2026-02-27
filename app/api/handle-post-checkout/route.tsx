@@ -494,6 +494,12 @@ export async function POST(req: Request) {
         ...(leadPersonalData || {}),
       },
 
+      // Order Bumps - salvar quais o usuário comprou
+      orderBumps: {
+        ...(existingUserData.orderBumps || {}),
+        ...(orderBumps || {}),
+      },
+
       // Flags e assinatura
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       createdAt: existingUserData.createdAt || admin.firestore.FieldValue.serverTimestamp(),
@@ -587,6 +593,7 @@ export async function POST(req: Request) {
         subscriptionExpiresAt: admin.firestore.Timestamp.fromDate(
           new Date(Date.now() + subscriptionDuration * 24 * 60 * 60 * 1000),
         ),
+        orderBumps: orderBumps || null,
         source: "checkout", // Origem do lead
         createdAt: existingUserData.createdAt || admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),

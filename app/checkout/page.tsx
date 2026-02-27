@@ -144,8 +144,21 @@ export default function CheckoutPage() {
     if (initialPlan) {
       setSelectedPlan(initialPlan)
     }
-    // Set Pix as default payment method for better UX on mobile Brazil
-    setPaymentMethod("pix")
+
+    // Se vem da página de complementos-checkout, pré-selecionar os order bumps
+    const bumpsParam = searchParams.get("bumps")
+    if (bumpsParam) {
+      try {
+        const bumps = JSON.parse(bumpsParam)
+        console.log("[v0] CHECKOUT - Pré-selecionando order bumps:", bumps)
+        setSelectedOrderBumps({
+          ebook: bumps.ebook === true,
+          protocolo: bumps.protocolo === true,
+        })
+      } catch (error) {
+        console.error("[v0] CHECKOUT - Erro ao parsear bumps:", error)
+      }
+    }
   }, [searchParams])
 
   useEffect(() => {
@@ -643,7 +656,7 @@ export default function CheckoutPage() {
             className="bg-gradient-to-r from-lime-600/20 to-lime-500/20 border-2 border-lime-500/60 rounded-lg p-4 text-center"
           >
             <p className="text-white text-lg font-semibold">
-              🎉 Desconto de <span className="text-lime-400">{spinDiscount}%</span> aplicado ao seu pedido!
+              �� Desconto de <span className="text-lime-400">{spinDiscount}%</span> aplicado ao seu pedido!
             </p>
           </motion.div>
         )}
