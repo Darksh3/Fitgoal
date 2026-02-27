@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { useAuth } from "@/hooks/use-auth"
-import { Button } from "@/components/ui/button"
+import { onAuthStateChanged } from "firebase/auth"
+import { auth } from "@/lib/firebaseClient"
 import { Lock, Download, ShoppingCart } from "lucide-react"
 
 interface OrderBumpStatus {
@@ -23,20 +23,24 @@ interface OrderBump {
 
 export default function ComplementosPage() {
   const router = useRouter()
-  const { user, loading } = useAuth()
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const [orderBumpsStatus, setOrderBumpsStatus] = useState<OrderBumpStatus | null>(null)
   const [loadingBumps, setLoadingBumps] = useState(true)
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/auth")
-      return
-    }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser)
+        checkOrderBumps(currentUser.uid)
+      } else {
+        setLoading(false)
+        router.push("/auth")
+      }
+    })
 
-    if (user?.uid) {
-      checkOrderBumps(user.uid)
-    }
-  }, [user, loading, router])
+    return () => unsubscribe()
+  }, [router])
 
   const checkOrderBumps = async (userId: string) => {
     try {

@@ -2,7 +2,8 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useAuth } from "@/hooks/use-auth"
+import { onAuthStateChanged } from "firebase/auth"
+import { auth } from "@/lib/firebaseClient"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Check } from "lucide-react"
@@ -38,7 +39,8 @@ const ORDER_BUMPS_DATA: Record<string, OrderBumpItem> = {
 function ComplementosCheckoutContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { user, loading } = useAuth()
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   
   const [selectedItems, setSelectedItems] = useState<("ebook" | "protocolo")[]>([])
   const [processing, setProcessing] = useState(false)
@@ -46,8 +48,18 @@ function ComplementosCheckoutContent() {
   const itemParam = searchParams.get("item")
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/auth")
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser)
+        setLoading(false)
+      } else {
+        setLoading(false)
+        router.push("/auth")
+      }
+    })
+
+    return () => unsubscribe()
+  }, [router])
       return
     }
 
