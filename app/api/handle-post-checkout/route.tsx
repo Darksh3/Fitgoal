@@ -88,6 +88,10 @@ export async function POST(req: Request) {
       }
     }
 
+    // Log final do orderBumps que será usado
+    const finalOrderBumps = (body as any).orderBumps || orderBumps
+    console.log("[v0] HANDLE_POST_CHECKOUT - orderBumps FINAL a ser usado:", finalOrderBumps)
+
     // Se vem do webhook Asaas, usar os dados diretamente
     if (userId && customerEmail && customerEmail !== 'undefined') {
       userEmail = customerEmail
@@ -497,7 +501,7 @@ export async function POST(req: Request) {
       // Order Bumps - salvar quais o usuário comprou
       orderBumps: {
         ...(existingUserData.orderBumps || {}),
-        ...(orderBumps || {}),
+        ...(finalOrderBumps || {}),
       },
 
       // Flags e assinatura
@@ -544,6 +548,11 @@ export async function POST(req: Request) {
         savedCurrentWeight: savedData?.currentWeight,
         savedQuizDataInitialWeight: savedData?.quizData?.initialWeight,
         savedQuizDataCurrentWeight: savedData?.quizData?.currentWeight,
+      })
+
+      console.log("[v0] ORDER_BUMPS_SAVED - Order bumps salvos no userData:", {
+        orderBumpsInUserData: userData.orderBumps,
+        orderBumpsSalvos: savedData?.orderBumps,
       })
 
       // ==================== MARK LEAD AS CONVERTED ====================
@@ -593,7 +602,7 @@ export async function POST(req: Request) {
         subscriptionExpiresAt: admin.firestore.Timestamp.fromDate(
           new Date(Date.now() + subscriptionDuration * 24 * 60 * 60 * 1000),
         ),
-        orderBumps: orderBumps || null,
+        orderBumps: finalOrderBumps || null,
         source: "checkout", // Origem do lead
         createdAt: existingUserData.createdAt || admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -685,14 +694,11 @@ export async function POST(req: Request) {
     `
 
     // Add order bumps section if purchased
-    if (orderBumps && (orderBumps.ebook || orderBumps.protocolo)) {
-      emailHtmlContent += `
-        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #84cc16;">
-          <h2 style="color: #84cc16; margin-top: 0;">📚 Seus Produtos Complementares</h2>
-          <p>Você adquiriu os seguintes produtos. Baixe-os aqui:</p>
-      `
+      if (finalOrderBumps && (finalOrderBumps.ebook || finalOrderBumps.protocolo)) {
+        console.log("[v0] ENVIANDO EMAILS ORDER BUMPS")
 
-      if (orderBumps.ebook) {
+        // Enviar emails com links de download dos order bumps
+        if (finalOrderBumps.ebook) {
         emailHtmlContent += `
           <div style="background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #e5e7eb;">
             <p><strong>✓ Ebook Anti-Plateau</strong></p>
@@ -704,7 +710,7 @@ export async function POST(req: Request) {
         `
       }
 
-      if (orderBumps.protocolo) {
+      if (finalOrderBumps.protocolo) {
         emailHtmlContent += `
           <div style="background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #e5e7eb;">
             <p><strong>✓ Protocolo SOS FitGoal</strong></p>
