@@ -72,7 +72,7 @@ export default function ComplementosPage() {
   const orderBumps: OrderBump[] = [
     {
       id: "ebook",
-      name: "Protocolo Anti-Plateaau",
+      name: "Protocolo Anti-Plateau",
       description: "Reverta a estagnação de peso em 7 dias com protocolos comprovados baseados em ciência.",
       cover: "/order-bump-protocol-metabolico.jpg",
       purchaseStatus: orderBumpsStatus?.ebook ? "purchased" : "locked",
