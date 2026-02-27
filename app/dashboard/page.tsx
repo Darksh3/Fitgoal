@@ -23,6 +23,7 @@ import {
   Menu,
   Lock,
   LockOpen,
+  Gift,
 } from "lucide-react"
 
 interface QuizData {
@@ -810,6 +811,16 @@ export default function DashboardPage() {
               >
                 <CreditCard className="h-5 w-5" />
                 <span>Assinaturas</span>
+              </button>
+              <button
+                onClick={() => {
+                  setSidebarOpen(false)
+                  router.push("/dashboard/complementos")
+                }}
+                className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
+              >
+                <Gift className="h-5 w-5" />
+                <span>Complementos</span>
               </button>
             </nav>
 

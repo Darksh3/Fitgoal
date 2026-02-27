@@ -92,7 +92,6 @@ export default function CheckoutPage() {
   const [cardPaymentId, setCardPaymentId] = useState<string | null>(null)
 
   // Order Bump state
-  const [showOrderBump, setShowOrderBump] = useState(false)
   const [selectedOrderBumps, setSelectedOrderBumps] = useState<{
     ebook: boolean
     protocolo: boolean
@@ -145,8 +144,21 @@ export default function CheckoutPage() {
     if (initialPlan) {
       setSelectedPlan(initialPlan)
     }
-    // Set Pix as default payment method for better UX on mobile Brazil
-    setPaymentMethod("pix")
+
+    // Se vem da página de complementos-checkout, pré-selecionar os order bumps
+    const bumpsParam = searchParams.get("bumps")
+    if (bumpsParam) {
+      try {
+        const bumps = JSON.parse(bumpsParam)
+        console.log("[v0] CHECKOUT - Pré-selecionando order bumps:", bumps)
+        setSelectedOrderBumps({
+          ebook: bumps.ebook === true,
+          protocolo: bumps.protocolo === true,
+        })
+      } catch (error) {
+        console.error("[v0] CHECKOUT - Erro ao parsear bumps:", error)
+      }
+    }
   }, [searchParams])
 
   useEffect(() => {
@@ -388,18 +400,6 @@ export default function CheckoutPage() {
           throw new Error(`Campos do cartão faltando: ${cardMissingFields.join(", ")}`)
         }
       }
-
-      // Show order bump screen if not yet shown
-      if (!showOrderBump) {
-        console.log("[v0] Mostrando tela de order bumps - primeira vez")
-        setProcessing(false)
-        setShowOrderBump(true)
-        return
-      }
-
-      // Resetar o flag para o próximo pagamento
-      console.log("[v0] Order bumps já mostrada - prosseguindo com pagamento")
-      setShowOrderBump(false)
 
       // Step 1: Criar pagamento com /api/create-asaas-payment (igual ao modal)
       // Get uid from localStorage quizData first, then fallback to Firebase Auth
@@ -656,7 +656,7 @@ export default function CheckoutPage() {
             className="bg-gradient-to-r from-lime-600/20 to-lime-500/20 border-2 border-lime-500/60 rounded-lg p-4 text-center"
           >
             <p className="text-white text-lg font-semibold">
-              🎉 Desconto de <span className="text-lime-400">{spinDiscount}%</span> aplicado ao seu pedido!
+              �� Desconto de <span className="text-lime-400">{spinDiscount}%</span> aplicado ao seu pedido!
             </p>
           </motion.div>
         )}

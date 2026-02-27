@@ -40,10 +40,10 @@ export async function POST(req: Request) {
     const body = await req.json()
     const { sessionId, subscription_id, customer_id, client_uid, payment_intent_id, plan_duration, price_id, userId, paymentId, billingType, customerName, customerEmail, customerPhone, customerCpf, orderBumps } = body
 
-    console.log("[v0] HANDLE_POST_CHECKOUT_INIT - Recebido:", { sessionId, subscription_id, payment_intent_id, userId, orderBumps })
+    console.log("[v0] HANDLE_POST_CHECKOUT_INIT - Recebido:", { sessionId, subscription_id, payment_intent_id, userId, paymentId, orderBumps })
 
-    if (!sessionId && !subscription_id && !payment_intent_id && !userId) {
-      return NextResponse.json({ error: "sessionId, subscription_id, payment_intent_id ou userId ausente." }, { status: 400 })
+    if (!sessionId && !subscription_id && !payment_intent_id && !userId && !paymentId) {
+      return NextResponse.json({ error: "sessionId, subscription_id, payment_intent_id, userId ou paymentId ausente." }, { status: 400 })
     }
 
     let userEmail: string | null = null
@@ -53,6 +53,40 @@ export async function POST(req: Request) {
     let stripeCustomerId: string | null = customer_id || null
     let subscriptionDuration: number = plan_duration || 30 // padrão 30 dias
     let clientUidFromSource: string | null = client_uid || null // Declare clientUidFromSource here
+
+    // Se vem via embedded checkout com paymentId (ASAAS), buscar dados do documento de pagamento
+    if (paymentId && !orderBumps) {
+      console.log("[v0] HANDLE_POST_CHECKOUT - Buscando paymentId:", paymentId)
+      try {
+        const paymentDocRef = adminDb.collection("payments").doc(paymentId)
+        const paymentDocSnap = await paymentDocRef.get()
+        if (paymentDocSnap.exists) {
+          const paymentData = paymentDocSnap.data()
+          console.log("[v0] HANDLE_POST_CHECKOUT - Documento de pagamento encontrado:", { hasOrderBumps: !!paymentData?.orderBumps })
+          
+          // Extrair orderBumps do documento de pagamento
+          if (paymentData?.orderBumps) {
+            (body as any).orderBumps = paymentData.orderBumps
+            console.log("[v0] HANDLE_POST_CHECKOUT - OrderBumps extraídos do pagamento:", paymentData.orderBumps)
+          }
+          
+          // Extrair outros dados se disponíveis
+          if (!userEmail && paymentData?.customerEmail) {
+            userEmail = paymentData.customerEmail
+          }
+          if (!userName && paymentData?.customerName) {
+            userName = paymentData.customerName
+          }
+          if (paymentData?.userId) {
+            clientUidFromSource = paymentData.userId
+          }
+        } else {
+          console.warn("[v0] HANDLE_POST_CHECKOUT - Documento de pagamento não encontrado:", paymentId)
+        }
+      } catch (error) {
+        console.error("[v0] HANDLE_POST_CHECKOUT - Erro ao buscar documento de pagamento:", error)
+      }
+    }
 
     // Se vem do webhook Asaas, usar os dados diretamente
     if (userId && customerEmail && customerEmail !== 'undefined') {
@@ -460,6 +494,12 @@ export async function POST(req: Request) {
         ...(leadPersonalData || {}),
       },
 
+      // Order Bumps - salvar quais o usuário comprou
+      orderBumps: {
+        ...(existingUserData.orderBumps || {}),
+        ...(orderBumps || {}),
+      },
+
       // Flags e assinatura
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       createdAt: existingUserData.createdAt || admin.firestore.FieldValue.serverTimestamp(),
@@ -553,6 +593,7 @@ export async function POST(req: Request) {
         subscriptionExpiresAt: admin.firestore.Timestamp.fromDate(
           new Date(Date.now() + subscriptionDuration * 24 * 60 * 60 * 1000),
         ),
+        orderBumps: orderBumps || null,
         source: "checkout", // Origem do lead
         createdAt: existingUserData.createdAt || admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),

@@ -10,20 +10,26 @@ import { motion, AnimatePresence } from 'framer-motion'
 // Desconto que SEMPRE será o resultado (70%)
 const WINNING_DISCOUNT = 70
 
-// Segmentos visuais da roleta (cores verdes como na imagem original)
+// Segmentos visuais da roleta (8 segmentos = 45° cada)
+// ÍNDICE 6 = 70% (SEMPRE!)
 const SEGMENTS = [
-  { discount: 10, color: '#1c4d5d' },  // Azul escuro/teal
-  { discount: 20, color: '#2c7b61' },  // Verde médio
-  { discount: 30, color: '#1c4d5d' },  // Azul escuro/teal
-  { discount: 40, color: '#40a37a' },  // Verde claro
-  { discount: 50, color: '#1c4d5d' },  // Azul escuro/teal
-  { discount: 60, color: '#2c7b61' },  // Verde médio
-  { discount: 70, color: '#1c4d5d' },  // Azul escuro/teal (era 80%, agora é 70%)
-  { discount: 20, color: '#40a37a' },  // Verde claro
-]
+  { discount: 10, color: '#1c4d5d' },  // 0° - Índice 0
+  { discount: 20, color: '#2c7b61' },  // 45° - Índice 1
+  { discount: 30, color: '#1c4d5d' },  // 90° - Índice 2
+  { discount: 40, color: '#40a37a' },  // 135° - Índice 3
+  { discount: 50, color: '#1c4d5d' },  // 180° - Índice 4
+  { discount: 60, color: '#2c7b61' },  // 225° - Índice 5
+  { discount: 70, color: '#1c4d5d' },  // 270° - Índice 6 ← SEMPRE ESTE!
+  { discount: 80, color: '#40a37a' },  // 315° - Índice 7
+] as const
 
-// Encontra o índice do segmento vencedor (70%)
-const WINNING_SEGMENT_INDEX = SEGMENTS.findIndex(s => s.discount === WINNING_DISCOUNT)
+// GARANTIR que o índice 6 é sempre o 70%
+const WINNING_SEGMENT_INDEX = 6
+
+// Debug: validar que o segmento no índice 6 é realmente 70%
+if (SEGMENTS[WINNING_SEGMENT_INDEX].discount !== WINNING_DISCOUNT) {
+  console.warn(`[v0] ERRO: Segmento no índice ${WINNING_SEGMENT_INDEX} não é ${WINNING_DISCOUNT}%!`)
+}
 
 // Gera posições das luzes douradas
 const generateLightPositions = (count = 24) => {
@@ -159,20 +165,26 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
 
     const startRotation = rotation
     const targetRotation = startRotation + finalRotation
-    const duration = 5000
+    const duration = 5 // em segundos para Framer Motion
     const startTime = Date.now()
+    let animationFrameId: number | null = null
 
     const animate = () => {
       const elapsed = Date.now() - startTime
-      const progress = Math.min(elapsed / duration, 1)
+      const progress = Math.min(elapsed / (duration * 1000), 1)
+      
+      // Easing out cubic para desaceleração suave
       const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
       const easedProgress = easeOutCubic(progress)
       const currentRotation = startRotation + (targetRotation - startRotation) * easedProgress
+      
       setRotation(currentRotation)
 
       if (progress < 1) {
-        requestAnimationFrame(animate)
+        animationFrameId = requestAnimationFrame(animate)
       } else {
+        // Garante que chegou ao valor final
+        setRotation(targetRotation)
         setIsSpinning(false)
         setLightsAnimating(false)
         setHasSpun(true)
@@ -182,7 +194,7 @@ export default function SpinWheelSection({ onDiscountWon }: SpinWheelSectionProp
       }
     }
 
-    requestAnimationFrame(animate)
+    animationFrameId = requestAnimationFrame(animate)
   }
 
   const handleContinue = () => {
