@@ -731,6 +731,8 @@ export default function CheckoutPage() {
                 </div>
                 )}
 
+                {/* Plan Details - Hidden if complementos only */}
+                {!isComplementosOnly && (
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-gray-200">
                     <Check className="w-4 h-4 text-lime-500" />
@@ -765,16 +767,37 @@ export default function CheckoutPage() {
                     <span>Acesso Completo ao App + Acompanhamento Contínuo</span>
                   </div>
                 </div>
+                )}
+
+                {/* Complementos - Show only if complementos only */}
+                {isComplementosOnly && (
+                <div className="space-y-2 mb-4">
+                  {selectedOrderBumps.ebook && (
+                    <div className="flex items-center gap-2 text-gray-200">
+                      <Check className="w-4 h-4 text-lime-500" />
+                      <span className="font-semibold">Protocolo Anti-Plateau</span>
+                    </div>
+                  )}
+                  {selectedOrderBumps.protocolo && (
+                    <div className="flex items-center gap-2 text-gray-200">
+                      <Check className="w-4 h-4 text-lime-500" />
+                      <span className="font-semibold">Protocolo S.O.S FitGoal</span>
+                    </div>
+                  )}
+                </div>
+                )}
 
                 <div className="border-t border-slate-600 pt-4 flex justify-between items-center">
                   <span className="text-gray-300">Total</span>
                   <span className="text-3xl font-bold text-lime-500">R$ {parseFloat(totalPrice).toFixed(2).replace(".", ",")}</span>
                 </div>
+                {!isComplementosOnly && (
                 <div className="text-sm text-gray-400 mt-2">
                   {selectedPlan === "mensal" && "R$ 79,90 por mês"}
                   {selectedPlan === "trimestral" && "R$ 59,97 por mês"}
                   {selectedPlan === "semestral" && "Menos de R$40 por mês!"}
                 </div>
+                )}
               </div>
 
               {/* Guarantee */}
