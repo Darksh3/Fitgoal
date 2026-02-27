@@ -52,6 +52,11 @@ function ComplementosCheckoutContent() {
       if (currentUser) {
         setUser(currentUser)
         setLoading(false)
+        
+        // Se vem com um item pré-selecionado, adicionar à lista
+        if (itemParam && (itemParam === "ebook" || itemParam === "protocolo")) {
+          setSelectedItems([itemParam])
+        }
       } else {
         setLoading(false)
         router.push("/auth")
@@ -59,14 +64,7 @@ function ComplementosCheckoutContent() {
     })
 
     return () => unsubscribe()
-  }, [router])
-      return
-    }
-
-    if (itemParam && (itemParam === "ebook" || itemParam === "protocolo")) {
-      setSelectedItems([itemParam])
-    }
-  }, [user, loading, router, itemParam])
+  }, [router, itemParam])
 
   const toggleItem = (id: "ebook" | "protocolo") => {
     setSelectedItems((prev) =>
