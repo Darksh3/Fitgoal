@@ -84,7 +84,7 @@ export default function ComplementosPage() {
       description: "Protocolo de emergência para quando você desliza na dieta. Recupere o controle em 48 horas.",
       cover: "/order-bump-protocolo-sos.jpg",
       purchaseStatus: orderBumpsStatus?.protocolo ? "purchased" : "locked",
-      downloadUrl: "/downloads/protocolo.pdf",
+      downloadUrl: "/downloads/protocolo-sos-fitgoal",
     },
   ]
 
@@ -118,11 +118,10 @@ export default function ComplementosPage() {
                 alt={bump.name}
                 width={400}
                 height={500}
-                className={`w-full h-auto object-cover transition-all ${
-                  bump.purchaseStatus === "locked" ? "blur-sm" : ""
-                }`}
+                className={`w-full h-auto object-cover transition-all ${bump.purchaseStatus === "locked" ? "blur-sm" : ""
+                  }`}
               />
-              
+
               {/* Lock overlay para itens bloqueados */}
               {bump.purchaseStatus === "locked" && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -179,7 +178,7 @@ export default function ComplementosPage() {
           Potencialize seus Resultados
         </h3>
         <p className="text-gray-700 dark:text-gray-300 mb-4">
-          Nossos complementos foram desenvolvidos para complementar seu plano de transformação corporal. 
+          Nossos complementos foram desenvolvidos para complementar seu plano de transformação corporal.
           Acesse conteúdo exclusivo, dicas avançadas e protocolos especializados para atingir seus objetivos ainda mais rápido.
         </p>
         <p className="text-sm text-gray-600 dark:text-gray-400">
