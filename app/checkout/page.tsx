@@ -729,6 +729,7 @@ export default function CheckoutPage() {
                     <div className={`text-sm font-bold ${selectedPlan === "semestral" ? "text-lime-400" : "text-gray-400"}`}>R$ 239,90</div>
                   </button>
                 </div>
+                )}
 
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-gray-200">
