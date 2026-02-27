@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { useAuth } from "@/hooks/use-auth"
 import { Button } from "@/components/ui/button"
 import { Lock, Download, ShoppingCart } from "lucide-react"
@@ -15,7 +16,7 @@ interface OrderBump {
   id: string
   name: string
   description: string
-  icon: "book" | "file"
+  cover: string
   purchaseStatus: "purchased" | "locked"
   downloadUrl?: string
 }
@@ -65,17 +66,17 @@ export default function ComplementosPage() {
   const orderBumps: OrderBump[] = [
     {
       id: "ebook",
-      name: "eBook",
-      description: "Guia completo com dicas e estratégias para sua transformação corporal.",
-      icon: "book",
+      name: "eBook Exclusivo",
+      description: "Guia completo com dicas, estratégias e técnicas para sua transformação corporal.",
+      cover: "/images/ebook-cover.jpg",
       purchaseStatus: orderBumpsStatus?.ebook ? "purchased" : "locked",
       downloadUrl: "/downloads/ebook.pdf",
     },
     {
       id: "protocolo",
-      name: "Protocolo",
-      description: "Protocolo exclusivo com exercícios avançados e técnicas especializadas.",
-      icon: "file",
+      name: "Protocolo Avançado",
+      description: "Protocolo exclusivo com exercícios avançados e técnicas especializadas para resultados potencializados.",
+      cover: "/images/protocolo-cover.jpg",
       purchaseStatus: orderBumpsStatus?.protocolo ? "purchased" : "locked",
       downloadUrl: "/downloads/protocolo.pdf",
     },
@@ -103,76 +104,42 @@ export default function ComplementosPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {orderBumps.map((bump) => (
-          <div
-            key={bump.id}
-            className={`relative rounded-lg border-2 overflow-hidden transition-all ${
-              bump.purchaseStatus === "purchased"
-                ? "border-green-500 bg-white dark:bg-gray-800 shadow-lg"
-                : "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900"
-            }`}
-          >
-            {/* Lock overlay para itens bloqueados */}
-            {bump.purchaseStatus === "locked" && (
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
-                <div className="text-center">
-                  <Lock className="h-16 w-16 text-white mx-auto mb-2" />
-                  <p className="text-white font-semibold">Conteúdo Bloqueado</p>
-                </div>
-              </div>
-            )}
-
-            <div className="p-8">
-              {/* Header com ícone */}
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`h-14 w-14 rounded-lg flex items-center justify-center ${
-                      bump.purchaseStatus === "purchased"
-                        ? "bg-green-100 dark:bg-green-900"
-                        : "bg-gray-200 dark:bg-gray-700"
-                    }`}
-                  >
-                    {bump.icon === "book" ? (
-                      <svg
-                        className={`h-7 w-7 ${
-                          bump.purchaseStatus === "purchased"
-                            ? "text-green-600 dark:text-green-400"
-                            : "text-gray-600 dark:text-gray-400"
-                        }`}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M7 3a1 1 0 000 2h6a1 1 0 000-2H7zM4 7a1 1 0 011-1h10a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V7z" />
-                      </svg>
-                    ) : (
-                      <svg
-                        className={`h-7 w-7 ${
-                          bump.purchaseStatus === "purchased"
-                            ? "text-green-600 dark:text-green-400"
-                            : "text-gray-600 dark:text-gray-400"
-                        }`}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    )}
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{bump.name}</h2>
-                    {bump.purchaseStatus === "purchased" && (
-                      <p className="text-sm text-green-600 dark:text-green-400 font-semibold">✓ Adquirido</p>
-                    )}
+          <div key={bump.id} className="flex flex-col gap-4">
+            {/* Card com imagem da capa */}
+            <div className="relative overflow-hidden rounded-lg shadow-lg">
+              <Image
+                src={bump.cover}
+                alt={bump.name}
+                width={400}
+                height={500}
+                className={`w-full h-auto object-cover transition-all ${
+                  bump.purchaseStatus === "locked" ? "blur-sm" : ""
+                }`}
+              />
+              
+              {/* Lock overlay para itens bloqueados */}
+              {bump.purchaseStatus === "locked" && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <div className="text-center">
+                    <Lock className="h-16 w-16 text-white mx-auto mb-2" />
+                    <p className="text-white font-bold text-lg">Bloqueado</p>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* Descrição */}
-              <p className="text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+              {/* Badge de adquirido */}
+              {bump.purchaseStatus === "purchased" && (
+                <div className="absolute top-3 right-3 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
+                  <span>✓</span>
+                  <span>Adquirido</span>
+                </div>
+              )}
+            </div>
+
+            {/* Informações e botão */}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{bump.name}</h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
                 {bump.description}
               </p>
 
@@ -196,13 +163,6 @@ export default function ComplementosPage() {
                 </button>
               )}
             </div>
-
-            {/* Badge de status */}
-            <div
-              className={`h-1 w-full ${
-                bump.purchaseStatus === "purchased" ? "bg-green-500" : "bg-gray-300"
-              }`}
-            ></div>
           </div>
         ))}
       </div>
