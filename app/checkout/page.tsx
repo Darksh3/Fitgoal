@@ -65,6 +65,7 @@ export default function CheckoutPage() {
   const [selectedPlan, setSelectedPlan] = useState<"mensal" | "trimestral" | "semestral">("semestral")
   const [prefillLoading, setPrefillLoading] = useState(false)
   const [spinDiscount, setSpinDiscount] = useState<number | null>(null)
+  const [isComplementosOnly, setIsComplementosOnly] = useState(false)
 
   const [formData, setFormData] = useState<PaymentFormData>({
     email: "",
@@ -132,8 +133,15 @@ export default function CheckoutPage() {
 
   // Calculate total with order bumps
   const getTotalPrice = () => {
-    const basePlanPrice = parseFloat(planPrice)
     const orderBumpValue = (selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)
+    
+    // Se é só complementos, retorna apenas o valor deles
+    if (isComplementosOnly) {
+      return orderBumpValue.toFixed(2)
+    }
+    
+    // Senão, adiciona o plano
+    const basePlanPrice = parseFloat(planPrice)
     return (basePlanPrice + orderBumpValue).toFixed(2)
   }
 
@@ -144,6 +152,11 @@ export default function CheckoutPage() {
     if (initialPlan) {
       setSelectedPlan(initialPlan)
     }
+
+    // Verificar se é checkout somente de complementos
+    const isComplementosOnlyParam = searchParams.get("complementosOnly") === "true"
+    console.log("[v0] CHECKOUT - complementosOnly:", isComplementosOnlyParam)
+    setIsComplementosOnly(isComplementosOnlyParam)
 
     // Se vem da página de complementos-checkout, pré-selecionar os order bumps
     const bumpsParam = searchParams.get("bumps")
@@ -669,7 +682,8 @@ export default function CheckoutPage() {
               <div>
                 <h3 className="font-semibold text-white mb-4">Resumo do Pedido</h3>
 
-                {/* Plan Selector */}
+                {/* Plan Selector - Hidden if complementos only */}
+                {!isComplementosOnly && (
                 <div className="grid grid-cols-3 gap-2 mb-6">
                   <button
                     onClick={() => setSelectedPlan("mensal")}
@@ -760,7 +774,8 @@ export default function CheckoutPage() {
                   {selectedPlan === "trimestral" && "R$ 59,97 por mês"}
                   {selectedPlan === "semestral" && "Menos de R$40 por mês!"}
                 </div>
-              </div>
+                </div>
+                )}
 
               {/* Guarantee */}
               <div className="bg-lime-500/10 p-4 rounded-lg border border-lime-500/30 flex gap-3">

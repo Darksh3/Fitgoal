@@ -105,6 +105,7 @@ function ComplementosCheckoutContent() {
       // Redirect para checkout principal com os itens selecionados
       const checkoutUrl = new URL("/checkout", window.location.origin)
       checkoutUrl.searchParams.set("bumps", JSON.stringify(orderBumpsObj))
+      checkoutUrl.searchParams.set("complementosOnly", "true")
       router.push(checkoutUrl.toString())
     } catch (error) {
       console.error("[v0] COMPLEMENTOS_CHECKOUT - Erro:", error)
