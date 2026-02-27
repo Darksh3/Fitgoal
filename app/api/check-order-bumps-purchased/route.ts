@@ -19,9 +19,9 @@ export async function POST(request: NextRequest) {
       console.log("[v0] CHECK_ORDER_BUMPS - Tentando acessar documento do usuário")
       
       const userDocSnap = await userDocRef.get()
-      console.log("[v0] CHECK_ORDER_BUMPS - Documento recuperado, existe:", userDocSnap.exists())
+      console.log("[v0] CHECK_ORDER_BUMPS - Documento recuperado, existe:", userDocSnap.exists)
 
-      if (!userDocSnap.exists()) {
+      if (!userDocSnap.exists) {
         console.warn("[v0] CHECK_ORDER_BUMPS - Usuário não encontrado:", userId)
         return NextResponse.json({ 
           ebook: false, 
