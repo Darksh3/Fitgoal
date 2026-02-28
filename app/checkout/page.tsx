@@ -101,6 +101,11 @@ export default function CheckoutPage() {
     protocolo: false,
   })
 
+  const [orderBumpsStatus, setOrderBumpsStatus] = useState<{
+    ebook: boolean
+    protocolo: boolean
+  } | null>(null)
+
   // Plan info
   const getPlanName = (plan: string) => {
     switch (plan) {
@@ -180,6 +185,31 @@ export default function CheckoutPage() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser)
+      
+      // Buscar status dos order bumps do usuário
+      if (currentUser) {
+        const checkOrderBumps = async () => {
+          try {
+            const response = await fetch("/api/check-order-bumps-purchased", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId: currentUser.uid }),
+            })
+
+            if (response.ok) {
+              const data = await response.json()
+              setOrderBumpsStatus({
+                ebook: data.ebook === true,
+                protocolo: data.protocolo === true,
+              })
+              console.log("[v0] CHECKOUT - Order bumps status:", data)
+            }
+          } catch (error) {
+            console.error("[v0] CHECKOUT - Erro ao buscar order bumps status:", error)
+          }
+        }
+        checkOrderBumps()
+      }
     })
     return () => unsubscribe()
   }, [])
@@ -358,7 +388,7 @@ export default function CheckoutPage() {
           email: prev.email || data.email || user.email || "",
           name: prev.name || data.name || user.displayName || "",
           cpf: prev.cpf || data.cpf || "",
-          phone: prev.phone || data.phone || "",
+          phone: prev.phone || data.phone || data.personalData?.phone || data.phone || "",
         }))
       } else {
         // If no Firestore document, use Firebase Auth
@@ -1127,17 +1157,36 @@ export default function CheckoutPage() {
                   <div className="space-y-3">
                     {/* Ebook Anti-Plateau */}
                     <motion.div
-                      whileHover={{ scale: 1.01 }}
-                      onClick={() => setSelectedOrderBumps(prev => ({ ...prev, ebook: !prev.ebook }))}
-                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${selectedOrderBumps.ebook
-                        ? "bg-lime-500/15 border-lime-500/50"
-                        : "bg-white/40 border-gray-300 hover:border-gray-400"
-                        }`}
+                      whileHover={{ scale: orderBumpsStatus?.ebook ? 1 : 1.01 }}
+                      onClick={() => {
+                        if (!orderBumpsStatus?.ebook) {
+                          setSelectedOrderBumps(prev => ({ ...prev, ebook: !prev.ebook }))
+                        }
+                      }}
+                      className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all relative ${
+                        orderBumpsStatus?.ebook
+                          ? "bg-gray-200 border-gray-400 cursor-not-allowed opacity-60"
+                          : selectedOrderBumps.ebook
+                          ? "bg-lime-500/15 border-lime-500/50 cursor-pointer"
+                          : "bg-white/40 border-gray-300 hover:border-gray-400 cursor-pointer"
+                      }`}
                     >
+                      {/* Status Badge */}
+                      {orderBumpsStatus?.ebook && (
+                        <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">
+                          Já comprado
+                        </div>
+                      )}
+
                       {/* Checkbox - Top Right */}
-                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedOrderBumps.ebook ? "bg-lime-500 border-lime-500" : "border-gray-500"
-                        }`}>
-                        {selectedOrderBumps.ebook && <Check className="w-3 h-3 text-black" />}
+                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                        orderBumpsStatus?.ebook
+                          ? "bg-blue-500 border-blue-500"
+                          : selectedOrderBumps.ebook
+                          ? "bg-lime-500 border-lime-500"
+                          : "border-gray-500"
+                      }`}>
+                        {(orderBumpsStatus?.ebook || selectedOrderBumps.ebook) && <Check className="w-3 h-3 text-white" />}
                       </div>
 
                       {/* Product Image - Small */}
@@ -1195,10 +1244,13 @@ export default function CheckoutPage() {
                   {/* Order Bump Summary */}
                   {(selectedOrderBumps.ebook || selectedOrderBumps.protocolo) && (
                     <div className="bg-white/50 rounded-lg p-3 space-y-2 border border-amber-200">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-700">Valor do Plano</span>
-                        <span className="text-slate-800 font-semibold">R$ {planPrice}</span>
-                      </div>
+                      {/* Valor do Plano - Hidden if complementos only */}
+                      {!isComplementosOnly && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-700">Valor do Plano</span>
+                          <span className="text-slate-800 font-semibold">R$ {planPrice}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between text-sm">
                         <span className="text-slate-700">Promoções Exclusivas Selecionadas</span>
                         <span className="text-rose-600 font-semibold">
@@ -1208,7 +1260,7 @@ export default function CheckoutPage() {
                       <div className="border-t border-amber-200 pt-2 flex justify-between">
                         <span className="text-slate-800 font-bold">Valor Total</span>
                         <span className="text-rose-600 font-bold text-lg">
-                          R$ {(parseFloat(planPrice.replace(",", ".")) + (selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)).toFixed(2).replace(".", ",")}
+                          R$ {totalPrice}
                         </span>
                       </div>
                     </div>

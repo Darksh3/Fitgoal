@@ -42,6 +42,7 @@ function ComplementosCheckoutContent() {
   const searchParams = useSearchParams()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [purchasedBumps, setPurchasedBumps] = useState<{ebook?: boolean; protocolo?: boolean}>({})
   
   const [selectedItems, setSelectedItems] = useState<("ebook" | "protocolo")[]>([])
   const [processing, setProcessing] = useState(false)
@@ -49,9 +50,27 @@ function ComplementosCheckoutContent() {
   const itemParam = searchParams.get("item")
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser)
+        
+        // Buscar quais complementos o usuário já tem
+        try {
+          const response = await fetch("/api/check-order-bumps-purchased", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: currentUser.uid }),
+          })
+          const data = await response.json()
+          setPurchasedBumps({
+            ebook: data.ebook === true,
+            protocolo: data.protocolo === true,
+          })
+          console.log("[v0] COMPLEMENTOS_CHECKOUT - Bumps já comprados:", data)
+        } catch (error) {
+          console.error("[v0] COMPLEMENTOS_CHECKOUT - Erro ao buscar bumps:", error)
+        }
+        
         setLoading(false)
         
         // Se vem com um item pré-selecionado, adicionar à lista
