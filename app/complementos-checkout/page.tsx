@@ -192,12 +192,10 @@ function ComplementosCheckoutContent() {
                       {bump.name}
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">{bump.description}</p>
-                          {bump.description}
-                        </p>
-                      </div>
-                    </div>
+                  </div>
+                </div>
 
-                    {/* Preço */}
+                {/* Preço */}
                     <div className="flex items-center gap-3">
                       <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                         R$ {bump.price.toFixed(2).replace(".", ",")}
