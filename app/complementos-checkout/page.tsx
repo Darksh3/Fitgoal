@@ -207,8 +207,6 @@ function ComplementosCheckoutContent() {
                         Economize R$ {(bump.originalPrice - bump.price).toFixed(2).replace(".", ",")}
                       </div>
                     </div>
-                  </div>
-                </div>
               </CardContent>
             </Card>
           ))}
