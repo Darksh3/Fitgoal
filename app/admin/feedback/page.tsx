@@ -6,7 +6,7 @@ import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Trash2, Check, Archive, Mail, User, Calendar } from "lucide-react"
+import { Trash2, Check, Archive, Mail, User, Calendar, Phone } from "lucide-react"
 
 interface Feedback {
   id: string
@@ -175,6 +175,14 @@ export default function AdminFeedbackPage() {
                         {feedback.email}
                       </a>
                     </div>
+                    {feedback.userPhone && (
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        <a href={`tel:${feedback.userPhone}`} className="hover:text-blue-600 dark:hover:text-blue-400">
+                          {feedback.userPhone}
+                        </a>
+                      </div>
+                    )}
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4" />
                       <span>ID: {feedback.userId}</span>

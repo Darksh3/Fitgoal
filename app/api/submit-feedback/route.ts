@@ -14,16 +14,19 @@ export async function POST(request: NextRequest) {
 
     console.log("[v0] SUBMIT_FEEDBACK - Recebendo feedback de:", email)
 
-    // Buscar dados do usuário no Firestore para pegar o nome
+    // Buscar dados do usuário no Firestore para pegar o nome e telefone
     const userDocRef = admin.firestore().collection("users").doc(userId)
     const userDocSnap = await userDocRef.get()
-    const userName = userDocSnap.data()?.name || email || "Usuário"
+    const userData = userDocSnap.data() || {}
+    const userName = userData.name || email || "Usuário"
+    const userPhone = userData.phone || userData.personalData?.phone || null
 
     // Salvar feedback na coleção 'feedback'
     const feedbackData = {
       userId,
       email,
       userName,
+      userPhone,
       feedbackText,
       status: "new", // new, read, archived
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
