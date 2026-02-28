@@ -25,21 +25,30 @@ export async function POST(req: Request) {
     const body = await req.json()
     console.log("[v0] Step 1 DONE - Body parsed:", JSON.stringify(body, null, 2))
 
-    const { email, name, cpf, phone, planType, paymentMethod, installments, clientUid, description, orderBumps } = body
+    const { email, name, cpf, phone, planType, paymentMethod, installments, clientUid, description, orderBumps, totalPrice } = body
 
     console.log("[v0] Step 2: Validating required fields...")
     console.log("[v0] clientUid received:", clientUid)
     console.log("[v0] orderBumps received:", orderBumps)
-    if (!email || !name || !cpf || !planType || !paymentMethod) {
+    console.log("[v0] isComplementosOnly:", !planType)
+    
+    // Se não tem planType, deve ter orderBumps (complementos-only)
+    if (!email || !name || !cpf || !paymentMethod) {
       console.log("[v0] Step 2 FAILED - Missing fields:", {
         email: !email ? "MISSING" : "OK",
         name: !name ? "MISSING" : "OK",
         cpf: !cpf ? "MISSING" : "OK",
-        planType: !planType ? "MISSING" : "OK",
         paymentMethod: !paymentMethod ? "MISSING" : "OK",
       })
       return NextResponse.json({ error: "Dados obrigatórios ausentes" }, { status: 400 })
     }
+
+    // Valida que ou tem plano OU tem complementos
+    if (!planType && (!orderBumps || (!orderBumps.ebook && !orderBumps.protocolo))) {
+      console.log("[v0] Step 2 FAILED - Neither planType nor orderBumps provided")
+      return NextResponse.json({ error: "Plano ou complementos obrigatórios" }, { status: 400 })
+    }
+    
     console.log("[v0] Step 2 DONE - All required fields present")
 
     console.log("[v0] Step 3: Checking API Key...")
@@ -49,27 +58,37 @@ export async function POST(req: Request) {
     }
     console.log("[v0] Step 3 DONE - API Key exists, length:", ASAAS_API_KEY.length)
 
-    console.log("[v0] Step 4: Getting plan price...")
-    const planPrices: Record<string, number> = {
-      mensal: 79.9,
-      trimestral: 199.8,
-      semestral: 359.7,
+    console.log("[v0] Step 4: Getting payment amount...")
+    
+    // Se totalPrice foi enviado, use ele direto (já inclui plano + complementos calculado no frontend)
+    let amount: number
+    if (totalPrice) {
+      amount = parseFloat(totalPrice as string)
+      console.log("[v0] Step 4 - Using totalPrice from frontend:", amount)
+    } else if (planType) {
+      // Fallback para cálculo manual (compatibilidade)
+      const planPrices: Record<string, number> = {
+        mensal: 79.9,
+        trimestral: 199.8,
+        semestral: 359.7,
+      }
+      amount = planPrices[planType]
+      if (!amount) {
+        console.log("[v0] Step 4 FAILED - Invalid plan type:", planType)
+        return NextResponse.json({ error: "Plano inválido" }, { status: 400 })
+      }
+      // Add order bump amounts
+      if (orderBumps) {
+        const orderBumpAmount = (orderBumps.ebook ? 14.9 : 0) + (orderBumps.protocolo ? 14.9 : 0)
+        amount += orderBumpAmount
+        console.log("[v0] Step 4 - Order bumps total:", orderBumpAmount, "- Final amount:", amount)
+      }
+    } else {
+      console.log("[v0] Step 4 FAILED - No totalPrice or planType provided")
+      return NextResponse.json({ error: "Valor ou plano obrigatório" }, { status: 400 })
     }
 
-    let amount = planPrices[planType]
-    if (!amount) {
-      console.log("[v0] Step 4 FAILED - Invalid plan type:", planType)
-      return NextResponse.json({ error: "Plano inválido" }, { status: 400 })
-    }
-
-    // Add order bump amounts
-    if (orderBumps) {
-      const orderBumpAmount = (orderBumps.ebook ? 14.9 : 0) + (orderBumps.protocolo ? 14.9 : 0)
-      amount += orderBumpAmount
-      console.log("[v0] Step 4 - Order bumps total:", orderBumpAmount, "- Final amount:", amount)
-    }
-
-    console.log("[v0] Step 4 DONE - Plan price:", amount)
+    console.log("[v0] Step 4 DONE - Final payment amount:", amount)
 
     console.log("[v0] Step 5: Cleaning CPF and phone...")
     const cleanCpf = cpf.replace(/\D/g, "")
