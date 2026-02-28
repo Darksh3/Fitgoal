@@ -137,12 +137,15 @@ export default function CheckoutPage() {
     
     // Se é só complementos, retorna apenas o valor deles
     if (isComplementosOnly) {
+      console.log("[v0] CHECKOUT - Calculando total APENAS complementos:", orderBumpValue)
       return orderBumpValue.toFixed(2)
     }
     
     // Senão, adiciona o plano
     const basePlanPrice = parseFloat(planPrice)
-    return (basePlanPrice + orderBumpValue).toFixed(2)
+    const total = (basePlanPrice + orderBumpValue).toFixed(2)
+    console.log("[v0] CHECKOUT - Calculando total COM plano:", { basePlanPrice, orderBumpValue, total })
+    return total
   }
 
   const totalPrice = getTotalPrice()
@@ -425,12 +428,18 @@ export default function CheckoutPage() {
         name: formData.name,
         cpf: formData.cpf.replace(/\D/g, ""),
         phone: formData.phone.replace(/\D/g, ""),
-        planType: selectedPlan,
         paymentMethod: paymentMethod === "card" ? "card" : paymentMethod,
-        description: `${planName} - Fitgoal Fitness`,
         clientUid: finalClientUid,
-        planPrice: planPrice,
         totalPrice: totalPrice, // Total including order bumps
+      }
+
+      // Apenas adicione planType e planPrice se NÃO for apenas complementos
+      if (!isComplementosOnly) {
+        paymentPayload.planType = selectedPlan
+        paymentPayload.planPrice = planPrice
+        paymentPayload.description = `${planName} - Fitgoal Fitness`
+      } else {
+        paymentPayload.description = "Complementos - Fitgoal Fitness"
       }
 
       // Add order bumps to payload if selected
