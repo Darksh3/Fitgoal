@@ -24,7 +24,7 @@ import {
 } from "lucide-react"
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
-import { doc, onSnapshot } from "firebase/firestore"
+import { doc, onSnapshot, getDoc } from "firebase/firestore"
 import { onAuthStateChanged } from "firebase/auth"
 import { db, auth } from "@/lib/firebaseClient"
 import Link from "next/link"
@@ -183,11 +183,47 @@ export default function CheckoutPage() {
   }, [searchParams])
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser)
       
-      // Buscar status dos order bumps do usuário
+      // Buscar dados do usuário e pré-preencher formulário
       if (currentUser) {
+        try {
+          const userDocRef = doc(db, "users", currentUser.uid)
+          const userDocSnap = await getDoc(userDocRef)
+          
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data()
+            console.log("[v0] CHECKOUT - Dados do usuário:", userData)
+            
+            // Pré-preencher formulário com dados salvos
+            setFormData((prev) => ({
+              ...prev,
+              email: userData.email || currentUser.email || "",
+              name: userData.name || "",
+              phone: userData.phone || userData.personalData?.phone || "",
+              cpf: userData.cpf || "",
+            }))
+            
+            // Pré-preencher nome do titular do cartão
+            if (userData.name) {
+              setCardData((prev) => ({
+                ...prev,
+                holderName: userData.name,
+              }))
+            }
+          } else {
+            // Se não existe documento, preencher com dados do Firebase Auth
+            setFormData((prev) => ({
+              ...prev,
+              email: currentUser.email || "",
+            }))
+          }
+        } catch (error) {
+          console.error("[v0] CHECKOUT - Erro ao buscar dados do usuário:", error)
+        }
+
+        // Buscar status dos order bumps
         const checkOrderBumps = async () => {
           try {
             const response = await fetch("/api/check-order-bumps-purchased", {

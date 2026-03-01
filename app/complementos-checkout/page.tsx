@@ -166,16 +166,27 @@ function ComplementosCheckoutContent() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Seleção de complementos */}
         <div className="lg:col-span-2 space-y-4">
-          {Object.entries(ORDER_BUMPS_DATA).map(([key, bump]) => (
+          {Object.entries(ORDER_BUMPS_DATA).map(([key, bump]) => {
+            const isAlreadyPurchased = purchasedBumps[bump.id]
+            return (
             <Card
               key={key}
-              className={`cursor-pointer transition-all border-2 overflow-hidden ${
-                selectedItems.includes(bump.id)
-                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                  : "border-gray-200 dark:border-gray-700"
+              className={`transition-all border-2 overflow-hidden ${
+                isAlreadyPurchased
+                  ? "cursor-not-allowed opacity-60 border-gray-300 dark:border-gray-600"
+                  : selectedItems.includes(bump.id)
+                  ? "cursor-pointer border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                  : "cursor-pointer border-gray-200 dark:border-gray-700"
               }`}
-              onClick={() => toggleItem(bump.id)}
+              onClick={() => !isAlreadyPurchased && toggleItem(bump.id)}
             >
+              {isAlreadyPurchased && (
+                <div className="absolute inset-0 bg-gray-900/50 rounded-lg flex items-center justify-center z-10">
+                  <div className="text-white text-center">
+                    <p className="font-semibold">Já Adquirido</p>
+                  </div>
+                </div>
+              )}
               <CardContent className="p-0">
                 <div className="flex items-start gap-0 md:gap-4 flex-col md:flex-row">
                   {/* Checkbox e Imagem */}
@@ -186,10 +197,11 @@ function ComplementosCheckoutContent() {
                       alt={bump.name}
                       width={180}
                       height={200}
-                      className="w-full h-40 object-cover"
+                      className={`w-full h-40 object-cover ${isAlreadyPurchased ? "grayscale" : ""}`}
                     />
                     
                     {/* Checkbox overlay */}
+                    {!isAlreadyPurchased && (
                     <div className="absolute top-2 left-2">
                       <div
                         className={`h-6 w-6 rounded border-2 flex items-center justify-center cursor-pointer ${
@@ -203,6 +215,7 @@ function ComplementosCheckoutContent() {
                         )}
                       </div>
                     </div>
+                    )}
                   </div>
 
                   {/* Conteúdo */}
@@ -228,7 +241,8 @@ function ComplementosCheckoutContent() {
                     </div>
               </CardContent>
             </Card>
-          ))}
+            )
+          })}
         </div>
 
         {/* Resumo de pedido */}
