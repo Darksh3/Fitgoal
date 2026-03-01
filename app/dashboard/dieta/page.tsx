@@ -2710,8 +2710,8 @@ export default function DietPage() {
                         <MacroCreditDisplay 
                           meal={meal} 
                           onTransferCredit={handleTransferMacroCredit}
-                          mealIndex={mealIndex}
-                          isLastMeal={mealIndex === dietPlan.meals.length - 1}
+                          mealIndex={index}
+                          isLastMeal={index === dietPlan.meals.length - 1}
                         />
                         
                         {filteredFoods.length > 0 ? (
