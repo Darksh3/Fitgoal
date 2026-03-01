@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation"
 import type { Meal, DietPlan } from "@/types"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { FoodAutocomplete } from "@/components/food-autocomplete"
-import { extractFoodMacros, addToMacroCredit, resetMacroCredit, applyMacroCreditToFood, getMacroCreditDisplay } from "@/lib/macroCreditUtils"
+import { extractFoodMacros, addToMacroCredit, resetMacroCredit, applyMacroCreditToFood, getMacroCreditDisplay, transferMacroCreditToNextMeal } from "@/lib/macroCreditUtils"
 import { MacroCreditDisplay } from "@/components/macro-credit-display"
 import { validateAISuggestions } from "@/lib/foodValidation"
 
@@ -964,6 +964,43 @@ export default function DietPage() {
     setAddFoodMessage(null)
     setIsSubmittingFood(false)
     setRecommendedFood(null)
+  }
+
+  const handleTransferMacroCredit = async (mealIndex: number, macroCredit: any) => {
+    if (!dietPlan || !macroCredit) return
+
+    try {
+      const updatedMeals = [...dietPlan.meals]
+      const currentMeal = updatedMeals[mealIndex]
+      const nextMeal = updatedMeals[mealIndex + 1]
+
+      if (!nextMeal) {
+        alert("Não há próxima refeição para transferir o crédito")
+        return
+      }
+
+      // Usar a função de transferência
+      const { currentMeal: updatedCurrentMeal, nextMeal: updatedNextMeal } = transferMacroCreditToNextMeal(
+        currentMeal,
+        nextMeal
+      )
+
+      updatedMeals[mealIndex] = updatedCurrentMeal
+      updatedMeals[mealIndex + 1] = updatedNextMeal
+
+      const updatedDietPlan = { ...dietPlan, meals: updatedMeals }
+      setDietPlan(updatedDietPlan)
+
+      // Salvar no Firebase
+      if (user) {
+        await updateDoc(doc(db, "users", user.uid), {
+          dietPlan: updatedDietPlan,
+        })
+        console.log("[v0] macroCredit transferred and saved to Firebase")
+      }
+    } catch (error) {
+      console.error("[v0] Error transferring macroCredit:", error)
+    }
   }
 
   const generatePlans = async () => {
@@ -2670,7 +2707,12 @@ export default function DietPage() {
                     <AccordionContent className="px-6 pb-4">
                       <div className="space-y-3">
                         {/* macroCredit Display */}
-                        <MacroCreditDisplay meal={meal} />
+                        <MacroCreditDisplay 
+                          meal={meal} 
+                          onTransferCredit={handleTransferMacroCredit}
+                          mealIndex={mealIndex}
+                          isLastMeal={mealIndex === dietPlan.meals.length - 1}
+                        />
                         
                         {filteredFoods.length > 0 ? (
                           filteredFoods.map((food, foodIndex) => {

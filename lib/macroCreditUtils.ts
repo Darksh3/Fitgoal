@@ -114,3 +114,31 @@ export function getMacroCreditDisplay(macroCredit?: Meal["macroCredit"]): string
 
   return `${Math.round(macroCredit.calories)} kcal | ${Math.round(macroCredit.protein)}g proteína | ${Math.round(macroCredit.carbs)}g carbs | ${Math.round(macroCredit.fats)}g gordura`
 }
+
+/**
+ * Transfere o macroCredit de uma refeição para a próxima
+ * Chamado quando usuário clica em "Levar para próxima refeição"
+ */
+export function transferMacroCreditToNextMeal(
+  currentMeal: Meal,
+  nextMeal: Meal
+): { currentMeal: Meal; nextMeal: Meal } {
+  if (!currentMeal.macroCredit || currentMeal.macroCredit.calories === 0) {
+    console.log("[v0] No macroCredit to transfer")
+    return { currentMeal, nextMeal }
+  }
+
+  const creditToTransfer = { ...currentMeal.macroCredit }
+
+  // Reset current meal's macroCredit
+  const updatedCurrentMeal = resetMacroCredit(currentMeal)
+
+  // Add to next meal's macroCredit
+  const updatedNextMeal = addToMacroCredit(nextMeal, creditToTransfer)
+
+  console.log("[v0] macroCredit transferred to next meal:", creditToTransfer)
+  console.log("[v0] Next meal macroCredit:", updatedNextMeal.macroCredit)
+
+  return { currentMeal: updatedCurrentMeal, nextMeal: updatedNextMeal }
+}
+
