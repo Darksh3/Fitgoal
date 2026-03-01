@@ -2090,7 +2090,6 @@ export default function DietPage() {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Plano de Dieta</h1>
             <div className="flex items-center gap-4">
               {dietPlan && (
-                // Converting Baixar PDF button to HTML with neon border
                 <button
                   onClick={downloadDietPDF}
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-blue-400 dark:border-blue-500 text-blue-600 dark:text-blue-400 bg-transparent hover:bg-blue-500/10 dark:hover:bg-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.3)] dark:shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-200"
