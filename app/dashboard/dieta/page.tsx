@@ -297,19 +297,13 @@ export default function DietPage() {
   }
 
   const calculateAdjustedTotals = (originalTotals: any) => {
-    let adjustedCalories = 0
-    let adjustedProtein = 0
-    let adjustedCarbs = 0
-    let adjustedFats = 0
-
-    if (dietPlan?.supplements && Array.isArray(dietPlan.supplements)) {
-      dietPlan.supplements.forEach((supplement: any) => {
-        adjustedCalories += Number(supplement.calories) || 0
-        adjustedProtein += Number(supplement.protein) || 0
-        adjustedCarbs += Number(supplement.carbs) || 0
-        adjustedFats += Number(supplement.fat) || 0
-      })
-    }
+    // Use the same calculation as calculatedTotals - just sum from dietPlan.meals directly
+    // This ensures "Calorias Reais" matches "Original" when no changes are made
+    const adjustedTotals = calculateTotalMacros(dietPlan?.meals || [])
+    
+    console.log("[v0] Adjusted totals (from dietPlan.meals):", adjustedTotals)
+    return adjustedTotals
+  }
 
     // Calculate totals from actual diet plan meals - sum individual foods
     if (dietPlan?.meals) {
