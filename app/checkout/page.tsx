@@ -1120,29 +1120,51 @@ export default function CheckoutPage() {
                     onChange={(e) => setInstallments(parseInt(e.target.value))}
                     className="w-full bg-slate-700/40 border border-slate-600 text-white rounded-md px-3 py-2 placeholder:text-slate-400 placeholder:opacity-100"
                   >
-                    {selectedPlan === "semestral" && [1, 2, 3, 4, 5, 6].map((n) => (
-                      <option key={n} value={n} className="bg-slate-800">
-                        {n}x de R$ {(parseFloat(totalPrice) / n).toFixed(2).replace(".", ",")}</option>
-                    ))}
-                    {selectedPlan === "trimestral" && [1, 2, 3].map((n) => (
-                      <option key={n} value={n} className="bg-slate-800">
-                        {n}x de R$ {(parseFloat(totalPrice) / n).toFixed(2).replace(".", ",")}</option>
-                    ))}
-                    {selectedPlan === "mensal" && (
-                      <option value={1} className="bg-slate-800">
-                        1x de R$ {parseFloat(totalPrice).toFixed(2).replace(".", ",")}</option>
+                    {/* Complementos Only - Limitar parcelamento */}
+                    {isComplementosOnly ? (
+                      <>
+                        <option value={1} className="bg-slate-800">
+                          1x de R$ {parseFloat(totalPrice).toFixed(2).replace(".", ",")}
+                        </option>
+                        {/* Permitir 2x apenas se total >= R$ 29.90 (2 complementos) */}
+                        {parseFloat(totalPrice) >= 29.80 && (
+                          <option value={2} className="bg-slate-800">
+                            2x de R$ {(parseFloat(totalPrice) / 2).toFixed(2).replace(".", ",")}
+                          </option>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {selectedPlan === "semestral" && [1, 2, 3, 4, 5, 6].map((n) => (
+                          <option key={n} value={n} className="bg-slate-800">
+                            {n}x de R$ {(parseFloat(totalPrice) / n).toFixed(2).replace(".", ",")}</option>
+                        ))}
+                        {selectedPlan === "trimestral" && [1, 2, 3].map((n) => (
+                          <option key={n} value={n} className="bg-slate-800">
+                            {n}x de R$ {(parseFloat(totalPrice) / n).toFixed(2).replace(".", ",")}</option>
+                        ))}
+                        {selectedPlan === "mensal" && (
+                          <option value={1} className="bg-slate-800">
+                            1x de R$ {parseFloat(totalPrice).toFixed(2).replace(".", ",")}</option>
+                        )}
+                      </>
                     )}
                   </select>
 
                   {/* Sugestão de parcelamento condicional */}
-                  {selectedPlan === "semestral" && (
+                  {!isComplementosOnly && selectedPlan === "semestral" && (
                     <div className="text-xs text-lime-400 text-center">
                       ou até 6x de R$ {(parseFloat(totalPrice) / 6).toFixed(2).replace(".", ",")}
                     </div>
                   )}
-                  {selectedPlan === "trimestral" && (
+                  {!isComplementosOnly && selectedPlan === "trimestral" && (
                     <div className="text-xs text-lime-400 text-center">
                       ou até 3x de R$ {(parseFloat(totalPrice) / 3).toFixed(2).replace(".", ",")}
+                    </div>
+                  )}
+                  {isComplementosOnly && parseFloat(totalPrice) >= 29.80 && (
+                    <div className="text-xs text-lime-400 text-center">
+                      ou até 2x de R$ {(parseFloat(totalPrice) / 2).toFixed(2).replace(".", ",")}
                     </div>
                   )}
                 </motion.div>
@@ -1245,24 +1267,43 @@ export default function CheckoutPage() {
 
                     {/* Protocolo SOS */}
                     <motion.div
-                      whileHover={{ scale: 1.01 }}
-                      onClick={() => setSelectedOrderBumps(prev => ({ ...prev, protocolo: !prev.protocolo }))}
-                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all relative ${selectedOrderBumps.protocolo
-                        ? "bg-lime-500/15 border-lime-500/50"
-                        : "bg-white/40 border-gray-300 hover:border-gray-400"
-                        }`}
+                      whileHover={{ scale: orderBumpsStatus?.protocolo ? 1 : 1.01 }}
+                      onClick={() => {
+                        if (!orderBumpsStatus?.protocolo) {
+                          setSelectedOrderBumps(prev => ({ ...prev, protocolo: !prev.protocolo }))
+                        }
+                      }}
+                      className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all relative ${
+                        orderBumpsStatus?.protocolo
+                          ? "bg-gray-200 border-gray-400 cursor-not-allowed opacity-60"
+                          : selectedOrderBumps.protocolo
+                          ? "bg-lime-500/15 border-lime-500/50 cursor-pointer"
+                          : "bg-white/40 border-gray-300 hover:border-gray-400 cursor-pointer"
+                      }`}
                     >
+                      {/* Status Badge */}
+                      {orderBumpsStatus?.protocolo && (
+                        <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">
+                          Já comprado
+                        </div>
+                      )}
+
                       {/* Checkbox - Top Right */}
-                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedOrderBumps.protocolo ? "bg-lime-500 border-lime-500" : "border-gray-500"
-                        }`}>
-                        {selectedOrderBumps.protocolo && <Check className="w-3 h-3 text-black" />}
+                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                        orderBumpsStatus?.protocolo
+                          ? "bg-blue-500 border-blue-500"
+                          : selectedOrderBumps.protocolo
+                          ? "bg-lime-500 border-lime-500"
+                          : "border-gray-500"
+                      }`}>
+                        {(orderBumpsStatus?.protocolo || selectedOrderBumps.protocolo) && <Check className="w-3 h-3 text-white" />}
                       </div>
 
                       {/* Product Image - Small */}
                       <img
                         src="/order-bump-protocolo-sos.jpg"
                         alt="Protocolo SOS FitGoal"
-                        className="w-20 h-28 object-cover rounded flex-shrink-0"
+                        className={`w-20 h-28 object-cover rounded flex-shrink-0 ${orderBumpsStatus?.protocolo ? "grayscale" : ""}`}
                       />
 
                       {/* Text Content */}
