@@ -2157,7 +2157,7 @@ export default function DietPage() {
                   <CardTitle>Calorias Reais</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold text-blue-600">{adjustedTotals.calories} kcal</p>
+                  <p className="text-2xl font-bold text-blue-600">{calculatedTotals.calories} kcal</p>
                   {(manualAdjustments.addedFoods.length > 0 || manualAdjustments.removedFoods.length > 0) && (
                     <p className="text-xs text-gray-500 mt-1">(Original: {calculatedTotals.calories} kcal)</p>
                   )}
