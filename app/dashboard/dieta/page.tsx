@@ -552,10 +552,6 @@ export default function DietPage() {
     }
   }, [user, isHydrated])
 
-  if (!isHydrated) {
-    return null
-  }
-
   console.log("[v0] About to render, loading:", loading, "error:", error)
 
   const saveDietPlan = async (updatedDietPlan: DietPlan) => {
@@ -2071,6 +2067,11 @@ export default function DietPage() {
 
   return (
     <ProtectedRoute>
+      {!isHydrated ? (
+        <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+          <p className="text-gray-500 dark:text-gray-400">Carregando...</p>
+        </div>
+      ) : (
       <div className="min-h-screen bg-white dark:bg-gray-900">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-4">
@@ -3021,6 +3022,7 @@ export default function DietPage() {
           </div>
         </div>
       </div>
+      )}
     </ProtectedRoute>
   )
 }
