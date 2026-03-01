@@ -661,6 +661,7 @@ MACROS TOTAIS:
 10. Substitua proteínas caras por: ovos, frango, carnes vermelhas baratas, feijão, lentilha, sardinha, atum em lata
 11. Evite refeições com mais de 700 kcal sólidas, com exceção do almoço, se preferir pode incluir shakes para ectomorfos.
 12. A ceia deve ter no máximo 2 alimentos, 200–450 kcal, dependendo do usuário, foco em proteína de fácil digestão e baixo açúcar (ex.: iogurte natural + ovos, whey + água, cottage + azeite, ovos cozidos), sem grandes volumes.
+13. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO
 ${quizData.diet
           ? `7. ⚠️ RESPEITE RIGOROSAMENTE A PREFERÊNCIA ALIMENTAR: ${quizData.diet.toUpperCase()} - Não inclua alimentos proibidos!`
           : ""
