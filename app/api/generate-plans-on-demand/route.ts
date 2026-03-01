@@ -383,34 +383,36 @@ function getRest(experience: "iniciante" | "intermediario" | "avancado", type: "
 }
 
 /**
- * Determina o número de refeições baseado no biotipo
+ * Determina o número de refeições baseado no objetivo
  */
-function getMealCountByBodyType(bodyType: string) {
-  switch (bodyType?.toLowerCase()) {
-    case "ectomorfo":
-      return {
-        count: 6,
-        distribution: [0.15, 0.1, 0.25, 0.15, 0.25, 0.1], // 6 refeições
-        names: ["Café da Manhã", "Lanche da Manhã", "Almoço", "Lanche da Tarde", "Jantar", "Ceia"],
-      }
-    case "mesomorfo":
-      return {
-        count: 5,
-        distribution: [0.2, 0.15, 0.3, 0.2, 0.15], // 5 refeições
-        names: ["Café da Manhã", "Lanche da Manhã", "Almoço", "Lanche da Tarde", "Jantar"],
-      }
-    case "endomorfo":
-      return {
-        count: 4,
-        distribution: [0.25, 0.35, 0.15, 0.25], // 4 refeições
-        names: ["Café da Manhã", "Almoço", "Lanche da Tarde", "Jantar"],
-      }
-    default:
-      return {
-        count: 4,
-        distribution: [0.25, 0.35, 0.15, 0.25], // Padrão: 4 refeições
-        names: ["Café da Manhã", "Almoço", "Lanche da Tarde", "Jantar"],
-      }
+function getMealCountByGoal(goal: string | string[]) {
+  const goals = Array.isArray(goal) ? goal : [goal]
+
+  const isBulking = goals.includes("ganhar-massa")
+
+  if (isBulking) {
+    return {
+      count: 5,
+      distribution: [0.2, 0.1, 0.3, 0.2, 0.2],
+      names: [
+        "Café da Manhã",
+        "Lanche da Manhã",
+        "Almoço",
+        "Lanche da Tarde",
+        "Jantar",
+      ],
+    }
+  }
+
+  return {
+    count: 4,
+    distribution: [0.25, 0.35, 0.15, 0.25],
+    names: [
+      "Café da Manhã",
+      "Almoço",
+      "Lanche da Tarde",
+      "Jantar",
+    ],
   }
 }
 
@@ -534,8 +536,8 @@ export async function POST(req: Request) {
       console.log(`🔍 [FIREBASE] Retrieved saved calculations: ${savedCalcs?.finalCalories} kcal`)
       console.log(`🔍 [FIREBASE DEBUG] Full retrieved data:`, savedCalcs)
 
-      const mealConfig = getMealCountByBodyType(quizData.bodyType)
-      console.log(`🍽️ [MEAL CONFIG] ${mealConfig.count} refeições para biotipo: ${quizData.bodyType}`)
+      const mealConfig = getMealCountByGoal(quizData.goal)
+      console.log(`🍽️ [MEAL CONFIG] ${mealConfig.count} refeições para objetivo: ${quizData.goal}`)
 
       const exerciseRange = getExerciseCountRange(quizData.workoutTime || "45-60min")
       console.log(`🏋️ [EXERCISE COUNT] ${exerciseRange.description} para tempo: ${quizData.workoutTime}`)
@@ -659,6 +661,7 @@ MACROS TOTAIS:
 10. Substitua proteínas caras por: ovos, frango, carnes vermelhas baratas, feijão, lentilha, sardinha, atum em lata
 11. Evite refeições com mais de 700 kcal sólidas, com exceção do almoço, se preferir pode incluir shakes para ectomorfos.
 12. A ceia deve ter no máximo 2 alimentos, 200–450 kcal, dependendo do usuário, foco em proteína de fácil digestão e baixo açúcar (ex.: iogurte natural + ovos, whey + água, cottage + azeite, ovos cozidos), sem grandes volumes.
+13. VOCÊ deve fornecer TODOS os valores nutricionais baseados em USDA/TACO
 ${quizData.diet
           ? `7. ⚠️ RESPEITE RIGOROSAMENTE A PREFERÊNCIA ALIMENTAR: ${quizData.diet.toUpperCase()} - Não inclua alimentos proibidos!`
           : ""
