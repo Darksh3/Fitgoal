@@ -3021,6 +3021,7 @@ export default function DietPage() {
             </p>
           </div>
         </div>
+        </div>
       )}
     </ProtectedRoute>
   )
