@@ -7,6 +7,7 @@ import { auth } from "@/lib/firebaseClient"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Check } from "lucide-react"
+import Image from "next/image"
 
 interface OrderBumpItem {
   id: "ebook" | "protocolo"
@@ -14,25 +15,25 @@ interface OrderBumpItem {
   description: string
   price: number
   originalPrice: number
-  icon: string
+  image: string
 }
 
 const ORDER_BUMPS_DATA: Record<string, OrderBumpItem> = {
   ebook: {
     id: "ebook",
-    name: "eBook",
-    description: "Guia completo com dicas e estratégias para sua transformação corporal.",
-    price: 29.9,
-    originalPrice: 49.9,
-    icon: "📚",
+    name: "Protocolo Anti-Plateau",
+    description: "Reverta a estagnação de peso em 7 dias com protocolos comprovados baseados em ciência.",
+    price: 14.9,
+    originalPrice: 29.9,
+    image: "/order-bump-protocol-metabolico.jpg",
   },
   protocolo: {
     id: "protocolo",
-    name: "Protocolo",
-    description: "Protocolo exclusivo com exercícios avançados e técnicas especializadas.",
-    price: 39.9,
-    originalPrice: 69.9,
-    icon: "📋",
+    name: "Protocolo S.O.S FitGoal",
+    description: "Protocolo de emergência para quando você desliza na dieta. Recupere o controle em 48 horas.",
+    price: 14.9,
+    originalPrice: 29.9,
+    image: "/order-bump-protocolo-sos.jpg",
   },
 }
 
@@ -41,6 +42,7 @@ function ComplementosCheckoutContent() {
   const searchParams = useSearchParams()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [purchasedBumps, setPurchasedBumps] = useState<{ebook?: boolean; protocolo?: boolean}>({})
   
   const [selectedItems, setSelectedItems] = useState<("ebook" | "protocolo")[]>([])
   const [processing, setProcessing] = useState(false)
@@ -48,9 +50,27 @@ function ComplementosCheckoutContent() {
   const itemParam = searchParams.get("item")
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser)
+        
+        // Buscar quais complementos o usuário já tem
+        try {
+          const response = await fetch("/api/check-order-bumps-purchased", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: currentUser.uid }),
+          })
+          const data = await response.json()
+          setPurchasedBumps({
+            ebook: data.ebook === true,
+            protocolo: data.protocolo === true,
+          })
+          console.log("[v0] COMPLEMENTOS_CHECKOUT - Bumps já comprados:", data)
+        } catch (error) {
+          console.error("[v0] COMPLEMENTOS_CHECKOUT - Erro ao buscar bumps:", error)
+        }
+        
         setLoading(false)
         
         // Se vem com um item pré-selecionado, adicionar à lista
@@ -146,66 +166,83 @@ function ComplementosCheckoutContent() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Seleção de complementos */}
         <div className="lg:col-span-2 space-y-4">
-          {Object.entries(ORDER_BUMPS_DATA).map(([key, bump]) => (
+          {Object.entries(ORDER_BUMPS_DATA).map(([key, bump]) => {
+            const isAlreadyPurchased = purchasedBumps[bump.id]
+            return (
             <Card
               key={key}
-              className={`cursor-pointer transition-all border-2 ${
-                selectedItems.includes(bump.id)
-                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                  : "border-gray-200 dark:border-gray-700"
+              className={`transition-all border-2 overflow-hidden ${
+                isAlreadyPurchased
+                  ? "cursor-not-allowed opacity-60 border-gray-300 dark:border-gray-600"
+                  : selectedItems.includes(bump.id)
+                  ? "cursor-pointer border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                  : "cursor-pointer border-gray-200 dark:border-gray-700"
               }`}
-              onClick={() => toggleItem(bump.id)}
+              onClick={() => !isAlreadyPurchased && toggleItem(bump.id)}
             >
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  {/* Checkbox */}
-                  <div className="flex-shrink-0 mt-1">
-                    <div
-                      className={`h-6 w-6 rounded border-2 flex items-center justify-center ${
-                        selectedItems.includes(bump.id)
-                          ? "bg-blue-500 border-blue-500"
-                          : "border-gray-300 dark:border-gray-600"
-                      }`}
-                    >
-                      {selectedItems.includes(bump.id) && (
-                        <Check className="h-4 w-4 text-white" />
-                      )}
+              {isAlreadyPurchased && (
+                <div className="absolute inset-0 bg-gray-900/50 rounded-lg flex items-center justify-center z-10">
+                  <div className="text-white text-center">
+                    <p className="font-semibold">Já Adquirido</p>
+                  </div>
+                </div>
+              )}
+              <CardContent className="p-0">
+                <div className="flex items-start gap-0 md:gap-4 flex-col md:flex-row">
+                  {/* Checkbox e Imagem */}
+                  <div className="relative flex-shrink-0 w-full md:w-40 h-40 md:h-auto">
+                    {/* Imagem */}
+                    <Image
+                      src={bump.image}
+                      alt={bump.name}
+                      width={180}
+                      height={200}
+                      className={`w-full h-40 object-cover ${isAlreadyPurchased ? "grayscale" : ""}`}
+                    />
+                    
+                    {/* Checkbox overlay */}
+                    {!isAlreadyPurchased && (
+                    <div className="absolute top-2 left-2">
+                      <div
+                        className={`h-6 w-6 rounded border-2 flex items-center justify-center cursor-pointer ${
+                          selectedItems.includes(bump.id)
+                            ? "bg-blue-500 border-blue-500"
+                            : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                        }`}
+                      >
+                        {selectedItems.includes(bump.id) && (
+                          <Check className="h-4 w-4 text-white" />
+                        )}
+                      </div>
                     </div>
+                    )}
                   </div>
 
                   {/* Conteúdo */}
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-2xl">{bump.icon}</span>
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                            {bump.name}
-                          </h3>
-                        </div>
-                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
-                          {bump.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Preço */}
-                    <div className="flex items-center gap-3">
-                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                        R$ {bump.price.toFixed(2)}
-                      </div>
-                      <div className="text-sm text-gray-500 line-through">
-                        R$ {bump.originalPrice.toFixed(2)}
-                      </div>
-                      <div className="text-sm font-semibold text-green-600 dark:text-green-400">
-                        Economize R$ {(bump.originalPrice - bump.price).toFixed(2)}
-                      </div>
-                    </div>
+                  <div className="flex-1 p-4">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                      {bump.name}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">{bump.description}</p>
                   </div>
                 </div>
+
+                {/* Preço */}
+                    <div className="flex items-center gap-3">
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        R$ {bump.price.toFixed(2).replace(".", ",")}
+                      </div>
+                      <div className="text-sm text-gray-500 line-through">
+                        R$ {bump.originalPrice.toFixed(2).replace(".", ",")}
+                      </div>
+                      <div className="text-sm font-semibold text-green-600 dark:text-green-400">
+                        Economize R$ {(bump.originalPrice - bump.price).toFixed(2).replace(".", ",")}
+                      </div>
+                    </div>
               </CardContent>
             </Card>
-          ))}
+            )
+          })}
         </div>
 
         {/* Resumo de pedido */}
