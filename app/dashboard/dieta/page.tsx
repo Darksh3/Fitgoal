@@ -966,27 +966,27 @@ export default function DietPage() {
     setRecommendedFood(null)
   }
 
-  const handleTransferMacroCredit = async (mealIndex: number, macroCredit: any) => {
+  const handleTransferMacroCredit = async (mealIndex: number, targetMealIndex: number, macroCredit: any) => {
     if (!dietPlan || !macroCredit) return
 
     try {
       const updatedMeals = [...dietPlan.meals]
       const currentMeal = updatedMeals[mealIndex]
-      const nextMeal = updatedMeals[mealIndex + 1]
+      const targetMeal = updatedMeals[targetMealIndex]
 
-      if (!nextMeal) {
-        alert("Não há próxima refeição para transferir o crédito")
+      if (!targetMeal) {
+        alert("Refeição alvo inválida")
         return
       }
 
       // Usar a função de transferência
-      const { currentMeal: updatedCurrentMeal, nextMeal: updatedNextMeal } = transferMacroCreditToNextMeal(
+      const { currentMeal: updatedCurrentMeal, nextMeal: updatedTargetMeal } = transferMacroCreditToNextMeal(
         currentMeal,
-        nextMeal
+        targetMeal
       )
 
       updatedMeals[mealIndex] = updatedCurrentMeal
-      updatedMeals[mealIndex + 1] = updatedNextMeal
+      updatedMeals[targetMealIndex] = updatedTargetMeal
 
       const updatedDietPlan = { ...dietPlan, meals: updatedMeals }
       setDietPlan(updatedDietPlan)
@@ -996,7 +996,7 @@ export default function DietPage() {
         await updateDoc(doc(db, "users", user.uid), {
           dietPlan: updatedDietPlan,
         })
-        console.log("[v0] macroCredit transferred and saved to Firebase")
+        console.log("[v0] macroCredit transferred to meal", targetMealIndex, "and saved to Firebase")
       }
     } catch (error) {
       console.error("[v0] Error transferring macroCredit:", error)
@@ -2711,7 +2711,8 @@ export default function DietPage() {
                           meal={meal} 
                           onTransferCredit={handleTransferMacroCredit}
                           mealIndex={index}
-                          isLastMeal={index === dietPlan.meals.length - 1}
+                          totalMeals={dietPlan.meals.length}
+                          mealNames={dietPlan.meals.map((m, idx) => m.name || `Refeição ${idx + 1}`)}
                         />
                         
                         {filteredFoods.length > 0 ? (

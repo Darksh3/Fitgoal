@@ -5,13 +5,21 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ChevronRight } from 'lucide-react'
 import { useState } from 'react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 interface MacroCreditDisplayProps {
   meal: Meal
   showLabel?: boolean
-  onTransferCredit?: (mealIndex: number, macroCredit: Meal['macroCredit']) => void
+  onTransferCredit?: (mealIndex: number, targetMealIndex: number, macroCredit: Meal['macroCredit']) => void
   mealIndex?: number
-  isLastMeal?: boolean
+  totalMeals?: number
+  mealNames?: string[]
 }
 
 export function MacroCreditDisplay({ 
@@ -19,9 +27,11 @@ export function MacroCreditDisplay({
   showLabel = true, 
   onTransferCredit,
   mealIndex = 0,
-  isLastMeal = false
+  totalMeals = 1,
+  mealNames = []
 }: MacroCreditDisplayProps) {
   const [isTransferring, setIsTransferring] = useState(false)
+  const [selectedTargetMeal, setSelectedTargetMeal] = useState<string>("")
 
   if (!meal.macroCredit || meal.macroCredit.calories === 0) {
     return null
@@ -30,12 +40,17 @@ export function MacroCreditDisplay({
   const { calories, protein, carbs, fats } = meal.macroCredit
 
   const handleTransfer = () => {
-    if (onTransferCredit && !isLastMeal) {
+    if (onTransferCredit && selectedTargetMeal) {
+      const targetIndex = parseInt(selectedTargetMeal)
       setIsTransferring(true)
-      onTransferCredit(mealIndex, meal.macroCredit)
+      onTransferCredit(mealIndex, targetIndex, meal.macroCredit)
+      setSelectedTargetMeal("")
       setTimeout(() => setIsTransferring(false), 300)
     }
   }
+
+  // Gerar lista de outras refeições (excluindo a atual)
+  const otherMeals = Array.from({ length: totalMeals }, (_, i) => i).filter(i => i !== mealIndex)
 
   return (
     <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
@@ -56,23 +71,44 @@ export function MacroCreditDisplay({
       </div>
       
       <p className="text-xs text-blue-600 dark:text-blue-300 mb-3">
-        Este crédito será aplicado ao próximo alimento que você adicionar ou substituir nesta refeição.
+        Este crédito será aplicado ao próximo alimento que você adicionar ou substituir.
       </p>
 
-      {/* Botão de transferência para próxima refeição */}
-      {!isLastMeal && onTransferCredit && (
-        <Button
-          onClick={handleTransfer}
-          disabled={isTransferring}
-          variant="outline"
-          size="sm"
-          className="w-full text-xs h-8 bg-white dark:bg-slate-800 border-blue-300 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/30"
-        >
-          <ChevronRight className="h-4 w-4 mr-1" />
-          {isTransferring ? 'Transferindo...' : 'Levar para próxima refeição'}
-        </Button>
+      {/* Transferência para outra refeição */}
+      {otherMeals.length > 0 && onTransferCredit && (
+        <div className="space-y-2">
+          <div className="flex gap-2 items-end">
+            <div className="flex-1">
+              <label className="text-xs text-blue-600 dark:text-blue-300 mb-1 block">
+                Levar crédito para:
+              </label>
+              <Select value={selectedTargetMeal} onValueChange={setSelectedTargetMeal}>
+                <SelectTrigger className="h-8 text-xs bg-white dark:bg-slate-800 border-blue-300 dark:border-blue-700">
+                  <SelectValue placeholder="Escolher refeição..." />
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-slate-800">
+                  {otherMeals.map((mealIdx) => (
+                    <SelectItem key={mealIdx} value={mealIdx.toString()}>
+                      {mealNames[mealIdx] || `Refeição ${mealIdx + 1}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              onClick={handleTransfer}
+              disabled={isTransferring || !selectedTargetMeal}
+              size="sm"
+              className="h-8 text-xs bg-blue-500 hover:bg-blue-600 text-white"
+            >
+              <ChevronRight className="h-4 w-4 mr-1" />
+              {isTransferring ? 'Transferindo...' : 'Ir'}
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   )
 }
+
 
