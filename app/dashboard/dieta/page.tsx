@@ -552,6 +552,10 @@ export default function DietPage() {
     }
   }, [user, isHydrated])
 
+  if (!isHydrated) {
+    return null
+  }
+
   console.log("[v0] About to render, loading:", loading, "error:", error)
 
   const saveDietPlan = async (updatedDietPlan: DietPlan) => {
@@ -2067,13 +2071,8 @@ export default function DietPage() {
 
   return (
     <ProtectedRoute>
-      {!isHydrated ? (
-        <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
-          <p className="text-gray-500 dark:text-gray-400">Carregando...</p>
-        </div>
-      ) : (
-        <div className="min-h-screen bg-white dark:bg-gray-900">
-          <div className="container mx-auto px-4 py-8">
+      <div className="min-h-screen bg-white dark:bg-gray-900">
+        <div className="container mx-auto px-4 py-8">
           <div className="mb-4">
             <button
               onClick={() => window.history.back()}
@@ -2090,6 +2089,7 @@ export default function DietPage() {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Plano de Dieta</h1>
             <div className="flex items-center gap-4">
               {dietPlan && (
+                // Converting Baixar PDF button to HTML with neon border
                 <button
                   onClick={downloadDietPDF}
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-blue-400 dark:border-blue-500 text-blue-600 dark:text-blue-400 bg-transparent hover:bg-blue-500/10 dark:hover:bg-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.3)] dark:shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-200"
@@ -3020,8 +3020,7 @@ export default function DietPage() {
             </p>
           </div>
         </div>
-        </div>
-      )}
+      </div>
     </ProtectedRoute>
   )
 }
