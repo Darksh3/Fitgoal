@@ -91,6 +91,10 @@ export default function DietPage() {
 
     const updatedAdjustments = {
       ...manualAdjustments,
+      // Se o alimento foi removido antes, remover de removedFoods
+      removedFoods: manualAdjustments.removedFoods.filter(
+        (removed) => !(removed.name === foodToAdd.name && removed.mealIndex === foodToAdd.mealIndex)
+      ),
       addedFoods: [...manualAdjustments.addedFoods, foodToAdd],
     }
 
