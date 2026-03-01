@@ -2073,7 +2073,7 @@ export default function DietPage() {
         </div>
       ) : (
         <div className="min-h-screen bg-white dark:bg-gray-900">
-        <div className="container mx-auto px-4 py-8">
+          <div className="container mx-auto px-4 py-8">
           <div className="mb-4">
             <button
               onClick={() => window.history.back()}
