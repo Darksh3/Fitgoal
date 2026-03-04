@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, Suspense } from "react"
+import React, { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -24,9 +24,8 @@ import {
 } from "lucide-react"
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
-import { doc, onSnapshot, getDoc } from "firebase/firestore"
-import { onAuthStateChanged } from "firebase/auth"
-import { db, auth } from "@/lib/firebaseClient"
+import { doc, getDoc } from "firebase/firestore"
+import { db } from "@/lib/firebaseClient"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -52,17 +51,18 @@ interface AddressData {
 
 type PaymentMethod = "pix" | "boleto" | "apple" | "google" | "card"
 
-function CheckoutOfertaContent() {
+export default function CheckoutPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // No auth needed for checkout-oferta
+  const [user, setUser] = useState<any>(null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [redirectCountdown, setRedirectCountdown] = useState(90)
   const [selectedPlan, setSelectedPlan] = useState<"mensal" | "trimestral" | "semestral">("semestral")
+  const [prefillLoading, setPrefillLoading] = useState(false)
   const [spinDiscount, setSpinDiscount] = useState<number | null>(null)
   const [isComplementosOnly, setIsComplementosOnly] = useState(false)
 
@@ -162,6 +162,10 @@ function CheckoutOfertaContent() {
   }, [searchParams])
 
   useEffect(() => {
+    // checkout-oferta does not require authentication
+    // User fills in form directly without pre-filling
+    // Lead will be created by webhook after payment confirmation
+    
     // Check for spin discount from wheel
     if (typeof window !== 'undefined') {
       const spinData = localStorage.getItem('spinDiscount')
@@ -174,6 +178,26 @@ function CheckoutOfertaContent() {
         }
       }
     }
+  }, [])
+
+  // Check for spin discount from wheel
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const spinData = localStorage.getItem('spinDiscount')
+      if (spinData) {
+        try {
+          const { discount } = JSON.parse(spinData)
+          setSpinDiscount(discount)
+        } catch (e) {
+          console.log('[v0] Erro ao ler spinDiscount:', e)
+        }
+      }
+    }
+  }, [])
+
+  // Prefill form data from quiz or profile on page load
+  useEffect(() => {
+    prefillFromProfile()
   }, [])
 
   // Real-time payment listener
@@ -294,8 +318,57 @@ function CheckoutOfertaContent() {
   }
 
   const prefillFromProfile = async () => {
-    // checkout-oferta doesn't prefill - always starts with empty form
-    // User fills in their info from scratch
+    // First priority: Try to get from quiz data in localStorage
+    if (typeof window !== 'undefined') {
+      const quizDataStr = localStorage.getItem("quizData")
+      if (quizDataStr) {
+        try {
+          const quizData = JSON.parse(quizDataStr)
+          setFormData((prev) => ({
+            ...prev,
+            email: prev.email || quizData.email || "",
+            name: prev.name || quizData.name || "",
+            cpf: prev.cpf || quizData.cpf || "",
+            phone: prev.phone || quizData.phone || "",
+          }))
+          return // If quiz data exists, return early - no need to query Firestore
+        } catch (e) {
+          console.log("[v0] Erro ao ler quizData:", e)
+        }
+      }
+    }
+
+    // Second priority: Try to get from Firestore user profile
+    if (!user) return
+    setPrefillLoading(true)
+
+    try {
+      const ref = doc(db, "users", user.uid)
+      const snap = await getDoc(ref)
+
+      if (snap.exists()) {
+        const data = snap.data() as any
+
+        setFormData((prev) => ({
+          ...prev,
+          email: prev.email || data.email || user.email || "",
+          name: prev.name || data.name || user.displayName || "",
+          cpf: prev.cpf || data.cpf || "",
+          phone: prev.phone || data.phone || data.personalData?.phone || data.phone || "",
+        }))
+      } else {
+        // If no Firestore document, use Firebase Auth
+        setFormData((prev) => ({
+          ...prev,
+          email: prev.email || user.email || "",
+          name: prev.name || user.displayName || "",
+        }))
+      }
+    } catch (err) {
+      console.log("[v0] Erro ao buscar perfil:", err)
+    } finally {
+      setPrefillLoading(false)
+    }
   }
 
   const handlePayment = async () => {
@@ -340,10 +413,11 @@ function CheckoutOfertaContent() {
         }
       }
 
-      // Step 1: Criar pagamento - sem clientUid já que não há usuário autenticado
-      // O lead será criado automaticamente pelo webhook do Asaas
+      // Step 1: Criar pagamento com /api/create-asaas-payment (igual ao modal)
+      // Get uid from localStorage quizData first, then fallback to Firebase Auth
       const stored = localStorage.getItem("quizData")
       const storedUid = stored ? JSON.parse(stored).uid : null
+      const finalClientUid = storedUid || user?.uid
 
       const paymentPayload: Record<string, any> = {
         email: formData.email,
@@ -351,11 +425,25 @@ function CheckoutOfertaContent() {
         cpf: formData.cpf.replace(/\D/g, ""),
         phone: formData.phone.replace(/\D/g, ""),
         paymentMethod: paymentMethod === "card" ? "card" : paymentMethod,
-        clientUid: storedUid || null, // Can be null - webhook will handle lead creation
-        totalPrice: totalPrice,
-        planType: selectedPlan,
-        planPrice: planPrice,
-        description: `${planName} - Fitgoal Fitness`,
+        clientUid: finalClientUid,
+        totalPrice: totalPrice, // Total including order bumps
+      }
+
+      // Apenas adicione planType e planPrice se NÃO for apenas complementos
+      if (!isComplementosOnly) {
+        paymentPayload.planType = selectedPlan
+        paymentPayload.planPrice = planPrice
+        paymentPayload.description = `${planName} - Fitgoal Fitness`
+      } else {
+        paymentPayload.description = "Complementos - Fitgoal Fitness"
+      }
+
+      // Add order bumps to payload if selected
+      if (selectedOrderBumps.ebook || selectedOrderBumps.protocolo) {
+        paymentPayload.orderBumps = {
+          ebook: selectedOrderBumps.ebook,
+          protocolo: selectedOrderBumps.protocolo,
+        }
       }
 
       if (paymentMethod === "card") {
@@ -511,24 +599,26 @@ function CheckoutOfertaContent() {
   // Success screen - Redirect to success page
   useEffect(() => {
     if (success) {
-      // Get the payment ID based on payment method
+      // Get the payment ID and user ID based on payment method
       const currentPaymentId = pixData?.paymentId || cardPaymentId
       const stored = localStorage.getItem("quizData")
       const storedUid = stored ? JSON.parse(stored).uid : null
-      // No userId in checkout-oferta since it's a direct checkout without auth
+      const userId = storedUid || user?.uid || ""
       
-      console.log("[v0] SUCCESS REDIRECT - paymentId:", currentPaymentId, "storedUid:", storedUid)
+      console.log("[v0] SUCCESS REDIRECT - paymentId:", currentPaymentId, "userId:", userId)
       
       setTimeout(() => {
-        // Pass paymentId to success page - lead will be created by webhook
-        if (currentPaymentId) {
+        // Pass paymentId and userId to success page so it can call handle-post-checkout
+        if (currentPaymentId && userId) {
+          router.push(`/success?embedded=true&paymentId=${encodeURIComponent(currentPaymentId)}&userId=${encodeURIComponent(userId)}`)
+        } else if (currentPaymentId) {
           router.push(`/success?embedded=true&paymentId=${encodeURIComponent(currentPaymentId)}`)
         } else {
           router.push("/success?embedded=true")
         }
       }, 1000) // Small delay to ensure data is saved
     }
-    }, [success, router, pixData?.paymentId, cardPaymentId])
+  }, [success, router, pixData?.paymentId, cardPaymentId, user?.uid])
 
   // Boleto screen
   if (boletoData) {
@@ -1335,13 +1425,5 @@ function CheckoutOfertaContent() {
         </div>
       </div>
     </div>
-  )
-}
-
-export default function CheckoutOfertaPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Carregando...</div>}>
-      <CheckoutOfertaContent />
-    </Suspense>
   )
 }
