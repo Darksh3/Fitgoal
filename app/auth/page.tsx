@@ -17,10 +17,34 @@ export default function AuthPage() {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false)
+  const [loginError, setLoginError] = useState("")
+  const [signupError, setSignupError] = useState("")
   const router = useRouter()
+
+  const getErrorMessage = (errorCode: string): string => {
+    switch (errorCode) {
+      case "auth/user-not-found":
+        return "Nenhuma conta encontrada com este email. Verifique o email digitado ou crie uma nova conta."
+      case "auth/wrong-password":
+        return "Senha incorreta. Verifique se digitou corretamente."
+      case "auth/invalid-email":
+        return "Email inválido. Verifique o formato do email."
+      case "auth/email-already-in-use":
+        return "Já existe uma conta com este email. Tente fazer login ou use outro email."
+      case "auth/weak-password":
+        return "Senha muito fraca. Use pelo menos 6 caracteres."
+      case "auth/too-many-requests":
+        return "Muitas tentativas de login. Tente novamente mais tarde."
+      case "auth/operation-not-allowed":
+        return "Login com email e senha não está habilitado."
+      default:
+        return "Erro ao autenticar. Tente novamente."
+    }
+  }
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
+    setLoginError("")
     setLoading(true)
     try {
       await signInWithEmailAndPassword(auth, email, password)
@@ -30,11 +54,10 @@ export default function AuthPage() {
       })
       router.push("/dashboard")
     } catch (error: any) {
-      toast({
-        title: "Erro ao fazer login",
-        description: error.message,
-        variant: "destructive",
-      })
+      const errorCode = error.code || "unknown"
+      const errorMessage = getErrorMessage(errorCode)
+      setLoginError(errorMessage)
+      console.error("[v0] Login error:", errorCode, error.message)
     } finally {
       setLoading(false)
     }
@@ -42,12 +65,9 @@ export default function AuthPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSignupError("")
     if (password !== confirmPassword) {
-      toast({
-        title: "Erro",
-        description: "As senhas não coincidem.",
-        variant: "destructive",
-      })
+      setSignupError("As senhas não coincidem.")
       return
     }
     setLoading(true)
@@ -118,11 +138,10 @@ export default function AuthPage() {
       })
       router.push("/quiz")
     } catch (error: any) {
-      toast({
-        title: "Erro ao criar conta",
-        description: error.message,
-        variant: "destructive",
-      })
+      const errorCode = error.code || "unknown"
+      const errorMessage = getErrorMessage(errorCode)
+      setSignupError(errorMessage)
+      console.error("[v0] Signup error:", errorCode, error.message)
     } finally {
       setLoading(false)
     }
@@ -231,6 +250,11 @@ export default function AuthPage() {
                     required
                   />
                 </div>
+                {loginError && (
+                  <div className="p-3 bg-red-900/20 border border-red-500/50 rounded-lg text-red-400 text-sm">
+                    {loginError}
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={handlePasswordResetRequest}
@@ -305,6 +329,11 @@ export default function AuthPage() {
                     required
                   />
                 </div>
+                {signupError && (
+                  <div className="p-3 bg-red-900/20 border border-red-500/50 rounded-lg text-red-400 text-sm">
+                    {signupError}
+                  </div>
+                )}
                 <button
                   type="submit"
                   className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xl flex items-center justify-center gap-2 shadow-lg transition-all duration-200 disabled:opacity-50"
