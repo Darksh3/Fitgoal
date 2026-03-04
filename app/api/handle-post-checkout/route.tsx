@@ -62,7 +62,11 @@ export async function POST(req: Request) {
         const paymentDocSnap = await paymentDocRef.get()
         if (paymentDocSnap.exists) {
           const paymentData = paymentDocSnap.data()
-          console.log("[v0] HANDLE_POST_CHECKOUT - Documento de pagamento encontrado:", { hasOrderBumps: !!paymentData?.orderBumps })
+          console.log("[v0] HANDLE_POST_CHECKOUT - Documento de pagamento encontrado:", { 
+            hasOrderBumps: !!paymentData?.orderBumps,
+            hasEmail: !!paymentData?.customerEmail,
+            email: paymentData?.customerEmail
+          })
           
           // Extrair orderBumps do documento de pagamento
           if (paymentData?.orderBumps) {
@@ -70,12 +74,14 @@ export async function POST(req: Request) {
             console.log("[v0] HANDLE_POST_CHECKOUT - OrderBumps extraídos do pagamento:", paymentData.orderBumps)
           }
           
-          // Extrair outros dados se disponíveis
+          // Extrair outros dados se disponíveis - ESTO É IMPORTANTE PARA CHECKOUT-OFERTA
           if (!userEmail && paymentData?.customerEmail) {
             userEmail = paymentData.customerEmail
+            console.log("[v0] HANDLE_POST_CHECKOUT - Email extraído do pagamento:", userEmail)
           }
           if (!userName && paymentData?.customerName) {
             userName = paymentData.customerName
+            console.log("[v0] HANDLE_POST_CHECKOUT - Nome extraído do pagamento:", userName)
           }
           if (paymentData?.userId) {
             clientUidFromSource = paymentData.userId
@@ -214,7 +220,12 @@ export async function POST(req: Request) {
     }
 
     if (!userEmail) {
-      console.error("ERRO: E-mail do cliente não encontrado.")
+      console.error("[v0] FATAL: E-mail do cliente não encontrado. Não é possível enviar email.", {
+        paymentId,
+        userId,
+        userEmail,
+        hasCustomerEmail: !!customerEmail
+      })
       return NextResponse.json({ error: "E-mail do cliente ausente." }, { status: 400 })
     }
 
