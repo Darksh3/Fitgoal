@@ -107,28 +107,34 @@ export default function LeadsPage() {
     setSelectedLeads(newSelected)
   }
 
-  const handleExport = async () => {
+  const handleExportEmails = async (format: "json" | "csv" = "csv") => {
     try {
-      const response = await fetch("/api/admin/export-leads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          leadIds: selectedLeads.size > 0 ? Array.from(selectedLeads) : filteredLeads.map((l) => l.id),
-          hashed: false,
-        }),
-      })
-
+      const response = await fetch(`/api/admin/export-emails?type=leads&format=${format}`)
+      
       if (response.ok) {
         const blob = await response.blob()
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement("a")
         a.href = url
-        a.download = `leads_${new Date().toISOString().split("T")[0]}.csv`
+        a.download = `emails_leads_${new Date().toISOString().split("T")[0]}.${format === "csv" ? "csv" : "json"}`
         a.click()
         window.URL.revokeObjectURL(url)
       }
     } catch (error) {
-      console.error("[v0] Error exporting leads:", error)
+      console.error("[v0] Error exporting emails:", error)
+    }
+  }
+
+  const handleCopyEmails = async () => {
+    try {
+      const response = await fetch("/api/admin/export-emails?type=leads&format=json")
+      const data = await response.json()
+      const emailText = data.emails.join("; ")
+      
+      await navigator.clipboard.writeText(emailText)
+      alert(`${data.total} emails copiados para a área de transferência!`)
+    } catch (error) {
+      console.error("[v0] Error copying emails:", error)
     }
   }
 
@@ -209,12 +215,24 @@ export default function LeadsPage() {
 
           {/* Export Button */}
           <Button
-            onClick={handleExport}
+            onClick={() => handleExportEmails("csv")}
             variant="outline"
             className="border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800"
+            title="Download emails como CSV"
           >
             <Download className="w-4 h-4 mr-2" />
-            Exportar
+            Emails CSV
+          </Button>
+
+          {/* Copy Emails Button */}
+          <Button
+            onClick={handleCopyEmails}
+            variant="outline"
+            className="border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800"
+            title="Copiar emails para área de transferência"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Copiar Emails
           </Button>
         </div>
       </Card>
