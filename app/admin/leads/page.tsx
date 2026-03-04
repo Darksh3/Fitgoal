@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Download, Plus, MoreVertical, Mail } from "lucide-react"
+import { Search, Download, Plus, MoreVertical } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -105,32 +105,6 @@ export default function LeadsPage() {
       newSelected.add(id)
     }
     setSelectedLeads(newSelected)
-  }
-
-  const exportEmails = (format: "csv" | "clipboard") => {
-    const leadsToExport = selectedLeads.size > 0 ? filteredLeads.filter((l) => selectedLeads.has(l.id)) : filteredLeads
-    const emails = leadsToExport.map((lead) => lead.email).filter(Boolean)
-
-    if (format === "clipboard") {
-      navigator.clipboard.writeText(emails.join("\n"))
-      alert(`${emails.length} emails copiados para a área de transferência!`)
-    } else if (format === "csv") {
-      const csvContent = ["email", "name", "phone", "stage", "goal", "createdAt", ...emails.map((_, i) => (i === 0 ? "EMAIL" : ""))]
-        .filter(Boolean)
-        .join("\n")
-
-      const csv = [["email", "name", "phone", "stage", "goal", "createdAt"], ...leadsToExport.map((lead) => [lead.email, lead.name || "", lead.phone || "", lead.stage || "", lead.goal || "", lead.createdAt || ""])].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
-
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
-      const link = document.createElement("a")
-      const url = URL.createObjectURL(blob)
-      link.setAttribute("href", url)
-      link.setAttribute("download", `leads_${new Date().toISOString().split("T")[0]}.csv`)
-      link.style.visibility = "hidden"
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    }
   }
 
   const handleExport = async () => {
@@ -241,28 +215,6 @@ export default function LeadsPage() {
           >
             <Download className="w-4 h-4 mr-2" />
             Exportar
-          </Button>
-
-          {/* Export Emails - Clipboard */}
-          <Button
-            onClick={() => exportEmails("clipboard")}
-            variant="outline"
-            className="border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800"
-            title={`Copiar ${selectedLeads.size > 0 ? selectedLeads.size : filteredLeads.length} emails para área de transferência`}
-          >
-            <Mail className="w-4 h-4 mr-2" />
-            Copiar Emails
-          </Button>
-
-          {/* Export Emails - CSV */}
-          <Button
-            onClick={() => exportEmails("csv")}
-            variant="outline"
-            className="border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800"
-            title={`Baixar ${selectedLeads.size > 0 ? selectedLeads.size : filteredLeads.length} emails como CSV`}
-          >
-            <Download className="w-4 h-4 mr-2" />
-            CSV Emails
           </Button>
         </div>
       </Card>
