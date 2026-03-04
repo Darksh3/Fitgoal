@@ -13,14 +13,26 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get("userId")
     const limit = parseInt(searchParams.get("limit") || "100")
 
-    let query = adminDb.collection("plans")
+    console.log("[v0] ADMIN_PLANS - Fetching plans", { userId, limit })
+
+    let query: any = adminDb.collection("plans")
 
     // If userId provided, get only that user's plans
     if (userId) {
       query = query.where("userId", "==", userId)
     }
 
-    const snapshot = await query.orderBy("createdAt", "desc").limit(limit).get()
+    // Try to order by createdAt descending
+    try {
+      query = query.orderBy("createdAt", "desc")
+    } catch (orderError) {
+      console.warn("[v0] ADMIN_PLANS - OrderBy failed, trying without ordering:", orderError)
+      // Continue without ordering if there's an issue
+    }
+
+    const snapshot = await query.limit(limit).get()
+
+    console.log("[v0] ADMIN_PLANS - Found", snapshot.size, "plans")
 
     const plans = snapshot.docs.map((doc) => ({
       id: doc.id,
@@ -34,7 +46,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error("[v0] Error fetching plans:", error)
-    return NextResponse.json({ error: "Erro ao carregar planos" }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao carregar planos", details: String(error) }, { status: 500 })
   }
 }
 
