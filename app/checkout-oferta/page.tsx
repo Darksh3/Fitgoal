@@ -24,7 +24,7 @@ import {
 } from "lucide-react"
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
-import { doc, getDoc, onSnapshot } from "firebase/firestore"
+import { doc, getDoc } from "firebase/firestore"
 import { db } from "@/lib/firebaseClient"
 import Link from "next/link"
 import Image from "next/image"
@@ -202,53 +202,9 @@ export default function CheckoutPage() {
 
   // Real-time payment listener
   useEffect(() => {
-    // For PIX and Card - listen to specific payment ID
-    const currentPaymentId = pixData?.paymentId || cardPaymentId
-    const method = pixData?.paymentId ? "pix" : cardPaymentId ? "card" : null
-
-    if (!currentPaymentId || !method) {
-      console.log("[v0] PAYMENT_LISTENER_SETUP - Nenhum paymentId configurado ainda")
-      return
-    }
-
-    console.log("[v0] PAYMENT_LISTENER_SETUP - Configurando listener para:", { currentPaymentId, method })
-
-    const paymentRef = doc(db, "payments", currentPaymentId)
-    let unsubscribeRef: any = null
-
-    const unsubscribe = onSnapshot(paymentRef, (snapshot) => {
-      console.log("[v0] PAYMENT_LISTENER - Snapshot recebido para:", currentPaymentId)
-
-      if (!snapshot.exists()) {
-        console.log("[v0] PAYMENT_LISTENER - Documento de pagamento não existe ainda")
-        return
-      }
-
-      const paymentData = snapshot.data()
-      console.log("[v0] PAYMENT_LISTENER - Status do pagamento:", paymentData?.status, "para:", currentPaymentId)
-
-      // Se pagamento foi confirmado pelo webhook da Asaas
-      if (paymentData?.status === "RECEIVED" || paymentData?.status === "CONFIRMED") {
-        console.log("[v0] PAYMENT_CONFIRMED - Pagamento confirmado! Acionando feedback visual")
-        setSuccess(true)
-        console.log("[v0] PAYMENT_CONFIRMED - Desinstalando listener")
-        if (unsubscribeRef) {
-          unsubscribeRef()
-        }
-      } else {
-        console.log("[v0] PAYMENT_LISTENER - Status não confirmado, aguardando webhook...")
-      }
-    }, (error) => {
-      console.error("[v0] PAYMENT_LISTENER - Erro ao escutar:", error)
-    })
-
-    unsubscribeRef = unsubscribe
-
-    return () => {
-      console.log("[v0] PAYMENT_LISTENER - Limpando listener para:", currentPaymentId)
-      unsubscribe()
-    }
-  }, [pixData?.paymentId, cardPaymentId])
+    // checkout-oferta: No payment listener needed - webhook handles everything
+    // User will be redirected manually after a timeout, or redirect happens on success
+  }, [])
 
   // Countdown redirect
   useEffect(() => {
@@ -570,31 +526,8 @@ export default function CheckoutPage() {
     }
   }
 
-  // Listen for card payment status and redirect on success
-  useEffect(() => {
-    if (!cardPaymentId) return
-
-    console.log("[v0] Setting up listener for card payment:", cardPaymentId)
-
-    const unsubscribe = onSnapshot(doc(db, "payments", cardPaymentId), (snapshot) => {
-      if (!snapshot.exists()) return
-
-      const paymentData = snapshot.data()
-      console.log("[v0] Payment status received:", paymentData?.status)
-
-      if (paymentData?.status === "CONFIRMED" || paymentData?.status === "RECEIVED") {
-        console.log("[v0] Payment confirmed! Redirecting to success...")
-        setSuccess(true)
-      } else if (paymentData?.status === "FAILED" || paymentData?.status === "OVERDUE") {
-        console.log("[v0] Payment failed:", paymentData?.status)
-        setError("Pagamento recusado. Por favor, tente novamente.")
-        setCardPaymentId(null)
-        setProcessing(false)
-      }
-    })
-
-    return () => unsubscribe()
-  }, [cardPaymentId])
+  // No payment listener in checkout-oferta - webhook handles confirmation
+  // User redirects manually through the success screen
 
   // Success screen - Redirect to success page
   useEffect(() => {
