@@ -11,7 +11,9 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const campaign = searchParams.get("campaign")
-    const daysAgo = parseInt(searchParams.get("daysAgo") || "30")
+    const daysAgo = parseInt(searchParams.get("daysAgo") || "0") // Default to 0 (all data)
+
+    console.log("[v0] ADMIN_FUNNEL - Fetching funnel data", { campaign, daysAgo })
 
     // Get all leads/events to calculate funnel
     let leadsQuery = adminDb.collection("leads")
@@ -24,6 +26,7 @@ export async function GET(request: NextRequest) {
 
       leadsQuery = leadsQuery.where("createdAt", ">=", dateStr)
       paymentsQuery = paymentsQuery.where("updatedAt", ">=", dateStr)
+      console.log("[v0] ADMIN_FUNNEL - Filtering by date from:", dateStr)
     }
 
     const [leadsSnapshot, paymentsSnapshot] = await Promise.all([
@@ -33,6 +36,8 @@ export async function GET(request: NextRequest) {
 
     const leads = leadsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
     const payments = paymentsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+
+    console.log("[v0] ADMIN_FUNNEL - Found", leads.length, "leads and", payments.length, "payments")
 
     // Filter by campaign if provided
     let filteredLeads = leads

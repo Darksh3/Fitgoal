@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const stage = searchParams.get("stage") || "all"
     const limit = parseInt(searchParams.get("limit") || "100")
-    const daysAgo = parseInt(searchParams.get("daysAgo") || "30")
+    const daysAgo = parseInt(searchParams.get("daysAgo") || "0") // Default to 0 (no date filter)
 
     console.log("[v0] ADMIN_LEADS - Fetching leads", { stage, limit, daysAgo })
 
@@ -23,13 +23,16 @@ export async function GET(request: NextRequest) {
     // Filter by stage
     if (stage !== "all") {
       query = query.where("stage", "==", stage)
+      console.log("[v0] ADMIN_LEADS - Filtering by stage:", stage)
     }
 
-    // Filter by date range (last X days)
+    // Filter by date range (last X days) - ONLY if daysAgo > 0
     if (daysAgo > 0) {
       const dateFilter = new Date()
       dateFilter.setDate(dateFilter.getDate() - daysAgo)
-      query = query.where("createdAt", ">=", dateFilter.toISOString())
+      const dateStr = dateFilter.toISOString()
+      query = query.where("createdAt", ">=", dateStr)
+      console.log("[v0] ADMIN_LEADS - Filtering by date from:", dateStr)
     }
 
     // Try to order by createdAt descending
@@ -37,7 +40,6 @@ export async function GET(request: NextRequest) {
       query = query.orderBy("createdAt", "desc")
     } catch (orderError) {
       console.warn("[v0] ADMIN_LEADS - OrderBy failed, trying without ordering:", orderError)
-      // Continue without ordering if there's an issue with composite indexes
     }
 
     const snapshot = await query.limit(limit).get()
@@ -48,6 +50,11 @@ export async function GET(request: NextRequest) {
       id: doc.id,
       ...doc.data(),
     }))
+
+    // Log first lead to see structure
+    if (leads.length > 0) {
+      console.log("[v0] ADMIN_LEADS - Sample lead:", leads[0])
+    }
 
     return NextResponse.json({
       leads,
