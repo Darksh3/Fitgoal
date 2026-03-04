@@ -572,15 +572,14 @@ export default function CheckoutPage() {
       console.log("[v0] SUCCESS REDIRECT - paymentId:", currentPaymentId, "userId:", userId)
       
       setTimeout(() => {
-        // Pass paymentId and userId to success page so it can call handle-post-checkout
-        if (currentPaymentId && userId) {
-          router.push(`/success?embedded=true&paymentId=${encodeURIComponent(currentPaymentId)}&userId=${encodeURIComponent(userId)}`)
-        } else if (currentPaymentId) {
-          router.push(`/success?embedded=true&paymentId=${encodeURIComponent(currentPaymentId)}`)
+        // Redirecionar para success-oferta em vez de success
+        const currentPaymentId = pixData?.paymentId || cardPaymentId
+        if (currentPaymentId) {
+          router.push(`/success-oferta?paymentId=${encodeURIComponent(currentPaymentId)}`)
         } else {
-          router.push("/success?embedded=true")
+          router.push("/success-oferta")
         }
-      }, 1000) // Small delay to ensure data is saved
+      }, 1000)
     }
   }, [success, router, pixData?.paymentId, cardPaymentId, user?.uid])
 
