@@ -24,7 +24,7 @@ import {
 } from "lucide-react"
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
-import { doc, getDoc } from "firebase/firestore"
+import { doc, getDoc, onSnapshot } from "firebase/firestore"
 import { db } from "@/lib/firebaseClient"
 import Link from "next/link"
 import Image from "next/image"
