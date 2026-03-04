@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -52,7 +52,7 @@ interface AddressData {
 
 type PaymentMethod = "pix" | "boleto" | "apple" | "google" | "card"
 
-export default function CheckoutOfertaPage() {
+function CheckoutOfertaContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -1337,5 +1337,13 @@ export default function CheckoutOfertaPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function CheckoutOfertaPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Carregando...</div>}>
+      <CheckoutOfertaContent />
+    </Suspense>
   )
 }
