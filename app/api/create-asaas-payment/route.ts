@@ -240,11 +240,6 @@ export async function POST(req: Request) {
         value: amount,
         status: "PENDING",
         source: "checkout",
-        // Add customer info for later use in handle-post-checkout
-        customerEmail: email,
-        customerName: name,
-        customerCpf: cleanCpf,
-        customerPhone: cleanPhone,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       }
 
