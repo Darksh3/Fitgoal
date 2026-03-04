@@ -11,37 +11,72 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get("userId")
-    const limit = parseInt(searchParams.get("limit") || "100")
+    const limit = parseInt(searchParams.get("limit") || "500")
 
-    console.log("[v0] ADMIN_PLANS - Fetching plans", { userId, limit })
+    console.log("[v0] ADMIN_PLANS - Fetching plans from users collection", { userId, limit })
 
-    let query: any = adminDb.collection("plans")
+    const plans: any[] = []
 
-    // If userId provided, get only that user's plans
     if (userId) {
-      query = query.where("userId", "==", userId)
+      // Get specific user's plans
+      const userRef = adminDb.collection("users").doc(userId)
+      const userDoc = await userRef.get()
+
+      if (userDoc.exists) {
+        const userData = userDoc.data()
+        if (userData?.dietPlan) {
+          plans.push({
+            id: `${userId}-dietPlan`,
+            userId,
+            type: "dietPlan",
+            createdAt: userData.dietPlan.createdAt || new Date().toISOString(),
+            ...userData.dietPlan,
+          })
+        }
+        if (userData?.workoutPlan) {
+          plans.push({
+            id: `${userId}-workoutPlan`,
+            userId,
+            type: "workoutPlan",
+            createdAt: userData.workoutPlan.createdAt || new Date().toISOString(),
+            ...userData.workoutPlan,
+          })
+        }
+      }
+    } else {
+      // Get all users' plans
+      const usersSnapshot = await adminDb.collection("users").limit(limit).get()
+
+      usersSnapshot.docs.forEach((userDoc) => {
+        const userData = userDoc.data()
+        const userId = userDoc.id
+
+        if (userData?.dietPlan) {
+          plans.push({
+            id: `${userId}-dietPlan`,
+            userId,
+            type: "dietPlan",
+            createdAt: userData.dietPlan.createdAt || new Date().toISOString(),
+            ...userData.dietPlan,
+          })
+        }
+        if (userData?.workoutPlan) {
+          plans.push({
+            id: `${userId}-workoutPlan`,
+            userId,
+            type: "workoutPlan",
+            createdAt: userData.workoutPlan.createdAt || new Date().toISOString(),
+            ...userData.workoutPlan,
+          })
+        }
+      })
     }
 
-    // Try to order by createdAt descending
-    try {
-      query = query.orderBy("createdAt", "desc")
-    } catch (orderError) {
-      console.warn("[v0] ADMIN_PLANS - OrderBy failed, trying without ordering:", orderError)
-      // Continue without ordering if there's an issue
-    }
-
-    const snapshot = await query.limit(limit).get()
-
-    console.log("[v0] ADMIN_PLANS - Found", snapshot.size, "plans")
-
-    const plans = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }))
+    console.log("[v0] ADMIN_PLANS - Found", plans.length, "plans")
 
     return NextResponse.json({
-      plans,
-      total: snapshot.size,
+      plans: plans.slice(0, limit),
+      total: plans.length,
       timestamp: new Date().toISOString(),
     })
   } catch (error) {
@@ -50,30 +85,3 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function PUT(request: NextRequest) {
-  try {
-    const isAdmin = await isAdminRequest()
-    if (!isAdmin) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-    }
-
-    const body = await request.json()
-    const { planId, status, notes } = body
-
-    if (!planId) {
-      return NextResponse.json({ error: "Plan ID é obrigatório" }, { status: 400 })
-    }
-
-    // Update plan with admin notes/flags
-    await adminDb.collection("plans").doc(planId).update({
-      adminStatus: status,
-      adminNotes: notes,
-      adminUpdatedAt: new Date().toISOString(),
-    })
-
-    return NextResponse.json({ success: true, planId })
-  } catch (error) {
-    console.error("[v0] Error updating plan:", error)
-    return NextResponse.json({ error: "Erro ao atualizar plano" }, { status: 500 })
-  }
-}
