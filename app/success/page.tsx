@@ -21,12 +21,12 @@ export default function SuccessPage() {
         console.log("[v0] Embedded checkout success - calling handle-post-checkout to send email")
         
         const paymentId = searchParams.get("paymentId")
-        const userId = searchParams.get("userId") // Can be null for checkout-oferta
+        const userId = searchParams.get("userId")
         
         console.log("[v0] URL params - paymentId:", paymentId, "userId:", userId)
         
-        if (!paymentId) {
-          console.warn("[v0] Missing paymentId for embedded checkout", { paymentId, userId })
+        if (!paymentId || !userId) {
+          console.warn("[v0] Missing paymentId or userId for embedded checkout", { paymentId, userId })
           setStatus("success")
           return
         }
@@ -40,7 +40,7 @@ export default function SuccessPage() {
             },
             body: JSON.stringify({ 
               paymentId: paymentId,
-              userId: userId // Can be null
+              userId: userId
             }),
           })
 
