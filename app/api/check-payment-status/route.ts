@@ -32,3 +32,34 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Failed to check payment status" }, { status: 500 })
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const { paymentId } = await request.json()
+
+    if (!paymentId) {
+      return NextResponse.json({ error: "paymentId is required" }, { status: 400 })
+    }
+
+    console.log("[v0] CHECK_PAYMENT_STATUS_POST - Verificando status do pagamento:", paymentId)
+
+    // Busca o pagamento na coleção de pagamentos do Firebase
+    const paymentsRef = adminDb.collection("payments")
+    const snapshot = await paymentsRef.where("paymentId", "==", paymentId).limit(1).get()
+
+    if (snapshot.empty) {
+      console.log("[v0] CHECK_PAYMENT_STATUS_POST - Pagamento não encontrado:", paymentId)
+      return NextResponse.json({ status: "NOT_FOUND" })
+    }
+
+    const paymentData = snapshot.docs[0].data()
+    const status = paymentData.status || "PENDING"
+
+    console.log("[v0] CHECK_PAYMENT_STATUS_POST - Status encontrado:", { paymentId, status })
+
+    return NextResponse.json({ status, paymentData })
+  } catch (error) {
+    console.error("[v0] CHECK_PAYMENT_STATUS_POST_ERROR:", error)
+    return NextResponse.json({ error: "Failed to check payment status" }, { status: 500 })
+  }
+}

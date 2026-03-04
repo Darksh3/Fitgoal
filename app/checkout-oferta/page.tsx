@@ -200,11 +200,42 @@ export default function CheckoutPage() {
     prefillFromProfile()
   }, [])
 
-  // Real-time payment listener
+  // Payment status polling for checkout-oferta (no Firebase auth available)
   useEffect(() => {
-    // checkout-oferta: No payment listener needed - webhook handles everything
-    // User will be redirected manually after a timeout, or redirect happens on success
-  }, [])
+    const currentPaymentId = pixData?.paymentId || cardPaymentId
+    
+    if (!currentPaymentId) {
+      console.log("[v0] CHECKOUT-OFERTA - Sem paymentId para polling")
+      return
+    }
+
+    console.log("[v0] CHECKOUT-OFERTA - Iniciando polling para paymentId:", currentPaymentId)
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch("/api/check-payment-status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paymentId: currentPaymentId }),
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          console.log("[v0] CHECKOUT-OFERTA - Payment status:", data.status)
+
+          if (data.status === "RECEIVED" || data.status === "CONFIRMED") {
+            console.log("[v0] CHECKOUT-OFERTA - Pagamento confirmado! Redirecionando...")
+            setSuccess(true)
+            clearInterval(pollInterval)
+          }
+        }
+      } catch (error) {
+        console.error("[v0] CHECKOUT-OFERTA - Erro no polling:", error)
+      }
+    }, 3000) // Check every 3 seconds
+
+    return () => clearInterval(pollInterval)
+  }, [pixData?.paymentId, cardPaymentId])
 
   // Countdown redirect
   useEffect(() => {
