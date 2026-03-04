@@ -11,68 +11,37 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get("userId")
-    const limit = parseInt(searchParams.get("limit") || "500")
+    const limit = parseInt(searchParams.get("limit") || "100")
 
     console.log("[v0] ADMIN_PLANS - Fetching plans", { userId, limit })
 
-    const plans: any[] = []
+    let query: any = adminDb.collection("plans")
 
+    // If userId provided, get only that user's plans
     if (userId) {
-      // Get specific user's plans
-      const userRef = adminDb.collection("users").doc(userId)
-      const userDoc = await userRef.get()
-
-      if (userDoc.exists) {
-        const userData = userDoc.data()
-        if (userData?.dietPlan) {
-          plans.push({
-            id: `${userId}-dietPlan`,
-            userId,
-            type: "dietPlan",
-            ...userData.dietPlan,
-          })
-        }
-        if (userData?.workoutPlan) {
-          plans.push({
-            id: `${userId}-workoutPlan`,
-            userId,
-            type: "workoutPlan",
-            ...userData.workoutPlan,
-          })
-        }
-      }
-    } else {
-      // Get all users' plans
-      const usersSnapshot = await adminDb.collection("users").limit(limit).get()
-
-      usersSnapshot.docs.forEach((userDoc) => {
-        const userData = userDoc.data()
-        const userId = userDoc.id
-
-        if (userData?.dietPlan) {
-          plans.push({
-            id: `${userId}-dietPlan`,
-            userId,
-            type: "dietPlan",
-            ...userData.dietPlan,
-          })
-        }
-        if (userData?.workoutPlan) {
-          plans.push({
-            id: `${userId}-workoutPlan`,
-            userId,
-            type: "workoutPlan",
-            ...userData.workoutPlan,
-          })
-        }
-      })
+      query = query.where("userId", "==", userId)
     }
 
-    console.log("[v0] ADMIN_PLANS - Found", plans.length, "plans")
+    // Try to order by createdAt descending
+    try {
+      query = query.orderBy("createdAt", "desc")
+    } catch (orderError) {
+      console.warn("[v0] ADMIN_PLANS - OrderBy failed, trying without ordering:", orderError)
+      // Continue without ordering if there's an issue
+    }
+
+    const snapshot = await query.limit(limit).get()
+
+    console.log("[v0] ADMIN_PLANS - Found", snapshot.size, "plans")
+
+    const plans = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }))
 
     return NextResponse.json({
-      plans: plans.slice(0, limit),
-      total: plans.length,
+      plans,
+      total: snapshot.size,
       timestamp: new Date().toISOString(),
     })
   } catch (error) {
