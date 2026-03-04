@@ -324,28 +324,6 @@ const normalizeHeight = (value: string): string => {
   return normalized
 }
 
-// Sanitize loaded quiz data to ensure all array fields are defined
-const sanitizeQuizData = (data: any): QuizData => {
-  return {
-    ...data,
-    goal: Array.isArray(data.goal) ? data.goal : [],
-    problemAreas: Array.isArray(data.problemAreas) ? data.problemAreas : [],
-    sugarFrequency: Array.isArray(data.sugarFrequency) ? data.sugarFrequency : [],
-    equipment: Array.isArray(data.equipment) ? data.equipment : [],
-    previousProblems: Array.isArray(data.previousProblems) ? data.previousProblems : [],
-    additionalGoals: Array.isArray(data.additionalGoals) ? data.additionalGoals : [],
-    healthConditions: Array.isArray(data.healthConditions) ? data.healthConditions : [],
-    sweetsFrequency: Array.isArray(data.sweetsFrequency) ? data.sweetsFrequency : [],
-    foodPreferences: {
-      vegetables: Array.isArray(data.foodPreferences?.vegetables) ? data.foodPreferences.vegetables : [],
-      grains: Array.isArray(data.foodPreferences?.grains) ? data.foodPreferences.grains : [],
-      ingredients: Array.isArray(data.foodPreferences?.ingredients) ? data.foodPreferences.ingredients : [],
-      meats: Array.isArray(data.foodPreferences?.meats) ? data.foodPreferences.meats : [],
-      fruits: Array.isArray(data.foodPreferences?.fruits) ? data.foodPreferences.fruits : [],
-    },
-  }
-}
-
 export default function QuizPage() {
   const [showMotivationMessage, setShowMotivationMessage] = useState(false)
   const [showCortisolMessage, setShowCortisolMessage] = useState(false)
