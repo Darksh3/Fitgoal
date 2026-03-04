@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get("userId")
     const limit = parseInt(searchParams.get("limit") || "500")
 
-    console.log("[v0] ADMIN_PLANS - Fetching plans", { userId, limit })
+    console.log("[v0] ADMIN_PLANS - Fetching plans from users collection", { userId, limit })
 
     const plans: any[] = []
 
@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
             id: `${userId}-dietPlan`,
             userId,
             type: "dietPlan",
+            createdAt: userData.dietPlan.createdAt || new Date().toISOString(),
             ...userData.dietPlan,
           })
         }
@@ -37,6 +38,7 @@ export async function GET(request: NextRequest) {
             id: `${userId}-workoutPlan`,
             userId,
             type: "workoutPlan",
+            createdAt: userData.workoutPlan.createdAt || new Date().toISOString(),
             ...userData.workoutPlan,
           })
         }
@@ -54,6 +56,7 @@ export async function GET(request: NextRequest) {
             id: `${userId}-dietPlan`,
             userId,
             type: "dietPlan",
+            createdAt: userData.dietPlan.createdAt || new Date().toISOString(),
             ...userData.dietPlan,
           })
         }
@@ -62,6 +65,7 @@ export async function GET(request: NextRequest) {
             id: `${userId}-workoutPlan`,
             userId,
             type: "workoutPlan",
+            createdAt: userData.workoutPlan.createdAt || new Date().toISOString(),
             ...userData.workoutPlan,
           })
         }
@@ -81,30 +85,3 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function PUT(request: NextRequest) {
-  try {
-    const isAdmin = await isAdminRequest()
-    if (!isAdmin) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-    }
-
-    const body = await request.json()
-    const { planId, status, notes } = body
-
-    if (!planId) {
-      return NextResponse.json({ error: "Plan ID é obrigatório" }, { status: 400 })
-    }
-
-    // Update plan with admin notes/flags
-    await adminDb.collection("plans").doc(planId).update({
-      adminStatus: status,
-      adminNotes: notes,
-      adminUpdatedAt: new Date().toISOString(),
-    })
-
-    return NextResponse.json({ success: true, planId })
-  } catch (error) {
-    console.error("[v0] Error updating plan:", error)
-    return NextResponse.json({ error: "Erro ao atualizar plano" }, { status: 500 })
-  }
-}

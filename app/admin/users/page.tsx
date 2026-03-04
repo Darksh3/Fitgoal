@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, MoreVertical } from "lucide-react"
+import { Search, MoreVertical, Download } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 interface User {
   id: string
@@ -33,6 +34,37 @@ export default function UsersPage() {
       console.error("[v0] Error fetching users:", error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleExportEmails = async (format: "json" | "csv" = "csv") => {
+    try {
+      const response = await fetch(`/api/admin/export-emails?type=users&format=${format}`)
+      
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = `emails_users_${new Date().toISOString().split("T")[0]}.${format === "csv" ? "csv" : "json"}`
+        a.click()
+        window.URL.revokeObjectURL(url)
+      }
+    } catch (error) {
+      console.error("[v0] Error exporting emails:", error)
+    }
+  }
+
+  const handleCopyEmails = async () => {
+    try {
+      const response = await fetch("/api/admin/export-emails?type=users&format=json")
+      const data = await response.json()
+      const emailText = data.emails.join("; ")
+      
+      await navigator.clipboard.writeText(emailText)
+      alert(`${data.total} emails copiados para a área de transferência!`)
+    } catch (error) {
+      console.error("[v0] Error copying emails:", error)
     }
   }
 
@@ -75,18 +107,43 @@ export default function UsersPage() {
         ))}
       </div>
 
-      {/* Filters */}
-      <Card className="bg-slate-900 border-slate-800 p-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
-          <Input
-            placeholder="Buscar por email ou nome..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-slate-800 border-slate-700 text-white"
-          />
+      {/* Filters and Export */}
+      <div className="space-y-4">
+        <Card className="bg-slate-900 border-slate-800 p-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
+            <Input
+              placeholder="Buscar por email ou nome..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-slate-800 border-slate-700 text-white"
+            />
+          </div>
+        </Card>
+
+        {/* Export Buttons */}
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            onClick={() => handleExportEmails("csv")}
+            variant="outline"
+            className="border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800"
+            title="Download emails como CSV"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Emails CSV
+          </Button>
+
+          <Button
+            onClick={handleCopyEmails}
+            variant="outline"
+            className="border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800"
+            title="Copiar emails para área de transferência"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Copiar Emails
+          </Button>
         </div>
-      </Card>
+      </div>
 
       {/* Table */}
       <Card className="bg-slate-900 border-slate-800 overflow-hidden">

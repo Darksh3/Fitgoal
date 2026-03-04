@@ -70,18 +70,6 @@ export async function POST(request: NextRequest) {
     await adminDb.collection("leads").doc(uid).set(leadData, { merge: true })
     console.log("[v0] LEAD_SAVED_SUCCESSFULLY - Lead saved for:", uid)
 
-    // Também salvar os dados do quiz no documento do usuário para referência
-    await adminDb.collection("users").doc(uid).set(
-      {
-        quizData: quizData,
-        quizCompletedAt: admin.firestore.FieldValue.serverTimestamp(),
-        name: name || quizData.name,
-        email: email || quizData.email,
-      },
-      { merge: true }
-    )
-    console.log("[v0] USER_QUIZ_DATA_SAVED - Quiz data saved in user document for:", uid)
-
     return NextResponse.json(
       {
         success: true,

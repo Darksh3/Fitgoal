@@ -9,75 +9,49 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    console.log("[v0] ADMIN_SEGMENTS - Fetching leads for segmentation")
+    console.log("[v0] ADMIN_SEGMENTS - Fetching segments data")
 
+    // Get all leads to segment
     const leadsSnapshot = await adminDb.collection("leads").get()
-
-    const leads = leadsSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }))
+    const leads = leadsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
 
     console.log("[v0] ADMIN_SEGMENTS - Found", leads.length, "leads")
 
     // Segment by stage
-    const segments: Record<string, any> = {
-      novo: { count: 0, leads: [] },
-      qualified: { count: 0, leads: [] },
-      proposta: { count: 0, leads: [] },
-      cliente: { count: 0, leads: [] },
-      inativo: { count: 0, leads: [] },
-    }
-
+    const byStage: Record<string, number> = {}
     leads.forEach((lead: any) => {
-      const stage = lead.stage || "novo"
-      if (stage in segments) {
-        segments[stage].count++
-        segments[stage].leads.push({
-          id: lead.id,
-          email: lead.email,
-          name: lead.name,
-          stage: lead.stage,
-          createdAt: lead.createdAt,
-          lastInteraction: lead.lastInteraction,
-        })
-      }
+      const stage = lead.stage || "unknown"
+      byStage[stage] = (byStage[stage] || 0) + 1
     })
 
-    // Segment by utm_campaign
-    const campaignSegments: Record<string, any> = {}
-
+    // Segment by campaign
+    const byCampaign: Record<string, number> = {}
     leads.forEach((lead: any) => {
       const campaign = lead.utm_campaign || "organic"
-      if (!campaignSegments[campaign]) {
-        campaignSegments[campaign] = { count: 0, leads: [] }
-      }
-      campaignSegments[campaign].count++
-      campaignSegments[campaign].leads.push({
-        id: lead.id,
-        email: lead.email,
-        name: lead.name,
-        stage: lead.stage,
-      })
+      byCampaign[campaign] = (byCampaign[campaign] || 0) + 1
     })
 
-    // Segment by hasPaid
-    const paidSegments = {
-      paid: { count: leads.filter((l: any) => l.hasPaid).length },
-      unpaid: { count: leads.filter((l: any) => !l.hasPaid).length },
+    // Segment by payment status
+    const byPaymentStatus = {
+      paid: leads.filter((l: any) => l.hasPaid || l.stage === "cliente").length,
+      unpaid: leads.filter((l: any) => !l.hasPaid && l.stage !== "cliente").length,
     }
 
+    // Segment by source
+    const bySource: Record<string, number> = {}
+    leads.forEach((lead: any) => {
+      const source = lead.utm_source || "direct"
+      bySource[source] = (bySource[source] || 0) + 1
+    })
+
     return NextResponse.json({
-      stageSegments: Object.entries(segments).map(([stage, data]) => ({
-        stage,
-        ...data,
-      })),
-      campaignSegments: Object.entries(campaignSegments).map(([campaign, data]) => ({
-        campaign,
-        ...data,
-      })),
-      paymentSegments: paidSegments,
-      totalLeads: leads.length,
+      total_leads: leads.length,
+      segments: {
+        by_stage: byStage,
+        by_campaign: byCampaign,
+        by_payment_status: byPaymentStatus,
+        by_source: bySource,
+      },
       timestamp: new Date().toISOString(),
     })
   } catch (error) {
