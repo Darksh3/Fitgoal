@@ -1,17 +1,5 @@
 import { NextResponse } from "next/server"
-import * as admin from "firebase-admin"
-
-// Initialize Firebase Admin
-if (!admin.apps.length) {
-  try {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY || "{}")
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    })
-  } catch (err) {
-    console.error("[v0] Erro ao inicializar Firebase Admin:", err)
-  }
-}
+import { adminDb, admin } from "@/lib/firebaseAdmin"
 
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY
 const ASAAS_ENVIRONMENT = process.env.ASAAS_ENVIRONMENT || "production"
