@@ -436,13 +436,13 @@ function safeJsonParseFromModel(content: string) {
   return JSON.parse(text)
 }
 
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<Response> {
   try {
-    const timeoutPromise = new Promise((_, reject) => {
+    const timeoutPromise = new Promise<Response>((_, reject) => {
       setTimeout(() => reject(new Error("Request timeout after 90 seconds")), 90000)
     })
 
-    const mainLogic = async () => {
+    const mainLogic = async (): Promise<Response> => {
       // Replacing the original JSON parsing with specific checks
       const body = await req.json()
       const userId = body.userId
@@ -1039,7 +1039,9 @@ JSON OBRIGATÓRIO:
       )
     }
 
-    return await Promise.race([mainLogic(), timeoutPromise])
+    // Executar mainLogic com timeout
+    const result = await Promise.race([mainLogic(), timeoutPromise])
+    return result
   } catch (error: any) {
     console.error("❌ Fatal error:", error)
     return new Response(JSON.stringify({ error: error.message }), {
