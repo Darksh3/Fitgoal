@@ -250,13 +250,10 @@ async function processPaymentBackground(payment: AsaasPayment) {
     // Call post-checkout handler if configured
     let appUrl = process.env.APP_URL
     
-    // Fallback: se APP_URL não estiver definida, usar vercel deploy URL
+    // APP_URL é obrigatório para o post-checkout handler funcionar
     if (!appUrl) {
-      // Try to get from request headers or use localhost for development
-      const host = request.headers.get('host') || 'localhost:3000'
-      const protocol = request.headers.get('x-forwarded-proto') || 'https'
-      appUrl = `${protocol}://${host}`
-      console.log(`[v0] APP_URL not configured, using request URL: ${appUrl}`)
+      console.warn("[v0] APP_URL não configurado - post-checkout handler desabilitado")
+      console.warn("[v0] Configure APP_URL nas variáveis de ambiente do Vercel para habilitar notificações pós-compra")
     }
     
     console.log(`[v0] POST-CHECKOUT HANDLER CHECK - appUrl: ${appUrl}, status: ${payment.status}`)
