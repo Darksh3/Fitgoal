@@ -18,6 +18,8 @@ import { useRouter } from "next/navigation"
 
 import { db, auth } from "@/lib/firebaseClient"
 
+import { usePixel } from "@/components/pixel-tracker"
+
 import { doc, setDoc, getDoc } from "firebase/firestore"
 
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth"
@@ -325,6 +327,7 @@ const normalizeHeight = (value: string): string => {
 }
 
 export default function QuizPage() {
+  const { trackLead, trackQuizStart } = usePixel()
   const [showMotivationMessage, setShowMotivationMessage] = useState(false)
   const [showCortisolMessage, setShowCortisolMessage] = useState(false)
   // </CHANGE>
@@ -932,6 +935,12 @@ export default function QuizPage() {
       const result = await response.json()
       console.log("[v0] SAVE_LEAD - Success:", result)
 
+      // Disparar evento de Lead nos pixels (Meta + TikTok)
+      trackLead({
+        content_name: 'Quiz FitGoal Completo',
+        content_category: 'quiz',
+      })
+
       // Redirect to results after a short delay
       setTimeout(() => {
         router.push("/quiz/results")
@@ -949,6 +958,7 @@ export default function QuizPage() {
     // Handle specific step logic
     if (currentStep === 0) {
       // From intro, go to step 1
+      trackQuizStart()
       setCurrentStep(1)
       return
     }
@@ -1183,6 +1193,12 @@ export default function QuizPage() {
       if (imc > 0) {
         setShowSuccess(true)
       }
+
+      // Disparar evento de Lead nos pixels (backup do saveLead)
+      trackLead({
+        content_name: 'Quiz FitGoal Completo',
+        content_category: 'quiz',
+      })
     } catch (error) {
       console.error("handleSubmit: Erro no handleSubmit:", error)
       alert("Erro inesperado. Tente novamente.")
