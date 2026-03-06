@@ -7,6 +7,7 @@ import "../styles/neon-buttons.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import FloatingChat from "@/components/floating-chat"
+import { PixelTracker } from "@/components/pixel-tracker"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -31,11 +32,13 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          {children}
-          <FloatingChat />
-          <Toaster />
-        </ThemeProvider>
+        <PixelTracker>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+            {children}
+            <FloatingChat />
+            <Toaster />
+          </ThemeProvider>
+        </PixelTracker>
       </body>
     </html>
   )

@@ -3,6 +3,7 @@ import Stripe from "stripe"
 import { adminDb, admin, auth } from "@/lib/firebaseAdmin"
 import { Resend } from "resend"
 import sgMail from "@sendgrid/mail"
+import { sendPurchaseEvent } from "@/lib/meta-conversions-api"
 
 // ==================== HELPERS ====================
 async function getLeadDoc(adminDb: any, ids: Array<string | null | undefined>) {
@@ -527,6 +528,42 @@ export async function POST(req: Request) {
     try {
       await userDocRef.set(userData, { merge: true })
       console.log(`DEBUG: Dados salvos com sucesso no Firestore para usuário: ${finalUserUid}`)
+
+      // ==================== META CONVERSIONS API (SERVER-SIDE) ====================
+      // Disparar evento de Purchase no Meta CAPI para rastreamento preciso
+      try {
+        const planPrices: { [key: string]: number } = {
+          "price_1RajatPRgKqdJdqNnb9HQe17": 79.90,   // Mensal
+          "price_1SPrzGPRgKqdJdqNNLfhAYNo": 299.40,   // Semestral
+          "price_1RajgKPRgKqdJdqNnhxim8dd": 478.80,   // Anual
+          "price_1SPs2cPRgKqdJdqNbiXZYLhI": 194.70,   // Trimestral
+        }
+
+        const planNames: { [key: string]: string } = {
+          "price_1RajatPRgKqdJdqNnb9HQe17": "Plano Mensal",
+          "price_1SPrzGPRgKqdJdqNNLfhAYNo": "Plano Semestral",
+          "price_1RajgKPRgKqdJdqNnhxim8dd": "Plano Anual",
+          "price_1SPs2cPRgKqdJdqNbiXZYLhI": "Plano Trimestral",
+        }
+
+        const purchaseValue = planPrices[planType!] || 79.90
+        const displayPlanNameForPixel = planNames[planType!] || planType || 'Plano FitGoal'
+
+        await sendPurchaseEvent({
+          email: userEmail || undefined,
+          phone: customerPhone || undefined,
+          value: purchaseValue,
+          currency: 'BRL',
+          planName: displayPlanNameForPixel,
+          orderId: finalUserUid,
+          clientIp: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || undefined,
+          userAgent: req.headers.get('user-agent') || undefined,
+        })
+        console.log("[v0] META_CAPI - Evento Purchase enviado com sucesso")
+      } catch (capiError: any) {
+        console.error("[v0] META_CAPI - Erro ao enviar evento Purchase:", capiError?.message)
+        // Não falha o checkout se o pixel falhar
+      }
 
       console.log("[v0] WEIGHTS_SAVED - Pesos salvos no userData:", {
         initialWeight: userData.initialWeight,
