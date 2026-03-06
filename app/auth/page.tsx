@@ -45,10 +45,6 @@ export default function AuthPage() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoginError("")
-    if (!auth) {
-      setLoginError("Serviço de autenticação indisponível. Tente novamente mais tarde.")
-      return
-    }
     setLoading(true)
     try {
       await signInWithEmailAndPassword(auth, email, password)
@@ -72,10 +68,6 @@ export default function AuthPage() {
     setSignupError("")
     if (password !== confirmPassword) {
       setSignupError("As senhas não coincidem.")
-      return
-    }
-    if (!auth) {
-      setSignupError("Serviço de autenticação indisponível. Tente novamente mais tarde.")
       return
     }
     setLoading(true)

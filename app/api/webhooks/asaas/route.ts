@@ -42,19 +42,6 @@ interface AsaasWebhookPayload {
 export async function POST(request: NextRequest) {
   try {
     console.log("[v0] Payment webhook received from Asaas")
-
-    // Validação de token secreto - protege contra webhooks falsificados
-    const webhookToken = process.env.ASAAS_WEBHOOK_TOKEN
-    if (webhookToken) {
-      const receivedToken =
-        request.headers.get("asaas-access-token") ||
-        request.headers.get("authorization")?.replace("Bearer ", "")
-
-      if (!receivedToken || receivedToken !== webhookToken) {
-        console.warn("[v0] Webhook rejeitado: token inválido ou ausente")
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-      }
-    }
     
     const body: AsaasWebhookPayload = await request.json()
     const { event, payment } = body

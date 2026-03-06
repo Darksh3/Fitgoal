@@ -1,6 +1,17 @@
 import { NextResponse } from "next/server"
-import { adminDb } from "@/lib/firebaseAdmin"
 import * as admin from "firebase-admin"
+
+// Initialize Firebase Admin
+if (!admin.apps.length) {
+  try {
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY || "{}")
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    })
+  } catch (err) {
+    console.error("[v0] Erro ao inicializar Firebase Admin:", err)
+  }
+}
 
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY
 const ASAAS_ENVIRONMENT = process.env.ASAAS_ENVIRONMENT || "production"
@@ -217,6 +228,7 @@ export async function POST(req: Request) {
     // 3. SEGURO: Criar documento de pagamento no Firestore via Admin SDK
     console.log("[v0] Step 7.5: Creating payment document in Firestore...")
     try {
+      const db = admin.firestore()
       const paymentDocData = {
         asaasPaymentId: paymentResult.id,
         paymentId: paymentResult.id,
@@ -239,7 +251,7 @@ export async function POST(req: Request) {
         }
       }
       
-      await adminDb.collection("payments").doc(paymentResult.id).set(paymentDocData)
+      await db.collection("payments").doc(paymentResult.id).set(paymentDocData)
       console.log("[v0] Step 7.5 DONE - Payment document created in Firestore with ID:", paymentResult.id)
     } catch (firestoreErr) {
       console.error("[v0] Step 7.5 WARNING - Could not create Firestore doc:", firestoreErr)

@@ -154,8 +154,6 @@ export async function getPromptHistory(promptId: string) {
   }
 }
 
-import { PromptUsageLog } from "@/lib/schemas/prompt"
-
 // Get usage metrics
 export async function getPromptUsageMetrics(promptKey: string, days: number = 7) {
   try {
@@ -163,11 +161,11 @@ export async function getPromptUsageMetrics(promptKey: string, days: number = 7)
     
     const metrics = {
       total_calls: logs.length,
-      success_rate: (logs.filter((l: PromptUsageLog) => l.status === "success").length / logs.length * 100).toFixed(2),
-      avg_latency_ms: (logs.reduce((sum: number, l: PromptUsageLog) => sum + l.latency_ms, 0) / logs.length).toFixed(2),
-      total_tokens: logs.reduce((sum: number, l: PromptUsageLog) => sum + l.tokens_input + l.tokens_output, 0),
-      estimated_cost: logs.reduce((sum: number, l: PromptUsageLog) => sum + l.cost_estimated, 0).toFixed(4),
-      errors: logs.filter((l: PromptUsageLog) => l.status === "error").length,
+      success_rate: (logs.filter(l => l.status === "success").length / logs.length * 100).toFixed(2),
+      avg_latency_ms: (logs.reduce((sum, l) => sum + l.latency_ms, 0) / logs.length).toFixed(2),
+      total_tokens: logs.reduce((sum, l) => sum + l.tokens_input + l.tokens_output, 0),
+      estimated_cost: logs.reduce((sum, l) => sum + l.cost_estimated, 0).toFixed(4),
+      errors: logs.filter(l => l.status === "error").length,
     }
 
     return { success: true, data: { metrics, logs } }
