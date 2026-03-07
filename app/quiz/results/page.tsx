@@ -11,7 +11,7 @@ import { usePixel } from "@/components/pixel-tracker"
 
 export default function QuizResultsPage() {
   const router = useRouter()
-  const { trackViewContent } = usePixel()
+  const { trackViewContent, trackPlanView } = usePixel()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
   const [timeLeft, setTimeLeft] = useState({ minutes: 10, seconds: 0 })
@@ -38,13 +38,14 @@ export default function QuizResultsPage() {
   }
   // ==================================================
 
-  // Rastrear ViewContent quando a página de resultados carrega
+  // Rastrear ViewContent e PlanView quando a página de resultados carrega
   useEffect(() => {
     trackViewContent({
-      content_name: 'Quiz Results Page',
-      content_category: 'quiz_results',
+      content_name: 'Resultado Quiz',
+      content_category: 'quiz_result',
     })
-  }, [trackViewContent])
+    trackPlanView()
+  }, [trackViewContent, trackPlanView])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,9 +56,8 @@ export default function QuizResultsPage() {
         if (local) {
           try {
             stored = JSON.parse(local)
-            console.log("[v0] RESULTS_DATA_FOUND_IN_LOCALSTORAGE - Keys:", Object.keys(stored || {}))
           } catch (error) {
-            console.error("[v0] RESULTS_LOCALSTORAGE_PARSE_ERROR:", error)
+            console.error("RESULTS_LOCALSTORAGE_PARSE_ERROR:", error)
           }
         } else {
           console.log("[v0] RESULTS_NO_DATA_IN_LOCALSTORAGE")

@@ -35,12 +35,25 @@ interface PixelContextType {
 
 const PixelContext = createContext<PixelContextType | null>(null)
 
+const noopFn = (..._args: any[]) => {}
+
+const fallbackContext: PixelContextType = {
+  trackViewContent: noopFn,
+  trackLead: noopFn,
+  trackPurchase: noopFn as any,
+  trackInitiateCheckout: noopFn,
+  trackAddToCart: noopFn,
+  trackQuizStart: noopFn,
+  trackQuizStep: noopFn,
+  trackPlanView: noopFn,
+  trackMetaEvent: noopFn,
+  trackMetaCustomEvent: noopFn,
+  trackTikTokEvent: noopFn,
+}
+
 export const usePixel = (): PixelContextType => {
   const context = useContext(PixelContext)
-  if (!context) {
-    throw new Error('usePixel deve ser usado dentro de <PixelTracker>')
-  }
-  return context
+  return context ?? fallbackContext
 }
 
 function PixelProvider({ children }: { children: ReactNode }) {
