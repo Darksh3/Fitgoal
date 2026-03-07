@@ -37,6 +37,39 @@ export const initMetaPixel = (pixelId: string): void => {
   ;(window as any).fbq('init', pixelId)
   ;(window as any).fbq('track', 'PageView')
 }
+
+export const trackMetaEvent = (eventName: string, data?: Record<string, any>): void => {
+  if (!isMetaPixelLoaded()) return
+  if (data) {
+    ;(window as any).fbq('track', eventName, data)
+  } else {
+    ;(window as any).fbq('track', eventName)
+  }
+}
+
+export const trackMetaCustomEvent = (eventName: string, data?: Record<string, any>): void => {
+  if (!isMetaPixelLoaded()) return
+  if (data) {
+    ;(window as any).fbq('trackCustom', eventName, data)
+  } else {
+    ;(window as any).fbq('trackCustom', eventName)
+  }
+}
+    if (!f._fbq) f._fbq = n
+    n.push = n
+    n.loaded = true
+    n.version = '2.0'
+    n.queue = []
+    t = b.createElement(e)
+    t.async = true
+    t.src = 'https://connect.facebook.net/en_US/fbevents.js'
+    s = b.getElementsByTagName(e)[0]
+    s.parentNode.insertBefore(t, s)
+  })(window, document, 'script')
+
+  ;(window as any).fbq('init', pixelId)
+  ;(window as any).fbq('track', 'PageView')
+}
     if (!f._fbq) f._fbq = n
     n.push = n
     n.loaded = true
