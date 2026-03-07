@@ -51,12 +51,20 @@ function PixelProvider({ children }: { children: ReactNode }) {
     const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID
     const tiktokPixelId = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID
 
+    console.log("[v0] PixelTracker iniciando")
+    console.log("[v0] Meta Pixel ID:", metaPixelId)
+    console.log("[v0] TikTok Pixel ID:", tiktokPixelId)
+
     if (metaPixelId) {
       initMetaPixel(metaPixelId)
+    } else {
+      console.warn("[v0] NEXT_PUBLIC_META_PIXEL_ID não configurado")
     }
 
     if (tiktokPixelId) {
       initTikTokPixel(tiktokPixelId)
+    } else {
+      console.warn("[v0] NEXT_PUBLIC_TIKTOK_PIXEL_ID não configurado")
     }
   }, [])
 
