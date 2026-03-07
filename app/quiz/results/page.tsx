@@ -274,10 +274,23 @@ export default function QuizResultsPage() {
     }
   }
 
+  const getPlanPrice = () => {
+    switch (selectedPlan) {
+      case "monthly":
+        return "79.90"
+      case "quarterly":
+        return "159.90"
+      case "semiannual":
+        return "239.90"
+      default:
+        return "159.90"
+    }
+  }
+
   const handleCheckout = () => {
     const planKey = getPlanKey()
     const planName = getPlanName()
-    const planPrice = "239.90"
+    const planPrice = getPlanPrice()
     
     // Rastrear InitiateCheckout antes de navegar
     trackInitiateCheckout({
