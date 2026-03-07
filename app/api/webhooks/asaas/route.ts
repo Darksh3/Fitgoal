@@ -242,6 +242,7 @@ async function processPaymentBackground(payment: AsaasPayment, request?: NextReq
             email: payment.customer?.email || leadData.email,
             phone: payment.customer?.phone || leadData.phone,
             firstName: firstName,
+            lastName: lastName,
             value: payment.value,
             currency: 'BRL',
             planName: planName,
