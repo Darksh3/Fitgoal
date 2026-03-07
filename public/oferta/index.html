@@ -1842,6 +1842,31 @@
   </style>
   <script src="https://browser.sentry-cdn.com/9.6.1/bundle.min.js" crossorigin="anonymous"
     integrity="sha384-kbRmCeIl7Uxr+vT9YhSAdguCdd4L5QPRj7jzQTanorUVVlw/Y5X9vtzVyOEHLfpH"></script>
+
+  <!-- Meta Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '856906736475819');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=856906736475819&ev=PageView&noscript=1" /></noscript>
+
+  <!-- TikTok Pixel -->
+  <script>
+    !function (w, d, t) {
+      w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["track","trackEvent","trackPageView","trackIdentity","resetUser","setUser","setUserProperties","unsetUserProperty","closeUser"],ttq.setAndDefer=function(t,e){t[e]=t[e]||[],t[e].push(e)};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||{},n=0;n<ttq.methods.length;n++)ttq[ttq.methods[n]]=ttq[ttq.methods[n]].bind(e);return e},ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+      ttq.load('D8KC2PQPQQT7EB5EHTD0');
+      ttq.trackPageView();
+    }(window, document, 'ttq');
+  </script>
 </head>
 
 <body class="unlocking page-locked">
@@ -1913,11 +1938,12 @@
 
       <!-- Hero CTA (locked while countdown active) -->
       <div class="hero-cta-wrap" data-lock="">
-        <a href="https://fitgoal.com.br/quiz" class="btn pulse" id="heroCta" style="font-size:17px;padding:20px 44px">
-          <svg viewBox="0 0 24 24">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-          </svg>
-          <span data-cfg="cta_hero">COMEÇAR AGORA</span>
+    <a href="https://fitgoal.com.br/quiz" class="btn pulse" id="heroCta" style="font-size:17px;padding:20px 44px" onclick="fbq('track', 'InitiateCheckout', {value: 79.90, currency: 'BRL', content_name: 'Plano Mensal'}); ttq.track('InitiateCheckout', {value: 79.90, currency: 'BRL', content_name: 'Plano Mensal'});">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+      <span data-cfg="cta_hero">COMEÇAR AGORA</span>
         </a>
         <div class="hero-trust-row">
           <span class="hero-trust-item"><svg viewBox="0 0 24 24">
@@ -2415,7 +2441,7 @@
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>Suporte prioritário</li>
           </ul>
-          <a href="https://fitgoal.com.br/quiz" data-checkout="" class="price-btn">COMEÇAR MENSALMENTE</a>
+          <a href="https://fitgoal.com.br/quiz" data-checkout="" class="price-btn" onclick="fbq('track', 'InitiateCheckout', {value: 79.90, currency: 'BRL', content_name: 'Plano Mensal'}); ttq.track('InitiateCheckout', {value: 79.90, currency: 'BRL', content_name: 'Plano Mensal'});">COMEÇAR MENSALMENTE</a>
         </div>
 
         <div class="price-card best fi d1 v">
@@ -2447,11 +2473,12 @@
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>Tempo ideal para transformação</li>
           </ul>
-          <a href="https://fitgoal.com.br/quiz" data-checkout="" class="price-btn">
-            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-            </svg>
-            <span data-cfg="cta_pricing">GARANTIR MINHA VAGA AGORA</span>
+      <a href="https://fitgoal.com.br/quiz" data-checkout="" class="price-btn" onclick="fbq('track', 'InitiateCheckout', {value: 194.70, currency: 'BRL', content_name: 'Plano Trimestral'}); ttq.track('InitiateCheckout', {value: 194.70, currency: 'BRL', content_name: 'Plano Trimestral'});">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+        <span data-cfg="cta_pricing">GARANTIR MINHA VAGA AGORA</span>
           </a>
         </div>
 
@@ -2483,7 +2510,7 @@
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>Análise de fotos quinzenais</li>
           </ul>
-          <a href="https://fitgoal.com.br/quiz" data-checkout="" class="price-btn">APROVEITAR MELHOR VALOR</a>
+          <a href="https://fitgoal.com.br/quiz" data-checkout="" class="price-btn" onclick="fbq('track', 'InitiateCheckout', {value: 299.40, currency: 'BRL', content_name: 'Plano Semestral'}); ttq.track('InitiateCheckout', {value: 299.40, currency: 'BRL', content_name: 'Plano Semestral'});">APROVEITAR MELHOR VALOR</a>
         </div>
 
       </div>
@@ -2591,11 +2618,12 @@
       <h2 class="fi v">Sua transformação<br><span>começa hoje.</span></h2>
       <p class="fi d1 v">Mais de <span data-cfg="stat_transformados">18.948+</span> pessoas já pararam de tentar métodos
         genéricos e transformaram seus corpos. Seja o próximo.</p>
-      <a href="https://fitgoal.com.br/quiz" class="btn fi d2 v" style="font-size:17px;padding:20px 44px;margin:0 auto">
-        <svg viewBox="0 0 24 24">
-          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-        </svg>
-        <span data-cfg="cta_final">COMEÇAR AGORA</span>
+    <a href="https://fitgoal.com.br/quiz" class="btn fi d2 v" style="font-size:17px;padding:20px 44px;margin:0 auto" onclick="fbq('track', 'InitiateCheckout', {value: 79.90, currency: 'BRL', content_name: 'Plano Mensal'}); ttq.track('InitiateCheckout', {value: 79.90, currency: 'BRL', content_name: 'Plano Mensal'});">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+      <span data-cfg="cta_final">COMEÇAR AGORA</span>
       </a>
       <p style="margin-top:18px;font-size:13px;color:var(--txt-3)" class="fi d3 v">
         🛡️ Garantia 30 dias · 🔒 Pagamento seguro · ⚡ Acesso imediato · ❌ Sem fidelidade
@@ -2621,7 +2649,7 @@
 
   <!-- Sticky CTA mobile -->
   <div class="sticky" id="stk" style="display: none;">
-    <a href="https://fitgoal.com.br/quiz" data-cfg-sticky="">
+    <a href="https://fitgoal.com.br/quiz" data-cfg-sticky="" onclick="fbq('track', 'InitiateCheckout', {value: 79.90, currency: 'BRL', content_name: 'Plano Mensal'}); ttq.track('InitiateCheckout', {value: 79.90, currency: 'BRL', content_name: 'Plano Mensal'});">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"
         stroke-linecap="round" stroke-linejoin="round">
         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
@@ -2649,7 +2677,7 @@
       // ─────────────────────────────────────────────────────
       delay: 90,
 
-      // ─────────────────────────────────────────────────────
+      // ─────────────────────────��───────────────────────────
       // 📝  TEXTOS PRINCIPAIS
       //     <br> = quebra de linha
       //     <em>...</em> = texto em verde destacado
