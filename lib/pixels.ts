@@ -111,7 +111,7 @@ export const initTikTokPixel = (pixelId: string): void => {
     firstScript?.parentNode?.insertBefore(script, firstScript)
   }
 
-  ttq.load(pixelId)
+  ttq.load(pixelCode)
   ttq.page()
 }
 
@@ -243,16 +243,16 @@ export const trackQuizStart = (): void => {
 }
 
 /** QuizStep - evento customizado para cada passo do quiz */
-export const trackQuizStep = (step: number, totalSteps?: number): void => {
+export const trackQuizStep = (step: number, totalSteps: number): void => {
   trackMetaCustomEvent('QuizStep', {
     step_number: step,
     total_steps: totalSteps,
-    content_name: `Quiz Step ${step}`,
+    content_name: `Quiz Step ${step}/${totalSteps}`,
   })
 }
 
 /** PlanView - quando vê os planos de preço */
-export const trackPlanView = (planName?: string): void => {
-  trackMetaCustomEvent('PlanView', { content_name: planName || 'Planos FitGoal' })
-  trackTikTokEvent('ViewContent', { content_name: planName || 'Planos FitGoal' })
+export const trackPlanView = (): void => {
+  trackMetaCustomEvent('PlanView', { content_name: 'Planos FitGoal' })
+  trackTikTokEvent('ViewContent', { content_name: 'Planos FitGoal' })
 }

@@ -327,7 +327,7 @@ const normalizeHeight = (value: string): string => {
 }
 
 export default function QuizPage() {
-  const { trackLead, trackQuizStart, trackViewContent, trackQuizStep } = usePixel()
+  const { trackLead, trackQuizStart, trackViewContent } = usePixel()
   const [showMotivationMessage, setShowMotivationMessage] = useState(false)
   const [showCortisolMessage, setShowCortisolMessage] = useState(false)
   // </CHANGE>
@@ -361,30 +361,19 @@ export default function QuizPage() {
     })
   }, [trackViewContent])
 
-  // Rastrear QuizStart quando começa (primeiro passo)
-  useEffect(() => {
-    if (currentStep === 1) {
-      trackQuizStart()
-    }
-  }, [currentStep, trackQuizStart])
-
-  // Rastrear QuizStep quando progride nas perguntas
-  useEffect(() => {
-    if (currentStep > 1 && currentStep <= totalSteps && totalSteps > 0) {
-      trackQuizStep(currentStep, totalSteps)
-    }
-  }, [currentStep, totalSteps, trackQuizStep])
-
   useEffect(() => {
     if (showQuickResults) {
       const muscleLen = musclePathRef.current?.getTotalLength() ?? 0
       const fatLen = fatPathRef.current?.getTotalLength() ?? 0
+
+      console.log("[v0] Initial pathLengths - muscle:", muscleLen, "fat:", fatLen)
 
       // If getTotalLength returns 0, retry after a small delay
       if (muscleLen === 0 || fatLen === 0) {
         setTimeout(() => {
           const retryMuscleLen = musclePathRef.current?.getTotalLength() ?? 468
           const retryFatLen = fatPathRef.current?.getTotalLength() ?? 440
+          console.log("[v0] Retry pathLengths - muscle:", retryMuscleLen, "fat:", retryFatLen)
           setPathLengths({ muscle: retryMuscleLen, fat: retryFatLen })
         }, 100)
       } else {
@@ -396,6 +385,7 @@ export default function QuizPage() {
   useEffect(() => {
     if (pathLengths.muscle > 0 && pathLengths.fat > 0) {
       setTimeout(() => {
+        console.log("[v0] Animation triggered with pathLengths:", pathLengths)
         setAnimateChart(true)
       }, 200)
     }
