@@ -923,6 +923,18 @@ export default function QuizPage() {
       setShowAnalyzingData(true)
       setAnalyzingStep(0)
 
+      // Capturar fbp (cookie _fbp) e fbc (fbclid da URL ou fbcookie) para Meta Conversions API
+      const fbpCookie = typeof document !== 'undefined' 
+        ? document.cookie.split('; ').find(r => r.startsWith('_fbp='))?.split('=')[1]
+        : undefined
+      
+      const fbcCookie = typeof document !== 'undefined'
+        ? document.cookie.split('; ').find(r => r.startsWith('_fbc='))?.split('=')[1]
+        : undefined
+      
+      const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
+      const fbclid = urlParams.get('fbclid') || undefined
+
       // Make API call to save lead with all quiz data
       const response = await fetch("/api/save-lead", {
         method: "POST",
@@ -934,6 +946,8 @@ export default function QuizPage() {
           quizData: quizData,
           name: quizData.name,
           email: quizData.email,
+          fbp: fbpCookie,
+          fbc: fbcCookie || fbclid,
         }),
       })
 

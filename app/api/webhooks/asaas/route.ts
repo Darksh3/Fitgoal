@@ -249,6 +249,8 @@ async function processPaymentBackground(payment: AsaasPayment, request?: NextReq
             clientIp: clientIp !== 'unknown' ? clientIp : undefined,
             userAgent: userAgent,
             sourceUrl: leadData?.sourceUrl || 'https://fitgoal.com.br',
+            fbp: leadData?.fbp || undefined,
+            fbc: leadData?.fbc || undefined,
           })
           
           console.log(`[v0] ✅ Meta CAPI Purchase event sent for payment ${payment.id}`)
