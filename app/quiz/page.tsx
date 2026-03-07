@@ -363,10 +363,10 @@ export default function QuizPage() {
 
   // Rastrear QuizStep a cada pergunta respondida
   useEffect(() => {
-    if (currentStep > 0) {
-      trackQuizStep(currentStep, undefined)
+    if (currentStep > 0 && totalSteps > 0) {
+      trackQuizStep(currentStep, totalSteps)
     }
-  }, [currentStep, trackQuizStep])
+  }, [currentStep, totalSteps, trackQuizStep])
 
   useEffect(() => {
     if (showQuickResults) {
