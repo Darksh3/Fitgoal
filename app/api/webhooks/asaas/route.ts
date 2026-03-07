@@ -44,23 +44,6 @@ export async function POST(request: NextRequest) {
   try {
     console.log("[v0] Payment webhook received from Asaas")
 
-    // ==================== VALIDAÇÃO DE AUTENTICIDADE ====================
-    // Validar token secreto do webhook para proteger contra webhooks falsificados
-    const webhookToken = process.env.ASAAS_WEBHOOK_TOKEN
-    if (webhookToken) {
-      const receivedToken =
-        request.headers.get("asaas-access-token") ||
-        request.headers.get("authorization")?.replace("Bearer ", "")
-
-      if (!receivedToken || receivedToken !== webhookToken) {
-        console.warn("[v0] Webhook rejeitado: token de autenticação inválido ou ausente")
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-      }
-      console.log("[v0] Webhook token validado com sucesso")
-    } else {
-      console.warn("[v0] ASAAS_WEBHOOK_TOKEN não configurado - webhooks não estão autenticados!")
-    }
-    
     const body: AsaasWebhookPayload = await request.json()
     const { event, payment } = body
 
