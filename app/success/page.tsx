@@ -77,7 +77,6 @@ export default function SuccessPage() {
               content_name: 'Plano FitGoal',
             })
           }
-          }
         } catch (error: any) {
           console.error("[v0] Embedded checkout - Error calling handle-post-checkout:", error)
           // Still show success to user even if email fails - payment went through

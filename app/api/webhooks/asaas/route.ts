@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { adminDb } from "@/lib/firebaseAdmin"
 import { EventType, createEvent } from "@/lib/events"
-import { sendMetaServerEvent } from "@/lib/meta-conversions-api"
+import { sendPurchaseEvent } from "@/lib/meta-conversions-api"
 import crypto from "crypto"
 
 export const runtime = "nodejs"
@@ -243,26 +243,13 @@ async function processPaymentBackground(payment: AsaasPayment) {
         try {
           const planName = payment.description || 'Plano FitGoal'
           
-          await sendMetaServerEvent({
-            event_name: 'Purchase',
-            event_time: Math.floor(Date.now() / 1000),
-            event_source_url: process.env.APP_URL || 'https://fitgoal.com.br',
-            user_data: {
-              em: payment.customer?.email,
-              ph: payment.customer?.phone,
-              fn: payment.customer?.name?.split(' ')[0],
-              ln: payment.customer?.name?.split(' ').slice(1).join(' '),
-              client_ip_address: undefined, // Não disponível no webhook
-              client_user_agent: undefined,
-            },
-            custom_data: {
-              value: payment.value,
-              currency: 'BRL',
-              content_name: planName,
-              content_type: 'product',
-              order_id: payment.id,
-            },
-            action_source: 'website',
+          await sendPurchaseEvent({
+            email: payment.customer?.email,
+            phone: payment.customer?.phone,
+            value: payment.value,
+            currency: 'BRL',
+            planName: planName,
+            orderId: payment.id,
           })
           
           console.log(`[v0] ✅ Meta CAPI Purchase event sent for payment ${payment.id}`)
