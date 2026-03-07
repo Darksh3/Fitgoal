@@ -32,13 +32,13 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={inter.className}>
-        <PixelTracker>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+          <PixelTracker>
             {children}
             <FloatingChat />
             <Toaster />
-          </ThemeProvider>
-        </PixelTracker>
+          </PixelTracker>
+        </ThemeProvider>
       </body>
     </html>
   )
