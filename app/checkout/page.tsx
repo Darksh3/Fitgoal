@@ -29,6 +29,7 @@ import { onAuthStateChanged } from "firebase/auth"
 import { db, auth } from "@/lib/firebaseClient"
 import Link from "next/link"
 import Image from "next/image"
+import { usePixel } from "@/components/pixel-tracker"
 
 interface PaymentFormData {
   email: string
@@ -55,6 +56,7 @@ type PaymentMethod = "pix" | "boleto" | "apple" | "google" | "card"
 export default function CheckoutPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { trackInitiateCheckout } = usePixel()
 
   const [user, setUser] = useState<any>(null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
@@ -452,6 +454,14 @@ export default function CheckoutPage() {
     console.log("[v0] Iniciando pagamento com método:", paymentMethod)
     console.log("[v0] Dados do formulário:", { name: formData.name, email: formData.email })
     console.log("[v0] Plano:", { selectedPlan, planName, planPrice })
+
+    // Rastrear InitiateCheckout no Meta Pixel
+    trackInitiateCheckout({
+      value: planPrice,
+      currency: 'BRL',
+      content_name: planName,
+      content_category: 'plan',
+    })
 
     setProcessing(true)
     setError(null)

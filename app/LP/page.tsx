@@ -3,8 +3,29 @@
 import { Metadata } from 'next'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, CheckCircle2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { usePixel } from '@/components/pixel-tracker'
 
 export default function LandingPage() {
+  const router = useRouter()
+  const { trackViewContent, trackInitiateCheckout } = usePixel()
+
+  const handleCTAClick = () => {
+    // Rastrear viewContent na oferta
+    trackViewContent({
+      content_name: 'Landing Page - Oferta FitGoal',
+      content_category: 'landing_page',
+    })
+    
+    // Rastrear iniciateCheckout quando clica no CTA
+    trackInitiateCheckout({
+      value: 79.90,
+      currency: 'BRL',
+      content_name: 'Plano Mensal',
+    })
+    
+    router.push('/quiz')
+  }
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header/Navigation */}
@@ -36,7 +57,10 @@ export default function LandingPage() {
             <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
               Primeiro método de transformação física com análise visual por IA que se adapta ao seu corpo — mesmo após anos de dietas falhadas.
             </p>
-            <Button className="bg-lime-500 hover:bg-lime-600 text-black font-bold text-lg px-8 py-6 rounded-lg">
+            <Button 
+              onClick={handleCTAClick}
+              className="bg-lime-500 hover:bg-lime-600 text-black font-bold text-lg px-8 py-6 rounded-lg"
+            >
               QUERO TRANSFORMAR MEU CORPO AGORA
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>

@@ -327,7 +327,7 @@ const normalizeHeight = (value: string): string => {
 }
 
 export default function QuizPage() {
-  const { trackLead, trackQuizStart } = usePixel()
+  const { trackLead, trackQuizStart, trackViewContent } = usePixel()
   const [showMotivationMessage, setShowMotivationMessage] = useState(false)
   const [showCortisolMessage, setShowCortisolMessage] = useState(false)
   // </CHANGE>
@@ -352,6 +352,14 @@ export default function QuizPage() {
   const musclePathRef = useRef<SVGPathElement>(null)
   const fatPathRef = useRef<SVGPathElement>(null)
   const [pathLengths, setPathLengths] = useState({ muscle: 0, fat: 0 })
+
+  useEffect(() => {
+    // Rastrear ViewContent quando o quiz é carregado (mesmo se vindo direto sem passar pela oferta)
+    trackViewContent({
+      content_name: 'Quiz FitGoal',
+      content_category: 'quiz',
+    })
+  }, [trackViewContent])
 
   useEffect(() => {
     if (showQuickResults) {

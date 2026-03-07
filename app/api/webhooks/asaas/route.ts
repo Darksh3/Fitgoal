@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { adminDb } from "@/lib/firebaseAdmin"
 import { EventType, createEvent } from "@/lib/events"
+import { sendPurchaseEvent } from "@/lib/meta-conversions-api"
 import crypto from "crypto"
 
 export const runtime = "nodejs"
@@ -237,8 +238,26 @@ async function processPaymentBackground(payment: AsaasPayment) {
       const eventRef = await adminDb.collection("events").add(event)
       console.log(`[v0] Event ${eventType} emitted for lead ${leadId}`)
 
-      // TODO: Send to Meta CAPI
-      // await sendToMetaCAPI(event)
+      // === RASTREAMENTO META PIXEL (Server-side) ===
+      if (eventType === EventType.Purchase) {
+        try {
+          const planName = payment.description || 'Plano FitGoal'
+          
+          await sendPurchaseEvent({
+            email: payment.customer?.email,
+            phone: payment.customer?.phone,
+            value: payment.value,
+            currency: 'BRL',
+            planName: planName,
+            orderId: payment.id,
+          })
+          
+          console.log(`[v0] ✅ Meta CAPI Purchase event sent for payment ${payment.id}`)
+        } catch (error) {
+          console.error(`[v0] ❌ Error sending Meta CAPI Purchase event:`, error)
+          // Não falha o webhook se o Meta falhar - pagamento já foi processado
+        }
+      }
 
       // TODO: Send to TikTok
       // await sendToTikTok(event)

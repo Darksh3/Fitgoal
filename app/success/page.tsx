@@ -4,9 +4,11 @@ import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { CheckCircle, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { usePixel } from "@/components/pixel-tracker"
 
 export default function SuccessPage() {
   const searchParams = useSearchParams()
+  const { trackPurchase } = usePixel()
   const sessionId = searchParams.get("session_id")
   const subscriptionId = searchParams.get("subscription_id")
   const embedded = searchParams.get("embedded") // New parameter to indicate embedded checkout
@@ -28,6 +30,13 @@ export default function SuccessPage() {
         if (!paymentId || !userId) {
           console.warn("[v0] Missing paymentId or userId for embedded checkout", { paymentId, userId })
           setStatus("success")
+          
+          // Rastrear Purchase no Meta Pixel (valores genéricos se não tiver dados)
+          trackPurchase({
+            value: 79.90,
+            currency: 'BRL',
+            content_name: 'Plano FitGoal',
+          })
           return
         }
 
@@ -48,11 +57,25 @@ export default function SuccessPage() {
             const data = await response.json()
             console.log("[v0] Embedded checkout - handle-post-checkout success:", data)
             setStatus("success")
+            
+            // Rastrear Purchase no Meta Pixel com dados do pagamento
+            trackPurchase({
+              value: data.planPrice || 79.90,
+              currency: 'BRL',
+              content_name: data.planName || 'Plano FitGoal',
+            })
           } else {
             const errorData = await response.json()
             console.error("[v0] Embedded checkout - handle-post-checkout error:", response.status, errorData)
             // Still show success to user even if email fails - payment went through
             setStatus("success")
+            
+            // Rastrear Purchase mesmo com erro (pagamento foi processado)
+            trackPurchase({
+              value: 79.90,
+              currency: 'BRL',
+              content_name: 'Plano FitGoal',
+            })
           }
         } catch (error: any) {
           console.error("[v0] Embedded checkout - Error calling handle-post-checkout:", error)
@@ -82,6 +105,13 @@ export default function SuccessPage() {
           const data = await response.json()
           console.log("[v0] API handle-post-checkout success:", data)
           setStatus("success")
+          
+          // Rastrear Purchase no Meta Pixel para Stripe/Google Pay
+          trackPurchase({
+            value: data.planPrice || 79.90,
+            currency: 'BRL',
+            content_name: data.planName || 'Plano FitGoal',
+          })
         } else {
           const errorData = await response.json()
           console.error("[v0] API handle-post-checkout error:", response.status, errorData)
