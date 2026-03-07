@@ -1,4 +1,5 @@
 interface ServerEventData {
+  event_id?: string
   event_name: string
   event_time?: number
   event_source_url?: string
@@ -47,6 +48,7 @@ async function sendMetaServerEvent(eventData: ServerEventData): Promise<boolean>
   const payload = {
     data: [
       {
+        event_id: eventData.event_id,
         event_name: eventData.event_name,
         event_time: eventData.event_time || Math.floor(Date.now() / 1000),
         event_source_url: eventData.event_source_url,
@@ -86,6 +88,7 @@ export async function sendLeadEvent(options: {
   email?: string
   phone?: string
   firstName?: string
+  lastName?: string
   sourceUrl?: string
   clientIp?: string
   userAgent?: string
@@ -102,6 +105,7 @@ export async function sendLeadEvent(options: {
   if (options.email) userData.em = await hashSHA256(options.email)
   if (options.phone) userData.ph = await hashSHA256(options.phone)
   if (options.firstName) userData.fn = await hashSHA256(options.firstName)
+  if (options.lastName) userData.ln = await hashSHA256(options.lastName)
 
   return sendMetaServerEvent({
     event_name: 'Lead',
@@ -119,6 +123,8 @@ export async function sendLeadEvent(options: {
 export async function sendPurchaseEvent(options: {
   email?: string
   phone?: string
+  firstName?: string
+  lastName?: string
   value: number
   currency?: string
   planName?: string
@@ -138,8 +144,11 @@ export async function sendPurchaseEvent(options: {
 
   if (options.email) userData.em = await hashSHA256(options.email)
   if (options.phone) userData.ph = await hashSHA256(options.phone)
+  if (options.firstName) userData.fn = await hashSHA256(options.firstName)
+  if (options.lastName) userData.ln = await hashSHA256(options.lastName)
 
   return sendMetaServerEvent({
+    event_id: `purchase_${options.orderId}`,
     event_name: 'Purchase',
     event_source_url: options.sourceUrl || 'https://fitgoal.com.br',
     user_data: userData,

@@ -5,7 +5,7 @@ import { getFirebaseAdmin } from "@/lib/firebaseAdmin"
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { quizData, uid, name, email } = body
+    const { quizData, uid, name, email, fbp, fbc } = body
 
     console.log("[v0] SAVE_LEAD_API - Starting to save lead for:", uid)
 
@@ -58,6 +58,9 @@ export async function POST(request: NextRequest) {
       foodPreferences: quizData.foodPreferences || {},
       alcoholFrequency: quizData.alcoholFrequency || null,
       letMadMusclesChoose: quizData.letMadMusclesChoose || false,
+      // Meta Conversions API tracking data
+      fbp: fbp || null,
+      fbc: fbc || null,
       // Meta data
       status: "lead", // Novo lead que completou o quiz
       source: "quiz", // Origem do lead

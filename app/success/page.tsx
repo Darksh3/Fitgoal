@@ -58,24 +58,43 @@ export default function SuccessPage() {
             console.log("[v0] Embedded checkout - handle-post-checkout success:", data)
             setStatus("success")
             
-            // Rastrear Purchase no Meta Pixel com dados do pagamento
-            trackPurchase({
-              value: data.planPrice || 79.90,
-              currency: 'BRL',
-              content_name: data.planName || 'Plano FitGoal',
-            })
+            // Rastrear Purchase no Meta Pixel com evento deduplicado (usando fbq com eventID)
+            const paymentId = searchParams.get("paymentId")
+            if (typeof window !== 'undefined' && (window as any).fbq) {
+              (window as any).fbq('track', 'Purchase', {
+                value: data.planPrice || 79.90,
+                currency: 'BRL',
+                content_name: data.planName || 'Plano FitGoal',
+              }, { eventID: `purchase_${paymentId}` })
+            } else {
+              // Fallback to usePixel hook se fbq não estiver disponível
+              trackPurchase({
+                value: data.planPrice || 79.90,
+                currency: 'BRL',
+                content_name: data.planName || 'Plano FitGoal',
+              })
+            }
           } else {
             const errorData = await response.json()
             console.error("[v0] Embedded checkout - handle-post-checkout error:", response.status, errorData)
             // Still show success to user even if email fails - payment went through
             setStatus("success")
             
-            // Rastrear Purchase mesmo com erro (pagamento foi processado)
-            trackPurchase({
-              value: 79.90,
-              currency: 'BRL',
-              content_name: 'Plano FitGoal',
-            })
+            // Rastrear Purchase mesmo com erro (pagamento foi processado) - com deduplicação
+            const paymentId2 = searchParams.get("paymentId")
+            if (typeof window !== 'undefined' && (window as any).fbq) {
+              (window as any).fbq('track', 'Purchase', {
+                value: 79.90,
+                currency: 'BRL',
+                content_name: 'Plano FitGoal',
+              }, { eventID: `purchase_${paymentId2}` })
+            } else {
+              trackPurchase({
+                value: 79.90,
+                currency: 'BRL',
+                content_name: 'Plano FitGoal',
+              })
+            }
           }
         } catch (error: any) {
           console.error("[v0] Embedded checkout - Error calling handle-post-checkout:", error)
@@ -106,12 +125,20 @@ export default function SuccessPage() {
           console.log("[v0] API handle-post-checkout success:", data)
           setStatus("success")
           
-          // Rastrear Purchase no Meta Pixel para Stripe/Google Pay
-          trackPurchase({
-            value: data.planPrice || 79.90,
-            currency: 'BRL',
-            content_name: data.planName || 'Plano FitGoal',
-          })
+          // Rastrear Purchase no Meta Pixel para Stripe/Google Pay - com deduplicação
+          if (typeof window !== 'undefined' && (window as any).fbq) {
+            (window as any).fbq('track', 'Purchase', {
+              value: data.planPrice || 79.90,
+              currency: 'BRL',
+              content_name: data.planName || 'Plano FitGoal',
+            }, { eventID: `purchase_${sessionId}` })
+          } else {
+            trackPurchase({
+              value: data.planPrice || 79.90,
+              currency: 'BRL',
+              content_name: data.planName || 'Plano FitGoal',
+            })
+          }
         } else {
           const errorData = await response.json()
           console.error("[v0] API handle-post-checkout error:", response.status, errorData)
