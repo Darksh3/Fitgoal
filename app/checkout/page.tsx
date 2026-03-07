@@ -78,7 +78,6 @@ export default function CheckoutPage() {
     }
     
     const plan = planMap[selectedPlan] || planMap.semestral
-    console.log("[v0] Checkout page - Rastreando InitiateCheckout para plano:", selectedPlan, plan)
     trackInitiateCheckout({
       value: plan.price,
       currency: 'BRL',
