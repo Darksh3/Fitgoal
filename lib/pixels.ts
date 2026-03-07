@@ -15,24 +15,27 @@ export const initMetaPixel = (pixelId: string): void => {
   if (typeof window === 'undefined') return
   if ((window as any).fbq) return
 
-  const fbq: any = ((window as any).fbq = function (...args: any[]) {
-    fbq.callMethod ? fbq.callMethod(...args) : fbq.queue.push(args)
-  })
+  !(function (f: any, b, e, v, n?: any, t?: any, s?: any) {
+    if (f.fbq) return
+    n = f.fbq = function () {
+      n.callMethod
+        ? n.callMethod.apply(n, arguments)
+        : n.queue.push(arguments)
+    }
+    if (!f._fbq) f._fbq = n
+    n.push = n
+    n.loaded = true
+    n.version = '2.0'
+    n.queue = []
+    t = b.createElement(e)
+    t.async = true
+    t.src = 'https://connect.facebook.net/en_US/fbevents.js'
+    s = b.getElementsByTagName(e)[0]
+    s.parentNode.insertBefore(t, s)
+  })(window, document, 'script')
 
-  if (!(window as any)._fbq) (window as any)._fbq = fbq
-  fbq.push = fbq
-  fbq.loaded = true
-  fbq.version = '2.0'
-  fbq.queue = []
-
-  const script = document.createElement('script')
-  script.async = true
-  script.src = 'https://connect.facebook.net/en_US/fbevents.js'
-  const firstScript = document.getElementsByTagName('script')[0]
-  firstScript?.parentNode?.insertBefore(script, firstScript)
-
-  fbq('init', pixelId)
-  fbq('track', 'PageView')
+  ;(window as any).fbq('init', pixelId)
+  ;(window as any).fbq('track', 'PageView')
 }
 
 export const trackMetaEvent = (eventName: string, data?: Record<string, any>): void => {
