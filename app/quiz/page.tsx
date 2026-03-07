@@ -327,7 +327,7 @@ const normalizeHeight = (value: string): string => {
 }
 
 export default function QuizPage() {
-  const { trackLead, trackQuizStart, trackViewContent } = usePixel()
+  const { trackLead, trackQuizStart, trackViewContent, trackQuizStep } = usePixel()
   const [showMotivationMessage, setShowMotivationMessage] = useState(false)
   const [showCortisolMessage, setShowCortisolMessage] = useState(false)
   // </CHANGE>
@@ -360,6 +360,20 @@ export default function QuizPage() {
       content_category: 'quiz',
     })
   }, [trackViewContent])
+
+  // Rastrear QuizStart quando começa (primeiro passo)
+  useEffect(() => {
+    if (currentStep === 1) {
+      trackQuizStart()
+    }
+  }, [currentStep, trackQuizStart])
+
+  // Rastrear QuizStep quando progride nas perguntas
+  useEffect(() => {
+    if (currentStep > 1 && currentStep <= totalSteps) {
+      trackQuizStep(currentStep, totalSteps)
+    }
+  }, [currentStep, totalSteps, trackQuizStep])
 
   useEffect(() => {
     if (showQuickResults) {

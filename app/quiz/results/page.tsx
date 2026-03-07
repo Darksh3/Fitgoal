@@ -11,7 +11,7 @@ import { usePixel } from "@/components/pixel-tracker"
 
 export default function QuizResultsPage() {
   const router = useRouter()
-  const { trackViewContent } = usePixel()
+  const { trackViewContent, trackPlanView } = usePixel()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
   const [timeLeft, setTimeLeft] = useState({ minutes: 10, seconds: 0 })
@@ -44,7 +44,9 @@ export default function QuizResultsPage() {
       content_name: 'Quiz Results Page',
       content_category: 'quiz_results',
     })
-  }, [trackViewContent])
+    // Rastrear PlanView quando os planos são exibidos
+    trackPlanView()
+  }, [trackViewContent, trackPlanView])
 
   useEffect(() => {
     const fetchData = async () => {

@@ -37,6 +37,21 @@ export const initMetaPixel = (pixelId: string): void => {
   ;(window as any).fbq('init', pixelId)
   ;(window as any).fbq('track', 'PageView')
 }
+    if (!f._fbq) f._fbq = n
+    n.push = n
+    n.loaded = true
+    n.version = '2.0'
+    n.queue = []
+    t = b.createElement(e)
+    t.async = true
+    t.src = 'https://connect.facebook.net/en_US/fbevents.js'
+    s = b.getElementsByTagName(e)[0]
+    s.parentNode.insertBefore(t, s)
+  })(window, document, 'script')
+
+  ;(window as any).fbq('init', pixelId)
+  ;(window as any).fbq('track', 'PageView')
+}
 
 export const trackMetaEvent = (eventName: string, data?: Record<string, any>): void => {
   if (!isMetaPixelLoaded()) return
@@ -45,6 +60,7 @@ export const trackMetaEvent = (eventName: string, data?: Record<string, any>): v
   } else {
     ;(window as any).fbq('track', eventName)
   }
+}
 }
 
 export const trackMetaCustomEvent = (eventName: string, data?: Record<string, any>): void => {
@@ -243,16 +259,16 @@ export const trackQuizStart = (): void => {
 }
 
 /** QuizStep - evento customizado para cada passo do quiz */
-export const trackQuizStep = (step: number, totalSteps: number): void => {
+export const trackQuizStep = (step: number, totalSteps?: number): void => {
   trackMetaCustomEvent('QuizStep', {
     step_number: step,
     total_steps: totalSteps,
-    content_name: `Quiz Step ${step}/${totalSteps}`,
+    content_name: `Quiz Step ${step}`,
   })
 }
 
 /** PlanView - quando vê os planos de preço */
-export const trackPlanView = (): void => {
-  trackMetaCustomEvent('PlanView', { content_name: 'Planos FitGoal' })
-  trackTikTokEvent('ViewContent', { content_name: 'Planos FitGoal' })
+export const trackPlanView = (planName?: string): void => {
+  trackMetaCustomEvent('PlanView', { content_name: planName || 'Planos FitGoal' })
+  trackTikTokEvent('ViewContent', { content_name: planName || 'Planos FitGoal' })
 }
