@@ -15,6 +15,8 @@ export const initMetaPixel = (pixelId: string): void => {
   if (typeof window === 'undefined') return
   if ((window as any).fbq) return
 
+  console.log("[v0] Inicializando Meta Pixel com ID:", pixelId)
+
   const fbq: any = ((window as any).fbq = function (...args: any[]) {
     fbq.callMethod ? fbq.callMethod(...args) : fbq.queue.push(args)
   })
@@ -33,15 +35,22 @@ export const initMetaPixel = (pixelId: string): void => {
 
   fbq('init', pixelId)
   fbq('track', 'PageView')
+  
+  console.log("[v0] Meta Pixel inicializado com sucesso")
 }
 
 export const trackMetaEvent = (eventName: string, data?: Record<string, any>): void => {
-  if (!isMetaPixelLoaded()) return
+  console.log("[v0] Rastreando evento Meta:", eventName, data)
+  if (!isMetaPixelLoaded()) {
+    console.warn("[v0] Meta Pixel não carregado ainda")
+    return
+  }
   if (data) {
     ;(window as any).fbq('track', eventName, data)
   } else {
     ;(window as any).fbq('track', eventName)
   }
+  console.log("[v0] Evento Meta rastreado com sucesso:", eventName)
 }
 
 export const trackMetaCustomEvent = (eventName: string, data?: Record<string, any>): void => {
