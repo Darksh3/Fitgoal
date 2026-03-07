@@ -11,7 +11,7 @@ import { usePixel } from "@/components/pixel-tracker"
 
 export default function QuizResultsPage() {
   const router = useRouter()
-  const { trackViewContent, trackPlanView } = usePixel()
+  const { trackViewContent, trackPlanView, trackInitiateCheckout } = usePixel()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
   const [timeLeft, setTimeLeft] = useState({ minutes: 10, seconds: 0 })
@@ -278,6 +278,16 @@ export default function QuizResultsPage() {
     const planKey = getPlanKey()
     const planName = getPlanName()
     const planPrice = "239.90"
+    
+    // Rastrear InitiateCheckout antes de navegar
+    trackInitiateCheckout({
+      value: parseFloat(planPrice),
+      currency: 'BRL',
+      content_name: planName,
+      content_ids: [`plano-${planKey}`],
+      num_items: 1,
+    })
+    
     router.push(`/checkout?planKey=${planKey}&planName=${encodeURIComponent(planName)}&planPrice=${planPrice}`)
   }
 
