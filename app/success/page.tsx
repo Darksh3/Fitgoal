@@ -59,7 +59,6 @@ export default function SuccessPage() {
             setStatus("success")
             
             // Rastrear Purchase no Meta Pixel com evento deduplicado (usando fbq com eventID)
-            const paymentId = searchParams.get("paymentId")
             if (typeof window !== 'undefined' && (window as any).fbq) {
               (window as any).fbq('track', 'Purchase', {
                 value: data.planPrice || 79.90,
@@ -81,13 +80,12 @@ export default function SuccessPage() {
             setStatus("success")
             
             // Rastrear Purchase mesmo com erro (pagamento foi processado) - com deduplicação
-            const paymentId2 = searchParams.get("paymentId")
             if (typeof window !== 'undefined' && (window as any).fbq) {
               (window as any).fbq('track', 'Purchase', {
                 value: 79.90,
                 currency: 'BRL',
                 content_name: 'Plano FitGoal',
-              }, { eventID: `purchase_${paymentId2}` })
+              }, { eventID: `purchase_${paymentId}` })
             } else {
               trackPurchase({
                 value: 79.90,

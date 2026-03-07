@@ -933,7 +933,9 @@ export default function QuizPage() {
         : undefined
       
       const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
-      const fbclid = urlParams.get('fbclid') || undefined
+      const fbclid = urlParams.get('fbclid') 
+        || (typeof window !== 'undefined' ? sessionStorage.getItem('fbclid') : null)
+        || undefined
 
       // Make API call to save lead with all quiz data
       const response = await fetch("/api/save-lead", {
