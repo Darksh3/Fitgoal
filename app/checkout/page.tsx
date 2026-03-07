@@ -69,6 +69,23 @@ export default function CheckoutPage() {
   const [spinDiscount, setSpinDiscount] = useState<number | null>(null)
   const [isComplementosOnly, setIsComplementosOnly] = useState(false)
 
+  // Rastrear InitiateCheckout quando a página de checkout carrega
+  useEffect(() => {
+    const planMap: { [key: string]: { name: string; price: number } } = {
+      mensal: { name: 'Plano Mensal', price: 79.90 },
+      trimestral: { name: 'Plano Trimestral', price: 194.70 },
+      semestral: { name: 'Plano Semestral', price: 299.40 },
+    }
+    
+    const plan = planMap[selectedPlan] || planMap.semestral
+    trackInitiateCheckout({
+      value: plan.price,
+      currency: 'BRL',
+      content_name: plan.name,
+      content_category: 'plan',
+    })
+  }, [selectedPlan, trackInitiateCheckout])
+
   const [formData, setFormData] = useState<PaymentFormData>({
     email: "",
     name: "",
@@ -446,22 +463,9 @@ export default function CheckoutPage() {
   const handlePayment = async () => {
     const validationError = validateForm()
     if (validationError) {
-      console.log("[v0] Erro de validação:", validationError)
       setError(validationError)
       return
     }
-
-    console.log("[v0] Iniciando pagamento com método:", paymentMethod)
-    console.log("[v0] Dados do formulário:", { name: formData.name, email: formData.email })
-    console.log("[v0] Plano:", { selectedPlan, planName, planPrice })
-
-    // Rastrear InitiateCheckout no Meta Pixel
-    trackInitiateCheckout({
-      value: planPrice,
-      currency: 'BRL',
-      content_name: planName,
-      content_category: 'plan',
-    })
 
     setProcessing(true)
     setError(null)
