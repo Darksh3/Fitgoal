@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
 
     // Process payment asynchronously (don't block webhook response)
     if (["CONFIRMED", "RECEIVED", "PENDING", "OVERDUE", "REFUNDED", "CHARGEBACK"].includes(payment.status)) {
-      processPaymentBackground(payment).catch((err) => {
+      processPaymentBackground(payment, request).catch((err) => {
         console.error("[v0] Background payment processing error:", err)
       })
     }
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
  * Background payment processing
  * Handles idempotency, updates lead status, and emits events
  */
-async function processPaymentBackground(payment: AsaasPayment) {
+async function processPaymentBackground(payment: AsaasPayment, request?: NextRequest) {
   try {
     const leadId = payment.externalReference
 
@@ -224,15 +224,31 @@ async function processPaymentBackground(payment: AsaasPayment) {
       // === RASTREAMENTO META PIXEL (Server-side) ===
       if (eventType === EventType.Purchase) {
         try {
+          // Capturar Client IP e User Agent do request
+          const clientIp = request?.headers.get('x-forwarded-for')?.split(',')[0] ||
+                          request?.headers.get('x-real-ip') ||
+                          'unknown'
+          const userAgent = request?.headers.get('user-agent') || undefined
+
+          // Extrair nome e sobrenome do payment.customer.name (ex: "João Silva" -> "João", "Silva")
+          const fullName = payment.customer?.name || leadData.name || ''
+          const nameParts = fullName.split(' ')
+          const firstName = nameParts[0] || undefined
+          const lastName = nameParts.slice(1).join(' ') || undefined
+
           const planName = payment.description || 'Plano FitGoal'
           
           await sendPurchaseEvent({
-            email: payment.customer?.email,
-            phone: payment.customer?.phone,
+            email: payment.customer?.email || leadData.email,
+            phone: payment.customer?.phone || leadData.phone,
+            firstName: firstName,
             value: payment.value,
             currency: 'BRL',
             planName: planName,
             orderId: payment.id,
+            clientIp: clientIp !== 'unknown' ? clientIp : undefined,
+            userAgent: userAgent,
+            sourceUrl: leadData?.sourceUrl || 'https://fitgoal.com.br',
           })
           
           console.log(`[v0] ✅ Meta CAPI Purchase event sent for payment ${payment.id}`)
