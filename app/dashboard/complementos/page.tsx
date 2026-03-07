@@ -6,6 +6,7 @@ import Image from "next/image"
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
 import { Lock, Download, ShoppingCart } from "lucide-react"
+import { usePixel } from "@/components/pixel-tracker"
 
 interface OrderBumpStatus {
   ebook: boolean
@@ -23,6 +24,7 @@ interface OrderBump {
 
 export default function ComplementosPage() {
   const router = useRouter()
+  const { trackPurchase } = usePixel()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [orderBumpsStatus, setOrderBumpsStatus] = useState<OrderBumpStatus | null>(null)
@@ -66,6 +68,19 @@ export default function ComplementosPage() {
   }
 
   const handleAcquire = (bumpType: "ebook" | "protocolo") => {
+    // Rastrear clique em Upsell/Downsell no Meta Pixel
+    const complementNames: { [key: string]: string } = {
+      ebook: "E-book Anti-Plateau",
+      protocolo: "Protocolo Metabólico",
+    }
+    
+    trackPurchase({
+      value: bumpType === "ebook" ? 47.90 : 97.00,
+      currency: 'BRL',
+      content_name: complementNames[bumpType] || "Complemento FitGoal",
+      content_category: 'upsell',
+    })
+    
     router.push(`/complementos-checkout?item=${bumpType}`)
   }
 
