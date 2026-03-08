@@ -8,12 +8,12 @@
 // ============================================
 
 const isMetaPixelLoaded = (): boolean => {
-  return typeof window !== 'undefined' && typeof (window as any).fbq === 'function'
+  return typeof window !== 'undefined' && typeof (window as any).fbq?.callMethod === 'function'
 }
 
 export const initMetaPixel = (pixelId: string): void => {
   if (typeof window === 'undefined') return
-  if ((window as any).fbq) return
+  if ((window as any).fbq?.callMethod) return
 
   !(function (f: any, b, e, v, n?: any, t?: any, s?: any) {
     if (f.fbq) return
