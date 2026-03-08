@@ -352,6 +352,11 @@ export default function QuizPage() {
   const musclePathRef = useRef<SVGPathElement>(null)
   const fatPathRef = useRef<SVGPathElement>(null)
   const [pathLengths, setPathLengths] = useState({ muscle: 0, fat: 0 })
+    const sessionIdRef = useRef<string | null>(null)
+    // Gerar sessionId único para rastreamento do quiz
+    useEffect(() => {
+          sessionIdRef.current = `quiz_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
+    }, [])
 
   useEffect(() => {
     // Rastrear ViewContent quando o quiz é carregado
@@ -365,6 +370,13 @@ export default function QuizPage() {
   useEffect(() => {
     if (currentStep > 0) {
       trackQuizStep(currentStep, totalSteps)
+          if (sessionIdRef.current) {
+                  fetch('/api/track-quiz-step', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ sessionId: sessionIdRef.current, uid: currentUser?.uid || null, step: currentStep, totalSteps }),
+                  }).catch(() => {})
+          }
     }
   }, [currentStep])
 
