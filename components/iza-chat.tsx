@@ -230,13 +230,12 @@ export default function IzaChat({ onNewAnalysis }: IzaChatProps) {
               {messages.map((message) => (
                 <div key={message.id} className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}>
                   <div
-                    className={`max-w-[80%] p-2 rounded-lg text-sm ${
-                      message.type === "user"
+                    className={`max-w-[80%] p-2 rounded-lg text-sm ${message.type === "user"
                         ? "bg-purple-600 text-white"
                         : message.isAnalysis
                           ? "bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 text-gray-800"
                           : "bg-gray-100 text-gray-800"
-                    }`}
+                      }`}
                   >
                     {message.type === "iza" && (
                       <div className="flex items-center space-x-1 mb-1">
