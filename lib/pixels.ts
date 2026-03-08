@@ -8,12 +8,12 @@
 // ============================================
 
 const isMetaPixelLoaded = (): boolean => {
-  return typeof window !== 'undefined' && typeof (window as any).fbq === 'function'
+  return typeof window !== 'undefined' && typeof (window as any).fbq?.callMethod === 'function'
 }
 
 export const initMetaPixel = (pixelId: string): void => {
   if (typeof window === 'undefined') return
-  if ((window as any).fbq) return
+  if ((window as any).fbq?.callMethod) return
 
   !(function (f: any, b, e, v, n?: any, t?: any, s?: any) {
     if (f.fbq) return
@@ -34,25 +34,25 @@ export const initMetaPixel = (pixelId: string): void => {
     s.parentNode.insertBefore(t, s)
   })(window, document, 'script')
 
-  ;(window as any).fbq('init', pixelId)
-  ;(window as any).fbq('track', 'PageView')
+    ; (window as any).fbq('init', pixelId)
+    ; (window as any).fbq('track', 'PageView')
 }
 
 export const trackMetaEvent = (eventName: string, data?: Record<string, any>): void => {
   if (!isMetaPixelLoaded()) return
   if (data) {
-    ;(window as any).fbq('track', eventName, data)
+    ; (window as any).fbq('track', eventName, data)
   } else {
-    ;(window as any).fbq('track', eventName)
+    ; (window as any).fbq('track', eventName)
   }
 }
 
 export const trackMetaCustomEvent = (eventName: string, data?: Record<string, any>): void => {
   if (!isMetaPixelLoaded()) return
   if (data) {
-    ;(window as any).fbq('trackCustom', eventName, data)
+    ; (window as any).fbq('trackCustom', eventName, data)
   } else {
-    ;(window as any).fbq('trackCustom', eventName)
+    ; (window as any).fbq('trackCustom', eventName)
   }
 }
 
@@ -118,9 +118,9 @@ export const initTikTokPixel = (pixelId: string): void => {
 export const trackTikTokEvent = (eventName: string, data?: Record<string, any>): void => {
   if (!isTikTokPixelLoaded()) return
   if (data) {
-    ;(window as any).ttq.track(eventName, data)
+    ; (window as any).ttq.track(eventName, data)
   } else {
-    ;(window as any).ttq.track(eventName)
+    ; (window as any).ttq.track(eventName)
   }
 }
 
@@ -132,7 +132,7 @@ export const trackTikTokEvent = (eventName: string, data?: Record<string, any>):
 export const trackPageView = (): void => {
   trackMetaEvent('PageView')
   if (isTikTokPixelLoaded()) {
-    ;(window as any).ttq.page()
+    ; (window as any).ttq.page()
   }
 }
 
