@@ -69,8 +69,18 @@ export default function CheckoutPage() {
   const [spinDiscount, setSpinDiscount] = useState<number | null>(null)
   const [isComplementosOnly, setIsComplementosOnly] = useState(false)
 
-  // Rastrear InitiateCheckout quando a página de checkout carrega
+  // Rastrear InitiateCheckout apenas uma vez por sessão (quando a página de checkout carrega)
   useEffect(() => {
+    // Verificar se já foi rastreado nesta sessão
+    const initiateCheckoutTracked = typeof window !== 'undefined' 
+      ? sessionStorage.getItem('initiateCheckout_tracked')
+      : null
+      
+    if (initiateCheckoutTracked) {
+      console.log("[v0] InitiateCheckout already tracked this session")
+      return
+    }
+    
     const planMap: { [key: string]: { name: string; price: number } } = {
       mensal: { name: 'Plano Mensal', price: 79.90 },
       trimestral: { name: 'Plano Trimestral', price: 194.70 },
@@ -84,7 +94,13 @@ export default function CheckoutPage() {
       content_name: plan.name,
       content_category: 'plan',
     })
-  }, [selectedPlan, trackInitiateCheckout])
+    
+    // Marcar como rastreado para evitar duplicação se o usuário mudar de plano
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('initiateCheckout_tracked', 'true')
+      console.log("[v0] InitiateCheckout tracked (checkout page)")
+    }
+  }, [trackInitiateCheckout])
 
   const [formData, setFormData] = useState<PaymentFormData>({
     email: "",
