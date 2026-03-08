@@ -58,19 +58,20 @@ export default function SuccessPage() {
             console.log("[v0] Embedded checkout - handle-post-checkout success:", data)
             setStatus("success")
             
-            // Rastrear Purchase no Meta Pixel com evento deduplicado (usando fbq com eventID)
+            // Rastrear Purchase no Meta Pixel com evento deduplicado (usando userUid para match com CAPI)
             if (typeof window !== 'undefined' && (window as any).fbq) {
               (window as any).fbq('track', 'Purchase', {
                 value: data.planPrice || 79.90,
                 currency: 'BRL',
                 content_name: data.planName || 'Plano FitGoal',
-              }, { eventID: `purchase_${paymentId}` })
+              }, { eventID: `purchase_${data.userUid}` })
             } else {
               // Fallback to usePixel hook se fbq não estiver disponível
               trackPurchase({
                 value: data.planPrice || 79.90,
                 currency: 'BRL',
                 content_name: data.planName || 'Plano FitGoal',
+                eventId: `purchase_${data.userUid}`,
               })
             }
           } else {
@@ -85,12 +86,13 @@ export default function SuccessPage() {
                 value: 79.90,
                 currency: 'BRL',
                 content_name: 'Plano FitGoal',
-              }, { eventID: `purchase_${paymentId}` })
+              }, { eventID: `purchase_${userId}` })
             } else {
               trackPurchase({
                 value: 79.90,
                 currency: 'BRL',
                 content_name: 'Plano FitGoal',
+                eventId: `purchase_${userId}`,
               })
             }
           }
@@ -123,18 +125,19 @@ export default function SuccessPage() {
           console.log("[v0] API handle-post-checkout success:", data)
           setStatus("success")
           
-          // Rastrear Purchase no Meta Pixel para Stripe/Google Pay - com deduplicação
+          // Rastrear Purchase no Meta Pixel para Stripe/Google Pay - com deduplicação usando userUid
           if (typeof window !== 'undefined' && (window as any).fbq) {
             (window as any).fbq('track', 'Purchase', {
               value: data.planPrice || 79.90,
               currency: 'BRL',
               content_name: data.planName || 'Plano FitGoal',
-            }, { eventID: `purchase_${sessionId}` })
+            }, { eventID: `purchase_${data.userUid}` })
           } else {
             trackPurchase({
               value: data.planPrice || 79.90,
               currency: 'BRL',
               content_name: data.planName || 'Plano FitGoal',
+              eventId: `purchase_${data.userUid}`,
             })
           }
         } else {
