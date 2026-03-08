@@ -6,6 +6,11 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  staticPageGenerationTimeout: 60,
+  experimental: {
+    // Certifique-se de que páginas de erro especiais não sejam renderizadas estaticamente
+    isrMemoryCacheSize: 0,
+  },
   async headers() {
     // CSP base (compartilhada para todas as rotas)
     const baseCSP = {
