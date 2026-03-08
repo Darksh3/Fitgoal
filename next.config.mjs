@@ -18,6 +18,9 @@ const nextConfig = {
         "https://*.wistia.com",
         "https://*.wistia.net",
         "https://fast.wistia.com",
+        "https://www.facebook.com",
+        "https://*.facebook.com",
+        "https://*.fbcdn.net",
       ],
       'style-src': [
         "'self'", "'unsafe-inline'",  // Necessário para Tailwind/Radix
@@ -46,6 +49,8 @@ const nextConfig = {
         "https://distillery.wistia.com",
         "https://fast.wistia.com",
         "https://connect.facebook.net",
+        "https://www.facebook.com",
+        "https://*.facebook.com",
         "https://analytics.tiktok.com",
       ],
       'frame-src': [
