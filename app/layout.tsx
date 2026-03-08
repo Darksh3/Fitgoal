@@ -33,19 +33,18 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className={inter.className}>
 
-        {/* Meta Pixel */}
-        <PixelTracker />
-
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-          <FloatingChat />
-          <Toaster />
-        </ThemeProvider>
+        <PixelTracker>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <FloatingChat />
+            <Toaster />
+          </ThemeProvider>
+        </PixelTracker>
 
       </body>
     </html>
