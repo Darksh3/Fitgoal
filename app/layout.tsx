@@ -1,6 +1,5 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import Script from "next/script"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import "../styles/buttons.css"
@@ -30,25 +29,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID
-
   return (
     <html lang="pt-BR">
       <head>
-        {/* Meta Pixel Code - Injetar no head para o Meta Pixel Helper detectar */}
-        {metaPixelId && (
-          <Script id="meta-pixel" strategy="afterInteractive">
-            {`
-              !(function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-              n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-              n.push=n;n.loaded=true;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=true;
-              t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)})(window,
-              document,'script','https://connect.facebook.net/en_US/fbevents.js');
-              fbq('init', '${metaPixelId}');
-              fbq('track', 'PageView');
-            `}
-          </Script>
-        )}
+        {/* Meta Pixel inicializado pelo PixelTracker no body */}
       </head>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
@@ -62,3 +46,4 @@ export default function RootLayout({
     </html>
   )
 }
+
