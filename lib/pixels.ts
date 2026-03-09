@@ -38,12 +38,13 @@ export const initMetaPixel = (pixelId: string): void => {
     ; (window as any).fbq('track', 'PageView')
 }
 
-export const trackMetaEvent = (eventName: string, data?: Record<string, any>): void => {
+export const trackMetaEvent = (eventName: string, data?: Record<string, any>, eventId?: string): void => {
   if (!isMetaPixelLoaded()) return
+  const options = eventId ? { eventID: eventId } : undefined
   if (data) {
-    ; (window as any).fbq('track', eventName, data)
+    ; (window as any).fbq('track', eventName, data, options)
   } else {
-    ; (window as any).fbq('track', eventName)
+    ; (window as any).fbq('track', eventName, undefined, options)
   }
 }
 
@@ -180,8 +181,16 @@ export const trackInitiateCheckout = (data?: {
   content_name?: string
   content_ids?: string[]
   num_items?: number
+  eventId?: string
 }): void => {
-  trackMetaEvent('InitiateCheckout', data)
+  const eventId = data?.eventId
+  trackMetaEvent('InitiateCheckout', data ? {
+    value: data.value,
+    currency: data.currency,
+    content_name: data.content_name,
+    content_ids: data.content_ids,
+    num_items: data.num_items,
+  } : undefined, eventId)
   trackTikTokEvent('InitiateCheckout', data ? {
     content_id: data.content_ids?.[0],
     content_name: data.content_name,
@@ -199,15 +208,22 @@ export const trackPurchase = (data: {
   content_type?: string
   num_items?: number
   order_id?: string
+  eventId?: string
 }): void => {
-  trackMetaEvent('Purchase', {
-    value: data.value,
-    currency: data.currency || 'BRL',
-    content_name: data.content_name,
-    content_ids: data.content_ids,
-    content_type: data.content_type || 'product',
-    num_items: data.num_items || 1,
-  })
+  // Passar eventId para deduplicação com server-side events
+  const options = data.eventId ? { eventID: data.eventId } : undefined
+  
+  if (typeof window !== 'undefined' && (window as any).fbq) {
+    ; (window as any).fbq('track', 'Purchase', {
+      value: data.value,
+      currency: data.currency || 'BRL',
+      content_name: data.content_name,
+      content_ids: data.content_ids,
+      content_type: data.content_type || 'product',
+      num_items: data.num_items || 1,
+    }, options)
+  }
+  
   trackTikTokEvent('CompletePayment', {
     content_id: data.content_ids?.[0],
     content_type: data.content_type || 'product',

@@ -292,14 +292,23 @@ export default function QuizResultsPage() {
     const planName = getPlanName()
     const planPrice = getPlanPrice()
     
-    // Rastrear InitiateCheckout antes de navegar
-    trackInitiateCheckout({
-      value: parseFloat(planPrice),
-      currency: 'BRL',
-      content_name: planName,
-      content_ids: [`plano-${planKey}`],
-      num_items: 1,
-    })
+    // Rastrear InitiateCheckout apenas uma vez por sessão
+    if (typeof window !== 'undefined') {
+      const initiateCheckoutTracked = sessionStorage.getItem('initiateCheckout_tracked')
+      if (!initiateCheckoutTracked) {
+        trackInitiateCheckout({
+          value: parseFloat(planPrice),
+          currency: 'BRL',
+          content_name: planName,
+          content_ids: [`plano-${planKey}`],
+          num_items: 1,
+        })
+        sessionStorage.setItem('initiateCheckout_tracked', 'true')
+        console.log("[v0] InitiateCheckout tracked (results page)")
+      } else {
+        console.log("[v0] InitiateCheckout already tracked this session, skipping")
+      }
+    }
     
     router.push(`/checkout?planKey=${planKey}&planName=${encodeURIComponent(planName)}&planPrice=${planPrice}`)
   }
