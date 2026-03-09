@@ -754,15 +754,15 @@ export default function CheckoutPage() {
   // Main checkout screen - Two Column Layout
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 py-8 px-4 flex flex-col items-center justify-center">
-      <div className="w-full max-w-6xl space-y-8">
+      <div className="w-full max-w-6xl space-y-5">
         {/* Logo */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="text-center mb-4">
-          <Image src="/fitgoal-logo.webp" alt="FitGoal Logo" width={200} height={80} className="mx-auto" priority />
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="text-center mb-2">
+          <Image src="/fitgoal-logo.webp" alt="FitGoal Logo" width={140} height={56} className="mx-auto" priority />
         </motion.div>
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="text-center">
-          <h1 className="text-4xl font-bold text-white mb-2">Finalizar sua inscrição</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Finalizar seu plano</h1>
         </motion.div>
 
         {/* Discount Banner - Shows only if user spun the wheel */}
@@ -1240,10 +1240,10 @@ export default function CheckoutPage() {
                           }
                         }}
                         className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all relative ${orderBumpsStatus?.ebook
-                            ? "bg-gray-200 border-gray-400 cursor-not-allowed opacity-60"
-                            : selectedOrderBumps.ebook
-                              ? "bg-lime-500/15 border-lime-500/50 cursor-pointer"
-                              : "bg-white/40 border-gray-300 hover:border-gray-400 cursor-pointer"
+                          ? "bg-gray-200 border-gray-400 cursor-not-allowed opacity-60"
+                          : selectedOrderBumps.ebook
+                            ? "bg-lime-500/15 border-lime-500/50 cursor-pointer"
+                            : "bg-white/40 border-gray-300 hover:border-gray-400 cursor-pointer"
                           }`}
                       >
                         {/* Status Badge */}
@@ -1255,10 +1255,10 @@ export default function CheckoutPage() {
 
                         {/* Checkbox - Top Right */}
                         <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${orderBumpsStatus?.ebook
-                            ? "bg-blue-500 border-blue-500"
-                            : selectedOrderBumps.ebook
-                              ? "bg-lime-500 border-lime-500"
-                              : "border-gray-500"
+                          ? "bg-blue-500 border-blue-500"
+                          : selectedOrderBumps.ebook
+                            ? "bg-lime-500 border-lime-500"
+                            : "border-gray-500"
                           }`}>
                           {(orderBumpsStatus?.ebook || selectedOrderBumps.ebook) && <Check className="w-3 h-3 text-white" />}
                         </div>
@@ -1290,10 +1290,10 @@ export default function CheckoutPage() {
                           }
                         }}
                         className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all relative ${orderBumpsStatus?.protocolo
-                            ? "bg-gray-200 border-gray-400 cursor-not-allowed opacity-60"
-                            : selectedOrderBumps.protocolo
-                              ? "bg-lime-500/15 border-lime-500/50 cursor-pointer"
-                              : "bg-white/40 border-gray-300 hover:border-gray-400 cursor-pointer"
+                          ? "bg-gray-200 border-gray-400 cursor-not-allowed opacity-60"
+                          : selectedOrderBumps.protocolo
+                            ? "bg-lime-500/15 border-lime-500/50 cursor-pointer"
+                            : "bg-white/40 border-gray-300 hover:border-gray-400 cursor-pointer"
                           }`}
                       >
                         {/* Status Badge */}
@@ -1305,10 +1305,10 @@ export default function CheckoutPage() {
 
                         {/* Checkbox - Top Right */}
                         <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${orderBumpsStatus?.protocolo
-                            ? "bg-blue-500 border-blue-500"
-                            : selectedOrderBumps.protocolo
-                              ? "bg-lime-500 border-lime-500"
-                              : "border-gray-500"
+                          ? "bg-blue-500 border-blue-500"
+                          : selectedOrderBumps.protocolo
+                            ? "bg-lime-500 border-lime-500"
+                            : "border-gray-500"
                           }`}>
                           {(orderBumpsStatus?.protocolo || selectedOrderBumps.protocolo) && <Check className="w-3 h-3 text-white" />}
                         </div>
