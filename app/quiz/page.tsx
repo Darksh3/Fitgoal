@@ -4512,8 +4512,6 @@ export default function QuizPage() {
                     style={{ width: `${Math.min(animatedPercentage, 100)}%` }}
                   />
                 </div>
-
-                <p className="mt-2 text-white/45 text-xs">{syncedStatusMessage()}</p>
               </div>
 
               {/* MIDDLE */}
