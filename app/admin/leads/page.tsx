@@ -1,4 +1,4 @@
-"use client"
+áêãááêáçõêêí"use client"
 
 import { useState, useEffect } from "react"
 import { Search, Download, Plus, MoreVertical } from "lucide-react"
