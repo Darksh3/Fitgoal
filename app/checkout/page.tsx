@@ -82,7 +82,7 @@ export default function CheckoutPage() {
     }
 
     const planMap: { [key: string]: { name: string; price: number } } = {
-      mensal: { name: 'Plano Mensal', price: 79.90 },
+      mensal: { name: 'Plano Mensal', price: 59.90 },
       trimestral: { name: 'Plano Trimestral', price: 194.70 },
       semestral: { name: 'Plano Semestral', price: 299.40 },
     }

@@ -33,7 +33,7 @@ export default function SuccessPage() {
           
           // Rastrear Purchase no Meta Pixel (valores genéricos se não tiver dados)
           trackPurchase({
-            value: 79.90,
+            value: 59.90,
             currency: 'BRL',
             content_name: 'Plano FitGoal',
           })
@@ -61,14 +61,14 @@ export default function SuccessPage() {
             // Rastrear Purchase no Meta Pixel com evento deduplicado (usando userUid para match com CAPI)
             if (typeof window !== 'undefined' && (window as any).fbq) {
               (window as any).fbq('track', 'Purchase', {
-                value: data.planPrice || 79.90,
+                value: data.planPrice || 59.90,
                 currency: 'BRL',
                 content_name: data.planName || 'Plano FitGoal',
               }, { eventID: `purchase_${data.userUid}` })
             } else {
               // Fallback to usePixel hook se fbq não estiver disponível
               trackPurchase({
-                value: data.planPrice || 79.90,
+                value: data.planPrice || 59.90,
                 currency: 'BRL',
                 content_name: data.planName || 'Plano FitGoal',
                 eventId: `purchase_${data.userUid}`,
@@ -83,13 +83,13 @@ export default function SuccessPage() {
             // Rastrear Purchase mesmo com erro (pagamento foi processado) - com deduplicação
             if (typeof window !== 'undefined' && (window as any).fbq) {
               (window as any).fbq('track', 'Purchase', {
-                value: 79.90,
+                value: 59.90,
                 currency: 'BRL',
                 content_name: 'Plano FitGoal',
               }, { eventID: `purchase_${userId}` })
             } else {
               trackPurchase({
-                value: 79.90,
+                value: 59.90,
                 currency: 'BRL',
                 content_name: 'Plano FitGoal',
                 eventId: `purchase_${userId}`,
@@ -128,13 +128,13 @@ export default function SuccessPage() {
           // Rastrear Purchase no Meta Pixel para Stripe/Google Pay - com deduplicação usando userUid
           if (typeof window !== 'undefined' && (window as any).fbq) {
             (window as any).fbq('track', 'Purchase', {
-              value: data.planPrice || 79.90,
+              value: data.planPrice || 59.90,
               currency: 'BRL',
               content_name: data.planName || 'Plano FitGoal',
             }, { eventID: `purchase_${data.userUid}` })
           } else {
             trackPurchase({
-              value: data.planPrice || 79.90,
+              value: data.planPrice || 59.90,
               currency: 'BRL',
               content_name: data.planName || 'Plano FitGoal',
               eventId: `purchase_${data.userUid}`,

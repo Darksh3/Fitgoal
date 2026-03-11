@@ -277,7 +277,7 @@ export default function QuizResultsPage() {
   const getPlanPrice = () => {
     switch (selectedPlan) {
       case "monthly":
-        return "79.90"
+        return "59.90"
       case "quarterly":
         return "159.90"
       case "semiannual":
