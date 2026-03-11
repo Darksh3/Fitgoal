@@ -255,9 +255,9 @@ export default function QuizAnalyticsPage() {
                                                                                 </div>
                                                               </CardContent>
                                               </Card>
-                                </>>
+                                </>
                               )}
-                  </>>
+                  </>
                 ) : (
                   /* === RESPOSTAS & AVATAR TAB === */
                   <>
@@ -437,13 +437,13 @@ export default function QuizAnalyticsPage() {
                                                                                                                               </CardContent>
                                                                                                     </Card>
                                                                                                 ))}
-                                                                        </>>
+                                                                        </>
                                                                       )}
                                                   </div>
                                               )}
-                                </>>
+                                </>
                               )}
-                  </>>
+                  </>
                 )}
         </div>
       )
