@@ -239,14 +239,6 @@ export default function CheckoutPage() {
               phone: userData.phone || userData.personalData?.phone || "",
               cpf: userData.cpf || "",
             }))
-
-            // Pré-preencher nome do titular do cartão
-            if (userData.name) {
-              setCardData((prev) => ({
-                ...prev,
-                holderName: userData.name,
-              }))
-            }
           } else {
             // Se não existe documento, preencher com dados do Firebase Auth
             setFormData((prev) => ({
@@ -1054,7 +1046,7 @@ export default function CheckoutPage() {
                       placeholder="CVV"
                       value={cardData.ccv}
                       onChange={(e) => handleCardChange(e, "ccv")}
-                      maxLength={4}
+                      maxLength={3}
                       className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardCcv") ? "border-red-500/80 border-2" : "border-slate-600"
                         }`}
                     />
