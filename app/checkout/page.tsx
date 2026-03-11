@@ -82,7 +82,7 @@ export default function CheckoutPage() {
     }
 
     const planMap: { [key: string]: { name: string; price: number } } = {
-      mensal: { name: 'Plano Mensal', price: 79.90 },
+      mensal: { name: 'Plano Mensal', price: 59.90 },
       trimestral: { name: 'Plano Trimestral', price: 194.70 },
       semestral: { name: 'Plano Semestral', price: 299.40 },
     }
@@ -829,7 +829,7 @@ export default function CheckoutPage() {
                 </div>
                 {!isComplementosOnly && (
                   <div className="text-sm text-gray-400 mt-2">
-                    {selectedPlan === "mensal" && "R$ 79,90 por mês"}
+                    {selectedPlan === "mensal" && "R$ 199,90 por mês"}
                     {selectedPlan === "trimestral" && "R$ 59,97 por mês"}
                     {selectedPlan === "semestral" && "Menos de R$40 por mês!"}
                   </div>
