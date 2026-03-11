@@ -389,7 +389,7 @@ export default function QuizResultsPage() {
     } else {
       bulletBF =
         goalCat === "bulk"
-          ? "Ambiente favorável para ganhar massa — podemos subir calorias com mais segurança mantendo a definição."
+          ? "Ambiente favorável para ganhar massa ��� podemos subir calorias com mais segurança mantendo a definição."
           : "Boa base de definição — foco em desempenho e ajustes finos de composição corporal."
     }
 
@@ -839,7 +839,7 @@ export default function QuizResultsPage() {
                 <div className="flex-1">
                   <p className="text-white font-bold">Acompanhamento de progresso</p>
                   <p className="text-gray-400 text-sm">Monitore sua evolução e ajuste conforme necessário</p>
-                  <p className="text-orange-400 font-bold mt-2 line-through text-gray-500">R$ 79</p>
+                  <p className="text-orange-400 font-bold mt-2 line-through text-gray-500">R$ 199,90</p>
                 </div>
               </div>
             </div>

@@ -829,7 +829,7 @@ export default function CheckoutPage() {
                 </div>
                 {!isComplementosOnly && (
                   <div className="text-sm text-gray-400 mt-2">
-                    {selectedPlan === "mensal" && "R$ 79,90 por mês"}
+                    {selectedPlan === "mensal" && "R$ 199,90 por mês"}
                     {selectedPlan === "trimestral" && "R$ 59,97 por mês"}
                     {selectedPlan === "semestral" && "Menos de R$40 por mês!"}
                   </div>
