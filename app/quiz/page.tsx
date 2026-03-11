@@ -374,7 +374,7 @@ export default function QuizPage() {
                   fetch('/api/track-quiz-step', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ sessionId: sessionIdRef.current, uid: currentUser?.uid || null, step: currentStep, totalSteps }),
+                            body: JSON.stringify({ sessionId: sessionIdRef.current, uid: currentUser?.uid || null, step: currentStep, totalSteps, answer: [Array.isArray(quizData.goal)?quizData.goal.join(", "):quizData.goal, quizData.gender, quizData.experience, quizData.trainingDaysPerWeek, quizData.workoutTime, quizData.bodyType, quizData.currentWeight, quizData.height, quizData.targetWeight, quizData.diet, quizData.waterIntake, quizData.problemAreas, quizData.weightChangeType, quizData.equipment, quizData.sugarFrequency, quizData.allergies, quizData.wantsSupplement, quizData.name][currentStep - 1] ?? "" }),
                   }).catch(() => {})
           }
     }

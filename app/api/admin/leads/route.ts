@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const stage = searchParams.get("stage") || "all"
     const limit = parseInt(searchParams.get("limit") || "100")
-    const daysAgo = parseInt(searchParams.get("daysAgo") || "30")
+    const daysAgo = parseInt(searchParams.get("daysAgo") || "0")
 
     console.log("[v0] ADMIN_LEADS - Fetching leads", { stage, limit, daysAgo })
 
