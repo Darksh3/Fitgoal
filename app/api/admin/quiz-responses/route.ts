@@ -2,18 +2,35 @@ import { NextRequest, NextResponse } from "next/server"
 import { adminDb } from "@/lib/firebaseAdmin"
 import { isAdminRequest } from "@/lib/adminServerVerify"
 
-// Labels for known quiz steps (based on typical fitness quiz structure)
+// Labels for quiz steps (order corrected to match current quiz flow)
 const STEP_LABELS: Record<number, string> = {
-    1: "Qual é o seu objetivo principal?",
-    2: "Qual é o seu gênero?",
-    3: "Qual é a sua idade?",
-    4: "Qual é o seu nível de experiência com treinos?",
-    5: "Quantos dias por semana você pode treinar?",
-    6: "Quanto tempo tem disponível por treino?",
-    7: "Qual é o seu tipo de corpo atual?",
-    8: "Qual é o seu peso atual?",
-    9: "Qual é a sua altura?",
-    10: "Qual é o seu objetivo de peso?",
+        1: "Qual é o seu gênero?",
+        2: "Qual é o seu tipo de corpo?",
+        3: "Quais são os seus objetivos?",
+        4: "Como o seu peso costuma mudar?",
+        5: "Qual é o seu nível de gordura corporal?",
+        6: "Qual área você quer focar mais?",
+        7: "Você segue alguma dessas dietas?",
+        8: "Com que frequência você consome doces?",
+        9: "Com que frequência você consome álcool?",
+        10: "Quantidade diária de água",
+        11: "Qual é a sua idade?",
+        12: "Qual é a sua altura?",
+        13: "Qual é o seu peso atual?",
+        14: "Qual é o seu objetivo de peso?",
+        15: "Qual é o seu nível de experiência com treinos?",
+        16: "Como você se sente com cardio?",
+        17: "Como você se sente com flexões?",
+        18: "Como você se sente com alongamentos?",
+        20: "Objetivos adicionais",
+        21: "Que equipamentos você tem acesso?",
+        22: "Qual é o seu tempo disponível para treino?",
+        23: "Quantos dias você irá treinar por semana?",
+        24: "Escolha os produtos que você gosta",
+        25: "Você possui alergias ou restrições alimentares?",
+        26: "Quais são suas alergias ou restrições alimentares?",
+        28: "Como podemos te chamar?",
+        29: "Qual é o seu e-mail?",
 }
 
 export async function GET(request: NextRequest) {
@@ -147,12 +164,12 @@ function buildAvatarSummary(stepAnswers: Record<number, Record<string, number>>)
     }
 
   return {
-        objetivo: getMostCommon(1),
-        genero: getMostCommon(2),
-        faixaEtaria: getMostCommon(3),
-        experiencia: getMostCommon(4),
-        diasTreino: getMostCommon(5),
-        tempoPorTreino: getMostCommon(6),
-        tipoCorporal: getMostCommon(7),
+                objetivo: getMostCommon(3),
+              genero: getMostCommon(1),
+              faixaEtaria: getMostCommon(11),
+              experiencia: getMostCommon(15),
+              diasTreino: getMostCommon(23),
+              tempoPorTreino: getMostCommon(22),
+              tipoCorporal: getMostCommon(2),
   }
 }
