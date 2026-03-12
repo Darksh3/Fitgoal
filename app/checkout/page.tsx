@@ -158,7 +158,7 @@ export default function CheckoutPage() {
   const getPlanPrice = (plan: string) => {
     switch (plan) {
       case "mensal":
-        return "79.90"
+        return "59.90"
       case "trimestral":
         return "179.90"
       case "semestral":

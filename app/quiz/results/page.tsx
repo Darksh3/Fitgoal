@@ -856,8 +856,8 @@ export default function QuizResultsPage() {
                   Se comprasse separadamente: <span className="line-through text-gray-500">R$ 454</span>
                 </p>
                 <p className="text-white font-bold">
-                  Com a gente: de <span className="text-orange-400">R$ 59,95</span> a{" "}
-                  <span className="text-orange-400">R$ 79,90</span> por mês
+                  Com a gente: de <span className="text-orange-400">R$ 59,90</span> a{" "}
+                  <span className="text-orange-400">R$ 239,90</span> por mês
                 </p>
               </div>
             </div>
@@ -913,10 +913,10 @@ export default function QuizResultsPage() {
               <div className="text-3xl font-bold text-white mb-1">
                 {discountApplied ? (
                   <>
-                    <span className="line-through text-gray-500 text-lg mr-2">R$ 266,33</span>
-                    <span className="text-orange-400">R$ 79,90</span>
-                  </>
-                ) : 'R$ 266,33'}
+                  <span className="line-through text-gray-500 text-lg mr-2">R$ 199,90</span>
+                  <span className="text-orange-400">R$ 59,90</span>
+                </p>
+              ) : 'R$ 199,90'}
               </div>
               <div className="text-gray-500 text-xs">por mês</div>
             </div>
@@ -1360,8 +1360,8 @@ export default function QuizResultsPage() {
                   <div className="text-3xl font-bold text-white mb-1">
                     {discountApplied ? (
                       <>
-                        <span className="line-through text-gray-500 text-lg mr-2">R$ 266,33</span>
-                        <span className="text-orange-400">R$ 79,90</span>
+                  <span className="line-through text-gray-500 text-lg mr-2">R$ 199,90</span>
+                  <span className="text-orange-400">R$ 59,90</span>
                       </>
                     ) : 'R$ 266,33'}
                   </div>
