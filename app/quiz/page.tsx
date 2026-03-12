@@ -331,7 +331,7 @@ export default function QuizPage() {
   const [showMotivationMessage, setShowMotivationMessage] = useState(false)
   const [showCortisolMessage, setShowCortisolMessage] = useState(false)
   // </CHANGE>
-  const [currentStep, setCurrentStep] = useState(0) // Start at 0 for intro page
+  const [currentStep, setCurrentStep] = useState(1) // Intro page desativada - comça direto na pergunta 1
   const [debugChart, setDebugChart] = useState(false)
   const [musclePoints, setMusclePoints] = useState([
     { x: 0, y: 250 },
