@@ -915,7 +915,7 @@ export default function QuizResultsPage() {
                   <>
                   <span className="line-through text-gray-500 text-lg mr-2">R$ 199,90</span>
                   <span className="text-orange-400">R$ 59,90</span>
-                </p>
+                </>
               ) : 'R$ 199,90'}
               </div>
               <div className="text-gray-500 text-xs">por mês</div>
