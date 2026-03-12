@@ -430,7 +430,7 @@ export default function QuizResultsPage() {
 
     // 6) Nota para prazo (opcional)
     const etaNote = timeToGoal
-      ? `Projeção de prazo: ${timeToGoal}. Estimativa baseada em consistência e adesão ao plano.`
+      ? `Projeção de prazo: ${timeToGoal}. Estimativa baseada em consist��ncia e adesão ao plano.`
       : null
 
     return {
@@ -856,8 +856,8 @@ export default function QuizResultsPage() {
                   Se comprasse separadamente: <span className="line-through text-gray-500">R$ 454</span>
                 </p>
                 <p className="text-white font-bold">
-                  Com a gente: de <span className="text-orange-400">R$ 59,95</span> a{" "}
-                  <span className="text-orange-400">R$ 79,90</span> por mês
+                  Com a gente: de <span className="text-orange-400">R$ 59,90</span> a{" "}
+                  <span className="text-orange-400">R$ 239,90</span> por mês
                 </p>
               </div>
             </div>
