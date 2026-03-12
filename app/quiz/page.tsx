@@ -2360,8 +2360,11 @@ export default function QuizPage() {
 
   const renderStep = () => {
     switch (currentStep) {
+      // DESATIVADA TEMPORARIAMENTE - Página de introdução do quiz
+      // Será reutilizada no futuro quando necessário
+      // Para reativar, remova os comentários abaixo e descomente o código
+      /*
       case 0:
-        // Intro page
         return (
           <div className="relative space-y-8 flex flex-col items-center justify-center min-h-[70vh]">
             <div className="relative z-10 text-center space-y-6 max-w-2xl">
@@ -2408,6 +2411,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
+      */
 
       case 1:
         return (
