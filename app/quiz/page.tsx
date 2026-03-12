@@ -331,7 +331,7 @@ export default function QuizPage() {
   const [showMotivationMessage, setShowMotivationMessage] = useState(false)
   const [showCortisolMessage, setShowCortisolMessage] = useState(false)
   // </CHANGE>
-  const [currentStep, setCurrentStep] = useState(0) // Start at 0 for intro page
+  const [currentStep, setCurrentStep] = useState(1) // Intro page desativada - comça direto na pergunta 1
   const [debugChart, setDebugChart] = useState(false)
   const [musclePoints, setMusclePoints] = useState([
     { x: 0, y: 250 },
@@ -2360,8 +2360,11 @@ export default function QuizPage() {
 
   const renderStep = () => {
     switch (currentStep) {
+      // DESATIVADA TEMPORARIAMENTE - Página de introdução do quiz
+      // Será reutilizada no futuro quando necessário
+      // Para reativar, remova os comentários abaixo e descomente o código
+      /*
       case 0:
-        // Intro page
         return (
           <div className="relative space-y-8 flex flex-col items-center justify-center min-h-[70vh]">
             <div className="relative z-10 text-center space-y-6 max-w-2xl">
@@ -2408,6 +2411,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
+      */
 
       case 1:
         return (
@@ -4617,11 +4621,6 @@ export default function QuizPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
           </Button>
-          <div className="text-center">
-            <p className="text-gray-400">
-              {currentStep === 0 ? "Início" : `${currentStep} de ${totalSteps}`}
-            </p>
-          </div>
           <div className="w-16" />
         </div>
         {currentStep > 0 && (
