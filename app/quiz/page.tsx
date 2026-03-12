@@ -4617,11 +4617,6 @@ export default function QuizPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
           </Button>
-          <div className="text-center">
-            <p className="text-gray-400">
-              {currentStep === 0 ? "Início" : `${currentStep} de ${totalSteps}`}
-            </p>
-          </div>
           <div className="w-16" />
         </div>
         {currentStep > 0 && (
