@@ -9,7 +9,6 @@ import "../styles/neon-buttons.css"
 
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
-import FloatingChat from "@/components/floating-chat"
 import { PixelTracker } from "@/components/pixel-tracker"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -77,7 +76,6 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
-            <FloatingChat />
             <Toaster />
           </ThemeProvider>
         </PixelTracker>
