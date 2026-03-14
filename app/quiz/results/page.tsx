@@ -1062,7 +1062,7 @@ export default function QuizResultsPage() {
                     <path d="M9 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 01-1zM5.05 6.051a1 1 0 00-1.414 1.414l.707.707a1 1 0 101.414-1.414l-.707-.707zM3 9a1 1 0 100 2v4a2 2 0 100 4h12a2 2 0 100-4V9a1 1 0 100-2H3z"></path>
                   </svg>
                   <div>
-                    <p className="text-white font-bold">Plano de refeições personalizado</p>
+                    <p className="text-white font-bold">Plano de refei��ões personalizado</p>
                     <p className="text-gray-400 text-sm">
                       Dieta 100% personalizada pensando em VOCÊ, para atingir seu objetivo mais rápido
                     </p>
@@ -1113,80 +1113,161 @@ export default function QuizResultsPage() {
             <div className="max-w-6xl mx-auto px-4">
               <h2 className="text-4xl font-bold text-center text-white mb-12">Resultados que nos deixam orgulhosos</h2>
 
+              {/* Testimonials Grid - conditional based on gender */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                {/* Testimonial 1 - Brandon */}
-                <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
-                  <img
-                    src="/images/5123122014301391780.jpg"
-                    alt="Brandon - Transformação antes e depois"
-                    className="w-full aspect-square object-cover"
-                  />
-                  <div className="p-6 space-y-4 flex flex-col flex-1">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold text-white">Brandon</h3>
-                      <span className="text-orange-400 font-bold text-lg">-15 kg</span>
+                {getDataValue("gender") === "mulher" ? (
+                  <>
+                    {/* Female Testimonials */}
+                    {/* Testimonial 1 - Lucilene Alves */}
+                    <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
+                      <img
+                        src="/testimonial-lucilene.jpg"
+                        alt="Lucilene Alves - Transformação antes e depois"
+                        className="w-full aspect-square object-cover"
+                      />
+                      <div className="p-6 space-y-4 flex flex-col flex-1">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-bold text-white">Lucilene Alves</h3>
+                          <span className="text-orange-400 font-bold text-lg">-12 kg</span>
+                        </div>
+                        <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "lucilene" ? "" : "line-clamp-3"}`}>
+                          O programa mudou minha vida! Consegui finalmente perder aquele peso que me incomodava e ainda ganhei muita confiança. Os treinos são perfeitos e a nutrição funciona!
+                        </p>
+                        <button
+                          onClick={() => setExpandedTestimonial(expandedTestimonial === "lucilene" ? null : "lucilene")}
+                          className="text-orange-400 text-sm font-semibold hover:text-orange-300 transition self-start"
+                        >
+                          {expandedTestimonial === "lucilene" ? "Ver menos" : "Ler mais"}
+                        </button>
+                      </div>
                     </div>
-                    <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "brandon" ? "" : "line-clamp-3"}`}>
-                      Olá, estou usando seus treinos e comecei há cerca de 4-5 meses atrás e só queria dizer obrigado,
-                      você fez um ótimo trabalho, realmente vi um transformação incrível!
-                    </p>
-                    <button
-                      onClick={() => setExpandedTestimonial(expandedTestimonial === "brandon" ? null : "brandon")}
-                      className="text-orange-400 text-sm font-semibold hover:text-orange-300 transition self-start"
-                    >
-                      {expandedTestimonial === "brandon" ? "Ver menos" : "Ler mais"}
-                    </button>
-                  </div>
-                </div>
 
-                {/* Testimonial 2 - Peter */}
-                <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
-                  <img
-                    src="/images/5123122014301391779.jpg"
-                    alt="Peter - Transformação antes e depois"
-                    className="w-full aspect-square object-cover"
-                  />
-                  <div className="p-6 space-y-4 flex flex-col flex-1">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold text-white">Peter</h3>
-                      <span className="text-orange-400 font-bold text-lg">-5 kg</span>
+                    {/* Testimonial 2 - Maria Clara */}
+                    <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
+                      <img
+                        src="/testimonial-maria-clara.jpg"
+                        alt="Maria Clara - Transformação antes e depois"
+                        className="w-full aspect-square object-cover"
+                      />
+                      <div className="p-6 space-y-4 flex flex-col flex-1">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-bold text-white">Maria Clara</h3>
+                          <span className="text-orange-400 font-bold text-lg">-8 kg</span>
+                        </div>
+                        <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "maria-clara" ? "" : "line-clamp-3"}`}>
+                          Estava desacreditada, mas os resultados vieram mais rápido do que esperava. O plano personalizado é realmente feito para cada pessoa. Super recomendo!
+                        </p>
+                        <button
+                          onClick={() => setExpandedTestimonial(expandedTestimonial === "maria-clara" ? null : "maria-clara")}
+                          className="text-orange-400 text-sm font-semibold hover:text-orange-300 transition self-start"
+                        >
+                          {expandedTestimonial === "maria-clara" ? "Ver menos" : "Ler mais"}
+                        </button>
+                      </div>
                     </div>
-                    <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "peter" ? "" : "line-clamp-3"}`}>
-                      Os vídeos são muito úteis e fáceis de entender. Os conselhos do seu consultor funcionam bem
-                      comigo. Consigo dormir cedo agora e tenho mais energia durante o dia!
-                    </p>
-                    <button
-                      onClick={() => setExpandedTestimonial(expandedTestimonial === "peter" ? null : "peter")}
-                      className="text-orange-400 text-sm font-semibold hover:text-orange-300 transition self-start"
-                    >
-                      {expandedTestimonial === "peter" ? "Ver menos" : "Ler mais"}
-                    </button>
-                  </div>
-                </div>
 
-                {/* Testimonial 3 - Kevin */}
-                <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
-                  <img
-                    src="/images/5123122014301391781.jpg"
-                    alt="Kevin - Transformação antes e depois"
-                    className="w-full aspect-square object-cover"
-                  />
-                  <div className="p-6 space-y-4 flex flex-col flex-1">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold text-white">Kevin</h3>
-                      <span className="text-orange-400 font-bold text-lg">-13 kg</span>
+                    {/* Testimonial 3 - Tamires Silva */}
+                    <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
+                      <img
+                        src="/testimonial-tamires.jpg"
+                        alt="Tamires Silva - Transformação antes e depois"
+                        className="w-full aspect-square object-cover"
+                      />
+                      <div className="p-6 space-y-4 flex flex-col flex-1">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-bold text-white">Tamires Silva</h3>
+                          <span className="text-orange-400 font-bold text-lg">-15 kg</span>
+                        </div>
+                        <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "tamires" ? "" : "line-clamp-3"}`}>
+                          Transformação completa! Não só emagreci, mas ficou forte e com disposição. O acompanhamento personalizado fez toda a diferença na minha jornada.
+                        </p>
+                        <button
+                          onClick={() => setExpandedTestimonial(expandedTestimonial === "tamires" ? null : "tamires")}
+                          className="text-orange-400 text-sm font-semibold hover:text-orange-300 transition self-start"
+                        >
+                          {expandedTestimonial === "tamires" ? "Ver menos" : "Ler mais"}
+                        </button>
+                      </div>
                     </div>
-                    <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "kevin" ? "" : "line-clamp-3"}`}>
-                      Comecei com cerca de 200 lbs e agora estou com um peso saudável e magro 172. Adorei a experiência com os planos personalizados!
-                    </p>
-                    <button
-                      onClick={() => setExpandedTestimonial(expandedTestimonial === "kevin" ? null : "kevin")}
-                      className="text-orange-400 text-sm font-semibold hover:text-orange-300 transition self-start"
-                    >
-                      {expandedTestimonial === "kevin" ? "Ver menos" : "Ler mais"}
-                    </button>
-                  </div>
-                </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Male Testimonials - Original */}
+                    {/* Testimonial 1 - Brandon */}
+                    <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
+                      <img
+                        src="/images/5123122014301391780.jpg"
+                        alt="Brandon - Transformação antes e depois"
+                        className="w-full aspect-square object-cover"
+                      />
+                      <div className="p-6 space-y-4 flex flex-col flex-1">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-bold text-white">Brandon</h3>
+                          <span className="text-orange-400 font-bold text-lg">-15 kg</span>
+                        </div>
+                        <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "brandon" ? "" : "line-clamp-3"}`}>
+                          Olá, estou usando seus treinos e comecei há cerca de 4-5 meses atrás e só queria dizer obrigado,
+                          você fez um ótimo trabalho, realmente vi um transformação incrível!
+                        </p>
+                        <button
+                          onClick={() => setExpandedTestimonial(expandedTestimonial === "brandon" ? null : "brandon")}
+                          className="text-orange-400 text-sm font-semibold hover:text-orange-300 transition self-start"
+                        >
+                          {expandedTestimonial === "brandon" ? "Ver menos" : "Ler mais"}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Testimonial 2 - Peter */}
+                    <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
+                      <img
+                        src="/images/5123122014301391779.jpg"
+                        alt="Peter - Transformação antes e depois"
+                        className="w-full aspect-square object-cover"
+                      />
+                      <div className="p-6 space-y-4 flex flex-col flex-1">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-bold text-white">Peter</h3>
+                          <span className="text-orange-400 font-bold text-lg">-5 kg</span>
+                        </div>
+                        <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "peter" ? "" : "line-clamp-3"}`}>
+                          Os vídeos são muito úteis e fáceis de entender. Os conselhos do seu consultor funcionam bem
+                          comigo. Consigo dormir cedo agora e tenho mais energia durante o dia!
+                        </p>
+                        <button
+                          onClick={() => setExpandedTestimonial(expandedTestimonial === "peter" ? null : "peter")}
+                          className="text-orange-400 text-sm font-semibold hover:text-orange-300 transition self-start"
+                        >
+                          {expandedTestimonial === "peter" ? "Ver menos" : "Ler mais"}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Testimonial 3 - Kevin */}
+                    <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
+                      <img
+                        src="/images/5123122014301391781.jpg"
+                        alt="Kevin - Transformação antes e depois"
+                        className="w-full aspect-square object-cover"
+                      />
+                      <div className="p-6 space-y-4 flex flex-col flex-1">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-bold text-white">Kevin</h3>
+                          <span className="text-orange-400 font-bold text-lg">-13 kg</span>
+                        </div>
+                        <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "kevin" ? "" : "line-clamp-3"}`}>
+                          Comecei com cerca de 200 lbs e agora estou com um peso saudável e magro 172. Adorei a experiência com os planos personalizados!
+                        </p>
+                        <button
+                          onClick={() => setExpandedTestimonial(expandedTestimonial === "kevin" ? null : "kevin")}
+                          className="text-orange-400 text-sm font-semibold hover:text-orange-300 transition self-start"
+                        >
+                          {expandedTestimonial === "kevin" ? "Ver menos" : "Ler mais"}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               <p className="text-xs text-gray-500 text-center">
