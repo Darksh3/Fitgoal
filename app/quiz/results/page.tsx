@@ -948,9 +948,9 @@ export default function QuizResultsPage() {
               </div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-white">Plano Trimestral</h3>
-                <svg className="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                </svg>
+                <div className="w-6 h-6 rounded-full border-2 border-gray-600 flex items-center justify-center">
+                  {selectedPlan === "quarterly" && <div className="w-3 h-3 bg-orange-500 rounded-full" />}
+                </div>
               </div>
               <div className="text-gray-400 text-sm mb-3">Acesso completo por 90 dias</div>
               <div className="text-3xl font-bold text-white mb-1">
@@ -1500,9 +1500,9 @@ export default function QuizResultsPage() {
                   </div>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold text-white">Plano Trimestral</h3>
-                    <svg className="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                    </svg>
+                    <div className="w-6 h-6 rounded-full border-2 border-gray-600 flex items-center justify-center">
+                      {selectedPlan === "quarterly" && <div className="w-3 h-3 bg-orange-500 rounded-full" />}
+                    </div>
                   </div>
                   <div className="text-gray-400 text-sm mb-3">Acesso completo por 90 dias</div>
                   <div className="text-3xl font-bold text-white mb-1">
