@@ -95,6 +95,21 @@ export default function QuizResultsPage() {
       console.log("[v0] RESULTS_DATA_LOADED_SUCCESSFULLY")
       setData(stored)
       setLoading(false)
+
+      // Track that user visited results page
+      const userId = localStorage.getItem('userId')
+      if (userId) {
+        try {
+          const leadRef = doc(db, 'leads', userId)
+          await updateDoc(leadRef, {
+            visitedResults: true,
+            visitedResultsAt: new Date().toISOString(),
+            lastActivity: new Date().toISOString(),
+          })
+        } catch (error) {
+          console.error("[v0] Error tracking results visit:", error)
+        }
+      }
     }
 
     fetchData()
