@@ -14,6 +14,7 @@ interface User {
   subscriptionStatus?: string
   createdAt?: string
   plan?: string
+  hasPaid?: boolean
 }
 
 export default function UsersPage() {
@@ -68,8 +69,11 @@ export default function UsersPage() {
     }
   }
 
-  const handleViewUser = (userId: string) => {
-    router.push(`/admin/users/${userId}`)
+  const checkoutStatusLabel = (hasPaid?: boolean, subscriptionStatus?: string) => {
+    if (hasPaid || subscriptionStatus === "active") {
+      return { label: "Pagou", color: "bg-green-500/10 text-green-400" }
+    }
+    return { label: "Não pagou", color: "bg-gray-500/10 text-gray-400" }
   }
 
   const filteredUsers = users.filter((user) =>
@@ -129,6 +133,7 @@ export default function UsersPage() {
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Email</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Nome</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Plano</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Status Checkout</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Status</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Data</th>
                 <th className="px-6 py-3 text-center text-sm font-semibold text-slate-300">Ações</th>
@@ -136,15 +141,20 @@ export default function UsersPage() {
             </thead>
             <tbody className="divide-y divide-slate-800">
               {loading ? (
-                <tr><td colSpan={6} className="px-6 py-8 text-center text-slate-400">Carregando usuários...</td></tr>
+                <tr><td colSpan={7} className="px-6 py-8 text-center text-slate-400">Carregando usuários...</td></tr>
               ) : filteredUsers.length === 0 ? (
-                <tr><td colSpan={6} className="px-6 py-8 text-center text-slate-400">Nenhum usuário encontrado</td></tr>
+                <tr><td colSpan={7} className="px-6 py-8 text-center text-slate-400">Nenhum usuário encontrado</td></tr>
               ) : (
                 filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-slate-800/50 transition-colors cursor-pointer" onClick={() => handleViewUser(user.id)}>
                     <td className="px-6 py-4 text-sm text-green-400 font-medium">{user.email}</td>
                     <td className="px-6 py-4 text-sm text-slate-300">{user.name || "-"}</td>
                     <td className="px-6 py-4 text-sm text-slate-300">{user.plan || "-"}</td>
+                    <td className="px-6 py-4">
+                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${checkoutStatusLabel(user.hasPaid, user.subscriptionStatus).color}`}>
+                        {checkoutStatusLabel(user.hasPaid, user.subscriptionStatus).label}
+                      </span>
+                    </td>
                     <td className="px-6 py-4">
                       <span className={`text-xs font-semibold px-2 py-1 rounded-full ${user.subscriptionStatus === "active" ? "bg-green-500/10 text-green-400" : "bg-slate-700/50 text-slate-400"}`}>
                         {user.subscriptionStatus === "active" ? "Ativo" : "Inativo"}
