@@ -389,7 +389,7 @@ export default function QuizResultsPage() {
     } else {
       bulletBF =
         goalCat === "bulk"
-          ? "Ambiente favorável para ganhar massa ��� podemos subir calorias com mais segurança mantendo a definição."
+          ? "Ambiente favorável para ganhar massa ����� podemos subir calorias com mais segurança mantendo a definição."
           : "Boa base de definição — foco em desempenho e ajustes finos de composição corporal."
     }
 
@@ -846,18 +846,16 @@ export default function QuizResultsPage() {
 
             {/* Special condition message */}
             <div className="mt-6 pt-6 border-t border-gray-700 text-center">
-              <p className="text-white">
-                <span className="text-orange-400">✨</span> Você terá uma Condição Mega Especial!{" "}
-                <span className="text-orange-400">✨</span>
-              </p>
-
-              <div className="mt-4 space-y-2">
+              <div className="mt-4 space-y-3 bg-gradient-to-r from-orange-400/10 to-lime-400/10 p-6 rounded-lg border border-orange-400/30">
                 <p className="text-gray-400 text-sm">
                   Se comprasse separadamente: <span className="line-through text-gray-500">R$ 454</span>
                 </p>
-                <p className="text-white font-bold">
-                  TUDO isso por APENAS <span className="text-orange-400">R$ 59,90</span> a{" "}
-                  <span className="text-orange-400"></span> por mês
+                <p className="text-center">
+                  <span className="text-white text-lg">Agora por apenas</span>
+                  <br />
+                  <span className="text-5xl font-black text-orange-400">R$ 59,90</span>
+                  <br />
+                  <span className="text-white font-bold text-lg">por mês</span>
                 </p>
               </div>
             </div>
@@ -1092,7 +1090,7 @@ export default function QuizResultsPage() {
                     <path d="M9 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 01-1zM5.05 6.051a1 1 0 00-1.414 1.414l.707.707a1 1 0 101.414-1.414l-.707-.707zM3 9a1 1 0 100 2v4a2 2 0 100 4h12a2 2 0 100-4V9a1 1 0 100-2H3z"></path>
                   </svg>
                   <div>
-                    <p className="text-white font-bold">Plano de refei��ões personalizado</p>
+                    <p className="text-white font-bold">Plano de refeições personalizado</p>
                     <p className="text-gray-400 text-sm">
                       Dieta 100% personalizada pensando em VOCÊ, para atingir seu objetivo mais rápido
                     </p>
