@@ -877,30 +877,29 @@ export default function QuizResultsPage() {
           {/* ================================================================ */}
 
           {/* Promo code banner */}
-          {/* ========== SEÇÃO DE CÓDIGO DE DESCONTO - DESATIVADA ========== */}
-          {/* Para reativar, remova os comentários abaixo */}
-          {/*
-          <div className="bg-orange-400 rounded-xl p-1 mt-8">
-            <div className="bg-black rounded-lg p-6 space-y-4">
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
-                </svg>
-                <span className="text-white font-semibold">
-                  {discountApplied ? 'Seu código promo foi aplicado!' : 'Possui código de desconto?'}
-                </span>
-              </div>
+          {/* ========== SEÇÃO DE CÓDIGO DE DESCONTO - DESATIVADA PARA MULHERES ========== */}
+          {getDataValue("gender") !== "mulher" && (
+            <div className="bg-orange-400 rounded-xl p-1 mt-8">
+              <div className="bg-black rounded-lg p-6 space-y-4">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
+                  </svg>
+                  <span className="text-white font-semibold">
+                    {discountApplied ? 'Seu código promo foi aplicado!' : 'Possui código de desconto?'}
+                  </span>
+                </div>
 
-              <div className="flex gap-4 items-center">
-                <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
-                  <p className="text-white font-mono text-lg">
-                    {discountApplied ? 'SHAPE70' : ''}
-                  </p>
+                <div className="flex gap-4 items-center">
+                  <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
+                    <p className="text-white font-mono text-lg">
+                      {discountApplied ? 'SHAPE70' : ''}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          */}
+          )}
           {/* ================================================================ */}
 
           {/* Plan cards */}
@@ -921,8 +920,19 @@ export default function QuizResultsPage() {
               </div>
               <div className="text-gray-400 text-sm mb-3">Acesso completo por 30 dias</div>
               <div className="text-3xl font-bold text-white mb-1">
-                <span className="line-through text-gray-500 text-lg mr-2">R$ 199,90</span>
-                <span className="text-orange-400">R$ 59,90</span>
+                {getDataValue("gender") === "mulher" ? (
+                  <>
+                    <span className="line-through text-gray-500 text-lg mr-2">R$ 199,90</span>
+                    <span className="text-orange-400">R$ 59,90</span>
+                  </>
+                ) : (
+                  discountApplied ? (
+                    <>
+                      <span className="line-through text-gray-500 text-lg mr-2">R$ 199,90</span>
+                      <span className="text-orange-400">R$ 59,90</span>
+                    </>
+                  ) : 'R$ 199,90'
+                )}
               </div>
               <div className="text-gray-500 text-xs">por mês</div>
             </div>
@@ -946,8 +956,19 @@ export default function QuizResultsPage() {
               </div>
               <div className="text-gray-400 text-sm mb-3">Acesso completo por 90 dias</div>
               <div className="text-3xl font-bold text-white mb-1">
-                <span className="line-through text-gray-500 text-lg mr-2">R$ 533,00</span>
-                <span className="text-orange-400">R$ 179,90</span>
+                {getDataValue("gender") === "mulher" ? (
+                  <>
+                    <span className="line-through text-gray-500 text-lg mr-2">R$ 533,00</span>
+                    <span className="text-orange-400">R$ 179,90</span>
+                  </>
+                ) : (
+                  discountApplied ? (
+                    <>
+                      <span className="line-through text-gray-500 text-lg mr-2">R$ 533,00</span>
+                      <span className="text-orange-400">R$ 179,90</span>
+                    </>
+                  ) : 'R$ 533,00'
+                )}
               </div>
               <div className="text-gray-500 text-xs">por trimestre</div>
             </div>
@@ -968,8 +989,19 @@ export default function QuizResultsPage() {
               </div>
               <div className="text-gray-400 text-sm mb-3">Acesso completo por 180 dias</div>
               <div className="text-3xl font-bold text-white mb-1">
-                <span className="line-through text-gray-500 text-lg mr-2">R$ 799,67</span>
-                <span className="text-orange-400">R$ 239,90</span>
+                {getDataValue("gender") === "mulher" ? (
+                  <>
+                    <span className="line-through text-gray-500 text-lg mr-2">R$ 799,67</span>
+                    <span className="text-orange-400">R$ 239,90</span>
+                  </>
+                ) : (
+                  discountApplied ? (
+                    <>
+                      <span className="line-through text-gray-500 text-lg mr-2">R$ 799,67</span>
+                      <span className="text-orange-400">R$ 239,90</span>
+                    </>
+                  ) : 'R$ 799,67'
+                )}
               </div>
               <div className="text-gray-500 text-xs">por semestre</div>
             </div>
@@ -1195,7 +1227,7 @@ export default function QuizResultsPage() {
                     <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
                       <img
                         src="/images/5123122014301391780.jpg"
-                        alt="Brandon - Transformação antes e depois"
+                        alt="Brandon - Transformaç��o antes e depois"
                         className="w-full aspect-square object-cover"
                       />
                       <div className="p-6 space-y-4 flex flex-col flex-1">
@@ -1397,30 +1429,29 @@ export default function QuizResultsPage() {
                 Obtenha resultados visíveis em 4 semanas!
               </h2>
 
-              {/* ========== SEÇÃO DE CÓDIGO DE DESCONTO - DESATIVADA ========== */}
-              {/* Para reativar, remova os comentários abaixo */}
-              {/*
-              <div className="bg-orange-400 rounded-xl p-1 mb-8">
-                <div className="bg-black rounded-lg p-6 space-y-4">
-                  <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
-                    </svg>
-                    <span className="text-white font-semibold">
-                      {discountApplied ? 'Seu código promo foi aplicado!' : 'Possui código de desconto?'}
-                    </span>
-                  </div>
+              {/* ========== SEÇÃO DE CÓDIGO DE DESCONTO - DESATIVADA PARA MULHERES ========== */}
+              {getDataValue("gender") !== "mulher" && (
+                <div className="bg-orange-400 rounded-xl p-1 mb-8">
+                  <div className="bg-black rounded-lg p-6 space-y-4">
+                    <div className="flex items-center gap-2">
+                      <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
+                      </svg>
+                      <span className="text-white font-semibold">
+                        {discountApplied ? 'Seu código promo foi aplicado!' : 'Possui código de desconto?'}
+                      </span>
+                    </div>
 
-                  <div className="flex gap-4 items-center">
-                    <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
-                      <p className="text-white font-mono text-lg">
-                        {discountApplied ? 'SHAPE70' : ''}
-                      </p>
+                    <div className="flex gap-4 items-center">
+                      <div className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-3">
+                        <p className="text-white font-mono text-lg">
+                          {discountApplied ? 'SHAPE70' : ''}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              */}
+              )}
               {/* ================================================================ */}
 
               {/* Plan cards */}
@@ -1441,8 +1472,19 @@ export default function QuizResultsPage() {
                   </div>
                   <div className="text-gray-400 text-sm mb-3">Acesso completo por 30 dias</div>
                   <div className="text-3xl font-bold text-white mb-1">
-                    <span className="line-through text-gray-500 text-lg mr-2">R$ 199,90</span>
-                    <span className="text-orange-400">R$ 59,90</span>
+                    {getDataValue("gender") === "mulher" ? (
+                      <>
+                        <span className="line-through text-gray-500 text-lg mr-2">R$ 199,90</span>
+                        <span className="text-orange-400">R$ 59,90</span>
+                      </>
+                    ) : (
+                      discountApplied ? (
+                        <>
+                          <span className="line-through text-gray-500 text-lg mr-2">R$ 199,90</span>
+                          <span className="text-orange-400">R$ 59,90</span>
+                        </>
+                      ) : 'R$ 199,90'
+                    )}
                   </div>
                   <div className="text-gray-500 text-xs">por mês</div>
                 </div>
@@ -1466,8 +1508,19 @@ export default function QuizResultsPage() {
                   </div>
                   <div className="text-gray-400 text-sm mb-3">Acesso completo por 90 dias</div>
                   <div className="text-3xl font-bold text-white mb-1">
-                    <span className="line-through text-gray-500 text-lg mr-2">R$ 533,00</span>
-                    <span className="text-orange-400">R$ 179,90</span>
+                    {getDataValue("gender") === "mulher" ? (
+                      <>
+                        <span className="line-through text-gray-500 text-lg mr-2">R$ 533,00</span>
+                        <span className="text-orange-400">R$ 179,90</span>
+                      </>
+                    ) : (
+                      discountApplied ? (
+                        <>
+                          <span className="line-through text-gray-500 text-lg mr-2">R$ 533,00</span>
+                          <span className="text-orange-400">R$ 179,90</span>
+                        </>
+                      ) : 'R$ 533,00'
+                    )}
                   </div>
                   <div className="text-gray-500 text-xs">por trimestre</div>
                 </div>
@@ -1488,8 +1541,19 @@ export default function QuizResultsPage() {
                   </div>
                   <div className="text-gray-400 text-sm mb-3">Acesso completo por 180 dias</div>
                   <div className="text-3xl font-bold text-white mb-1">
-                    <span className="line-through text-gray-500 text-lg mr-2">R$ 799,67</span>
-                    <span className="text-orange-400">R$ 239,90</span>
+                    {getDataValue("gender") === "mulher" ? (
+                      <>
+                        <span className="line-through text-gray-500 text-lg mr-2">R$ 799,67</span>
+                        <span className="text-orange-400">R$ 239,90</span>
+                      </>
+                    ) : (
+                      discountApplied ? (
+                        <>
+                          <span className="line-through text-gray-500 text-lg mr-2">R$ 799,67</span>
+                          <span className="text-orange-400">R$ 239,90</span>
+                        </>
+                      ) : 'R$ 799,67'
+                    )}
                   </div>
                   <div className="text-gray-500 text-xs">por semestre</div>
                 </div>
