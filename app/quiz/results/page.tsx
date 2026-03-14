@@ -856,7 +856,7 @@ export default function QuizResultsPage() {
                   Se comprasse separadamente: <span className="line-through text-gray-500">R$ 454</span>
                 </p>
                 <p className="text-white font-bold">
-                  Conosco hoje: Por APENAS <span className="text-orange-400">R$ 59,90</span> a{" "}
+                  TUDO isso por APENAS <span className="text-orange-400">R$ 59,90</span> a{" "}
                   <span className="text-orange-400"></span> por mês
                 </p>
               </div>
