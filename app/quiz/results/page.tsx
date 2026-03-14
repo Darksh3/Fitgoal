@@ -863,13 +863,18 @@ export default function QuizResultsPage() {
             </div>
           </div>
 
-          {/* ========== SEÇÃO DA ROLETA ========== */}
-          {showSpinWheel && !discountApplied && (
-            <div>
-              <SpinWheelSection onDiscountWon={handleDiscountWon} />
-            </div>
+          {/* ========== SEÇÃO DA ROLETA - DESATIVADA PARA MULHERES ========== */}
+          {/* Para reativar, remova os comentários abaixo */}
+          {getDataValue("gender") !== "mulher" && (
+            <>
+              {showSpinWheel && !discountApplied && (
+                <div>
+                  <SpinWheelSection onDiscountWon={handleDiscountWon} />
+                </div>
+              )}
+            </>
           )}
-          {/* ===================================== */}
+          {/* ================================================================ */}
 
           {/* Promo code banner */}
           <div className="bg-orange-400 rounded-xl p-1 mt-8">
