@@ -13,7 +13,7 @@ interface PaymentOptionsProps {
 
 export default function PaymentOptions({ initialName = "", initialEmail = "", quizAnswers }: PaymentOptionsProps) {
   const router = useRouter()
-  const [selectedPlan, setSelectedPlan] = useState("trimestral")
+  const [selectedPlan, setSelectedPlan] = useState("mensal")
   const [expandedCard, setExpandedCard] = useState<string | null>(null)
   const [name, setName] = useState(initialName)
   const [email, setEmail] = useState(initialEmail)
