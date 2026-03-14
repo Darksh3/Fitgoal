@@ -287,7 +287,7 @@ export default function QuizResultsPage() {
     }
   }
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     const planKey = getPlanKey()
     const planName = getPlanName()
     const planPrice = getPlanPrice()
