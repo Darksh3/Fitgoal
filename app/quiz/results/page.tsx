@@ -291,7 +291,7 @@ export default function QuizResultsPage() {
     const planKey = getPlanKey()
     const planName = getPlanName()
     const planPrice = getPlanPrice()
-    
+
     // Rastrear InitiateCheckout apenas uma vez por sessão
     if (typeof window !== 'undefined') {
       const initiateCheckoutTracked = sessionStorage.getItem('initiateCheckout_tracked')
@@ -309,7 +309,7 @@ export default function QuizResultsPage() {
         console.log("[v0] InitiateCheckout already tracked this session, skipping")
       }
     }
-    
+
     router.push(`/checkout?planKey=${planKey}&planName=${encodeURIComponent(planName)}&planPrice=${planPrice}`)
   }
 
@@ -847,7 +847,7 @@ export default function QuizResultsPage() {
             {/* Special condition message */}
             <div className="mt-6 pt-6 border-t border-gray-700 text-center">
               <p className="text-white">
-                <span className="text-orange-400">✨</span> Você vai ter uma Condição Mega Especial!{" "}
+                <span className="text-orange-400">✨</span> Você terá uma Condição Mega Especial!{" "}
                 <span className="text-orange-400">✨</span>
               </p>
 
@@ -856,8 +856,8 @@ export default function QuizResultsPage() {
                   Se comprasse separadamente: <span className="line-through text-gray-500">R$ 454</span>
                 </p>
                 <p className="text-white font-bold">
-                  Com a gente: de <span className="text-orange-400">R$ 59,90</span> a{" "}
-                  <span className="text-orange-400">R$ 239,90</span> por mês
+                  Conosco hoje: Por APENAS <span className="text-orange-400">R$ 59,90</span> a{" "}
+                  <span className="text-orange-400"></span> por mês
                 </p>
               </div>
             </div>
