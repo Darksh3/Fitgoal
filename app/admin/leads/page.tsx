@@ -75,7 +75,15 @@ export default function LeadsPage() {
     payment_completed: "Pagou",
   }
 
-  const stageBadgeColor = (stage?: string) => {
+  const checkoutStatusLabel = (stage?: string, hasPaid?: boolean) => {
+    if (hasPaid || stage === "payment_completed") {
+      return { label: "Pagou", color: "bg-green-500/10 text-green-400" }
+    }
+    if (stage === "proposta" || stage === "cliente") {
+      return { label: "Foi para Checkout", color: "bg-orange-500/10 text-orange-400" }
+    }
+    return { label: "Não foi para Checkout", color: "bg-gray-500/10 text-gray-400" }
+  }
     const colors: Record<string, string> = {
       novo: "bg-blue-500/10 text-blue-400",
       qualified: "bg-purple-500/10 text-purple-400",
@@ -254,6 +262,7 @@ export default function LeadsPage() {
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Email</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Nome</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Status Checkout</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Estágio</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Objetivo</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Campanha</th>
@@ -266,13 +275,13 @@ export default function LeadsPage() {
             <tbody className="divide-y divide-slate-800">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-8 text-center text-slate-400">
+                  <td colSpan={9} className="px-6 py-8 text-center text-slate-400">
                     Carregando leads...
                   </td>
                 </tr>
               ) : filteredLeads.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-8 text-center text-slate-400">
+                  <td colSpan={9} className="px-6 py-8 text-center text-slate-400">
                     Nenhum lead encontrado
                   </td>
                 </tr>
@@ -289,6 +298,11 @@ export default function LeadsPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-white font-medium">{lead.email}</td>
                     <td className="px-6 py-4 text-sm text-slate-300">{lead.name || "-"}</td>
+                    <td className="px-6 py-4">
+                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${checkoutStatusLabel(lead.stage, lead.hasPaid).color}`}>
+                        {checkoutStatusLabel(lead.stage, lead.hasPaid).label}
+                      </span>
+                    </td>
                     <td className="px-6 py-4">
                       <span className={`text-xs font-semibold px-2 py-1 rounded-full ${stageBadgeColor(lead.stage)}`}>
                         {stageLabels[lead.stage as keyof typeof stageLabels] || "Novo"}
