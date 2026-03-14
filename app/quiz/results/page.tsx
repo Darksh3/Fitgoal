@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { db, auth } from "@/lib/firebaseClient"
-import { doc, getDoc } from "firebase/firestore"
+import { doc, getDoc, updateDoc } from "firebase/firestore"
 import Image from "next/image"
 import SpinWheelSection from '@/components/SpinWheelSection'
 import { usePixel } from "@/components/pixel-tracker"
@@ -287,7 +287,7 @@ export default function QuizResultsPage() {
     }
   }
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     const planKey = getPlanKey()
     const planName = getPlanName()
     const planPrice = getPlanPrice()
@@ -307,6 +307,21 @@ export default function QuizResultsPage() {
         console.log("[v0] InitiateCheckout tracked (results page)")
       } else {
         console.log("[v0] InitiateCheckout already tracked this session, skipping")
+      }
+    }
+
+    // Track that user visited checkout
+    const userId = localStorage.getItem('userId')
+    if (userId) {
+      try {
+        const leadRef = doc(db, 'leads', userId)
+        await updateDoc(leadRef, {
+          visitedCheckout: true,
+          visitedCheckoutAt: new Date().toISOString(),
+          lastActivity: new Date().toISOString(),
+        })
+      } catch (error) {
+        console.error("[v0] Error tracking checkout visit:", error)
       }
     }
 
@@ -389,7 +404,7 @@ export default function QuizResultsPage() {
     } else {
       bulletBF =
         goalCat === "bulk"
-          ? "Ambiente favorável para ganhar massa ����� podemos subir calorias com mais segurança mantendo a definição."
+          ? "Ambiente favorável para ganhar massa ������ podemos subir calorias com mais segurança mantendo a definição."
           : "Boa base de definição — foco em desempenho e ajustes finos de composição corporal."
     }
 
