@@ -84,6 +84,8 @@ export default function LeadsPage() {
     }
     return { label: "Não foi para Checkout", color: "bg-gray-500/10 text-gray-400" }
   }
+
+  const stageBadgeColor = (stage?: string) => {
     const colors: Record<string, string> = {
       novo: "bg-blue-500/10 text-blue-400",
       qualified: "bg-purple-500/10 text-purple-400",
