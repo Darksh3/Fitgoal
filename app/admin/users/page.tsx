@@ -14,7 +14,7 @@ interface User {
   subscriptionStatus?: string
   createdAt?: string
   plan?: string
-  hasPaid?: boolean
+  visitedCheckout?: boolean
 }
 
 export default function UsersPage() {
@@ -69,11 +69,11 @@ export default function UsersPage() {
     }
   }
 
-  const checkoutStatusLabel = (hasPaid?: boolean, subscriptionStatus?: string) => {
-    if (hasPaid || subscriptionStatus === "active") {
-      return { label: "Pagou", color: "bg-green-500/10 text-green-400" }
+  const checkoutStatusLabel = (visitedCheckout?: boolean) => {
+    if (visitedCheckout) {
+      return { label: "Foi para Checkout", color: "bg-orange-500/10 text-orange-400" }
     }
-    return { label: "Não pagou", color: "bg-gray-500/10 text-gray-400" }
+    return { label: "Não foi para Checkout", color: "bg-gray-500/10 text-gray-400" }
   }
 
   const filteredUsers = users.filter((user) =>
@@ -151,8 +151,8 @@ export default function UsersPage() {
                     <td className="px-6 py-4 text-sm text-slate-300">{user.name || "-"}</td>
                     <td className="px-6 py-4 text-sm text-slate-300">{user.plan || "-"}</td>
                     <td className="px-6 py-4">
-                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${checkoutStatusLabel(user.hasPaid, user.subscriptionStatus).color}`}>
-                        {checkoutStatusLabel(user.hasPaid, user.subscriptionStatus).label}
+                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${checkoutStatusLabel(user.visitedCheckout).color}`}>
+                        {checkoutStatusLabel(user.visitedCheckout).label}
                       </span>
                     </td>
                     <td className="px-6 py-4">
