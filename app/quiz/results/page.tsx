@@ -15,7 +15,7 @@ export default function QuizResultsPage() {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
   const [timeLeft, setTimeLeft] = useState({ minutes: 10, seconds: 0 })
-  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "quarterly" | "semiannual">("quarterly")
+  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "quarterly" | "semiannual">("monthly")
   const [barsVisible, setBarsVisible] = useState(false)
   const [expandedTestimonial, setExpandedTestimonial] = useState<string | null>(null)
 
