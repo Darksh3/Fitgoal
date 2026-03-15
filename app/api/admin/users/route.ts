@@ -9,8 +9,15 @@ export async function GET() {
   }
 
   try {
-    const usersSnap = await adminDb.collection("users").get()
-    const users = usersSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
+    // Fetch users from the 'leads' collection which contains the visit tracking data
+    const leadsSnap = await adminDb.collection("leads").get()
+    const users = leadsSnap.docs.map((d) => ({ 
+      id: d.id, 
+      ...d.data(),
+      // Ensure we're getting the tracking fields
+      visitedResults: d.data().visitedResults || false,
+      visitedCheckout: d.data().visitedCheckout || false,
+    }))
 
     return NextResponse.json({ users })
   } catch (error) {
