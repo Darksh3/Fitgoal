@@ -494,7 +494,7 @@ export default function QuizResultsPage() {
           {/* Open checkout page instead of modal */}
           <button
             onClick={handleCheckout}
-            className="px-6 py-2 bg-white text-black rounded-full font-semibold text-sm hover:bg-gray-200 transition"
+            className="px-6 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-full font-bold text-sm hover:from-orange-400 hover:to-orange-300 transition shadow-md shadow-orange-500/30"
           >
             OBTER MEU PLANO
           </button>
@@ -795,101 +795,99 @@ export default function QuizResultsPage() {
         <div className="max-w-5xl mx-auto mt-16">
           <h2 className="text-4xl font-bold text-center mb-8">Programa FitGoal Personal Engine™:</h2>
 
-          <div className="mt-8 bg-gray-900 border border-gray-800 rounded-xl p-8 max-w-3xl mx-auto">
-            <h3 className="text-2xl font-bold text-white mb-8">O que você recebe:</h3>
-
-            <div className="space-y-6">
-              {/* Benefit 1 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold">Dieta 100% personalizada em você</p>
-                  <p className="text-gray-400 text-sm">
-                    Plano de dieta claro, personalizado apenas para você, barato e fácil de seguir
-                  </p>
-                  <p className="text-orange-400 font-bold mt-2 line-through text-gray-500">R$ 129</p>
-                </div>
+          <div className="mt-8 max-w-3xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h3 className="text-3xl font-black text-white mb-2">O que você recebe:</h3>
+            <p className="text-gray-400 text-sm">Tudo personalizado para o seu perfil e objetivo</p>
+          </div>
+          {/* Benefit Cards Grid */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            {/* Card 1 - Dieta */}
+            <div className="relative bg-gradient-to-br from-orange-500/10 to-orange-900/20 border border-orange-500/30 rounded-2xl p-5 flex flex-col gap-3">
+              <div className="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center">
+                <svg className="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
               </div>
-
-              {/* Benefit 2 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold">Programa de treino personalizado</p>
-                  <p className="text-gray-400 text-sm">Plano de treino claro e fácil de seguir</p>
-                  <p className="text-orange-400 font-bold mt-2 line-through text-gray-500">R$ 149</p>
-                </div>
+              <div>
+                <p className="text-white font-bold text-sm leading-tight">Dieta 100% personalizada</p>
+                <p className="text-gray-400 text-xs mt-1">Com refeições, quantidades e substituições exatas para você</p>
               </div>
-
-              {/* Benefit 3 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold">Resultados visíveis após o primeiro mês</p>
-                  <p className="text-gray-400 text-sm">Veja mudanças reais em seu corpo</p>
-                  <p className="text-orange-400 font-bold mt-2 line-through text-gray-500">R$ 97</p>
-                </div>
-              </div>
-
-              {/* Benefit 4 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold">Acompanhamento de progresso</p>
-                  <p className="text-gray-400 text-sm">Monitore sua evolução e ajuste conforme necessário</p>
-                  <p className="text-orange-400 font-bold mt-2 line-through text-gray-500">R$ 199,90</p>
-                </div>
+              <div className="flex items-baseline gap-2 mt-auto">
+                <span className="text-gray-500 text-xs line-through">R$ 129</span>
+                <span className="text-orange-400 text-xs font-bold">incluso</span>
               </div>
             </div>
-
-            {/* Special condition message */}
-            <div className="mt-6 pt-6 border-t border-gray-700 text-center">
-              <div className="mt-4 space-y-3 bg-gradient-to-r from-orange-400/10 to-lime-400/10 p-6 rounded-lg border border-orange-400/30">
-                <p className="text-gray-400 text-sm">
-                  Se comprasse separadamente: <span className="line-through text-gray-500">R$ 454</span>
-                </p>
-                <p className="text-center">
-                  <span className="text-white text-lg">Agora por apenas</span>
-                  <br />
-                  <span className="text-5xl font-black text-orange-400">R$ 59,90</span>
-                  <br />
-                  <span className="text-white font-bold text-lg">por mês</span>
-                </p>
+            {/* Card 2 - Treino */}
+            <div className="relative bg-gradient-to-br from-lime-500/10 to-green-900/20 border border-lime-500/30 rounded-2xl p-5 flex flex-col gap-3">
+              <div className="w-10 h-10 bg-lime-500/20 rounded-xl flex items-center justify-center">
+                <svg className="w-5 h-5 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-white font-bold text-sm leading-tight">Treino personalizado</p>
+                <p className="text-gray-400 text-xs mt-1">Séries, repetições e progressão definidas para o seu nível</p>
+              </div>
+              <div className="flex items-baseline gap-2 mt-auto">
+                <span className="text-gray-500 text-xs line-through">R$ 149</span>
+                <span className="text-lime-400 text-xs font-bold">incluso</span>
+              </div>
+            </div>
+            {/* Card 3 - Resultados */}
+            <div className="relative bg-gradient-to-br from-blue-500/10 to-blue-900/20 border border-blue-500/30 rounded-2xl p-5 flex flex-col gap-3">
+              <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-white font-bold text-sm leading-tight">Resultados em 4 semanas</p>
+                <p className="text-gray-400 text-xs mt-1">Mudanças visíveis no corpo já no primeiro mês</p>
+              </div>
+              <div className="flex items-baseline gap-2 mt-auto">
+                <span className="text-gray-500 text-xs line-through">R$ 97</span>
+                <span className="text-blue-400 text-xs font-bold">incluso</span>
+              </div>
+            </div>
+            {/* Card 4 - Acompanhamento */}
+            <div className="relative bg-gradient-to-br from-purple-500/10 to-purple-900/20 border border-purple-500/30 rounded-2xl p-5 flex flex-col gap-3">
+              <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-white font-bold text-sm leading-tight">Acompanhamento de progresso</p>
+                <p className="text-gray-400 text-xs mt-1">Monitore sua evolução e ajuste conforme avança</p>
+              </div>
+              <div className="flex items-baseline gap-2 mt-auto">
+                <span className="text-gray-500 text-xs line-through">R$ 199,90</span>
+                <span className="text-purple-400 text-xs font-bold">incluso</span>
               </div>
             </div>
           </div>
+          {/* Price summary */}
+          <div className="bg-gradient-to-r from-orange-500/10 via-black to-lime-500/10 border border-orange-500/40 rounded-2xl p-6 text-center">
+            <p className="text-gray-400 text-sm mb-1">
+              Valor total se comprado separado: <span className="line-through text-gray-500">R$ 574,90</span>
+            </p>
+            <div className="flex items-center justify-center gap-3 mt-3">
+              <div>
+                <p className="text-gray-300 text-sm">Você paga apenas</p>
+                <p className="text-5xl font-black text-orange-400 leading-tight">R$ 59,90</p>
+                <p className="text-white font-semibold text-base">por mês</p>
+              </div>
+            </div>
+            <div className="mt-4 inline-flex items-center gap-2 bg-lime-500/10 border border-lime-500/30 rounded-full px-4 py-2">
+              <svg className="w-4 h-4 text-lime-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="text-lime-400 text-sm font-semibold">Você economiza mais de R$ 500</span>
+            </div>
+          </div>
+        </div>
 
           {/* ========== SEÇÃO DA ROLETA - DESATIVADA PARA MULHERES ========== */}
           {/* Para reativar, remova os comentários abaixo */}
@@ -1046,7 +1044,7 @@ export default function QuizResultsPage() {
           <div className="flex justify-center">
             <button
               onClick={handleCheckout}
-              className="px-12 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition"
+              className="px-12 py-4 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-full font-black text-lg hover:from-orange-400 hover:to-orange-300 transition shadow-lg shadow-orange-500/30 active:scale-95"
             >
               OBTER MEU PLANO
             </button>
@@ -1429,22 +1427,25 @@ export default function QuizResultsPage() {
           {/* Trustpilot Section */}
           <section className="border-t border-gray-800 py-12">
             <div className="max-w-6xl mx-auto px-4 text-center">
-              <div className="flex items-center justify-center gap-8 mb-8">
-                <div className="flex items-center gap-2">
-                  <svg className="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+              <div className="flex flex-col items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <svg className="w-7 h-7 text-green-400" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
-                  <span className="text-white font-bold">Trustpilot</span>
+                  <span className="text-white font-black text-xl">Trustpilot</span>
                 </div>
-                <div className="text-gray-400">
-                  <div className="text-sm font-bold text-white">Excelente</div>
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-white font-bold text-lg">Excelente</span>
                   <div className="flex gap-1">
                     {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                      <svg key={i} className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                       </svg>
                     ))}
                   </div>
+                  <p className="text-gray-400 text-sm mt-1">
+                    Baseado em <span className="text-white font-semibold">2.847 avaliações</span> verificadas
+                  </p>
                 </div>
               </div>
             </div>
@@ -1598,7 +1599,7 @@ export default function QuizResultsPage() {
               <div className="text-center mb-16">
                 <button
                   onClick={handleCheckout}
-                  className="bg-white text-black font-bold px-12 py-3 rounded-full hover:bg-gray-100 transition"
+                  className="bg-gradient-to-r from-orange-500 to-orange-400 text-white font-black text-lg px-12 py-4 rounded-full hover:from-orange-400 hover:to-orange-300 transition shadow-lg shadow-orange-500/30 active:scale-95"
                 >
                   DESTRAVAR MEUS RESULTADOS
                 </button>
