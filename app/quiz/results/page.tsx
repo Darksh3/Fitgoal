@@ -355,6 +355,8 @@ export default function QuizResultsPage() {
     const raw = normalizeStr(getDataValue("goal") ?? data?.goal)
     if (raw.includes("perder-peso")) return "cut"
     if (raw.includes("ganhar-massa")) return "bulk"
+    // melhorar-saude e aumentar-resistencia → estratégia de saúde/emagrecer
+    if (raw.includes("melhorar-saude") || raw.includes("aumentar-resistencia")) return "cut"
     return "maintain"
   }
 
@@ -397,12 +399,17 @@ export default function QuizResultsPage() {
     const timeToGoal = getTimeToGoal()
 
     // 1) Headline (1 linha)
+    const rawGoal = normalizeStr(getDataValue("goal") ?? data?.goal)
     const headline =
       goalCat === "bulk"
         ? "Estratégia: ganho de massa com superávit controlado"
-        : goalCat === "cut"
-          ? "Estratégia: perda de gordura com déficit sustentável"
-          : "Estratégia: recomposição/manutenção com consistência"
+        : rawGoal.includes("melhorar-saude")
+          ? "Estratégia: melhora de saúde, disposição e composição corporal"
+          : rawGoal.includes("aumentar-resistencia")
+            ? "Estratégia: ganho de resistência física com definição corporal"
+            : goalCat === "cut"
+              ? "Estratégia: perda de gordura com déficit sustentável"
+              : "Estratégia: recomposição corporal com consistência"
 
     // 2) Bullet 1 (BF -> direção)
     let bulletBF: string
@@ -1056,94 +1063,75 @@ export default function QuizResultsPage() {
 
             <div className="grid grid-cols-2 gap-12">
               {/* Left column - Highlights list */}
-              <div className="space-y-8">
-                {/* Highlight 1 */}
-                <div className="flex gap-4">
-                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
-                    <path
-                      fillRule="evenodd"
-                      d="M4 5a2 2 0 012-2 1 1 0 000 2H6a6 6 0 116 0h.5a1 1 0 000-2 2 2 0 01-2-2 9 9 0 11-9 9 5 5 0 018-9H9a1 1 0 000 2h2a1 1 0 100-2H4z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
-                  <div>
-                    <p className="text-white font-bold">Programa de treino progressivo</p>
-                    <p className="text-gray-400 text-sm">Adequado ao seu nível de forma física e objetivo</p>
+                  <div className="space-y-6">
+                    <div className="flex gap-4 items-start">
+                      <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-white font-bold">Programa de treino progressivo</p>
+                        <p className="text-gray-400 text-sm">Adequado ao seu nível de forma física e objetivo</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-4 items-start">
+                      <div className="w-8 h-8 bg-lime-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg className="w-4 h-4 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-white font-bold">Rotinas fáceis e descomplicadas</p>
+                        <p className="text-gray-400 text-sm">Para construir músculo e queimar gordura sem complicar</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-4 items-start">
+                      <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-white font-bold">Top exercícios para os seus objetivos</p>
+                        <p className="text-gray-400 text-sm">Que atingem cada grupo muscular do corpo</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-4 items-start">
+                      <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-white font-bold">Treinos 100% personalizados para VOCÊ</p>
+                        <p className="text-gray-400 text-sm">Desenvolvido para te ajudar a chegar no seu objetivo o mais rápido e saudável possível</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-4 items-start">
+                      <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-white font-bold">Plano de refeições personalizado</p>
+                        <p className="text-gray-400 text-sm">Dieta 100% personalizada pensando em VOCÊ, para atingir seu objetivo mais rápido</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-4 items-start">
+                      <div className="w-8 h-8 bg-lime-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg className="w-4 h-4 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-white font-bold">Sem academia, sem problema</p>
+                        <p className="text-gray-400 text-sm">Faça exercícios em casa ou fora com equipamento mínimo ou nenhum</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-
-                {/* Highlight 2 */}
-                <div className="flex gap-4">
-                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M13 7a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 11-2 0 1 1 0 012 0zm6 0a1 1 0 11-2 0 1 1 0 012 0zm2-8a1 1 0 01.967.25l2.5 6.526a1 1 0 01-.5 1.3H17v6a2 2 0 01-2 2h.5a1 1 0 000-2 2 2 0 01-2-2 9 9 0 11-9 9 5 5 0 018-9H9a1 1 0 000 2h2a1 1 0 100-2H4.5a1 1 0 000 2H4a2 2 0 01-2 2v-6h2a2 2 0 012-2h.5z"></path>
-                  </svg>
-                  <div>
-                    <p className="text-white font-bold">Rotinas fáceis para iniciantes</p>
-                    <p className="text-gray-400 text-sm">Para construir músculo e queimar gordura</p>
-                  </div>
-                </div>
-
-                {/* Highlight 3 */}
-                <div className="flex gap-4">
-                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 00-1.414 1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
-                  <div>
-                    <p className="text-white font-bold">Top exercícios para os seus objetivos</p>
-                    <p className="text-gray-400 text-sm">Que atingem cada grupo muscular do corpo</p>
-                  </div>
-                </div>
-
-                {/* Highlight 4 */}
-                <div className="flex gap-4">
-                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM9 12a6 6 0 11-12 0 6 6 0 0112 0zM12.5 1a.5.5 0 01.5.5v2a.5.5 0 01-1 0V1.5a.5.5 0 01.5-.5zM15.854 3.146a.5.5 0 010 .708l-1.414 1.414a.5.5 0 01-.708-.708l1.414-1.414a.5.5 0 01.708 0zM18 6.5a.5.5 0 01-.5.5h-2a.5.5 0 010-1h2a.5.5 0 01.5.5zM15.854 10.854a.5.5 0 01-.708 0l-1.414-1.414a.5.5 0 01.708-.708l1.414 1.414a.5.5 0 010 .708zM12.5 14a.5.5 0 01.5.5v2a.5.5 0 01-1 0v-2a.5.5 0 01.5-.5z"></path>
-                  </svg>
-                  <div>
-                    <p className="text-white font-bold">Treinos 100% personalizados para VOCÊ</p>
-                    <p className="text-gray-400 text-sm">
-                      Desenvolvido para te ajudar a chegar no seu objetivo o mais rápido e saudável possível
-                    </p>
-                  </div>
-                </div>
-
-                {/* Highlight 5 */}
-                <div className="flex gap-4">
-                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 01-1zM5.05 6.051a1 1 0 00-1.414 1.414l.707.707a1 1 0 101.414-1.414l-.707-.707zM3 9a1 1 0 100 2v4a2 2 0 100 4h12a2 2 0 100-4V9a1 1 0 100-2H3z"></path>
-                  </svg>
-                  <div>
-                    <p className="text-white font-bold">Plano de refeições personalizado</p>
-                    <p className="text-gray-400 text-sm">
-                      Dieta 100% personalizada pensando em VOCÊ, para atingir seu objetivo mais rápido
-                    </p>
-                  </div>
-                </div>
-
-                {/* Highlight 6 */}
-                <div className="flex gap-4">
-                  <svg className="w-6 h-6 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M4.5 2a1 1 0 00-.5.887v14.226a1 1 0 00.5.887l7-3.5a1 1 0 000 1.414l7 7a1 1 0 001.414-1.414L11.414 10l6.293-6.293a1 1 0 000-1.414l-7-7z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <div>
-                    <p className="text-white font-bold">Sem academia, sem problema</p>
-                    <p className="text-gray-400 text-sm">
-                      Faça exercicios em casa ou fora com equipamento mínimo ou nenhum
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right column - Video */}
+                  {/* Right column - Video */}
               <div className="flex items-center justify-center">
                 <div className="relative w-full max-w-sm">
                   {/* Video player with rounded edges and border */}
@@ -1420,6 +1408,45 @@ export default function QuizResultsPage() {
                     seus objetivos e desfrutar de um corpo mais saudável e em forma sem o medo de desistir.
                   </p>
                 </details>
+
+                {/* FAQ Item 4 */}
+                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
+                  <summary className="flex items-center justify-between font-bold text-white">
+                    Funciona para quem tem pouco tempo no dia?
+                    <svg className="w-5 h-5 transform group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                  </summary>
+                  <p className="text-gray-400 mt-4">
+                    Sim! Nossos planos são criados considerando a sua rotina. Se você tem 30 a 45 minutos disponíveis, já é suficiente para seguir o programa completo e ver resultados. Tudo é adaptado ao tempo que você informou no quiz.
+                  </p>
+                </details>
+
+                {/* FAQ Item 5 */}
+                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
+                  <summary className="flex items-center justify-between font-bold text-white">
+                    Preciso ter academia ou equipamentos especiais?
+                    <svg className="w-5 h-5 transform group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                  </summary>
+                  <p className="text-gray-400 mt-4">
+                    Não! O plano é criado com base no que você tem disponível. Se preferir treinar em casa, os exercícios serão adaptados para isso — sem precisar de nenhum equipamento. Mas se você tiver acesso à academia, aproveitamos isso ao máximo no seu programa.
+                  </p>
+                </details>
+
+                {/* FAQ Item 6 */}
+                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
+                  <summary className="flex items-center justify-between font-bold text-white">
+                    E se eu tiver alguma restrição alimentar?
+                    <svg className="w-5 h-5 transform group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                  </summary>
+                  <p className="text-gray-400 mt-4">
+                    O seu plano de dieta é montado com base nas informações que você forneceu, incluindo preferências e restrições. Se precisar de ajustes após receber o plano, nossa equipe de suporte está disponível para adaptar as refeições às suas necessidades.
+                  </p>
+                </details>
               </div>
             </div>
           </section>
@@ -1595,14 +1622,20 @@ export default function QuizResultsPage() {
                 app.
               </p>
 
-              {/* CTA Button */}
+              {/* CTA Button with urgency */}
               <div className="text-center mb-16">
+                <p className="text-gray-400 text-sm mb-4">
+                  🔒 Acesso liberado imediatamente após a confirmação
+                </p>
                 <button
                   onClick={handleCheckout}
                   className="bg-gradient-to-r from-orange-500 to-orange-400 text-white font-black text-lg px-12 py-4 rounded-full hover:from-orange-400 hover:to-orange-300 transition shadow-lg shadow-orange-500/30 active:scale-95"
                 >
                   DESTRAVAR MEUS RESULTADOS
                 </button>
+                <p className="text-gray-500 text-xs mt-3">
+                  Cancele quando quiser · Sem compromisso
+                </p>
               </div>
 
               {/* Money-Back Guarantee */}
