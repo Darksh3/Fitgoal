@@ -97,10 +97,10 @@ export default function QuizResultsPage() {
       setLoading(false)
 
       // Track that user visited results page
-      const userId = localStorage.getItem('userId')
+      const userId = localStorage.getItem('clientUid')
       if (userId) {
         try {
-          const leadRef = doc(db, 'leads', userId)
+          const leadRef = doc(db, 'users', userId)
           await updateDoc(leadRef, {
             visitedResults: true,
             visitedResultsAt: new Date().toISOString(),
@@ -326,10 +326,10 @@ export default function QuizResultsPage() {
     }
 
     // Track that user visited checkout
-    const userId = localStorage.getItem('userId')
+    const userId = localStorage.getItem('clientUid')
     if (userId) {
       try {
-        const leadRef = doc(db, 'leads', userId)
+        const leadRef = doc(db, 'users', userId)
         await updateDoc(leadRef, {
           visitedCheckout: true,
           visitedCheckoutAt: new Date().toISOString(),
