@@ -1186,7 +1186,7 @@ export default function QuizResultsPage() {
                       <div className="p-6 space-y-4 flex flex-col flex-1">
                         <div className="flex items-center justify-between">
                           <h3 className="text-lg font-bold text-white">Lucilene Alves</h3>
-                          <span className="text-orange-400 font-bold text-lg">-12 kg</span>
+                          <span className="text-orange-400 font-bold text-lg">-7 kg</span>
                         </div>
                         <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "lucilene" ? "" : "line-clamp-3"}`}>
                           O programa mudou minha vida! Consegui finalmente perder aquele peso que me incomodava e ainda ganhei muita confiança. Os treinos são perfeitos e a nutrição funciona!
@@ -1210,7 +1210,7 @@ export default function QuizResultsPage() {
                       <div className="p-6 space-y-4 flex flex-col flex-1">
                         <div className="flex items-center justify-between">
                           <h3 className="text-lg font-bold text-white">Maria Clara</h3>
-                          <span className="text-orange-400 font-bold text-lg">-8 kg</span>
+                          <span className="text-orange-400 font-bold text-lg">-10 kg</span>
                         </div>
                         <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "maria-clara" ? "" : "line-clamp-3"}`}>
                           Estava desacreditada, mas os resultados vieram mais rápido do que esperava. O plano personalizado é realmente feito para cada pessoa. Super recomendo!
@@ -1234,7 +1234,7 @@ export default function QuizResultsPage() {
                       <div className="p-6 space-y-4 flex flex-col flex-1">
                         <div className="flex items-center justify-between">
                           <h3 className="text-lg font-bold text-white">Tamires Silva</h3>
-                          <span className="text-orange-400 font-bold text-lg">-15 kg</span>
+                          <span className="text-orange-400 font-bold text-lg">-26 kg</span>
                         </div>
                         <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "tamires" ? "" : "line-clamp-3"}`}>
                           Transformação completa! Não só emagreci, mas ficou forte e com disposição. O acompanhamento personalizado fez toda a diferença na minha jornada.
