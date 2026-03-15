@@ -970,7 +970,9 @@ export default function QuizResultsPage() {
               <div className="text-gray-500 text-xs">por mês</div>
             </div>
 
-            {/* Quarterly Plan - Featured */}
+                        {/* TRIMESTRAL E SEMESTRAL - DESATIVADOS TEMPORARIAMENTE */}
+                                    {false && (<>
+                                    {/* Quarterly Plan - Featured */}
             <div
               onClick={() => setSelectedPlan("quarterly")}
               className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition duration-300 ${selectedPlan === "quarterly"
@@ -1039,6 +1041,7 @@ export default function QuizResultsPage() {
               <div className="text-gray-500 text-xs">por semestre</div>
             </div>
           </div>
+                      </>)}
 
           {/* Disclaimer */}
           <p className="text-center text-xs text-gray-500 mb-8">
@@ -1545,7 +1548,9 @@ export default function QuizResultsPage() {
                   <div className="text-gray-500 text-xs">por mês</div>
                 </div>
 
-                {/* Quarterly Plan - Featured */}
+                            {/* TRIMESTRAL E SEMESTRAL - DESATIVADOS TEMPORARIAMENTE */}
+                                        {false && (<>
+                                        {/* Quarterly Plan - Featured */}
                 <div
                   onClick={() => setSelectedPlan("quarterly")}
                   className={`bg-black border-2 rounded-lg p-6 relative cursor-pointer transition duration-300 ${selectedPlan === "quarterly"
@@ -1614,6 +1619,7 @@ export default function QuizResultsPage() {
                   <div className="text-gray-500 text-xs">por semestre</div>
                 </div>
               </div>
+                          </>)}
 
               {/* Disclaimer */}
               <p className="text-gray-400 text-sm text-center mb-8 max-w-2xl mx-auto">
