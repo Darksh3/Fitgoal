@@ -33,6 +33,16 @@ export default function UsersPage() {
       setLoading(true)
       const response = await fetch("/api/admin/users")
       const data = await response.json()
+      console.log("[v0] Admin users page received data:", data)
+      console.log("[v0] Users list:", data.users)
+      if (data.users && data.users.length > 0) {
+        console.log("[v0] First user:", {
+          id: data.users[0].id,
+          email: data.users[0].email,
+          visitedResults: data.users[0].visitedResults,
+          visitedCheckout: data.users[0].visitedCheckout,
+        })
+      }
       setUsers(data.users || [])
     } catch (error) {
       console.error("[v0] Error fetching users:", error)
