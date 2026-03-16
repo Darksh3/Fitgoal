@@ -1611,7 +1611,6 @@ export default function QuizResultsPage() {
                   </div>
                   <div className="text-gray-500 text-xs">por semestre</div>
                 </div>
-              </div>
                           </>)}
 
               {/* Disclaimer */}
