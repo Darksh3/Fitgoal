@@ -300,7 +300,7 @@ const debugFrequencySelection = (frequency: number) => {
         const parsed = JSON.parse(stored)
         console.log(`[QUIZ] Stored frequency: ${parsed.trainingDaysPerWeek}`)
       } catch (error) {
-        console.error("[QUIZ] loalStorage parse error:", error)
+        console.error("[QUIZ] localStorage parse error:", error)
       }
     }
   }
