@@ -69,14 +69,24 @@ export default function CheckoutPage() {
   const [spinDiscount, setSpinDiscount] = useState<number | null>(null)
   const [isComplementosOnly, setIsComplementosOnly] = useState(false)
 
-  // Rastrear InitiateCheckout quando a página de checkout carrega
+  // Rastrear InitiateCheckout apenas uma vez por sessão (quando a página de checkout carrega)
   useEffect(() => {
+    // Verificar se já foi rastreado nesta sessão
+    const initiateCheckoutTracked = typeof window !== 'undefined'
+      ? sessionStorage.getItem('initiateCheckout_tracked')
+      : null
+
+    if (initiateCheckoutTracked) {
+      console.log("[v0] InitiateCheckout already tracked this session")
+      return
+    }
+
     const planMap: { [key: string]: { name: string; price: number } } = {
-      mensal: { name: 'Plano Mensal', price: 79.90 },
+      mensal: { name: 'Plano Mensal', price: 59.90 },
       trimestral: { name: 'Plano Trimestral', price: 194.70 },
       semestral: { name: 'Plano Semestral', price: 299.40 },
     }
-    
+
     const plan = planMap[selectedPlan] || planMap.semestral
     trackInitiateCheckout({
       value: plan.price,
@@ -84,7 +94,13 @@ export default function CheckoutPage() {
       content_name: plan.name,
       content_category: 'plan',
     })
-  }, [selectedPlan, trackInitiateCheckout])
+
+    // Marcar como rastreado para evitar duplicação se o usuário mudar de plano
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('initiateCheckout_tracked', 'true')
+      console.log("[v0] InitiateCheckout tracked (checkout page)")
+    }
+  }, [trackInitiateCheckout])
 
   const [formData, setFormData] = useState<PaymentFormData>({
     email: "",
@@ -142,7 +158,7 @@ export default function CheckoutPage() {
   const getPlanPrice = (plan: string) => {
     switch (plan) {
       case "mensal":
-        return "79.90"
+        return "59.90"
       case "trimestral":
         return "179.90"
       case "semestral":
@@ -158,13 +174,13 @@ export default function CheckoutPage() {
   // Calculate total with order bumps
   const getTotalPrice = () => {
     const orderBumpValue = (selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)
-    
+
     // Se é só complementos, retorna apenas o valor deles
     if (isComplementosOnly) {
       console.log("[v0] CHECKOUT - Calculando total APENAS complementos:", orderBumpValue)
       return orderBumpValue.toFixed(2)
     }
-    
+
     // Senão, adiciona o plano
     const basePlanPrice = parseFloat(planPrice)
     const total = (basePlanPrice + orderBumpValue).toFixed(2)
@@ -204,17 +220,17 @@ export default function CheckoutPage() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser)
-      
+
       // Buscar dados do usuário e pré-preencher formulário
       if (currentUser) {
         try {
           const userDocRef = doc(db, "users", currentUser.uid)
           const userDocSnap = await getDoc(userDocRef)
-          
+
           if (userDocSnap.exists()) {
             const userData = userDocSnap.data()
             console.log("[v0] CHECKOUT - Dados do usuário:", userData)
-            
+
             // Pré-preencher formulário com dados salvos
             setFormData((prev) => ({
               ...prev,
@@ -223,14 +239,6 @@ export default function CheckoutPage() {
               phone: userData.phone || userData.personalData?.phone || "",
               cpf: userData.cpf || "",
             }))
-            
-            // Pré-preencher nome do titular do cartão
-            if (userData.name) {
-              setCardData((prev) => ({
-                ...prev,
-                holderName: userData.name,
-              }))
-            }
           } else {
             // Se não existe documento, preencher com dados do Firebase Auth
             setFormData((prev) => ({
@@ -688,9 +696,9 @@ export default function CheckoutPage() {
       const stored = localStorage.getItem("quizData")
       const storedUid = stored ? JSON.parse(stored).uid : null
       const userId = storedUid || user?.uid || ""
-      
+
       console.log("[v0] SUCCESS REDIRECT - paymentId:", currentPaymentId, "userId:", userId)
-      
+
       setTimeout(() => {
         // Pass paymentId and userId to success page so it can call handle-post-checkout
         if (currentPaymentId && userId) {
@@ -737,16 +745,16 @@ export default function CheckoutPage() {
 
   // Main checkout screen - Two Column Layout
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 py-8 px-4 flex flex-col items-center justify-center">
-      <div className="w-full max-w-6xl space-y-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 py-4 px-4 flex flex-col items-center justify-center">
+      <div className="w-full max-w-6xl space-y-5">
         {/* Logo */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="text-center mb-4">
-          <Image src="/fitgoal-logo.webp" alt="FitGoal Logo" width={200} height={80} className="mx-auto" priority />
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="text-center mb-2">
+          <Image src="/fitgoal-logo.webp" alt="FitGoal Logo" width={120} height={48} className="mx-auto" priority />
         </motion.div>
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="text-center">
-          <h1 className="text-4xl font-bold text-white mb-2">Finalizar sua inscrição</h1>
+          <h1 className="text-3xl font-bold text-white mb-2 -mt-5">Finalizar seu plano</h1>
         </motion.div>
 
         {/* Discount Banner - Shows only if user spun the wheel */}
@@ -758,7 +766,7 @@ export default function CheckoutPage() {
             className="bg-gradient-to-r from-lime-600/20 to-lime-500/20 border-2 border-lime-500/60 rounded-lg p-4 text-center"
           >
             <p className="text-white text-lg font-semibold">
-              �� Desconto de <span className="text-lime-400">{spinDiscount}%</span> aplicado ao seu pedido!
+              Desconto de <span className="text-lime-400">{spinDiscount}%</span> aplicado ao seu pedido!
             </p>
           </motion.div>
         )}
@@ -771,109 +779,48 @@ export default function CheckoutPage() {
               <div>
                 <h3 className="font-semibold text-white mb-4">Resumo do Pedido</h3>
 
-                {/* Plan Selector - Hidden if complementos only */}
-                {!isComplementosOnly && (
-                <div className="grid grid-cols-3 gap-2 mb-6">
-                  <button
-                    onClick={() => setSelectedPlan("mensal")}
-                    className={`p-2 rounded-lg border-2 transition-all text-center relative ${selectedPlan === "mensal"
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
-                      }`}
-                  >
-                    {spinDiscount && (
-                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
-                        -{spinDiscount}%
-                      </div>
-                    )}
-                    <div className={`text-xs font-semibold ${selectedPlan === "mensal" ? "text-lime-400" : "text-gray-300"}`}>Mensal</div>
-                    <div className={`text-sm font-bold ${selectedPlan === "mensal" ? "text-lime-400" : "text-gray-400"}`}>R$ 79,90</div>
-                  </button>
-
-                  <button
-                    onClick={() => setSelectedPlan("trimestral")}
-                    className={`p-2 rounded-lg border-2 transition-all text-center relative ${selectedPlan === "trimestral"
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
-                      }`}
-                  >
-                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
-                      {spinDiscount ? `-${spinDiscount}%` : `-25%`}
-                    </div>
-                    <div className={`text-xs font-semibold ${selectedPlan === "trimestral" ? "text-lime-400" : "text-gray-300"}`}>Trimestral</div>
-                    <div className={`text-sm font-bold ${selectedPlan === "trimestral" ? "text-lime-400" : "text-gray-400"}`}>R$ 179,90</div>
-                  </button>
-
-                  <button
-                    onClick={() => setSelectedPlan("semestral")}
-                    className={`p-2 rounded-lg border-2 transition-all text-center relative ${selectedPlan === "semestral"
-                      ? "border-lime-500 bg-lime-500/10"
-                      : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
-                      }`}
-                  >
-                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-lime-500 px-2 py-0.5 rounded text-xs font-bold text-black">
-                      {spinDiscount ? `-${spinDiscount}%` : `-40%`}
-                    </div>
-                    <div className={`text-xs font-semibold ${selectedPlan === "semestral" ? "text-lime-400" : "text-gray-300"}`}>Semestral</div>
-                    <div className={`text-sm font-bold ${selectedPlan === "semestral" ? "text-lime-400" : "text-gray-400"}`}>R$ 239,90</div>
-                  </button>
-                </div>
-                )}
-
                 {/* Plan Details - Hidden if complementos only */}
                 {!isComplementosOnly && (
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-gray-200">
-                    <Check className="w-4 h-4 text-lime-500" />
-                    <span className="font-semibold">{planName}</span>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2 text-gray-200">
+                      <Check className="w-4 h-4 text-lime-500" />
+                      <span className="font-semibold">{planName}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <Check className="w-4 h-4 text-lime-500" />
+                      <span>{selectedPlan === "mensal" ? "1 mês" : selectedPlan === "trimestral" ? "3 meses" : "6 meses"} de treino e dieta personalizada baseados no seu objetivo</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <Check className="w-4 h-4 text-lime-500" />
+                      <span>Exercícios com séries, repetições e descanso definidos</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <Check className="w-4 h-4 text-lime-500" />
+                      <span>Ajustes automáticos conforme sua evolução</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <Check className="w-4 h-4 text-lime-500" />
+                      <span>Acesso Completo ao App + Acompanhamento Contínuo durante todo o plano</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <Check className="w-4 h-4 text-lime-500" />
-                    <span>{selectedPlan === "mensal" ? "1 mês" : selectedPlan === "trimestral" ? "3 meses" : "6 meses"} de treino e dieta personalizada</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <Check className="w-4 h-4 text-lime-500" />
-                    <span>Treino personalizado baseado no seu objetivo</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <Check className="w-4 h-4 text-lime-500" />
-                    <span>Exercícios com séries, repetições e descanso definidos</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <Check className="w-4 h-4 text-lime-500" />
-                    <span>Plano organizado dentro do app</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <Check className="w-4 h-4 text-lime-500" />
-                    <span>Ajustes automáticos conforme sua evolução</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <Check className="w-4 h-4 text-lime-500" />
-                    <span>Acesso contínuo durante todo o plano</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <Check className="w-4 h-4 text-lime-500" />
-                    <span>Acesso Completo ao App + Acompanhamento Contínuo</span>
-                  </div>
-                </div>
                 )}
 
                 {/* Complementos - Show only if complementos only */}
                 {isComplementosOnly && (
-                <div className="space-y-2 mb-4">
-                  {selectedOrderBumps.ebook && (
-                    <div className="flex items-center gap-2 text-gray-200">
-                      <Check className="w-4 h-4 text-lime-500" />
-                      <span className="font-semibold">Protocolo Anti-Plateau</span>
-                    </div>
-                  )}
-                  {selectedOrderBumps.protocolo && (
-                    <div className="flex items-center gap-2 text-gray-200">
-                      <Check className="w-4 h-4 text-lime-500" />
-                      <span className="font-semibold">Protocolo S.O.S FitGoal</span>
-                    </div>
-                  )}
-                </div>
+                  <div className="space-y-2 mb-4">
+                    {selectedOrderBumps.ebook && (
+                      <div className="flex items-center gap-2 text-gray-200">
+                        <Check className="w-4 h-4 text-lime-500" />
+                        <span className="font-semibold">Protocolo Anti-Plateau</span>
+                      </div>
+                    )}
+                    {selectedOrderBumps.protocolo && (
+                      <div className="flex items-center gap-2 text-gray-200">
+                        <Check className="w-4 h-4 text-lime-500" />
+                        <span className="font-semibold">Protocolo S.O.S FitGoal</span>
+                      </div>
+                    )}
+                  </div>
                 )}
 
                 <div className="border-t border-slate-600 pt-4 flex justify-between items-center">
@@ -881,11 +828,11 @@ export default function CheckoutPage() {
                   <span className="text-3xl font-bold text-lime-500">R$ {parseFloat(totalPrice).toFixed(2).replace(".", ",")}</span>
                 </div>
                 {!isComplementosOnly && (
-                <div className="text-sm text-gray-400 mt-2">
-                  {selectedPlan === "mensal" && "R$ 79,90 por mês"}
-                  {selectedPlan === "trimestral" && "R$ 59,97 por mês"}
-                  {selectedPlan === "semestral" && "Menos de R$40 por mês!"}
-                </div>
+                  <div className="text-sm text-gray-400 mt-2">
+                    {selectedPlan === "mensal" && "R$ 199,90 por mês"}
+                    {selectedPlan === "trimestral" && "R$ 59,97 por mês"}
+                    {selectedPlan === "semestral" && "Menos de R$40 por mês!"}
+                  </div>
                 )}
               </div>
 
@@ -1099,7 +1046,7 @@ export default function CheckoutPage() {
                       placeholder="CVV"
                       value={cardData.ccv}
                       onChange={(e) => handleCardChange(e, "ccv")}
-                      maxLength={4}
+                      maxLength={3}
                       className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardCcv") ? "border-red-500/80 border-2" : "border-slate-600"
                         }`}
                     />
@@ -1225,137 +1172,133 @@ export default function CheckoutPage() {
                   <div className="p-6 space-y-4">
                     <p className="text-xs text-slate-700 text-center">Uma oportunidade única de adquirir produtos incríveis com super desconto</p>
 
-                  {/* Order Bump Products - Vertical Stack */}
-                  <div className="space-y-3">
-                    {/* Ebook Anti-Plateau */}
-                    <motion.div
-                      whileHover={{ scale: orderBumpsStatus?.ebook ? 1 : 1.01 }}
-                      onClick={() => {
-                        if (!orderBumpsStatus?.ebook) {
-                          setSelectedOrderBumps(prev => ({ ...prev, ebook: !prev.ebook }))
-                        }
-                      }}
-                      className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all relative ${
-                        orderBumpsStatus?.ebook
+                    {/* Order Bump Products - Vertical Stack */}
+                    <div className="space-y-3">
+                      {/* Ebook Anti-Plateau */}
+                      <motion.div
+                        whileHover={{ scale: orderBumpsStatus?.ebook ? 1 : 1.01 }}
+                        onClick={() => {
+                          if (!orderBumpsStatus?.ebook) {
+                            setSelectedOrderBumps(prev => ({ ...prev, ebook: !prev.ebook }))
+                          }
+                        }}
+                        className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all relative ${orderBumpsStatus?.ebook
                           ? "bg-gray-200 border-gray-400 cursor-not-allowed opacity-60"
                           : selectedOrderBumps.ebook
-                          ? "bg-lime-500/15 border-lime-500/50 cursor-pointer"
-                          : "bg-white/40 border-gray-300 hover:border-gray-400 cursor-pointer"
-                      }`}
-                    >
-                      {/* Status Badge */}
-                      {orderBumpsStatus?.ebook && (
-                        <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">
-                          Já comprado
-                        </div>
-                      )}
+                            ? "bg-lime-500/15 border-lime-500/50 cursor-pointer"
+                            : "bg-white/40 border-gray-300 hover:border-gray-400 cursor-pointer"
+                          }`}
+                      >
+                        {/* Status Badge */}
+                        {orderBumpsStatus?.ebook && (
+                          <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">
+                            Já comprado
+                          </div>
+                        )}
 
-                      {/* Checkbox - Top Right */}
-                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                        orderBumpsStatus?.ebook
+                        {/* Checkbox - Top Right */}
+                        <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${orderBumpsStatus?.ebook
                           ? "bg-blue-500 border-blue-500"
                           : selectedOrderBumps.ebook
-                          ? "bg-lime-500 border-lime-500"
-                          : "border-gray-500"
-                      }`}>
-                        {(orderBumpsStatus?.ebook || selectedOrderBumps.ebook) && <Check className="w-3 h-3 text-white" />}
-                      </div>
-
-                      {/* Product Image - Small */}
-                      <img
-                        src="/order-bump-protocol-metabolico.jpg"
-                        alt="Ebook Anti-Plateau"
-                        className="w-20 h-28 object-cover rounded flex-shrink-0"
-                      />
-
-                      {/* Text Content */}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-black text-sm">Protocolo Anti-Plateau</p>
-                        <p className="text-xs text-gray-600 line-clamp-2">Reverta a estagnação de peso em 7 dias com protocolos comprovados</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="font-bold text-lime-500 text-sm">R$ 14,90</span>
-                          <span className="text-xs text-gray-500 line-through">R$ 39,90</span>
+                            ? "bg-lime-500 border-lime-500"
+                            : "border-gray-500"
+                          }`}>
+                          {(orderBumpsStatus?.ebook || selectedOrderBumps.ebook) && <Check className="w-3 h-3 text-white" />}
                         </div>
-                      </div>
-                    </motion.div>
 
-                    {/* Protocolo SOS */}
-                    <motion.div
-                      whileHover={{ scale: orderBumpsStatus?.protocolo ? 1 : 1.01 }}
-                      onClick={() => {
-                        if (!orderBumpsStatus?.protocolo) {
-                          setSelectedOrderBumps(prev => ({ ...prev, protocolo: !prev.protocolo }))
-                        }
-                      }}
-                      className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all relative ${
-                        orderBumpsStatus?.protocolo
+                        {/* Product Image - Small */}
+                        <img
+                          src="/order-bump-protocol-metabolico.jpg"
+                          alt="Ebook Anti-Plateau"
+                          className="w-20 h-28 object-cover rounded flex-shrink-0"
+                        />
+
+                        {/* Text Content */}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-black text-sm">Protocolo Anti-Plateau</p>
+                          <p className="text-xs text-gray-600 line-clamp-2">Reverta a estagnação de peso em 7 dias com protocolos comprovados</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="font-bold text-lime-500 text-sm">R$ 14,90</span>
+                            <span className="text-xs text-gray-500 line-through">R$ 39,90</span>
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      {/* Protocolo SOS */}
+                      <motion.div
+                        whileHover={{ scale: orderBumpsStatus?.protocolo ? 1 : 1.01 }}
+                        onClick={() => {
+                          if (!orderBumpsStatus?.protocolo) {
+                            setSelectedOrderBumps(prev => ({ ...prev, protocolo: !prev.protocolo }))
+                          }
+                        }}
+                        className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all relative ${orderBumpsStatus?.protocolo
                           ? "bg-gray-200 border-gray-400 cursor-not-allowed opacity-60"
                           : selectedOrderBumps.protocolo
-                          ? "bg-lime-500/15 border-lime-500/50 cursor-pointer"
-                          : "bg-white/40 border-gray-300 hover:border-gray-400 cursor-pointer"
-                      }`}
-                    >
-                      {/* Status Badge */}
-                      {orderBumpsStatus?.protocolo && (
-                        <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">
-                          Já comprado
-                        </div>
-                      )}
+                            ? "bg-lime-500/15 border-lime-500/50 cursor-pointer"
+                            : "bg-white/40 border-gray-300 hover:border-gray-400 cursor-pointer"
+                          }`}
+                      >
+                        {/* Status Badge */}
+                        {orderBumpsStatus?.protocolo && (
+                          <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">
+                            Já comprado
+                          </div>
+                        )}
 
-                      {/* Checkbox - Top Right */}
-                      <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                        orderBumpsStatus?.protocolo
+                        {/* Checkbox - Top Right */}
+                        <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${orderBumpsStatus?.protocolo
                           ? "bg-blue-500 border-blue-500"
                           : selectedOrderBumps.protocolo
-                          ? "bg-lime-500 border-lime-500"
-                          : "border-gray-500"
-                      }`}>
-                        {(orderBumpsStatus?.protocolo || selectedOrderBumps.protocolo) && <Check className="w-3 h-3 text-white" />}
-                      </div>
-
-                      {/* Product Image - Small */}
-                      <img
-                        src="/order-bump-protocolo-sos.jpg"
-                        alt="Protocolo SOS FitGoal"
-                        className={`w-20 h-28 object-cover rounded flex-shrink-0 ${orderBumpsStatus?.protocolo ? "grayscale" : ""}`}
-                      />
-
-                      {/* Text Content */}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-black text-sm">Protocolo S.O.S FitGoal</p>
-                        <p className="text-xs text-gray-600 line-clamp-2">Protocolo de emergência para caso deslize na dieta</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="font-bold text-lime-500 text-sm">R$ 14,90</span>
-                          <span className="text-xs text-gray-500 line-through">R$ 39,90</span>
+                            ? "bg-lime-500 border-lime-500"
+                            : "border-gray-500"
+                          }`}>
+                          {(orderBumpsStatus?.protocolo || selectedOrderBumps.protocolo) && <Check className="w-3 h-3 text-white" />}
                         </div>
-                      </div>
-                    </motion.div>
-                  </div>
 
-                  {/* Order Bump Summary */}
-                  {(selectedOrderBumps.ebook || selectedOrderBumps.protocolo) && (
-                    <div className="bg-white/50 rounded-lg p-3 space-y-2 border border-amber-200">
-                      {/* Valor do Plano - Hidden if complementos only */}
-                      {!isComplementosOnly && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-700">Valor do Plano</span>
-                          <span className="text-slate-800 font-semibold">R$ {planPrice}</span>
+                        {/* Product Image - Small */}
+                        <img
+                          src="/order-bump-protocolo-sos.jpg"
+                          alt="Protocolo SOS FitGoal"
+                          className={`w-20 h-28 object-cover rounded flex-shrink-0 ${orderBumpsStatus?.protocolo ? "grayscale" : ""}`}
+                        />
+
+                        {/* Text Content */}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-black text-sm">Protocolo S.O.S FitGoal</p>
+                          <p className="text-xs text-gray-600 line-clamp-2">Protocolo de emergência para caso deslize na dieta</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="font-bold text-lime-500 text-sm">R$ 14,90</span>
+                            <span className="text-xs text-gray-500 line-through">R$ 39,90</span>
+                          </div>
                         </div>
-                      )}
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-700">Promoções Exclusivas Selecionadas</span>
-                        <span className="text-rose-600 font-semibold">
-                          + R$ {((selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)).toFixed(2).replace(".", ",")}
-                        </span>
-                      </div>
-                      <div className="border-t border-amber-200 pt-2 flex justify-between">
-                        <span className="text-slate-800 font-bold">Valor Total</span>
-                        <span className="text-rose-600 font-bold text-lg">
-                          R$ {totalPrice}
-                        </span>
-                      </div>
+                      </motion.div>
                     </div>
-                  )}
+
+                    {/* Order Bump Summary */}
+                    {(selectedOrderBumps.ebook || selectedOrderBumps.protocolo) && (
+                      <div className="bg-white/50 rounded-lg p-3 space-y-2 border border-amber-200">
+                        {/* Valor do Plano - Hidden if complementos only */}
+                        {!isComplementosOnly && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-slate-700">Valor do Plano</span>
+                            <span className="text-slate-800 font-semibold">R$ {planPrice}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-700">Promoções Exclusivas Selecionadas</span>
+                          <span className="text-rose-600 font-semibold">
+                            + R$ {((selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)).toFixed(2).replace(".", ",")}
+                          </span>
+                        </div>
+                        <div className="border-t border-amber-200 pt-2 flex justify-between">
+                          <span className="text-slate-800 font-bold">Valor Total</span>
+                          <span className="text-rose-600 font-bold text-lg">
+                            R$ {totalPrice}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
@@ -1374,9 +1317,9 @@ export default function CheckoutPage() {
                     <div className="text-center mb-4">
                       <p className="text-white font-semibold mb-2">QR Code Pix</p>
                       {pixData.qrCode ? (
-                        <img 
-                          src={pixData.qrCode.startsWith('data:') ? pixData.qrCode : `data:image/png;base64,${pixData.qrCode}`} 
-                          alt="QR Code Pix" 
+                        <img
+                          src={pixData.qrCode.startsWith('data:') ? pixData.qrCode : `data:image/png;base64,${pixData.qrCode}`}
+                          alt="QR Code Pix"
                           className="w-40 h-40 mx-auto"
                         />
                       ) : (

@@ -6,6 +6,11 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  staticPageGenerationTimeout: 60,
+  experimental: {
+    // Certifique-se de que páginas de erro especiais não sejam renderizadas estaticamente
+    isrMemoryCacheSize: 0,
+  },
   async headers() {
     // CSP base (compartilhada para todas as rotas)
     const baseCSP = {
@@ -18,6 +23,9 @@ const nextConfig = {
         "https://*.wistia.com",
         "https://*.wistia.net",
         "https://fast.wistia.com",
+        "https://www.facebook.com",
+        "https://*.facebook.com",
+        "https://*.fbcdn.net",
       ],
       'style-src': [
         "'self'", "'unsafe-inline'",  // Necessário para Tailwind/Radix
@@ -46,6 +54,8 @@ const nextConfig = {
         "https://distillery.wistia.com",
         "https://fast.wistia.com",
         "https://connect.facebook.net",
+        "https://www.facebook.com",
+        "https://*.facebook.com",
         "https://analytics.tiktok.com",
       ],
       'frame-src': [

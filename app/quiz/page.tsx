@@ -331,7 +331,7 @@ export default function QuizPage() {
   const [showMotivationMessage, setShowMotivationMessage] = useState(false)
   const [showCortisolMessage, setShowCortisolMessage] = useState(false)
   // </CHANGE>
-  const [currentStep, setCurrentStep] = useState(0) // Start at 0 for intro page
+  const [currentStep, setCurrentStep] = useState(1) // Intro page desativada - comça direto na pergunta 1
   const [debugChart, setDebugChart] = useState(false)
   const [musclePoints, setMusclePoints] = useState([
     { x: 0, y: 250 },
@@ -352,28 +352,33 @@ export default function QuizPage() {
   const musclePathRef = useRef<SVGPathElement>(null)
   const fatPathRef = useRef<SVGPathElement>(null)
   const [pathLengths, setPathLengths] = useState({ muscle: 0, fat: 0 })
+    const sessionIdRef = useRef<string | null>(null)
+    // Gerar sessionId único para rastreamento do quiz
+    useEffect(() => {
+          sessionIdRef.current = `quiz_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
+    }, [])
 
   useEffect(() => {
-    // Rastrear ViewContent quando o quiz é carregado (mesmo se vindo direto sem passar pela oferta)
+    // Rastrear ViewContent quando o quiz é carregado
     trackViewContent({
       content_name: 'Quiz FitGoal',
       content_category: 'quiz',
     })
   }, [trackViewContent])
 
-  // Rastrear QuizStart quando começa (primeiro passo)
+  // Rastrear QuizStep a cada pergunta respondida
   useEffect(() => {
-    if (currentStep === 1) {
-      trackQuizStart()
-    }
-  }, [currentStep, trackQuizStart])
-
-  // Rastrear QuizStep quando progride nas perguntas
-  useEffect(() => {
-    if (currentStep > 1 && currentStep <= totalSteps && totalSteps > 0) {
+    if (currentStep > 0) {
       trackQuizStep(currentStep, totalSteps)
+          if (sessionIdRef.current) {
+                  fetch('/api/track-quiz-step', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({ sessionId: sessionIdRef.current, uid: currentUser?.uid || null, step: currentStep, totalSteps, answer: [quizData.gender, quizData.bodyType, Array.isArray(quizData.goal)?quizData.goal.join(", "):quizData.goal, quizData.weightChangeType, quizData.bodyFat, Array.isArray(quizData.problemAreas)?quizData.problemAreas.join(", "):quizData.problemAreas, quizData.diet, Array.isArray(quizData.sugarFrequency)?quizData.sugarFrequency.join(", "):quizData.sugarFrequency, quizData.alcoholFrequency, quizData.waterIntake, quizData.age, quizData.height, quizData.weight, quizData.targetWeight, quizData.strengthTraining, quizData.cardioFeeling, quizData.strengthFeeling, quizData.stretchingFeeling, Array.isArray(quizData.previousProblems)?quizData.previousProblems.join(", "):quizData.previousProblems, Array.isArray(quizData.additionalGoals)?quizData.additionalGoals.join(", "):quizData.additionalGoals, Array.isArray(quizData.equipment)?quizData.equipment.join(", "):quizData.equipment, quizData.workoutTime, quizData.trainingDays, quizData.letMadMusclesChoose, quizData.allergies, quizData.allergyDetails, quizData.wantsSupplement, quizData.name, quizData.email][currentStep - 1] ?? "" }),
+                  }).catch(() => {})
+          }
     }
-  }, [currentStep, totalSteps, trackQuizStep])
+  }, [currentStep])
 
   useEffect(() => {
     if (showQuickResults) {
@@ -930,6 +935,20 @@ export default function QuizPage() {
       setShowAnalyzingData(true)
       setAnalyzingStep(0)
 
+      // Capturar fbp (cookie _fbp) e fbc (fbclid da URL ou fbcookie) para Meta Conversions API
+      const fbpCookie = typeof document !== 'undefined' 
+        ? document.cookie.split('; ').find(r => r.startsWith('_fbp='))?.split('=')[1]
+        : undefined
+      
+      const fbcCookie = typeof document !== 'undefined'
+        ? document.cookie.split('; ').find(r => r.startsWith('_fbc='))?.split('=')[1]
+        : undefined
+      
+      const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
+      const fbclid = urlParams.get('fbclid') 
+        || (typeof window !== 'undefined' ? sessionStorage.getItem('fbclid') : null)
+        || undefined
+
       // Make API call to save lead with all quiz data
       const response = await fetch("/api/save-lead", {
         method: "POST",
@@ -941,6 +960,8 @@ export default function QuizPage() {
           quizData: quizData,
           name: quizData.name,
           email: quizData.email,
+          fbp: fbpCookie,
+          fbc: fbcCookie || fbclid,
         }),
       })
 
@@ -2339,8 +2360,11 @@ export default function QuizPage() {
 
   const renderStep = () => {
     switch (currentStep) {
+      // DESATIVADA TEMPORARIAMENTE - Página de introdução do quiz
+      // Será reutilizada no futuro quando necessário
+      // Para reativar, remova os comentários abaixo e descomente o código
+      /*
       case 0:
-        // Intro page
         return (
           <div className="relative space-y-8 flex flex-col items-center justify-center min-h-[70vh]">
             <div className="relative z-10 text-center space-y-6 max-w-2xl">
@@ -2387,6 +2411,7 @@ export default function QuizPage() {
             </div>
           </div>
         )
+      */
 
       case 1:
         return (
@@ -4491,8 +4516,6 @@ export default function QuizPage() {
                     style={{ width: `${Math.min(animatedPercentage, 100)}%` }}
                   />
                 </div>
-
-                <p className="mt-2 text-white/45 text-xs">{syncedStatusMessage()}</p>
               </div>
 
               {/* MIDDLE */}
@@ -4598,11 +4621,6 @@ export default function QuizPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
           </Button>
-          <div className="text-center">
-            <p className="text-gray-400">
-              {currentStep === 0 ? "Início" : `${currentStep} de ${totalSteps}`}
-            </p>
-          </div>
           <div className="w-16" />
         </div>
         {currentStep > 0 && (

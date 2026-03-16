@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { X } from "lucide-react"
+import FloatingChat from "@/components/floating-chat"
 import {
   User,
   TrendingUp,
@@ -1207,6 +1208,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      <FloatingChat />
     </div>
   )
 }

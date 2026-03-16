@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import * as admin from "firebase-admin"
 import { getFirebaseAdmin } from "@/lib/firebaseAdmin"
+import { sendLeadEvent } from "@/lib/meta-conversions-api"
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { quizData, uid, name, email } = body
+    const { quizData, uid, name, email, fbp, fbc } = body
 
     console.log("[v0] SAVE_LEAD_API - Starting to save lead for:", uid)
 
@@ -58,6 +59,9 @@ export async function POST(request: NextRequest) {
       foodPreferences: quizData.foodPreferences || {},
       alcoholFrequency: quizData.alcoholFrequency || null,
       letMadMusclesChoose: quizData.letMadMusclesChoose || false,
+      // Meta Conversions API tracking data
+      fbp: fbp || null,
+      fbc: fbc || null,
       // Meta data
       status: "lead", // Novo lead que completou o quiz
       source: "quiz", // Origem do lead
@@ -69,6 +73,33 @@ export async function POST(request: NextRequest) {
     // Salvar o lead na collection 'leads' com uid como documento ID
     await adminDb.collection("leads").doc(uid).set(leadData, { merge: true })
     console.log("[v0] LEAD_SAVED_SUCCESSFULLY - Lead saved for:", uid)
+
+    // Rastrear Lead event na Meta Conversions API (server-side)
+    try {
+      const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+                       request.headers.get('x-real-ip') || 
+                       undefined
+      const userAgent = request.headers.get('user-agent') || undefined
+      
+      const firstName = name?.split(' ')[0] || undefined
+      const lastName = name?.split(' ').slice(1).join(' ') || undefined
+
+      await sendLeadEvent({
+        email: email || quizData.email,
+        firstName: firstName,
+        lastName: lastName,
+        fbp: fbp || undefined,
+        fbc: fbc || undefined,
+        clientIp: clientIp,
+        userAgent: userAgent,
+        sourceUrl: 'https://fitgoal.com.br/quiz',
+      })
+      
+      console.log("[v0] ✅ Meta CAPI Lead event sent for:", uid)
+    } catch (error) {
+      console.error("[v0] ⚠️ Error sending Meta CAPI Lead event:", error)
+      // Não falha o lead save se o Meta falhar
+    }
 
     return NextResponse.json(
       {

@@ -8,12 +8,12 @@
 // ============================================
 
 const isMetaPixelLoaded = (): boolean => {
-  return typeof window !== 'undefined' && typeof (window as any).fbq === 'function'
+  return typeof window !== 'undefined' && typeof (window as any).fbq?.callMethod === 'function'
 }
 
 export const initMetaPixel = (pixelId: string): void => {
   if (typeof window === 'undefined') return
-  if ((window as any).fbq) return
+  if ((window as any).fbq?.callMethod) return
 
   !(function (f: any, b, e, v, n?: any, t?: any, s?: any) {
     if (f.fbq) return
@@ -34,25 +34,26 @@ export const initMetaPixel = (pixelId: string): void => {
     s.parentNode.insertBefore(t, s)
   })(window, document, 'script')
 
-  ;(window as any).fbq('init', pixelId)
-  ;(window as any).fbq('track', 'PageView')
+    ; (window as any).fbq('init', pixelId)
+    ; (window as any).fbq('track', 'PageView')
 }
 
-export const trackMetaEvent = (eventName: string, data?: Record<string, any>): void => {
+export const trackMetaEvent = (eventName: string, data?: Record<string, any>, eventId?: string): void => {
   if (!isMetaPixelLoaded()) return
+  const options = eventId ? { eventID: eventId } : undefined
   if (data) {
-    ;(window as any).fbq('track', eventName, data)
+    ; (window as any).fbq('track', eventName, data, options)
   } else {
-    ;(window as any).fbq('track', eventName)
+    ; (window as any).fbq('track', eventName, undefined, options)
   }
 }
 
 export const trackMetaCustomEvent = (eventName: string, data?: Record<string, any>): void => {
   if (!isMetaPixelLoaded()) return
   if (data) {
-    ;(window as any).fbq('trackCustom', eventName, data)
+    ; (window as any).fbq('trackCustom', eventName, data)
   } else {
-    ;(window as any).fbq('trackCustom', eventName)
+    ; (window as any).fbq('trackCustom', eventName)
   }
 }
 
@@ -111,16 +112,16 @@ export const initTikTokPixel = (pixelId: string): void => {
     firstScript?.parentNode?.insertBefore(script, firstScript)
   }
 
-  ttq.load(pixelId)
+  ttq.load(pixelCode)
   ttq.page()
 }
 
 export const trackTikTokEvent = (eventName: string, data?: Record<string, any>): void => {
   if (!isTikTokPixelLoaded()) return
   if (data) {
-    ;(window as any).ttq.track(eventName, data)
+    ; (window as any).ttq.track(eventName, data)
   } else {
-    ;(window as any).ttq.track(eventName)
+    ; (window as any).ttq.track(eventName)
   }
 }
 
@@ -132,7 +133,7 @@ export const trackTikTokEvent = (eventName: string, data?: Record<string, any>):
 export const trackPageView = (): void => {
   trackMetaEvent('PageView')
   if (isTikTokPixelLoaded()) {
-    ;(window as any).ttq.page()
+    ; (window as any).ttq.page()
   }
 }
 
@@ -180,8 +181,16 @@ export const trackInitiateCheckout = (data?: {
   content_name?: string
   content_ids?: string[]
   num_items?: number
+  eventId?: string
 }): void => {
-  trackMetaEvent('InitiateCheckout', data)
+  const eventId = data?.eventId
+  trackMetaEvent('InitiateCheckout', data ? {
+    value: data.value,
+    currency: data.currency,
+    content_name: data.content_name,
+    content_ids: data.content_ids,
+    num_items: data.num_items,
+  } : undefined, eventId)
   trackTikTokEvent('InitiateCheckout', data ? {
     content_id: data.content_ids?.[0],
     content_name: data.content_name,
@@ -199,15 +208,22 @@ export const trackPurchase = (data: {
   content_type?: string
   num_items?: number
   order_id?: string
+  eventId?: string
 }): void => {
-  trackMetaEvent('Purchase', {
-    value: data.value,
-    currency: data.currency || 'BRL',
-    content_name: data.content_name,
-    content_ids: data.content_ids,
-    content_type: data.content_type || 'product',
-    num_items: data.num_items || 1,
-  })
+  // Passar eventId para deduplicação com server-side events
+  const options = data.eventId ? { eventID: data.eventId } : undefined
+  
+  if (typeof window !== 'undefined' && (window as any).fbq) {
+    ; (window as any).fbq('track', 'Purchase', {
+      value: data.value,
+      currency: data.currency || 'BRL',
+      content_name: data.content_name,
+      content_ids: data.content_ids,
+      content_type: data.content_type || 'product',
+      num_items: data.num_items || 1,
+    }, options)
+  }
+  
   trackTikTokEvent('CompletePayment', {
     content_id: data.content_ids?.[0],
     content_type: data.content_type || 'product',
@@ -243,16 +259,16 @@ export const trackQuizStart = (): void => {
 }
 
 /** QuizStep - evento customizado para cada passo do quiz */
-export const trackQuizStep = (step: number, totalSteps?: number): void => {
+export const trackQuizStep = (step: number, totalSteps: number): void => {
   trackMetaCustomEvent('QuizStep', {
     step_number: step,
     total_steps: totalSteps,
-    content_name: `Quiz Step ${step}`,
+    content_name: `Quiz Step ${step}/${totalSteps}`,
   })
 }
 
 /** PlanView - quando vê os planos de preço */
-export const trackPlanView = (planName?: string): void => {
-  trackMetaCustomEvent('PlanView', { content_name: planName || 'Planos FitGoal' })
-  trackTikTokEvent('ViewContent', { content_name: planName || 'Planos FitGoal' })
+export const trackPlanView = (): void => {
+  trackMetaCustomEvent('PlanView', { content_name: 'Planos FitGoal' })
+  trackTikTokEvent('ViewContent', { content_name: 'Planos FitGoal' })
 }

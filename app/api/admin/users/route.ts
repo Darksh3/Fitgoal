@@ -9,8 +9,26 @@ export async function GET() {
   }
 
   try {
-    const usersSnap = await adminDb.collection("users").get()
-    const users = usersSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
+    // Fetch users from the 'leads' collection which contains the visit tracking data
+    const leadsSnap = await adminDb.collection("leads").get()
+    const users = leadsSnap.docs.map((d) => {
+      const data = d.data()
+      console.log(`[v0] Lead ${d.id}:`, {
+        visitedResults: data.visitedResults,
+        visitedCheckout: data.visitedCheckout,
+        email: data.email,
+      })
+      return { 
+        id: d.id, 
+        ...data,
+        // Ensure we're getting the tracking fields
+        visitedResults: data.visitedResults || false,
+        visitedCheckout: data.visitedCheckout || false,
+      }
+    })
+    
+    console.log(`[v0] Total users fetched:`, users.length)
+    console.log(`[v0] Users data:`, users)
 
     return NextResponse.json({ users })
   } catch (error) {

@@ -36,6 +36,11 @@ const navItems = [
     icon: TrendingUp,
   },
   {
+        label: "Quiz Analytics",
+        href: "/admin/quiz-analytics",
+        icon: BarChart3,
+  },
+  {
     label: "Segmentos",
     href: "/admin/segments",
     icon: ListTodo,
