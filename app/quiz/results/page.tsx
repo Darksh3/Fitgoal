@@ -1041,6 +1041,7 @@ export default function QuizResultsPage() {
               <div className="text-gray-500 text-xs">por semestre</div>
             </div>
                       </>)}
+                    </div>
 
           {/* Disclaimer */}
           <p className="text-center text-xs text-gray-500 mb-8">
@@ -1617,8 +1618,8 @@ export default function QuizResultsPage() {
                   </div>
                   <div className="text-gray-500 text-xs">por semestre</div>
                 </div>
-              </div>
                           </>)}
+                          </div>
 
               {/* Disclaimer */}
               <p className="text-gray-400 text-sm text-center mb-8 max-w-2xl mx-auto">
