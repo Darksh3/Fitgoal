@@ -498,13 +498,7 @@ export default function QuizResultsPage() {
               </div>
             </>
           )}
-          {/* Open checkout page instead of modal */}
-          <button
-            onClick={handleCheckout}
-            className="px-6 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-full font-bold text-sm hover:from-orange-400 hover:to-orange-300 transition shadow-md shadow-orange-500/30"
-          >
-            OBTER MEU PLANO
-          </button>
+          {/* Botão OBTER MEU PLANO removido do header — CTA principal está no corpo da página */}
           <button className="w-8 h-8 flex items-center justify-center">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -518,11 +512,11 @@ export default function QuizResultsPage() {
           <div className="text-center mb-8 max-w-2xl mx-auto">
             <p className="text-orange-400 text-base font-semibold mb-3 uppercase tracking-wide">Você chegou até aqui por um motivo.</p>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Seu corpo. Seu ritmo.<br />
-              <span className="text-orange-400">Seu plano está pronto.</span>
+              Finalmente um plano que é realmente seu.<br />
+              <span className="text-orange-400">Criado para o seu corpo. Pronto para começar hoje.</span>
             </h1>
             <p className="text-gray-400 text-base leading-relaxed">
-              Criamos um programa completo com base exatamente no que você nos contou — pensado para a sua rotina, o seu objetivo e o seu momento de vida.
+              Analisamos tudo que você nos contou e montamos um programa completo — treino, dieta e acompanhamento — pensado para a sua rotina, seu corpo e o seu momento de vida. Não é genérico. É seu.
             </p>
           </div>
         ) : (
@@ -788,6 +782,69 @@ export default function QuizResultsPage() {
           )
         })()}
 
+
+        {/* SEÇÃO DE DIFERENCIAIS REAIS DO FITGOAL */}
+        {getDataValue("gender") === "mulher" && (
+          <div className="max-w-5xl mx-auto mt-10 rounded-2xl overflow-hidden border border-orange-500/30">
+            <div className="bg-gradient-to-r from-orange-500/20 to-orange-400/10 px-8 py-5 border-b border-orange-500/20">
+              <p className="text-orange-400 text-sm font-semibold uppercase tracking-wide mb-1">Por que o FitGoal é diferente</p>
+              <h3 className="text-2xl font-bold text-white">O que você não vai encontrar em nenhum programa de influencer</h3>
+            </div>
+            <div className="bg-gray-900/60 divide-y divide-gray-800">
+              <div className="grid grid-cols-2 divide-x divide-gray-800">
+                <div className="px-6 py-5 flex gap-3 items-start">
+                  <span className="text-orange-400 text-xl flex-shrink-0">&#10086;</span>
+                  <div>
+                    <p className="text-white font-bold text-sm mb-1">Dieta e treino 100% personalizados para você</p>
+                    <p className="text-gray-400 text-xs leading-relaxed">Cada refeição, cada série foi definida com base no seu peso, altura, objetivo, rotina e restrições. Nada aqui é genérico.</p>
+                  </div>
+                </div>
+                <div className="px-6 py-5 flex gap-3 items-start bg-red-900/10">
+                  <span className="text-red-400 text-xl flex-shrink-0">&#10005;</span>
+                  <div>
+                    <p className="text-gray-400 font-bold text-sm mb-1">Programas de influencers</p>
+                    <p className="text-gray-500 text-xs leading-relaxed">Uma planilha igual para todos os seguidores — sem considerar seu corpo, sua rotina ou suas restrições.</p>
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 divide-x divide-gray-800">
+                <div className="px-6 py-5 flex gap-3 items-start">
+                  <span className="text-orange-400 text-xl flex-shrink-0">&#10086;</span>
+                  <div>
+                    <p className="text-white font-bold text-sm mb-1">Análise do seu progresso por fotos com feedback detalhado</p>
+                    <p className="text-gray-400 text-xs leading-relaxed">Você envia suas fotos e recebe orientações específicas sobre sua evolução — feedback real para continuar avançando no ritmo certo.</p>
+                  </div>
+                </div>
+                <div className="px-6 py-5 flex gap-3 items-start bg-red-900/10">
+                  <span className="text-red-400 text-xl flex-shrink-0">&#10005;</span>
+                  <div>
+                    <p className="text-gray-400 font-bold text-sm mb-1">Programas de influencers</p>
+                    <p className="text-gray-500 text-xs leading-relaxed">Sem análise de progresso. Você fica sozinha tentando entender se está no caminho certo ou perdendo tempo.</p>
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 divide-x divide-gray-800">
+                <div className="px-6 py-5 flex gap-3 items-start">
+                  <span className="text-orange-400 text-xl flex-shrink-0">&#10086;</span>
+                  <div>
+                    <p className="text-white font-bold text-sm mb-1">Suporte com resposta rápida</p>
+                    <p className="text-gray-400 text-xs leading-relaxed">Nossa equipe responde rápido — para ajustar o plano, substituir alimentos ou tirar qualquer dúvida no caminho.</p>
+                  </div>
+                </div>
+                <div className="px-6 py-5 flex gap-3 items-start bg-red-900/10">
+                  <span className="text-red-400 text-xl flex-shrink-0">&#10005;</span>
+                  <div>
+                    <p className="text-gray-400 font-bold text-sm mb-1">Programas de influencers</p>
+                    <p className="text-gray-500 text-xs leading-relaxed">Suporte que demora dias — quando existe. Você acaba desistindo antes de chegar no resultado.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gradient-to-r from-orange-500/10 to-transparent px-8 py-4 border-t border-orange-500/20">
+              <p className="text-orange-400 text-sm font-medium">&#128172; "Já comprei de vários programas e nunca tive uma experiência assim. Aqui realmente se importam com o meu resultado." — Lucilene, -7 kg</p>
+            </div>
+          </div>
+        )}
         {/* Bloco 6 - Prazo Estimado */}
         <div className="max-w-5xl mx-auto mt-8 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-8">
           <h3 className="text-2xl font-bold text-white mb-4">Projeção de prazo realista:</h3>
@@ -1090,8 +1147,7 @@ export default function QuizResultsPage() {
           {/* Disclaimer */}
           <p className="text-center text-xs text-gray-500 mb-8">
             Sem cancelamento automático antes do final do período para planos, concordo que o Fitgoal cobrará
-            automaticamente no final do plano escolhido ou até eu cancelar. Cancele online via perfil, no{" "}
-            <span className="underline">site</span> ou app.
+            automaticamente enquanto sua assinatura estiver ativa. Cancele quando quiser pelo app ou site — sem burocracia.
           </p>
 
           {/* CTA Button */}
@@ -1736,8 +1792,7 @@ export default function QuizResultsPage() {
               {/* Disclaimer */}
               <p className="text-gray-400 text-sm text-center mb-8 max-w-2xl mx-auto">
                 Sem cancelamento automático antes do final do período para planos, concordo que o Fitgoal cobrará
-                automaticamente no final do plano escolhido ou até eu cancelar. Cancele online via perfil, no site ou
-                app.
+                automaticamente enquanto sua assinatura estiver ativa. Cancele quando quiser pelo app ou site.
               </p>
 
               {/* CTA Button with urgency */}
@@ -1750,6 +1805,16 @@ export default function QuizResultsPage() {
                     ⏳ Resultado salvo por 24h — garanta agora antes de expirar
                   </p>
                 )}
+                {/* Mini garantia - reduz ansiedade antes do clique */}
+                <div className="mb-6 flex items-center justify-center gap-3 bg-green-500/10 border border-green-500/30 rounded-xl p-4 max-w-md mx-auto">
+                  <svg className="w-8 h-8 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div className="text-left">
+                    <p className="text-green-400 font-bold text-sm">Garantia de 7 dias sem perguntas</p>
+                    <p className="text-gray-400 text-xs mt-0.5">Não ficou satisfeita? Devolvemos 100% do valor — sem formulários, sem explicação.</p>
+                  </div>
+                </div>
                 <button
                   onClick={handleCheckout}
                   className="bg-gradient-to-r from-orange-500 to-orange-400 text-white font-black text-lg px-12 py-4 rounded-full hover:from-orange-400 hover:to-orange-300 transition shadow-lg shadow-orange-500/30 active:scale-95"
