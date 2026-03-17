@@ -7,7 +7,7 @@ import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
 import Image from "next/image"
 import SpinWheelSection from '@/components/SpinWheelSection'
-import { usePixel } from "@/components/pixel-tracker"h
+import { usePixel } from "@/components/pixel-tracker"
 
 export default function QuizResultsPage() {
   const router = useRouter()
