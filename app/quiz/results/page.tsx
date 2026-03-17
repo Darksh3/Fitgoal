@@ -9,7 +9,7 @@ import Image from "next/image"
 import SpinWheelSection from '@/components/SpinWheelSection'
 import { usePixel } from "@/components/pixel-tracker"
 
-export default function QuizResultsPage() {
+export default function QuizResultsPage() {h
   const router = useRouter()
   const { trackViewContent, trackPlanView, trackInitiateCheckout } = usePixel()
   const [loading, setLoading] = useState(true)
@@ -100,7 +100,7 @@ export default function QuizResultsPage() {
       const userId = localStorage.getItem('clientUid')
       if (userId) {
         try {
-          const leadRef = doc(db, 'users', userId)
+          const leadRef = doc(db, 'leads', userId)
           await updateDoc(leadRef, {
             visitedResults: true,
             visitedResultsAt: new Date().toISOString(),
@@ -329,7 +329,7 @@ export default function QuizResultsPage() {
     const userId = localStorage.getItem('clientUid')
     if (userId) {
       try {
-        const leadRef = doc(db, 'users', userId)
+        const leadRef = doc(db, 'leads', userId)
         await updateDoc(leadRef, {
           visitedCheckout: true,
           visitedCheckoutAt: new Date().toISOString(),
