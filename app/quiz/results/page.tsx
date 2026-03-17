@@ -595,7 +595,6 @@ export default function QuizResultsPage() {
               </div>
             </div>
           </div>
-        </div>
 
         {/* Bloco 4 - Decisões Principais */}
         {(() => {
