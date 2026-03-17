@@ -497,7 +497,6 @@ export default function QuizResultsPage() {
             <p className="text-gray-400 text-base leading-relaxed">
               Analisamos cada resposta que você deu e montamos um programa completo — treino, dieta e acompanhamento — pensado para o seu corpo, a sua rotina e o seu objetivo real. Não é uma planilha genérica. É seu plano.
             </p>
-          </div>
                         {/* CTA acima da dobra - bloco feminino */}
                                       <div className="flex flex-col items-center gap-3 mt-8 mb-2">
                                                       <button
@@ -508,6 +507,7 @@ export default function QuizResultsPage() {
                                                                                                                                             </button>
                                                                                                                                                             <p className="text-gray-400 text-sm text-center">Acesso imediato · Garantia de 7 dias · Cancele quando quiser</p>
                                                                                                                                                                           </div>
+                                                                                                                                                                                    </div>
         ) : (
           <h1 className="text-4xl md:text-5xl font-bold text-center mb-12">
             Seu Plano de Dieta e Treino <br /> estão Prontos!
