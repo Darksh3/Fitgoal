@@ -514,9 +514,22 @@ export default function QuizResultsPage() {
       </header>
 
       <main className="w-full px-6 py-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-center mb-12">
-          Seu Plano de Dieta e Treino <br /> estão Prontos!
-        </h1>
+        {getDataValue("gender") === "mulher" ? (
+          <div className="text-center mb-8 max-w-2xl mx-auto">
+            <p className="text-orange-400 text-base font-semibold mb-3 uppercase tracking-wide">Você chegou até aqui por um motivo.</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              Seu corpo. Seu ritmo.<br />
+              <span className="text-orange-400">Seu plano está pronto.</span>
+            </h1>
+            <p className="text-gray-400 text-base leading-relaxed">
+              Criamos um programa completo com base exatamente no que você nos contou — pensado para a sua rotina, o seu objetivo e o seu momento de vida.
+            </p>
+          </div>
+        ) : (
+          <h1 className="text-4xl md:text-5xl font-bold text-center mb-12">
+            Seu Plano de Dieta e Treino <br /> estão Prontos!
+          </h1>
+        )}
 
         {/* Comparison container */}
         <div className="max-w-4xl mx-auto bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-xl p-8 mb-16">
@@ -675,7 +688,8 @@ export default function QuizResultsPage() {
           </div>
 
           <div className="mt-8 bg-gray-900 bg-opacity-50 rounded-2xl p-8 border border-gray-700">
-            <h3 className="text-3xl font-bold text-white mb-6">Análise do seu perfil e estratégia do plano:</h3>
+            <p className="text-orange-400 text-sm font-semibold mb-2 uppercase tracking-wide">Com base no que você nos contou...</p>
+          <h3 className="text-3xl font-bold text-white mb-6">Análise do seu perfil e estratégia do plano:</h3>
             <div className="border-t border-gray-700 mb-8"></div>
 
             <div className="grid grid-cols-2 gap-x-8 gap-y-8">
@@ -790,17 +804,35 @@ export default function QuizResultsPage() {
 
         {/* Bloco 7 - Ponte para Pagamento */}
         <div className="max-w-5xl mx-auto mt-8 bg-gradient-to-br from-lime-900/30 to-lime-900/10 border border-lime-700/50 rounded-xl p-8">
-          <h3 className="text-2xl font-bold text-lime-400 mb-4">O que acontece agora:</h3>
-          <p className="text-gray-200 leading-relaxed">
-            Seu treino detalhado <span className="text-lime-400 font-semibold">(exercícios, séries, progressão e técnicas)</span> e sua dieta completa <span className="text-lime-400 font-semibold">(refeições, quantidades exatas e substituições)</span> serão gerados sob demanda imediatamente após a confirmação do pagamento.
-          </p>
-          <p className="text-gray-400 text-sm mt-4 pt-4 border-t border-lime-700/30">
-            Tudo personalizado para seu perfil e objetivo específico.
+          <h3 className="text-2xl font-bold text-lime-400 mb-4">O que você recebe imediatamente após o pagamento:</h3>
+          <div className="space-y-3 mb-4">
+            <div className="flex items-start gap-3">
+              <span className="text-lime-400 mt-1">✓</span>
+              <p className="text-gray-200">
+                <span className="text-white font-semibold">Plano de treino completo</span> — exercícios, séries, repetições e progressão, adaptado para o seu nível e para o equipamento que você tem disponível.
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-lime-400 mt-1">✓</span>
+              <p className="text-gray-200">
+                <span className="text-white font-semibold">Plano alimentar personalizado</span> — refeições com quantidades exatas, lista de substituições e opções práticas para o seu dia a dia.
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-lime-400 mt-1">✓</span>
+              <p className="text-gray-200">
+                <span className="text-white font-semibold">Acesso direto pelo app ou área de membros</span> — tudo organizado num só lugar, disponível no celular, sempre que você precisar.
+              </p>
+            </div>
+          </div>
+          <p className="text-gray-500 text-sm pt-4 border-t border-lime-700/30">
+            Tudo gerado sob demanda para o seu perfil específico — não usamos planos genéricos prontos.
           </p>
         </div>
 
         <div className="max-w-5xl mx-auto mt-16">
-          <h2 className="text-4xl font-bold text-center mb-8">Programa FitGoal Personal Engine™:</h2>
+          <h2 className="text-4xl font-bold text-center mb-4">Seu Programa Completo FitGoal:</h2>
+          <p className="text-center text-gray-400 mb-8">Tudo que você vai receber imediatamente após o pagamento, direto no app e na área de membros:</p>
 
           <div className="mt-8 max-w-3xl mx-auto">
           {/* Header */}
@@ -882,9 +914,10 @@ export default function QuizResultsPage() {
             </p>
             <div className="flex items-center justify-center gap-3 mt-3">
               <div>
-                <p className="text-gray-300 text-sm">Você paga apenas</p>
+                <p className="text-gray-300 text-sm">Seu plano completo por apenas</p>
                 <p className="text-5xl font-black text-orange-400 leading-tight">R$ 59,90</p>
                 <p className="text-white font-semibold text-base">por mês</p>
+                <p className="text-gray-500 text-xs mt-2">Menos de R$ 2 por dia — o preço de um café</p>
               </div>
             </div>
             <div className="mt-4 inline-flex items-center gap-2 bg-lime-500/10 border border-lime-500/30 rounded-full px-4 py-2">
@@ -934,6 +967,17 @@ export default function QuizResultsPage() {
             </div>
           )}
           {/* ================================================================ */}
+
+          {/* Urgency banner for female users */}
+          {getDataValue("gender") === "mulher" && (
+            <div className="mt-10 mb-4 bg-gradient-to-r from-orange-500/20 to-orange-400/10 border border-orange-500/50 rounded-xl p-4 flex items-center gap-3 max-w-2xl mx-auto">
+              <span className="text-2xl">⏳</span>
+              <div>
+                <p className="text-orange-400 font-bold text-sm">Seu resultado ficará salvo por 24 horas</p>
+                <p className="text-gray-400 text-xs mt-0.5">Após esse prazo, será necessário refazer o quiz para gerar um novo plano personalizado.</p>
+              </div>
+            </div>
+          )}
 
           {/* Plan cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 mt-12">
@@ -1040,8 +1084,8 @@ export default function QuizResultsPage() {
               </div>
               <div className="text-gray-500 text-xs">por semestre</div>
             </div>
-          </div>
                       </>)}
+                    </div>
 
           {/* Disclaimer */}
           <p className="text-center text-xs text-gray-500 mb-8">
@@ -1062,6 +1106,11 @@ export default function QuizResultsPage() {
 
           {/* Highlights of your plan section */}
           <div className="mt-20 py-16 border-t border-gray-800">
+            {getDataValue("gender") === "mulher" && (
+              <p className="text-center text-orange-400 text-sm font-semibold mb-3 uppercase tracking-wide">
+                Feito especialmente para você
+              </p>
+            )}
             <h2 className="text-4xl font-bold text-center text-white mb-12">Destaques do seu plano</h2>
 
             <div className="grid grid-cols-2 gap-12">
@@ -1135,7 +1184,7 @@ export default function QuizResultsPage() {
                     </div>
                   </div>
                   {/* Right column - Video */}
-              <div className="flex items-center justify-center">
+              <div className="flex flex-col items-center justify-center gap-4">
                 <div className="relative w-full max-w-sm">
                   {/* Video player with rounded edges and border */}
                   <div className="bg-gradient-to-b from-gray-800 to-gray-900 rounded-3xl p-4 border border-gray-700">
@@ -1150,6 +1199,10 @@ export default function QuizResultsPage() {
                       Seu navegador não suporta reprodução de vídeo.
                     </video>
                   </div>
+                </div>
+                <div className="text-center">
+                  <p className="text-white font-semibold text-sm">Acesso pelo app e área de membros</p>
+                  <p className="text-gray-500 text-xs mt-1">Seu plano disponível no celular, 24h por dia</p>
                 </div>
               </div>
             </div>
@@ -1450,38 +1503,86 @@ export default function QuizResultsPage() {
                     O seu plano de dieta é montado com base nas informações que você forneceu, incluindo preferências e restrições. Se precisar de ajustes após receber o plano, nossa equipe de suporte está disponível para adaptar as refeições às suas necessidades.
                   </p>
                 </details>
+
+                {/* FAQ Item 7 - Price objection */}
+                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
+                  <summary className="flex items-center justify-between font-bold text-white">
+                    Vale mais a pena do que pegar conteúdo gratuito no YouTube?
+                    <svg className="w-5 h-5 transform group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                  </summary>
+                  <p className="text-gray-400 mt-4">
+                    O YouTube tem conteúdo incrível — mas nenhum vídeo sabe o seu peso, a sua altura, quantos dias você tem disponível, se você prefere treinar em casa ou na academia, ou qual é o seu objetivo específico. O FitGoal gera um plano montado especificamente para você, não um conteúdo genérico para todos. A diferença está na personalização e na praticidade de ter tudo organizado em um só lugar.
+                  </p>
+                </details>
+
+                {/* FAQ Item 8 - AI / personalization */}
+                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
+                  <summary className="flex items-center justify-between font-bold text-white">
+                    O plano é gerado por IA ou é feito por um profissional?
+                    <svg className="w-5 h-5 transform group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                  </summary>
+                  <p className="text-gray-400 mt-4">
+                    Seu plano é gerado por um sistema de personalização avançado que usa as suas respostas do quiz como base — levando em conta seu peso, altura, objetivo, nível de treino, rotina e restrições. O resultado é um plano estruturado e prático, único para o seu perfil. Se precisar de ajustes depois de receber, nossa equipe está disponível para te ajudar.
+                  </p>
+                </details>
+
+                {/* FAQ Item 9 - Support */}
+                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
+                  <summary className="flex items-center justify-between font-bold text-white">
+                    Vou ter suporte se travar ou tiver dúvidas?
+                    <svg className="w-5 h-5 transform group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                  </summary>
+                  <p className="text-gray-400 mt-4">
+                    Sim. Nossa equipe de suporte está disponível para responder dúvidas sobre o plano, ajudar com substituições de alimentos, adaptar exercícios e tirar qualquer dúvida que aparecer no caminho. Você não vai ficar sozinha.
+                  </p>
+                </details>
+
+                {/* FAQ Item 10 - health conditions */}
+                <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
+                  <summary className="flex items-center justify-between font-bold text-white">
+                    Funciona para quem tem hipotireoidismo, SOP ou outra condição de saúde?
+                    <svg className="w-5 h-5 transform group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                  </summary>
+                  <p className="text-gray-400 mt-4">
+                    O FitGoal é um programa de alimentação e treino baseado nas suas respostas do quiz. Se você tem alguma condição de saúde específica como hipotireoidismo ou SOP, recomendamos sempre consultar um médico ou nutricionista antes de começar qualquer programa. O nosso plano pode ser um excelente complemento ao acompanhamento profissional, mas não substitui orientação médica.
+                  </p>
+                </details>
+
               </div>
             </div>
           </section>
 
-          {/* Trustpilot Section */}
+          {/* Social proof - community */}
           <section className="border-t border-gray-800 py-12">
             <div className="max-w-6xl mx-auto px-4 text-center">
               <div className="flex flex-col items-center gap-4">
-                <div className="flex items-center gap-3">
-                  <svg className="w-7 h-7 text-green-400" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                <div className="flex items-center gap-2 mb-2">
+                  <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                   </svg>
-                  <span className="text-white font-black text-xl">Trustpilot</span>
+                  <span className="text-white font-bold text-lg">Comunidade FitGoal</span>
                 </div>
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-white font-bold text-lg">Excelente</span>
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                    ))}
-                  </div>
-                  <p className="text-gray-400 text-sm mt-1">
-                    Baseado em <span className="text-white font-semibold">2.847 avaliações</span> verificadas
+                <p className="text-gray-400 text-sm max-w-md">
+                  Mais de <span className="text-white font-semibold">3.000 pessoas</span> já iniciaram sua transformação com o FitGoal em 2025.
+                </p>
+                {getDataValue("gender") === "mulher" && (
+                  <p className="text-orange-400 text-sm font-medium">
+                    🔥 Últimas vagas com preço promocional disponíveis hoje
                   </p>
-                </div>
+                )}
               </div>
             </div>
           </section>
 
-          {/* Get Visible Results Section */}
+                    {/* Get Visible Results Section */}
           <section className="py-16">
             <div className="max-w-6xl mx-auto px-6">
               <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-12">
@@ -1512,6 +1613,17 @@ export default function QuizResultsPage() {
                 </div>
               )}
               {/* ================================================================ */}
+
+              {/* Urgency banner */}
+              {getDataValue("gender") === "mulher" && (
+                <div className="mb-6 bg-gradient-to-r from-orange-500/20 to-orange-400/10 border border-orange-500/50 rounded-xl p-4 flex items-center gap-3">
+                  <span className="text-2xl">⏳</span>
+                  <div>
+                    <p className="text-orange-400 font-bold text-sm">Seu resultado ficará salvo por 24 horas</p>
+                    <p className="text-gray-400 text-xs mt-0.5">Após esse prazo, será necessário refazer o quiz para gerar um novo plano personalizado.</p>
+                  </div>
+                </div>
+              )}
 
               {/* Plan cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -1618,8 +1730,8 @@ export default function QuizResultsPage() {
                   </div>
                   <div className="text-gray-500 text-xs">por semestre</div>
                 </div>
-              </div>
                           </>)}
+                          </div>
 
               {/* Disclaimer */}
               <p className="text-gray-400 text-sm text-center mb-8 max-w-2xl mx-auto">
@@ -1630,9 +1742,14 @@ export default function QuizResultsPage() {
 
               {/* CTA Button with urgency */}
               <div className="text-center mb-16">
-                <p className="text-gray-400 text-sm mb-4">
+                <p className="text-gray-400 text-sm mb-2">
                   🔒 Acesso liberado imediatamente após a confirmação
                 </p>
+                {getDataValue("gender") === "mulher" && (
+                  <p className="text-orange-400 text-xs mb-4 font-medium">
+                    ⏳ Resultado salvo por 24h — garanta agora antes de expirar
+                  </p>
+                )}
                 <button
                   onClick={handleCheckout}
                   className="bg-gradient-to-r from-orange-500 to-orange-400 text-white font-black text-lg px-12 py-4 rounded-full hover:from-orange-400 hover:to-orange-300 transition shadow-lg shadow-orange-500/30 active:scale-95"
@@ -1659,16 +1776,18 @@ export default function QuizResultsPage() {
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <h3 className="text-3xl font-bold text-white mb-4">Garantia de devolução do dinheiro em 30 dias</h3>
+                <h3 className="text-3xl font-bold text-white mb-2">Garantia incondicional de 7 dias</h3>
+                <p className="text-orange-400 font-semibold text-sm mb-4">Sem perguntas. Sem burocracia.</p>
                 <p className="text-gray-400 mb-4">
-                  Acreditamos que nosso plano funcionará para você, e você deveria ver resultados visíveis em apenas 4
-                  semanas! Estamos até dispostos a devolver seu dinheiro se você puder demonstrar que seguiu o plano mas
-                  não viu nenhum resultado.
+                  Testou por 7 dias e não ficou satisfeita? É só nos enviar uma mensagem e devolvemos 100% do valor — sem precisar explicar nada, sem formulários complicados, sem enrolação.
                 </p>
-                <p className="text-gray-400">
-                  Saiba mais sobre limitações aplicáveis em nossa{" "}
-                  <a href="#" className="text-green-400 hover:underline">
-                    política de devolução
+                <p className="text-gray-400 mb-4">
+                  Acreditamos tanto no nosso plano que colocamos o risco todo por nossa conta. Você não tem nada a perder.
+                </p>
+                <p className="text-gray-500 text-sm">
+                  Saiba mais em nossa{" "}
+                  <a href="/politica-reembolso" className="text-green-400 hover:underline">
+                    política de reembolso
                   </a>
                   .
                 </p>
