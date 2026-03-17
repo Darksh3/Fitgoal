@@ -485,27 +485,6 @@ export default function QuizResultsPage() {
 
   return (
     <div className="w-full min-h-screen bg-black text-white">
-      <header className="sticky top-0 z-50 w-full px-6 py-4 flex items-center justify-between border-b border-gray-800 bg-black">
-        <div />
-        <div className="flex items-center gap-4">
-          {discountApplied && (
-            <>
-              <span className="text-sm">Desconto reservado por:</span>
-              <div className="flex gap-2 text-orange-400 font-bold text-lg">
-                <span>{String(timeLeft.minutes).padStart(2, "0")}</span>
-                <span>:</span>
-                <span>{String(timeLeft.seconds).padStart(2, "0")}</span>
-              </div>
-            </>
-          )}
-          {/* Botão OBTER MEU PLANO removido do header — CTA principal está no corpo da página */}
-          <button className="w-8 h-8 flex items-center justify-center">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
-      </header>
 
       <main className="w-full px-6 py-12">
         {getDataValue("gender") === "mulher" ? (
