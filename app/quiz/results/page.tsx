@@ -489,22 +489,31 @@ export default function QuizResultsPage() {
       <main className="w-full px-6 py-12">
         {getDataValue("gender") === "mulher" ? (
           <div className="text-center mb-8 max-w-2xl mx-auto">
-            <p className="text-orange-400 text-base font-semibold mb-3 uppercase tracking-wide">Você chegou até aqui por um motivo.</p>
+            <p className="text-orange-400 text-base font-semibold mb-3 uppercase tracking-wide">VOCÊ NÃO FALHOU NAS DIETAS.</p>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Finalmente um plano que é realmente seu.<br />
-              <span className="text-orange-400">Criado para o seu corpo. Pronto para começar hoje.</span>
+              As dietas é que falharam em te conhecer.<br />
+              <span className="text-orange-400">Seu plano está pronto. Feito para você.</span>
             </h1>
             <p className="text-gray-400 text-base leading-relaxed">
-              Analisamos tudo que você nos contou e montamos um programa completo — treino, dieta e acompanhamento — pensado para a sua rotina, seu corpo e o seu momento de vida. Não é genérico. É seu.
+              Analisamos cada resposta que você deu e montamos um programa completo — treino, dieta e acompanhamento — pensado para o seu corpo, a sua rotina e o seu objetivo real. Não é uma planilha genérica. É seu plano.
             </p>
           </div>
+                        {/* CTA acima da dobra - bloco feminino */}
+                                      <div className="flex flex-col items-center gap-3 mt-8 mb-2">
+                                                      <button
+                                                                        onClick={handleCheckout}
+                                                                                          className="px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-full font-black text-lg hover:from-orange-400 hover:to-orange-300 transition-all shadow-lg shadow-orange-500/30 w-full max-w-sm"
+                                                                                                          >
+                                                                                                                            COMEÇAR MEU PLANO AGORA
+                                                                                                                                            </button>
+                                                                                                                                                            <p className="text-gray-400 text-sm text-center">Acesso imediato · Garantia de 7 dias · Cancele quando quiser</p>
+                                                                                                                                                                          </div>
         ) : (
           <h1 className="text-4xl md:text-5xl font-bold text-center mb-12">
             Seu Plano de Dieta e Treino <br /> estão Prontos!
           </h1>
         )}
 
-        {/* Comparison container */}
         <div className="max-w-4xl mx-auto bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-xl p-8 mb-16">
           {/* Tabs */}
           <div className="flex gap-4 mb-8 bg-black rounded-lg p-1">
@@ -766,8 +775,8 @@ export default function QuizResultsPage() {
         {getDataValue("gender") === "mulher" && (
           <div className="max-w-5xl mx-auto mt-10 rounded-2xl overflow-hidden border border-orange-500/30">
             <div className="bg-gradient-to-r from-orange-500/20 to-orange-400/10 px-8 py-5 border-b border-orange-500/20">
-              <p className="text-orange-400 text-sm font-semibold uppercase tracking-wide mb-1">Por que o FitGoal é diferente</p>
-              <h3 className="text-2xl font-bold text-white">O que você não vai encontrar em nenhum programa de influencer</h3>
+              <p className="text-orange-400 text-sm font-semibold uppercase tracking-wide mb-1">Por que o FitGoal realmente funciona</p>
+              <h3 className="text-2xl font-bold text-white">Não é uma planilha do Instagram. Não é um e-book genérico. É diferente de tudo que você já tentou.</h3>
             </div>
             <div className="bg-gray-900/60 divide-y divide-gray-800">
               <div className="grid grid-cols-2 divide-x divide-gray-800">
@@ -798,7 +807,7 @@ export default function QuizResultsPage() {
                   <span className="text-red-400 text-xl flex-shrink-0">&#10005;</span>
                   <div>
                     <p className="text-gray-400 font-bold text-sm mb-1">Programas de influencers</p>
-                    <p className="text-gray-500 text-xs leading-relaxed">Sem análise de progresso. Você fica sozinha tentando entender se está no caminho certo ou perdendo tempo.</p>
+                    <p className="text-gray-500 text-xs leading-relaxed">Sem análise de progresso. Você fica se perguntando se está no caminho certo — e na dúvida, desiste.</p>
                   </div>
                 </div>
               </div>
@@ -807,14 +816,14 @@ export default function QuizResultsPage() {
                   <span className="text-orange-400 text-xl flex-shrink-0">&#10086;</span>
                   <div>
                     <p className="text-white font-bold text-sm mb-1">Suporte com resposta rápida</p>
-                    <p className="text-gray-400 text-xs leading-relaxed">Nossa equipe responde rápido — para ajustar o plano, substituir alimentos ou tirar qualquer dúvida no caminho.</p>
+                    <p className="text-gray-400 text-xs leading-relaxed">Nossa equipe responde em horas, não dias — para ajustar o plano, trocar alimentos ou tirar qualquer dúvida que surgir. Você não vai ficar sozinha no processo.</p>
                   </div>
                 </div>
                 <div className="px-6 py-5 flex gap-3 items-start bg-red-900/10">
                   <span className="text-red-400 text-xl flex-shrink-0">&#10005;</span>
                   <div>
                     <p className="text-gray-400 font-bold text-sm mb-1">Programas de influencers</p>
-                    <p className="text-gray-500 text-xs leading-relaxed">Suporte que demora dias — quando existe. Você acaba desistindo antes de chegar no resultado.</p>
+                    <p className="text-gray-500 text-xs leading-relaxed">Quando existe, o suporte demora dias. Você fica na dúvida, perde a motivação e desiste — não por falta de vontade, mas por falta de apoio.</p>
                   </div>
                 </div>
               </div>
@@ -1135,7 +1144,7 @@ export default function QuizResultsPage() {
               onClick={handleCheckout}
               className="px-12 py-4 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-full font-black text-lg hover:from-orange-400 hover:to-orange-300 transition shadow-lg shadow-orange-500/30 active:scale-95"
             >
-              OBTER MEU PLANO
+              COMEÇAR MEU PLANO AGORA
             </button>
           </div>
 
@@ -1192,7 +1201,7 @@ export default function QuizResultsPage() {
                       </div>
                       <div>
                         <p className="text-white font-bold">Treinos 100% personalizados para VOCÊ</p>
-                        <p className="text-gray-400 text-sm">Desenvolvido para te ajudar a chegar no seu objetivo o mais rápido e saudável possível</p>
+                        <p className="text-gray-400 text-sm">Criado para te ajudar a chegar no seu objetivo da forma mais rápida e saudável possível</p>
                       </div>
                     </div>
                     <div className="flex gap-4 items-start">
@@ -1243,10 +1252,32 @@ export default function QuizResultsPage() {
             </div>
           </div>
 
+                  {/* Seção de Autoridade */}
+                          <section className="py-10 bg-gray-950 border-t border-b border-gray-800">
+                                    <div className="max-w-2xl mx-auto px-4 text-center">
+                                                <p className="text-orange-400 text-sm font-semibold uppercase tracking-wide mb-3">Por que funciona</p>
+                                                            <h3 className="text-xl font-bold text-white mb-4">Baseado em ciência. Validado por resultados.</h3>
+                                                                        <p className="text-gray-400 leading-relaxed text-sm">Os planos do FitGoal são desenvolvidos com base em protocolos de nutrição esportiva e periodização de treino utilizados por profissionais certificados. Cada plano considera seu metabolismo, histórico e rotina — não é uma fórmula genérica.</p>
+                                                                                    <div className="flex flex-wrap justify-center gap-6 mt-8">
+                                                                                                  <div className="flex flex-col items-center">
+                                                                                                                  <span className="text-2xl font-black text-orange-400">+3.000</span>
+                                                                                                                                  <span className="text-gray-400 text-xs mt-1">mulheres transformadas</span>
+                                                                                                                                                </div>
+                                                                                                                                                              <div className="flex flex-col items-center">
+                                                                                                                                                                              <span className="text-2xl font-black text-orange-400">4 sem.</span>
+                                                                                                                                                                                              <span className="text-gray-400 text-xs mt-1">para ver os primeiros resultados</span>
+                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                          <div className="flex flex-col items-center">
+                                                                                                                                                                                                                                          <span className="text-2xl font-black text-orange-400">100%</span>
+                                                                                                                                                                                                                                                          <span className="text-gray-400 text-xs mt-1">personalizado para você</span>
+                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                              </div>
+                                                                                                                                                                                                                                                                                                      </section>
           {/* Results that make us proud section with testimonials */}
           <section className="py-20 bg-black">
             <div className="max-w-6xl mx-auto px-4">
-              <h2 className="text-4xl font-bold text-center text-white mb-12">Resultados que nos deixam orgulhosos</h2>
+              <h2 className="text-4xl font-bold text-center text-white mb-12">Mulheres reais. Resultados reais.</h2>
 
               {/* Testimonials Grid - conditional based on gender */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
@@ -1266,7 +1297,7 @@ export default function QuizResultsPage() {
                           <span className="text-orange-400 font-bold text-lg">-7 kg</span>
                         </div>
                         <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "lucilene" ? "" : "line-clamp-3"}`}>
-                          O programa mudou minha vida! Consegui finalmente perder aquele peso que me incomodava e ainda ganhei muita confiança. Os treinos são perfeitos e a nutrição funciona!
+                          Já comprei vários programas antes e nunca senti que era feito pra mim. Com o FitGoal foi diferente desde o início. Em 5 semanas perdi 7 kg e, mais do que isso, me olho no espelho e gosto do que vejo.
                         </p>
                         <button
                           onClick={() => setExpandedTestimonial(expandedTestimonial === "lucilene" ? null : "lucilene")}
@@ -1290,7 +1321,7 @@ export default function QuizResultsPage() {
                           <span className="text-orange-400 font-bold text-lg">-10 kg</span>
                         </div>
                         <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "maria-clara" ? "" : "line-clamp-3"}`}>
-                          Estava desacreditada, mas os resultados vieram mais rápido do que esperava. O plano personalizado é realmente feito para cada pessoa. Super recomendo!
+                          Fiz dieta do ovo, jejum, tudo que existia. Achava que meu corpo simplesmente não respondia. O FitGoal me mostrou que o problema era o método, não eu. Em 2 meses perdi 10 kg e finalmente entendo o que funciona pro meu corpo.
                         </p>
                         <button
                           onClick={() => setExpandedTestimonial(expandedTestimonial === "maria-clara" ? null : "maria-clara")}
@@ -1314,7 +1345,7 @@ export default function QuizResultsPage() {
                           <span className="text-orange-400 font-bold text-lg">-26 kg</span>
                         </div>
                         <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "tamires" ? "" : "line-clamp-3"}`}>
-                          Transformação completa! Não só emagreci, mas ficou forte e com disposição. O acompanhamento personalizado fez toda a diferença na minha jornada.
+                          Perdi 26 kg em 8 meses. Mas o que mais me surpreendeu não foi a balança — foi a disposição que ganhei no dia a dia. Me sinto uma pessoa diferente. O acompanhamento personalizado fez toda a diferença.
                         </p>
                         <button
                           onClick={() => setExpandedTestimonial(expandedTestimonial === "tamires" ? null : "tamires")}
@@ -1414,16 +1445,26 @@ export default function QuizResultsPage() {
             </div>
           </section>
 
+        {/* Seção de objeção principal */}
+                <section className="py-12 bg-black">
+                          <div className="max-w-2xl mx-auto px-4">
+                                      <div className="bg-gray-900 border border-orange-400/30 rounded-2xl p-8">
+                                                    <h3 className="text-xl font-bold text-white mb-4">&ldquo;Já ouvi isso antes. Por que seria diferente agora?&rdquo;</h3>
+                                                                  <p className="text-gray-300 leading-relaxed">Essa é a pergunta mais honesta que você pode fazer — e ela merece uma resposta direta.</p>
+                                                                                <p className="text-gray-300 leading-relaxed mt-4">A maioria dos programas te dá um plano feito para uma mulher imaginária. O FitGoal foi feito para <strong className="text-white">você</strong>: seu peso de hoje, sua rotina, seu histórico. Quando o plano é certo para o seu corpo, os resultados aparecem. Não porque você vai se esforçar mais — mas porque finalmente estará fazendo a coisa certa.</p>
+                                                                                            </div>
+                                                                                                      </div>
+                                                                                                              </section>
           {/* People often ask FAQ section with expandable items */}
           <section className="py-20 bg-black">
             <div className="max-w-3xl mx-auto px-4">
-              <h2 className="text-4xl font-bold text-center text-white mb-12">As pessoas frequentemente perguntam</h2>
+              <h2 className="text-4xl font-bold text-center text-white mb-12">Perguntas frequentes</h2>
 
               <div className="space-y-6">
                 {/* FAQ Item 1 */}
                 <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
                   <summary className="flex items-center justify-between font-bold text-white">
-                    Como este plano pode me ajudar a queimar gordura e construir músculos?
+                    Como este plano pode me ajudar a emagrecer e definir o corpo?
                     <svg
                       className="w-5 h-5 transform group-open:rotate-180 transition"
                       fill="none"
@@ -1439,7 +1480,7 @@ export default function QuizResultsPage() {
                     </svg>
                   </summary>
                   <p className="text-gray-400 mt-4">
-                    Nosso plano foi desenvolvido para ajudá-lo a queimar gordura e construir um corpo tonificado e
+                    Nosso plano foi desenvolvido para ajudá-la a queimar gordura e construir um corpo tonificado e
                     aesthetic, combinando treinos passo a passo e um plano de refeições 100% personalizado. Nossos
                     treinos e dietas garantem a forma correta e ajudam você a manter a consistência e a motivação,
                     tornando a perda de peso mais alcançável e sustentável uma vez que tudo é 100% personalizado para
@@ -1495,7 +1536,7 @@ export default function QuizResultsPage() {
                   </summary>
                   <p className="text-gray-400 mt-4">
                     Forneceremos lembretes suaves, conselhos de especialistas, ferramentas de rastreamento úteis e apoio
-                    constante para ajudá-lo a ver o progresso e manter-se consistente. Dessa forma, você pode alcançar
+                    constante para ajudá-la a ver o progresso e manter-se consistente. Dessa forma, você pode alcançar
                     seus objetivos e desfrutar de um corpo mais saudável e em forma sem o medo de desistir.
                   </p>
                 </details>
@@ -1798,7 +1839,7 @@ export default function QuizResultsPage() {
                   onClick={handleCheckout}
                   className="bg-gradient-to-r from-orange-500 to-orange-400 text-white font-black text-lg px-12 py-4 rounded-full hover:from-orange-400 hover:to-orange-300 transition shadow-lg shadow-orange-500/30 active:scale-95"
                 >
-                  DESTRAVAR MEUS RESULTADOS
+                  COMEÇAR MEU PLANO AGORA
                 </button>
                 <p className="text-gray-500 text-xs mt-3">
                   Cancele quando quiser · Sem compromisso
@@ -1823,10 +1864,10 @@ export default function QuizResultsPage() {
                 <h3 className="text-3xl font-bold text-white mb-2">Garantia incondicional de 7 dias</h3>
                 <p className="text-orange-400 font-semibold text-sm mb-4">Sem perguntas. Sem burocracia.</p>
                 <p className="text-gray-400 mb-4">
-                  Testou por 7 dias e não ficou satisfeita? É só nos enviar uma mensagem e devolvemos 100% do valor — sem precisar explicar nada, sem formulários complicados, sem enrolação.
+                  Experimentou por 7 dias e não ficou satisfeita? Manda uma mensagem e devolvemos 100% do valor — sem precisar dar explicação, sem formulário, sem burocracia nenhuma.
                 </p>
                 <p className="text-gray-400 mb-4">
-                  Acreditamos tanto no nosso plano que colocamos o risco todo por nossa conta. Você não tem nada a perder.
+                  Acreditamos tanto no resultado que colocamos o risco todo por nossa conta. Você não perde nada tentando — só ganha se funcionar.
                 </p>
                 <p className="text-gray-500 text-sm">
                   Saiba mais em nossa{" "}
