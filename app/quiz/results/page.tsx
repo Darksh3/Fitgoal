@@ -495,7 +495,24 @@ export default function QuizResultsPage() {
               <span className="text-orange-400">Seu plano está pronto. Feito para você.</span>
             </h1>
             <p className="text-gray-400 text-base leading-relaxed">
-              Você está em <strong className="text-white">{getDataValue("currentWeight")} kg</strong> e quer chegar em <strong className="text-white">{getDataValue("targetWeight")} kg</strong>. Com base no seu perfil — IMC {Math.round((Number(getDataValue("currentWeight")) / (Number(getDataValue("height")) / 100) ** 2) * 10) / 10}, treinos {getDataValue("trainingDays")}x por semana e meta calórica de {getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))).toLocaleString("pt-BR") : "—"} kcal/dia — montamos o plano exato para você perder <strong className="text-white">{Math.round((Number(getDataValue("currentWeight")) - Number(getDataValue("targetWeight"))) * 10) / 10} kg</strong> sem radicalismo. <em>Esse plano não serve para nenhuma outra pessoa. Só para você.</em>
+              {(() => {
+                const cw = Number(getDataValue("currentWeight"))
+                const tw = Number(getDataValue("targetWeight"))
+                const h = Number(getDataValue("height"))
+                const imc = (cw && h) ? (cw / (h / 100) ** 2).toFixed(1) : "—"
+                const days = getDataValue("trainingDays")
+                const kcal = getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))).toLocaleString("pt-BR") : "—"
+                const goal = String(getDataValue("goal") ?? "").toLowerCase()
+                const isBulk = goal.includes("ganhar-massa")
+                const diff = Math.abs(Math.round((cw - tw) * 10) / 10)
+                const action = isBulk
+                  ? <><strong className="text-white">ganhar {diff} kg</strong> de massa magra</>
+                  : <><strong className="text-white">perder {diff} kg</strong> sem radicalismo</>
+                return <>
+                  Você está em <strong className="text-white">{cw} kg</strong> e quer chegar em{" "}
+                  <strong className="text-white">{tw} kg</strong>. Com base no seu perfil — IMC {imc}, treinos {days}x por semana e meta calórica de {kcal} kcal/dia — montamos o plano exato para você {action}. <em>Esse plano não serve para nenhuma outra pessoa. Só para você.</em>
+                </>
+              })()}
             </p>
                         
                                                                                                                                                                                     </div>
@@ -737,14 +754,44 @@ export default function QuizResultsPage() {
                 <p className="text-white text-xl font-semibold">
                   {getDataValue("timeToGoal") || new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}
                 </p>
-                <p className="text-gray-300 text-sm mt-4 text-center leading-relaxed">
-                  <strong className="text-white">O que esses dados significam para você:</strong> Saindo de{" "}
-                  <strong className="text-white">{getDataValue("currentWeight")} kg</strong> rumo a{" "}
-                  <strong className="text-white">{getDataValue("targetWeight")} kg</strong>, você precisa de um déficit de aproximadamente{" "}
-                  <strong className="text-white">~500 kcal/dia</strong> — por isso sua meta foi calibrada em{" "}
-                  <strong className="text-white">{getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))).toLocaleString("pt-BR") : "—"} kcal/dia</strong>. Com{" "}
-                  <strong className="text-white">{getDataValue("trainingDays")} treinos semanais</strong> e seu nível {getDataValue("experience") === "beginner" ? "iniciante" : getDataValue("experience") === "intermediate" ? "intermediário" : "avançado"}, a progressão foi estruturada para você queimar gordura sem perder desempenho.
-                </p>
+                {(() => {
+                  const cw = Number(getDataValue("currentWeight"))
+                  const tw = Number(getDataValue("targetWeight"))
+                  const kcal = getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))).toLocaleString("pt-BR") : "—"
+                  const days = getDataValue("trainingDays")
+                  const expRaw = String(getDataValue("experience") ?? "").toLowerCase()
+                  const expLabel = expRaw.includes("avanç") || expRaw.includes("advanced") ? "avançado" : expRaw.includes("inter") ? "intermediário" : "iniciante"
+                  const goal = String(getDataValue("goal") ?? "").toLowerCase()
+                  const isBulk = goal.includes("ganhar-massa")
+                  const isMaintain = !isBulk && !goal.includes("perder-peso") && !goal.includes("melhorar-saude") && !goal.includes("aumentar-resistencia")
+                  const diff = Math.abs(Math.round((cw - tw) * 10) / 10)
+                  if (isBulk) return (
+                    <p className="text-gray-300 text-sm mt-4 text-center leading-relaxed">
+                      <strong className="text-white">O que esses dados significam para você:</strong> Saindo de{" "}
+                      <strong className="text-white">{cw} kg</strong> rumo a{" "}
+                      <strong className="text-white">{tw} kg</strong>, sua meta está calibrada com um <strong className="text-white">superávit calórico controlado</strong> — por isso sua meta foi ajustada para{" "}
+                      <strong className="text-white">{kcal} kcal/dia</strong>. Com{" "}
+                      <strong className="text-white">{days} treinos semanais</strong> e seu nível {expLabel}, a progressão foi estruturada para você ganhar <strong className="text-white">{diff} kg</strong> de massa magra sem acumular gordura.
+                    </p>
+                  )
+                  if (isMaintain) return (
+                    <p className="text-gray-300 text-sm mt-4 text-center leading-relaxed">
+                      <strong className="text-white">O que esses dados significam para você:</strong> Com{" "}
+                      <strong className="text-white">{cw} kg</strong> e meta de manter o peso, sua ingestão foi calibrada em{" "}
+                      <strong className="text-white">{kcal} kcal/dia</strong> — suficiente para sustentar desempenho e composição corporal. Com{" "}
+                      <strong className="text-white">{days} treinos semanais</strong> e seu nível {expLabel}, o foco é recomposição e performance.
+                    </p>
+                  )
+                  return (
+                    <p className="text-gray-300 text-sm mt-4 text-center leading-relaxed">
+                      <strong className="text-white">O que esses dados significam para você:</strong> Saindo de{" "}
+                      <strong className="text-white">{cw} kg</strong> rumo a{" "}
+                      <strong className="text-white">{tw} kg</strong>, sua meta foi calibrada com um <strong className="text-white">déficit controlado</strong> — por isso sua meta calórica ficou em{" "}
+                      <strong className="text-white">{kcal} kcal/dia</strong>. Com{" "}
+                      <strong className="text-white">{days} treinos semanais</strong> e seu nível {expLabel}, a progressão foi estruturada para você perder <strong className="text-white">{diff} kg</strong> sem comprometer energia e desempenho.
+                    </p>
+                  )
+                })()}
               </div>
             </div>
           </div>
