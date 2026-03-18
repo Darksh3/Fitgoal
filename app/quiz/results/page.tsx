@@ -417,17 +417,17 @@ export default function QuizResultsPage() {
       bulletBF =
         goalCat === "bulk"
           ? "Prioridade: controlar gordura — superávit mínimo para evitar ganho desnecessário."
-          : "Prioridade: controlar gordura — déficit moderado para preservar massa magra."
+          : `Prioridade: controlar gordura — déficit moderado para preservar massa magra e chegar de ${Number(getDataValue("currentWeight")).toFixed(1)} kg a ${getDataValue("targetWeight")} kg com consistência.`
     } else if (bf >= 12) {
       bulletBF =
         goalCat === "bulk"
           ? "Equilíbrio entre performance e estética — subimos calorias sem perder definição."
-          : "Equilíbrio e constância — ajuste calórico para resultados sem radicalismo."
+          : `Equilíbrio e constância — ajuste calórico gradual para você perder ${Math.round((Number(getDataValue("currentWeight")) - Number(getDataValue("targetWeight"))) * 10) / 10} kg sem pesar comida obsessivamente ou cortar grupos alimentares.`
     } else {
       bulletBF =
         goalCat === "bulk"
           ? "Ambiente favorável para ganhar massa ������ podemos subir calorias com mais segurança mantendo a definição."
-          : "Boa base de definição — foco em desempenho e ajustes finos de composição corporal."
+          : `Boa base de definição — foco em desempenho e ajustes finos para chegar dos ${Number(getDataValue("currentWeight")).toFixed(1)} kg atuais até os ${getDataValue("targetWeight")} kg desejados.`
     }
 
     // 3) Bullet 2 (nível -> método)
@@ -435,7 +435,7 @@ export default function QuizResultsPage() {
     if (level === "beginner") {
       bulletLevel = "Treino focado em técnica + consistência — progressão simples para evoluir semana a semana."
     } else if (level === "intermediate") {
-      bulletLevel = "Treino com progressão estruturada — volume e intensidade calibrados para continuar evoluindo sem estagnar."
+      bulletLevel = `Treino com progressão estruturada — volume e intensidade calibrados para o seu nível intermediário, evoluindo semana a semana até você atingir os ${getDataValue("targetWeight")} kg.`
     } else {
       bulletLevel = "Treino com estímulos precisos — distribuição de volume e recuperação otimizadas para máximo desempenho."
     }
@@ -450,7 +450,7 @@ export default function QuizResultsPage() {
         goalCat === "bulk"
           ? `Meta calórica inicial: ~${calories} kcal/dia — para sustentar ganho de massa e recuperação (${daysText}).`
           : goalCat === "cut"
-            ? `Meta calórica inicial: ~${calories} kcal/dia — para perder gordura mantendo desempenho (${daysText}).`
+            ? `Sua meta calórica: ${calories} kcal/dia — calculada para criar um déficit de ~500 kcal com base no seu peso (${Number(getDataValue("currentWeight")).toFixed(1)} kg), altura (${getDataValue("height")} cm) e frequência de ${getDataValue("trainingDays")}x por semana. Suficiente para emagrecer sem comprometer a energia.`
             : `Meta calórica inicial: ~${calories} kcal/dia — para manter o peso com performance (${daysText}).`
     } else {
       bulletCalories =
@@ -495,7 +495,7 @@ export default function QuizResultsPage() {
               <span className="text-orange-400">Seu plano está pronto. Feito para você.</span>
             </h1>
             <p className="text-gray-400 text-base leading-relaxed">
-              Analisamos cada resposta que você deu e montamos um programa completo — treino, dieta e acompanhamento — pensado para o seu corpo, a sua rotina e o seu objetivo real. Não é uma planilha genérica. É seu plano.
+              Você está em <strong className="text-white">{getDataValue("currentWeight")} kg</strong> e quer chegar em <strong className="text-white">{getDataValue("targetWeight")} kg</strong>. Com base no seu perfil — IMC {Math.round((Number(getDataValue("currentWeight")) / (Number(getDataValue("height")) / 100) ** 2) * 10) / 10}, treinos {getDataValue("trainingDays")}x por semana e meta calórica de {getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))).toLocaleString("pt-BR") : "—"} kcal/dia — montamos o plano exato para você perder <strong className="text-white">{Math.round((Number(getDataValue("currentWeight")) - Number(getDataValue("targetWeight"))) * 10) / 10} kg</strong> sem radicalismo. <em>Esse plano não serve para nenhuma outra pessoa. Só para você.</em>
             </p>
                         
                                                                                                                                                                                     </div>
@@ -737,7 +737,14 @@ export default function QuizResultsPage() {
                 <p className="text-white text-xl font-semibold">
                   {getDataValue("timeToGoal") || new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}
                 </p>
-                <p className="text-gray-400 text-sm mt-4 text-center">Usamos esses dados para definir volume de treino e ingestão calórica.</p>
+                <p className="text-gray-300 text-sm mt-4 text-center leading-relaxed">
+                  <strong className="text-white">O que esses dados significam para você:</strong> Saindo de{" "}
+                  <strong className="text-white">{getDataValue("currentWeight")} kg</strong> rumo a{" "}
+                  <strong className="text-white">{getDataValue("targetWeight")} kg</strong>, você precisa de um déficit de aproximadamente{" "}
+                  <strong className="text-white">~500 kcal/dia</strong> — por isso sua meta foi calibrada em{" "}
+                  <strong className="text-white">{getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))).toLocaleString("pt-BR") : "—"} kcal/dia</strong>. Com{" "}
+                  <strong className="text-white">{getDataValue("trainingDays")} treinos semanais</strong> e seu nível {getDataValue("experience") === "beginner" ? "iniciante" : getDataValue("experience") === "intermediate" ? "intermediário" : "avançado"}, a progressão foi estruturada para você queimar gordura sem perder desempenho.
+                </p>
               </div>
             </div>
           </div>
