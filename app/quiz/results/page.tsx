@@ -780,70 +780,58 @@ export default function QuizResultsPage() {
 
         {/* SEÇÃO DE DIFERENCIAIS REAIS DO FITGOAL */}
         {getDataValue("gender") === "mulher" && (
-          <div className="max-w-5xl mx-auto mt-10 rounded-2xl overflow-hidden border border-orange-500/30">
+          <div className="max-w-5xl mx-auto mt-10 rounded-2xl border border-orange-500/30 overflow-hidden">
             {/* Header */}
             <div className="bg-gradient-to-r from-orange-500/20 to-orange-400/10 px-6 py-5 border-b border-orange-500/20">
-              <p className="text-orange-400 text-sm font-semibold uppercase tracking-wide mb-1">Por que o FitGoal realmente funciona</p>
-              <h3 className="text-xl md:text-2xl font-bold text-white leading-snug">Não é uma planilha do Instagram. Não é um e-book genérico. É diferente de tudo que você já tentou.</h3>
+              <p className="text-orange-400 text-xs font-semibold uppercase tracking-wide mb-1">Por que o FitGoal realmente funciona</p>
+              <h3 className="text-lg md:text-2xl font-bold text-white leading-snug">Diferente de tudo que você já tentou.</h3>
             </div>
 
-            {/* Comparison cards - stack vertically on mobile, side by side on desktop */}
+            {/* Benefits list */}
             <div className="bg-gray-900/60 divide-y divide-gray-800">
 
-              {/* Row 1 */}
-              <div className="flex flex-col md:grid md:grid-cols-2 md:divide-x divide-gray-800">
-                <div className="px-5 py-5 flex gap-3 items-start">
-                  <span className="text-orange-400 text-lg flex-shrink-0 mt-0.5">✦</span>
-                  <div>
-                    <p className="text-white font-bold text-sm mb-1">Dieta e treino 100% personalizados para você</p>
-                    <p className="text-gray-400 text-sm leading-relaxed">Cada refeição, cada série foi definida com base no seu peso, altura, objetivo, rotina e restrições. Nada aqui é genérico.</p>
-                  </div>
+              {/* Item 1 */}
+              <div className="px-5 py-5 flex gap-4 items-start">
+                <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-orange-400 text-sm font-bold">1</span>
                 </div>
-                <div className="px-5 py-4 flex gap-3 items-start bg-red-900/10 border-t border-gray-800 md:border-t-0">
-                  <span className="text-red-400 text-base flex-shrink-0 mt-0.5">✕</span>
-                  <div>
-                    <p className="text-gray-400 font-semibold text-xs uppercase tracking-wide mb-1">Programas de influencers</p>
-                    <p className="text-gray-500 text-sm leading-relaxed">Uma planilha igual para todos os seguidores — sem considerar seu corpo, sua rotina ou suas restrições.</p>
-                  </div>
+                <div>
+                  <p className="text-white font-bold text-sm mb-1">Dieta e treino 100% personalizados para você</p>
+                  <p className="text-gray-400 text-sm leading-relaxed">Cada refeição e cada série foi definida com base no seu peso, altura, objetivo, rotina e restrições. Nada aqui é genérico.</p>
                 </div>
               </div>
 
-              {/* Row 2 */}
-              <div className="flex flex-col md:grid md:grid-cols-2 md:divide-x divide-gray-800">
-                <div className="px-5 py-5 flex gap-3 items-start">
-                  <span className="text-orange-400 text-lg flex-shrink-0 mt-0.5">✦</span>
-                  <div>
-                    <p className="text-white font-bold text-sm mb-1">Análise do seu progresso por fotos com feedback detalhado</p>
-                    <p className="text-gray-400 text-sm leading-relaxed">Você envia suas fotos e recebe orientações específicas sobre sua evolução — feedback real para continuar avançando no ritmo certo.</p>
-                  </div>
+              {/* Item 2 */}
+              <div className="px-5 py-5 flex gap-4 items-start">
+                <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-orange-400 text-sm font-bold">2</span>
                 </div>
-                <div className="px-5 py-4 flex gap-3 items-start bg-red-900/10 border-t border-gray-800 md:border-t-0">
-                  <span className="text-red-400 text-base flex-shrink-0 mt-0.5">✕</span>
-                  <div>
-                    <p className="text-gray-400 font-semibold text-xs uppercase tracking-wide mb-1">Programas de influencers</p>
-                    <p className="text-gray-500 text-sm leading-relaxed">Sem análise de progresso. Você fica se perguntando se está no caminho certo — e na dúvida, desiste.</p>
-                  </div>
+                <div>
+                  <p className="text-white font-bold text-sm mb-1">Análise do seu progresso por fotos com feedback detalhado</p>
+                  <p className="text-gray-400 text-sm leading-relaxed">Você envia suas fotos e recebe orientações específicas sobre sua evolução — feedback real para continuar avançando no ritmo certo.</p>
                 </div>
               </div>
 
-              {/* Row 3 */}
-              <div className="flex flex-col md:grid md:grid-cols-2 md:divide-x divide-gray-800">
-                <div className="px-5 py-5 flex gap-3 items-start">
-                  <span className="text-orange-400 text-lg flex-shrink-0 mt-0.5">✦</span>
-                  <div>
-                    <p className="text-white font-bold text-sm mb-1">Suporte com resposta rápida</p>
-                    <p className="text-gray-400 text-sm leading-relaxed">Nossa equipe responde em horas, não dias — para ajustar o plano, trocar alimentos ou tirar qualquer dúvida que surgir. Você não vai ficar sozinha no processo.</p>
-                  </div>
+              {/* Item 3 */}
+              <div className="px-5 py-5 flex gap-4 items-start">
+                <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-orange-400 text-sm font-bold">3</span>
                 </div>
-                <div className="px-5 py-4 flex gap-3 items-start bg-red-900/10 border-t border-gray-800 md:border-t-0">
-                  <span className="text-red-400 text-base flex-shrink-0 mt-0.5">✕</span>
-                  <div>
-                    <p className="text-gray-400 font-semibold text-xs uppercase tracking-wide mb-1">Programas de influencers</p>
-                    <p className="text-gray-500 text-sm leading-relaxed">Quando existe, o suporte demora dias. Você fica na dúvida, perde a motivação e desiste — não por falta de vontade, mas por falta de apoio.</p>
-                  </div>
+                <div>
+                  <p className="text-white font-bold text-sm mb-1">Suporte com resposta rápida</p>
+                  <p className="text-gray-400 text-sm leading-relaxed">Nossa equipe responde em horas, não dias — para ajustar o plano, trocar alimentos ou tirar qualquer dúvida que surgir. Você não vai ficar sozinha no processo.</p>
                 </div>
               </div>
 
+            </div>
+
+            {/* VS programas genéricos */}
+            <div className="bg-red-900/10 border-t border-gray-800 px-5 py-4 flex gap-3 items-start">
+              <span className="text-red-400 text-lg flex-shrink-0 mt-0.5">✕</span>
+              <div>
+                <p className="text-gray-400 font-semibold text-xs uppercase tracking-wide mb-1">Programas genéricos de influencers</p>
+                <p className="text-gray-500 text-sm leading-relaxed">Uma planilha igual para todos, sem suporte, sem feedback. Você fica sozinha torcendo para funcionar.</p>
+              </div>
             </div>
 
             {/* Testimonial footer */}
@@ -852,7 +840,7 @@ export default function QuizResultsPage() {
             </div>
           </div>
         )}
-        {/* Bloco 6 - Prazo Estimado */}
+                {/* Bloco 6 - Prazo Estimado */}
         <div className="max-w-5xl mx-auto mt-8 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-8">
           <h3 className="text-2xl font-bold text-white mb-4">Projeção de prazo realista:</h3>
           <div className="flex items-center justify-between mb-4">
