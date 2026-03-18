@@ -754,44 +754,7 @@ export default function QuizResultsPage() {
                 <p className="text-white text-xl font-semibold">
                   {getDataValue("timeToGoal") || new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}
                 </p>
-                {(() => {
-                  const cw = Number(getDataValue("currentWeight"))
-                  const tw = Number(getDataValue("targetWeight"))
-                  const kcal = getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))).toLocaleString("pt-BR") : "—"
-                  const days = getDataValue("trainingDays")
-                  const expRaw = String(getDataValue("experience") ?? "").toLowerCase()
-                  const expLabel = expRaw.includes("avanç") || expRaw.includes("advanced") ? "avançado" : expRaw.includes("inter") ? "intermediário" : "iniciante"
-                  const goal = String(getDataValue("goal") ?? "").toLowerCase()
-                  const isBulk = goal.includes("ganhar-massa")
-                  const isMaintain = !isBulk && !goal.includes("perder-peso") && !goal.includes("melhorar-saude") && !goal.includes("aumentar-resistencia")
-                  const diff = Math.abs(Math.round((cw - tw) * 10) / 10)
-                  if (isBulk) return (
-                    <p className="text-gray-300 text-sm mt-4 text-center leading-relaxed">
-                      <strong className="text-white">O que esses dados significam para você:</strong> Saindo de{" "}
-                      <strong className="text-white">{cw} kg</strong> rumo a{" "}
-                      <strong className="text-white">{tw} kg</strong>, sua meta está calibrada com um <strong className="text-white">superávit calórico controlado</strong> — por isso sua meta foi ajustada para{" "}
-                      <strong className="text-white">{kcal} kcal/dia</strong>. Com{" "}
-                      <strong className="text-white">{days} treinos semanais</strong> e seu nível {expLabel}, a progressão foi estruturada para você ganhar <strong className="text-white">{diff} kg</strong> de massa magra sem acumular gordura.
-                    </p>
-                  )
-                  if (isMaintain) return (
-                    <p className="text-gray-300 text-sm mt-4 text-center leading-relaxed">
-                      <strong className="text-white">O que esses dados significam para você:</strong> Com{" "}
-                      <strong className="text-white">{cw} kg</strong> e meta de manter o peso, sua ingestão foi calibrada em{" "}
-                      <strong className="text-white">{kcal} kcal/dia</strong> — suficiente para sustentar desempenho e composição corporal. Com{" "}
-                      <strong className="text-white">{days} treinos semanais</strong> e seu nível {expLabel}, o foco é recomposição e performance.
-                    </p>
-                  )
-                  return (
-                    <p className="text-gray-300 text-sm mt-4 text-center leading-relaxed">
-                      <strong className="text-white">O que esses dados significam para você:</strong> Saindo de{" "}
-                      <strong className="text-white">{cw} kg</strong> rumo a{" "}
-                      <strong className="text-white">{tw} kg</strong>, sua meta foi calibrada com um <strong className="text-white">déficit controlado</strong> — por isso sua meta calórica ficou em{" "}
-                      <strong className="text-white">{kcal} kcal/dia</strong>. Com{" "}
-                      <strong className="text-white">{days} treinos semanais</strong> e seu nível {expLabel}, a progressão foi estruturada para você perder <strong className="text-white">{diff} kg</strong> sem comprometer energia e desempenho.
-                    </p>
-                  )
-                })()}
+                }
               </div>
             </div>
           </div>
@@ -934,13 +897,12 @@ export default function QuizResultsPage() {
 
         <div className="max-w-5xl mx-auto mt-16">
           <h2 className="text-4xl font-bold text-center mb-4">Seu Programa Completo FitGoal:</h2>
-          <p className="text-center text-gray-400 mb-8">Tudo que você vai receber imediatamente após o pagamento, direto no app e na área de membros:</p>
+ediatamente após o pagamento, direto no app e na área de membros:</p>
 
           <div className="mt-8 max-w-3xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <h3 className="text-3xl font-black text-white mb-2">O que você recebe:</h3>
-            <p className="text-gray-400 text-sm">Tudo personalizado para o seu perfil e objetivo</p>
+ssName="text-gray-400 text-sm">Tudo personalizado para o seu perfil e objetivo direto no app</p>
           </div>
           {/* Benefit Cards Grid */}
           <div className="grid grid-cols-2 gap-4 mb-6">
