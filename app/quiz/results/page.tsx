@@ -7,7 +7,7 @@ import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
 import Image from "next/image"
 import SpinWheelSection from '@/components/SpinWheelSection'
-import { usePixel } from "@/components/pixel-tracker"
+import { usePixel } from "@/components/pixel-trahcker"
 
 export default function QuizResultsPage() {
   const router = useRouter()
@@ -595,7 +595,6 @@ export default function QuizResultsPage() {
               </div>
             </div>
           </div>
-        </div>
         {/* Bloco 4 - Decisões Principais */}
         {(() => {
           const s = buildDynamicSummary()
