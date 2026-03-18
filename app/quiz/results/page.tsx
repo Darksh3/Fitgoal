@@ -896,12 +896,11 @@ export default function QuizResultsPage() {
 
         <div className="max-w-5xl mx-auto mt-16">
           <h2 className="text-4xl font-bold text-center mb-4">Seu Programa Completo FitGoal:</h2>
-ediatamente após o pagamento, direto no app e na área de membros:</p>
 
           <div className="mt-8 max-w-3xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-ssName="text-gray-400 text-sm">Tudo personalizado para o seu perfil e objetivo direto no app</p>
+          <p className="text-gray-400 text-sm">Tudo personalizado para o seu perfil e objetivo direto no app</p>
           </div>
           {/* Benefit Cards Grid */}
           <div className="grid grid-cols-2 gap-4 mb-6">
