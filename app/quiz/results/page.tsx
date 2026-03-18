@@ -765,62 +765,74 @@ export default function QuizResultsPage() {
         {/* SEÇÃO DE DIFERENCIAIS REAIS DO FITGOAL */}
         {getDataValue("gender") === "mulher" && (
           <div className="max-w-5xl mx-auto mt-10 rounded-2xl overflow-hidden border border-orange-500/30">
-            <div className="bg-gradient-to-r from-orange-500/20 to-orange-400/10 px-8 py-5 border-b border-orange-500/20">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-orange-500/20 to-orange-400/10 px-6 py-5 border-b border-orange-500/20">
               <p className="text-orange-400 text-sm font-semibold uppercase tracking-wide mb-1">Por que o FitGoal realmente funciona</p>
-              <h3 className="text-2xl font-bold text-white">Não é uma planilha do Instagram. Não é um e-book genérico. É diferente de tudo que você já tentou.</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-white leading-snug">Não é uma planilha do Instagram. Não é um e-book genérico. É diferente de tudo que você já tentou.</h3>
             </div>
+
+            {/* Comparison cards - stack vertically on mobile, side by side on desktop */}
             <div className="bg-gray-900/60 divide-y divide-gray-800">
-              <div className="grid grid-cols-2 divide-x divide-gray-800">
-                <div className="px-6 py-5 flex gap-3 items-start">
-                  <span className="text-orange-400 text-xl flex-shrink-0">&#10086;</span>
+
+              {/* Row 1 */}
+              <div className="flex flex-col md:grid md:grid-cols-2 md:divide-x divide-gray-800">
+                <div className="px-5 py-5 flex gap-3 items-start">
+                  <span className="text-orange-400 text-lg flex-shrink-0 mt-0.5">✦</span>
                   <div>
                     <p className="text-white font-bold text-sm mb-1">Dieta e treino 100% personalizados para você</p>
-                    <p className="text-gray-400 text-xs leading-relaxed">Cada refeição, cada série foi definida com base no seu peso, altura, objetivo, rotina e restrições. Nada aqui é genérico.</p>
+                    <p className="text-gray-400 text-sm leading-relaxed">Cada refeição, cada série foi definida com base no seu peso, altura, objetivo, rotina e restrições. Nada aqui é genérico.</p>
                   </div>
                 </div>
-                <div className="px-6 py-5 flex gap-3 items-start bg-red-900/10">
-                  <span className="text-red-400 text-xl flex-shrink-0">&#10005;</span>
+                <div className="px-5 py-4 flex gap-3 items-start bg-red-900/10 border-t border-gray-800 md:border-t-0">
+                  <span className="text-red-400 text-base flex-shrink-0 mt-0.5">✕</span>
                   <div>
-                    <p className="text-gray-400 font-bold text-sm mb-1">Programas de influencers</p>
-                    <p className="text-gray-500 text-xs leading-relaxed">Uma planilha igual para todos os seguidores — sem considerar seu corpo, sua rotina ou suas restrições.</p>
+                    <p className="text-gray-400 font-semibold text-xs uppercase tracking-wide mb-1">Programas de influencers</p>
+                    <p className="text-gray-500 text-sm leading-relaxed">Uma planilha igual para todos os seguidores — sem considerar seu corpo, sua rotina ou suas restrições.</p>
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 divide-x divide-gray-800">
-                <div className="px-6 py-5 flex gap-3 items-start">
-                  <span className="text-orange-400 text-xl flex-shrink-0">&#10086;</span>
+
+              {/* Row 2 */}
+              <div className="flex flex-col md:grid md:grid-cols-2 md:divide-x divide-gray-800">
+                <div className="px-5 py-5 flex gap-3 items-start">
+                  <span className="text-orange-400 text-lg flex-shrink-0 mt-0.5">✦</span>
                   <div>
                     <p className="text-white font-bold text-sm mb-1">Análise do seu progresso por fotos com feedback detalhado</p>
-                    <p className="text-gray-400 text-xs leading-relaxed">Você envia suas fotos e recebe orientações específicas sobre sua evolução — feedback real para continuar avançando no ritmo certo.</p>
+                    <p className="text-gray-400 text-sm leading-relaxed">Você envia suas fotos e recebe orientações específicas sobre sua evolução — feedback real para continuar avançando no ritmo certo.</p>
                   </div>
                 </div>
-                <div className="px-6 py-5 flex gap-3 items-start bg-red-900/10">
-                  <span className="text-red-400 text-xl flex-shrink-0">&#10005;</span>
+                <div className="px-5 py-4 flex gap-3 items-start bg-red-900/10 border-t border-gray-800 md:border-t-0">
+                  <span className="text-red-400 text-base flex-shrink-0 mt-0.5">✕</span>
                   <div>
-                    <p className="text-gray-400 font-bold text-sm mb-1">Programas de influencers</p>
-                    <p className="text-gray-500 text-xs leading-relaxed">Sem análise de progresso. Você fica se perguntando se está no caminho certo — e na dúvida, desiste.</p>
+                    <p className="text-gray-400 font-semibold text-xs uppercase tracking-wide mb-1">Programas de influencers</p>
+                    <p className="text-gray-500 text-sm leading-relaxed">Sem análise de progresso. Você fica se perguntando se está no caminho certo — e na dúvida, desiste.</p>
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 divide-x divide-gray-800">
-                <div className="px-6 py-5 flex gap-3 items-start">
-                  <span className="text-orange-400 text-xl flex-shrink-0">&#10086;</span>
+
+              {/* Row 3 */}
+              <div className="flex flex-col md:grid md:grid-cols-2 md:divide-x divide-gray-800">
+                <div className="px-5 py-5 flex gap-3 items-start">
+                  <span className="text-orange-400 text-lg flex-shrink-0 mt-0.5">✦</span>
                   <div>
                     <p className="text-white font-bold text-sm mb-1">Suporte com resposta rápida</p>
-                    <p className="text-gray-400 text-xs leading-relaxed">Nossa equipe responde em horas, não dias — para ajustar o plano, trocar alimentos ou tirar qualquer dúvida que surgir. Você não vai ficar sozinha no processo.</p>
+                    <p className="text-gray-400 text-sm leading-relaxed">Nossa equipe responde em horas, não dias — para ajustar o plano, trocar alimentos ou tirar qualquer dúvida que surgir. Você não vai ficar sozinha no processo.</p>
                   </div>
                 </div>
-                <div className="px-6 py-5 flex gap-3 items-start bg-red-900/10">
-                  <span className="text-red-400 text-xl flex-shrink-0">&#10005;</span>
+                <div className="px-5 py-4 flex gap-3 items-start bg-red-900/10 border-t border-gray-800 md:border-t-0">
+                  <span className="text-red-400 text-base flex-shrink-0 mt-0.5">✕</span>
                   <div>
-                    <p className="text-gray-400 font-bold text-sm mb-1">Programas de influencers</p>
-                    <p className="text-gray-500 text-xs leading-relaxed">Quando existe, o suporte demora dias. Você fica na dúvida, perde a motivação e desiste — não por falta de vontade, mas por falta de apoio.</p>
+                    <p className="text-gray-400 font-semibold text-xs uppercase tracking-wide mb-1">Programas de influencers</p>
+                    <p className="text-gray-500 text-sm leading-relaxed">Quando existe, o suporte demora dias. Você fica na dúvida, perde a motivação e desiste — não por falta de vontade, mas por falta de apoio.</p>
                   </div>
                 </div>
               </div>
+
             </div>
-            <div className="bg-gradient-to-r from-orange-500/10 to-transparent px-8 py-4 border-t border-orange-500/20">
-              <p className="text-orange-400 text-sm font-medium">&#128172; "Já comprei de vários programas e nunca tive uma experiência assim. Aqui realmente se importam com o meu resultado." — Lucilene, -7 kg</p>
+
+            {/* Testimonial footer */}
+            <div className="bg-gradient-to-r from-orange-500/10 to-transparent px-6 py-4 border-t border-orange-500/20">
+              <p className="text-orange-400 text-sm font-medium">💬 "Já comprei de vários programas e nunca tive uma experiência assim. Aqui realmente se importam com o meu resultado." — Lucilene, -7 kg</p>
             </div>
           </div>
         )}
