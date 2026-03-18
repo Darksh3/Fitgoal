@@ -7,7 +7,7 @@ import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
 import Image from "next/image"
 import SpinWheelSection from '@/components/SpinWheelSection'
-import { usePixel } from "@/components/pixel-trahcker"
+import { usePixel } from "@/components/pixel-tracker"
 
 export default function QuizResultsPage() {
   const router = useRouter()
@@ -514,105 +514,6 @@ export default function QuizResultsPage() {
           </h1>
         )}
 
-          <div className="mt-8 bg-gray-900 bg-opacity-50 rounded-2xl p-8 border border-gray-700">
-            <p className="text-orange-400 text-sm font-semibold mb-2 uppercase tracking-wide">Com base no que você nos contou...</p>
-          <h3 className="text-3xl font-bold text-white mb-6">Análise do seu perfil e estratégia do plano:</h3>
-            <div className="border-t border-gray-700 mb-8"></div>
-
-            <div className="grid grid-cols-2 gap-x-8 gap-y-8">
-              {/* Gênero */}
-              <div>
-                <p className="text-gray-400 text-sm mb-2">Gênero</p>
-                <p className="text-white text-xl font-semibold">
-                  {getDataValue("gender") === "homem"
-                    ? "Masculino"
-                    : getDataValue("gender") === "mulher"
-                      ? "Feminino"
-                      : "—"}
-                </p>
-              </div>
-
-              {/* Idade */}
-              <div>
-                <p className="text-gray-400 text-sm mb-2">Idade</p>
-                <p className="text-white text-xl font-semibold">{getDataValue("age") || "—"} anos</p>
-              </div>
-
-              {/* Altura */}
-              <div>
-                <p className="text-gray-400 text-sm mb-2">Altura</p>
-                <p className="text-white text-xl font-semibold">{getDataValue("height") || "—"} cm</p>
-              </div>
-
-              {/* Peso Atual */}
-              <div>
-                <p className="text-gray-400 text-sm mb-2">Peso Atual</p>
-                <p className="text-white text-xl font-semibold">
-                  {getDataValue("currentWeight") ? Number(getDataValue("currentWeight")).toFixed(1) : "—"} kg
-                </p>
-              </div>
-
-              {/* IMC */}
-              <div>
-                <p className="text-gray-400 text-sm mb-2">IMC</p>
-                <p
-                  className={`text-xl font-semibold ${(() => {
-                    if (!getDataValue("currentWeight") || !getDataValue("height")) return "text-white"
-                    const imc = Number(getDataValue("currentWeight")) / (Number(getDataValue("height")) / 100) ** 2
-                    if (imc < 18.5) return "text-blue-400"
-                    if (imc < 25) return "text-green-400"
-                    return "text-red-400"
-                  })()}`}
-                >
-                  {getDataValue("currentWeight") && getDataValue("height")
-                    ? (Number(getDataValue("currentWeight")) / (Number(getDataValue("height")) / 100) ** 2).toFixed(1)
-                    : "—"}
-                </p>
-              </div>
-
-              {/* Meta de Calorias */}
-              <div>
-                <p className="text-gray-400 text-sm mb-2">Meta de Calorias</p>
-                <p className="text-white text-xl font-semibold">{getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))) : "—"} kcal</p>
-              </div>
-
-
-              {/* Meta de Peso */}
-              <div>
-                <p className="text-gray-400 text-sm mb-2">Meta de Peso</p>
-                <p className="text-white text-xl font-semibold">
-                  {getDataValue("targetWeight") ? Number(getDataValue("targetWeight")).toFixed(1) : "—"} kg
-                </p>
-              </div>
-
-              {/* Data para atingir objetivo - Full width */}
-              <div className="col-span-2">
-                <p className="text-gray-400 text-sm mb-2">Data para atingir objetivo</p>
-                <p className="text-white text-xl font-semibold">
-                  {getDataValue("timeToGoal") || new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}
-                </p>
-                <p className="text-gray-400 text-sm mt-4 text-center">Usamos esses dados para definir volume de treino e ingestão calórica.</p>
-              </div>
-            </div>
-          </div>
-        {/* Bloco 4 - Decisões Principais */}
-        {(() => {
-          const s = buildDynamicSummary()
-          return (
-            <div className="max-w-5xl mx-auto mt-12 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-8">
-              <h3 className="text-2xl font-bold text-white mb-6">{s.headline}</h3>
-              <ul className="space-y-4 text-gray-300">
-                {s.bullets.map((bullet, idx) => (
-                  <li key={idx} className="flex gap-3">
-                    <span className="text-orange-400 font-bold flex-shrink-0">•</span>
-                    <span>{bullet}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )
-        })()}
-
         <div className="max-w-4xl mx-auto bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-xl p-8 mb-16">
           {/* Tabs */}
           <div className="flex gap-4 mb-8 bg-black rounded-lg p-1">
@@ -768,53 +669,167 @@ export default function QuizResultsPage() {
             </div>
           </div>
 
+          <div className="mt-8 bg-gray-900 bg-opacity-50 rounded-2xl p-8 border border-gray-700">
+            <p className="text-orange-400 text-sm font-semibold mb-2 uppercase tracking-wide">Com base no que você nos contou...</p>
+          <h3 className="text-3xl font-bold text-white mb-6">Análise do seu perfil e estratégia do plano:</h3>
+            <div className="border-t border-gray-700 mb-8"></div>
+
+            <div className="grid grid-cols-2 gap-x-8 gap-y-8">
+              {/* Gênero */}
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Gênero</p>
+                <p className="text-white text-xl font-semibold">
+                  {getDataValue("gender") === "homem"
+                    ? "Masculino"
+                    : getDataValue("gender") === "mulher"
+                      ? "Feminino"
+                      : "—"}
+                </p>
+              </div>
+
+              {/* Idade */}
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Idade</p>
+                <p className="text-white text-xl font-semibold">{getDataValue("age") || "—"} anos</p>
+              </div>
+
+              {/* Altura */}
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Altura</p>
+                <p className="text-white text-xl font-semibold">{getDataValue("height") || "—"} cm</p>
+              </div>
+
+              {/* Peso Atual */}
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Peso Atual</p>
+                <p className="text-white text-xl font-semibold">
+                  {getDataValue("currentWeight") ? Number(getDataValue("currentWeight")).toFixed(1) : "—"} kg
+                </p>
+              </div>
+
+              {/* IMC */}
+              <div>
+                <p className="text-gray-400 text-sm mb-2">IMC</p>
+                <p
+                  className={`text-xl font-semibold ${(() => {
+                    if (!getDataValue("currentWeight") || !getDataValue("height")) return "text-white"
+                    const imc = Number(getDataValue("currentWeight")) / (Number(getDataValue("height")) / 100) ** 2
+                    if (imc < 18.5) return "text-blue-400"
+                    if (imc < 25) return "text-green-400"
+                    return "text-red-400"
+                  })()}`}
+                >
+                  {getDataValue("currentWeight") && getDataValue("height")
+                    ? (Number(getDataValue("currentWeight")) / (Number(getDataValue("height")) / 100) ** 2).toFixed(1)
+                    : "—"}
+                </p>
+              </div>
+
+              {/* Meta de Calorias */}
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Meta de Calorias</p>
+                <p className="text-white text-xl font-semibold">{getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))) : "—"} kcal</p>
+              </div>
 
 
-        {/* COMPARATIVO COM CONCORRENTES - TABELA EXPLÍCITA */}
+              {/* Meta de Peso */}
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Meta de Peso</p>
+                <p className="text-white text-xl font-semibold">
+                  {getDataValue("targetWeight") ? Number(getDataValue("targetWeight")).toFixed(1) : "—"} kg
+                </p>
+              </div>
+
+              {/* Data para atingir objetivo - Full width */}
+              <div className="col-span-2">
+                <p className="text-gray-400 text-sm mb-2">Data para atingir objetivo</p>
+                <p className="text-white text-xl font-semibold">
+                  {getDataValue("timeToGoal") || new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}
+                </p>
+                <p className="text-gray-400 text-sm mt-4 text-center">Usamos esses dados para definir volume de treino e ingestão calórica.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bloco 4 - Decisões Principais */}
+        {(() => {
+          const s = buildDynamicSummary()
+          return (
+            <div className="max-w-5xl mx-auto mt-12 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-8">
+              <h3 className="text-2xl font-bold text-white mb-6">{s.headline}</h3>
+              <ul className="space-y-4 text-gray-300">
+                {s.bullets.map((bullet, idx) => (
+                  <li key={idx} className="flex gap-3">
+                    <span className="text-orange-400 font-bold flex-shrink-0">•</span>
+                    <span>{bullet}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        })()}
+
+
+        {/* SEÇÃO DE DIFERENCIAIS REAIS DO FITGOAL */}
         {getDataValue("gender") === "mulher" && (
           <div className="max-w-5xl mx-auto mt-10 rounded-2xl overflow-hidden border border-orange-500/30">
             <div className="bg-gradient-to-r from-orange-500/20 to-orange-400/10 px-8 py-5 border-b border-orange-500/20">
               <p className="text-orange-400 text-sm font-semibold uppercase tracking-wide mb-1">Por que o FitGoal realmente funciona</p>
-              <h3 className="text-2xl font-bold text-white">Não é uma planilha do Instagram. É diferente de tudo que você já tentou.</h3>
+              <h3 className="text-2xl font-bold text-white">Não é uma planilha do Instagram. Não é um e-book genérico. É diferente de tudo que você já tentou.</h3>
             </div>
-            <div className="grid grid-cols-4 bg-gray-900/80 border-b border-gray-700">
-              <div className="px-4 py-3 text-gray-400 text-xs font-semibold uppercase tracking-wide">Recurso</div>
-              <div className="px-4 py-3 text-orange-400 text-xs font-bold uppercase tracking-wide text-center">FitGoal</div>
-              <div className="px-4 py-3 text-gray-500 text-xs font-semibold uppercase tracking-wide text-center">BetterMe / Mad Muscles</div>
-              <div className="px-4 py-3 text-gray-500 text-xs font-semibold uppercase tracking-wide text-center">Influencers / Planilhas</div>
-            </div>
-            <div className="grid grid-cols-4 divide-x divide-gray-800 border-b border-gray-800 bg-gray-900/40">
-              <div className="px-4 py-4 text-white text-sm font-medium">Dieta e treino personalizados</div>
-              <div className="px-4 py-4 text-center"><span className="text-green-400 text-lg">✓</span><p className="text-gray-300 text-xs mt-1">100% para o seu corpo, rotina e restrições</p></div>
-              <div className="px-4 py-4 text-center"><span className="text-yellow-400 text-lg">~</span><p className="text-gray-500 text-xs mt-1">Parcial — baseado em perfil básico</p></div>
-              <div className="px-4 py-4 text-center"><span className="text-red-400 text-lg">✗</span><p className="text-gray-500 text-xs mt-1">Igual para todos os seguidores</p></div>
-            </div>
-            <div className="grid grid-cols-4 divide-x divide-gray-800 border-b border-gray-800 bg-gray-900/20">
-              <div className="px-4 py-4 text-white text-sm font-medium">Análise de progresso por fotos</div>
-              <div className="px-4 py-4 text-center"><span className="text-green-400 text-lg">✓</span><p className="text-gray-300 text-xs mt-1">Feedback detalhado sobre sua evolução</p></div>
-              <div className="px-4 py-4 text-center"><span className="text-red-400 text-lg">✗</span><p className="text-gray-500 text-xs mt-1">Não disponível</p></div>
-              <div className="px-4 py-4 text-center"><span className="text-red-400 text-lg">✗</span><p className="text-gray-500 text-xs mt-1">Sem análise de progresso</p></div>
-            </div>
-            <div className="grid grid-cols-4 divide-x divide-gray-800 border-b border-gray-800 bg-gray-900/40">
-              <div className="px-4 py-4 text-white text-sm font-medium">Suporte humano em horas</div>
-              <div className="px-4 py-4 text-center"><span className="text-green-400 text-lg">✓</span><p className="text-gray-300 text-xs mt-1">Resposta em horas, não dias</p></div>
-              <div className="px-4 py-4 text-center"><span className="text-yellow-400 text-lg">~</span><p className="text-gray-500 text-xs mt-1">Suporte demora 2–5 dias</p></div>
-              <div className="px-4 py-4 text-center"><span className="text-red-400 text-lg">✗</span><p className="text-gray-500 text-xs mt-1">Inexistente ou ignorado</p></div>
-            </div>
-            <div className="grid grid-cols-4 divide-x divide-gray-800 border-b border-gray-800 bg-gray-900/20">
-              <div className="px-4 py-4 text-white text-sm font-medium">Custo mensal</div>
-              <div className="px-4 py-4 text-center"><span className="text-green-400 font-bold text-sm">R$ 59,90</span><p className="text-gray-300 text-xs mt-1">Completo e personalizado</p></div>
-              <div className="px-4 py-4 text-center"><span className="text-gray-400 text-sm font-medium">R$ 60–90</span><p className="text-gray-500 text-xs mt-1">Plano genérico ou básico</p></div>
-              <div className="px-4 py-4 text-center"><span className="text-gray-400 text-sm font-medium">R$ 50–200</span><p className="text-gray-500 text-xs mt-1">Planilha igual para todos</p></div>
-            </div>
-            <div className="grid grid-cols-4 divide-x divide-gray-800 bg-gray-900/40">
-              <div className="px-4 py-4 text-white text-sm font-medium">Ajustes conforme sua evolução</div>
-              <div className="px-4 py-4 text-center"><span className="text-green-400 text-lg">✓</span><p className="text-gray-300 text-xs mt-1">Plano adaptado à sua evolução</p></div>
-              <div className="px-4 py-4 text-center"><span className="text-red-400 text-lg">✗</span><p className="text-gray-500 text-xs mt-1">Plano estático</p></div>
-              <div className="px-4 py-4 text-center"><span className="text-red-400 text-lg">✗</span><p className="text-gray-500 text-xs mt-1">Sem ajustes</p></div>
+            <div className="bg-gray-900/60 divide-y divide-gray-800">
+              <div className="grid grid-cols-2 divide-x divide-gray-800">
+                <div className="px-6 py-5 flex gap-3 items-start">
+                  <span className="text-orange-400 text-xl flex-shrink-0">&#10086;</span>
+                  <div>
+                    <p className="text-white font-bold text-sm mb-1">Dieta e treino 100% personalizados para você</p>
+                    <p className="text-gray-400 text-xs leading-relaxed">Cada refeição, cada série foi definida com base no seu peso, altura, objetivo, rotina e restrições. Nada aqui é genérico.</p>
+                  </div>
+                </div>
+                <div className="px-6 py-5 flex gap-3 items-start bg-red-900/10">
+                  <span className="text-red-400 text-xl flex-shrink-0">&#10005;</span>
+                  <div>
+                    <p className="text-gray-400 font-bold text-sm mb-1">Programas de influencers</p>
+                    <p className="text-gray-500 text-xs leading-relaxed">Uma planilha igual para todos os seguidores — sem considerar seu corpo, sua rotina ou suas restrições.</p>
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 divide-x divide-gray-800">
+                <div className="px-6 py-5 flex gap-3 items-start">
+                  <span className="text-orange-400 text-xl flex-shrink-0">&#10086;</span>
+                  <div>
+                    <p className="text-white font-bold text-sm mb-1">Análise do seu progresso por fotos com feedback detalhado</p>
+                    <p className="text-gray-400 text-xs leading-relaxed">Você envia suas fotos e recebe orientações específicas sobre sua evolução — feedback real para continuar avançando no ritmo certo.</p>
+                  </div>
+                </div>
+                <div className="px-6 py-5 flex gap-3 items-start bg-red-900/10">
+                  <span className="text-red-400 text-xl flex-shrink-0">&#10005;</span>
+                  <div>
+                    <p className="text-gray-400 font-bold text-sm mb-1">Programas de influencers</p>
+                    <p className="text-gray-500 text-xs leading-relaxed">Sem análise de progresso. Você fica se perguntando se está no caminho certo — e na dúvida, desiste.</p>
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 divide-x divide-gray-800">
+                <div className="px-6 py-5 flex gap-3 items-start">
+                  <span className="text-orange-400 text-xl flex-shrink-0">&#10086;</span>
+                  <div>
+                    <p className="text-white font-bold text-sm mb-1">Suporte com resposta rápida</p>
+                    <p className="text-gray-400 text-xs leading-relaxed">Nossa equipe responde em horas, não dias — para ajustar o plano, trocar alimentos ou tirar qualquer dúvida que surgir. Você não vai ficar sozinha no processo.</p>
+                  </div>
+                </div>
+                <div className="px-6 py-5 flex gap-3 items-start bg-red-900/10">
+                  <span className="text-red-400 text-xl flex-shrink-0">&#10005;</span>
+                  <div>
+                    <p className="text-gray-400 font-bold text-sm mb-1">Programas de influencers</p>
+                    <p className="text-gray-500 text-xs leading-relaxed">Quando existe, o suporte demora dias. Você fica na dúvida, perde a motivação e desiste — não por falta de vontade, mas por falta de apoio.</p>
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="bg-gradient-to-r from-orange-500/10 to-transparent px-8 py-4 border-t border-orange-500/20">
-              <p className="text-orange-400 text-sm italic">"Já comprei de vários programas e nunca tive uma experiência assim. Aqui realmente se importam com o meu resultado." — Lucilene, -7 kg</p>
+              <p className="text-orange-400 text-sm font-medium">&#128172; "Já comprei de vários programas e nunca tive uma experiência assim. Aqui realmente se importam com o meu resultado." — Lucilene, -7 kg</p>
             </div>
           </div>
         )}
