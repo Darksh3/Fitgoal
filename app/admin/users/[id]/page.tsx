@@ -136,4 +136,4 @@ export default function UserDetailPage() {
                 </div>
           </ProtectedAdminRoute>
         )
-      }</ProtectedAdminRoute>
+      }
