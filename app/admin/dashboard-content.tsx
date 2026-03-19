@@ -226,4 +226,4 @@ export function DashboardContent() {
               </div>
         </div>
       )
-}</div>
+}
