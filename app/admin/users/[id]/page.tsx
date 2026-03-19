@@ -58,14 +58,14 @@ export default function UserDetailPage() {
                                               <div className="flex items-center gap-3">
                                                             <Button onClick={() => router.back()} className="bg-slate-700 hover:bg-slate-600">
                                                                             Voltar
-                                                            </Button>Button>
+                                                            </Button>
                                                             <div>
-                                                                            <h1 className="text-xl font-bold text-white">Detalhes do Usuário</h1>h1>
-                                                                {userInfo?.email && <p className="text-sm text-slate-400">{userInfo.email}</p>p>}
-                                                            </div>div>
-                                              </div>div>
-                                  </div>div>
-                        </div>div>
+                                                                            <h1 className="text-xl font-bold text-white">Detalhes do Usuário</h1>
+                                                                {userInfo?.email && <p className="text-sm text-slate-400">{userInfo.email}</p>}
+                                                            </div>
+                                              </div>
+                                  </div>
+                        </div>
                 
                         <div className="max-w-7xl mx-auto px-4 py-6">
                                   <div className="flex gap-4 mb-6 border-b border-slate-700">
@@ -82,58 +82,58 @@ export default function UserDetailPage() {
                                 {tab === "plano" && "Plano"}
                                 {tab === "dieta" && "Dieta"}
                                 {tab === "treino" && "Treino"}
-                            </button>button>
+                            </button>
                           ))}
-                                  </div>div>
+                                  </div>
                         
                                   <div className="space-y-6">
                                       {activeTab === "info" && (
                             <Card className="bg-slate-800 border-slate-700 p-6">
                                 {loadingUser ? (
-                                                  <p className="text-slate-400">Carregando informações...</p>p>
+                                                  <p className="text-slate-400">Carregando informações...</p>
                                                 ) : (
                                                   <div className="space-y-4">
-                                                                      <h2 className="text-white text-lg font-semibold mb-4">Informações do Usuário</h2>h2>
+                                                                      <h2 className="text-white text-lg font-semibold mb-4">Informações do Usuário</h2>
                                                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                                             <div className="bg-slate-900 rounded-lg p-4">
-                                                                                                                    <p className="text-slate-400 text-xs uppercase mb-1">ID</p>p>
-                                                                                                                    <p className="text-slate-300 font-mono text-sm break-all">{userInfo?.id}</p>p>
-                                                                                                </div>div>
+                                                                                                                    <p className="text-slate-400 text-xs uppercase mb-1">ID</p>
+                                                                                                                    <p className="text-slate-300 font-mono text-sm break-all">{userInfo?.id}</p>
+                                                                                                </div>
                                                                                             <div className="bg-slate-900 rounded-lg p-4">
-                                                                                                                    <p className="text-slate-400 text-xs uppercase mb-1">Email</p>p>
-                                                                                                                    <p className="text-white font-medium">{userInfo?.email || "-"}</p>p>
-                                                                                                </div>div>
+                                                                                                                    <p className="text-slate-400 text-xs uppercase mb-1">Email</p>
+                                                                                                                    <p className="text-white font-medium">{userInfo?.email || "-"}</p>
+                                                                                                </div>
                                                                                             <div className="bg-slate-900 rounded-lg p-4">
-                                                                                                                    <p className="text-slate-400 text-xs uppercase mb-1">Nome</p>p>
-                                                                                                                    <p className="text-white">{userInfo?.name || "-"}</p>p>
-                                                                                                </div>div>
+                                                                                                                    <p className="text-slate-400 text-xs uppercase mb-1">Nome</p>
+                                                                                                                    <p className="text-white">{userInfo?.name || "-"}</p>
+                                                                                                </div>
                                                                                             <div className="bg-slate-900 rounded-lg p-4">
-                                                                                                                    <p className="text-slate-400 text-xs uppercase mb-1">Plano</p>p>
-                                                                                                                    <p className="text-white">{userInfo?.plan || "-"}</p>p>
-                                                                                                </div>div>
+                                                                                                                    <p className="text-slate-400 text-xs uppercase mb-1">Plano</p>
+                                                                                                                    <p className="text-white">{userInfo?.plan || "-"}</p>
+                                                                                                </div>
                                                                                             <div className="bg-slate-900 rounded-lg p-4">
-                                                                                                                    <p className="text-slate-400 text-xs uppercase mb-1">Status</p>p>
+                                                                                                                    <p className="text-slate-400 text-xs uppercase mb-1">Status</p>
                                                                                                                     <span className={isActive ? "text-xs font-semibold px-2 py-1 rounded-full bg-green-500/10 text-green-400" : "text-xs font-semibold px-2 py-1 rounded-full bg-slate-700/50 text-slate-400"}>
                                                                                                                         {isActive ? "Ativo" : "Inativo"}
-                                                                                                                        </span>span>
-                                                                                                </div>div>
+                                                                                                                        </span>
+                                                                                                </div>
                                                                                             <div className="bg-slate-900 rounded-lg p-4">
-                                                                                                                    <p className="text-slate-400 text-xs uppercase mb-1">Membro desde</p>p>
+                                                                                                                    <p className="text-slate-400 text-xs uppercase mb-1">Membro desde</p>
                                                                                                                     <p className="text-white">
                                                                                                                         {userInfo?.createdAt ? new Date(userInfo.createdAt).toLocaleDateString("pt-BR") : "-"}
-                                                                                                                        </p>p>
-                                                                                                </div>div>
-                                                                      </div>div>
-                                                  </div>div>
+                                                                                                                        </p>
+                                                                                                </div>
+                                                                      </div>
+                                                  </div>
                                             )}
-                            </Card>Card>
+                            </Card>
                                               )}
                                       {activeTab === "plano" && <AdminPlanManager userId={userId} />}
                                       {activeTab === "dieta" && <AdminDietManager userId={userId} />}
                                       {activeTab === "treino" && <AdminWorkoutManager userId={userId} />}
-                                  </div>div>
-                        </div>div>
-                </div>div>
-          </ProtectedAdminRoute>ProtectedAdminRoute>
+                                  </div>
+                        </div>
+                </div>
+          </ProtectedAdminRoute>
         )
       }</ProtectedAdminRoute>
