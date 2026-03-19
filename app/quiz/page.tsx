@@ -367,8 +367,10 @@ export default function QuizPage() {
   }, [trackViewContent])
 
   // Rastrear QuizStep a cada pergunta respondida
+  // hasInteractedRef: só rastreia após o usuário realmente interagir (evita contar page loads como step 1)
+  const hasInteractedRef = useRef(false)
   useEffect(() => {
-    if (currentStep > 0) {
+    if (currentStep > 0 && hasInteractedRef.current) {
       trackQuizStep(currentStep, totalSteps)
           if (sessionIdRef.current) {
                   fetch('/api/track-quiz-step', {
@@ -994,6 +996,8 @@ export default function QuizPage() {
   }
 
   const nextStep = () => {
+    // Marcar que o usuário realmente interagiu (para não contar page load como step 1)
+    hasInteractedRef.current = true
     // Handle specific step logic
     if (currentStep === 0) {
       // From intro, go to step 1
