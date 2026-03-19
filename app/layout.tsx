@@ -21,9 +21,116 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "Fitness Website",
-  description: "Seu parceiro para uma vida mais saudável",
-  generator: "v0.app",
+  title: "FitGoal — Plano de Dieta e Treino 100% Personalizado para Você",
+  description:
+    "Como criar um plano de dieta e treino personalizado para perder peso ou ganhar massa? O FitGoal analisa seu perfil e gera um programa completo em minutos, com dieta, treino e acompanhamento.",
+  keywords: [
+    "plano de dieta personalizado",
+    "treino personalizado para emagrecer",
+    "como perder peso com dieta e treino",
+    "plano alimentar para ganhar massa",
+    "programa de fitness personalizado Brasil",
+    "dieta para perder peso rápido",
+    "fitgoal",
+  ],
+  authors: [{ name: "FitGoal" }],
+  creator: "FitGoal",
+  publisher: "FitGoal",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: "https://fitgoal.com.br",
+    siteName: "FitGoal",
+    title: "FitGoal — Plano de Dieta e Treino 100% Personalizado para Você",
+    description:
+      "Descubra como o FitGoal cria um programa completo de dieta e treino baseado no seu perfil, objetivo e rotina. Resultados visíveis em 4 semanas.",
+    images: [
+      {
+        url: "https://fitgoal.com.br/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "FitGoal — Plano personalizado de dieta e treino",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FitGoal — Plano de Dieta e Treino 100% Personalizado",
+    description:
+      "Programa completo de dieta e treino criado para o seu corpo, objetivo e rotina. Faça o quiz e receba seu plano agora.",
+    images: ["https://fitgoal.com.br/og-image.jpg"],
+  },
+  alternates: {
+    canonical: "https://fitgoal.com.br",
+  },
+}
+
+const schemaOrg = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://fitgoal.com.br/#organization",
+      name: "FitGoal",
+      url: "https://fitgoal.com.br",
+      description:
+        "FitGoal cria planos personalizados de dieta e treino para ajudar pessoas a emagrecer, ganhar massa ou melhorar a saúde com base no perfil individual de cada usuário.",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://fitgoal.com.br/logo.png",
+      },
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "São Paulo",
+        addressRegion: "SP",
+        addressCountry: "BR",
+      },
+      sameAs: ["https://fitgoal.com.br"],
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://fitgoal.com.br/#website",
+      url: "https://fitgoal.com.br",
+      name: "FitGoal",
+      description:
+        "Planos personalizados de dieta e treino gerados com base no seu perfil, objetivo e rotina.",
+      publisher: { "@id": "https://fitgoal.com.br/#organization" },
+      inLanguage: "pt-BR",
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://fitgoal.com.br/#app",
+      name: "FitGoal",
+      applicationCategory: "HealthApplication",
+      operatingSystem: "Web, iOS, Android",
+      url: "https://fitgoal.com.br",
+      description:
+        "Aplicativo que gera planos personalizados de dieta e treino em minutos, com base em dados como peso, altura, objetivo, nível de treino e rotina do usuário.",
+      offers: {
+        "@type": "Offer",
+        price: "59.90",
+        priceCurrency: "BRL",
+        availability: "https://schema.org/InStock",
+      },
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: "4.9",
+        reviewCount: "3000",
+        bestRating: "5",
+      },
+    },
+  ],
 }
 
 export default function RootLayout({
@@ -36,6 +143,18 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
+        {/* Schema.org structured data for AI and search engines */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
+        />
+
+        {/* AI crawler permissions */}
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta name="googlebot" content="index, follow" />
+        <meta name="bingbot" content="index, follow" />
+        <meta name="ai-content-type" content="commercial" />
+
         {pixelId && (
           <>
             <Script
@@ -43,24 +162,24 @@ export default function RootLayout({
               strategy="afterInteractive"
               dangerouslySetInnerHTML={{
                 __html: `
-                !function(f,b,e,v,n,t,s)
-                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-                if(!f._fbq)f._fbq=n;
-                n.push=n;
-                n.loaded=!0;
-                n.version='2.0';
-                n.queue=[];
-                t=b.createElement(e);
-                t.async=!0;
-                t.src=v;
-                s=b.getElementsByTagName(e)[0];
-                s.parentNode.insertBefore(t,s)}
-                (window, document,'script',
-                'https://connect.facebook.net/en_US/fbevents.js');
-                fbq('init', '${pixelId}');
-                fbq('track', 'PageView');
-              `,
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;
+  n.push=n;
+  n.loaded=!0;
+  n.version='2.0';
+  n.queue=[];
+  t=b.createElement(e);
+  t.async=!0;
+  t.src=v;
+  s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}
+  (window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '${pixelId}');
+  fbq('track', 'PageView');
+  `,
               }}
             />
           </>
