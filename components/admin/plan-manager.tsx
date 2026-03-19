@@ -49,21 +49,21 @@ export function AdminPlanManager({ userId }: PlanManagerProps) {
         }
   }
 
-  if (loading) return <div className="text-slate-300">Carregando plano...</div>div>
+  if (loading) return <div className="text-slate-300">Carregando plano...</div>
     
       return (
         <Card className="bg-slate-700 border-slate-600 p-6">
-              <h3 className="text-white text-lg font-semibold mb-4">Gerenciar Plano</h3>h3>
+              <h3 className="text-white text-lg font-semibold mb-4">Gerenciar Plano</h3>
               <div className="space-y-4">
                       <div>
-                                <p className="text-slate-300">Tipo: {plan?.subscription || "Sem plano"}</p>p>
-                                <p className="text-slate-300">Expira em: {plan?.expirationDate ? new Date(plan.expirationDate).toLocaleDateString("pt-BR") : "Sem data"}</p>p>
+                                <p className="text-slate-300">Tipo: {plan?.subscription || "Sem plano"}</p>
+                                <p className="text-slate-300">Expira em: {plan?.expirationDate ? new Date(plan.expirationDate).toLocaleDateString("pt-BR") : "Sem data"}</p>
                                 <p className={plan?.blocked ? "text-red-400" : "text-green-400"}>
                                             Status: {plan?.blocked ? "Bloqueado" : "Ativo"}
-                                </p>p>
-                      </div>div>
+                                </p>
+                      </div>
                       <div className="border-t border-slate-600 pt-4">
-                                <label className="block text-sm text-slate-300 mb-2">Adicionar dias extras</label>label>
+                                <label className="block text-sm text-slate-300 mb-2">Adicionar dias extras</label>
                                 <div className="flex gap-2">
                                             <Input
                                                             type="number"
@@ -78,10 +78,10 @@ export function AdminPlanManager({ userId }: PlanManagerProps) {
                                                             disabled={!daysToAdd}
                                                           >
                                                           Adicionar
-                                            </Button>Button>
-                                </div>div>
-                      </div>div>
-              </div>div>
-        </Card>Card>
+                                            </Button>
+                                </div>
+                      </div>
+              </div>
+        </Card>
       )
-}</div>
+}
