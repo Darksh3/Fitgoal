@@ -126,9 +126,9 @@ export function DashboardContent() {
         <div className="p-6 space-y-6">
           {/* Header */}
               <div>
-                      <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>h1>
-                      <p className="text-slate-400">Visão geral de métricas e performance</p>p>
-              </div>div>
+                      <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
+                      <p className="text-slate-400">Visão geral de métricas e performance</p>
+              </div>
         
           {/* Alerts */}
           {alerts.length > 0 && (
@@ -144,11 +144,11 @@ export function DashboardContent() {
                                               >
                                               <div className="flex items-center gap-2">
                                                               <AlertCircle className="w-4 h-4" />
-                                                              <p className="text-sm">{alert.message}</p>p>
-                                              </div>div>
-                                </Card>Card>
+                                                              <p className="text-sm">{alert.message}</p>
+                                              </div>
+                                </Card>
                               ))}
-                  </div>div>
+                  </div>
               )}
         
           {/* KPI Cards */}
@@ -156,74 +156,74 @@ export function DashboardContent() {
                 {loading ? (
                     <div className="col-span-full text-center py-12 text-slate-400">
                                 Carregando métricas...
-                    </div>div>
+                    </div>
                   ) : (
                     metrics.map((metric, idx) => (
                                   <Card key={idx} className="bg-slate-900 border-slate-800 p-6">
                                                 <div className="flex items-start justify-between mb-4">
                                                                 <div className="p-2 bg-slate-800 rounded-lg text-lime-400">
                                                                   {metric.icon}
-                                                                </div>div>
+                                                                </div>
                                                   {metric.trend && (
                                                       <div className={`flex items-center gap-1 ${metric.trend === "up" ? "text-green-400" : "text-red-400"}`}>
                                                         {metric.trend === "up" ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
-                                                      </div>div>
+                                                      </div>
                                                                 )}
-                                                </div>div>
-                                                <p className="text-slate-400 text-sm mb-1">{metric.label}</p>p>
-                                                <p className="text-2xl font-bold text-white">{metric.value}</p>p>
-                                  </Card>Card>
+                                                </div>
+                                                <p className="text-slate-400 text-sm mb-1">{metric.label}</p>
+                                                <p className="text-2xl font-bold text-white">{metric.value}</p>
+                                  </Card>
                                 ))
                   )}
-              </div>div>
+              </div>
         
           {/* Quick Actions */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <Card className="bg-slate-900 border-slate-800 p-6">
-                                <h3 className="text-white font-semibold mb-3">Ações Rápidas</h3>h3>
+                                <h3 className="text-white font-semibold mb-3">Ações Rápidas</h3>
                                 <div className="space-y-2">
                                             <a href="/admin/leads" className="block p-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-sm">
                                                           → Gerenciar Leads
-                                            </a>a>
+                                            </a>
                                             <a href="/admin/payments" className="block p-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-sm">
                                                           → Ver Pagamentos
-                                            </a>a>
+                                            </a>
                                             <a href="/admin/users" className="block p-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-sm">
                                                           → Gerenciar Usuários
-                                            </a>a>
-                                </div>div>
-                      </Card>Card>
+                                            </a>
+                                </div>
+                      </Card>
                       <Card className="bg-slate-900 border-slate-800 p-6">
-                                <h3 className="text-white font-semibold mb-3">Status do Sistema</h3>h3>
+                                <h3 className="text-white font-semibold mb-3">Status do Sistema</h3>
                                 <div className="space-y-2 text-sm">
                                             <div className="flex items-center justify-between">
-                                                          <span className="text-slate-400">API Admin</span>span>
-                                                          <span className="text-green-400">● Online</span>span>
-                                            </div>div>
+                                                          <span className="text-slate-400">API Admin</span>
+                                                          <span className="text-green-400">● Online</span>
+                                            </div>
                                             <div className="flex items-center justify-between">
-                                                          <span className="text-slate-400">Firebase</span>span>
-                                                          <span className="text-green-400">● Online</span>span>
-                                            </div>div>
+                                                          <span className="text-slate-400">Firebase</span>
+                                                          <span className="text-green-400">● Online</span>
+                                            </div>
                                             <div className="flex items-center justify-between">
-                                                          <span className="text-slate-400">Asaas Webhook</span>span>
-                                                          <span className="text-green-400">● Ativo</span>span>
-                                            </div>div>
-                                </div>div>
-                      </Card>Card>
+                                                          <span className="text-slate-400">Asaas Webhook</span>
+                                                          <span className="text-green-400">● Ativo</span>
+                                            </div>
+                                </div>
+                      </Card>
                       <Card className="bg-slate-900 border-slate-800 p-6">
-                                <h3 className="text-white font-semibold mb-3">Studio Tools</h3>h3>
+                                <h3 className="text-white font-semibold mb-3">Studio Tools</h3>
                                 <div className="space-y-2">
                                             <a href="/admin/quiz-builder" className="flex items-center gap-2 p-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-sm">
                                                           <Layers className="w-4 h-4" />
                                                           Quiz Builder
-                                            </a>a>
+                                            </a>
                                             <a href="/admin/prompt-studio" className="flex items-center gap-2 p-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-sm">
                                                           <Lightbulb className="w-4 h-4" />
                                                           Prompt Studio
-                                            </a>a>
-                                </div>div>
-                      </Card>Card>
-              </div>div>
-        </div>div>
+                                            </a>
+                                </div>
+                      </Card>
+              </div>
+        </div>
       )
 }</div>
