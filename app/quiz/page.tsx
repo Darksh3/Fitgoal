@@ -352,11 +352,11 @@ export default function QuizPage() {
   const musclePathRef = useRef<SVGPathElement>(null)
   const fatPathRef = useRef<SVGPathElement>(null)
   const [pathLengths, setPathLengths] = useState({ muscle: 0, fat: 0 })
-    const sessionIdRef = useRef<string | null>(null)
-    // Gerar sessionId único para rastreamento do quiz
-    useEffect(() => {
-          sessionIdRef.current = `quiz_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
-    }, [])
+  const sessionIdRef = useRef<string | null>(null)
+  // Gerar sessionId único para rastreamento do quiz
+  useEffect(() => {
+    sessionIdRef.current = `quiz_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
+  }, [])
 
   useEffect(() => {
     // Rastrear ViewContent quando o quiz é carregado
@@ -372,13 +372,13 @@ export default function QuizPage() {
   useEffect(() => {
     if (currentStep > 0 && hasInteractedRef.current) {
       trackQuizStep(currentStep, totalSteps)
-          if (sessionIdRef.current) {
-                  fetch('/api/track-quiz-step', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                                                        body: JSON.stringify({ sessionId: sessionIdRef.current, uid: currentUser?.uid || null, step: currentStep, totalSteps, answer: [quizData.gender, quizData.bodyType, Array.isArray(quizData.goal)?quizData.goal.join(", "):quizData.goal, quizData.weightChangeType, quizData.bodyFat, Array.isArray(quizData.problemAreas)?quizData.problemAreas.join(", "):quizData.problemAreas, quizData.diet, Array.isArray(quizData.sugarFrequency)?quizData.sugarFrequency.join(", "):quizData.sugarFrequency, quizData.alcoholFrequency, quizData.waterIntake, quizData.age, quizData.height, quizData.weight, quizData.targetWeight, quizData.strengthTraining, quizData.cardioFeeling, quizData.strengthFeeling, quizData.stretchingFeeling, Array.isArray(quizData.previousProblems)?quizData.previousProblems.join(", "):quizData.previousProblems, Array.isArray(quizData.additionalGoals)?quizData.additionalGoals.join(", "):quizData.additionalGoals, Array.isArray(quizData.equipment)?quizData.equipment.join(", "):quizData.equipment, quizData.workoutTime, quizData.trainingDays, quizData.letMadMusclesChoose, quizData.allergies, quizData.allergyDetails, quizData.wantsSupplement, quizData.name, quizData.email][currentStep - 1] ?? "" }),
-                  }).catch(() => {})
-          }
+      if (sessionIdRef.current) {
+        fetch('/api/track-quiz-step', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: sessionIdRef.current, uid: currentUser?.uid || null, step: currentStep, totalSteps, answer: [quizData.gender, quizData.bodyType, Array.isArray(quizData.goal) ? quizData.goal.join(", ") : quizData.goal, quizData.weightChangeType, quizData.bodyFat, Array.isArray(quizData.problemAreas) ? quizData.problemAreas.join(", ") : quizData.problemAreas, quizData.diet, Array.isArray(quizData.sugarFrequency) ? quizData.sugarFrequency.join(", ") : quizData.sugarFrequency, quizData.alcoholFrequency, quizData.waterIntake, quizData.age, quizData.height, quizData.weight, quizData.targetWeight, quizData.strengthTraining, quizData.cardioFeeling, quizData.strengthFeeling, quizData.stretchingFeeling, Array.isArray(quizData.previousProblems) ? quizData.previousProblems.join(", ") : quizData.previousProblems, Array.isArray(quizData.additionalGoals) ? quizData.additionalGoals.join(", ") : quizData.additionalGoals, Array.isArray(quizData.equipment) ? quizData.equipment.join(", ") : quizData.equipment, quizData.workoutTime, quizData.trainingDays, quizData.letMadMusclesChoose, quizData.allergies, quizData.allergyDetails, quizData.wantsSupplement, quizData.name, quizData.email][currentStep - 1] ?? "" }),
+        }).catch(() => { })
+      }
     }
   }, [currentStep])
 
@@ -938,16 +938,16 @@ export default function QuizPage() {
       setAnalyzingStep(0)
 
       // Capturar fbp (cookie _fbp) e fbc (fbclid da URL ou fbcookie) para Meta Conversions API
-      const fbpCookie = typeof document !== 'undefined' 
+      const fbpCookie = typeof document !== 'undefined'
         ? document.cookie.split('; ').find(r => r.startsWith('_fbp='))?.split('=')[1]
         : undefined
-      
+
       const fbcCookie = typeof document !== 'undefined'
         ? document.cookie.split('; ').find(r => r.startsWith('_fbc='))?.split('=')[1]
         : undefined
-      
+
       const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
-      const fbclid = urlParams.get('fbclid') 
+      const fbclid = urlParams.get('fbclid')
         || (typeof window !== 'undefined' ? sessionStorage.getItem('fbclid') : null)
         || undefined
 
