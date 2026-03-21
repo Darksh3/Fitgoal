@@ -1005,7 +1005,7 @@ export default function QuizPage() {
       // Micro feedback #1 - after goals/objectives
       setMicroFeedback({
         title: "Perfeito. Agora ficou claro o seu objetivo.",
-        body: "Muita falha porque segue treinos genéricos que não respeitam isso. Seu plano vai ser ajustado para os objetivos que você marcou.",
+        body: "Muita gente falha porque segue treinos genéricos que não respeitam isso. Seu plano vai ser ajustado para os objetivos que você marcou.",
         cta: "Continuar",
         next: () => setCurrentStep(4),
       })
