@@ -825,15 +825,6 @@ export default function QuizResultsPage() {
 
             </div>
 
-            {/* VS programas genéricos */}
-            <div className="bg-red-900/10 border-t border-gray-800 px-5 py-4 flex gap-3 items-start">
-              <span className="text-red-400 text-lg flex-shrink-0 mt-0.5">✕</span>
-              <div>
-                <p className="text-gray-400 font-semibold text-xs uppercase tracking-wide mb-1">Programas genéricos de influencers</p>
-                <p className="text-gray-500 text-sm leading-relaxed">Uma planilha igual para todos, sem suporte, sem feedback. Você fica sozinha torcendo para funcionar.</p>
-              </div>
-            </div>
-
             {/* Testimonial footer */}
             <div className="bg-gradient-to-r from-orange-500/10 to-transparent px-6 py-4 border-t border-orange-500/20">
               <p className="text-orange-400 text-sm font-medium">💬 "Já comprei de vários programas e nunca tive uma experiência assim. Aqui realmente se importam com o meu resultado." — Lucilene, -7 kg</p>
