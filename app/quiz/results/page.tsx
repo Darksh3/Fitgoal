@@ -25,7 +25,7 @@ export default function QuizResultsPage() {
   const [discountPercentage, setDiscountPercentage] = useState(0)
   // ========================================
 
-  // ========== FUNÃÃO QUANDO GANHA DESCONTO ==========
+  // ========== FUNÇÃO QUANDO GANHA DESCONTO ==========
   const handleDiscountWon = (discount: number) => {
     setDiscountPercentage(discount)
     setDiscountApplied(true)
@@ -38,7 +38,7 @@ export default function QuizResultsPage() {
   }
   // ==================================================
 
-  // Rastrear ViewContent e PlanView quando a pÃ¡gina de resultados carrega
+  // Rastrear ViewContent e PlanView quando a página de resultados carrega
   useEffect(() => {
     trackViewContent({
       content_name: 'Resultado Quiz',
@@ -116,7 +116,7 @@ export default function QuizResultsPage() {
   }, [router])
 
   useEffect(() => {
-    // SÃ³ inicia o timer apÃ³s o desconto ser aplicado
+    // Só inicia o timer após o desconto ser aplicado
     if (!discountApplied) return
 
     const interval = setInterval(() => {
@@ -252,9 +252,9 @@ export default function QuizResultsPage() {
       case "iniciante":
         return 25
       case "intermediario":
-      case "intermediÃ¡rio":
+      case "intermediário":
         return 50
-      case "avanÃ§ado":
+      case "avançado":
       case "advanced":
         return 100
       default:
@@ -307,7 +307,7 @@ export default function QuizResultsPage() {
     const planName = getPlanName()
     const planPrice = getPlanPrice()
 
-    // Rastrear InitiateCheckout apenas uma vez por sessÃ£o
+    // Rastrear InitiateCheckout apenas uma vez por sessão
     if (typeof window !== 'undefined') {
       const initiateCheckoutTracked = sessionStorage.getItem('initiateCheckout_tracked')
       if (!initiateCheckoutTracked) {
@@ -355,7 +355,7 @@ export default function QuizResultsPage() {
     const raw = normalizeStr(getDataValue("goal") ?? data?.goal)
     if (raw.includes("perder-peso")) return "cut"
     if (raw.includes("ganhar-massa")) return "bulk"
-    // melhorar-saude e aumentar-resistencia â estratÃ©gia de saÃºde/emagrecer
+    // melhorar-saude e aumentar-resistencia → estratégia de saúde/emagrecer
     if (raw.includes("melhorar-saude") || raw.includes("aumentar-resistencia")) return "cut"
     return "maintain"
   }
@@ -367,7 +367,7 @@ export default function QuizResultsPage() {
 
   const getExperienceLevel = (): "beginner" | "intermediate" | "advanced" => {
     const exp = normalizeStr(getDataValue("strengthTraining") ?? data?.strengthTraining)
-    if (exp.includes("avanÃ§") || exp.includes("advanced")) return "advanced"
+    if (exp.includes("avanç") || exp.includes("advanced")) return "advanced"
     if (exp.includes("inter") || exp.includes("intermediate")) return "intermediate"
     return "beginner"
   }
@@ -402,72 +402,72 @@ export default function QuizResultsPage() {
     const rawGoal = normalizeStr(getDataValue("goal") ?? data?.goal)
     const headline =
       goalCat === "bulk"
-        ? "EstratÃ©gia: ganho de massa com superÃ¡vit controlado"
+        ? "Estratégia: ganho de massa com superávit controlado"
         : rawGoal.includes("melhorar-saude")
-          ? "EstratÃ©gia: melhora de saÃºde, disposiÃ§Ã£o e composiÃ§Ã£o corporal"
+          ? "Estratégia: melhora de saúde, disposição e composição corporal"
           : rawGoal.includes("aumentar-resistencia")
-            ? "EstratÃ©gia: ganho de resistÃªncia fÃ­sica com definiÃ§Ã£o corporal"
+            ? "Estratégia: ganho de resistência física com definição corporal"
             : goalCat === "cut"
-              ? "EstratÃ©gia: perda de gordura com dÃ©ficit sustentÃ¡vel"
-              : "EstratÃ©gia: recomposiÃ§Ã£o corporal com consistÃªncia"
+              ? "Estratégia: perda de gordura com déficit sustentável"
+              : "Estratégia: recomposição corporal com consistência"
 
-    // 2) Bullet 1 (BF -> direÃ§Ã£o)
+    // 2) Bullet 1 (BF -> direção)
     let bulletBF: string
     if (bf > 18) {
       bulletBF =
         goalCat === "bulk"
-          ? "Prioridade: controlar gordura â superÃ¡vit mÃ­nimo para evitar ganho desnecessÃ¡rio."
-          : `Prioridade: controlar gordura â dÃ©ficit moderado para preservar massa magra e chegar de ${Number(getDataValue("currentWeight")).toFixed(1)} kg a ${getDataValue("targetWeight")} kg com consistÃªncia.`
+          ? "Prioridade: controlar gordura — superávit mínimo para evitar ganho desnecessário."
+          : `Prioridade: controlar gordura — déficit moderado para preservar massa magra e chegar de ${Number(getDataValue("currentWeight")).toFixed(1)} kg a ${getDataValue("targetWeight")} kg com consistência.`
     } else if (bf >= 12) {
       bulletBF =
         goalCat === "bulk"
-          ? "EquilÃ­brio entre performance e estÃ©tica â subimos calorias sem perder definiÃ§Ã£o."
-          : `EquilÃ­brio e constÃ¢ncia â ajuste calÃ³rico gradual para vocÃª perder ${Math.round((Number(getDataValue("currentWeight")) - Number(getDataValue("targetWeight"))) * 10) / 10} kg sem pesar comida obsessivamente ou cortar grupos alimentares.`
+          ? "Equilíbrio entre performance e estética — subimos calorias sem perder definição."
+          : `Equilíbrio e constância — ajuste calórico gradual para você perder ${Math.round((Number(getDataValue("currentWeight")) - Number(getDataValue("targetWeight"))) * 10) / 10} kg sem pesar comida obsessivamente ou cortar grupos alimentares.`
     } else {
       bulletBF =
         goalCat === "bulk"
-          ? "Ambiente favorÃ¡vel para ganhar massa ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ podemos subir calorias com mais seguranÃ§a mantendo a definiÃ§Ã£o."
-          : `Boa base de definiÃ§Ã£o â foco em desempenho e ajustes finos para chegar dos ${Number(getDataValue("currentWeight")).toFixed(1)} kg atuais atÃ© os ${getDataValue("targetWeight")} kg desejados.`
+          ? "Ambiente favorável para ganhar massa ������ podemos subir calorias com mais segurança mantendo a definição."
+          : `Boa base de definição — foco em desempenho e ajustes finos para chegar dos ${Number(getDataValue("currentWeight")).toFixed(1)} kg atuais até os ${getDataValue("targetWeight")} kg desejados.`
     }
 
-    // 3) Bullet 2 (nÃ­vel -> mÃ©todo)
+    // 3) Bullet 2 (nível -> método)
     let bulletLevel: string
     if (level === "beginner") {
-      bulletLevel = "Treino focado em tÃ©cnica + consistÃªncia â progressÃ£o simples para evoluir semana a semana."
+      bulletLevel = "Treino focado em técnica + consistência — progressão simples para evoluir semana a semana."
     } else if (level === "intermediate") {
-      bulletLevel = `Treino com progressÃ£o estruturada â volume e intensidade calibrados para o seu nÃ­vel intermediÃ¡rio, evoluindo semana a semana atÃ© vocÃª atingir os ${getDataValue("targetWeight")} kg.`
+      bulletLevel = `Treino com progressão estruturada — volume e intensidade calibrados para o seu nível intermediário, evoluindo semana a semana até você atingir os ${getDataValue("targetWeight")} kg.`
     } else {
-      bulletLevel = "Treino com estÃ­mulos precisos â distribuiÃ§Ã£o de volume e recuperaÃ§Ã£o otimizadas para mÃ¡ximo desempenho."
+      bulletLevel = "Treino com estímulos precisos — distribuição de volume e recuperação otimizadas para máximo desempenho."
     }
 
     // 4) Bullet 3 (dias + calorias -> racional curto)
     const daysText =
-      days >= 5 ? `com alta frequÃªncia semanal x${days}` : days >= 3 ? `com frequÃªncia semanal consistente x${days}` : `com frequÃªncia semanal reduzida x${days}`
+      days >= 5 ? `com alta frequência semanal x${days}` : days >= 3 ? `com frequência semanal consistente x${days}` : `com frequência semanal reduzida x${days}`
 
     let bulletCalories: string
     if (calories) {
       bulletCalories =
         goalCat === "bulk"
-          ? `Meta calÃ³rica inicial: ~${calories} kcal/dia â para sustentar ganho de massa e recuperaÃ§Ã£o (${daysText}).`
+          ? `Meta calórica inicial: ~${calories} kcal/dia — para sustentar ganho de massa e recuperação (${daysText}).`
           : goalCat === "cut"
-            ? `Sua meta calÃ³rica: ${calories} kcal/dia â calculada para criar um dÃ©ficit de ~500 kcal com base no seu peso (${Number(getDataValue("currentWeight")).toFixed(1)} kg), altura (${getDataValue("height")} cm) e frequÃªncia de ${getDataValue("trainingDays")}x por semana. Suficiente para emagrecer sem comprometer a energia.`
-            : `Meta calÃ³rica inicial: ~${calories} kcal/dia â para manter o peso com performance (${daysText}).`
+            ? `Sua meta calórica: ${calories} kcal/dia — calculada para criar um déficit de ~500 kcal com base no seu peso (${Number(getDataValue("currentWeight")).toFixed(1)} kg), altura (${getDataValue("height")} cm) e frequência de ${getDataValue("trainingDays")}x por semana. Suficiente para emagrecer sem comprometer a energia.`
+            : `Meta calórica inicial: ~${calories} kcal/dia — para manter o peso com performance (${daysText}).`
     } else {
       bulletCalories =
         goalCat === "bulk"
-          ? `Meta calÃ³rica inicial definida para sustentar ganho de massa e recuperaÃ§Ã£o (${daysText}).`
+          ? `Meta calórica inicial definida para sustentar ganho de massa e recuperação (${daysText}).`
           : goalCat === "cut"
-            ? `Meta calÃ³rica inicial definida para perder gordura mantendo desempenho (${daysText}).`
-            : `Meta calÃ³rica inicial definida para manter o peso com performance (${daysText}).`
+            ? `Meta calórica inicial definida para perder gordura mantendo desempenho (${daysText}).`
+            : `Meta calórica inicial definida para manter o peso com performance (${daysText}).`
     }
 
     // 5) Nota "anti-golpe" (sempre)
     const trustNote =
-      "Seu treino detalhado (exercÃ­cios, sÃ©ries e progressÃ£o) e sua dieta completa (refeiÃ§Ãµes, quantidades e substituiÃ§Ãµes) sÃ£o gerados sob demanda apÃ³s a confirmaÃ§Ã£o do pagamento â nÃ£o usamos planos prontos."
+      "Seu treino detalhado (exercícios, séries e progressão) e sua dieta completa (refeições, quantidades e substituições) são gerados sob demanda após a confirmação do pagamento — não usamos planos prontos."
 
     // 6) Nota para prazo (opcional)
     const etaNote = timeToGoal
-      ? `ProjeÃ§Ã£o de prazo: ${timeToGoal}. Estimativa baseada em consistÃªncia e adesÃ£o ao plano.`
+      ? `Projeção de prazo: ${timeToGoal}. Estimativa baseada em consistência e adesão ao plano.`
       : null
 
     return {
@@ -489,19 +489,19 @@ export default function QuizResultsPage() {
       <main className="w-full px-6 py-12">
         {getDataValue("gender") === "mulher" ? (
           <div className="text-center mb-8 max-w-2xl mx-auto">
-            <p className="text-orange-400 text-base font-semibold mb-3 uppercase tracking-wide">VOCÃ NÃO FALHOU NAS DIETAS.</p>
+            <p className="text-orange-400 text-base font-semibold mb-3 uppercase tracking-wide">VOCÊ NÃO FALHOU NAS DIETAS.</p>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              As dietas Ã© que falharam em te conhecer.<br />
-              <span className="text-orange-400">Seu plano estÃ¡ pronto. Feito para vocÃª.</span>
+              As dietas é que falharam em te conhecer.<br />
+              <span className="text-orange-400">Seu plano está pronto. Feito para você.</span>
             </h1>
             <p className="text-gray-400 text-base leading-relaxed">
               {(() => {
                 const cw = Number(getDataValue("currentWeight"))
                 const tw = Number(getDataValue("targetWeight"))
                 const h = Number(getDataValue("height"))
-                const imc = (cw && h) ? (cw / (h / 100) ** 2).toFixed(1) : "â"
+                const imc = (cw && h) ? (cw / (h / 100) ** 2).toFixed(1) : "—"
                 const days = getDataValue("trainingDays")
-                const kcal = getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))).toLocaleString("pt-BR") : "â"
+                const kcal = getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))).toLocaleString("pt-BR") : "—"
                 const goal = String(getDataValue("goal") ?? "").toLowerCase()
                 const isBulk = goal.includes("ganhar-massa")
                 const diff = Math.abs(Math.round((cw - tw) * 10) / 10)
@@ -509,8 +509,8 @@ export default function QuizResultsPage() {
                   ? <><strong className="text-white">ganhar {diff} kg</strong> de massa magra</>
                   : <><strong className="text-white">perder {diff} kg</strong> sem radicalismo</>
                 return <>
-                  VocÃª estÃ¡ em <strong className="text-white">{cw} kg</strong> e quer chegar em{" "}
-                  <strong className="text-white">{tw} kg</strong>. Com base no seu perfil â IMC {imc}, treinos {days}x por semana e meta calÃ³rica de {kcal} kcal/dia â montamos o plano exato para vocÃª {action}. <em>Esse plano nÃ£o serve para nenhuma outra pessoa. SÃ³ para vocÃª.</em>
+                  Você está em <strong className="text-white">{cw} kg</strong> e quer chegar em{" "}
+                  <strong className="text-white">{tw} kg</strong>. Com base no seu perfil — IMC {imc}, treinos {days}x por semana e meta calórica de {kcal} kcal/dia — montamos o plano exato para você {action}. <em>Esse plano não serve para nenhuma outra pessoa. Só para você.</em>
                 </>
               })()}
             </p>
@@ -518,7 +518,7 @@ export default function QuizResultsPage() {
                                                                                                                                                                                     </div>
         ) : (
           <h1 className="text-4xl md:text-5xl font-bold text-center mb-12">
-            Seu Plano de Dieta e Treino <br /> estÃ£o Prontos!
+            Seu Plano de Dieta e Treino <br /> estão Prontos!
           </h1>
         )}
 
@@ -614,15 +614,15 @@ export default function QuizResultsPage() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-gray-400 text-sm mb-1">NÃ­vel de Treino</p>
+                  <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
 
                   <p className="text-white font-bold mb-2">
                     {(getDataValue("experience") || getDataValue("strengthTraining") || "beginner") === "beginner"
                       ? "Iniciante"
                       : (getDataValue("experience") || getDataValue("strengthTraining")) === "intermediate"
-                        ? "IntermediÃ¡rio"
+                        ? "Intermediário"
                         : (getDataValue("experience") || getDataValue("strengthTraining")) === "advanced"
-                          ? "AvanÃ§ado"
+                          ? "Avançado"
                           : (getDataValue("experience") || "Iniciante")}
                   </p>
 
@@ -658,11 +658,11 @@ export default function QuizResultsPage() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-gray-400 text-sm mb-1">NÃ­vel de Treino</p>
+                  <p className="text-gray-400 text-sm mb-1">Nível de Treino</p>
                   <p className="text-white font-bold mb-2">
                     {getDataValue("experience") === "iniciante"
-                      ? "IntermediÃ¡rio"
-                      : "AvanÃ§ado"}
+                      ? "Intermediário"
+                      : "Avançado"}
                   </p>
                   <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                     <motion.div
@@ -678,40 +678,40 @@ export default function QuizResultsPage() {
           </div>
 
           <div className="mt-8 bg-gray-900 bg-opacity-50 rounded-2xl p-8 border border-gray-700">
-            <p className="text-orange-400 text-sm font-semibold mb-2 uppercase tracking-wide">Com base no que vocÃª nos contou...</p>
-          <h3 className="text-3xl font-bold text-white mb-6">AnÃ¡lise do seu perfil e estratÃ©gia do plano:</h3>
+            <p className="text-orange-400 text-sm font-semibold mb-2 uppercase tracking-wide">Com base no que você nos contou...</p>
+          <h3 className="text-3xl font-bold text-white mb-6">Análise do seu perfil e estratégia do plano:</h3>
             <div className="border-t border-gray-700 mb-8"></div>
 
             <div className="grid grid-cols-2 gap-x-8 gap-y-8">
-              {/* GÃªnero */}
+              {/* Gênero */}
               <div>
-                <p className="text-gray-400 text-sm mb-2">GÃªnero</p>
+                <p className="text-gray-400 text-sm mb-2">Gênero</p>
                 <p className="text-white text-xl font-semibold">
                   {getDataValue("gender") === "homem"
                     ? "Masculino"
                     : getDataValue("gender") === "mulher"
                       ? "Feminino"
-                      : "â"}
+                      : "—"}
                 </p>
               </div>
 
               {/* Idade */}
               <div>
                 <p className="text-gray-400 text-sm mb-2">Idade</p>
-                <p className="text-white text-xl font-semibold">{getDataValue("age") || "â"} anos</p>
+                <p className="text-white text-xl font-semibold">{getDataValue("age") || "—"} anos</p>
               </div>
 
               {/* Altura */}
               <div>
                 <p className="text-gray-400 text-sm mb-2">Altura</p>
-                <p className="text-white text-xl font-semibold">{getDataValue("height") || "â"} cm</p>
+                <p className="text-white text-xl font-semibold">{getDataValue("height") || "—"} cm</p>
               </div>
 
               {/* Peso Atual */}
               <div>
                 <p className="text-gray-400 text-sm mb-2">Peso Atual</p>
                 <p className="text-white text-xl font-semibold">
-                  {getDataValue("currentWeight") ? Number(getDataValue("currentWeight")).toFixed(1) : "â"} kg
+                  {getDataValue("currentWeight") ? Number(getDataValue("currentWeight")).toFixed(1) : "—"} kg
                 </p>
               </div>
 
@@ -729,14 +729,14 @@ export default function QuizResultsPage() {
                 >
                   {getDataValue("currentWeight") && getDataValue("height")
                     ? (Number(getDataValue("currentWeight")) / (Number(getDataValue("height")) / 100) ** 2).toFixed(1)
-                    : "â"}
+                    : "—"}
                 </p>
               </div>
 
               {/* Meta de Calorias */}
               <div>
                 <p className="text-gray-400 text-sm mb-2">Meta de Calorias</p>
-                <p className="text-white text-xl font-semibold">{getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))) : "â"} kcal</p>
+                <p className="text-white text-xl font-semibold">{getDataValue("calorieGoal") ? Math.round(Number(getDataValue("calorieGoal"))) : "—"} kcal</p>
               </div>
 
 
@@ -744,7 +744,7 @@ export default function QuizResultsPage() {
               <div>
                 <p className="text-gray-400 text-sm mb-2">Meta de Peso</p>
                 <p className="text-white text-xl font-semibold">
-                  {getDataValue("targetWeight") ? Number(getDataValue("targetWeight")).toFixed(1) : "â"} kg
+                  {getDataValue("targetWeight") ? Number(getDataValue("targetWeight")).toFixed(1) : "—"} kg
                 </p>
               </div>
 
@@ -761,7 +761,7 @@ export default function QuizResultsPage() {
 
         {/* Bloco 6 - Prazo Estimado */}
         <div className="max-w-5xl mx-auto mt-8 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-8">
-          <h3 className="text-2xl font-bold text-white mb-4">ProjeÃ§Ã£o de prazo realista:</h3>
+          <h3 className="text-2xl font-bold text-white mb-4">Projeção de prazo realista:</h3>
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-gray-400 text-sm mb-2">Estimativa para atingir seu objetivo</p>
@@ -769,22 +769,20 @@ export default function QuizResultsPage() {
             </div>
           </div>
           <p className="text-gray-400 text-sm border-t border-slate-700/50 pt-4">
-            â ï¸ Estimativa baseada em consistÃªncia e adesÃ£o ao plano{getTrainingDays() >= 3 ? ` com frequÃªncia de ${getTrainingDays()}x por semana` : ""}.
+            ⚠️ Estimativa baseada em consistência e adesão ao plano{getTrainingDays() >= 3 ? ` com frequência de ${getTrainingDays()}x por semana` : ""}.
           </p>
         </div>
 
-                {/* CTA Light */}
+        
+        {/* CTA Light */}
         <div className="max-w-5xl mx-auto mt-8 text-center">
           <p className="text-gray-400 text-sm mb-3">Seu plano está pronto — garanta agora antes que o resultado expire</p>
-          <button
-            onClick={handleCheckout}
-            className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-10 rounded-full text-lg transition-all duration-200 shadow-lg shadow-orange-500/30"
-          >
+          <button onClick={handleCheckout} className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-10 rounded-full text-lg transition-all duration-200 shadow-lg shadow-orange-500/30">
             Quero meu plano por R$ 59,90/mês →
           </button>
         </div>
 
-        {/* Bloco 4 - DecisÃµes Principais */}
+{/* Bloco 4 - Decisões Principais */}
         {(() => {
           const s = buildDynamicSummary()
           return (
@@ -793,7 +791,7 @@ export default function QuizResultsPage() {
               <ul className="space-y-4 text-gray-300">
                 {s.bullets.map((bullet, idx) => (
                   <li key={idx} className="flex gap-3">
-                    <span className="text-orange-400 font-bold flex-shrink-0">â¢</span>
+                    <span className="text-orange-400 font-bold flex-shrink-0">•</span>
                     <span>{bullet}</span>
                   </li>
                 ))}
@@ -803,13 +801,13 @@ export default function QuizResultsPage() {
         })()}
 
 
-        {/* SEÃÃO DE DIFERENCIAIS REAIS DO FITGOAL */}
+        {/* SEÇÃO DE DIFERENCIAIS REAIS DO FITGOAL */}
         {getDataValue("gender") === "mulher" && (
           <div className="max-w-5xl mx-auto mt-10 rounded-2xl border border-orange-500/30 overflow-hidden">
             {/* Header */}
             <div className="bg-gradient-to-r from-orange-500/20 to-orange-400/10 px-6 py-5 border-b border-orange-500/20">
               <p className="text-orange-400 text-xs font-semibold uppercase tracking-wide mb-1">Por que o FitGoal realmente funciona</p>
-              <h3 className="text-lg md:text-2xl font-bold text-white leading-snug">Diferente de tudo que vocÃª jÃ¡ tentou.</h3>
+              <h3 className="text-lg md:text-2xl font-bold text-white leading-snug">Diferente de tudo que você já tentou.</h3>
             </div>
 
             {/* Benefits list */}
@@ -821,8 +819,8 @@ export default function QuizResultsPage() {
                   <span className="text-orange-400 text-sm font-bold">1</span>
                 </div>
                 <div>
-                  <p className="text-white font-bold text-sm mb-1">Dieta e treino 100% personalizados para vocÃª</p>
-                  <p className="text-gray-400 text-sm leading-relaxed">Cada refeiÃ§Ã£o e cada sÃ©rie foi definida com base no seu peso, altura, objetivo, rotina e restriÃ§Ãµes. Nada aqui Ã© genÃ©rico.</p>
+                  <p className="text-white font-bold text-sm mb-1">Dieta e treino 100% personalizados para você</p>
+                  <p className="text-gray-400 text-sm leading-relaxed">Cada refeição e cada série foi definida com base no seu peso, altura, objetivo, rotina e restrições. Nada aqui é genérico.</p>
                 </div>
               </div>
 
@@ -832,8 +830,8 @@ export default function QuizResultsPage() {
                   <span className="text-orange-400 text-sm font-bold">2</span>
                 </div>
                 <div>
-                  <p className="text-white font-bold text-sm mb-1">AnÃ¡lise do seu progresso por fotos com feedback detalhado</p>
-                  <p className="text-gray-400 text-sm leading-relaxed">VocÃª envia suas fotos e recebe orientaÃ§Ãµes especÃ­ficas sobre sua evoluÃ§Ã£o â feedback real para continuar avanÃ§ando no ritmo certo.</p>
+                  <p className="text-white font-bold text-sm mb-1">Análise do seu progresso por fotos com feedback detalhado</p>
+                  <p className="text-gray-400 text-sm leading-relaxed">Você envia suas fotos e recebe orientações específicas sobre sua evolução — feedback real para continuar avançando no ritmo certo.</p>
                 </div>
               </div>
 
@@ -843,8 +841,8 @@ export default function QuizResultsPage() {
                   <span className="text-orange-400 text-sm font-bold">3</span>
                 </div>
                 <div>
-                  <p className="text-white font-bold text-sm mb-1">Suporte com resposta rÃ¡pida</p>
-                  <p className="text-gray-400 text-sm leading-relaxed">Nossa equipe responde em horas, nÃ£o dias â para ajustar o plano, trocar alimentos ou tirar qualquer dÃºvida que surgir. VocÃª nÃ£o vai ficar sozinha no processo.</p>
+                  <p className="text-white font-bold text-sm mb-1">Suporte com resposta rápida</p>
+                  <p className="text-gray-400 text-sm leading-relaxed">Nossa equipe responde em horas, não dias — para ajustar o plano, trocar alimentos ou tirar qualquer dúvida que surgir. Você não vai ficar sozinha no processo.</p>
                 </div>
               </div>
 
@@ -852,35 +850,35 @@ export default function QuizResultsPage() {
 
             {/* Testimonial footer */}
             <div className="bg-gradient-to-r from-orange-500/10 to-transparent px-6 py-4 border-t border-orange-500/20">
-              <p className="text-orange-400 text-sm font-medium">ð¬ "JÃ¡ comprei de vÃ¡rios programas e nunca tive uma experiÃªncia assim. Aqui realmente se importam com o meu resultado." â Lucilene, -7 kg</p>
+              <p className="text-orange-400 text-sm font-medium">💬 "Já comprei de vários programas e nunca tive uma experiência assim. Aqui realmente se importam com o meu resultado." — Lucilene, -7 kg</p>
             </div>
           </div>
         )}
                 {/* Bloco 7 - Ponte para Pagamento */}
         <div className="max-w-5xl mx-auto mt-8 bg-gradient-to-br from-lime-900/30 to-lime-900/10 border border-lime-700/50 rounded-xl p-8">
-          <h3 className="text-2xl font-bold text-lime-400 mb-4">O que vocÃª recebe imediatamente apÃ³s o pagamento:</h3>
+          <h3 className="text-2xl font-bold text-lime-400 mb-4">O que você recebe imediatamente após o pagamento:</h3>
           <div className="space-y-3 mb-4">
             <div className="flex items-start gap-3">
-              <span className="text-lime-400 mt-1">â</span>
+              <span className="text-lime-400 mt-1">✓</span>
               <p className="text-gray-200">
-                <span className="text-white font-semibold">Plano de treino completo</span> â exercÃ­cios, sÃ©ries, repetiÃ§Ãµes e progressÃ£o, adaptado para o seu nÃ­vel e para o equipamento que vocÃª tem disponÃ­vel.
+                <span className="text-white font-semibold">Plano de treino completo</span> — exercícios, séries, repetições e progressão, adaptado para o seu nível e para o equipamento que você tem disponível.
               </p>
             </div>
             <div className="flex items-start gap-3">
-              <span className="text-lime-400 mt-1">â</span>
+              <span className="text-lime-400 mt-1">✓</span>
               <p className="text-gray-200">
-                <span className="text-white font-semibold">Plano alimentar personalizado</span> â refeiÃ§Ãµes com quantidades exatas, lista de substituiÃ§Ãµes e opÃ§Ãµes prÃ¡ticas para o seu dia a dia.
+                <span className="text-white font-semibold">Plano alimentar personalizado</span> — refeições com quantidades exatas, lista de substituições e opções práticas para o seu dia a dia.
               </p>
             </div>
             <div className="flex items-start gap-3">
-              <span className="text-lime-400 mt-1">â</span>
+              <span className="text-lime-400 mt-1">✓</span>
               <p className="text-gray-200">
-                <span className="text-white font-semibold">Acesso direto pelo app ou Ã¡rea de membros</span> â tudo organizado num sÃ³ lugar, disponÃ­vel no celular, sempre que vocÃª precisar.
+                <span className="text-white font-semibold">Acesso direto pelo app ou área de membros</span> — tudo organizado num só lugar, disponível no celular, sempre que você precisar.
               </p>
             </div>
           </div>
           <p className="text-gray-500 text-sm pt-4 border-t border-lime-700/30">
-            Tudo gerado sob demanda para o seu perfil especÃ­fico â nÃ£o usamos planos genÃ©ricos prontos.
+            Tudo gerado sob demanda para o seu perfil específico — não usamos planos genéricos prontos.
           </p>
         </div>
 
@@ -903,7 +901,7 @@ export default function QuizResultsPage() {
               </div>
               <div>
                 <p className="text-white font-bold text-sm leading-tight">Dieta 100% personalizada</p>
-                <p className="text-gray-400 text-xs mt-1">Com refeiÃ§Ãµes, quantidades e substituiÃ§Ãµes exatas para vocÃª</p>
+                <p className="text-gray-400 text-xs mt-1">Com refeições, quantidades e substituições exatas para você</p>
               </div>
               <div className="flex items-baseline gap-2 mt-auto">
                 <span className="text-gray-500 text-xs line-through">R$ 129</span>
@@ -919,7 +917,7 @@ export default function QuizResultsPage() {
               </div>
               <div>
                 <p className="text-white font-bold text-sm leading-tight">Treino personalizado</p>
-                <p className="text-gray-400 text-xs mt-1">SÃ©ries, repetiÃ§Ãµes e progressÃ£o definidas para o seu nÃ­vel</p>
+                <p className="text-gray-400 text-xs mt-1">Séries, repetições e progressão definidas para o seu nível</p>
               </div>
               <div className="flex items-baseline gap-2 mt-auto">
                 <span className="text-gray-500 text-xs line-through">R$ 149</span>
@@ -935,7 +933,7 @@ export default function QuizResultsPage() {
               </div>
               <div>
                 <p className="text-white font-bold text-sm leading-tight">Resultados em 4 semanas</p>
-                <p className="text-gray-400 text-xs mt-1">MudanÃ§as visÃ­veis no corpo jÃ¡ no primeiro mÃªs</p>
+                <p className="text-gray-400 text-xs mt-1">Mudanças visíveis no corpo já no primeiro mês</p>
               </div>
               <div className="flex items-baseline gap-2 mt-auto">
                 <span className="text-gray-500 text-xs line-through">R$ 97</span>
@@ -951,7 +949,7 @@ export default function QuizResultsPage() {
               </div>
               <div>
                 <p className="text-white font-bold text-sm leading-tight">Acompanhamento de progresso</p>
-                <p className="text-gray-400 text-xs mt-1">Monitore sua evoluÃ§Ã£o e ajuste conforme avanÃ§a</p>
+                <p className="text-gray-400 text-xs mt-1">Monitore sua evolução e ajuste conforme avança</p>
               </div>
               <div className="flex items-baseline gap-2 mt-auto">
                 <span className="text-gray-500 text-xs line-through">R$ 199,90</span>
@@ -968,21 +966,21 @@ export default function QuizResultsPage() {
               <div>
                 <p className="text-gray-300 text-sm">Seu plano completo por apenas</p>
                 <p className="text-5xl font-black text-orange-400 leading-tight">R$ 59,90</p>
-                <p className="text-white font-semibold text-base">por mÃªs</p>
-                <p className="text-gray-500 text-xs mt-2">Menos de R$ 2 por dia â o preÃ§o de um cafÃ©</p>
+                <p className="text-white font-semibold text-base">por mês</p>
+                <p className="text-gray-500 text-xs mt-2">Menos de R$ 2 por dia — o preço de um café</p>
               </div>
             </div>
             <div className="mt-4 inline-flex items-center gap-2 bg-lime-500/10 border border-lime-500/30 rounded-full px-4 py-2">
               <svg className="w-4 h-4 text-lime-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              <span className="text-lime-400 text-sm font-semibold">VocÃª economiza mais de R$ 500</span>
+              <span className="text-lime-400 text-sm font-semibold">Você economiza mais de R$ 500</span>
             </div>
           </div>
         </div>
 
-          {/* ========== SEÃÃO DA ROLETA - DESATIVADA PARA MULHERES ========== */}
-          {/* Para reativar, remova os comentÃ¡rios abaixo */}
+          {/* ========== SEÇÃO DA ROLETA - DESATIVADA PARA MULHERES ========== */}
+          {/* Para reativar, remova os comentários abaixo */}
           {getDataValue("gender") !== "mulher" && (
             <>
               {showSpinWheel && !discountApplied && (
@@ -995,7 +993,7 @@ export default function QuizResultsPage() {
           {/* ================================================================ */}
 
           {/* Promo code banner */}
-          {/* ========== SEÃÃO DE CÃDIGO DE DESCONTO - DESATIVADA PARA MULHERES ========== */}
+          {/* ========== SEÇÃO DE CÓDIGO DE DESCONTO - DESATIVADA PARA MULHERES ========== */}
           {getDataValue("gender") !== "mulher" && (
             <div className="bg-orange-400 rounded-xl p-1 mt-8">
               <div className="bg-black rounded-lg p-6 space-y-4">
@@ -1004,7 +1002,7 @@ export default function QuizResultsPage() {
                     <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
                   </svg>
                   <span className="text-white font-semibold">
-                    {discountApplied ? 'Seu cÃ³digo promo foi aplicado!' : 'Possui cÃ³digo de desconto?'}
+                    {discountApplied ? 'Seu código promo foi aplicado!' : 'Possui código de desconto?'}
                   </span>
                 </div>
 
@@ -1023,10 +1021,10 @@ export default function QuizResultsPage() {
           {/* Urgency banner for female users */}
           {getDataValue("gender") === "mulher" && (
             <div className="mt-10 mb-4 bg-gradient-to-r from-orange-500/20 to-orange-400/10 border border-orange-500/50 rounded-xl p-4 flex items-center gap-3 max-w-2xl mx-auto">
-              <span className="text-2xl">â³</span>
+              <span className="text-2xl">⏳</span>
               <div>
-                <p className="text-orange-400 font-bold text-sm">Seu resultado ficarÃ¡ salvo por 24 horas</p>
-                <p className="text-gray-400 text-xs mt-0.5">ApÃ³s esse prazo, serÃ¡ necessÃ¡rio refazer o quiz para gerar um novo plano personalizado.</p>
+                <p className="text-orange-400 font-bold text-sm">Seu resultado ficará salvo por 24 horas</p>
+                <p className="text-gray-400 text-xs mt-0.5">Após esse prazo, será necessário refazer o quiz para gerar um novo plano personalizado.</p>
               </div>
             </div>
           )}
@@ -1063,7 +1061,7 @@ export default function QuizResultsPage() {
                   ) : 'R$ 199,90'
                 )}
               </div>
-              <div className="text-gray-500 text-xs">por mÃªs</div>
+              <div className="text-gray-500 text-xs">por mês</div>
             </div>
 
                         {/* TRIMESTRAL E SEMESTRAL - DESATIVADOS TEMPORARIAMENTE */}
@@ -1141,8 +1139,8 @@ export default function QuizResultsPage() {
 
           {/* Disclaimer */}
           <p className="text-center text-xs text-gray-500 mb-8">
-            Sem cancelamento automÃ¡tico antes do final do perÃ­odo para planos, concordo que o Fitgoal cobrarÃ¡
-            automaticamente enquanto sua assinatura estiver ativa. Cancele quando quiser pelo app ou site â sem burocracia.
+            Sem cancelamento automático antes do final do período para planos, concordo que o Fitgoal cobrará
+            automaticamente enquanto sua assinatura estiver ativa. Cancele quando quiser pelo app ou site — sem burocracia.
           </p>
 
           {/* CTA Button */}
@@ -1151,17 +1149,16 @@ export default function QuizResultsPage() {
               onClick={handleCheckout}
               className="px-12 py-4 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-full font-black text-lg hover:from-orange-400 hover:to-orange-300 transition shadow-lg shadow-orange-500/30 active:scale-95"
             >
-              COMEÃAR MEU PLANO AGORA
+              COMEÇAR MEU PLANO AGORA
             </button>
           </div>
 
-          {/* Highlights of your plan section */}
-          {/* SeÃ§Ã£o de Autoridade */}
+          {/* Seção de Autoridade */}
                           <section className="py-10 bg-gray-950 border-t border-b border-gray-800">
                                     <div className="max-w-2xl mx-auto px-4 text-center">
                                                 <p className="text-orange-400 text-sm font-semibold uppercase tracking-wide mb-3">Por que funciona</p>
-                                                            <h3 className="text-xl font-bold text-white mb-4">Baseado em ciÃªncia. Validado por resultados.</h3>
-                                                                        <p className="text-gray-400 leading-relaxed text-sm">Os planos do FitGoal sÃ£o desenvolvidos com base em protocolos de nutriÃ§Ã£o esportiva e periodizaÃ§Ã£o de treino utilizados por profissionais certificados. Cada plano considera seu metabolismo, histÃ³rico e rotina â nÃ£o Ã© uma fÃ³rmula genÃ©rica.</p>
+                                                            <h3 className="text-xl font-bold text-white mb-4">Baseado em ciência. Validado por resultados.</h3>
+                                                                        <p className="text-gray-400 leading-relaxed text-sm">Os planos do FitGoal são desenvolvidos com base em protocolos de nutrição esportiva e periodização de treino utilizados por profissionais certificados. Cada plano considera seu metabolismo, histórico e rotina — não é uma fórmula genérica.</p>
                                                                                     <div className="flex flex-wrap justify-center gap-6 mt-8">
                                                                                                   <div className="flex flex-col items-center">
                                                                                                                   <span className="text-2xl font-black text-orange-400">+3.000</span>
@@ -1173,7 +1170,7 @@ export default function QuizResultsPage() {
                                                                                                                                                                                                             </div>
                                                                                                                                                                                                                           <div className="flex flex-col items-center">
                                                                                                                                                                                                                                           <span className="text-2xl font-black text-orange-400">100%</span>
-                                                                                                                                                                                                                                                          <span className="text-gray-400 text-xs mt-1">personalizado para vocÃª</span>
+                                                                                                                                                                                                                                                          <span className="text-gray-400 text-xs mt-1">personalizado para você</span>
                                                                                                                                                                                                                                                                         </div>
                                                                                                                                                                                                                                                                                     </div>
                                                                                                                                                                                                                                                                                               </div>
@@ -1192,7 +1189,7 @@ export default function QuizResultsPage() {
                     <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
                       <img
                         src="/testimonial-lucilene.jpg"
-                        alt="Lucilene Alves - TransformaÃ§Ã£o antes e depois"
+                        alt="Lucilene Alves - Transformação antes e depois"
                         className="w-full aspect-square object-cover"
                       />
                       <div className="p-6 space-y-4 flex flex-col flex-1">
@@ -1201,7 +1198,7 @@ export default function QuizResultsPage() {
                           <span className="text-orange-400 font-bold text-lg">-7 kg</span>
                         </div>
                         <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "lucilene" ? "" : "line-clamp-3"}`}>
-                          JÃ¡ comprei vÃ¡rios programas antes e nunca senti que era feito pra mim. Com o FitGoal foi diferente desde o inÃ­cio. Em 5 semanas perdi 7 kg e, mais do que isso, me olho no espelho e gosto do que vejo.
+                          Já comprei vários programas antes e nunca senti que era feito pra mim. Com o FitGoal foi diferente desde o início. Em 5 semanas perdi 7 kg e, mais do que isso, me olho no espelho e gosto do que vejo.
                         </p>
                         <button
                           onClick={() => setExpandedTestimonial(expandedTestimonial === "lucilene" ? null : "lucilene")}
@@ -1216,7 +1213,7 @@ export default function QuizResultsPage() {
                     <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
                       <img
                         src="/testimonial-maria-clara.jpg"
-                        alt="Maria Clara - TransformaÃ§Ã£o antes e depois"
+                        alt="Maria Clara - Transformação antes e depois"
                         className="w-full aspect-square object-cover"
                       />
                       <div className="p-6 space-y-4 flex flex-col flex-1">
@@ -1225,7 +1222,7 @@ export default function QuizResultsPage() {
                           <span className="text-orange-400 font-bold text-lg">-10 kg</span>
                         </div>
                         <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "maria-clara" ? "" : "line-clamp-3"}`}>
-                          Fiz dieta do ovo, jejum, tudo que existia. Achava que meu corpo simplesmente nÃ£o respondia. O FitGoal me mostrou que o problema era o mÃ©todo, nÃ£o eu. Em 2 meses perdi 10 kg e finalmente entendo o que funciona pro meu corpo.
+                          Fiz dieta do ovo, jejum, tudo que existia. Achava que meu corpo simplesmente não respondia. O FitGoal me mostrou que o problema era o método, não eu. Em 2 meses perdi 10 kg e finalmente entendo o que funciona pro meu corpo.
                         </p>
                         <button
                           onClick={() => setExpandedTestimonial(expandedTestimonial === "maria-clara" ? null : "maria-clara")}
@@ -1240,7 +1237,7 @@ export default function QuizResultsPage() {
                     <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
                       <img
                         src="/testimonial-tamires.jpg"
-                        alt="Tamires Silva - TransformaÃ§Ã£o antes e depois"
+                        alt="Tamires Silva - Transformação antes e depois"
                         className="w-full aspect-square object-cover"
                       />
                       <div className="p-6 space-y-4 flex flex-col flex-1">
@@ -1249,7 +1246,7 @@ export default function QuizResultsPage() {
                           <span className="text-orange-400 font-bold text-lg">-26 kg</span>
                         </div>
                         <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "tamires" ? "" : "line-clamp-3"}`}>
-                          Perdi 26 kg em 8 meses. Mas o que mais me surpreendeu nÃ£o foi a balanÃ§a â foi a disposiÃ§Ã£o que ganhei no dia a dia. Me sinto uma pessoa diferente. O acompanhamento personalizado fez toda a diferenÃ§a.
+                          Perdi 26 kg em 8 meses. Mas o que mais me surpreendeu não foi a balança — foi a disposição que ganhei no dia a dia. Me sinto uma pessoa diferente. O acompanhamento personalizado fez toda a diferença.
                         </p>
                         <button
                           onClick={() => setExpandedTestimonial(expandedTestimonial === "tamires" ? null : "tamires")}
@@ -1267,7 +1264,7 @@ export default function QuizResultsPage() {
                     <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
                       <img
                         src="/images/5123122014301391780.jpg"
-                        alt="Brandon - TransformaÃ§ï¿½ï¿½o antes e depois"
+                        alt="Brandon - Transformaç��o antes e depois"
                         className="w-full aspect-square object-cover"
                       />
                       <div className="p-6 space-y-4 flex flex-col flex-1">
@@ -1276,8 +1273,8 @@ export default function QuizResultsPage() {
                           <span className="text-orange-400 font-bold text-lg">-15 kg</span>
                         </div>
                         <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "brandon" ? "" : "line-clamp-3"}`}>
-                          OlÃ¡, estou usando seus treinos e comecei hÃ¡ cerca de 4-5 meses atrÃ¡s e sÃ³ queria dizer obrigado,
-                          vocÃª fez um Ã³timo trabalho, realmente vi um transformaÃ§Ã£o incrÃ­vel!
+                          Olá, estou usando seus treinos e comecei há cerca de 4-5 meses atrás e só queria dizer obrigado,
+                          você fez um ótimo trabalho, realmente vi um transformação incrível!
                         </p>
                         <button
                           onClick={() => setExpandedTestimonial(expandedTestimonial === "brandon" ? null : "brandon")}
@@ -1292,7 +1289,7 @@ export default function QuizResultsPage() {
                     <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
                       <img
                         src="/images/5123122014301391779.jpg"
-                        alt="Peter - TransformaÃ§Ã£o antes e depois"
+                        alt="Peter - Transformação antes e depois"
                         className="w-full aspect-square object-cover"
                       />
                       <div className="p-6 space-y-4 flex flex-col flex-1">
@@ -1301,7 +1298,7 @@ export default function QuizResultsPage() {
                           <span className="text-orange-400 font-bold text-lg">-5 kg</span>
                         </div>
                         <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "peter" ? "" : "line-clamp-3"}`}>
-                          Os vÃ­deos sÃ£o muito Ãºteis e fÃ¡ceis de entender. Os conselhos do seu consultor funcionam bem
+                          Os vídeos são muito úteis e fáceis de entender. Os conselhos do seu consultor funcionam bem
                           comigo. Consigo dormir cedo agora e tenho mais energia durante o dia!
                         </p>
                         <button
@@ -1317,7 +1314,7 @@ export default function QuizResultsPage() {
                     <div className="bg-gray-900 rounded-2xl overflow-hidden flex flex-col">
                       <img
                         src="/images/5123122014301391781.jpg"
-                        alt="Kevin - TransformaÃ§Ã£o antes e depois"
+                        alt="Kevin - Transformação antes e depois"
                         className="w-full aspect-square object-cover"
                       />
                       <div className="p-6 space-y-4 flex flex-col flex-1">
@@ -1326,7 +1323,7 @@ export default function QuizResultsPage() {
                           <span className="text-orange-400 font-bold text-lg">-13 kg</span>
                         </div>
                         <p className={`text-gray-400 text-sm flex-1 ${expandedTestimonial === "kevin" ? "" : "line-clamp-3"}`}>
-                          Comecei com cerca de 200 lbs e agora estou com um peso saudÃ¡vel e magro 172. Adorei a experiÃªncia com os planos personalizados!
+                          Comecei com cerca de 200 lbs e agora estou com um peso saudável e magro 172. Adorei a experiência com os planos personalizados!
                         </p>
                         <button
                           onClick={() => setExpandedTestimonial(expandedTestimonial === "kevin" ? null : "kevin")}
@@ -1341,21 +1338,21 @@ export default function QuizResultsPage() {
               </div>
 
               <p className="text-xs text-gray-500 text-center">
-                *Disclaimer: UsuÃ¡rios do FITGOAL compartilharam seu feedback. Este usuÃ¡rio teve acesso a treinamento
-                personalizado, recursos adicionais de pagamento. Os seguintes exercÃ­cios e os planos sÃ£o a chave em sua
+                *Disclaimer: Usuários do FITGOAL compartilharam seu feedback. Este usuário teve acesso a treinamento
+                personalizado, recursos adicionais de pagamento. Os seguintes exercícios e os planos são a chave em sua
                 jornada de fitness e resultados geralmente aparecem em 4 semanas. Os resultados podem variar por pessoa
-                e nÃ£o sÃ£o garantidos.
+                e não são garantidos.
               </p>
             </div>
           </section>
 
-        {/* SeÃ§Ã£o de objeÃ§Ã£o principal */}
+        {/* Seção de objeção principal */}
                 <section className="py-12 bg-black">
                           <div className="max-w-2xl mx-auto px-4">
                                       <div className="bg-gray-900 border border-orange-400/30 rounded-2xl p-8">
-                                                    <h3 className="text-xl font-bold text-white mb-4">&ldquo;JÃ¡ ouvi isso antes. Por que seria diferente agora?&rdquo;</h3>
-                                                                  <p className="text-gray-300 leading-relaxed">Essa Ã© a pergunta mais honesta que vocÃª pode fazer â e ela merece uma resposta direta.</p>
-                                                                                <p className="text-gray-300 leading-relaxed mt-4">A maioria dos programas te dÃ¡ um plano feito para uma mulher imaginÃ¡ria. O FitGoal foi feito para <strong className="text-white">vocÃª</strong>: seu peso de hoje, sua rotina, seu histÃ³rico. Quando o plano Ã© certo para o seu corpo, os resultados aparecem. NÃ£o porque vocÃª vai se esforÃ§ar mais â mas porque finalmente estarÃ¡ fazendo a coisa certa.</p>
+                                                    <h3 className="text-xl font-bold text-white mb-4">&ldquo;Já ouvi isso antes. Por que seria diferente agora?&rdquo;</h3>
+                                                                  <p className="text-gray-300 leading-relaxed">Essa é a pergunta mais honesta que você pode fazer — e ela merece uma resposta direta.</p>
+                                                                                <p className="text-gray-300 leading-relaxed mt-4">A maioria dos programas te dá um plano feito para uma mulher imaginária. O FitGoal foi feito para <strong className="text-white">você</strong>: seu peso de hoje, sua rotina, seu histórico. Quando o plano é certo para o seu corpo, os resultados aparecem. Não porque você vai se esforçar mais — mas porque finalmente estará fazendo a coisa certa.</p>
                                                                                             </div>
                                                                                                       </div>
                                                                                                               </section>
@@ -1384,18 +1381,18 @@ export default function QuizResultsPage() {
                     </svg>
                   </summary>
                   <p className="text-gray-400 mt-4">
-                    Nosso plano foi desenvolvido para ajudÃ¡-la a queimar gordura e construir um corpo tonificado e
-                    aesthetic, combinando treinos passo a passo e um plano de refeiÃ§Ãµes 100% personalizado. Nossos
-                    treinos e dietas garantem a forma correta e ajudam vocÃª a manter a consistÃªncia e a motivaÃ§Ã£o,
-                    tornando a perda de peso mais alcanÃ§Ã¡vel e sustentÃ¡vel uma vez que tudo Ã© 100% personalizado para
-                    vocÃª de acordo com as informaÃ§Ãµes que coletamos no quiz.
+                    Nosso plano foi desenvolvido para ajudá-la a queimar gordura e construir um corpo tonificado e
+                    aesthetic, combinando treinos passo a passo e um plano de refeições 100% personalizado. Nossos
+                    treinos e dietas garantem a forma correta e ajudam você a manter a consistência e a motivação,
+                    tornando a perda de peso mais alcançável e sustentável uma vez que tudo é 100% personalizado para
+                    você de acordo com as informações que coletamos no quiz.
                   </p>
                 </details>
 
                 {/* FAQ Item 2 */}
                 <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
                   <summary className="flex items-center justify-between font-bold text-white">
-                    Quais sÃ£o os benefÃ­cios dos planos FITGOAL em comparaÃ§Ã£o com concorrentes?
+                    Quais são os benefícios dos planos FITGOAL em comparação com concorrentes?
                     <svg
                       className="w-5 h-5 transform group-open:rotate-180 transition"
                       fill="none"
@@ -1411,11 +1408,11 @@ export default function QuizResultsPage() {
                     </svg>
                   </summary>
                   <p className="text-gray-400 mt-4">
-                    Os nossos planos sÃ£o 100% personalizados para VOCÃ, tanto a dieta quanto o treino, enquanto os
-                    nossos concorrentes te enviam planos genÃ©ricos nÃ³s vamos mais a fundo garantindo eficiÃªncia e
-                    resultados desde que vocÃª se comprometa com os nossos planos de treino e dieta, alÃ©m disso temos
-                    orgulho do nosso suporte que te ajudarÃ¡ a ajustar qualquer coisa ou tirar dÃºvidas, se vocÃª
-                    simplesmente quer tentar algo que dÃª RESULTADOS, inovador e divertido. Obtenha seu plano e
+                    Os nossos planos são 100% personalizados para VOCÊ, tanto a dieta quanto o treino, enquanto os
+                    nossos concorrentes te enviam planos genéricos nós vamos mais a fundo garantindo eficiência e
+                    resultados desde que você se comprometa com os nossos planos de treino e dieta, além disso temos
+                    orgulho do nosso suporte que te ajudará a ajustar qualquer coisa ou tirar dúvidas, se você
+                    simplesmente quer tentar algo que dê RESULTADOS, inovador e divertido. Obtenha seu plano e
                     experimente agora!
                   </p>
                 </details>
@@ -1423,7 +1420,7 @@ export default function QuizResultsPage() {
                 {/* FAQ Item 3 */}
                 <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
                   <summary className="flex items-center justify-between font-bold text-white">
-                    E se eu perder a motivaÃ§Ã£o rapidamente?
+                    E se eu perder a motivação rapidamente?
                     <svg
                       className="w-5 h-5 transform group-open:rotate-180 transition"
                       fill="none"
@@ -1439,9 +1436,9 @@ export default function QuizResultsPage() {
                     </svg>
                   </summary>
                   <p className="text-gray-400 mt-4">
-                    Forneceremos lembretes suaves, conselhos de especialistas, ferramentas de rastreamento Ãºteis e apoio
-                    constante para ajudÃ¡-la a ver o progresso e manter-se consistente. Dessa forma, vocÃª pode alcanÃ§ar
-                    seus objetivos e desfrutar de um corpo mais saudÃ¡vel e em forma sem o medo de desistir.
+                    Forneceremos lembretes suaves, conselhos de especialistas, ferramentas de rastreamento úteis e apoio
+                    constante para ajudá-la a ver o progresso e manter-se consistente. Dessa forma, você pode alcançar
+                    seus objetivos e desfrutar de um corpo mais saudável e em forma sem o medo de desistir.
                   </p>
                 </details>
 
@@ -1454,7 +1451,7 @@ export default function QuizResultsPage() {
                     </svg>
                   </summary>
                   <p className="text-gray-400 mt-4">
-                    Sim! Nossos planos sÃ£o criados considerando a sua rotina. Se vocÃª tem 30 a 45 minutos disponÃ­veis, jÃ¡ Ã© suficiente para seguir o programa completo e ver resultados. Tudo Ã© adaptado ao tempo que vocÃª informou no quiz.
+                    Sim! Nossos planos são criados considerando a sua rotina. Se você tem 30 a 45 minutos disponíveis, já é suficiente para seguir o programa completo e ver resultados. Tudo é adaptado ao tempo que você informou no quiz.
                   </p>
                 </details>
 
@@ -1467,72 +1464,72 @@ export default function QuizResultsPage() {
                     </svg>
                   </summary>
                   <p className="text-gray-400 mt-4">
-                    NÃ£o! O plano Ã© criado com base no que vocÃª tem disponÃ­vel. Se preferir treinar em casa, os exercÃ­cios serÃ£o adaptados para isso â sem precisar de nenhum equipamento. Mas se vocÃª tiver acesso Ã  academia, aproveitamos isso ao mÃ¡ximo no seu programa.
+                    Não! O plano é criado com base no que você tem disponível. Se preferir treinar em casa, os exercícios serão adaptados para isso — sem precisar de nenhum equipamento. Mas se você tiver acesso à academia, aproveitamos isso ao máximo no seu programa.
                   </p>
                 </details>
 
                 {/* FAQ Item 6 */}
                 <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
                   <summary className="flex items-center justify-between font-bold text-white">
-                    E se eu tiver alguma restriÃ§Ã£o alimentar?
+                    E se eu tiver alguma restrição alimentar?
                     <svg className="w-5 h-5 transform group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                     </svg>
                   </summary>
                   <p className="text-gray-400 mt-4">
-                    O seu plano de dieta Ã© montado com base nas informaÃ§Ãµes que vocÃª forneceu, incluindo preferÃªncias e restriÃ§Ãµes. Se precisar de ajustes apÃ³s receber o plano, nossa equipe de suporte estÃ¡ disponÃ­vel para adaptar as refeiÃ§Ãµes Ã s suas necessidades.
+                    O seu plano de dieta é montado com base nas informações que você forneceu, incluindo preferências e restrições. Se precisar de ajustes após receber o plano, nossa equipe de suporte está disponível para adaptar as refeições às suas necessidades.
                   </p>
                 </details>
 
                 {/* FAQ Item 7 - Price objection */}
                 <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
                   <summary className="flex items-center justify-between font-bold text-white">
-                    Vale mais a pena do que pegar conteÃºdo gratuito no YouTube?
+                    Vale mais a pena do que pegar conteúdo gratuito no YouTube?
                     <svg className="w-5 h-5 transform group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                     </svg>
                   </summary>
                   <p className="text-gray-400 mt-4">
-                    O YouTube tem conteÃºdo incrÃ­vel â mas nenhum vÃ­deo sabe o seu peso, a sua altura, quantos dias vocÃª tem disponÃ­vel, se vocÃª prefere treinar em casa ou na academia, ou qual Ã© o seu objetivo especÃ­fico. O FitGoal gera um plano montado especificamente para vocÃª, nÃ£o um conteÃºdo genÃ©rico para todos. A diferenÃ§a estÃ¡ na personalizaÃ§Ã£o e na praticidade de ter tudo organizado em um sÃ³ lugar.
+                    O YouTube tem conteúdo incrível — mas nenhum vídeo sabe o seu peso, a sua altura, quantos dias você tem disponível, se você prefere treinar em casa ou na academia, ou qual é o seu objetivo específico. O FitGoal gera um plano montado especificamente para você, não um conteúdo genérico para todos. A diferença está na personalização e na praticidade de ter tudo organizado em um só lugar.
                   </p>
                 </details>
 
                 {/* FAQ Item 8 - AI / personalization */}
                 <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
                   <summary className="flex items-center justify-between font-bold text-white">
-                    O plano Ã© gerado por IA ou Ã© feito por um profissional?
+                    O plano é gerado por IA ou é feito por um profissional?
                     <svg className="w-5 h-5 transform group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                     </svg>
                   </summary>
                   <p className="text-gray-400 mt-4">
-                    Seu plano Ã© gerado por um sistema de personalizaÃ§Ã£o avanÃ§ado que usa as suas respostas do quiz como base â levando em conta seu peso, altura, objetivo, nÃ­vel de treino, rotina e restriÃ§Ãµes. O resultado Ã© um plano estruturado e prÃ¡tico, Ãºnico para o seu perfil. Se precisar de ajustes depois de receber, nossa equipe estÃ¡ disponÃ­vel para te ajudar.
+                    Seu plano é gerado por um sistema de personalização avançado que usa as suas respostas do quiz como base — levando em conta seu peso, altura, objetivo, nível de treino, rotina e restrições. O resultado é um plano estruturado e prático, único para o seu perfil. Se precisar de ajustes depois de receber, nossa equipe está disponível para te ajudar.
                   </p>
                 </details>
 
                 {/* FAQ Item 9 - Support */}
                 <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
                   <summary className="flex items-center justify-between font-bold text-white">
-                    Vou ter suporte se travar ou tiver dÃºvidas?
+                    Vou ter suporte se travar ou tiver dúvidas?
                     <svg className="w-5 h-5 transform group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                     </svg>
                   </summary>
                   <p className="text-gray-400 mt-4">
-                    Sim. Nossa equipe de suporte estÃ¡ disponÃ­vel para responder dÃºvidas sobre o plano, ajudar com substituiÃ§Ãµes de alimentos, adaptar exercÃ­cios e tirar qualquer dÃºvida que aparecer no caminho. VocÃª nÃ£o vai ficar sozinha.
+                    Sim. Nossa equipe de suporte está disponível para responder dúvidas sobre o plano, ajudar com substituições de alimentos, adaptar exercícios e tirar qualquer dúvida que aparecer no caminho. Você não vai ficar sozinha.
                   </p>
                 </details>
 
                 {/* FAQ Item 10 - health conditions */}
                 <details className="group border border-gray-700 rounded-lg p-6 cursor-pointer hover:border-gray-600 transition">
                   <summary className="flex items-center justify-between font-bold text-white">
-                    Funciona para quem tem hipotireoidismo, SOP ou outra condiÃ§Ã£o de saÃºde?
+                    Funciona para quem tem hipotireoidismo, SOP ou outra condição de saúde?
                     <svg className="w-5 h-5 transform group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                     </svg>
                   </summary>
                   <p className="text-gray-400 mt-4">
-                    O FitGoal Ã© um programa de alimentaÃ§Ã£o e treino baseado nas suas respostas do quiz. Se vocÃª tem alguma condiÃ§Ã£o de saÃºde especÃ­fica como hipotireoidismo ou SOP, recomendamos sempre consultar um mÃ©dico ou nutricionista antes de comeÃ§ar qualquer programa. O nosso plano pode ser um excelente complemento ao acompanhamento profissional, mas nÃ£o substitui orientaÃ§Ã£o mÃ©dica.
+                    O FitGoal é um programa de alimentação e treino baseado nas suas respostas do quiz. Se você tem alguma condição de saúde específica como hipotireoidismo ou SOP, recomendamos sempre consultar um médico ou nutricionista antes de começar qualquer programa. O nosso plano pode ser um excelente complemento ao acompanhamento profissional, mas não substitui orientação médica.
                   </p>
                 </details>
 
@@ -1551,11 +1548,11 @@ export default function QuizResultsPage() {
                   <span className="text-white font-bold text-lg">Comunidade FitGoal</span>
                 </div>
                 <p className="text-gray-400 text-sm max-w-md">
-                  Mais de <span className="text-white font-semibold">3.000 pessoas</span> jÃ¡ iniciaram sua transformaÃ§Ã£o com o FitGoal em 2025.
+                  Mais de <span className="text-white font-semibold">3.000 pessoas</span> já iniciaram sua transformação com o FitGoal em 2025.
                 </p>
                 {getDataValue("gender") === "mulher" && (
                   <p className="text-orange-400 text-sm font-medium">
-                    ð¥ Ãltimas vagas com preÃ§o promocional disponÃ­veis hoje
+                    🔥 Últimas vagas com preço promocional disponíveis hoje
                   </p>
                 )}
               </div>
@@ -1566,10 +1563,10 @@ export default function QuizResultsPage() {
           <section className="py-16">
             <div className="max-w-6xl mx-auto px-6">
               <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-12">
-                Obtenha resultados visÃ­veis em 4 semanas!
+                Obtenha resultados visíveis em 4 semanas!
               </h2>
 
-              {/* ========== SEÃÃO DE CÃDIGO DE DESCONTO - DESATIVADA PARA MULHERES ========== */}
+              {/* ========== SEÇÃO DE CÓDIGO DE DESCONTO - DESATIVADA PARA MULHERES ========== */}
               {getDataValue("gender") !== "mulher" && (
                 <div className="bg-orange-400 rounded-xl p-1 mb-8">
                   <div className="bg-black rounded-lg p-6 space-y-4">
@@ -1578,7 +1575,7 @@ export default function QuizResultsPage() {
                         <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
                       </svg>
                       <span className="text-white font-semibold">
-                        {discountApplied ? 'Seu cÃ³digo promo foi aplicado!' : 'Possui cÃ³digo de desconto?'}
+                        {discountApplied ? 'Seu código promo foi aplicado!' : 'Possui código de desconto?'}
                       </span>
                     </div>
 
@@ -1597,10 +1594,10 @@ export default function QuizResultsPage() {
               {/* Urgency banner */}
               {getDataValue("gender") === "mulher" && (
                 <div className="mb-6 bg-gradient-to-r from-orange-500/20 to-orange-400/10 border border-orange-500/50 rounded-xl p-4 flex items-center gap-3">
-                  <span className="text-2xl">â³</span>
+                  <span className="text-2xl">⏳</span>
                   <div>
-                    <p className="text-orange-400 font-bold text-sm">Seu resultado ficarÃ¡ salvo por 24 horas</p>
-                    <p className="text-gray-400 text-xs mt-0.5">ApÃ³s esse prazo, serÃ¡ necessÃ¡rio refazer o quiz para gerar um novo plano personalizado.</p>
+                    <p className="text-orange-400 font-bold text-sm">Seu resultado ficará salvo por 24 horas</p>
+                    <p className="text-gray-400 text-xs mt-0.5">Após esse prazo, será necessário refazer o quiz para gerar um novo plano personalizado.</p>
                   </div>
                 </div>
               )}
@@ -1637,7 +1634,7 @@ export default function QuizResultsPage() {
                       ) : 'R$ 199,90'
                     )}
                   </div>
-                  <div className="text-gray-500 text-xs">por mÃªs</div>
+                  <div className="text-gray-500 text-xs">por mês</div>
                 </div>
 
                             {/* TRIMESTRAL E SEMESTRAL - DESATIVADOS TEMPORARIAMENTE */}
@@ -1715,18 +1712,18 @@ export default function QuizResultsPage() {
 
               {/* Disclaimer */}
               <p className="text-gray-400 text-sm text-center mb-8 max-w-2xl mx-auto">
-                Sem cancelamento automÃ¡tico antes do final do perÃ­odo para planos, concordo que o Fitgoal cobrarÃ¡
+                Sem cancelamento automático antes do final do período para planos, concordo que o Fitgoal cobrará
                 automaticamente enquanto sua assinatura estiver ativa. Cancele quando quiser pelo app ou site.
               </p>
 
               {/* CTA Button with urgency */}
               <div className="text-center mb-16">
                 <p className="text-gray-400 text-sm mb-2">
-                  ð Acesso liberado imediatamente apÃ³s a confirmaÃ§Ã£o
+                  🔒 Acesso liberado imediatamente após a confirmação
                 </p>
                 {getDataValue("gender") === "mulher" && (
                   <p className="text-orange-400 text-xs mb-4 font-medium">
-                    â³ Resultado salvo por 24h â garanta agora antes de expirar
+                    ⏳ Resultado salvo por 24h — garanta agora antes de expirar
                   </p>
                 )}
                 {/* Mini garantia - reduz ansiedade antes do clique */}
@@ -1736,17 +1733,17 @@ export default function QuizResultsPage() {
                   </svg>
                   <div className="text-left">
                     <p className="text-green-400 font-bold text-sm">Garantia de 7 dias sem perguntas</p>
-                    <p className="text-gray-400 text-xs mt-0.5">NÃ£o ficou satisfeita? Devolvemos 100% do valor â sem formulÃ¡rios, sem explicaÃ§Ã£o.</p>
+                    <p className="text-gray-400 text-xs mt-0.5">Não ficou satisfeita? Devolvemos 100% do valor — sem formulários, sem explicação.</p>
                   </div>
                 </div>
                 <button
                   onClick={handleCheckout}
                   className="bg-gradient-to-r from-orange-500 to-orange-400 text-white font-black text-lg px-12 py-4 rounded-full hover:from-orange-400 hover:to-orange-300 transition shadow-lg shadow-orange-500/30 active:scale-95"
                 >
-                  COMEÃAR MEU PLANO AGORA
+                  COMEÇAR MEU PLANO AGORA
                 </button>
                 <p className="text-gray-500 text-xs mt-3">
-                  Cancele quando quiser Â· Sem compromisso
+                  Cancele quando quiser · Sem compromisso
                 </p>
               </div>
 
@@ -1768,15 +1765,15 @@ export default function QuizResultsPage() {
                 <h3 className="text-3xl font-bold text-white mb-2">Garantia incondicional de 7 dias</h3>
                 <p className="text-orange-400 font-semibold text-sm mb-4">Sem perguntas. Sem burocracia.</p>
                 <p className="text-gray-400 mb-4">
-                  Experimentou por 7 dias e nÃ£o ficou satisfeita? Manda uma mensagem e devolvemos 100% do valor â sem precisar dar explicaÃ§Ã£o, sem formulÃ¡rio, sem burocracia nenhuma.
+                  Experimentou por 7 dias e não ficou satisfeita? Manda uma mensagem e devolvemos 100% do valor — sem precisar dar explicação, sem formulário, sem burocracia nenhuma.
                 </p>
                 <p className="text-gray-400 mb-4">
-                  Acreditamos tanto no resultado que colocamos o risco todo por nossa conta. VocÃª nÃ£o perde nada tentando â sÃ³ ganha se funcionar.
+                  Acreditamos tanto no resultado que colocamos o risco todo por nossa conta. Você não perde nada tentando — só ganha se funcionar.
                 </p>
                 <p className="text-gray-500 text-sm">
                   Saiba mais em nossa{" "}
                   <a href="/politica-reembolso" className="text-green-400 hover:underline">
-                    polÃ­tica de reembolso
+                    política de reembolso
                   </a>
                   .
                 </p>
@@ -1786,7 +1783,7 @@ export default function QuizResultsPage() {
 
           {/* Footer */}
           <footer className="border-t border-gray-800 mt-16 py-8 text-center text-gray-400 text-sm">
-            <p className="mb-4">Fitgoal | EscritÃ³rio No. 101, 1Âº Andar, Avenida Paulista, SÃ£o Paulo</p>
+            <p className="mb-4">Fitgoal | Escritório No. 101, 1º Andar, Avenida Paulista, São Paulo</p>
             <div className="flex justify-center gap-4">
               <a href="#" className="hover:text-white transition">
                 Privacidade
