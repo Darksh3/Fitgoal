@@ -9,7 +9,7 @@
 
 const isMetaPixelLoaded = (): boolean => {
   return typeof window !== 'undefined' && typeof (window as any).fbq?.callMethod === 'function'
-}h
+}
 
 export const initMetaPixel = (pixelId: string): void => {
   if (typeof window === 'undefined') return
