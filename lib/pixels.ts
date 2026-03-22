@@ -1,6 +1,6 @@
 // ============================================
 // lib/pixels.ts
-// Funções de rastreamento para Meta Pixel e TikTok Pixel
+// Funções de rastreamento para Meta Pixel e TikTok Pixel 
 // ============================================
 
 // ============================================
