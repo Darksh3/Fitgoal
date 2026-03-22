@@ -4,6 +4,7 @@ import { adminDb, admin, auth } from "@/lib/firebaseAdmin"
 import { Resend } from "resend"
 import sgMail from "@sendgrid/mail"
 import { sendPurchaseEvent } from "@/lib/meta-conversions-api"
+import { sendTikTokPurchaseEvent } from "@/lib/tiktok-events-api"
 
 // ==================== HELPERS ====================
 async function getLeadDoc(adminDb: any, ids: Array<string | null | undefined>) {
@@ -560,6 +561,24 @@ export async function POST(req: Request) {
           userAgent: req.headers.get('user-agent') || undefined,
         })
         console.log("[v0] META_CAPI - Evento Purchase enviado com sucesso")
+
+        // ==================== TIKTOK EVENTS API (SERVER-SIDE) ====================
+        try {
+          await sendTikTokPurchaseEvent({
+            email: userEmail || undefined,
+            phone: customerPhone || undefined,
+            value: purchaseValue,
+            currency: 'BRL',
+            planName: displayPlanNameForPixel,
+            orderId: finalUserUid,
+            clientIp: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || undefined,
+            userAgent: req.headers.get('user-agent') || undefined,
+          })
+          console.log("[v0] TIKTOK_EVENTS_API - Evento CompletePayment enviado com sucesso")
+        } catch (tiktokError: any) {
+          console.error("[v0] TIKTOK_EVENTS_API - Erro ao enviar evento:", tiktokError?.message)
+          // Nao falha o checkout se o pixel falhar
+        }
       } catch (capiError: any) {
         console.error("[v0] META_CAPI - Erro ao enviar evento Purchase:", capiError?.message)
         // Não falha o checkout se o pixel falhar
