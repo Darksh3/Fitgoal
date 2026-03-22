@@ -9,7 +9,7 @@
 
 const isMetaPixelLoaded = (): boolean => {
   return typeof window !== 'undefined' && typeof (window as any).fbq?.callMethod === 'function'
-}
+}h
 
 export const initMetaPixel = (pixelId: string): void => {
   if (typeof window === 'undefined') return
@@ -112,7 +112,7 @@ export const initTikTokPixel = (pixelId: string): void => {
     firstScript?.parentNode?.insertBefore(script, firstScript)
   }
 
-  ttq.load(pixelCode)
+  ttq.load(pixelId)
   ttq.page()
 }
 
