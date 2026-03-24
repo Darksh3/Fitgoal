@@ -23,6 +23,7 @@ export default function QuizResultsPage() {
   const [showSpinWheel, setShowSpinWheel] = useState(true)
   const [discountApplied, setDiscountApplied] = useState(false)
   const [discountPercentage, setDiscountPercentage] = useState(0)
+  const [showStickyBar, setShowStickyBar] = useState(false)
   // ========================================
 
   // ========== FUNÇÃO QUANDO GANHA DESCONTO ==========
@@ -132,6 +133,15 @@ export default function QuizResultsPage() {
 
     return () => clearInterval(interval)
   }, [discountApplied])
+
+  // Mostra sticky bar após rolar 400px
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowStickyBar(window.scrollY > 400)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const getDataValue = (key: string) => {
     console.log(`[v0] getDataValue('${key}'):`, {
@@ -1780,6 +1790,25 @@ export default function QuizResultsPage() {
               </div>
             </div>
           </section>
+
+          {/* Sticky CTA Bar */}
+          {showStickyBar && (
+            <div className="fixed bottom-0 left-0 right-0 z-50 bg-black border-t border-orange-500/40 px-4 py-3 flex items-center justify-between gap-4 shadow-2xl">
+              <div className="hidden sm:block">
+                <p className="text-white font-bold text-sm">Seu plano está pronto!</p>
+                <p className="text-gray-400 text-xs">
+                  <span className="line-through text-gray-600 mr-1">R$ 199,90</span>
+                  <span className="text-orange-400 font-bold">R$ 59,90/mês</span> · Garantia de 7 dias
+                </p>
+              </div>
+              <button
+                onClick={handleCheckout}
+                className="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-orange-400 text-white font-black text-sm px-6 py-3 rounded-full hover:from-orange-400 hover:to-orange-300 transition shadow-lg shadow-orange-500/30 active:scale-95 whitespace-nowrap"
+              >
+                GARANTIR MEU PLANO →
+              </button>
+            </div>
+          )}
 
           {/* Footer */}
           <footer className="border-t border-gray-800 mt-16 py-8 text-center text-gray-400 text-sm">
