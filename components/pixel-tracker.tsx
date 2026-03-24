@@ -116,13 +116,13 @@ function PixelProvider({ children }: { children: ReactNode }) {
         identifyTikTokUser,
   }
 
-  return <PixelContext.Provider value={contextValue}>{children}</PixelContext.Provider>PixelContext.Provider>
+  return <PixelContext.Provider value={contextValue}>{children}</PixelContext.Provider>
     }
 
 export function PixelTracker({ children }: { children: ReactNode }) {
     return (
           <Suspense fallback={null}>
-                  <PixelProvider>{children}</PixelProvider>PixelProvider>
-          </Suspense>Suspense>
+                  <PixelProvider>{children}</PixelProvider>
+          </Suspense>
         )
-}</PixelProvider>
+}
