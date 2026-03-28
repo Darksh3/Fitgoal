@@ -191,6 +191,7 @@ export function DashboardContent() {
                                             <a href="/admin/users" className="block p-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-sm">
                                                           → Gerenciar Usuários
                                             </a>
+                                            <a href="/admin/trial" className="block p-3 rounded-lg bg-lime-600/20 hover:bg-lime-600/30 text-lime-400 hover:text-lime-300 transition-colors text-sm font-medium">&#10022; Trial Gratuito (15 dias)</a>
                                 </div>
                       </Card>
                       <Card className="bg-slate-900 border-slate-800 p-6">
