@@ -31,6 +31,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePixel } from "@/components/pixel-tracker"
 
+import { StripeEmbeddedCheckout } from "./stripe-embedded-checkout"
 interface PaymentFormData {
   email: string
   name: string
@@ -1014,121 +1015,19 @@ export default function CheckoutPage() {
                 </motion.div>
               )}
 
-              {/* Card Fields */}
+              {/* Card Fields - Stripe */}
               {paymentMethod === "card" && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-3">
-                  <Input
-                    placeholder="Número do Cartão"
-                    value={cardData.number}
-                    onChange={(e) => handleCardChange(e, "number")}
-                    maxLength={19}
-                    className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 font-mono ${getFieldError("cardNumber") ? "border-red-500/80 border-2" : "border-slate-600"
-                      }`}
-                  />
-                  <div className="grid grid-cols-3 gap-3">
-                    <Input
-                      placeholder="Validade (MM)"
-                      value={cardData.expiryMonth}
-                      onChange={(e) => handleCardChange(e, "expiryMonth")}
-                      maxLength={2}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardExpiry") ? "border-red-500/80 border-2" : "border-slate-600"
-                        }`}
-                    />
-                    <Input
-                      placeholder="Ano (YYYY)"
-                      value={cardData.expiryYear}
-                      onChange={(e) => handleCardChange(e, "expiryYear")}
-                      maxLength={4}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardExpiry") ? "border-red-500/80 border-2" : "border-slate-600"
-                        }`}
-                    />
-                    <Input
-                      placeholder="CVV"
-                      value={cardData.ccv}
-                      onChange={(e) => handleCardChange(e, "ccv")}
-                      maxLength={3}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardCcv") ? "border-red-500/80 border-2" : "border-slate-600"
-                        }`}
-                    />
-                  </div>
-                  <Input
-                    placeholder="Nome no Cartão"
-                    value={cardData.holderName}
-                    onChange={(e) => handleCardChange(e, "holderName")}
-                    className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardHolder") ? "border-red-500/80 border-2" : "border-slate-600"
-                      }`}
-                  />
-
-                  {/* Address Fields for Card */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input
-                      placeholder="CEP"
-                      value={addressData.postalCode}
-                      onChange={(e) => setAddressData({ ...addressData, postalCode: e.target.value.replace(/\D/g, "").slice(0, 8) })}
-                      maxLength={8}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("postalCode") ? "border-red-500/80 border-2" : "border-slate-600"}`}
-                    />
-                    <Input
-                      placeholder="Número da Residência"
-                      value={addressData.addressNumber}
-                      onChange={(e) => setAddressData({ ...addressData, addressNumber: e.target.value })}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("addressNumber") ? "border-red-500/80 border-2" : "border-slate-600"}`}
-                    />
-                  </div>
-
-                  <select
-                    value={installments}
-                    onChange={(e) => setInstallments(parseInt(e.target.value))}
-                    className="w-full bg-slate-700/40 border border-slate-600 text-white rounded-md px-3 py-2 placeholder:text-slate-400 placeholder:opacity-100"
-                  >
-                    {/* Complementos Only - Limitar parcelamento */}
-                    {isComplementosOnly ? (
-                      <>
-                        <option value={1} className="bg-slate-800">
-                          1x de R$ {parseFloat(totalPrice).toFixed(2).replace(".", ",")}
-                        </option>
-                        {/* Permitir 2x apenas se total >= R$ 29.90 (2 complementos) */}
-                        {parseFloat(totalPrice) >= 29.80 && (
-                          <option value={2} className="bg-slate-800">
-                            2x de R$ {(parseFloat(totalPrice) / 2).toFixed(2).replace(".", ",")}
-                          </option>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        {selectedPlan === "semestral" && [1, 2, 3, 4, 5, 6].map((n) => (
-                          <option key={n} value={n} className="bg-slate-800">
-                            {n}x de R$ {(parseFloat(totalPrice) / n).toFixed(2).replace(".", ",")}</option>
-                        ))}
-                        {selectedPlan === "trimestral" && [1, 2, 3].map((n) => (
-                          <option key={n} value={n} className="bg-slate-800">
-                            {n}x de R$ {(parseFloat(totalPrice) / n).toFixed(2).replace(".", ",")}</option>
-                        ))}
-                        {selectedPlan === "mensal" && (
-                          <option value={1} className="bg-slate-800">
-                            1x de R$ {parseFloat(totalPrice).toFixed(2).replace(".", ",")}</option>
-                        )}
-                      </>
-                    )}
-                  </select>
-
-                  {/* Sugestão de parcelamento condicional */}
-                  {!isComplementosOnly && selectedPlan === "semestral" && (
-                    <div className="text-xs text-lime-400 text-center">
-                      ou até 6x de R$ {(parseFloat(totalPrice) / 6).toFixed(2).replace(".", ",")}
-                    </div>
-                  )}
-                  {!isComplementosOnly && selectedPlan === "trimestral" && (
-                    <div className="text-xs text-lime-400 text-center">
-                      ou até 3x de R$ {(parseFloat(totalPrice) / 3).toFixed(2).replace(".", ",")}
-                    </div>
-                  )}
-                  {isComplementosOnly && parseFloat(totalPrice) >= 29.80 && (
-                    <div className="text-xs text-lime-400 text-center">
-                      ou até 2x de R$ {(parseFloat(totalPrice) / 2).toFixed(2).replace(".", ",")}
-                    </div>
-                  )}
-                </motion.div>
+                <StripeEmbeddedCheckout
+                  amount={parseFloat(totalPrice)}
+                  planType={selectedPlan}
+                  clientUid={user?.uid || ""}
+                  customerEmail={formData.email}
+                  customerName={formData.name}
+                  orderBumps={{
+                    ebook: selectedOrderBumps.ebook,
+                    protocolo: selectedOrderBumps.protocolo,
+                  }}
+                />
               )}
 
               {/* Error Message - Mais orientador */}
