@@ -1,84 +1,162 @@
+import { NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
+import { adminDb, admin } from "@/lib/firebaseAdmin"
+
+export const runtime = "nodejs"
+export const dynamic = "force-dynamic"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-06-20",
+    apiVersion: "2024-06-20",
 })
 
-export async function POST(request: Request) {
-  try {
+export async function POST(request: NextRequest) {
     const body = await request.text()
-    const sig = request.headers.get("stripe-signature")!
+    const sig = request.headers.get("stripe-signature")
 
-    const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+  if (!sig) {
+        console.error("[stripe-webhook] stripe-signature header ausente")
+        return NextResponse.json({ error: "Assinatura ausente" }, { status: 400 })
+  }
 
-    switch (event.type) {
-      case "checkout.session.completed":
-        const session = event.data.object as Stripe.Checkout.Session
+  let event: Stripe.Event
 
-        const userId = session.metadata?.userId as string | undefined
-        const planType = session.metadata?.planType as string | undefined
+  try {
+        event = stripe.webhooks.constructEvent(
+                body,
+                sig,
+                process.env.STRIPE_WEBHOOK_SECRET!
+              )
+  } catch (err: any) {
+        console.error("[stripe-webhook] Erro na verificação da assinatura:", err.message)
+        return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
+  }
 
-        console.log("Pagamento Stripe confirmado:", {
-          userId: userId,
-          planType: planType,
-          customerId: session.customer,
-          subscriptionId: session.subscription,
-          mode: session.mode, // Log do modo de pagamento
-        })
+  console.log(`[stripe-webhook] Evento recebido: ${event.type}`)
 
-        // Ativar assinatura do usuário (se necessário, você pode ter uma função para isso)
-        // await activateUserSubscription(userId, planType)
+  switch (event.type) {
+          // =========================================================
+      // PAGAMENTO ÚNICO (Payment Intent) — usado pelo híbrido cartão
+      // =========================================================
+    case "payment_intent.succeeded": {
+            const intent = event.data.object as Stripe.PaymentIntent
+            console.log("[stripe-webhook] payment_intent.succeeded:", intent.id)
 
-        // *** NOVO: Acionar a geração do plano pela IA após o pagamento ***
-        if (userId) {
-          try {
-            const generateResponse = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/generate-plans-on-demand`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ userId }),
-            })
-
-            if (!generateResponse.ok) {
-              const errorData = await generateResponse.json()
-              console.error("Erro ao acionar geração de planos:", errorData)
-              // Você pode querer logar isso em um sistema de monitoramento de erros
-            } else {
-              console.log("Geração de planos acionada com sucesso para o usuário:", userId)
+            // 1. Atualizar status no Firestore
+            try {
+                      await adminDb.collection("payments").doc(intent.id).set(
+                        {
+                                      status: "CONFIRMED",
+                                      confirmedAt: admin.firestore.FieldValue.serverTimestamp(),
+                                      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                        },
+                        { merge: true }
+                                )
+                      console.log("[stripe-webhook] Payment doc atualizado:", intent.id)
+            } catch (err) {
+                      console.error("[stripe-webhook] Erro ao atualizar Firestore:", err)
             }
-          } catch (generateError) {
-            console.error("Erro ao fazer fetch para generate-plans-on-demand:", generateError)
-          }
-        } else {
-          console.warn("userId não encontrado na sessão do Stripe. Geração de planos não acionada.")
-        }
-        // *** FIM DO NOVO ***
 
-        break
+            // 2. Chamar o handle-post-checkout (mesmo fluxo do Asaas)
+            const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_URL
+            if (appUrl) {
+                      const clientUid = intent.metadata?.clientUid || null
+                      const customerEmail = intent.metadata?.customerEmail || null
+                      const customerName = intent.metadata?.customerName || null
+                      const planType = intent.metadata?.planType || null
+                      let orderBumps: any = {}
+                                try {
+                                            orderBumps = JSON.parse(intent.metadata?.orderBumps || "{}")
+                                } catch {}
 
-      case "payment_intent.succeeded":
-        const paymentIntent = event.data.object as Stripe.PaymentIntent
-        console.log("Pagamento único confirmado:", {
-          paymentIntentId: paymentIntent.id,
-          amount: paymentIntent.amount,
-          customer: paymentIntent.customer,
-        })
-        break
+              const payload = {
+                          userId: clientUid,
+                          paymentId: intent.id,
+                          customerName: customerName,
+                          customerEmail: customerEmail,
+                          value: intent.amount / 100,
+                          planType: planType,
+                          orderBumps: orderBumps,
+                          gateway: "stripe",
+              }
 
-      case "customer.subscription.deleted":
-        const subscription = event.data.object as Stripe.Subscription
-        console.log("Assinatura cancelada:", subscription.id)
-        // await deactivateUserSubscription(subscription.metadata?.userId)
-        break
+              console.log("[stripe-webhook] Chamando handle-post-checkout com payload:", payload)
 
-      default:
-        console.log(`Evento não tratado: ${event.type}`)
+              try {
+                          const res = await fetch(`${appUrl}/api/handle-post-checkout`, {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify(payload),
+                          })
+                          if (!res.ok) {
+                                        const errText = await res.text()
+                                        console.error("[stripe-webhook] handle-post-checkout retornou erro:", res.status, errText)
+                          } else {
+                                        console.log("[stripe-webhook] handle-post-checkout executado com sucesso")
+                          }
+              } catch (fetchErr) {
+                          console.error("[stripe-webhook] Erro ao chamar handle-post-checkout:", fetchErr)
+              }
+            } else {
+                      console.warn("[stripe-webhook] APP_URL/NEXT_PUBLIC_URL não configurado")
+            }
+
+            break
     }
 
-    return Response.json({ received: true })
-  } catch (error) {
-    console.error("Webhook error:", error)
-    return Response.json({ error: "Webhook error" }, { status: 400 })
+    case "payment_intent.payment_failed": {
+            const intent = event.data.object as Stripe.PaymentIntent
+            console.log("[stripe-webhook] payment_intent.payment_failed:", intent.id)
+            try {
+                      await adminDb.collection("payments").doc(intent.id).set(
+                        {
+                                      status: "DECLINED",
+                                      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                        },
+                        { merge: true }
+                                )
+            } catch (err) {
+                      console.error("[stripe-webhook] Erro ao marcar pagamento como falho:", err)
+            }
+            break
+    }
+
+      // =========================================================
+      // CHECKOUT SESSION (fluxo antigo com redirect — mantido)
+      // =========================================================
+    case "checkout.session.completed": {
+            const session = event.data.object as Stripe.Checkout.Session
+            const userId = session.metadata?.userId
+            const planType = session.metadata?.planType
+            console.log("[stripe-webhook] checkout.session.completed:", { userId, planType })
+
+            if (userId) {
+                      try {
+                                  await fetch(`${process.env.NEXT_PUBLIC_URL}/api/generate-plans-on-demand`, {
+                                                method: "POST",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({ userId }),
+                                  })
+                                  console.log("[stripe-webhook] Geração de planos acionada para userId:", userId)
+                      } catch (err) {
+                                  console.error("[stripe-webhook] Erro ao acionar geração de planos:", err)
+                      }
+            }
+            break
+    }
+
+    case "customer.subscription.deleted": {
+            const subscription = event.data.object as Stripe.Subscription
+            console.log("[stripe-webhook] Assinatura cancelada:", subscription.id)
+            break
+    }
+
+    default:
+            console.log(`[stripe-webhook] Evento não tratado: ${event.type}`)
   }
+
+  return NextResponse.json({ received: true })
+}
+
+export async function GET() {
+    return NextResponse.json({ status: "stripe webhook active" }, { status: 200 })
 }
