@@ -1047,6 +1047,8 @@ export default function CheckoutPage() {
                 </motion.div>
               )}
 
+              {paymentMethod !== "card" && (
+              <>
               {/* Secure Payment Container - Menos densidade - WRAPPER MOVED HERE */}
               <div className="bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6 md:p-8 space-y-5">
 
@@ -1081,7 +1083,9 @@ export default function CheckoutPage() {
                   </motion.div>
                 )}
 
-                {/* Botão com glow neon verde - APÓS ORDER BUMPS */}
+                {paymentMethod !== "card" && (
+              <>
+              {/* Botão com glow neon verde - APÓS ORDER BUMPS */}
                 <div className="w-full max-w-md mx-auto">
                   <button
                     onClick={handlePayment}
@@ -1119,6 +1123,8 @@ export default function CheckoutPage() {
                     </span>
                   </button>
                 </div>
+              </>
+            )}
 
                 {/* Microcopy de segurança - Mais específica */}
                 <div className="flex items-center justify-center gap-2 text-xs text-gray-300 px-4">
@@ -1154,6 +1160,8 @@ export default function CheckoutPage() {
                 </p>
 
               </div>
+              </>
+            )}
 
               {/* Payment Methods and Security Seals */}
               <div className="space-y-4 border-t border-slate-700 pt-6">
