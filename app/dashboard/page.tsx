@@ -1200,7 +1200,7 @@ export default function DashboardPage() {
                     {quizData?.timeToGoal ? `Meta até: ${quizData.timeToGoal}` : "Continue seguindo seu plano!"}
                   </p>
                   <p className="text-blue-600 dark:text-blue-400 font-medium flex items-center">
-                    Clique para ver informações completas →
+                    Clique para ver as informações completas →
                   </p>
                 </div>
               </CardContent>
