@@ -377,132 +377,20 @@ export default function CheckoutPage() {
   const validateForm = () => {
     if (!formData.name.trim()) return "name"
     if (!formData.email.trim()) return "email"
-    if (!formData.cpf.replace(/\D/g, "")) return "cpf"
-    if (!formData.phone.replace(/\D/g, "")) return "phone"
-
-    if (paymentMethod === "card") {
-      if (!cardData.number.replace(/\D/g, "")) return "cardNumber"
-      if (!cardData.expiryMonth || !cardData.expiryYear) return "cardExpiry"
-      if (!cardData.ccv) return "cardCcv"
-      if (!cardData.holderName) return "cardHolder"
-      if (!addressData.postalCode) return "postalCode"
-      if (!addressData.addressNumber) return "addressNumber"
+    
+    // CPF and Phone are only required for Boleto/PIX
+    if (paymentMethod !== "card") {
+      if (!formData.cpf.replace(/\D/g, "")) return "cpf"
+      if (!formData.phone.replace(/\D/g, "")) return "phone"
     }
 
-    if (paymentMethod === "boleto") {
-      if (!addressData.postalCode) return "postalCode"
-      if (!addressData.addressNumber) return "addressNumber"
-    }
+      if (paymentMethod === "boleto") {
+        const boletoMissingFields = []
+        if (!addressData.postalCode?.replace(/\D/g, "")) boletoMissingFields.push("CEP")
+        if (!addressData.addressNumber?.trim()) boletoMissingFields.push("Número do Endereço")
 
-    return null
-  }
-
-  const getFieldError = (field: string) => error === field
-
-  const getErrorMessage = () => {
-    const errorMessages: Record<string, string> = {
-      name: "Nome é obrigatório",
-      email: "Email é obrigatório",
-      cpf: "CPF é obrigatório",
-      phone: "Telefone é obrigatório",
-      cardNumber: "Número do cartão é obrigatório",
-      cardExpiry: "Validade é obrigatória",
-      cardCcv: "CVV é obrigatório",
-      cardHolder: "Nome no cartão é obrigatório",
-      postalCode: "CEP é obrigatório",
-      addressNumber: "Número da residência é obrigatório",
-    }
-    return errorMessages[error as string] || error
-  }
-
-  const prefillFromProfile = async () => {
-    // First priority: Try to get from quiz data in localStorage
-    if (typeof window !== 'undefined') {
-      const quizDataStr = localStorage.getItem("quizData")
-      if (quizDataStr) {
-        try {
-          const quizData = JSON.parse(quizDataStr)
-          setFormData((prev) => ({
-            ...prev,
-            email: prev.email || quizData.email || "",
-            name: prev.name || quizData.name || "",
-            cpf: prev.cpf || quizData.cpf || "",
-            phone: prev.phone || quizData.phone || "",
-          }))
-          return // If quiz data exists, return early - no need to query Firestore
-        } catch (e) {
-          console.log("[v0] Erro ao ler quizData:", e)
-        }
-      }
-    }
-
-    // Second priority: Try to get from Firestore user profile
-    if (!user) return
-    setPrefillLoading(true)
-
-    try {
-      const ref = doc(db, "users", user.uid)
-      const snap = await getDoc(ref)
-
-      if (snap.exists()) {
-        const data = snap.data() as any
-
-        setFormData((prev) => ({
-          ...prev,
-          email: prev.email || data.email || user.email || "",
-          name: prev.name || data.name || user.displayName || "",
-          cpf: prev.cpf || data.cpf || "",
-          phone: prev.phone || data.phone || data.personalData?.phone || data.phone || "",
-        }))
-      } else {
-        // If no Firestore document, use Firebase Auth
-        setFormData((prev) => ({
-          ...prev,
-          email: prev.email || user.email || "",
-          name: prev.name || user.displayName || "",
-        }))
-      }
-    } catch (err) {
-      console.log("[v0] Erro ao buscar perfil:", err)
-    } finally {
-      setPrefillLoading(false)
-    }
-  }
-
-  const handlePayment = async () => {
-    const validationError = validateForm()
-    if (validationError) {
-      setError(validationError)
-      return
-    }
-
-    setProcessing(true)
-    setError(null)
-
-    try {
-      // Validação de campos específicos por método
-      const missingFields = []
-      if (!formData.email?.trim()) missingFields.push("Email")
-      if (!formData.name?.trim()) missingFields.push("Nome Completo")
-      if (!formData.cpf?.trim()) missingFields.push("CPF")
-      if (!formData.phone?.trim()) missingFields.push("Telefone")
-
-      if (missingFields.length > 0) {
-        throw new Error(`Campos obrigatórios faltando: ${missingFields.join(", ")}`)
-      }
-
-      if (paymentMethod === "card") {
-        const cardMissingFields = []
-        if (!cardData.holderName?.trim()) cardMissingFields.push("Nome no Cartão")
-        if (!cardData.number?.replace(/\s/g, "")) cardMissingFields.push("Número do Cartão")
-        if (!cardData.expiryMonth) cardMissingFields.push("Mês de Validade")
-        if (!cardData.expiryYear) cardMissingFields.push("Ano de Validade")
-        if (!cardData.ccv) cardMissingFields.push("CVV")
-        if (!addressData.postalCode?.replace(/\D/g, "")) cardMissingFields.push("CEP")
-        if (!addressData.addressNumber?.trim()) cardMissingFields.push("Número do Endereço")
-
-        if (cardMissingFields.length > 0) {
-          throw new Error(`Campos do cartão faltando: ${cardMissingFields.join(", ")}`)
+        if (boletoMissingFields.length > 0) {
+          throw new Error(`Campos do boleto faltando: ${boletoMissingFields.join(", ")}`)
         }
       }
 
@@ -934,50 +822,7 @@ export default function CheckoutPage() {
                     className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("email") ? "border-red-500/80 border-2" : "border-slate-600"
                       }`}
                   />
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input
-                      placeholder="CPF"
-                      value={formData.cpf}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "")
-                        // Format apenas se houver dígitos, permitindo backspace livre
-                        if (value.length > 0) {
-                          if (value.length <= 3) {
-                            // Sem formatação para 1-3 dígitos
-                          } else if (value.length <= 6) {
-                            value = value.slice(0, 3) + "." + value.slice(3)
-                          } else if (value.length <= 9) {
-                            value = value.slice(0, 3) + "." + value.slice(3, 6) + "." + value.slice(6)
-                          } else {
-                            value = value.slice(0, 3) + "." + value.slice(3, 6) + "." + value.slice(6, 9) + "-" + value.slice(9, 11)
-                          }
-                        }
-                        handleInputChange({ target: { value } } as any, "cpf")
-                      }}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cpf") ? "border-red-500/80 border-2" : "border-slate-600"
-                        }`}
-                    />
-                    <Input
-                      placeholder="Telefone"
-                      value={formData.phone}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "")
-                        // Format apenas se houver dígitos, permitindo backspace livre
-                        if (value.length > 0) {
-                          if (value.length <= 2) {
-                            // Sem formatação para 1-2 dígitos
-                          } else if (value.length <= 7) {
-                            value = "(" + value.slice(0, 2) + ") " + value.slice(2)
-                          } else {
-                            value = "(" + value.slice(0, 2) + ") " + value.slice(2, 7) + "-" + value.slice(7, 11)
-                          }
-                        }
-                        handleInputChange({ target: { value } } as any, "phone")
-                      }}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("phone") ? "border-red-500/80 border-2" : "border-slate-600"
-                        }`}
-                    />
-                  </div>
+
                 </motion.div>
               )}
 
