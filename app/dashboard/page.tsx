@@ -147,7 +147,7 @@ export default function DashboardPage() {
 
     // currentWeight é o peso atual do quizz (pode mudar)
     const currentW = Number.parseFloat(quizData.currentWeight || "0") || 70
-    
+
     // initialWeight é o peso inicial fixo (de quando o quiz foi feito)
     // Se não existir, usar currentWeight como fallback (primeira vez)
     const initialW = Number.parseFloat((quizData as any).initialWeight || "0") || 70
@@ -178,11 +178,11 @@ export default function DashboardPage() {
         if (docSnap.exists()) {
           const data = docSnap.data()
           console.log("[v0] Dados do usuário encontrados no Firestore:", data)
-          
+
           // VERIFICAR EXPIRAÇÃO DA ASSINATURA
           if (data.subscriptionExpiresAt) {
             let expiresAt: Date
-            
+
             // Converter Firestore Timestamp para Date
             if (data.subscriptionExpiresAt.toDate && typeof data.subscriptionExpiresAt.toDate === 'function') {
               // É um Firestore Timestamp
@@ -198,12 +198,12 @@ export default function DashboardPage() {
               console.error("[v0] Formato de data inválido:", data.subscriptionExpiresAt)
               expiresAt = new Date(0) // Data no passado = expirada
             }
-            
+
             const now = new Date()
             const daysRemaining = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-            
+
             console.log("[v0] SUBSCRIPTION_CHECK - Expires:", expiresAt.toISOString(), "Now:", now.toISOString(), "Expired:", expiresAt < now, "Days:", daysRemaining)
-            
+
             if (expiresAt < now) {
               console.log("[v0] SUBSCRIPTION_EXPIRED - Bloqueando acesso ao usuário")
               setSubscriptionExpired(true)
@@ -215,7 +215,7 @@ export default function DashboardPage() {
               console.log("[v0] SUBSCRIPTION_ACTIVE - Dias restantes:", daysRemaining)
             }
           }
-          
+
           if (data.quizData) {
             foundQuizData = data.quizData as QuizData
             // Se houver um currentWeight separado (mais atualizado), usar ele
@@ -226,12 +226,12 @@ export default function DashboardPage() {
             if (data.initialWeight) {
               (foundQuizData as any).initialWeight = data.initialWeight.toString()
             }
-            
+
             // Se não houver initialWeight, usar currentWeight e salvar
             if (!data.initialWeight && foundQuizData.currentWeight) {
               console.log("[v0] Setando initialWeight pela primeira vez para usuário:", user.uid)
-              (foundQuizData as any).initialWeight = foundQuizData.currentWeight
-              
+                (foundQuizData as any).initialWeight = foundQuizData.currentWeight
+
               // Salvar no Firestore
               try {
                 await updateDoc(userDocRef, {
@@ -242,7 +242,7 @@ export default function DashboardPage() {
                 console.error("[v0] Erro ao salvar initialWeight:", error)
               }
             }
-            
+
             setQuizData(foundQuizData)
           }
 
@@ -1200,7 +1200,7 @@ export default function DashboardPage() {
                     {quizData?.timeToGoal ? `Meta até: ${quizData.timeToGoal}` : "Continue seguindo seu plano!"}
                   </p>
                   <p className="text-blue-600 dark:text-blue-400 font-medium flex items-center">
-                    Clique para ver informações completas →
+                    Clique para ver as informações completas →
                   </p>
                 </div>
               </CardContent>
