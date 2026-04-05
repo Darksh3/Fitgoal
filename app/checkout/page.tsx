@@ -1,4 +1,4 @@
-h"use client"
+"use client"
 
 import React, { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -30,7 +30,7 @@ import { db, auth } from "@/lib/firebaseClient"
 import Link from "next/link"
 import Image from "next/image"
 import { usePixel } from "@/components/pixel-tracker"
-import { StripeCardForm } from "./stripe-card-form"
+import { StripeCardForm } from "@/components/stripe-card-form"
 
 interface PaymentFormData {
     email: string
