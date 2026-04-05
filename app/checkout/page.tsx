@@ -6,21 +6,21 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
-  CreditCard,
-  Check,
-  ShoppingCart,
-  User,
-  Lock,
-  QrCode,
-  FileText,
-  Smartphone,
-  ArrowLeft,
-  AlertCircle,
-  CheckCircle2,
-  Loader2,
-  Shield,
-  Zap,
-  Clock,
+    CreditCard,
+    Check,
+    ShoppingCart,
+    User,
+    Lock,
+    QrCode,
+    FileText,
+    Smartphone,
+    ArrowLeft,
+    AlertCircle,
+    CheckCircle2,
+    Loader2,
+    Shield,
+    Zap,
+    Clock,
 } from "lucide-react"
 import { formatCurrency } from "@/utils/currency"
 import { motion } from "framer-motion"
@@ -30,1179 +30,419 @@ import { db, auth } from "@/lib/firebaseClient"
 import Link from "next/link"
 import Image from "next/image"
 import { usePixel } from "@/components/pixel-tracker"
+import { StripeCardForm } from "./stripe-card-form"
 
-import { StripeEmbeddedCheckout } from "./stripe-embedded-checkout"
 interface PaymentFormData {
-  email: string
-  name: string
-  cpf: string
-  phone: string
+    email: string
+    name: string
 }
 
 interface CardData {
-  holderName: string
-  number: string
-  expiryMonth: string
-  expiryYear: string
-  ccv: string
+    number: string
+    expiryMonth: string
+    expiryYear: string
+    cvc: string
 }
 
-interface AddressData {
-  postalCode: string
-  addressNumber: string
-}
-
-type PaymentMethod = "pix" | "boleto" | "apple" | "google" | "card"
+type PaymentMethod = "card"
 
 export default function CheckoutPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { trackInitiateCheckout } = usePixel()
-
-  const [user, setUser] = useState<any>(null)
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
-  const [processing, setProcessing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
-  const [redirectCountdown, setRedirectCountdown] = useState(90)
-  const [selectedPlan, setSelectedPlan] = useState<"mensal" | "trimestral" | "semestral">("semestral")
-  const [prefillLoading, setPrefillLoading] = useState(false)
-  const [spinDiscount, setSpinDiscount] = useState<number | null>(null)
-  const [isComplementosOnly, setIsComplementosOnly] = useState(false)
-
-  // Rastrear InitiateCheckout apenas uma vez por sessão (quando a página de checkout carrega)
-  useEffect(() => {
-    // Verificar se já foi rastreado nesta sessão
-    const initiateCheckoutTracked = typeof window !== 'undefined'
-      ? sessionStorage.getItem('initiateCheckout_tracked')
-      : null
-
-    if (initiateCheckoutTracked) {
-      console.log("[v0] InitiateCheckout already tracked this session")
-      return
-    }
-
-    const planMap: { [key: string]: { name: string; price: number } } = {
-      mensal: { name: 'Plano Mensal', price: 59.90 },
-      trimestral: { name: 'Plano Trimestral', price: 194.70 },
-      semestral: { name: 'Plano Semestral', price: 299.40 },
-    }
-
-    const plan = planMap[selectedPlan] || planMap.semestral
-    trackInitiateCheckout({
-      value: plan.price,
-      currency: 'BRL',
-      content_name: plan.name,
-      content_category: 'plan',
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const planId = searchParams.get("planId")
+    const [isLoading, setIsLoading] = useState(false)
+    const [paymentLoading, setPaymentLoading] = useState(false)
+    const [formData, setFormData] = useState<PaymentFormData>({
+          email: "",
+          name: "",
     })
-
-    // Marcar como rastreado para evitar duplicação se o usuário mudar de plano
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('initiateCheckout_tracked', 'true')
-      console.log("[v0] InitiateCheckout tracked (checkout page)")
-    }
-  }, [trackInitiateCheckout])
-
-  const [formData, setFormData] = useState<PaymentFormData>({
-    email: "",
-    name: "",
-    cpf: "",
-    phone: "",
-  })
-
-  const [cardData, setCardData] = useState<CardData>({
-    holderName: "",
-    number: "",
-    expiryMonth: "",
-    expiryYear: "",
-    ccv: "",
-  })
-
-  const [addressData, setAddressData] = useState<AddressData>({
-    postalCode: "",
-    addressNumber: "",
-  })
-
-  const [installments, setInstallments] = useState(1)
-  const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
-  const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
-  const [cardPaymentId, setCardPaymentId] = useState<string | null>(null)
-
-  // Order Bump state
-  const [selectedOrderBumps, setSelectedOrderBumps] = useState<{
-    ebook: boolean
-    protocolo: boolean
-  }>({
-    ebook: false,
-    protocolo: false,
-  })
-
-  const [orderBumpsStatus, setOrderBumpsStatus] = useState<{
-    ebook: boolean
-    protocolo: boolean
-  } | null>(null)
-
-  // Plan info
-  const getPlanName = (plan: string) => {
-    switch (plan) {
-      case "mensal":
-        return "Plano Mensal"
-      case "trimestral":
-        return "Plano Trimestral"
-      case "semestral":
-        return "Plano Semestral"
-      default:
-        return "Plano Semestral"
-    }
-  }
-
-  const getPlanPrice = (plan: string) => {
-    switch (plan) {
-      case "mensal":
-        return "59.90"
-      case "trimestral":
-        return "179.90"
-      case "semestral":
-        return "239.90"
-      default:
-        return "239.90"
-    }
-  }
-
-  const planName = getPlanName(selectedPlan)
-  const planPrice = getPlanPrice(selectedPlan)
-
-  // Calculate total with order bumps
-  const getTotalPrice = () => {
-    const orderBumpValue = (selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)
-
-    // Se é só complementos, retorna apenas o valor deles
-    if (isComplementosOnly) {
-      console.log("[v0] CHECKOUT - Calculando total APENAS complementos:", orderBumpValue)
-      return orderBumpValue.toFixed(2)
-    }
-
-    // Senão, adiciona o plano
-    const basePlanPrice = parseFloat(planPrice)
-    const total = (basePlanPrice + orderBumpValue).toFixed(2)
-    console.log("[v0] CHECKOUT - Calculando total COM plano:", { basePlanPrice, orderBumpValue, total })
-    return total
-  }
-
-  const totalPrice = getTotalPrice()
+    const [cardData, setCardData] = useState<CardData>({
+          number: "",
+          expiryMonth: "",
+          expiryYear: "",
+          cvc: "",
+    })
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card")
+    const [error, setError] = useState<string | null>(null)
+    const [planName, setPlanName] = useState<string>("")
+    const [planPrice, setPlanPrice] = useState<number>(0)
+    const [user, setUser] = useState<any>(null)
+    const [clientSecret, setClientSecret] = useState<string>("")
+    const [paymentIntentId, setPaymentIntentId] = useState<string>("")
+    const trackPixel = usePixel()
 
   useEffect(() => {
-    const initialPlan = searchParams.get("planKey") as "mensal" | "trimestral" | "semestral" | null
-    if (initialPlan) {
-      setSelectedPlan(initialPlan)
-    }
-
-    // Verificar se é checkout somente de complementos
-    const isComplementosOnlyParam = searchParams.get("complementosOnly") === "true"
-    console.log("[v0] CHECKOUT - complementosOnly:", isComplementosOnlyParam)
-    setIsComplementosOnly(isComplementosOnlyParam)
-
-    // Se vem da página de complementos-checkout, pré-selecionar os order bumps
-    const bumpsParam = searchParams.get("bumps")
-    if (bumpsParam) {
-      try {
-        const bumps = JSON.parse(bumpsParam)
-        console.log("[v0] CHECKOUT - Pré-selecionando order bumps:", bumps)
-        setSelectedOrderBumps({
-          ebook: bumps.ebook === true,
-          protocolo: bumps.protocolo === true,
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+                if (currentUser) {
+                          setUser(currentUser)
+                          setFormData((prev) => ({
+                                      ...prev,
+                                      email: currentUser.email || "",
+                                      name: currentUser.displayName || "",
+                          }))
+                } else {
+                          router.push("/")
+                }
         })
-      } catch (error) {
-        console.error("[v0] CHECKOUT - Erro ao parsear bumps:", error)
-      }
-    }
-  }, [searchParams])
+        return () => unsubscribe()
+  }, [router])
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser)
-
-      // Buscar dados do usuário e pré-preencher formulário
-      if (currentUser) {
-        try {
-          const userDocRef = doc(db, "users", currentUser.uid)
-          const userDocSnap = await getDoc(userDocRef)
-
-          if (userDocSnap.exists()) {
-            const userData = userDocSnap.data()
-            console.log("[v0] CHECKOUT - Dados do usuário:", userData)
-
-            // Pré-preencher formulário com dados salvos
-            setFormData((prev) => ({
-              ...prev,
-              email: userData.email || currentUser.email || "",
-              name: userData.name || "",
-              phone: userData.phone || userData.personalData?.phone || "",
-              cpf: userData.cpf || "",
-            }))
-          } else {
-            // Se não existe documento, preencher com dados do Firebase Auth
-            setFormData((prev) => ({
-              ...prev,
-              email: currentUser.email || "",
-            }))
-          }
-        } catch (error) {
-          console.error("[v0] CHECKOUT - Erro ao buscar dados do usuário:", error)
-        }
-
-        // Buscar status dos order bumps
-        const checkOrderBumps = async () => {
-          try {
-            const response = await fetch("/api/check-order-bumps-purchased", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ userId: currentUser.uid }),
-            })
-
-            if (response.ok) {
-              const data = await response.json()
-              setOrderBumpsStatus({
-                ebook: data.ebook === true,
-                protocolo: data.protocolo === true,
-              })
-              console.log("[v0] CHECKOUT - Order bumps status:", data)
-            }
-          } catch (error) {
-            console.error("[v0] CHECKOUT - Erro ao buscar order bumps status:", error)
-          }
-        }
-        checkOrderBumps()
-      }
-    })
-    return () => unsubscribe()
-  }, [])
-
-  // Check for spin discount from wheel
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const spinData = localStorage.getItem('spinDiscount')
-      if (spinData) {
-        try {
-          const { discount } = JSON.parse(spinData)
-          setSpinDiscount(discount)
-        } catch (e) {
-          console.log('[v0] Erro ao ler spinDiscount:', e)
-        }
-      }
-    }
-  }, [])
-
-  // Prefill form data from quiz or profile on page load
-  useEffect(() => {
-    prefillFromProfile()
-  }, [])
-
-  // Real-time payment listener
-  useEffect(() => {
-    // For PIX and Card - listen to specific payment ID
-    const currentPaymentId = pixData?.paymentId || cardPaymentId
-    const method = pixData?.paymentId ? "pix" : cardPaymentId ? "card" : null
-
-    if (!currentPaymentId || !method) {
-      console.log("[v0] PAYMENT_LISTENER_SETUP - Nenhum paymentId configurado ainda")
-      return
-    }
-
-    console.log("[v0] PAYMENT_LISTENER_SETUP - Configurando listener para:", { currentPaymentId, method })
-
-    const paymentRef = doc(db, "payments", currentPaymentId)
-    let unsubscribeRef: any = null
-
-    const unsubscribe = onSnapshot(paymentRef, (snapshot) => {
-      console.log("[v0] PAYMENT_LISTENER - Snapshot recebido para:", currentPaymentId)
-
-      if (!snapshot.exists()) {
-        console.log("[v0] PAYMENT_LISTENER - Documento de pagamento não existe ainda")
-        return
-      }
-
-      const paymentData = snapshot.data()
-      console.log("[v0] PAYMENT_LISTENER - Status do pagamento:", paymentData?.status, "para:", currentPaymentId)
-
-      // Se pagamento foi confirmado pelo webhook da Asaas
-      if (paymentData?.status === "RECEIVED" || paymentData?.status === "CONFIRMED") {
-        console.log("[v0] PAYMENT_CONFIRMED - Pagamento confirmado! Acionando feedback visual")
-        setSuccess(true)
-        console.log("[v0] PAYMENT_CONFIRMED - Desinstalando listener")
-        if (unsubscribeRef) {
-          unsubscribeRef()
-        }
-      } else {
-        console.log("[v0] PAYMENT_LISTENER - Status não confirmado, aguardando webhook...")
-      }
-    }, (error) => {
-      console.error("[v0] PAYMENT_LISTENER - Erro ao escutar:", error)
-    })
-
-    unsubscribeRef = unsubscribe
-
-    return () => {
-      console.log("[v0] PAYMENT_LISTENER - Limpando listener para:", currentPaymentId)
-      unsubscribe()
-    }
-  }, [pixData?.paymentId, cardPaymentId])
-
-  // Countdown redirect
-  useEffect(() => {
-    if (success && redirectCountdown > 0) {
-      const timer = setTimeout(() => setRedirectCountdown(redirectCountdown - 1), 1000)
-      return () => clearTimeout(timer)
-    } else if (success && redirectCountdown === 0) {
-      router.push("/dashboard")
-    }
-  }, [success, redirectCountdown, router])
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof PaymentFormData) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }))
-  }
-
-  const handleCardChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof CardData) => {
-    let value = e.target.value
-    if (field === "number") {
-      value = value.replace(/\D/g, "").replace(/(\d{4})/g, "$1 ").trim()
-    }
-    setCardData((prev) => ({ ...prev, [field]: value }))
-  }
-
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof AddressData) => {
-    setAddressData((prev) => ({ ...prev, [field]: e.target.value }))
-  }
-
-  const validateForm = () => {
-    if (!formData.name.trim()) return "name"
-    if (!formData.email.trim()) return "email"
-    
-    // CPF and Phone are only required for Boleto/PIX
-    if (paymentMethod !== "card") {
-      if (!formData.cpf.replace(/\D/g, "")) return "cpf"
-      if (!formData.phone.replace(/\D/g, "")) return "phone"
-    }
-
-      if (paymentMethod === "boleto") {
-        const boletoMissingFields = []
-        if (!addressData.postalCode?.replace(/\D/g, "")) boletoMissingFields.push("CEP")
-        if (!addressData.addressNumber?.trim()) boletoMissingFields.push("Número do Endereço")
-
-        if (boletoMissingFields.length > 0) {
-          throw new Error(`Campos do boleto faltando: ${boletoMissingFields.join(", ")}`)
-        }
-      }
-
-      // Step 1: Criar pagamento com /api/create-asaas-payment (igual ao modal)
-      // Get uid from localStorage quizData first, then fallback to Firebase Auth
-      const stored = localStorage.getItem("quizData")
-      const storedUid = stored ? JSON.parse(stored).uid : null
-      const finalClientUid = storedUid || user?.uid
-
-      const paymentPayload: Record<string, any> = {
-        email: formData.email,
-        name: formData.name,
-        cpf: formData.cpf.replace(/\D/g, ""),
-        phone: formData.phone.replace(/\D/g, ""),
-        paymentMethod: paymentMethod === "card" ? "card" : paymentMethod,
-        clientUid: finalClientUid,
-        totalPrice: totalPrice, // Total including order bumps
-      }
-
-      // Apenas adicione planType e planPrice se NÃO for apenas complementos
-      if (!isComplementosOnly) {
-        paymentPayload.planType = selectedPlan
-        paymentPayload.planPrice = planPrice
-        paymentPayload.description = `${planName} - Fitgoal Fitness`
-      } else {
-        paymentPayload.description = "Complementos - Fitgoal Fitness"
-      }
-
-      // Add order bumps to payload if selected
-      if (selectedOrderBumps.ebook || selectedOrderBumps.protocolo) {
-        paymentPayload.orderBumps = {
-          ebook: selectedOrderBumps.ebook,
-          protocolo: selectedOrderBumps.protocolo,
-        }
-      }
-
-      if (paymentMethod === "card") {
-        paymentPayload.installments = installments || 1
-      }
-
-      if (paymentMethod === "boleto" || paymentMethod === "card") {
-        if (addressData.postalCode) {
-          paymentPayload.postalCode = addressData.postalCode.replace(/\D/g, "")
-        }
-        if (addressData.addressNumber) {
-          paymentPayload.addressNumber = addressData.addressNumber
-        }
-      }
-
-      if (paymentMethod === "card") {
-        paymentPayload.cardData = {
-          holderName: cardData.holderName,
-          number: cardData.number?.replace(/\s/g, ""),
-          expiryMonth: cardData.expiryMonth,
-          expiryYear: cardData.expiryYear,
-          ccv: cardData.ccv,
-        }
-      }
-
-      console.log("[v0] Enviando para /api/create-asaas-payment:", paymentPayload)
-      const paymentResponse = await fetch("/api/create-asaas-payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(paymentPayload),
-      })
-
-      if (!paymentResponse.ok) {
-        const errorData = await paymentResponse.json()
-        console.log("[v0] Erro da API:", errorData)
-        throw new Error(errorData.error || "Erro ao criar cobrança")
-      }
-
-      const paymentResult = await paymentResponse.json()
-      console.log("[v0] Pagamento criado:", paymentResult)
-
-      if (paymentMethod === "pix") {
-        localStorage.setItem("lastPaymentId", paymentResult.paymentId)
-
-        // Nota: O documento de pagamento é criado pelo servidor via Admin SDK
-        // O cliente apenas lê/escuta o status via onSnapshot
-
-        // Buscar QR Code
-        const qrCodeResponse = await fetch(`/api/get-pix-qrcode?paymentId=${paymentResult.paymentId}`)
-
-        if (qrCodeResponse.ok) {
-          const qrCodeResult = await qrCodeResponse.json()
-          setPixData({
-            qrCode: qrCodeResult.encodedImage || qrCodeResult.qrCode,
-            copyPaste: qrCodeResult.payload,
-            paymentId: paymentResult.paymentId,
-          })
-        } else {
-          setPixData({
-            qrCode: paymentResult.pixQrCode,
-            copyPaste: paymentResult.pixCopyPaste,
-            paymentId: paymentResult.paymentId,
-          })
-        }
-
-        setProcessing(false)
-        return
-      }
-
-      if (paymentMethod === "boleto") {
-        setBoletoData({
-          url: paymentResult.boletoUrl,
-          barCode: paymentResult.boletoBarCode,
-        })
-        setProcessing(false)
-        return
-      }
-
-      if (paymentMethod === "card") {
-        const cardPayload = {
-          paymentId: paymentResult.paymentId,
-          creditCard: {
-            holderName: cardData.holderName,
-            number: cardData.number.replace(/\s/g, ""),
-            expiryMonth: cardData.expiryMonth,
-            expiryYear: cardData.expiryYear,
-            ccv: cardData.ccv,
-          },
-          creditCardHolderInfo: {
-            name: formData.name,
-            email: formData.email,
-            cpfCnpj: formData.cpf.replace(/\D/g, ""),
-            postalCode: addressData.postalCode.replace(/\D/g, ""),
-            addressNumber: addressData.addressNumber,
-            phone: formData.phone.replace(/\D/g, ""),
-          },
-        }
-
-        console.log("[v0] Processando cartão com /api/process-asaas-card")
-        const cardResponse = await fetch("/api/process-asaas-card", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(cardPayload),
-        })
-
-        if (!cardResponse.ok) {
-          const errorData = await cardResponse.json()
-          console.log("[v0] Erro ao processar cartão:", errorData)
-          throw new Error(errorData.error || "Erro ao processar cartão")
-        }
-
-        // Nota: O documento de pagamento é criado pelo servidor via Admin SDK
-        // O cliente apenas lê/escuta o status via onSnapshot
-        setCardPaymentId(paymentResult.paymentId)
-
-        setProcessing(false)
-        return
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Erro ao processar pagamento"
-      console.log("[v0] Erro capturado:", errorMsg)
-      setError(errorMsg)
-      setProcessing(false)
-    }
-  }
-
-  // Listen for card payment status and redirect on success
-  useEffect(() => {
-    if (!cardPaymentId) return
-
-    console.log("[v0] Setting up listener for card payment:", cardPaymentId)
-
-    const unsubscribe = onSnapshot(doc(db, "payments", cardPaymentId), (snapshot) => {
-      if (!snapshot.exists()) return
-
-      const paymentData = snapshot.data()
-      console.log("[v0] Payment status received:", paymentData?.status)
-
-      if (paymentData?.status === "CONFIRMED" || paymentData?.status === "RECEIVED") {
-        console.log("[v0] Payment confirmed! Redirecting to success...")
-        setSuccess(true)
-      } else if (paymentData?.status === "FAILED" || paymentData?.status === "OVERDUE") {
-        console.log("[v0] Payment failed:", paymentData?.status)
-        setError("Pagamento recusado. Por favor, tente novamente.")
-        setCardPaymentId(null)
-        setProcessing(false)
-      }
-    })
-
-    return () => unsubscribe()
-  }, [cardPaymentId])
-
-  // Success screen - Redirect to success page
-  useEffect(() => {
-    if (success) {
-      // Get the payment ID and user ID based on payment method
-      const currentPaymentId = pixData?.paymentId || cardPaymentId
-      const stored = localStorage.getItem("quizData")
-      const storedUid = stored ? JSON.parse(stored).uid : null
-      const userId = storedUid || user?.uid || ""
-
-      console.log("[v0] SUCCESS REDIRECT - paymentId:", currentPaymentId, "userId:", userId)
-
-      setTimeout(() => {
-        // Pass paymentId and userId to success page so it can call handle-post-checkout
-        if (currentPaymentId && userId) {
-          router.push(`/success?embedded=true&paymentId=${encodeURIComponent(currentPaymentId)}&userId=${encodeURIComponent(userId)}`)
-        } else if (currentPaymentId) {
-          router.push(`/success?embedded=true&paymentId=${encodeURIComponent(currentPaymentId)}`)
-        } else {
-          router.push("/success?embedded=true")
-        }
-      }, 1000) // Small delay to ensure data is saved
-    }
-  }, [success, router, pixData?.paymentId, cardPaymentId, user?.uid])
-
-  // Boleto screen
-  if (boletoData) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 flex items-center justify-center p-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="max-w-md w-full">
-          <Card className="bg-slate-800/40 backdrop-blur border-slate-700/50">
-            <CardContent className="p-8 space-y-6">
-              <div className="text-center">
-                <FileText className="w-12 h-12 text-lime-500 mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-white mb-2">Pagar com Boleto</h2>
-              </div>
-
-              <div className="bg-slate-700/30 p-4 rounded-lg">
-                <p className="text-xs text-gray-400 mb-2">Código de barras:</p>
-                <code className="text-white font-mono text-sm break-all">{boletoData.barCode}</code>
-              </div>
-
-              <Button asChild className="w-full bg-lime-500 hover:bg-lime-600 text-black font-bold">
-                <a href={boletoData.url} target="_blank" rel="noopener noreferrer">
-                  Acessar Boleto
-                </a>
-              </Button>
-
-              <p className="text-xs text-gray-400 text-center">Você será redirecionado para visualizar e pagar o boleto</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-    )
-  }
-
-  // Main checkout screen - Two Column Layout
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 py-4 px-4 flex flex-col items-center justify-center">
-      <div className="w-full max-w-6xl space-y-5">
-        {/* Logo */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="text-center mb-2">
-          <Image src="/fitgoal-logo.webp" alt="FitGoal Logo" width={120} height={48} className="mx-auto" priority />
-        </motion.div>
-
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="text-center">
-          <h1 className="text-3xl font-bold text-white mb-2 -mt-5">Finalizar seu plano</h1>
-        </motion.div>
-
-        {/* Discount Banner - Shows only if user spun the wheel */}
-        {spinDiscount && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="bg-gradient-to-r from-lime-600/20 to-lime-500/20 border-2 border-lime-500/60 rounded-lg p-4 text-center"
-          >
-            <p className="text-white text-lg font-semibold">
-              Desconto de <span className="text-lime-400">{spinDiscount}%</span> aplicado ao seu pedido!
-            </p>
-          </motion.div>
-        )}
-
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left Column - Order Summary */}
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
-            <div className="space-y-6">
-              <div>
-                <h3 className="font-semibold text-white mb-4">Resumo do Pedido</h3>
-
-                {/* Plan Details - Hidden if complementos only */}
-                {!isComplementosOnly && (
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-gray-200">
-                      <Check className="w-4 h-4 text-lime-500" />
-                      <span className="font-semibold">{planName}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
-                      <Check className="w-4 h-4 text-lime-500" />
-                      <span>{selectedPlan === "mensal" ? "1 mês" : selectedPlan === "trimestral" ? "3 meses" : "6 meses"} de treino e dieta personalizada baseados no seu objetivo</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
-                      <Check className="w-4 h-4 text-lime-500" />
-                      <span>Exercícios com séries, repetições e descanso definidos</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
-                      <Check className="w-4 h-4 text-lime-500" />
-                      <span>Ajustes automáticos conforme sua evolução</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
-                      <Check className="w-4 h-4 text-lime-500" />
-                      <span>Acesso Completo ao App + Acompanhamento Contínuo durante todo o plano</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Complementos - Show only if complementos only */}
-                {isComplementosOnly && (
-                  <div className="space-y-2 mb-4">
-                    {selectedOrderBumps.ebook && (
-                      <div className="flex items-center gap-2 text-gray-200">
-                        <Check className="w-4 h-4 text-lime-500" />
-                        <span className="font-semibold">Protocolo Anti-Plateau</span>
-                      </div>
-                    )}
-                    {selectedOrderBumps.protocolo && (
-                      <div className="flex items-center gap-2 text-gray-200">
-                        <Check className="w-4 h-4 text-lime-500" />
-                        <span className="font-semibold">Protocolo S.O.S FitGoal</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <div className="border-t border-slate-600 pt-4 flex justify-between items-center">
-                  <span className="text-gray-300">Total</span>
-                  <span className="text-3xl font-bold text-lime-500">R$ {parseFloat(totalPrice).toFixed(2).replace(".", ",")}</span>
-                </div>
-                {!isComplementosOnly && (
-                  <div className="text-sm text-gray-400 mt-2">
-                    {selectedPlan === "mensal" && "R$ 199,90 por mês"}
-                    {selectedPlan === "trimestral" && "R$ 59,97 por mês"}
-                    {selectedPlan === "semestral" && "Menos de R$40 por mês!"}
-                  </div>
-                )}
-              </div>
-
-              {/* Guarantee */}
-              <div className="bg-lime-500/10 p-4 rounded-lg border border-lime-500/30 flex gap-3">
-                <Shield className="w-6 h-6 text-lime-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-lime-300">Garantia 30 Dias</p>
-                  <p className="text-sm text-lime-200">Satisfação 100% ou seu dinheiro de volta.</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Right Column - Payment Form */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
-            <div className="space-y-4">
-              {/* Payment Methods */}
-              <div>
-                <h3 className="font-semibold text-white mb-4">Escolha a forma de pagamento</h3>
-
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <button
-                    onClick={async () => {
-                      setPaymentMethod("pix")
-                      setError(null)
-                      await prefillFromProfile()
-                    }}
-                    className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${paymentMethod === "pix" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
-                      }`}
-                  >
-                    <QrCode className={`w-5 h-5 ${paymentMethod === "pix" ? "text-lime-400" : "text-gray-400"}`} />
-                    <span className={`text-sm font-semibold ${paymentMethod === "pix" ? "text-lime-400" : "text-gray-300"}`}>Pagar com Pix</span>
-                  </button>
-
-                  <button
-                    onClick={async () => {
-                      setPaymentMethod("boleto")
-                      setError(null)
-                      await prefillFromProfile()
-                    }}
-                    className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${paymentMethod === "boleto" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
-                      }`}
-                  >
-                    <FileText className={`w-5 h-5 ${paymentMethod === "boleto" ? "text-lime-400" : "text-gray-400"}`} />
-                    <span className={`text-sm font-semibold ${paymentMethod === "boleto" ? "text-lime-400" : "text-gray-300"}`}>Boleto</span>
-                  </button>
-                </div>
-
-                {/* Or card payment */}
-                <div className="flex items-center gap-3 my-3">
-                  <div className="flex-1 border-t border-slate-600"></div>
-                  <span className="text-xs text-gray-400">Ou pague com cartão</span>
-                  <div className="flex-1 border-t border-slate-600"></div>
-                </div>
-
-                <button
-                  onClick={async () => {
-                    setPaymentMethod("card")
-                    setError(null)
-                    await prefillFromProfile()
-                  }}
-                  className={`w-full p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-3 mb-3 ${paymentMethod === "card" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"
-                    }`}
-                >
-                  <CreditCard className={`w-5 h-5 ${paymentMethod === "card" ? "text-lime-400" : "text-gray-400"}`} />
-                  <span className={`font-semibold ${paymentMethod === "card" ? "text-lime-400" : "text-gray-300"}`}>Cartão de Crédito</span>
-                </button>
-              </div>
-
-              {/* Personal Info Fields - Show only after payment method selected */}
-              {paymentMethod && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-3"
-                >
-                  {/* Dynamic instruction text */}
-                  <p className="text-sm text-gray-300 mb-2 text-center">
-                    {paymentMethod === "pix" && "🎯 Falta pouco para liberar seu plano personalizado!"}
-                    {paymentMethod === "boleto" && "🎯 Falta pouco para liberar seu plano personalizado!"}
-                    {paymentMethod === "card" && "🎯 Falta pouco para liberar seu plano personalizado!"}
-                  </p>
-
-                  <Input
-                    placeholder="Nome Completo"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange(e, "name")}
-                    className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("name") ? "border-red-500/80 border-2" : "border-slate-600"
-                      }`}
-                  />
-                  <Input
-                    type="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange(e, "email")}
-                    className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("email") ? "border-red-500/80 border-2" : "border-slate-600"
-                      }`}
-                  />
-
-                </motion.div>
-              )}
-
-              {/* Boleto Fields - CEP and Address Number */}
-              {paymentMethod === "boleto" && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-3"
-                >
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input
-                      placeholder="CEP"
-                      value={addressData.postalCode}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "")
-                        if (value.length > 5) {
-                          value = value.slice(0, 5) + "-" + value.slice(5, 8)
+        if (!planId) return
+
+                const unsubscribe = onSnapshot(
+                        doc(db, "plans", planId),
+                        (doc) => {
+                                  if (doc.exists()) {
+                                              const data = doc.data()
+                                              setPlanName(data.name || "Plano")
+                                              setPlanPrice(data.price || 0)
+                                  }
+                        },
+                        (error) => {
+                                  console.error("Erro ao carregar plano:", error)
+                                  setError("Erro ao carregar informações do plano")
                         }
-                        handleAddressChange({ target: { value } } as any, "postalCode")
-                      }}
-                      maxLength={9}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("postalCode") ? "border-red-500/80 border-2" : "border-slate-600"
-                        }`}
-                    />
-                    <Input
-                      placeholder="Número da Residência"
-                      value={addressData.addressNumber}
-                      onChange={(e) => handleAddressChange(e, "addressNumber")}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("addressNumber") ? "border-red-500/80 border-2" : "border-slate-600"
-                        }`}
-                    />
-                  </div>
-                </motion.div>
-              )}
+                      )
 
-              {/* Card Fields - Stripe */}
-              {paymentMethod === "card" && (
-                <StripeEmbeddedCheckout
-                  amount={parseFloat(totalPrice)}
-                  planType={selectedPlan}
-                  clientUid={user?.uid || ""}
-                  customerEmail={formData.email}
-                  customerName={formData.name}
-                  orderBumps={{
-                    ebook: selectedOrderBumps.ebook,
-                    protocolo: selectedOrderBumps.protocolo,
-                  }}
-                />
-              )}
+                return () => unsubscribe()
+  }, [planId])
 
-              {/* Error Message - Mais orientador */}
-              {error && (
-                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-                  <div className="bg-red-900/20 border border-red-600/50 rounded-lg p-4 flex gap-3">
-                    <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-red-300 text-sm font-semibold">⚠️ Precisamos de algumas informações</p>
-                      <p className="text-red-300/80 text-xs mt-1">{getErrorMessage()}</p>
-                    </div>
-                    <button
-                      onClick={() => setError(null)}
-                      className="text-red-400 hover:text-red-300 text-sm"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </motion.div>
-              )}
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target
+        setFormData((prev) => ({
+                ...prev,
+                [name]: value,
+        }))
+  }
 
-              {/* Espaço extra antes do botão em mobile */}
-              <div className="h-4 md:h-0" />
+  const handlePaymentSuccess = async (paymentIntentId: string) => {
+        if (!user || !planId) {
+                setError("Informações de usuário ou plano inválidas")
+                return
+        }
 
-              {/* ORDER BUMP SECTION - Show only if payment method is selected */}
-              {paymentMethod && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-amber-50 border-2 border-dashed border-rose-400 rounded-xl overflow-hidden space-y-0"
-                >
-                  {/* Header Banner - Rose/Pink */}
-                  <div className="bg-gradient-to-r from-rose-500 to-pink-500 px-6 py-4">
-                    <h3 className="text-lg font-bold text-white flex items-center justify-center gap-2">
-                      🎁 Você tem 2 ofertas especiais!
-                    </h3>
-                  </div>
+        try {
+                setPaymentLoading(true)
 
-                  {/* Content Area */}
-                  <div className="p-6 space-y-4">
-                    <p className="text-xs text-slate-700 text-center">Uma oportunidade única de adquirir produtos incríveis com super desconto</p>
+          const response = await fetch("/api/checkout", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                                planId,
+                                userId: user.uid,
+                                email: formData.email,
+                                paymentIntentId,
+                    }),
+          })
 
-                    {/* Order Bump Products - Vertical Stack */}
-                    <div className="space-y-3">
-                      {/* Ebook Anti-Plateau */}
-                      <motion.div
-                        whileHover={{ scale: orderBumpsStatus?.ebook ? 1 : 1.01 }}
-                        onClick={() => {
-                          if (!orderBumpsStatus?.ebook) {
-                            setSelectedOrderBumps(prev => ({ ...prev, ebook: !prev.ebook }))
-                          }
-                        }}
-                        className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all relative ${orderBumpsStatus?.ebook
-                          ? "bg-gray-200 border-gray-400 cursor-not-allowed opacity-60"
-                          : selectedOrderBumps.ebook
-                            ? "bg-lime-500/15 border-lime-500/50 cursor-pointer"
-                            : "bg-white/40 border-gray-300 hover:border-gray-400 cursor-pointer"
-                          }`}
-                      >
-                        {/* Status Badge */}
-                        {orderBumpsStatus?.ebook && (
-                          <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">
-                            Já comprado
-                          </div>
-                        )}
+          const result = await response.json()
 
-                        {/* Checkbox - Top Right */}
-                        <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${orderBumpsStatus?.ebook
-                          ? "bg-blue-500 border-blue-500"
-                          : selectedOrderBumps.ebook
-                            ? "bg-lime-500 border-lime-500"
-                            : "border-gray-500"
-                          }`}>
-                          {(orderBumpsStatus?.ebook || selectedOrderBumps.ebook) && <Check className="w-3 h-3 text-white" />}
-                        </div>
+          if (!response.ok) {
+                    throw new Error(result.message || "Erro ao processar pagamento")
+          }
 
-                        {/* Product Image - Small */}
-                        <img
-                          src="/order-bump-protocol-metabolico.jpg"
-                          alt="Ebook Anti-Plateau"
-                          className="w-20 h-28 object-cover rounded flex-shrink-0"
-                        />
+          trackPixel("Purchase", {
+                    value: planPrice,
+                    currency: "BRL",
+          })
 
-                        {/* Text Content */}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-black text-sm">Protocolo Anti-Plateau</p>
-                          <p className="text-xs text-gray-600 line-clamp-2">Reverta a estagnação de peso em 7 dias com protocolos comprovados</p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <span className="font-bold text-lime-500 text-sm">R$ 14,90</span>
-                            <span className="text-xs text-gray-500 line-through">R$ 39,90</span>
-                          </div>
-                        </div>
-                      </motion.div>
+          setPaymentLoading(false)
+                router.push(`/checkout-success?planId=${planId}`)
+        } catch (err: any) {
+                setPaymentLoading(false)
+                setError(err.message || "Erro ao processar pagamento")
+        }
+  }
 
-                      {/* Protocolo SOS */}
-                      <motion.div
-                        whileHover={{ scale: orderBumpsStatus?.protocolo ? 1 : 1.01 }}
-                        onClick={() => {
-                          if (!orderBumpsStatus?.protocolo) {
-                            setSelectedOrderBumps(prev => ({ ...prev, protocolo: !prev.protocolo }))
-                          }
-                        }}
-                        className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all relative ${orderBumpsStatus?.protocolo
-                          ? "bg-gray-200 border-gray-400 cursor-not-allowed opacity-60"
-                          : selectedOrderBumps.protocolo
-                            ? "bg-lime-500/15 border-lime-500/50 cursor-pointer"
-                            : "bg-white/40 border-gray-300 hover:border-gray-400 cursor-pointer"
-                          }`}
-                      >
-                        {/* Status Badge */}
-                        {orderBumpsStatus?.protocolo && (
-                          <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">
-                            Já comprado
-                          </div>
-                        )}
+  const handlePaymentError = (message: string) => {
+        setError(message)
+  }
 
-                        {/* Checkbox - Top Right */}
-                        <div className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${orderBumpsStatus?.protocolo
-                          ? "bg-blue-500 border-blue-500"
-                          : selectedOrderBumps.protocolo
-                            ? "bg-lime-500 border-lime-500"
-                            : "border-gray-500"
-                          }`}>
-                          {(orderBumpsStatus?.protocolo || selectedOrderBumps.protocolo) && <Check className="w-3 h-3 text-white" />}
-                        </div>
+  const createPaymentIntent = async () => {
+        if (!formData.email || !formData.name) {
+                setError("Por favor, preencha todos os campos obrigatórios")
+                return
+        }
 
-                        {/* Product Image - Small */}
-                        <img
-                          src="/order-bump-protocolo-sos.jpg"
-                          alt="Protocolo SOS FitGoal"
-                          className={`w-20 h-28 object-cover rounded flex-shrink-0 ${orderBumpsStatus?.protocolo ? "grayscale" : ""}`}
-                        />
+        try {
+                setIsLoading(true)
+                setError(null)
 
-                        {/* Text Content */}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-black text-sm">Protocolo S.O.S FitGoal</p>
-                          <p className="text-xs text-gray-600 line-clamp-2">Protocolo de emergência para caso deslize na dieta</p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <span className="font-bold text-lime-500 text-sm">R$ 14,90</span>
-                            <span className="text-xs text-gray-500 line-through">R$ 39,90</span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    </div>
+          const response = await fetch("/api/create-payment-intent", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                                planId,
+                                email: formData.email,
+                                name: formData.name,
+                                amount: planPrice,
+                    }),
+          })
 
-                    {/* Order Bump Summary */}
-                    {(selectedOrderBumps.ebook || selectedOrderBumps.protocolo) && (
-                      <div className="bg-white/50 rounded-lg p-3 space-y-2 border border-amber-200">
-                        {/* Valor do Plano - Hidden if complementos only */}
-                        {!isComplementosOnly && (
-                          <div className="flex justify-between text-sm">
-                            <span className="text-slate-700">Valor do Plano</span>
-                            <span className="text-slate-800 font-semibold">R$ {planPrice}</span>
-                          </div>
-                        )}
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-700">Promoções Exclusivas Selecionadas</span>
-                          <span className="text-rose-600 font-semibold">
-                            + R$ {((selectedOrderBumps.ebook ? 14.9 : 0) + (selectedOrderBumps.protocolo ? 14.9 : 0)).toFixed(2).replace(".", ",")}
-                          </span>
-                        </div>
-                        <div className="border-t border-amber-200 pt-2 flex justify-between">
-                          <span className="text-slate-800 font-bold">Valor Total</span>
-                          <span className="text-rose-600 font-bold text-lg">
-                            R$ {totalPrice}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              )}
+          const data = await response.json()
 
-              {paymentMethod !== "card" && (
-              <>
-              {/* Secure Payment Container - Menos densidade - WRAPPER MOVED HERE */}
-              <div className="bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6 md:p-8 space-y-5">
+          if (!response.ok) {
+                    throw new Error(data.message || "Erro ao criar pagamento")
+          }
 
-                {/* PIX Payment Display - Inline */}
-                {paymentMethod === "pix" && pixData && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="bg-gradient-to-b from-slate-800/40 to-slate-900/40 border border-slate-700/50 rounded-xl p-6 space-y-4"
-                  >
-                    <div className="text-center mb-4">
-                      <p className="text-white font-semibold mb-2">QR Code Pix</p>
-                      {pixData.qrCode ? (
-                        <img
-                          src={pixData.qrCode.startsWith('data:') ? pixData.qrCode : `data:image/png;base64,${pixData.qrCode}`}
-                          alt="QR Code Pix"
-                          className="w-40 h-40 mx-auto"
-                        />
-                      ) : (
-                        <div className="w-40 h-40 mx-auto bg-gray-700 rounded flex items-center justify-center text-sm text-gray-400">
-                          Carregando QR Code...
-                        </div>
-                      )}
-                    </div>
-                    <Button
-                      onClick={() => navigator.clipboard.writeText(pixData.copyPaste)}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm"
-                    >
-                      Copiar Código Pix
-                    </Button>
-                  </motion.div>
-                )}
+          setClientSecret(data.clientSecret)
+                setPaymentIntentId(data.paymentIntentId)
+        } catch (err: any) {
+                setError(err.message || "Erro ao criar pagamento")
+        } finally {
+                setIsLoading(false)
+        }
+  }
 
-                {paymentMethod !== "card" && (
-              <>
-              {/* Botão com glow neon verde - APÓS ORDER BUMPS */}
-                <div className="w-full max-w-md mx-auto">
-                  <button
-                    onClick={handlePayment}
-                    disabled={!paymentMethod || processing}
-                    className={[
-                      "w-full relative overflow-hidden rounded-2xl py-5 px-8",
-                      "text-white font-bold text-lg tracking-wide",
-                      "bg-green-500",
-                      "shadow-[0_0_24px_rgba(34,197,94,0.35),0_6px_20px_rgba(0,0,0,0.15)]",
-                      "border border-green-400/40",
-                      "active:translate-y-[2px] active:scale-[0.98]",
-                      "transition-all duration-200",
-                      "disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none",
-                      "hover:brightness-110",
-                    ].join(" ")}
-                  >
-                    {/* Linha de brilho no topo */}
-                    <span className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-green-300/70 to-transparent" />
-
-                    {/* Brilho interno superior */}
-                    <span className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/15 to-transparent rounded-t-2xl" />
-
-                    <span className="relative flex items-center justify-center gap-3">
-                      {processing ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          Processando...
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-5 h-5" />
-                          Liberar Meu Plano Agora
-                        </>
-                      )}
-                    </span>
-                  </button>
-                </div>
-              </>
-            )}
-
-                {/* Microcopy de segurança - Mais específica */}
-                <div className="flex items-center justify-center gap-2 text-xs text-gray-300 px-4">
-                  <Lock className="w-3 h-3 flex-shrink-0" />
-                  <span>Pagamento com criptografia SSL. Seus dados não são armazenados.</span>
-                </div>
-
-                {/* O que acontece depois do pagamento */}
-                {paymentMethod === "card" && (
-                  <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2 text-xs text-lime-300">
-                    <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                    <span>Acesso liberado imediatamente após a confirmação</span>
-                  </div>
-                )}
-
-                {paymentMethod === "pix" && (
-                  <div className="bg-lime-500/10 border border-lime-500/30 rounded-lg p-3 flex gap-2 text-xs text-lime-300 items-center justify-center">
-                    <Zap className="w-4 h-4 flex-shrink-0" />
-                    <span>Liberação automática em poucos segundos</span>
-                  </div>
-                )}
-
-                {paymentMethod === "boleto" && (
-                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 flex gap-2 text-xs text-blue-300">
-                    <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                    <span>Liberação assim que o pagamento for confirmado</span>
-                  </div>
-                )}
-
-                {/* Texto auxiliar */}
-                <p className="text-xs text-gray-400 text-center">
-                  Renovação automática. Cancele a qualquer momento.
-                </p>
-
-              </div>
-              </>
-            )}
-
-              {/* Payment Methods and Security Seals */}
-              <div className="space-y-4 border-t border-slate-700 pt-6">
-                {/* Payment Methods - Real Image */}
-                <div>
-                  <p className="text-xs text-gray-400 mb-3 font-semibold">Formas de Pagamento Aceitas</p>
-                  <div className="flex justify-center">
-                    <img
-                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image%20%281%29-jw1JPyvxkfSr48fVwN5Fqg6Is6wcn8.webp"
-                      alt="Formas de Pagamento"
-                      className="h-20 w-auto"
-                    />
-                  </div>
-                </div>
-
-                {/* Security Seals - Real Image */}
-                <div>
-                  <p className="text-xs text-gray-400 mb-3 font-semibold">Segurança Garantida</p>
-                  <div className="flex justify-center">
-                    <img
-                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%209%20de%20fev.%20de%202026%2C%2007_33_32-1iWUwKOD8rqFexNiRWJyPAV93cR1ox.webp"
-                      alt="Selos de Segurança"
-                      className="h-20 w-auto"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Support */}
-              <div className="text-center">
-                <p className="text-xs text-gray-400">
-                  Precisa de ajuda?{" "}
-                  <a href="mailto:suportet@fitgoal.com.br" className="text-lime-400 hover:text-lime-300 font-semibold">
-                    suporte@fitgoal.com.br
-                  </a>
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    </div>
-  )
-}
+  if (!user) {
+        return (
+                <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+                        <Loader2 className="w-8 h-8 animate-spin text-lime-400" />
+                </div>div>
+              )
+  }
+  
+    return (
+          <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-8 px-4">
+                <div className="max-w-6xl mx-auto">
+                  {/* Cabeçalho */}
+                        <div className="mb-8">
+                                  <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6">
+                                              <ArrowLeft className="w-4 h-4" />
+                                              Voltar
+                                  </Link>Link>
+                                  <h1 className="text-4xl font-bold mb-2">Finalizar Compra</h1>h1>
+                                  <p className="text-gray-400">Complete o pagamento para ativar seu plano</p>p>
+                        </div>div>
+                
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                          {/* Coluna Principal - Formulário */}
+                                  <div className="lg:col-span-2">
+                                              <motion.div
+                                                              initial={{ opacity: 0, y: 20 }}
+                                                              animate={{ opacity: 1, y: 0 }}
+                                                              transition={{ duration: 0.5 }}
+                                                            >
+                                                            <Card className="border-gray-700 bg-gray-800/50 backdrop-blur">
+                                                                            <CardContent className="p-8">
+                                                                              {/* Dados Pessoais */}
+                                                                                              <div className="mb-8">
+                                                                                                                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                                                                                                                                        <User className="w-5 h-5 text-lime-400" />
+                                                                                                                                        Dados Pessoais
+                                                                                                                    </h2>h2>
+                                                                                              
+                                                                                                                  <div className="space-y-4">
+                                                                                                                                        <div>
+                                                                                                                                                                <label className="block text-sm font-medium text-gray-300 mb-2">
+                                                                                                                                                                                          Nome Completo
+                                                                                                                                                                  </label>label>
+                                                                                                                                                                <Input
+                                                                                                                                                                                            type="text"
+                                                                                                                                                                                            name="name"
+                                                                                                                                                                                            value={formData.name}
+                                                                                                                                                                                            onChange={handleInputChange}
+                                                                                                                                                                                            placeholder="João Silva"
+                                                                                                                                                                                            className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
+                                                                                                                                                                                          />
+                                                                                                                                          </div>div>
+                                                                                                                  
+                                                                                                                                        <div>
+                                                                                                                                                                <label className="block text-sm font-medium text-gray-300 mb-2">
+                                                                                                                                                                                          Email
+                                                                                                                                                                  </label>label>
+                                                                                                                                                                <Input
+                                                                                                                                                                                            type="email"
+                                                                                                                                                                                            name="email"
+                                                                                                                                                                                            value={formData.email}
+                                                                                                                                                                                            onChange={handleInputChange}
+                                                                                                                                                                                            placeholder="seu@email.com"
+                                                                                                                                                                                            className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
+                                                                                                                                                                                          />
+                                                                                                                                          </div>div>
+                                                                                                                    </div>div>
+                                                                                                </div>div>
+                                                                            
+                                                                              {/* Divider */}
+                                                                                              <div className="border-t border-gray-700 my-8"></div>div>
+                                                                            
+                                                                              {/* Método de Pagamento */}
+                                                                                              <div className="mb-8">
+                                                                                                                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                                                                                                                                        <CreditCard className="w-5 h-5 text-lime-400" />
+                                                                                                                                        Método de Pagamento
+                                                                                                                    </h2>h2>
+                                                                                              
+                                                                                                {/* Opção Cartão de Crédito */}
+                                                                                                                  <div
+                                                                                                                                          className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                                                                                                                                                                    paymentMethod === "card"
+                                                                                                                                                                      ? "border-lime-400 bg-lime-400/10"
+                                                                                                                                                                      : "border-gray-600 bg-gray-700/30 hover:border-gray-500"
+                                                                                                                                            }`}
+                                                                                                                                          onClick={() => setPaymentMethod("card")}
+                                                                                                                                        >
+                                                                                                                                        <div className="flex items-center gap-3">
+                                                                                                                                                                <div
+                                                                                                                                                                                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                                                                                                                                                                                                                          paymentMethod === "card"
+                                                                                                                                                                                                                            ? "border-lime-400 bg-lime-400"
+                                                                                                                                                                                                                            : "border-gray-500"
+                                                                                                                                                                                                                        }`}
+                                                                                                                                                                                          >
+                                                                                                                                                                  {paymentMethod === "card" && (
+                                                                                                                                                                                                                        <Check className="w-3 h-3 text-gray-900" />
+                                                                                                                                                                                                                      )}
+                                                                                                                                                                  </div>div>
+                                                                                                                                                                <div>
+                                                                                                                                                                                          <p className="font-semibold">Cartão de Crédito</p>p>
+                                                                                                                                                                                          <p className="text-sm text-gray-400">
+                                                                                                                                                                                                                      Mastercard, Visa, Elo, etc.
+                                                                                                                                                                                                                    </p>p>
+                                                                                                                                                                  </div>div>
+                                                                                                                                          </div>div>
+                                                                                                                    </div>div>
+                                                                                                </div>div>
+                                                                            
+                                                                              {/* Formulário de Cartão */}
+                                                                              {paymentMethod === "card" && clientSecret && (
+                                                                                  <>
+                                                                                                        <div className="border-t border-gray-700 my-8"></div>div>
+                                                                                                        <div>
+                                                                                                                                <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                                                                                                                                                          <Lock className="w-5 h-5 text-lime-400" />
+                                                                                                                                                          Dados do Cartão
+                                                                                                                                  </h2>h2>
+                                                                                                                                <StripeCardForm
+                                                                                                                                                            clientSecret={clientSecret}
+                                                                                                                                                            paymentIntentId={paymentIntentId}
+                                                                                                                                                            onSuccess={handlePaymentSuccess}
+                                                                                                                                                            onError={handlePaymentError}
+                                                                                                                                                            amount={planPrice}
+                                                                                                                                                          />
+                                                                                                          </div>div>
+                                                                                    </>>
+                                                                                )}
+                                                                            
+                                                                              {/* Mensagens de Erro */}
+                                                                              {error && (
+                                                                                  <div className="mt-6 flex items-center gap-3 bg-red-900/20 border border-red-800 rounded-lg p-4">
+                                                                                                        <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
+                                                                                                        <p className="text-red-400 text-sm">{error}</p>p>
+                                                                                    </div>div>
+                                                                                              )}
+                                                                            
+                                                                              {/* Botão Continuar para Pagamento */}
+                                                                              {!clientSecret && (
+                                                                                  <Button
+                                                                                                          onClick={createPaymentIntent}
+                                                                                                          disabled={isLoading || !formData.name || !formData.email}
+                                                                                                          className="w-full mt-8 bg-lime-400 hover:bg-lime-500 text-black font-bold py-4 text-lg rounded-xl disabled:opacity-50"
+                                                                                                        >
+                                                                                    {isLoading ? (
+                                                                                                                                  <>
+                                                                                                                                                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                                                                                                                                            Processando...
+                                                                                                                                    </>>
+                                                                                                                                ) : (
+                                                                                                                                  <>
+                                                                                                                                                            <Lock className="w-5 h-5 mr-2" />
+                                                                                                                                                            Continuar para Pagamento
+                                                                                                                                    </>>
+                                                                                                                                )}
+                                                                                    </Button>Button>
+                                                                                              )}
+                                                                            </CardContent>CardContent>
+                                                            </Card>Card>
+                                              
+                                                {/* Segurança */}
+                                                            <div className="mt-6 flex items-center justify-center gap-2 text-gray-400 text-sm">
+                                                                            <Shield className="w-4 h-4" />
+                                                                            <span>Transação segura com SSL 256-bit</span>span>
+                                                            </div>div>
+                                              </motion.div>motion.div>
+                                  </div>div>
+                        
+                          {/* Coluna Lateral - Resumo do Pedido */}
+                                  <div>
+                                              <motion.div
+                                                              initial={{ opacity: 0, y: 20 }}
+                                                              animate={{ opacity: 1, y: 0 }}
+                                                              transition={{ duration: 0.5, delay: 0.1 }}
+                                                            >
+                                                            <Card className="border-gray-700 bg-gradient-to-b from-gray-800 to-gray-900 sticky top-8">
+                                                                            <CardContent className="p-6">
+                                                                                              <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+                                                                                                                  <ShoppingCart className="w-5 h-5 text-lime-400" />
+                                                                                                                  Resumo do Pedido
+                                                                                                </h3>h3>
+                                                                            
+                                                                              {/* Plano Selecionado */}
+                                                                                              <div className="bg-gray-700/50 rounded-lg p-4 mb-6">
+                                                                                                                  <p className="text-gray-400 text-sm mb-1">Plano</p>p>
+                                                                                                                  <p className="text-xl font-bold">{planName}</p>p>
+                                                                                                </div>div>
+                                                                            
+                                                                              {/* Preço */}
+                                                                                              <div className="space-y-3 mb-6 pb-6 border-b border-gray-700">
+                                                                                                                  <div className="flex justify-between text-sm">
+                                                                                                                                        <span className="text-gray-400">Subtotal</span>span>
+                                                                                                                                        <span>{formatCurrency(planPrice)}</span>span>
+                                                                                                                    </div>div>
+                                                                                                                  <div className="flex justify-between text-sm">
+                                                                                                                                        <span className="text-gray-400">Desconto</span>span>
+                                                                                                                                        <span className="text-lime-400">R$ 0,00</span>span>
+                                                                                                                    </div>div>
+                                                                                                </div>div>
+                                                                            
+                                                                              {/* Total */}
+                                                                                              <div className="mb-6">
+                                                                                                                  <div className="flex justify-between items-center mb-2">
+                                                                                                                                        <span className="text-gray-400">Total</span>span>
+                                                                                                                                        <span className="text-3xl font-bold text-lime-400">
+                                                                                                                                          {formatCurrency(planPrice)}
+                                                                                                                                          </span>span>
+                                                                                                                    </div>div>
+                                                                                                                  <p className="text-xs text-gray-500">
+                                                                                                                                        Cobrado uma vez em seu cartão
+                                                                                                                    </p>p>
+                                                                                                </div>div>
+                                                                            
+                                                                              {/* Benefícios */}
+                                                                                              <div className="bg-gray-700/50 rounded-lg p-4 space-y-3">
+                                                                                                                  <p className="text-sm font-semibold text-gray-300 mb-3">
+                                                                                                                                        Você terá acesso a:
+                                                                                                                    </p>p>
+                                                                                                                  <div className="space-y-2 text-sm">
+                                                                                                                                        <div className="flex items-center gap-2">
+                                                                                                                                                                <CheckCircle2 className="w-4 h-4 text-lime-400 shrink-0" />
+                                                                                                                                                                <span>1 mês de treino e dieta personalizada</span>span>
+                                                                                                                                          </div>div>
+                                                                                                                                        <div className="flex items-center gap-2">
+                                                                                                                                                                <CheckCircle2 className="w-4 h-4 text-lime-400 shrink-0" />
+                                                                                                                                                                <span>
+                                                                                                                                                                                          Exercícios com séries, repetições e descanso definidos
+                                                                                                                                                                  </span>span>
+                                                                                                                                          </div>div>
+                                                                                                                                        <div className="flex items-center gap-2">
+                                                                                                                                                                <CheckCircle2 className="w-4 h-4 text-lime-400 shrink-0" />
+                                                                                                                                                                <span>Ajustes automáticos conforme sua evolução</span>span>
+                                                                                                                                          </div>div>
+                                                                                                                                        <div className="flex items-center gap-2">
+                                                                                                                                                                <CheckCircle2 className="w-4 h-4 text-lime-400 shrink-0" />
+                                                                                                                                                                <span>
+                                                                                                                                                                                          Acesso Completo ao App + Acompanhamento Contínuo
+                                                                                                                                                                  </span>span>
+                                                                                                                                          </div>div>
+                                                                                                                    </div>div>
+                                                                                                </div>div>
+                                                                            </CardContent>CardContent>
+                                                            </Card>Card>
+                                              </motion.div>motion.div>
+                                  </div>div>
+                        </div>div>
+                </div>div>
+          </div>div>
+        )
+}</></></></div>
