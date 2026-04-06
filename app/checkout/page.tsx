@@ -596,7 +596,7 @@ export default function CheckoutPage() {
         }
       }, 1000) // Small delay to ensure data is saved
     }
-  }, [success, router, pixData?.paymentId, cardPaymentId, user?.uid])
+  }, [success, router, pixData?.paymentId, user?.uid])
 
   // Boleto screen
   if (boletoData) {
