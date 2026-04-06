@@ -30,20 +30,13 @@ import { db, auth } from "@/lib/firebaseClient"
 import Link from "next/link"
 import Image from "next/image"
 import { usePixel } from "@/components/pixel-tracker"
+import { StripeEmbeddedCheckout } from "./stripe-embedded-checkout"
 
 interface PaymentFormData {
   email: string
   name: string
   cpf: string
   phone: string
-}
-
-interface CardData {
-  holderName: string
-  number: string
-  expiryMonth: string
-  expiryYear: string
-  ccv: string
 }
 
 interface AddressData {
@@ -109,14 +102,6 @@ export default function CheckoutPage() {
     phone: "",
   })
 
-  const [cardData, setCardData] = useState<CardData>({
-    holderName: "",
-    number: "",
-    expiryMonth: "",
-    expiryYear: "",
-    ccv: "",
-  })
-
   const [addressData, setAddressData] = useState<AddressData>({
     postalCode: "",
     addressNumber: "",
@@ -125,7 +110,6 @@ export default function CheckoutPage() {
   const [installments, setInstallments] = useState(1)
   const [pixData, setPixData] = useState<{ qrCode: string; copyPaste: string; paymentId: string } | null>(null)
   const [boletoData, setBoletoData] = useState<{ url: string; barCode: string } | null>(null)
-  const [cardPaymentId, setCardPaymentId] = useState<string | null>(null)
 
   // Order Bump state
   const [selectedOrderBumps, setSelectedOrderBumps] = useState<{
@@ -297,18 +281,17 @@ export default function CheckoutPage() {
     prefillFromProfile()
   }, [])
 
-  // Real-time payment listener
+  // Real-time payment listener - PIX only
   useEffect(() => {
-    // For PIX and Card - listen to specific payment ID
-    const currentPaymentId = pixData?.paymentId || cardPaymentId
-    const method = pixData?.paymentId ? "pix" : cardPaymentId ? "card" : null
+    // Listen to PIX payment only
+    const currentPaymentId = pixData?.paymentId
 
-    if (!currentPaymentId || !method) {
-      console.log("[v0] PAYMENT_LISTENER_SETUP - Nenhum paymentId configurado ainda")
+    if (!currentPaymentId) {
+      console.log("[v0] PAYMENT_LISTENER_SETUP - Nenhum paymentId PIX configurado ainda")
       return
     }
 
-    console.log("[v0] PAYMENT_LISTENER_SETUP - Configurando listener para:", { currentPaymentId, method })
+    console.log("[v0] PAYMENT_LISTENER_SETUP - Configurando listener para PIX:", currentPaymentId)
 
     const paymentRef = doc(db, "payments", currentPaymentId)
     let unsubscribeRef: any = null
@@ -345,7 +328,7 @@ export default function CheckoutPage() {
       console.log("[v0] PAYMENT_LISTENER - Limpando listener para:", currentPaymentId)
       unsubscribe()
     }
-  }, [pixData?.paymentId, cardPaymentId])
+  }, [pixData?.paymentId])
 
   // Countdown redirect
   useEffect(() => {
@@ -361,13 +344,7 @@ export default function CheckoutPage() {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }))
   }
 
-  const handleCardChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof CardData) => {
-    let value = e.target.value
-    if (field === "number") {
-      value = value.replace(/\D/g, "").replace(/(\d{4})/g, "$1 ").trim()
-    }
-    setCardData((prev) => ({ ...prev, [field]: value }))
-  }
+
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof AddressData) => {
     setAddressData((prev) => ({ ...prev, [field]: e.target.value }))
@@ -378,15 +355,6 @@ export default function CheckoutPage() {
     if (!formData.email.trim()) return "email"
     if (!formData.cpf.replace(/\D/g, "")) return "cpf"
     if (!formData.phone.replace(/\D/g, "")) return "phone"
-
-    if (paymentMethod === "card") {
-      if (!cardData.number.replace(/\D/g, "")) return "cardNumber"
-      if (!cardData.expiryMonth || !cardData.expiryYear) return "cardExpiry"
-      if (!cardData.ccv) return "cardCcv"
-      if (!cardData.holderName) return "cardHolder"
-      if (!addressData.postalCode) return "postalCode"
-      if (!addressData.addressNumber) return "addressNumber"
-    }
 
     if (paymentMethod === "boleto") {
       if (!addressData.postalCode) return "postalCode"
@@ -490,19 +458,10 @@ export default function CheckoutPage() {
         throw new Error(`Campos obrigatórios faltando: ${missingFields.join(", ")}`)
       }
 
+      // Card payments are handled by StripeEmbeddedCheckout, so skip card processing here
       if (paymentMethod === "card") {
-        const cardMissingFields = []
-        if (!cardData.holderName?.trim()) cardMissingFields.push("Nome no Cartão")
-        if (!cardData.number?.replace(/\s/g, "")) cardMissingFields.push("Número do Cartão")
-        if (!cardData.expiryMonth) cardMissingFields.push("Mês de Validade")
-        if (!cardData.expiryYear) cardMissingFields.push("Ano de Validade")
-        if (!cardData.ccv) cardMissingFields.push("CVV")
-        if (!addressData.postalCode?.replace(/\D/g, "")) cardMissingFields.push("CEP")
-        if (!addressData.addressNumber?.trim()) cardMissingFields.push("Número do Endereço")
-
-        if (cardMissingFields.length > 0) {
-          throw new Error(`Campos do cartão faltando: ${cardMissingFields.join(", ")}`)
-        }
+        setProcessing(false)
+        return
       }
 
       // Step 1: Criar pagamento com /api/create-asaas-payment (igual ao modal)
@@ -542,22 +501,12 @@ export default function CheckoutPage() {
         paymentPayload.installments = installments || 1
       }
 
-      if (paymentMethod === "boleto" || paymentMethod === "card") {
+      if (paymentMethod === "boleto" || paymentMethod === "pix") {
         if (addressData.postalCode) {
           paymentPayload.postalCode = addressData.postalCode.replace(/\D/g, "")
         }
         if (addressData.addressNumber) {
           paymentPayload.addressNumber = addressData.addressNumber
-        }
-      }
-
-      if (paymentMethod === "card") {
-        paymentPayload.cardData = {
-          holderName: cardData.holderName,
-          number: cardData.number?.replace(/\s/g, ""),
-          expiryMonth: cardData.expiryMonth,
-          expiryYear: cardData.expiryYear,
-          ccv: cardData.ccv,
         }
       }
 
@@ -614,46 +563,7 @@ export default function CheckoutPage() {
         return
       }
 
-      if (paymentMethod === "card") {
-        const cardPayload = {
-          paymentId: paymentResult.paymentId,
-          creditCard: {
-            holderName: cardData.holderName,
-            number: cardData.number.replace(/\s/g, ""),
-            expiryMonth: cardData.expiryMonth,
-            expiryYear: cardData.expiryYear,
-            ccv: cardData.ccv,
-          },
-          creditCardHolderInfo: {
-            name: formData.name,
-            email: formData.email,
-            cpfCnpj: formData.cpf.replace(/\D/g, ""),
-            postalCode: addressData.postalCode.replace(/\D/g, ""),
-            addressNumber: addressData.addressNumber,
-            phone: formData.phone.replace(/\D/g, ""),
-          },
-        }
 
-        console.log("[v0] Processando cartão com /api/process-asaas-card")
-        const cardResponse = await fetch("/api/process-asaas-card", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(cardPayload),
-        })
-
-        if (!cardResponse.ok) {
-          const errorData = await cardResponse.json()
-          console.log("[v0] Erro ao processar cartão:", errorData)
-          throw new Error(errorData.error || "Erro ao processar cartão")
-        }
-
-        // Nota: O documento de pagamento é criado pelo servidor via Admin SDK
-        // O cliente apenas lê/escuta o status via onSnapshot
-        setCardPaymentId(paymentResult.paymentId)
-
-        setProcessing(false)
-        return
-      }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Erro ao processar pagamento"
       console.log("[v0] Erro capturado:", errorMsg)
@@ -662,37 +572,13 @@ export default function CheckoutPage() {
     }
   }
 
-  // Listen for card payment status and redirect on success
-  useEffect(() => {
-    if (!cardPaymentId) return
 
-    console.log("[v0] Setting up listener for card payment:", cardPaymentId)
 
-    const unsubscribe = onSnapshot(doc(db, "payments", cardPaymentId), (snapshot) => {
-      if (!snapshot.exists()) return
-
-      const paymentData = snapshot.data()
-      console.log("[v0] Payment status received:", paymentData?.status)
-
-      if (paymentData?.status === "CONFIRMED" || paymentData?.status === "RECEIVED") {
-        console.log("[v0] Payment confirmed! Redirecting to success...")
-        setSuccess(true)
-      } else if (paymentData?.status === "FAILED" || paymentData?.status === "OVERDUE") {
-        console.log("[v0] Payment failed:", paymentData?.status)
-        setError("Pagamento recusado. Por favor, tente novamente.")
-        setCardPaymentId(null)
-        setProcessing(false)
-      }
-    })
-
-    return () => unsubscribe()
-  }, [cardPaymentId])
-
-  // Success screen - Redirect to success page
+  // Success screen - Redirect to success page (PIX only)
   useEffect(() => {
     if (success) {
       // Get the payment ID and user ID based on payment method
-      const currentPaymentId = pixData?.paymentId || cardPaymentId
+      const currentPaymentId = pixData?.paymentId
       const stored = localStorage.getItem("quizData")
       const storedUid = stored ? JSON.parse(stored).uid : null
       const userId = storedUid || user?.uid || ""
@@ -1014,120 +900,17 @@ export default function CheckoutPage() {
                 </motion.div>
               )}
 
-              {/* Card Fields */}
+              {/* Card Payment via Stripe */}
               {paymentMethod === "card" && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-3">
-                  <Input
-                    placeholder="Número do Cartão"
-                    value={cardData.number}
-                    onChange={(e) => handleCardChange(e, "number")}
-                    maxLength={19}
-                    className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 font-mono ${getFieldError("cardNumber") ? "border-red-500/80 border-2" : "border-slate-600"
-                      }`}
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                  <StripeEmbeddedCheckout
+                    amount={parseFloat(totalPrice)}
+                    planType={selectedPlan}
+                    clientUid={user?.uid || ""}
+                    customerEmail={formData.email}
+                    customerName={formData.name}
+                    orderBumps={selectedOrderBumps}
                   />
-                  <div className="grid grid-cols-3 gap-3">
-                    <Input
-                      placeholder="Validade (MM)"
-                      value={cardData.expiryMonth}
-                      onChange={(e) => handleCardChange(e, "expiryMonth")}
-                      maxLength={2}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardExpiry") ? "border-red-500/80 border-2" : "border-slate-600"
-                        }`}
-                    />
-                    <Input
-                      placeholder="Ano (YYYY)"
-                      value={cardData.expiryYear}
-                      onChange={(e) => handleCardChange(e, "expiryYear")}
-                      maxLength={4}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardExpiry") ? "border-red-500/80 border-2" : "border-slate-600"
-                        }`}
-                    />
-                    <Input
-                      placeholder="CVV"
-                      value={cardData.ccv}
-                      onChange={(e) => handleCardChange(e, "ccv")}
-                      maxLength={3}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardCcv") ? "border-red-500/80 border-2" : "border-slate-600"
-                        }`}
-                    />
-                  </div>
-                  <Input
-                    placeholder="Nome no Cartão"
-                    value={cardData.holderName}
-                    onChange={(e) => handleCardChange(e, "holderName")}
-                    className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("cardHolder") ? "border-red-500/80 border-2" : "border-slate-600"
-                      }`}
-                  />
-
-                  {/* Address Fields for Card */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input
-                      placeholder="CEP"
-                      value={addressData.postalCode}
-                      onChange={(e) => setAddressData({ ...addressData, postalCode: e.target.value.replace(/\D/g, "").slice(0, 8) })}
-                      maxLength={8}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("postalCode") ? "border-red-500/80 border-2" : "border-slate-600"}`}
-                    />
-                    <Input
-                      placeholder="Número da Residência"
-                      value={addressData.addressNumber}
-                      onChange={(e) => setAddressData({ ...addressData, addressNumber: e.target.value })}
-                      className={`bg-slate-700/40 text-white placeholder:text-slate-400 placeholder:opacity-100 ${getFieldError("addressNumber") ? "border-red-500/80 border-2" : "border-slate-600"}`}
-                    />
-                  </div>
-
-                  <select
-                    value={installments}
-                    onChange={(e) => setInstallments(parseInt(e.target.value))}
-                    className="w-full bg-slate-700/40 border border-slate-600 text-white rounded-md px-3 py-2 placeholder:text-slate-400 placeholder:opacity-100"
-                  >
-                    {/* Complementos Only - Limitar parcelamento */}
-                    {isComplementosOnly ? (
-                      <>
-                        <option value={1} className="bg-slate-800">
-                          1x de R$ {parseFloat(totalPrice).toFixed(2).replace(".", ",")}
-                        </option>
-                        {/* Permitir 2x apenas se total >= R$ 29.90 (2 complementos) */}
-                        {parseFloat(totalPrice) >= 29.80 && (
-                          <option value={2} className="bg-slate-800">
-                            2x de R$ {(parseFloat(totalPrice) / 2).toFixed(2).replace(".", ",")}
-                          </option>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        {selectedPlan === "semestral" && [1, 2, 3, 4, 5, 6].map((n) => (
-                          <option key={n} value={n} className="bg-slate-800">
-                            {n}x de R$ {(parseFloat(totalPrice) / n).toFixed(2).replace(".", ",")}</option>
-                        ))}
-                        {selectedPlan === "trimestral" && [1, 2, 3].map((n) => (
-                          <option key={n} value={n} className="bg-slate-800">
-                            {n}x de R$ {(parseFloat(totalPrice) / n).toFixed(2).replace(".", ",")}</option>
-                        ))}
-                        {selectedPlan === "mensal" && (
-                          <option value={1} className="bg-slate-800">
-                            1x de R$ {parseFloat(totalPrice).toFixed(2).replace(".", ",")}</option>
-                        )}
-                      </>
-                    )}
-                  </select>
-
-                  {/* Sugestão de parcelamento condicional */}
-                  {!isComplementosOnly && selectedPlan === "semestral" && (
-                    <div className="text-xs text-lime-400 text-center">
-                      ou até 6x de R$ {(parseFloat(totalPrice) / 6).toFixed(2).replace(".", ",")}
-                    </div>
-                  )}
-                  {!isComplementosOnly && selectedPlan === "trimestral" && (
-                    <div className="text-xs text-lime-400 text-center">
-                      ou até 3x de R$ {(parseFloat(totalPrice) / 3).toFixed(2).replace(".", ",")}
-                    </div>
-                  )}
-                  {isComplementosOnly && parseFloat(totalPrice) >= 29.80 && (
-                    <div className="text-xs text-lime-400 text-center">
-                      ou até 2x de R$ {(parseFloat(totalPrice) / 2).toFixed(2).replace(".", ",")}
-                    </div>
-                  )}
                 </motion.div>
               )}
 
