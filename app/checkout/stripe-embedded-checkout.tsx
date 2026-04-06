@@ -31,7 +31,7 @@
  * )}
  */
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { StripeCardForm } from "@/components/stripe-card-form"
 import { Button } from "@/components/ui/button"
@@ -62,11 +62,13 @@ export function StripeEmbeddedCheckout({
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null)
   const [isCreating, setIsCreating] = useState(false)
+  const [didInitialize, setDidInitialize] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
 
   // Passo 1: Criar o PaymentIntent e obter o clientSecret
   async function initializePayment() {
+    setDidInitialize(true)
     setIsCreating(true)
     setError(null)
 
@@ -115,6 +117,12 @@ export function StripeEmbeddedCheckout({
     setError(msg)
   }
 
+  useEffect(() => {
+    if (!didInitialize) {
+      initializePayment()
+    }
+  }, [didInitialize])
+
   // Estado: pagamento bem-sucedido
   if (paymentSuccess) {
     return (
@@ -156,7 +164,7 @@ export function StripeEmbeddedCheckout({
     )
   }
 
-  // Estado inicial: botão para inicializar o pagamento
+  // Estado inicial: carregando o formulário
   return (
     <div className="space-y-4">
       <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-4">
@@ -165,33 +173,44 @@ export function StripeEmbeddedCheckout({
           <span className="text-white font-medium">Cartão de Crédito</span>
         </div>
         <p className="text-gray-400 text-sm">
-          Pagamento seguro via Stripe. Apenas número do cartão, validade e CVV.
+          Preparando pagamento seguro via Stripe. Aguarde enquanto o formulário é carregado.
         </p>
       </div>
 
       {error && (
-        <div className="bg-red-900/20 border border-red-800 text-red-400 rounded-lg p-3 text-sm">
-          {error}
+        <div className="space-y-3">
+          <div className="bg-red-900/20 border border-red-800 text-red-400 rounded-lg p-3 text-sm">
+            {error}
+          </div>
+          <Button
+            onClick={initializePayment}
+            disabled={isCreating}
+            className="w-full bg-lime-400 hover:bg-lime-500 text-black font-bold py-4 text-lg rounded-xl"
+          >
+            {isCreating ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Tentando novamente...
+              </>
+            ) : (
+              "Tentar novamente"
+            )}
+          </Button>
         </div>
       )}
 
-      <Button
-        onClick={initializePayment}
-        disabled={isCreating}
-        className="w-full bg-lime-400 hover:bg-lime-500 text-black font-bold py-4 text-lg rounded-xl"
-      >
-        {isCreating ? (
-          <>
-            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-            Preparando pagamento...
-          </>
-        ) : (
-          <>
-            <CreditCard className="w-5 h-5 mr-2" />
-            Continuar para pagamento — R$ {Number(amount).toFixed(2).replace(".", ",")}
-          </>
-        )}
-      </Button>
+      {!error && (
+        <div className="w-full bg-slate-900 border border-slate-700 rounded-xl p-6 text-center text-sm text-slate-400">
+          {isCreating ? (
+            <div className="flex items-center justify-center gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Inicializando pagamento...
+            </div>
+          ) : (
+            "Carregando campo de cartão..."
+          )}
+        </div>
+      )}
     </div>
   )
 }
