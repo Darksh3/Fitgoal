@@ -45,29 +45,33 @@ export async function POST(req: Request) {
               },
       })
 
-      // Registrar no Firestore (mesmo padrão do Asaas)
+      // Registrar no Firestore (mesmo padrão do Asaas), se o Firebase Admin estiver inicializado
       try {
-              const db = admin.firestore()
-              await db
-                .collection("payments")
-                .doc(paymentIntent.id)
-                .set({
-                            stripePaymentIntentId: paymentIntent.id,
-                            paymentId: paymentIntent.id,
-                            userId: clientUid || null,
-                            leadId: clientUid || null,
-                            planType: planType || null,
-                            billingType: "CREDIT_CARD",
-                            gateway: "stripe",
-                            amount: parseFloat(amount),
-                            value: parseFloat(amount),
-                            status: "PENDING",
-                            source: "checkout",
-                            customerEmail: customerEmail || null,
-                            customerName: customerName || null,
-                            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                            orderBumps: orderBumps || {},
-                })
+              if (admin.apps.length > 0) {
+                      const db = admin.firestore()
+                      await db
+                        .collection("payments")
+                        .doc(paymentIntent.id)
+                        .set({
+                                    stripePaymentIntentId: paymentIntent.id,
+                                    paymentId: paymentIntent.id,
+                                    userId: clientUid || null,
+                                    leadId: clientUid || null,
+                                    planType: planType || null,
+                                    billingType: "CREDIT_CARD",
+                                    gateway: "stripe",
+                                    amount: parseFloat(amount),
+                                    value: parseFloat(amount),
+                                    status: "PENDING",
+                                    source: "checkout",
+                                    customerEmail: customerEmail || null,
+                                    customerName: customerName || null,
+                                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                                    orderBumps: orderBumps || {},
+                        })
+              } else {
+                      console.warn("Firebase Admin não inicializado. Pulando registro de pagamento no Firestore.")
+              }
       } catch (firestoreErr) {
               console.error("[stripe-pi] Firestore warning:", firestoreErr)
               // Não falha o request — o webhook vai atualizar depois
