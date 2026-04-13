@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 
 interface LeadInfo {
-  leadId: string
+  leadId: string | null
+  userId?: string | null
   email: string
   name: string | null
   hasPaid: boolean
   hasTrialActivated: boolean
+  expirationDate?: string | null
   quizData: Record<string, any>
 }
 
@@ -29,6 +31,7 @@ interface ActivationResult {
 export default function TrialPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
+  const [trialDays, setTrialDays] = useState("15")
   const [loading, setLoading] = useState(false)
   const [lookupLoading, setLookupLoading] = useState(false)
   const [leadInfo, setLeadInfo] = useState<LeadInfo | null>(null)
@@ -71,10 +74,17 @@ export default function TrialPage() {
     setActivationError(null)
     setActivationResult(null)
     try {
+      const safeDays = Number.isInteger(Number(trialDays)) && Number(trialDays) > 0 ? Number(trialDays) : 15
+      const action = leadInfo.hasPaid || leadInfo.hasTrialActivated ? "extend" : "activate"
       const res = await fetch("/api/admin/activate-trial", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: leadInfo.email, action: "activate" }),
+        body: JSON.stringify({
+          email: leadInfo.email,
+          action,
+          userId: leadInfo.userId,
+          days: safeDays,
+        }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -192,6 +202,13 @@ export default function TrialPage() {
                 </div>
               )}
 
+              {leadInfo.expirationDate && (
+                <div className="bg-slate-900 rounded-lg p-4">
+                  <p className="text-slate-400 text-sm mb-2">Expiração atual do usuário:</p>
+                  <p className="text-white text-sm font-medium">{new Date(leadInfo.expirationDate).toLocaleDateString("pt-BR")}</p>
+                </div>
+              )}
+
               {(leadInfo.hasPaid || leadInfo.hasTrialActivated) && (
                 <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
                   <p className="text-yellow-400 text-sm">
@@ -200,9 +217,25 @@ export default function TrialPage() {
                 </div>
               )}
 
-              <Button onClick={handleActivate} disabled={loading} className="w-full bg-lime-600 hover:bg-lime-500 text-white font-semibold py-3">
-                {loading ? "Ativando trial..." : "Ativar Trial de 15 Dias"}
-              </Button>
+              <div className="grid gap-3 sm:grid-cols-[1fr_160px]">
+                <input
+                  type="number"
+                  min={1}
+                  value={trialDays}
+                  onChange={(e) => setTrialDays(e.target.value)}
+                  className="bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-lime-500"
+                  placeholder="Dias de acesso"
+                />
+                <Button onClick={handleActivate} disabled={loading} className="w-full bg-lime-600 hover:bg-lime-500 text-white font-semibold py-3">
+                  {loading
+                    ? "Processando..."
+                    : leadInfo.hasPaid
+                      ? `Conceder ${trialDays || 15} dias`
+                      : leadInfo.hasTrialActivated
+                        ? `Estender ${trialDays || 15} dias`
+                        : `Ativar Trial de ${trialDays || 15} dias`}
+                </Button>
+              </div>
 
               {activationError && (
                 <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { adminDb, auth } from "@/lib/firebaseAdmin"
+import { adminDb, auth, admin } from "@/lib/firebaseAdmin"
 import { isAdminRequest } from "@/lib/adminServerVerify"
 import { Resend } from "resend"
 
@@ -23,6 +23,15 @@ async function getUserByUidSafe(uid: string) {
       }
 }
 
+async function getFirestoreUserByEmail(email: string) {
+      const usersSnap = await adminDb.collection("users").where("email", "==", email).limit(1).get()
+      if (usersSnap.empty) {
+              return null
+      }
+      const doc = usersSnap.docs[0]
+      return { id: doc.id, data: doc.data() }
+}
+
 export async function POST(request: Request) {
       const isAdmin = await isAdminRequest()
       if (!isAdmin) {
@@ -30,11 +39,13 @@ export async function POST(request: Request) {
       }
 
   try {
-          const { email, action, userId: userIdParam, userName: userNameParam } = await request.json()
+          const { email, action, userId: userIdParam, userName: userNameParam, days } = await request.json()
 
         if (!email) {
                   return NextResponse.json({ error: "Email é obrigatório" }, { status: 400 })
         }
+
+        const trialDays = Number.isInteger(Number(days)) && Number(days) > 0 ? Number(days) : 15
 
         const cleanEmail = email.toLowerCase().trim()
 
@@ -108,12 +119,19 @@ export async function POST(request: Request) {
         const leadDoc = leadsSnap.empty ? null : leadsSnap.docs[0]
           const leadId = leadDoc?.id || null
           const leadData = leadDoc?.data() || {}
+          const existingUser = await getFirestoreUserByEmail(cleanEmail)
+          const existingUserId = existingUser?.id || null
+          const subscriptionExpiresAt = existingUser?.data?.subscriptionExpiresAt
+          const existingUserExpirationDate = subscriptionExpiresAt?.toDate
+            ? subscriptionExpiresAt.toDate().toISOString()
+            : subscriptionExpiresAt || existingUser?.data?.expirationDate || null
 
                   if (action === "lookup") {
                             if (leadDoc) {
                                         return NextResponse.json({
                                                       found: true,
                                                       leadId,
+                                                      userId: existingUserId,
                                                       email: leadData.email || cleanEmail,
                                                       name: leadData.name || leadData.firstName || null,
                                                       quizData: {
@@ -132,26 +150,29 @@ export async function POST(request: Request) {
                                                       },
                                                       hasPaid: leadData.hasPaid || false,
                                                       hasTrialActivated: leadData.hasTrialActivated || false,
+                                                      expirationDate: existingUserExpirationDate,
                                         })
                             } else {
                                         return NextResponse.json({
                                                       found: false,
                                                       leadId: null,
+                                                      userId: existingUserId,
                                                       email: cleanEmail,
                                                       name: null,
                                                       quizData: {},
                                                       hasPaid: false,
                                                       hasTrialActivated: false,
+                                                      expirationDate: existingUserExpirationDate,
                                         })
                             }
                   }
 
-        if (action !== "activate") {
+        if (action !== "activate" && action !== "extend") {
                   return NextResponse.json({ error: "Ação inválida" }, { status: 400 })
         }
 
         const trialExpirationDate = new Date()
-          trialExpirationDate.setDate(trialExpirationDate.getDate() + 15)
+          trialExpirationDate.setDate(trialExpirationDate.getDate() + trialDays)
 
         const tempPassword = ADMIN_DEFAULT_PASSWORD
 
@@ -216,6 +237,41 @@ export async function POST(request: Request) {
 
         const userName = leadData.name || leadData.firstName || null
 
+        // Se for apenas extensão de dias e o usuário já existe no Firestore, manter o plano atual em vez de forçar trial.
+        if (action === "extend" && existingUserId) {
+                  const existingUserDoc = await adminDb.collection("users").doc(existingUserId).get()
+                  const currentExpiration = existingUserDoc.data()?.expirationDate
+                  const baseExpiration = currentExpiration ? new Date(currentExpiration) : new Date()
+                  const extendedDate = new Date(baseExpiration)
+                  extendedDate.setDate(extendedDate.getDate() + trialDays)
+
+                  await adminDb.collection("users").doc(existingUserId).update({
+                              expirationDate: extendedDate.toISOString(),
+                              subscriptionExpiresAt: admin.firestore.Timestamp.fromDate(extendedDate),
+                              subscriptionStatus: "active",
+                  })
+
+                  if (leadId && !leadData.hasPaid) {
+                            await adminDb.collection("leads").doc(leadId).update({
+                                          hasTrialActivated: true,
+                                          trialActivatedAt: new Date().toISOString(),
+                                          linkedUserId: existingUserId,
+                            })
+                  }
+
+                  return NextResponse.json({
+                              success: true,
+                              userId: existingUserId,
+                              email: cleanEmail,
+                              name: userName,
+                              isNewUser: false,
+                              tempPassword,
+                              expirationDate: extendedDate.toISOString(),
+                              plansGenerated: true,
+                              plansError: null,
+                  })
+        }
+
         await adminDb.collection("users").doc(userId).set(
             {
                         uid: userId,
@@ -224,6 +280,7 @@ export async function POST(request: Request) {
                         subscriptionStatus: "active",
                         plan: "trial",
                         expirationDate: trialExpirationDate.toISOString(),
+                        subscriptionExpiresAt: admin.firestore.Timestamp.fromDate(trialExpirationDate),
                         hasPaid: false,
                         trialActivatedBy: "admin",
                         trialActivatedAt: new Date().toISOString(),
