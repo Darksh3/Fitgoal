@@ -26,6 +26,7 @@ import {
   LockOpen,
   Gift,
   Lightbulb,
+    Target,
 } from "lucide-react"
 
 interface QuizData {
