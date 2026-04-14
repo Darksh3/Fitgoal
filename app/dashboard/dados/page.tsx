@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, User, Save, Edit, Calendar, Target, RefreshCw, Trash2, AlertTriangle } from "lucide-react"
 import { db, auth } from "@/lib/firebaseClient"
-import { doc, getDoc, setDoc } from "firebase/firestore"
+import { doc, getDoc, setDoc } from "firebhase/firestore"
 
 interface QuizData {
   gender: string
@@ -23,6 +23,9 @@ interface QuizData {
   trainingDaysPerWeek: string
   age?: string
   height?: string
+  phase?: string
+  currentBF?: string
+  targetBF?: string
 }
 
 interface PersonalData {
@@ -79,6 +82,9 @@ export default function DadosPage() {
   const [isRegenerating, setIsRegenerating] = useState(false)
   const [regenerationMessage, setRegenerationMessage] = useState<string>("")
   const [editedGoal, setEditedGoal] = useState<string>("")
+  const [editedPhase, setEditedPhase] = useState<string>("")
+  const [editedCurrentBF, setEditedCurrentBF] = useState<string>("")
+  const [editedTargetBF, setEditedTargetBF] = useState<string>("")
   const [editedCurrentWeight, setEditedCurrentWeight] = useState<string>("")
   const [editedTargetWeight, setEditedTargetWeight] = useState<string>("")
   const [editedTimeToGoal, setEditedTimeToGoal] = useState<string>("")
@@ -93,6 +99,9 @@ export default function DadosPage() {
       setEditedTimeToGoal(quizData.timeToGoal || "")
       setEditedTrainingDays(String(quizData.trainingDaysPerWeek || quizData.trainingDays || ""))
       setEditedWorkoutTime(quizData.workoutTime || "")
+      setEditedPhase(quizData.phase || "")
+      setEditedCurrentBF(quizData.currentBF || "")
+      setEditedTargetBF(quizData.targetBF || "")
 
       if (Array.isArray(quizData.goal) && quizData.goal.length > 0) {
         setEditedGoal(quizData.goal[0])
@@ -371,6 +380,9 @@ export default function DadosPage() {
       "ganhar-massa": "Ganhar massa muscular",
       "melhorar-saude": "Melhorar saúde",
       "aumentar-resistencia": "Aumentar resistência",
+      cutting: "Cutting (definição)",
+      bulking: "Bulking (volume)",
+      recomposicao: "Recomposição corporal",
     }
     return goals.map((goal) => goalMap[goal] || goal).join(", ")
   }
@@ -545,8 +557,51 @@ export default function DadosPage() {
                     <option value="ganhar-massa">Ganhar massa muscular</option>
                     <option value="melhorar-saude">Melhorar saúde</option>
                     <option value="aumentar-resistencia">Aumentar resistência</option>
+                  <option value="cutting">Cutting (definição)</option>
+                  <option value="bulking">Bulking (volume)</option>
+                  <option value="recomposicao">Recomposição corporal</option>
                   </select>
                 </div>
+              <div>
+                <Label htmlFor="phase" className="text-gray-600 dark:text-gray-400 text-sm">
+                  Fase atual
+                </Label>
+                <select
+                  id="phase"
+                  value={editedPhase}
+                  onChange={(e) => setEditedPhase(e.target.value)}
+                  className="mt-1 w-full bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                >
+                  <option value="">Selecione...</option>
+                  <option value="cutting">Cutting — Definição / Perda de gordura</option>
+                  <option value="bulking">Bulking — Ganho de massa muscular</option>
+                  <option value="manutencao">Manutenção — Manter composição atual</option>
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="currentBF" className="text-gray-600 dark:text-gray-400 text-sm">
+                  BF atual (% gordura corporal)
+                </Label>
+                <Input
+                  id="currentBF"
+                  value={editedCurrentBF}
+                  onChange={(e) => setEditedCurrentBF(e.target.value)}
+                  placeholder="Ex: 18"
+                  className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                />
+              </div>
+              <div>
+                <Label htmlFor="targetBF" className="text-gray-600 dark:text-gray-400 text-sm">
+                  BF meta (% gordura corporal)
+                </Label>
+                <Input
+                  id="targetBF"
+                  value={editedTargetBF}
+                  onChange={(e) => setEditedTargetBF(e.target.value)}
+                  placeholder="Ex: 12"
+                  className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                />
+              </div>
                 <div>
                   <Label htmlFor="currentWeight" className="text-gray-600 dark:text-gray-400 text-sm">
                     Peso atual (kg)
@@ -630,6 +685,9 @@ export default function DadosPage() {
                       const updatedQuizData = {
                         ...quizData,
                         goal: editedGoal ? [editedGoal] : quizData?.goal,
+                    phase: editedPhase || quizData?.phase || "",
+                    currentBF: editedCurrentBF || quizData?.currentBF || "",
+                    targetBF: editedTargetBF || quizData?.targetBF || "",
                         currentWeight: editedCurrentWeight || quizData?.currentWeight,
                         targetWeight: editedTargetWeight || quizData?.targetWeight,
                         timeToGoal: editedTimeToGoal || quizData?.timeToGoal,
@@ -660,6 +718,11 @@ export default function DadosPage() {
 
                       localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
                       setQuizData(updatedQuizData)
+
+                      // Forçar reload da página para carregar novos planos
+                      setTimeout(() => {
+                        window.location.href = "/dashboard"
+                      }, 2000)
                       setRegenerationMessage("Objetivo atualizado e planos regenerados com sucesso.")
                       setTimeout(() => setRegenerationMessage(""), 7000)
                     } catch (error) {
