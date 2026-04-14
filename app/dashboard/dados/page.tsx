@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, User, Save, Edit, Calendar, Target, RefreshCw, Trash2, AlertTriangle } from "lucide-react"
 import { db, auth } from "@/lib/firebaseClient"
-import { doc, getDoc, setDoc } from "firebhase/firestore"
+import { doc, getDoc, setDoc } from "firebase/firestore"
 
 interface QuizData {
   gender: string
