@@ -76,7 +76,31 @@ export default function DadosPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSyncing, setIsSyncing] = useState(false)
   const [isCleaningUp, setIsCleaningUp] = useState(false)
+  const [isRegenerating, setIsRegenerating] = useState(false)
+  const [regenerationMessage, setRegenerationMessage] = useState<string>("")
+  const [editedGoal, setEditedGoal] = useState<string>("")
+  const [editedCurrentWeight, setEditedCurrentWeight] = useState<string>("")
+  const [editedTargetWeight, setEditedTargetWeight] = useState<string>("")
+  const [editedTimeToGoal, setEditedTimeToGoal] = useState<string>("")
+  const [editedTrainingDays, setEditedTrainingDays] = useState<string>("")
+  const [editedWorkoutTime, setEditedWorkoutTime] = useState<string>("")
   const [hasOldData, setHasOldData] = useState(false)
+
+  useEffect(() => {
+    if (quizData) {
+      setEditedCurrentWeight(quizData.currentWeight || "")
+      setEditedTargetWeight(quizData.targetWeight || "")
+      setEditedTimeToGoal(quizData.timeToGoal || "")
+      setEditedTrainingDays(String(quizData.trainingDaysPerWeek || quizData.trainingDays || ""))
+      setEditedWorkoutTime(quizData.workoutTime || "")
+
+      if (Array.isArray(quizData.goal) && quizData.goal.length > 0) {
+        setEditedGoal(quizData.goal[0])
+      } else if (typeof quizData.goal === "string") {
+        setEditedGoal(quizData.goal)
+      }
+    }
+  }, [quizData])
 
   useEffect(() => {
     const loadAndSyncData = async () => {
@@ -493,6 +517,165 @@ export default function DadosPage() {
                 <Label className="text-gray-600 dark:text-gray-400 text-sm">Dias de Treino por Semana</Label>
                 <p className="font-semibold text-gray-900 dark:text-white text-lg">
                   {quizData?.trainingDaysPerWeek || "Não definido"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white dark:bg-white/5 backdrop-blur-md border-gray-200 dark:border-white/10">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                <Target className="h-5 w-5 text-indigo-400" />
+                Mudar Objetivo
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="goal" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Objetivo principal
+                  </Label>
+                  <select
+                    id="goal"
+                    value={editedGoal}
+                    onChange={(e) => setEditedGoal(e.target.value)}
+                    className="mt-1 w-full bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  >
+                    <option value="perder-peso">Perder peso</option>
+                    <option value="ganhar-massa">Ganhar massa muscular</option>
+                    <option value="melhorar-saude">Melhorar saúde</option>
+                    <option value="aumentar-resistencia">Aumentar resistência</option>
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="currentWeight" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Peso atual (kg)
+                  </Label>
+                  <Input
+                    id="currentWeight"
+                    value={editedCurrentWeight}
+                    onChange={(e) => setEditedCurrentWeight(e.target.value)}
+                    placeholder="72"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="targetWeight" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Peso meta (kg)
+                  </Label>
+                  <Input
+                    id="targetWeight"
+                    value={editedTargetWeight}
+                    onChange={(e) => setEditedTargetWeight(e.target.value)}
+                    placeholder="65"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="timeToGoal" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Prazo para meta
+                  </Label>
+                  <Input
+                    id="timeToGoal"
+                    value={editedTimeToGoal}
+                    onChange={(e) => setEditedTimeToGoal(e.target.value)}
+                    placeholder="3 meses"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="trainingDays" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Dias de treino por semana
+                  </Label>
+                  <Input
+                    id="trainingDays"
+                    value={editedTrainingDays}
+                    onChange={(e) => setEditedTrainingDays(e.target.value)}
+                    placeholder="5"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="workoutTime" className="text-gray-600 dark:text-gray-400 text-sm">
+                    Tempo de treino
+                  </Label>
+                  <Input
+                    id="workoutTime"
+                    value={editedWorkoutTime}
+                    onChange={(e) => setEditedWorkoutTime(e.target.value)}
+                    placeholder="45min"
+                    className="bg-gray-100 dark:bg-white/5 backdrop-blur-md border-2 border-gray-300 dark:border-white/10 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  />
+                </div>
+              </div>
+
+              {regenerationMessage && (
+                <div className="rounded-xl bg-green-100 dark:bg-green-950/50 border border-green-200 dark:border-green-800 p-4 text-sm text-green-900 dark:text-green-200">
+                  {regenerationMessage}
+                </div>
+              )}
+
+              <div className="flex flex-col lg:flex-row gap-3 items-start">
+                <button
+                  onClick={async () => {
+                    if (!auth.currentUser) {
+                      alert("Faça login para atualizar seus objetivos.")
+                      return
+                    }
+
+                    setIsRegenerating(true)
+                    setRegenerationMessage("")
+
+                    try {
+                      const updatedQuizData = {
+                        ...quizData,
+                        goal: editedGoal ? [editedGoal] : quizData?.goal,
+                        currentWeight: editedCurrentWeight || quizData?.currentWeight,
+                        targetWeight: editedTargetWeight || quizData?.targetWeight,
+                        timeToGoal: editedTimeToGoal || quizData?.timeToGoal,
+                        trainingDaysPerWeek: editedTrainingDays || quizData?.trainingDaysPerWeek,
+                        workoutTime: editedWorkoutTime || quizData?.workoutTime,
+                      }
+
+                      const response = await fetch("/api/generate-plans-on-demand", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          userId: auth.currentUser.uid,
+                          quizData: updatedQuizData,
+                          forceRegenerate: true,
+                        }),
+                      })
+
+                      if (!response.ok) {
+                        const errorData = await response.text()
+                        throw new Error(errorData || "Erro ao regenerar planos")
+                      }
+
+                      await setDoc(doc(db, "users", auth.currentUser.uid), {
+                        quizData: updatedQuizData,
+                        currentWeight: updatedQuizData.currentWeight,
+                        targetWeight: updatedQuizData.targetWeight,
+                      }, { merge: true })
+
+                      localStorage.setItem("quizData", JSON.stringify(updatedQuizData))
+                      setQuizData(updatedQuizData)
+                      setRegenerationMessage("Objetivo atualizado e planos regenerados com sucesso.")
+                      setTimeout(() => setRegenerationMessage(""), 7000)
+                    } catch (error) {
+                      console.error("[DADOS] Erro ao regenerar planos:", error)
+                      setRegenerationMessage("Não foi possível atualizar o objetivo. Tente novamente.")
+                    } finally {
+                      setIsRegenerating(false)
+                    }
+                  }}
+                  disabled={isRegenerating}
+                  className="rounded-2xl bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isRegenerating ? "Regenerando..." : "Atualizar objetivo e gerar planos"}
+                </button>
+                <p className="text-sm text-gray-600 dark:text-gray-400 max-w-2xl">
+                  Os dados restantes do seu quiz serão mantidos. Apenas objetivo, peso, prazo e volume de treino serão usados para atualizar o plano.
                 </p>
               </div>
             </CardContent>

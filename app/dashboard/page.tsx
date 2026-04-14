@@ -1205,6 +1205,27 @@ export default function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
+
+            <Card
+              className="bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-all shadow-sm"
+              onClick={() => router.push("/dashboard/dados")}
+            >
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white text-xl">
+                  <Target className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                  <span>Mudar objetivo</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <p className="text-gray-700 dark:text-gray-300">Ajuste seu objetivo de treino e dieta sem perder os dados já definidos.</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Atualize sua meta, peso ou foco e gere um plano novo com base no seu perfil.</p>
+                  <p className="text-blue-600 dark:text-blue-400 font-medium flex items-center">
+                    Clique para revisar e atualizar seu objetivo →
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

@@ -469,15 +469,17 @@ export async function POST(req: Request) {
       }
 
       const userData = userDoc.data()
-      let quizData = providedQuizData
-      if (!quizData) {
-        if (!userData?.quizData) {
-          return new Response(JSON.stringify({ error: "Quiz data not found." }), {
-            status: 404,
-            headers: { "Content-Type": "application/json" },
-          })
-        }
-        quizData = userData.quizData
+      const existingQuizData = userData?.quizData || {}
+      let quizData = providedQuizData ? { ...existingQuizData, ...providedQuizData } : existingQuizData
+      if (providedQuizData) {
+        await userDocRef.set({ quizData }, { merge: true })
+      }
+
+      if (!quizData || Object.keys(quizData).length === 0) {
+        return new Response(JSON.stringify({ error: "Quiz data not found." }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        })
       }
 
       console.log("📋 [DEBUG] Full quizData received:", JSON.stringify(quizData, null, 2))
