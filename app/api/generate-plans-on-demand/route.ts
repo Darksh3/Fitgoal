@@ -578,6 +578,16 @@ export async function POST(req: Request) {
       const goalsArray = Array.isArray(quizData.goal) ? quizData.goal : [quizData.goal].filter(Boolean)
       const goalsText = goalsArray.length ? goalsArray.join(", ") : "Não informado"
 
+      // Se o usuário definiu uma fase (cutting/bulking), garantir que o objetivo reflita isso
+      if (quizData.phase === "cutting" && !goalsArray.includes("cutting") && !goalsArray.includes("perder-peso")) {
+        goalsArray.push("perder-peso")
+        console.log("[v0] Phase cutting detected, adding perder-peso to goals")
+      }
+      if (quizData.phase === "bulking" && !goalsArray.includes("bulking") && !goalsArray.includes("ganhar-massa")) {
+        goalsArray.push("ganhar-massa")
+        console.log("[v0] Phase bulking detected, adding ganhar-massa to goals")
+      }
+
       const dietPrompt = `
 Você é um nutricionista especializado em criar planos alimentares personalizados.
 
@@ -600,6 +610,8 @@ NÃO adicione o suplemento nas refeições! Ele será incluído automaticamente.
         }
 
 CLIENTE: ${quizData.gender}, ${quizData.age} anos, ${quizData.currentWeight}kg, objetivo: ${goalsArray.join(", ")}, biotipo: ${quizData.bodyType}, prazo: ${quizData.timeToGoal}
+${quizData.phase ? `FASE ATUAL: ${quizData.phase.toUpperCase()} — ${quizData.phase === "cutting" ? "Priorizar déficit calórico, preservar massa magra, mais proteína" : quizData.phase === "bulking" ? "Priorizar superávit calórico, foco em ganho de massa, mais carboidratos" : "Manutenção da composição corporal atual"}` : ""}
+${quizData.currentBF ? `BF ATUAL: ${quizData.currentBF}%` : ""} ${quizData.targetBF ? `| BF META: ${quizData.targetBF}%` : ""}
 ${quizData.allergies !== "nao" ? `ALERGIAS: ${quizData.allergyDetails}` : ""}
 ${quizData.diet
           ? `
@@ -765,6 +777,8 @@ DADOS DO CLIENTE PARA PERSONALIZAÇÃO:
 - Áreas problemáticas: ${quizData.problemAreas?.join(", ") || "Nenhuma específica"}
 - Tempo disponível: ${quizData.workoutTime}
 - Equipamentos: ${quizData.equipment?.join(", ") || "Academia"}
+- Fase atual: ${quizData.phase || "Não definida"} ${quizData.phase === "cutting" ? "(CUTTING: priorizar exercícios compostos + cardio, volume moderado, intensidade alta)" : quizData.phase === "bulking" ? "(BULKING: priorizar exercícios compostos com carga progressiva, mais volume, menos cardio)" : ""}
+- BF atual: ${quizData.currentBF || "Não informado"}% | BF meta: ${quizData.targetBF || "Não informado"}%
 - Preferências de exercício:
   * Cardio: ${quizData.exercisePreferences?.cardio || "Não informado"}
   * Musculação/Força: ${quizData.exercisePreferences?.pullups || "Não informado"}
