@@ -695,15 +695,23 @@ export default function DadosPage() {
                         workoutTime: editedWorkoutTime || quizData?.workoutTime,
                       }
 
-                      const response = await fetch("/api/generate-plans-on-demand", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          userId: auth.currentUser.uid,
-                          quizData: updatedQuizData,
-                          forceRegenerate: true,
-                        }),
-                      })
+                      const response = await fetch("/api/update-goal-plan", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                      userId: auth.currentUser.uid,
+                                      currentWeight: parseFloat(editedWeight || quizData?.currentWeight || "70"),
+                                      targetWeight: parseFloat(editedWeight || quizData?.targetWeight || "70"),
+                                      gender: quizData?.gender || "masculino",
+                                      bodyType: quizData?.bodyType || "mesomorfo",
+                                      trainingDays: parseInt(editedTrainingDays || quizData?.trainingDays || quizData?.trainingDaysPerWeek || "3"),
+                                      phase: editedGoal === "perder-peso" ? "cutting" : "bulking",
+                                      age: quizData?.age ? parseInt(quizData.age) : undefined,
+                                      height: quizData?.height ? parseInt(quizData.height) : undefined,
+                                      foodRestrictions: quizData?.foodRestrictions,
+                                      supplementType: quizData?.supplementType,
+                                    }),
+                                  })
 
                       if (!response.ok) {
                         const errorData = await response.text()
