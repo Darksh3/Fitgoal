@@ -700,8 +700,8 @@ export default function DadosPage() {
                                     headers: { "Content-Type": "application/json" },
                                     body: JSON.stringify({
                                       userId: auth.currentUser.uid,
-                                      currentWeight: parseFloat(editedWeight || quizData?.currentWeight || "70"),
-                                      targetWeight: parseFloat(editedWeight || quizData?.targetWeight || "70"),
+                                      currentWeight: parseFloat(editedCurrentWeight || quizData?.currentWeight || "70"),
+                                      targetWeight: parseFloat(editedTargetWeight || quizData?.targetWeight || "70"),
                                       gender: quizData?.gender || "masculino",
                                       bodyType: quizData?.bodyType || "mesomorfo",
                                       trainingDays: parseInt(editedTrainingDays || quizData?.trainingDays || quizData?.trainingDaysPerWeek || "3"),
