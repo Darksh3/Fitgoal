@@ -300,6 +300,11 @@ DIRETRIZES OBRIGATÓRIAS:
 6. ENDOMORFO: reduzir carboidratos simples, priorizar fibras e proteínas
 7. ECTOMORFO: aumentar densidade calórica, adicionar lanches extras
 8. Inclua 2 alternativas por refeição
+9. Todos os valores nutricionais baseados na tabela TACO (Tabela Brasileira de Composição de Alimentos) — use USDA apenas para alimentos sem dados TACO
+10. Use APENAS alimentos facilmente encontrados em supermercados brasileiros — nada importado, exótico ou caro
+11. ALIMENTOS PROIBIDOS (nunca incluir): kale, quinoa, amaranto, tempeh, edamame, spirulina, goji berry, açaí em pó, proteína isolada de ervilha, tofu, miso, tahine, hummus, kimchi, kombucha, chia (apenas se muito incomum na região)
+12. Máximo de 4 alimentos por refeição (ideal 2-3)
+13. Use nomes de alimentos em português brasileiro
 
 RESPONDA APENAS COM JSON válido neste formato:
 {
