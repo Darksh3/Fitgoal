@@ -708,7 +708,9 @@ export default function DadosPage() {
                                       phase: editedGoal === "perder-peso" ? "cutting" : "bulking",
                                       age: quizData?.age ? parseInt(quizData.age) : undefined,
                                       height: quizData?.height ? parseInt(quizData.height) : undefined,
-                                      foodRestrictions: quizData?.foodRestrictions,
+                                                                            currentBF: editedCurrentBF || quizData?.currentBF || undefined,
+                                      targetBF: editedTargetBF || quizData?.targetBF || undefined,
+foodRestrictions: quizData?.foodRestrictions,
                                       supplementType: quizData?.supplementType,
                                     }),
                                   })
