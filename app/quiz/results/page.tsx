@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { db, auth } from "@/lib/firebaseClient"
+import { db, auth } from "@/lib/firebaseClient"h
 import { doc, getDoc, updateDoc } from "firebase/firestore"
 import Image from "next/image"
 import SpinWheelSection from '@/components/SpinWheelSection'
@@ -24,6 +24,9 @@ export default function QuizResultsPage() {
   const [discountApplied, setDiscountApplied] = useState(false)
   const [discountPercentage, setDiscountPercentage] = useState(0)
   const [showStickyBar, setShowStickyBar] = useState(false)
+    const [trialLoading, setTrialLoading] = useState(false)
+    const [trialSuccess, setTrialSuccess] = useState(false)
+    const [trialError, setTrialError] = useState<string | null>(null)
   // ========================================
 
   // ========== FUNÇÃO QUANDO GANHA DESCONTO ==========
@@ -42,6 +45,45 @@ export default function QuizResultsPage() {
   // Rastrear ViewContent e PlanView quando a página de resultados carrega
   useEffect(() => {
     trackViewContent({
+
+  // ========== FUNÇÃO DE TRIAL GRATUITO ==========
+  const handleStartTrial = async () => {
+    const email = data?.email || getDataValue("email")
+    const name = data?.name || getDataValue("name")
+    const uid = localStorage.getItem("clientUid") || undefined
+
+    if (!email) {
+      setTrialError("Não foi possível identificar seu email. Tente novamente.")
+      return
+    }
+
+    setTrialLoading(true)
+    setTrialError(null)
+
+    try {
+      const res = await fetch("/api/start-trial", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, name, uid }),
+      })
+      const json = await res.json()
+
+      if (!res.ok) {
+        setTrialError(json.error || "Erro ao ativar trial. Tente novamente.")
+        return
+      }
+
+      setTrialSuccess(true)
+      setTimeout(() => {
+        router.push("/auth")
+      }, 3000)
+    } catch (err) {
+      setTrialError("Erro de conexão. Tente novamente.")
+    } finally {
+      setTrialLoading(false)
+    }
+  }
+  // ==================================================
       content_name: 'Resultado Quiz',
       content_category: 'quiz_result',
     })
@@ -1756,6 +1798,34 @@ export default function QuizResultsPage() {
                   Cancele quando quiser · Sem compromisso
                 </p>
               </div>
+
+              {/* ===== BOTÃO TRIAL GRÁTIS ===== */}
+              {!trialSuccess ? (
+                <div className="mt-6 text-center">
+                  <div className="flex items-center gap-3 mb-4 justify-center">
+                    <div className="h-px flex-1 bg-gray-800 max-w-24" />
+                    <span className="text-gray-500 text-xs">ou</span>
+                    <div className="h-px flex-1 bg-gray-800 max-w-24" />
+                  </div>
+                  <button
+                    onClick={handleStartTrial}
+                    disabled={trialLoading}
+                    className="w-full max-w-md bg-transparent border-2 border-lime-500 text-lime-400 font-bold py-4 px-8 rounded-full text-base hover:bg-lime-500/10 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {trialLoading ? "Ativando seu trial..." : "🎁 Experimentar grátis por 7 dias"}
+                  </button>
+                  {trialError && (
+                    <p className="text-red-400 text-sm mt-2">{trialError}</p>
+                  )}
+                  <p className="text-gray-600 text-xs mt-2">Sem cartão de crédito • Acesso completo por 7 dias</p>
+                </div>
+              ) : (
+                <div className="mt-6 bg-lime-500/10 border border-lime-500/40 rounded-xl p-6 text-center max-w-md mx-auto">
+                  <p className="text-lime-400 font-bold text-lg mb-1">✅ Trial ativado com sucesso!</p>
+                  <p className="text-gray-300 text-sm">Enviamos seus dados de acesso por email. Redirecionando para o login...</p>
+                </div>
+              )}
+              {/* ============================= */}
 
               {/* Money-Back Guarantee */}
               <div className="bg-gray-900 border border-gray-800 rounded-lg p-12 text-center">
