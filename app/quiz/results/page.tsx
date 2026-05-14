@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { db, auth } from "@/lib/firebaseClient"h
+import { db, auth } from "@/lib/firebaseClient"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
 import Image from "next/image"
 import SpinWheelSection from '@/components/SpinWheelSection'
