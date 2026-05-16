@@ -42,10 +42,6 @@ export default function QuizResultsPage() {
   }
   // ==================================================
 
-  // Rastrear ViewContent e PlanView quando a página de resultados carrega
-  useEffect(() => {
-    trackViewContent({
-
   // ========== FUNÇÃO DE TRIAL GRATUITO ==========
   const handleStartTrial = async () => {
     const email = data?.email || getDataValue("email")
@@ -84,6 +80,10 @@ export default function QuizResultsPage() {
     }
   }
   // ==================================================
+
+  // Rastrear ViewContent e PlanView quando a página de resultados carrega
+  useEffect(() => {
+    trackViewContent({
       content_name: 'Resultado Quiz',
       content_category: 'quiz_result',
     })
