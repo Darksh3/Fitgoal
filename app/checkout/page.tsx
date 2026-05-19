@@ -1,5 +1,46 @@
 "use client"
 
+          {/* TRIAL FORM */}
+          {(paymentMethod as any) === "trial" && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+              className="bg-gradient-to-br from-lime-900/20 to-lime-900/10 border border-lime-500/40 rounded-xl p-6 space-y-4"
+            >
+              {trialSuccess ? (
+                <div className="text-center py-4">
+                  <p className="text-lime-400 font-bold text-lg mb-1">Trial ativado!</p>
+                  <p className="text-gray-300 text-sm">Acesso enviado por email. Redirecionando para o login...</p>
+                </div>
+              ) : (
+                <>
+                  <div className="text-center">
+                    <p className="text-lime-400 font-bold text-base mb-1">Trial gratuito de 7 dias</p>
+                    <p className="text-gray-400 text-xs">Acesso completo. Sem cartao de credito.</p>
+                  </div>
+                  <Input placeholder="Nome Completo" value={trialForm.name}
+                    onChange={(e) => setTrialForm(prev => ({ ...prev, name: e.target.value }))}
+                    className="bg-slate-700/40 text-white placeholder:text-slate-400 border-slate-600" />
+                  <Input type="email" placeholder="Email" value={trialForm.email}
+                    onChange={(e) => setTrialForm(prev => ({ ...prev, email: e.target.value }))}
+                    className="bg-slate-700/40 text-white placeholder:text-slate-400 border-slate-600" />
+                  <Input placeholder="Telefone (WhatsApp)" value={trialForm.phone}
+                    onChange={(e) => {
+                      let v = e.target.value.replace(/\D/g, "")
+                      if (v.length > 2) { v = v.length <= 7 ? "(" + v.slice(0,2) + ") " + v.slice(2) : "(" + v.slice(0,2) + ") " + v.slice(2,7) + "-" + v.slice(7,11) }
+                      setTrialForm(prev => ({ ...prev, phone: v }))
+                    }}
+                    className="bg-slate-700/40 text-white placeholder:text-slate-400 border-slate-600" />
+                  {trialError && <p className="text-red-400 text-sm text-center">{trialError}</p>}
+                  <button onClick={handleTrialSubmit} disabled={trialLoading}
+                    className="w-full py-4 rounded-xl bg-gradient-to-r from-lime-500 to-lime-400 text-white font-black text-base hover:from-lime-400 hover:to-lime-300 transition shadow-lg shadow-lime-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {trialLoading ? "Ativando trial..." : "Ativar meu trial gratuito"}
+                  </button>
+                  <p className="text-gray-500 text-xs text-center">Sem cartao de credito - Acesso completo por 7 dias</p>
+                </>
+              )}
+            </motion.div>
+          )}
+
 import React, { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
@@ -61,6 +102,14 @@ export default function CheckoutPage() {
   const [prefillLoading, setPrefillLoading] = useState(false)
   const [spinDiscount, setSpinDiscount] = useState<number | null>(null)
   const [isComplementosOnly, setIsComplementosOnly] = useState(false)
+
+  // ========== TRIAL STATE ==========
+  const [isTrial, setIsTrial] = useState(false)
+  const [trialForm, setTrialForm] = useState({ name: "", email: "", phone: "" })
+  const [trialLoading, setTrialLoading] = useState(false)
+  const [trialError, setTrialError] = useState<string | null>(null)
+  const [trialSuccess, setTrialSuccess] = useState(false)
+  // ==================================
 
   // Rastrear InitiateCheckout apenas uma vez por sessão (quando a página de checkout carrega)
   useEffect(() => {
@@ -180,6 +229,10 @@ export default function CheckoutPage() {
       setSelectedPlan(initialPlan)
     }
 
+    // Verificar se é trial gratuito
+    const isTrialParam = searchParams.get("trial") === "true"
+    setIsTrial(isTrialParam)
+
     // Verificar se é checkout somente de complementos
     const isComplementosOnlyParam = searchParams.get("complementosOnly") === "true"
     console.log("[v0] CHECKOUT - complementosOnly:", isComplementosOnlyParam)
@@ -280,6 +333,24 @@ export default function CheckoutPage() {
   useEffect(() => {
     prefillFromProfile()
   }, [])
+
+  // Pre-fill trial form with quiz data when trial=true
+  useEffect(() => {
+    if (!isTrial) return
+    if (typeof window !== "undefined") {
+      const quizDataStr = localStorage.getItem("quizData")
+      if (quizDataStr) {
+        try {
+          const quizData = JSON.parse(quizDataStr)
+          setTrialForm({
+            name: quizData.name || "",
+            email: quizData.email || "",
+            phone: quizData.phone || "",
+          })
+        } catch (e) {}
+      }
+    }
+  }, [isTrial])
 
   // Real-time payment listener - PIX only
   useEffect(() => {
@@ -598,6 +669,33 @@ export default function CheckoutPage() {
     }
   }, [success, router, pixData?.paymentId, user?.uid])
 
+  // ========== SUBMETER TRIAL ==========
+  const handleTrialSubmit = async () => {
+    if (!trialForm.name.trim()) { setTrialError("Nome é obrigatório"); return }
+    if (!trialForm.email.trim()) { setTrialError("Email é obrigatório"); return }
+    if (!trialForm.phone.replace(/\D/g, "")) { setTrialError("Telefone é obrigatório"); return }
+    setTrialLoading(true)
+    setTrialError(null)
+    try {
+      const stored = typeof window !== "undefined" ? localStorage.getItem("quizData") : null
+      const uid = stored ? JSON.parse(stored).uid : undefined
+      const res = await fetch("/api/start-trial", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trialForm.email, name: trialForm.name, phone: trialForm.phone, uid }),
+      })
+      const json = await res.json()
+      if (!res.ok) { setTrialError(json.error || "Erro ao ativar trial. Tente novamente."); return }
+      setTrialSuccess(true)
+      setTimeout(() => { router.push("/auth") }, 3000)
+    } catch (err) {
+      setTrialError("Erro de conexão. Tente novamente.")
+    } finally {
+      setTrialLoading(false)
+    }
+  }
+  // =====================================
+
   // Boleto screen
   if (boletoData) {
     return (
@@ -787,10 +885,24 @@ export default function CheckoutPage() {
                   <CreditCard className={`w-5 h-5 ${paymentMethod === "card" ? "text-lime-400" : "text-gray-400"}`} />
                   <span className={`font-semibold ${paymentMethod === "card" ? "text-lime-400" : "text-gray-300"}`}>Cartão de Crédito</span>
                 </button>
+
+            {/* Trial option */}
+            <div className="flex items-center gap-3 my-3">
+              <div className="flex-1 border-t border-slate-600"></div>
+              <span className="text-xs text-gray-400">ou comece sem pagar</span>
+              <div className="flex-1 border-t border-slate-600"></div>
+            </div>
+            <button
+              onClick={() => { setPaymentMethod("trial" as any); setError(null) }}
+              className={`w-full p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-3 ${(paymentMethod as any) === "trial" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"}`}
+            >
+              <span className="text-lg">🎁</span>
+              <span className={`font-semibold ${(paymentMethod as any) === "trial" ? "text-lime-400" : "text-gray-300"}`}>Experimentar grátis por 7 dias</span>
+            </button>
               </div>
 
               {/* Personal Info Fields - Show only after payment method selected */}
-              {paymentMethod && (
+              {paymentMethod && (paymentMethod as any) !== "trial" && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
