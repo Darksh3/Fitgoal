@@ -829,8 +829,12 @@ export default function QuizResultsPage() {
         {/* CTA Light */}
         <div className="max-w-5xl mx-auto mt-8 text-center">
           <p className="text-gray-400 text-sm mb-3">Seu plano está pronto — garanta agora antes que o resultado expire</p>
-          <button onClick={handleCheckout} className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-10 rounded-full text-lg transition-all duration-200 shadow-lg shadow-orange-500/30">
-            Quero meu plano por R$ 59,90/mês →
+          <button
+            onClick={handleStartTrial}
+            disabled={trialLoading}
+            className="bg-gradient-to-r from-lime-500 to-lime-400 text-white font-bold py-4 px-10 rounded-full text-lg transition-all duration-200 shadow-lg shadow-lime-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {trialLoading ? "Ativando seu trial..." : "🎁 Experimentar grátis por 7 dias"}
           </button>
         </div>
 
@@ -1198,10 +1202,11 @@ export default function QuizResultsPage() {
           {/* CTA Button */}
           <div className="flex justify-center">
             <button
-              onClick={handleCheckout}
-              className="px-12 py-4 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-full font-black text-lg hover:from-orange-400 hover:to-orange-300 transition shadow-lg shadow-orange-500/30 active:scale-95"
+              onClick={handleStartTrial}
+              disabled={trialLoading}
+              className="px-12 py-4 bg-gradient-to-r from-lime-500 to-lime-400 text-white rounded-full font-black text-lg hover:from-lime-400 hover:to-lime-300 transition shadow-lg shadow-lime-500/30 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              COMEÇAR MEU PLANO AGORA
+              {trialLoading ? "Ativando seu trial..." : "🎁 Experimentar grátis por 7 dias"}
             </button>
           </div>
 
@@ -1789,10 +1794,11 @@ export default function QuizResultsPage() {
                   </div>
                 </div>
                 <button
-                  onClick={handleCheckout}
-                  className="bg-gradient-to-r from-orange-500 to-orange-400 text-white font-black text-lg px-12 py-4 rounded-full hover:from-orange-400 hover:to-orange-300 transition shadow-lg shadow-orange-500/30 active:scale-95"
+                  onClick={handleStartTrial}
+                  disabled={trialLoading}
+                  className="bg-gradient-to-r from-lime-500 to-lime-400 text-white font-black text-lg px-12 py-4 rounded-full hover:from-lime-400 hover:to-lime-300 transition shadow-lg shadow-lime-500/30 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  COMEÇAR MEU PLANO AGORA
+                  {trialLoading ? "Ativando seu trial..." : "🎁 Experimentar grátis por 7 dias"}
                 </button>
                 <p className="text-gray-500 text-xs mt-3">
                   Cancele quando quiser · Sem compromisso
@@ -1872,10 +1878,11 @@ export default function QuizResultsPage() {
                 </p>
               </div>
               <button
-                onClick={handleCheckout}
-                className="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-orange-400 text-white font-black text-sm px-6 py-3 rounded-full hover:from-orange-400 hover:to-orange-300 transition shadow-lg shadow-orange-500/30 active:scale-95 whitespace-nowrap"
+                onClick={handleStartTrial}
+                disabled={trialLoading}
+                className="w-full sm:w-auto bg-gradient-to-r from-lime-500 to-lime-400 text-white font-black text-sm px-6 py-3 rounded-full hover:from-lime-400 hover:to-lime-300 transition shadow-lg shadow-lime-500/30 active:scale-95 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                GARANTIR MEU PLANO →
+                {trialLoading ? "Ativando..." : "🎁 Experimentar grátis por 7 dias"}
               </button>
             </div>
           )}
