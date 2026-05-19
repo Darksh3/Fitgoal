@@ -43,41 +43,10 @@ export default function QuizResultsPage() {
   // ==================================================
 
   // ========== FUNÇÃO DE TRIAL GRATUITO ==========
-  const handleStartTrial = async () => {
-    const email = data?.email || getDataValue("email")
-    const name = data?.name || getDataValue("name")
-    const uid = localStorage.getItem("clientUid") || undefined
-
-    if (!email) {
-      setTrialError("Não foi possível identificar seu email. Tente novamente.")
-      return
-    }
-
-    setTrialLoading(true)
-    setTrialError(null)
-
-    try {
-      const res = await fetch("/api/start-trial", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name, uid }),
-      })
-      const json = await res.json()
-
-      if (!res.ok) {
-        setTrialError(json.error || "Erro ao ativar trial. Tente novamente.")
-        return
-      }
-
-      setTrialSuccess(true)
-      setTimeout(() => {
-        router.push("/auth")
-      }, 3000)
-    } catch (err) {
-      setTrialError("Erro de conexão. Tente novamente.")
-    } finally {
-      setTrialLoading(false)
-    }
+  const handleStartTrial = () => {
+    // Redireciona ao checkout com flag trial=true
+    // Nome, email e telefone serão confirmados/preenchidos no checkout
+    router.push("/checkout?trial=true")
   }
   // ==================================================
 
