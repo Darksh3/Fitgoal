@@ -1074,16 +1074,16 @@ export default function QuizResultsPage() {
               <div className="text-3xl font-bold text-white mb-1">
                 {getDataValue("gender") === "mulher" ? (
                   <>
-                    <span className="line-through text-gray-500 text-lg mr-2">R$ 199,90</span>
+                        <span className="line-through text-gray-500 text-lg mr-2">R$ 59,90</span>
                     <span className="text-orange-400">R$ 59,90</span>
                   </>
                 ) : (
                   discountApplied ? (
                     <>
-                      <span className="line-through text-gray-500 text-lg mr-2">R$ 199,90</span>
+                          <span className="line-through text-gray-500 text-lg mr-2">R$ 59,90</span>
                       <span className="text-orange-400">R$ 59,90</span>
                     </>
-                  ) : 'R$ 199,90'
+                      ) : 'R$ 59,90'
                 )}
               </div>
               <div className="text-gray-500 text-xs">por mês</div>
