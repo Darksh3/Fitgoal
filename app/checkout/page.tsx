@@ -1,46 +1,5 @@
 "use client"
 
-          {/* TRIAL FORM */}
-          {(paymentMethod as any) === "trial" && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
-              className="bg-gradient-to-br from-lime-900/20 to-lime-900/10 border border-lime-500/40 rounded-xl p-6 space-y-4"
-            >
-              {trialSuccess ? (
-                <div className="text-center py-4">
-                  <p className="text-lime-400 font-bold text-lg mb-1">Trial ativado!</p>
-                  <p className="text-gray-300 text-sm">Acesso enviado por email. Redirecionando para o login...</p>
-                </div>
-              ) : (
-                <>
-                  <div className="text-center">
-                    <p className="text-lime-400 font-bold text-base mb-1">Trial gratuito de 7 dias</p>
-                    <p className="text-gray-400 text-xs">Acesso completo. Sem cartao de credito.</p>
-                  </div>
-                  <Input placeholder="Nome Completo" value={trialForm.name}
-                    onChange={(e) => setTrialForm(prev => ({ ...prev, name: e.target.value }))}
-                    className="bg-slate-700/40 text-white placeholder:text-slate-400 border-slate-600" />
-                  <Input type="email" placeholder="Email" value={trialForm.email}
-                    onChange={(e) => setTrialForm(prev => ({ ...prev, email: e.target.value }))}
-                    className="bg-slate-700/40 text-white placeholder:text-slate-400 border-slate-600" />
-                  <Input placeholder="Telefone (WhatsApp)" value={trialForm.phone}
-                    onChange={(e) => {
-                      let v = e.target.value.replace(/\D/g, "")
-                      if (v.length > 2) { v = v.length <= 7 ? "(" + v.slice(0,2) + ") " + v.slice(2) : "(" + v.slice(0,2) + ") " + v.slice(2,7) + "-" + v.slice(7,11) }
-                      setTrialForm(prev => ({ ...prev, phone: v }))
-                    }}
-                    className="bg-slate-700/40 text-white placeholder:text-slate-400 border-slate-600" />
-                  {trialError && <p className="text-red-400 text-sm text-center">{trialError}</p>}
-                  <button onClick={handleTrialSubmit} disabled={trialLoading}
-                    className="w-full py-4 rounded-xl bg-gradient-to-r from-lime-500 to-lime-400 text-white font-black text-base hover:from-lime-400 hover:to-lime-300 transition shadow-lg shadow-lime-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {trialLoading ? "Ativando trial..." : "Ativar meu trial gratuito"}
-                  </button>
-                  <p className="text-gray-500 text-xs text-center">Sem cartao de credito - Acesso completo por 7 dias</p>
-                </>
-              )}
-            </motion.div>
-          )}
-
 import React, { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
@@ -85,7 +44,7 @@ interface AddressData {
   addressNumber: string
 }
 
-type PaymentMethod = "pix" | "boleto" | "apple" | "google" | "card"
+type PaymentMethod = "pix" | "boleto" | "apple" | "google" | "card" | "trial"
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -134,7 +93,6 @@ export default function CheckoutPage() {
       value: plan.price,
       currency: 'BRL',
       content_name: plan.name,
-      content_category: 'plan',
     })
 
     // Marcar como rastreado para evitar duplicação se o usuário mudar de plano
@@ -255,13 +213,13 @@ export default function CheckoutPage() {
   }, [searchParams])
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth!, async (currentUser) => {
       setUser(currentUser)
 
       // Buscar dados do usuário e pré-preencher formulário
       if (currentUser) {
         try {
-          const userDocRef = doc(db, "users", currentUser.uid)
+          const userDocRef = doc(db!, "users", currentUser.uid)
           const userDocSnap = await getDoc(userDocRef)
 
           if (userDocSnap.exists()) {
@@ -364,7 +322,7 @@ export default function CheckoutPage() {
 
     console.log("[v0] PAYMENT_LISTENER_SETUP - Configurando listener para PIX:", currentPaymentId)
 
-    const paymentRef = doc(db, "payments", currentPaymentId)
+    const paymentRef = doc(db!, "payments", currentPaymentId)
     let unsubscribeRef: any = null
 
     const unsubscribe = onSnapshot(paymentRef, (snapshot) => {
@@ -479,7 +437,7 @@ export default function CheckoutPage() {
     setPrefillLoading(true)
 
     try {
-      const ref = doc(db, "users", user.uid)
+      const ref = doc(db!, "users", user.uid)
       const snap = await getDoc(ref)
 
       if (snap.exists()) {
@@ -546,7 +504,7 @@ export default function CheckoutPage() {
         name: formData.name,
         cpf: formData.cpf.replace(/\D/g, ""),
         phone: formData.phone.replace(/\D/g, ""),
-        paymentMethod: paymentMethod === "card" ? "card" : paymentMethod,
+        paymentMethod: paymentMethod || undefined,
         clientUid: finalClientUid,
         totalPrice: totalPrice, // Total including order bumps
       }
@@ -566,10 +524,6 @@ export default function CheckoutPage() {
           ebook: selectedOrderBumps.ebook,
           protocolo: selectedOrderBumps.protocolo,
         }
-      }
-
-      if (paymentMethod === "card") {
-        paymentPayload.installments = installments || 1
       }
 
       if (paymentMethod === "boleto" || paymentMethod === "pix") {
@@ -813,7 +767,7 @@ export default function CheckoutPage() {
                 </div>
                 {!isComplementosOnly && (
                   <div className="text-sm text-gray-400 mt-2">
-                    {selectedPlan === "mensal" && "R$ 199,90 por mês"}
+                    {selectedPlan === "mensal" && "R$ 59,90 por mês"}
                     {selectedPlan === "trimestral" && "R$ 59,97 por mês"}
                     {selectedPlan === "semestral" && "Menos de R$40 por mês!"}
                   </div>

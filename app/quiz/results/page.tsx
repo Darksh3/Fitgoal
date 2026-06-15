@@ -977,7 +977,7 @@ export default function QuizResultsPage() {
                 <p className="text-gray-400 text-xs mt-1">Monitore sua evolução e ajuste conforme avança</p>
               </div>
               <div className="flex items-baseline gap-2 mt-auto">
-                <span className="text-gray-500 text-xs line-through">R$ 199,90</span>
+                <span className="text-gray-500 text-xs line-through">R$ 59,90</span>
                 <span className="text-purple-400 text-xs font-bold">incluso</span>
               </div>
             </div>
@@ -1004,9 +1004,9 @@ export default function QuizResultsPage() {
           </div>
         </div>
 
-          {/* ========== SEÇÃO DA ROLETA - DESATIVADA PARA MULHERES ========== */}
+          {/* ========== SEÇÃO DA ROLETA - EXIBIDA APENAS PARA MULHERES ========== */}
           {/* Para reativar, remova os comentários abaixo */}
-          {getDataValue("gender") !== "mulher" && (
+          {getDataValue("gender") === "mulher" && (
             <>
               {showSpinWheel && !discountApplied && (
                 <div>
@@ -1648,16 +1648,16 @@ export default function QuizResultsPage() {
                   <div className="text-3xl font-bold text-white mb-1">
                     {getDataValue("gender") === "mulher" ? (
                       <>
-                        <span className="line-through text-gray-500 text-lg mr-2">R$ 199,90</span>
+                        <span className="line-through text-gray-500 text-lg mr-2">R$ 59,90</span>
                         <span className="text-orange-400">R$ 59,90</span>
                       </>
                     ) : (
                       discountApplied ? (
                         <>
-                          <span className="line-through text-gray-500 text-lg mr-2">R$ 199,90</span>
+                          <span className="line-through text-gray-500 text-lg mr-2">R$ 59,90</span>
                           <span className="text-orange-400">R$ 59,90</span>
                         </>
-                      ) : 'R$ 199,90'
+                      ) : 'R$ 59,90'
                     )}
                   </div>
                   <div className="text-gray-500 text-xs">por mês</div>
@@ -1686,16 +1686,16 @@ export default function QuizResultsPage() {
                   <div className="text-3xl font-bold text-white mb-1">
                     {getDataValue("gender") === "mulher" ? (
                       <>
-                        <span className="line-through text-gray-500 text-lg mr-2">R$ 533,00</span>
+                        <span className="line-through text-gray-500 text-lg mr-2">R$ 59,90</span>
                         <span className="text-orange-400">R$ 179,90</span>
                       </>
                     ) : (
                       discountApplied ? (
                         <>
-                          <span className="line-through text-gray-500 text-lg mr-2">R$ 533,00</span>
+                          <span className="line-through text-gray-500 text-lg mr-2">R$ 59,90</span>
                           <span className="text-orange-400">R$ 179,90</span>
                         </>
-                      ) : 'R$ 533,00'
+                      ) : 'R$ 59,90'
                     )}
                   </div>
                   <div className="text-gray-500 text-xs">por trimestre</div>
@@ -1842,7 +1842,7 @@ export default function QuizResultsPage() {
               <div className="hidden sm:block">
                 <p className="text-white font-bold text-sm">Seu plano está pronto!</p>
                 <p className="text-gray-400 text-xs">
-                  <span className="line-through text-gray-600 mr-1">R$ 199,90</span>
+                  <span className="line-through text-gray-600 mr-1">R$ 59,90</span>
                   <span className="text-orange-400 font-bold">R$ 59,90/mês</span> · Garantia de 7 dias
                 </p>
               </div>
