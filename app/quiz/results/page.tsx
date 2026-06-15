@@ -44,9 +44,9 @@ export default function QuizResultsPage() {
 
   // ========== FUNÇÃO DE TRIAL GRATUITO ==========
   const handleStartTrial = () => {
-    // Redireciona ao checkout com flag trial=true
-    // Nome, email e telefone serão confirmados/preenchidos no checkout
-    router.push("/checkout?trial=true")
+    // Redireciona à página de trial separada
+    // Nome, email e telefone serão confirmados/preenchidos no formulário de trial
+    router.push("/trial")
   }
   // ==================================================
 

@@ -847,11 +847,11 @@ export default function CheckoutPage() {
               <div className="flex-1 border-t border-slate-600"></div>
             </div>
             <button
-              onClick={() => { setPaymentMethod("trial" as any); setError(null) }}
-              className={`w-full p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-3 ${(paymentMethod as any) === "trial" ? "border-lime-500 bg-lime-500/10" : "border-slate-600 hover:border-slate-500 bg-slate-700/20"}`}
+              onClick={() => { router.push("/trial") }}
+              className={`w-full p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-3 border-slate-600 hover:border-slate-500 bg-slate-700/20`}
             >
               <span className="text-lg">🎁</span>
-              <span className={`font-semibold ${(paymentMethod as any) === "trial" ? "text-lime-400" : "text-gray-300"}`}>Experimentar grátis por 7 dias</span>
+              <span className={`font-semibold text-gray-300`}>Experimentar grátis por 7 dias</span>
             </button>
               </div>
 
